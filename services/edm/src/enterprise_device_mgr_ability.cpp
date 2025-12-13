@@ -316,9 +316,9 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
         };
-    addSystemAbilityFuncMap_[MULITMODAL_INPUT_SERVICE_ID] =
+    addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::SET_KEY_CODE_POLICYS, MULITMODAL_INPUT_SERVICE_ID);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::SET_KEY_CODE_POLICYS, MULTIMODAL_INPUT_SERVICE_ID);
         };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
@@ -948,7 +948,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(RES_SCHED_SYS_ABILITY_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
-    AddSystemAbilityListener(MULITMODAL_INPUT_SERVICE_ID);
+    AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
