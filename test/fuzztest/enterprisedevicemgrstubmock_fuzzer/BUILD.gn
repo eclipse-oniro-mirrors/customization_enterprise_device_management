@@ -462,7 +462,7 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ 
         "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
         "../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
-        "../../../services/edm_plugin/src/set_key_code_plugin.cpp.cpp",
+        "../../../services/edm_plugin/src/set_key_code_plugin.cpp",
         ]
     }
 
