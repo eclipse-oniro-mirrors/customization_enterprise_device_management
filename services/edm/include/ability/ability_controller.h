@@ -20,17 +20,33 @@
 
 namespace OHOS {
 namespace EDM {
+enum class AbilityType {
+    UNKNOWN = -1,
+    UNSUPPORT = 0,
+    UI = 1,
+    APP_SERVICE = 2
+};
+
+struct EdmAbilityInfo {
+    AbilityType type = AbilityType::UNKNOWN;
+    std::vector<std::string> permissions;
+    std::string bundleName;
+    bool visible = false;
+
+    EdmAbilityInfo(const std::string &name) : bundleName(name) {}
+};
+
 class AbilityController {
 public:
-    AbilityController(std::vector<std::string> permissions = {}) : permissions_(std::move(permissions)) {}
+    AbilityController(const EdmAbilityInfo &abilityInfo) : abilityInfo_(abilityInfo) {}
 
     virtual ~AbilityController() = default;
 
     virtual ErrCode StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId);
 
-    virtual bool VerifyPermission();
+    virtual bool VerifyPermission(const std::string &callerName);
 protected:
-    std::vector<std::string> permissions_;
+    EdmAbilityInfo abilityInfo_;
 };
 } // namespace EDM
 } // namespace OHOS

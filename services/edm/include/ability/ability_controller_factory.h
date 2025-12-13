@@ -27,6 +27,7 @@ class AbilityControllerFactory {
 public:
     static std::shared_ptr<AbilityController> CreateAbilityController(const AAFwk::Want &want, int32_t userId);
 private:
+    static EdmAbilityInfo GetAbilityInfo(const AAFwk::Want &want, int32_t userId);
     static std::shared_ptr<IExternalManagerFactory> factory_;
 };
 } // namespace EDM

@@ -52,7 +52,8 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
     sptr<IRemoteObject> token;
 
-    AbilityController controller = std::make_shared<AbilityController>();
+    EdmAbilityInfo abilityInfo(BUNDLE_NAME);
+    AbilityController controller = std::make_shared<AbilityController>(abilityInfo);
     auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
@@ -68,7 +69,8 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
     sptr<IRemoteObject> token;
 
-    AbilityController controller = std::make_shared<UIAbilityController>();
+    EdmAbilityInfo abilityInfo(BUNDLE_NAME);
+    AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
     auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
@@ -84,7 +86,8 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToAppService, TestSize.Level1
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
     sptr<IRemoteObject> token = nullptr;
 
-    AbilityController controller = std::make_shared<AppServiceExtensionController>();
+    EdmAbilityInfo abilityInfo(BUNDLE_NAME);
+    AbilityController controller = std::make_shared<AppServiceExtensionController>(abilityInfo);
     auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
@@ -96,9 +99,10 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToAppService, TestSize.Level1
  */
 HWTEST_F(AbilityControllerTest, VerifyPermissionFail, TestSize.Level1)
 {
-    std::vector<std::string> permissions = {TEST_PERMISSION};
-    AbilityController controller = std::make_shared<UIAbilityController>(permissions);
-    bool ret = controller->VerifyPermission();
+    EdmAbilityInfo abilityInfo(BUNDLE_NAME);
+    abilityInfo.permissions = {TEST_PERMISSION};
+    AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
+    bool ret = controller->VerifyPermission(BUNDLE_NAME);
     ASSERT_FALSE(ret);
 }
 
@@ -109,9 +113,9 @@ HWTEST_F(AbilityControllerTest, VerifyPermissionFail, TestSize.Level1)
  */
 HWTEST_F(AbilityControllerTest, VerifyPermissionSuccess, TestSize.Level1)
 {
-    std::vector<std::string> permissions;
-    AbilityController controller = std::make_shared<UIAbilityController>(permissions);
-    bool ret = controller->VerifyPermission();
+    EdmAbilityInfo abilityInfo(BUNDLE_NAME);
+    AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
+    bool ret = controller->VerifyPermission(BUNDLE_NAME);
     ASSERT_FALSE(ret);
 }
 } // namespace TEST

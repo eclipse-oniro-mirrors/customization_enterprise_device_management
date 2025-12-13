@@ -2684,7 +2684,7 @@ ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::Elemen
         return EdmReturnErrCode::ABILITY_NOT_EXIST;
     }
 
-    if (!controller->VerifyPermission()) {
+    if (!controller->VerifyPermission(admin.GetBundleName())) {
         EDMLOGE("StartAbilityByAdmin verify ability permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }

@@ -25,37 +25,56 @@ namespace EDM {
 std::shared_ptr<IExternalManagerFactory> AbilityControllerFactory::factory_ =
     std::make_shared<ExternalManagerFactory>();
 
+EdmAbilityInfo AbilityControllerFactory::GetAbilityInfo(const AAFwk::Want &want, int32_t userId)
+{
+    EdmAbilityInfo info(want.GetElement().GetBundleName());
+    AppExecFwk::AbilityInfo abilityInfo;
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    if (factory_->CreateBundleManager()->QueryAbilityInfo(want,
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, userId, abilityInfo)) {
+        info.visible = abilityInfo.visible;
+        info.type = abilityInfo.type == AppExecFwk::AbilityType::PAGE ? AbilityType::UI : AbilityType::UNSUPPORT;
+        info.permissions = abilityInfo.permissions;
+        return info;
+    }
+
+    if (factory_->CreateBundleManager()->QueryExtensionAbilityInfos(want,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_DEFAULT, userId, extensionInfos) &&
+        !extensionInfos.empty()) {
+        info.visible = extensionInfos[0].visible;
+        info.type = extensionInfos[0].type == AppExecFwk::ExtensionAbilityType::APP_SERVICE ?
+            AbilityType::APP_SERVICE : AbilityType::UNSUPPORT;
+        return info;
+    }
+    return info;
+}
+
 std::shared_ptr<AbilityController> AbilityControllerFactory::CreateAbilityController(const AAFwk::Want &want,
     int32_t userId)
 {
     // 校验want不能为空，避免隐式want
     if (want.GetElement().GetBundleName().empty() || want.GetElement().GetAbilityName().empty()) {
-        EDMLOGE("empty BundleName or AbilityName");
+        EDMLOGE("empty BundleName or AbilityName.");
         return nullptr;
     }
 
-    AppExecFwk::AbilityInfo abilityInfo;
-    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    if (!factory_->CreateBundleManager()->QueryAbilityInfo(want,
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION, userId, abilityInfo) &&
-        (!factory_->CreateBundleManager()->QueryExtensionAbilityInfos(want,
-        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_DEFAULT,
-        userId, extensionInfos) || extensionInfos.empty())) {
-        EDMLOGE("CreateAbility not find the ability.");
+    EdmAbilityInfo info = GetAbilityInfo(want, userId);
+    if (info.type == AbilityType::UNKNOWN) {
+        EDMLOGE("ability is not exist.");
         return nullptr;
     }
 
-    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-        return std::make_shared<UIAbilityController>(abilityInfo.permissions);
+    if (info.type == AbilityType::UI) {
+        return std::make_shared<UIAbilityController>(info);
     }
 
 #ifdef FEATURE_PC_ONLY
-    if (extensionInfos[0].type == AppExecFwk::ExtensionAbilityType::APP_SERVICE) {
-        return std::make_shared<AppServiceExtensionController>();
+    if (info.type == AbilityType::APP_SERVICE) {
+        return std::make_shared<AppServiceExtensionController>(info);
     }
 #endif
 
-    return std::make_shared<AbilityController>();
+    return std::make_shared<AbilityController>(info);
 }
 } // namespace EDM
 } // namespace OHOS
