@@ -2710,7 +2710,13 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
 
     // 校验被拉起方是否是系统应用
     bool isSystemApp = true;
-    if (FAILED(GetBundleMgr()->IsSystemApp(bundleName, currentUserId, isSystemApp)) || isSystemApp) {
+    ErrCode ret = GetBundleMgr()->IsSystemApp(bundleName, currentUserId, isSystemApp);
+    if (FAILED(ret)) {
+        EDMLOGE("Call IsSystemApp Fail.");
+        return ret;
+    }
+
+    if (isSystemApp) {
         EDMLOGE("Not support start system app.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
