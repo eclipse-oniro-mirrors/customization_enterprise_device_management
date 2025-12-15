@@ -318,7 +318,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         };
     addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::POLICY_CODE_END + EdmInterfaceCode::SET_KEY_EVENTS_EXT,
+            that->CallOnOtherServiceStart(EdmInterfaceCode::POLICY_CODE_END + EdmInterfaceCode::SET_KEY_EVENTS,
                 MULTIMODAL_INPUT_SERVICE_ID);
         };
 #ifdef MOBILE_DATA_ENABLE
