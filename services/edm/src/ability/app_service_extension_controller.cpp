@@ -31,5 +31,14 @@ ErrCode AppServiceExtensionController::StartAbilityByAdmin(const AAFwk::Want &wa
     }
     return ERR_OK;
 }
+
+bool AppServiceExtensionController::VerifyPermission(const std::string &callerName)
+{
+    if (callerName == abilityInfo_.bundleName) {
+        return true;
+    }
+
+    return abilityInfo_.visible;
+}
 } // namespace EDM
 } // namespace OHOS

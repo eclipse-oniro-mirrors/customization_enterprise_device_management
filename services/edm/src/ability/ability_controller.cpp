@@ -29,7 +29,7 @@ ErrCode AbilityController::StartAbilityByAdmin(const AAFwk::Want &want, const sp
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-bool AbilityController::VerifyPermission()
+bool AbilityController::VerifyPermission(const std::string &callerName)
 {
     return true;
 }

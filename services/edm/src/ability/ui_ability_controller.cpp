@@ -33,15 +33,23 @@ ErrCode UIAbilityController::StartAbilityByAdmin(const AAFwk::Want &want, const 
     return ERR_OK;
 }
 
-bool UIAbilityController::VerifyPermission()
+bool UIAbilityController::VerifyPermission(const std::string &callerName)
 {
-    if (permissions_.empty()) {
+    if (callerName == abilityInfo_.bundleName) {
+        return true;
+    }
+
+    if (!abilityInfo_.visible) {
+        return false;
+    }
+
+    if (abilityInfo_.permissions.empty()) {
         return true;
     }
 
     // 校验UIAbility保护权限
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    for (auto permission : permissions_) {
+    for (const auto &permission : abilityInfo_.permissions) {
         if (!PermissionChecker::GetInstance()->VerifyCallingPermission(tokenId, permission)) {
             EDMLOGE("VerifyPermission: %{public}s DENIED", permission.c_str());
             return false;

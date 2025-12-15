@@ -22,11 +22,11 @@ namespace OHOS {
 namespace EDM {
 class UIAbilityController : public AbilityController {
 public:
-    UIAbilityController(std::vector<std::string> permissions):  AbilityController(std::move(permissions)) {}
+    UIAbilityController(const EdmAbilityInfo &abilityInfo):  AbilityController(abilityInfo) {}
 
     ErrCode StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId) override;
 
-    bool VerifyPermission() override;
+    bool VerifyPermission(const std::string &callerName) override;
 };
 } // namespace EDM
 } // namespace OHOS
