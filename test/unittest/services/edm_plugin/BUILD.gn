@@ -68,7 +68,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
-    "./src/set_default_input_method_plugin_test.cpp",
     "./src/set_eye_comfort_mode_plugin_test.cpp",
     "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
@@ -158,6 +157,10 @@ ohos_unittest("EdmPluginTest") {
 
   if (screenlock_mgr_edm_enable) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
+  }
+
+  if (inputmethod_imf_enable) {
+    sources += [ "./src/set_default_input_method_plugin_test.cpp" ]
   }
 
   if (os_account_edm_enable && screenlock_mgr_edm_enable) {
@@ -471,7 +474,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
-    "../../../../services/edm_plugin/src/set_default_input_method_plugin.cpp",
     "../../../../services/edm_plugin/src/set_eye_comfort_mode_plugin.cpp",
     "../../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
     "../../../../services/edm_plugin/src/snapshot_skip_plugin.cpp",
@@ -535,6 +537,13 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "update_service:updateservicekits" ]
     sources +=
         [ "../../../../services/edm_plugin/src/reset_factory_plugin.cpp" ]
+  }
+
+  if (inputmethod_imf_enable) {
+    external_deps += [ "imf:inputmethod_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/set_default_input_method_plugin.cpp"
+    ]
   }
 
   if (os_account_edm_enable) {
