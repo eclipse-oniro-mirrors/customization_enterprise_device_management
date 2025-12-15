@@ -551,13 +551,13 @@ HWTEST_F(SystemManagerProxyTest, TestSetKeyEventPolicysSuc, TestSize.Level1)
 {
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    KeyCustomization KeyCust;
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
     std::string errMsg;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     
-    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, KeyCust, errMsg);
+    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, keyCusts, errMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
  
@@ -572,9 +572,9 @@ HWTEST_F(SystemManagerProxyTest, TestSetKeyEventPolicysFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    KeyCustomization KeyCust;
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
     std::string errMsg;
-    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, KeyCust, errMsg);
+    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, keyCusts, errMsg);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -624,8 +624,8 @@ HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
-    KeyCustomization KeyCust;
-    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, KeyCust);
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -639,8 +639,8 @@ HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    KeyCustomization KeyCust;
-    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, KeyCust);
+    Kstd::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
