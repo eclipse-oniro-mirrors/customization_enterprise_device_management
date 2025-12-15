@@ -33,8 +33,8 @@ private:
     int32_t SetKioskAppsToAms(const std::vector<std::string> &bundleNames);
     int32_t SetKioskAppsToWms(const std::vector<std::string> &bundleNames);
     int32_t SetKioskAppsToNotification(const std::vector<std::string> &bundleNames);
-    int32_t convertAppIdentifierToBundleNames(
-        const std::vector<std::string> &appIdentifiers, std::vector<std::string> &bundleNames);
+    int32_t convertAppIdentifierToBundleNames(const std::vector<std::string> &appIdentifiers,
+        std::vector<std::string> &bundleNames, std::vector<std::string> &newAppIdentifiers);
 };
 } // namespace EDM
 } // namespace OHOS

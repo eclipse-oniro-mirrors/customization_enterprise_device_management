@@ -51,7 +51,8 @@ ErrCode SetAllowedKioskAppsPlugin::OnSetPolicy(std::vector<std::string> &data,
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<std::string> bundleNames;
-    ErrCode ret = convertAppIdentifierToBundleNames(data, bundleNames);
+    std::vector<std::string> afterData;
+    ErrCode ret = convertAppIdentifierToBundleNames(data, bundleNames, afterData);
     if (FAILED(ret)) {
         EDMLOGE("SetAllowedKioskAppsPlugin convertAppIdentifierToBundleNames error.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -75,8 +76,8 @@ ErrCode SetAllowedKioskAppsPlugin::OnSetPolicy(std::vector<std::string> &data,
         SetKioskAppsToWms(emptyBundleNames);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    currentData = data;
-    mergeData = data;
+    currentData = afterData;
+    mergeData = afterData;
     return ERR_OK;
 }
 
@@ -115,7 +116,8 @@ void SetAllowedKioskAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
     std::vector<std::string> appIdentifiers;
     ArrayStringSerializer::GetInstance()->Deserialize(policyData, appIdentifiers);
     std::vector<std::string> bundleNames;
-    int32_t ret = convertAppIdentifierToBundleNames(appIdentifiers, bundleNames);
+    std::vector<std::string> newAppIdentifiers;
+    int32_t ret = convertAppIdentifierToBundleNames(appIdentifiers, bundleNames, newAppIdentifiers);
     if (FAILED(ret)) {
         return;
     }
@@ -180,7 +182,8 @@ int32_t SetAllowedKioskAppsPlugin::SetKioskAppsToNotification(const std::vector<
 }
 
 int32_t SetAllowedKioskAppsPlugin::convertAppIdentifierToBundleNames(
-    const std::vector<std::string> &appIdentifiers, std::vector<std::string> &bundleNames)
+    const std::vector<std::string> &appIdentifiers, std::vector<std::string> &bundleNames,
+    std::vector<std::string> &newAppIdentifiers)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
@@ -197,6 +200,7 @@ int32_t SetAllowedKioskAppsPlugin::convertAppIdentifierToBundleNames(
             EDMLOGE("SetAllowedKioskAppsPlugin convertAppIdentifierToBundleNames failed %{public}d", ret);
             continue;
         }
+        newAppIdentifiers.push_back(appIdentifiers[i]);
         bundleNames.push_back(bundleName);
     }
     return ERR_OK;
