@@ -318,7 +318,8 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         };
     addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::SET_KEY_CODE_POLICYS, MULTIMODAL_INPUT_SERVICE_ID);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::POLICY_CODE_END + EdmInterfaceCode::SET_KEY_EVENTS_EXT,
+                MULTIMODAL_INPUT_SERVICE_ID);
         };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
@@ -1025,6 +1026,12 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode,
     auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGE("get Plugin fail %{public}d", interfaceCode);
+        return;
+    }
+    auto extensionPlugin = plugin->GetExtensionPlugin();
+    if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
+        EDMLOGE("ReplaceExecuteStrategy::OnGetExecute extensionPlugin %{public}d start execute", extensionPlugin->GetCode());
+        extensionPlugin->OnOtherServiceStart(systemAbilityId);
         return;
     }
     plugin->OnOtherServiceStart(systemAbilityId);

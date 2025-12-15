@@ -117,6 +117,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
         constexpr uint32_t GET_EXT_INFO = 29;
         constexpr uint32_t START_COLLECT_LOG = 30;
+        constexpr uint32_t SET_KEY_EVENTS = 31;
     }
 
     namespace KeepAlive {
