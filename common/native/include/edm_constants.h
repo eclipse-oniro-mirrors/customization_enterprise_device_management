@@ -191,6 +191,7 @@ namespace EdmConstants {
         const char* const ROOT = "root";
         const char* const SET_SINGLE_WATERMARK_TYPE = "single";
         const char* const SET_ALL_WATERMARK_TYPE = "all";
+        const char* const FASTBOOT  = "fastboot";
     } // namespace SecurityManager
 
     namespace DeviceSettings {
@@ -417,6 +418,7 @@ namespace PolicyName {
     const char* const POLICY_SET_NETWORK_INTERFACE_CONFIG = "set_network_interface_config";
     const char* const POLICY_DISALLOW_MODIFY_WALLPAPER = "disallow_modify_wallpaper";
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
+    const char* const POLICY_GET_DEVICE_FASTBOOT_STATUS = "fastboot";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

@@ -238,6 +238,8 @@ napi_value SecurityManagerAddon::GetSecurityStatus(napi_env env, napi_callback_i
         }
     } else if (item == EdmConstants::SecurityManager::ROOT) {
         ret = securityManagerProxy->GetRootCheckStatus(elementName, stringRet);
+    } else if (item == EdmConstants::SecurityManager::FASTBOOT) {
+        ret = securityManagerProxy-> GetSecurityFastbootStatus(elementName, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }

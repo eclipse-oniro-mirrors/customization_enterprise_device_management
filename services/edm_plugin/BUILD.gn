@@ -632,6 +632,7 @@ ohos_shared_library("need_extra_plugin") {
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
       "./src/set_wall_paper_plugin.cpp",
+      "./src/get_security_fastboot_status_plugin.cpp",
     ]
   }
 

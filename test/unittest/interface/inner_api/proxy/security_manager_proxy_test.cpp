@@ -482,6 +482,38 @@ HWTEST_F(SecurityManagerProxyTest, TestGetUserCertificatesFail, TestSize.Level1)
     int32_t ret = proxy_->GetUserCertificates(data, uriList);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetSecurityFastbootStatusSuc
+ * @tc.desc: Test GetSecurityFastbootStatus success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetSecurityFastbootStatusSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    std::string name;
+    int32_t ret = proxy_->GetSecurityFastbootStatus(admin, name);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetSecurityFastbootStatusFail
+ * @tc.desc: Test GetSecurityFastbootStatus without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetSecurityFastbootStatusFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string name;
+    int32_t ret = proxy_->GetSecurityFastbootStatus(admin, name);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

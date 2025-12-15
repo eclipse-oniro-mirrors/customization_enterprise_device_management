@@ -113,7 +113,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
     EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER,
-    EdmInterfaceCode::INSTALL_MARKET_APPS
+    EdmInterfaceCode::INSTALL_MARKET_APPS, EdmInterfaceCode::GET_SECURITY_FASTBOOT_STATUS
 };
 
 PluginManager::PluginManager()

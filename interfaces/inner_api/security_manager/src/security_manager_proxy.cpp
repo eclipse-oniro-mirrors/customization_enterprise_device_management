@@ -316,5 +316,28 @@ int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &d
     policy = reply.ReadInt32();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::GetSecurityFastbootStatus(const AppExecFwk::ElementName &admin, std::string &info)
+{
+    EDMLOGD("SecurityManagerProxy::GetSecurityFastbootStatus");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::GET_SECURITY_FASTBOOT_STATUS);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(funcCode, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(info);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

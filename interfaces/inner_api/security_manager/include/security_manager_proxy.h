@@ -42,6 +42,7 @@ public:
     int32_t GetDeviceEncryptionStatus(const AppExecFwk::ElementName &admin,
         DeviceEncryptionStatus &deviceEncryptionStatus);
     int32_t GetDeviceEncryptionStatus(MessageParcel &data, DeviceEncryptionStatus &deviceEncryptionStatus);
+    int32_t GetSecurityFastbootStatus(const AppExecFwk::ElementName &admin, std::string &info);
     int32_t SetPasswordPolicy(MessageParcel &data);
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
