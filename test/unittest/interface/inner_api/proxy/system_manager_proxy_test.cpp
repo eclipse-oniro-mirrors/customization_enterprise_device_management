@@ -639,7 +639,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysFail, TestSize.Level1)
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    Kstd::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
     int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
