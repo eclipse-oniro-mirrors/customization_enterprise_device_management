@@ -318,8 +318,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         };
     addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::POLICY_CODE_END +
-                EdmConstants::PolicyCode::SET_KEY_EVENTS, MULTIMODAL_INPUT_SERVICE_ID);
+            that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
         };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
@@ -327,6 +326,27 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
         };
 #endif
+}
+
+void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::OnHandleInitExecute calling.");
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::currentUserId error.");
+        return;
+    }
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGW("OnHandleInitExecute: get plugin failed, code: %{public}d", interfaceCode);
+        return;
+    }
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        std::string adminName = admin->adminInfo_.packageName_;
+        SingleExecuteStrategy::OnInitExcute(interfaceCode, adminName, currentUserId);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -1026,13 +1046,6 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode,
     auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGE("get Plugin fail %{public}d", interfaceCode);
-        return;
-    }
-    auto extensionPlugin = plugin->GetExtensionPlugin();
-    if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
-        EDMLOGE("ReplaceExecuteStrategy::OnGetExecute extensionPlugin %{public}d start execute",
-            extensionPlugin->GetCode());
-        extensionPlugin->OnOtherServiceStart(systemAbilityId);
         return;
     }
     plugin->OnOtherServiceStart(systemAbilityId);

@@ -55,5 +55,26 @@ ErrCode ReplaceExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParc
     EDMLOGE("ReplaceExecuteStrategy::OnSetExecute plugin %{public}d is not exist.", funcCode);
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
+
+ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
+{
+    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGD("get Plugin fail %{public}d.", interfaceCode);
+        return ERR_EDM_HANDLE_POLICY_FAILED;
+    }
+    auto extensionPlugin = plugin->GetExtensionPlugin();
+    if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
+        EDMLOGD("ReplaceExecuteStrategy::OnSetExecute extensionPlugin %{public}d start execute.",
+            extensionPlugin->GetCode());
+        extensionPlugin->OnOtherServiceStartForAdmin(adminName, userId);
+        if (FAILED(ret)) {
+            EDMLOGE("ReplaceExecuteStrategy::SetOtherModulePolicy failed ret: %{public}d", ret);
+        }
+    }
+    EDMLOGE("ReplaceExecuteStrategy::OnInitExecute plugin %{public}d is not exist.", interfaceCode);
+    return ERR_EDM_HANDLE_POLICY_FAILED;
+}
+
 } // namespace EDM
 } // namespace OHOS

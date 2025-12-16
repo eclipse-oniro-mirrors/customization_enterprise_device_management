@@ -44,7 +44,7 @@ public:
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
         int32_t userId) override {};
     ErrCode SetOtherModulePolicy(std::vector<KeyCustomization> &keyCustomization);
-    void OnOtherServiceStart(int32_t systemAbilityId) override;
+    void OnOtherServiceStartForAdmin(std::string &adminName, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

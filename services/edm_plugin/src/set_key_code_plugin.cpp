@@ -77,9 +77,10 @@ ErrCode SetKeyCodePlugin::OnAdminRemove(const std::string &adminName, const std:
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-void SetKeyCodePlugin::OnOtherServiceStart(int32_t systemAbilityId)
+void SetKeyCodePlugin::OnOtherServiceStartForAdmin(std::string &adminName, int32_t userId)
 {
-    EDMLOGI("SetKeyCodePlugin::OnOtherServiceStart...");
+    EDMLOGI("SetKeyCodePlugin::OnOtherServiceStartForAdmin...");
+    return;
 }
 
 } // namespace EDM
