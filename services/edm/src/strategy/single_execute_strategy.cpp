@@ -46,12 +46,12 @@ ErrCode SingleExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParce
 
 ErrCode SingleExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
 {
-    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(interfaceCode);
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGD("get Plugin fail %{public}d.", interfaceCode);
         return ERR_EDM_HANDLE_POLICY_FAILED;
     }
-    Plugin->OnOtherServiceStartForAdmin(adminName, userId);
+    plugin->OnOtherServiceStartForAdmin(adminName, userId);
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
 } // namespace EDM

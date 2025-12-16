@@ -336,7 +336,11 @@ void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
         EDMLOGE("EnterpriseDeviceMgrAbility::currentUserId error.");
         return;
     }
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(interfaceCode);
+    auto ret = PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
+    if (ret != ERR_OK) {
+        return;
+    }
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGW("OnHandleInitExecute: get plugin failed, code: %{public}d", interfaceCode);
         return;
@@ -345,7 +349,7 @@ void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
     for (const auto& admin : admins) {
         std::string adminName = admin->adminInfo_.packageName_;
-        SingleExecuteStrategy::OnInitExcute(interfaceCode, adminName, currentUserId);
+        plugin->GetExecuteStrategy()->OnInitExecute(interfaceCode, adminName, currentUserId);
     }
 }
 

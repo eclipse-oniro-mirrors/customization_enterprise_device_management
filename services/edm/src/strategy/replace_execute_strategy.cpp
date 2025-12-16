@@ -58,7 +58,7 @@ ErrCode ReplaceExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParc
 
 ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
 {
-    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(interfaceCode);
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
         EDMLOGD("get Plugin fail %{public}d.", interfaceCode);
         return ERR_EDM_HANDLE_POLICY_FAILED;
@@ -68,10 +68,9 @@ ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::
         EDMLOGD("ReplaceExecuteStrategy::OnSetExecute extensionPlugin %{public}d start execute.",
             extensionPlugin->GetCode());
         extensionPlugin->OnOtherServiceStartForAdmin(adminName, userId);
-        if (FAILED(ret)) {
-            EDMLOGE("ReplaceExecuteStrategy::SetOtherModulePolicy failed ret: %{public}d", ret);
-        }
+        return ERR_OK;
     }
+    plugin->OnOtherServiceStartForAdmin(adminName, userId);
     EDMLOGE("ReplaceExecuteStrategy::OnInitExecute plugin %{public}d is not exist.", interfaceCode);
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
