@@ -52,7 +52,9 @@ public:
 
 private:
     int32_t GetCurrentUserId();
-
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    void CreateLogDirIfNeed(const std::string &bundleName, int32_t userId);
+#endif
     bool isOnAdminEnabled_;
 
     std::string bundleName_;
