@@ -73,6 +73,7 @@ const bool REGISTER_RESULT =
 
 const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
+const std::string PARAM_EDM_ENTERPRISE_CONFIG_ENABLE = "persist.edm.enterprise_config_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
 const std::string WANT_BUNDLE_NAME = "bundleName";
@@ -1942,6 +1943,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string permissionTag = data.ReadString();
     // 若PERMISSION_MANAGE_EDM_POLICY权限校验通过则直接进行业务处理；
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
@@ -1951,7 +1953,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
             return EdmReturnErrCode::ADMIN_INACTIVE;
         }
         int uid = IPCSkeleton::GetCallingUid();
-        std::string permissionTag = data.ReadString();
         if (uid != EDM_UID) {
             std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
                 GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
@@ -1966,6 +1967,11 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 #endif
     ReportFuncEvent(code);
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
+    std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
+    if (ret == ERR_OK && enterpriseConfigEnable == "false") {
+        EDMLOGD("HandleDevicePolicy success, set PARAM_EDM_ENTERPRISE_CONFIG_ENABLE true.");
+        system::SetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "true");
+    }
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(ret));
     SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;

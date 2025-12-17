@@ -27,6 +27,7 @@ uint64_t Utils::mockTokenId_ = 0;
 constexpr int32_t DEFAULT_USER_ID = 100;
 constexpr int32_t API_VERSION = 12;
 const std::string SET_EDM_SERVICE = "persist.edm.edm_enable";
+const std::string SET_EDC_SERVICE = "persist.edm.edm_ext_enable";
 const std::string EDM_MANAGE_DATETIME_PERMISSION = "ohos.permission.SET_TIME";
 const std::string EDM_FACTORY_RESET_PERMISSION = "ohos.permission.FORCE_FACTORY_RESET";
 const std::string EDM_MANAGE_LOCAL_ACCOUNTS_PERMISSION = "ohos.permission.MANAGE_LOCAL_ACCOUNTS";
@@ -194,6 +195,12 @@ bool Utils::GetEdmServiceState()
 {
     std::string edmParaValue = system::GetParameter("persist.edm.edm_enable", "false");
     return edmParaValue == "true";
+}
+
+bool Utils::GetEdmEnterpriseConfigState()
+{
+    std::string enterpriseConfigEnable = system::GetParameter("persist.edm.enterprise_config_enable", "false");
+    return enterpriseConfigEnable == "true";
 }
 
 void Utils::SetEdmServiceEnable()
