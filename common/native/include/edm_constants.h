@@ -199,6 +199,7 @@ namespace EdmConstants {
         const char* const DATE_TIME = "dateTime";
         const char* const EYE_COMFORT = "eyeComfort";
         const char* const DEFAULT_INPUT_METHOD = "defaultInputMethod";
+        const char* const DEVICE_NAME = "deviceName";
     } // namespace DeviceSettings
 
     namespace DeviceControl {
