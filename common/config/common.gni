@@ -154,4 +154,9 @@ declare_args() {
       defined(global_parts_info.hmoshiviewdfx_log_service_plugin)) {
     log_service_plugin_edm_enable = true
   }
+  inputmethod_imf_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.inputmethod_imf)) {
+    inputmethod_imf_enable = true
+  }
 }
