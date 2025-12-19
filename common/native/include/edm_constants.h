@@ -402,6 +402,8 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     const char* const POLICY_MANAGE_USER_NON_STOP_APPS = "manage_user_non_stop_apps";
     const char* const POLICY_SET_DEFAULT_INPUT_METHOD = "set_default_input_method";
+    const char* const POLICY_INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE =
+        "install_enterprise_re_signature_certificate";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
