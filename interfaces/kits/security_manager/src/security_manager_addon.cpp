@@ -59,6 +59,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
         DECLARE_NAPI_FUNCTION("setExternalSourceExtensionsPolicy", SetExternalSourceExtensionsPolicy),
         DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
+        DECLARE_NAPI_FUNCTION("installEnterpriseReSignatureCertificate", InstallEnterpriseReSignatureCertificate),
+        DECLARE_NAPI_FUNCTION("uninstallEnterpriseReSignatureCertificate", UninstallEnterpriseReSignatureCertificate),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -905,6 +907,67 @@ napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env,
     napi_value externalSourceExtensions;
     NAPI_CALL(env, napi_create_int32(env, policy, &externalSourceExtensions));
     return externalSourceExtensions;
+}
+
+napi_value SecurityManagerAddon::InstallEnterpriseReSignatureCertificate(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_InstallEnterpriseReSignatureCertificate called");
+    auto convertFd2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        int32_t fd = -1;
+        if (!ParseInt(env, fd, argv)) {
+            return false;
+        }
+        data.WriteFileDescriptor(fd);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsConvert = {nullptr, nullptr, convertFd2Data, nullptr};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
+                                EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+    addonMethodSign.name = "InstallEnterpriseReSignatureCertificate";
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        EDMLOGE("SecurityManagerAddon InstallEnterpriseReSignatureCertificate JsObjToData fail.");
+        return nullptr;
+    }
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
+        InstallEnterpriseReSignatureCertificate(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value ret;
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
+    return ret;
+}
+
+napi_value SecurityManagerAddon::UninstallEnterpriseReSignatureCertificate(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_UninstallEnterpriseReSignatureCertificate called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
+                                EdmAddonCommonType::INT32};
+    addonMethodSign.name = "UninstallEnterpriseReSignatureCertificate";
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        EDMLOGE("SecurityManagerAddon UninstallEnterpriseReSignatureCertificate JsObjToData fail.");
+        return nullptr;
+    }
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
+        UninstallEnterpriseReSignatureCertificate(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value ret;
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
+    return ret;
 }
 
 static napi_module g_securityModule = {

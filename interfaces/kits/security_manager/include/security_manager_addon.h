@@ -75,6 +75,8 @@ private:
     static bool JsObjToApplicationInstance(napi_env env, napi_value object, MessageParcel &data);
     static napi_value SetExternalSourceExtensionsPolicy(napi_env env, napi_callback_info info);
     static napi_value GetExternalSourceExtensionsPolicy(napi_env env, napi_callback_info info);
+    static napi_value InstallEnterpriseReSignatureCertificate(napi_env env, napi_callback_info info);
+    static napi_value UninstallEnterpriseReSignatureCertificate(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
