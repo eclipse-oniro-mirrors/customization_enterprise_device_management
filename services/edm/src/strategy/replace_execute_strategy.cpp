@@ -65,7 +65,7 @@ ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::
     }
     auto extensionPlugin = plugin->GetExtensionPlugin();
     if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
-        EDMLOGD("ReplaceExecuteStrategy::OnSetExecute extensionPlugin %{public}d start execute.",
+        EDMLOGD("ReplaceExecuteStrategy::OnInitExecute extensionPlugin %{public}d start execute.",
             extensionPlugin->GetCode());
         extensionPlugin->OnOtherServiceStartForAdmin(adminName, userId);
         return ERR_OK;
@@ -73,6 +73,32 @@ ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::
     plugin->OnOtherServiceStartForAdmin(adminName, userId);
     EDMLOGE("ReplaceExecuteStrategy::OnInitExecute plugin %{public}d is not exist.", interfaceCode);
     return ERR_EDM_HANDLE_POLICY_FAILED;
+}
+
+ErrCode ReplaceExecuteStrategy::OnAdminRemoveExecute(const std::string &adminName, const std::string &policyName,
+    const std::string &policyValue, int32_t userId)
+{
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName(policyName);
+    if (plugin == nullptr) {
+        EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}s\n", policyName.c_str());
+        return ERR_EDM_GET_PLUGIN_MGR_FAILED;
+    }
+    std::string mergedPolicyData;
+    plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
+    auto extensionPlugin = plugin->GetExtensionPlugin();
+        if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
+            EDMLOGD("ReplaceExecuteStrategy::OnAdminRemoveExecute extensionPlugin %{public}d start execute.",
+                extensionPlugin->GetCode());
+            extensionPlugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
+            return ERR_OK;
+        }
+    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
+    if (ret != ERR_OK) {
+        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
+            adminName.c_str(), policyValue.c_str(), ret);
+        return ERR_EDM_HANDLE_POLICY_FAILED;
+    }
+    return ERR_OK;
 }
 
 } // namespace EDM

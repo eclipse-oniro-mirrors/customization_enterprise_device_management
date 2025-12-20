@@ -506,6 +506,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
     CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+    OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
@@ -1581,10 +1582,10 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
     }
     std::string mergedPolicyData;
     plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
-    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
-    if (ret != ERR_OK) {
-        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
-            adminName.c_str(), policyValue.c_str(), ret);
+    ErrCode ret = plugin->GetExecuteStrategy()->OnAdminRemoveExecute(adminName, policyName, policyValue, userId);
+    if (FAILED(ret)) {
+        EDMLOGW("RemoveAdminItem: OnAdminRemoveExecute failed");
+        return ret;
     }
     if (plugin->NeedSavePolicy()) {
         ErrCode setRet = ERR_OK;
