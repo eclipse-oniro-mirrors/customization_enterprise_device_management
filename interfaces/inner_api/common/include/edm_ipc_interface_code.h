@@ -181,6 +181,7 @@ enum EdmInterfaceCode : uint32_t {
     DISALLOW_MODIFY_WALLPAPER = 1133,
     SET_ABILITY_ENABLED = 1134,
     SET_KEY_CODE_POLICYS = 1135,
+    DISALLOW_USB_SERIAL = 1136,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
