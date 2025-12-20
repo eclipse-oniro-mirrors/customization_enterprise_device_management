@@ -24,12 +24,15 @@
 #include "enterprise_conn_manager.h"
 #include "ienterprise_admin.h"
 #include "plugin_manager.h"
+#include "ipc_skeleton.h"
+#include "edm_os_account_manager_impl.h"
 
 namespace OHOS {
 namespace EDM {
 ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int32_t userId, const bool isSuccess)
 {
-    UnloadCollectLogPlugin();
+    UnloadPlugin((std::uint32_t)EdmInterfaceCode::POLICY_CODE_END +
+        (std::uint32_t)EdmConstants::PolicyCode::START_COLLECT_LOG);
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
     if (admin != nullptr) {
         std::string bundleName = admin->adminInfo_.packageName_;
@@ -49,14 +52,37 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
     return ERR_OK;
 }
 
-ErrCode ExtraPolicyNotification::UnloadCollectLogPlugin()
+ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &adminName, const int32_t userId,
+    const std::string &keyEvent)
+{
+    EDMLOGI("EnterpriseMgrAbility::ReportKeyEvent start");
+    UnloadPlugin((std::uint32_t)EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
+    if (admin != nullptr) {
+        std::string bundleName = admin->adminInfo_.packageName_;
+        std::string abilityName = admin->adminInfo_.className_;
+        if (abilityName.empty()) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        AAFwk::Want connectWant;
+        connectWant.SetElementName(bundleName, abilityName);
+        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        bool ret = manager->CreateKeyEventConnection(connectWant,
+            static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_KEY_EVENT),
+            userId, keyEvent);
+        if (!ret) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+    return ERR_OK;
+}
+
+ErrCode ExtraPolicyNotification::UnloadPlugin(uint32_t code)
 {
     EDMLOGI("ExtraPolicyNotification::UnloadCollectLogPlugin");
-    auto plugin = PluginManager::GetInstance()->GetPluginByCode(
-        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(code);
     if (plugin == nullptr) {
-        EDMLOGE("get Plugin fail %{public}d",
-            EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG);
+        EDMLOGE("get Plugin fail %{public}d", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     plugin->SetPluginUnloadFlag(true);

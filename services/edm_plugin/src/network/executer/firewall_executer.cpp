@@ -49,8 +49,10 @@ ErrCode FirewallExecuter::Init(NetsysNative::IptablesType ipType)
 bool FirewallExecuter::SetDefaultOutputDenyChain(Direction direction, Family family)
 {
     if (direction == Direction::OUTPUT || direction == Direction::INPUT) {
-        FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP, "", "", "", "", "", family};
-        FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP, "", "", "", "", "", family};
+        FirewallRule firewallRule1{Direction::OUTPUT, Action::DENY, Protocol::UDP,
+            "", "", "", "", "", family, LogType::INVALID};
+        FirewallRule firewallRule2{Direction::OUTPUT, Action::DENY, Protocol::TCP,
+            "", "", "", "", "", family, LogType::INVALID};
 
         std::vector<std::shared_ptr<ChainRule>> chainRuleVector{std::make_shared<FirewallChainRule>(),
             std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};
@@ -67,8 +69,10 @@ bool FirewallExecuter::SetDefaultOutputDenyChain(Direction direction, Family fam
 bool FirewallExecuter::SetDefaultForwardDenyChain(Direction direction, Family family)
 {
     if (direction == Direction::FORWARD) {
-        FirewallRule firewallRule1{Direction::FORWARD, Action::DENY, Protocol::UDP, "", "", "", "", "", family};
-        FirewallRule firewallRule2{Direction::FORWARD, Action::DENY, Protocol::TCP, "", "", "", "", "", family};
+        FirewallRule firewallRule1{Direction::FORWARD, Action::DENY, Protocol::UDP,
+            "", "", "", "", "", family, LogType::INVALID};
+        FirewallRule firewallRule2{Direction::FORWARD, Action::DENY, Protocol::TCP,
+            "", "", "", "", "", family, LogType::INVALID};
 
         std::vector<std::shared_ptr<ChainRule>> chainRuleVector{std::make_shared<FirewallChainRule>(),
             std::make_shared<FirewallChainRule>(firewallRule1), std::make_shared<FirewallChainRule>(firewallRule2)};

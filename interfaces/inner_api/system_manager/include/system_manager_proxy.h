@@ -20,6 +20,7 @@
 
 #include "func_code.h"
 #include "update_policy_utils.h"
+#include "key_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -41,6 +42,12 @@ public:
     int32_t GetInstallLocalEnterpriseAppEnabled(MessageParcel &data, bool &isAllowedInstall);
     int32_t AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType);
     int32_t GetDisallowedNearlinkProtocols(MessageParcel &data, std::vector<int32_t> &protocols);
+    int32_t SetKeyEventPolicys(const AppExecFwk::ElementName &admin,
+        const std::vector<KeyCustomization> &KeyCustomizations, std::string &retMessage);
+    int32_t RemoveKeyEventPolicys(const AppExecFwk::ElementName &admin, const std::vector<int32_t> &KeyCodes);
+    int32_t GetKeyEventPolicys(const AppExecFwk::ElementName &admin,
+        std::vector<KeyCustomization> &KeyCustomizations);
+
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     int32_t StartCollectlog(const AppExecFwk::ElementName &admin);
     int32_t FinishLogCollected(MessageParcel &data);

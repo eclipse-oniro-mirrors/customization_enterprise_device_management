@@ -65,6 +65,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
+    "cJSON:cjson",
   ]
 
   sanitize = {

@@ -88,7 +88,7 @@ HWTEST_F(Ipv4tablesManagerTest, TestAddFilewallRule, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     FirewallRule firewallRule = {Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200",
-        "80", "90", "", Family::IPV4};
+        "80", "90", "", Family::IPV4, LogType::NFLOG};
     FirewallRuleParcel firewall(firewallRule);
     ErrCode ret = ipv4tablesManager->AddFirewallRule(firewall);
     EXPECT_EQ(ret, ERR_OK);
@@ -104,7 +104,7 @@ HWTEST_F(Ipv4tablesManagerTest, TestRemoveFilewall, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     FirewallRule firewallRule = {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "", "",
-        Family::IPV4};
+        Family::IPV4, LogType::NFLOG};
     FirewallRuleParcel firewall(firewallRule);
     ErrCode ret = ipv4tablesManager->RemoveFirewallRule(firewall);
     EXPECT_EQ(ret, ERR_OK);
@@ -152,7 +152,8 @@ HWTEST_F(Ipv4tablesManagerTest, TestAddDomainFilter, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
-    DomainFilterRule domainFilterRule = {Action::ALLOW, "1000", "www.example.com", Direction::INVALID, Family::IPV4};
+    DomainFilterRule domainFilterRule = {Action::ALLOW, "1000", "www.example.com", Direction::INVALID, Family::IPV4,
+        LogType::NFLOG};
     DomainFilterRuleParcel domainFilter(domainFilterRule);
     ErrCode ret = ipv4tablesManager->AddDomainFilterRule(domainFilter);
     EXPECT_EQ(ret, ERR_OK);
@@ -167,7 +168,7 @@ HWTEST_F(Ipv4tablesManagerTest, TestRemoveDomainFilter, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
-    DomainFilterRule domainFilterRule = {Action::INVALID, "", "", Direction::INVALID, Family::IPV4};
+    DomainFilterRule domainFilterRule = {Action::INVALID, "", "", Direction::INVALID, Family::IPV4, LogType::NFLOG};
     DomainFilterRuleParcel doaminFilter(domainFilterRule);
     ErrCode ret = ipv4tablesManager->RemoveDomainFilterRules(doaminFilter);
     EXPECT_EQ(ret, ERR_OK);

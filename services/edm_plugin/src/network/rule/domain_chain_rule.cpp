@@ -31,6 +31,7 @@ const char DOMAIN_DELIM = '.';
 const uint32_t DOUBLE_NUM = 2;
 const uint32_t FOUR_BIT = 4;
 const uint8_t HEX_TEM_NUM = 10;
+const std::string NFLOG = "NFLOG";
 
 DomainChainRule::DomainChainRule(DomainFilterRule domainFilterRule) : ChainRule(),
     domainName_(std::get<DOMAIN_DOMAINNAME_IND>(domainFilterRule))
@@ -66,7 +67,9 @@ std::string DomainChainRule::Parameter(bool isRemove)
 DomainFilterRule DomainChainRule::ToFilterRule(Direction direction, Family family)
 {
     Action action = RuleUtils::StringToAction(target_);
-    return {action, appUid_, domainName_, direction, family};
+    auto index = otherOptions_.find(NFLOG);
+    LogType logType = index != std::string::npos ? LogType::NFLOG : LogType::INVALID;
+    return {action, appUid_, domainName_, direction, family, logType};
 }
 
 std::string DomainChainRule::DomainToFormatData(const std::string &domainName)

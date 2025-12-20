@@ -34,8 +34,12 @@ const std::string DELETE_OPTION = " -D ";
 const std::string FLUSH_OPTION = " -F ";
 const std::string JUMP_OPTION = " -j ";
 const std::string JUMP_LOG_OPTION = " -j LOG --log-prefix ";
+const std::string JUMP_NFLOG_OPTION = " -j NFLOG --nflog-group 0 --nflog-prefix ";
 const std::string LOG_TAG_DROP = "iptables-edm-drop:";
 const std::string LOG_TAG_REJECT = "iptables-edm-reject:";
+const std::string NFLOG = "NFLOG";
+const std::string IPTYPE_IPV4 = "ipv4-";
+const std::string IPTYPE_IPV6 = "ipv6-";
 const uint32_t RESULT_MIN_SIZE = 3;
 
 IExecuter::IExecuter(std::string chainName) : chainName_(std::move(chainName))
@@ -51,7 +55,7 @@ ErrCode IExecuter::CreateChain(NetsysNative::IptablesType ipType)
     return ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
 }
 
-ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule, NetsysNative::IptablesType ipType)
+ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule, NetsysNative::IptablesType ipType, LogType logType)
 {
     if (rule == nullptr) {
         EDMLOGE("Add: error param.");
@@ -60,10 +64,10 @@ ErrCode IExecuter::Add(const std::shared_ptr<ChainRule>& rule, NetsysNative::Ipt
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_;
     oss << APPEND_OPTION << chainName_;
-    return ExecWithOption(oss, rule, ipType);
+    return ExecWithOption(oss, rule, ipType, logType);
 }
 
-ErrCode IExecuter::Remove(const std::shared_ptr<ChainRule>& rule, NetsysNative::IptablesType ipType)
+ErrCode IExecuter::Remove(const std::shared_ptr<ChainRule>& rule, NetsysNative::IptablesType ipType, LogType logType)
 {
     std::ostringstream oss;
     oss << SELECT_TABLE_OPTION << tableName_;
@@ -71,32 +75,41 @@ ErrCode IExecuter::Remove(const std::shared_ptr<ChainRule>& rule, NetsysNative::
         oss << FLUSH_OPTION << chainName_;
     } else {
         oss << DELETE_OPTION << chainName_;
-        return ExecWithOption(oss, rule, ipType);
+        return ExecWithOption(oss, rule, ipType, logType);
     }
     std::string result;
     return ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
 }
 
 ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr<ChainRule>& rule,
-    NetsysNative::IptablesType ipType)
+    NetsysNative::IptablesType ipType, LogType logType)
 {
     oss << rule->Parameter();
     // for interception rules, log needs to be recorded.
     std::string rulePrefix = oss.str();
     std::string ruleTarget = rule->Target();
+    std::string logRule;
+    std::string nflogRule;
+    std::string ipTypeStr = ipType == NetsysNative::IptablesType::IPTYPE_IPV6 ? IPTYPE_IPV6 : IPTYPE_IPV4;
     if (ruleTarget == REJECT_TARGET) {
         // no need to use the "" symbol
-        oss << JUMP_LOG_OPTION << LOG_TAG_REJECT;
+        oss << JUMP_LOG_OPTION << ipTypeStr << LOG_TAG_REJECT;
+        logRule = oss.str();
+        oss.str({});
+        oss << rulePrefix << JUMP_NFLOG_OPTION << ipTypeStr << LOG_TAG_REJECT;
+        nflogRule = oss.str();
     } else if (ruleTarget == DROP_TARGET) {
         // no need to use the "" symbol
-        oss << JUMP_LOG_OPTION << LOG_TAG_DROP;
+        oss << JUMP_LOG_OPTION << ipTypeStr << LOG_TAG_DROP;
+        logRule = oss.str();
+        oss.str({});
+        oss << rulePrefix << JUMP_NFLOG_OPTION << ipTypeStr << LOG_TAG_DROP;
+        nflogRule = oss.str();
     } else {
         oss << JUMP_OPTION << rule->Target();
         std::string result;
         return ExecuterUtils::GetInstance()->Execute(oss.str(), result, ipType);
     }
-
-    std::string logRule = oss.str();
 
     oss.str({});
     oss << rulePrefix << JUMP_OPTION << rule->Target();
@@ -108,6 +121,14 @@ ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr
     if (ret != ERR_OK) {
         EDMLOGE("ExecWithOption: exec interception rule log fail.");
     }
+#ifdef FEATURE_PC_ONLY
+    if (logType == LogType::NFLOG) {
+        ret = ExecuterUtils::GetInstance()->Execute(nflogRule, result, ipType);
+        if (ret != ERR_OK) {
+            EDMLOGE("ExecWithOption: exec interception rule nflog fail.");
+        }
+    }
+#endif
     return ExecuterUtils::GetInstance()->Execute(interceptRule, result, ipType);
 }
 
@@ -132,7 +153,12 @@ ErrCode IExecuter::GetAll(std::vector<std::string>& ruleList, NetsysNative::Ipta
         return ERR_OK;
     }
 
+    bool haveNflog = false;
     for (uint32_t i = RESULT_MIN_SIZE - 1; i < ruleLines.size(); ++i) {
+        auto nflogIndex = ruleLines[i].find(NFLOG);
+        if (nflogIndex != std::string ::npos) {
+            haveNflog = true;
+        }
         auto index = ruleLines[i].find(LOG_TAG_REJECT);
         if (index != std::string ::npos) {
             continue;
@@ -141,6 +167,10 @@ ErrCode IExecuter::GetAll(std::vector<std::string>& ruleList, NetsysNative::Ipta
         if (index != std::string ::npos) {
             continue;
         }
+        if (haveNflog) {
+            ruleLines[i] += NFLOG;
+        }
+        haveNflog = false;
         ruleList.emplace_back(ruleLines[i]);
     }
     return ERR_OK;

@@ -112,6 +112,13 @@ void IptablesUtils::ProcessFirewallFamily(int32_t type, Family &family)
         family = Family(type);
     }
 }
+
+void IptablesUtils::ProcessFirewallLogType(int32_t type, LogType &logType)
+{
+    if (type == static_cast<int32_t>(LogType::NFLOG)) {
+        logType = LogType(type);
+    }
+}
 } // namespace IPTABLES
 } // namespace EDM
 } // namespace OHOS

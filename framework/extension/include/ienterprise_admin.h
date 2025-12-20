@@ -111,6 +111,11 @@ public:
      */
     virtual void OnLogCollected(bool isSuccess) = 0;
 
+    /**
+     * Called when a key event happened.
+     */
+    virtual void OnKeyEvent(const std::string &event) = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -127,7 +132,8 @@ public:
         COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13,
         COMMAND_ON_DEVICE_ADMIN_ENABLED = 14,
         COMMAND_ON_DEVICE_ADMIN_DISABLED = 15,
-        COMMAND_ON_LOG_COLLECTED = 16
+        COMMAND_ON_LOG_COLLECTED = 16,
+        COMMAND_ON_KEY_EVENT = 17
     };
 };
 } // namespace EDM

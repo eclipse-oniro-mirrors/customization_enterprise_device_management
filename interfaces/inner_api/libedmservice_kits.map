@@ -96,6 +96,7 @@
             OHOS::EDM::ApplicationInstanceHandle::*;
             OHOS::EDM::InstallMarketAppsSerializer::*;
             vtable?for?OHOS::EDM::InstallMarketAppsSerializer;
+            OHOS::EDM::KeyEventHandle::*;
         };
     local:
         *;

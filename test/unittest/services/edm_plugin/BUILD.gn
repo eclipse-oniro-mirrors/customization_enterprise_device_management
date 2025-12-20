@@ -351,6 +351,7 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/set_key_code_plugin.cpp",
     ]
   }
 
