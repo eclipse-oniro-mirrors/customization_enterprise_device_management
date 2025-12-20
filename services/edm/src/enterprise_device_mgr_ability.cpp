@@ -694,6 +694,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEve
 {
     EDMLOGI("OnCommonEventBmsReady");
     ConnectEnterpriseAbility();
+    CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn)
