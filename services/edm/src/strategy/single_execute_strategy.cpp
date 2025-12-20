@@ -43,5 +43,16 @@ ErrCode SingleExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParce
     EDMLOGE("SingleExecuteStrategy::OnGetExecute plugin %{public}d is not exist.", funcCode);
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
+
+ErrCode SingleExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
+{
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGD("get Plugin fail %{public}d.", interfaceCode);
+        return ERR_EDM_HANDLE_POLICY_FAILED;
+    }
+    plugin->OnOtherServiceStartForAdmin(adminName, userId);
+    return ERR_EDM_HANDLE_POLICY_FAILED;
+}
 } // namespace EDM
 } // namespace OHOS

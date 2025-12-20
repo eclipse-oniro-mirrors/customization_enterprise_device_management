@@ -67,6 +67,8 @@ public:
     void OnDeviceAdminDisabled(const std::string &bundleName) override;
 
     void OnLogCollected(bool isSuccess) override;
+
+    void OnKeyEvent(const std::string &event) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

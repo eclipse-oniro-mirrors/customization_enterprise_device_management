@@ -70,6 +70,8 @@ public:
 
     void OnLogCollected(bool isSuccess) override {}
 
+    void OnKeyEvent(const std::string &event) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

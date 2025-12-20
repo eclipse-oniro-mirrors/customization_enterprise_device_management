@@ -67,6 +67,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/enterprise_collect_log_connection.cpp",
     "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
     "../../../services/edm/src/connection/enterprise_kiosk_connection.cpp",
+    "../../../services/edm/src/connection/enterprise_key_event_connection.cpp",
     "../../../services/edm/src/connection/enterprise_market_connection.cpp",
     "../../../services/edm/src/connection/enterprise_update_connection.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
@@ -461,6 +462,7 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ 
         "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
         "../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/set_key_code_plugin.cpp",
         ]
     }
 

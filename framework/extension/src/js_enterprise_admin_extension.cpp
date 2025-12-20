@@ -25,6 +25,8 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "runtime.h"
+#include "cJSON.h"
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -375,6 +377,110 @@ void JsEnterpriseAdminExtension::OnLogCollected(bool isSuccess)
         CallObjectMethod("onLogCollected", argv, JS_NAPI_ARGC_ONE);
     };
     handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnKeyEvent(const std::string &event)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnKeyEvent");
+    OHOS::EDM::KeyEvent keyEventInfo;
+    if (ParseKeyEventInfo(event, keyEventInfo)) {
+        auto task = [keyEventInfo, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateKeyEventInfoObject(env, keyEventInfo)};
+        CallObjectMethod("onKeyEvent", argv, JS_NAPI_ARGC_ONE);
+        };
+        handler_->PostTask(task);
+    };
+}
+
+bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::ParseKeyEventInfo");
+    cJSON* root = cJSON_Parse(jsonString.c_str());
+    if (root == nullptr) {
+        EDMLOGE("Failed to parse JSON string");
+        return false;
+    }
+    
+    cJSON *actionTime = cJSON_GetObjectItem(root, "actionTime");
+    cJSON *keyCode = cJSON_GetObjectItem(root, "keyCode");
+    cJSON *keyAction = cJSON_GetObjectItem(root, "keyAction");
+    cJSON *keyItems = cJSON_GetObjectItem(root, "keyItems");
+    
+    if (!cJSON_IsNumber(actionTime) || !cJSON_IsNumber(keyCode) || !cJSON_IsNumber(keyAction) ||
+        !cJSON_IsArray(keyItems)) {
+        EDMLOGE("Invalid JSON structure");
+        cJSON_Delete(root);
+        return false;
+    }
+    keyEventInfo.actionTime = actionTime->valuedouble;
+    keyEventInfo.keyCode = keyCode->valueint;
+    keyEventInfo.keyAction = keyAction->valueint;
+
+    cJSON *keyItem;
+    cJSON_ArrayForEach(keyItem, keyItems) {
+        cJSON *pressed = cJSON_GetObjectItem(keyItem, "pressed");
+        cJSON *keyCodeItem = cJSON_GetObjectItem(keyItem, "keyCode");
+        cJSON *downTime = cJSON_GetObjectItem(keyItem, "downTime");
+
+        if (!cJSON_IsNumber(pressed) || !cJSON_IsNumber(keyCodeItem) || !cJSON_IsNumber(downTime)) {
+            EDMLOGE("Invalid JSON structure");
+            cJSON_Delete(root);
+            return false;
+        }
+        KeyEventItem KeyItemStruct;
+        KeyItemStruct.pressed = pressed->valueint;
+        KeyItemStruct.keyCode = keyCodeItem->valueint;
+        KeyItemStruct.downTime = downTime->valuedouble;
+
+        keyEventInfo.keyItems.push_back(KeyItemStruct);
+    }
+    cJSON_Delete(root);
+    return true;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo)
+{
+    napi_value nKeyEventInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyEventInfo));
+
+    napi_value nActionTime = nullptr;
+    NAPI_CALL(env, napi_create_int64(env, keyEventInfo.actionTime, &nActionTime));
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "actionTime", nActionTime));
+    
+    napi_value nKeyCode = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyCode, &nKeyCode));
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyCode", nKeyCode));
+
+    napi_value nKeyAction = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyAction, &nKeyAction));
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyAction", nKeyAction));
+
+    napi_value nKeyItems = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, keyEventInfo.keyItems.size(), &nKeyItems));
+
+    for (size_t i = 0; i < keyEventInfo.keyItems.size(); ++i) {
+        const KeyEventItem &keyItem = keyEventInfo.keyItems[i];
+
+        napi_value nKeyItem = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &nKeyItem));
+
+        napi_value nPressed = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, keyItem.pressed, &nPressed));
+        NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "pressed", nPressed));
+
+        napi_value nKeyCodeItem = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, keyItem.keyCode, &nKeyCodeItem));
+        NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "keyCode", nKeyCodeItem));
+
+        napi_value nDownTime = nullptr;
+        NAPI_CALL(env, napi_create_int64(env, keyItem.downTime, &nDownTime));
+        NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "downTime", nDownTime));
+
+        NAPI_CALL(env, napi_set_element(env, nKeyItems, i, nKeyItem));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyItems", nKeyItems));
+    return nKeyEventInfo;
 }
 
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)

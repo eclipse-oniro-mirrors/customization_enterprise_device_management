@@ -242,5 +242,67 @@ int32_t SystemManagerProxy::FinishLogCollected(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 #endif
+
+int32_t SystemManagerProxy::SetKeyEventPolicys(const AppExecFwk::ElementName &admin,
+    const std::vector<KeyCustomization> &KeyCustomizations, std::string &retMessage)
+{
+    EDMLOGI("SystemManagerProxy::SetKeyEventPolicys");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    KeyEventHandle::WriteKeyCustomizationVector(data, KeyCustomizations);
+    ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (ret != ERR_OK) {
+        retMessage = reply.ReadString();
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t SystemManagerProxy::RemoveKeyEventPolicys(const AppExecFwk::ElementName &admin,
+    const std::vector<int32_t> &KeyCodes)
+{
+    EDMLOGI("SystemManagerProxy::RemoveKeyEventPolicys");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32Vector(KeyCodes);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetKeyEventPolicys(const AppExecFwk::ElementName &admin,
+    std::vector<KeyCustomization> &KeyCustomizations)
+{
+    EDMLOGI("SystemManagerProxy::GetKeyEventPolicys");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    proxy->GetPolicy(EdmInterfaceCode::SET_KEY_CODE_POLICYS, data, reply);
+    
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    KeyEventHandle::ReadKeyCustomizationVector(reply, KeyCustomizations);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

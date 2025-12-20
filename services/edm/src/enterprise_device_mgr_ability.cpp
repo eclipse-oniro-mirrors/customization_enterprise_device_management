@@ -316,12 +316,41 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
         };
+    addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+        };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
         };
 #endif
+}
+
+void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::OnHandleInitExecute calling.");
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::currentUserId error.");
+        return;
+    }
+    auto ret = PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
+    if (ret != ERR_OK) {
+        return;
+    }
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGW("OnHandleInitExecute: get plugin failed, code: %{public}d", interfaceCode);
+        return;
+    }
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        std::string adminName = admin->adminInfo_.packageName_;
+        plugin->GetExecuteStrategy()->OnInitExecute(interfaceCode, adminName, currentUserId);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -953,6 +982,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(RES_SCHED_SYS_ABILITY_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
+    AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
