@@ -21,5 +21,7 @@ group("ani_edm_package") {
     "./enterprise_device_management/security_manager:securityManager_etc",
     "./enterprise_device_management/restrictions:restrictions_ani",
     "./enterprise_device_management/restrictions:restrictions_etc",
+    "./enterprise_device_management/network_manager:networkManager_ani",
+    "./enterprise_device_management/network_manager:networkManager_etc",
   ]
 }

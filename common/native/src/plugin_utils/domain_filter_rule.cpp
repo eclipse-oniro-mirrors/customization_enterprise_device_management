@@ -31,6 +31,7 @@ bool DomainFilterRuleParcel::Marshalling(MessageParcel& parcel) const
     parcel.WriteString(std::get<DOMAIN_DOMAINNAME_IND>(rule_));
     parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_DIRECTION_IND>(rule_)));
     parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_FAMILY_IND>(rule_)));
+    parcel.WriteInt32(static_cast<int32_t>(std::get<DOMAIN_LOGTYPE_IND>(rule_)));
     return true;
 }
 
@@ -39,12 +40,14 @@ bool DomainFilterRuleParcel::Unmarshalling(MessageParcel& parcel, DomainFilterRu
     IPTABLES::Action action = IPTABLES::Action::INVALID;
     IPTABLES::Direction direction = IPTABLES::Direction::INVALID;
     IPTABLES::Family family = IPTABLES::Family::IPV4;
+    IPTABLES::LogType logType = IPTABLES::LogType::INVALID;
     IptablesUtils::ProcessFirewallAction(parcel.ReadInt32(), action);
     std::string appUid = parcel.ReadString();
     std::string domainName = parcel.ReadString();
     IptablesUtils::ProcessFirewallDirection(parcel.ReadInt32(), direction);
     IptablesUtils::ProcessFirewallFamily(parcel.ReadInt32(), family);
-    domainFilterRuleParcel.rule_ = {action, appUid, domainName, direction, family};
+    IptablesUtils::ProcessFirewallLogType(parcel.ReadInt32(), logType);
+    domainFilterRuleParcel.rule_ = {action, appUid, domainName, direction, family, logType};
     return true;
 }
 
