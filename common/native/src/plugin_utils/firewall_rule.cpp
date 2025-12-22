@@ -44,6 +44,7 @@ bool FirewallRuleParcel::Marshalling(MessageParcel& parcel) const
     parcel.WriteString(std::get<FIREWALL_DESTPORT_IND>(rule_));
     parcel.WriteString(std::get<FIREWALL_APPUID_IND>(rule_));
     parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_FAMILY_IND>(rule_)));
+    parcel.WriteUint32(static_cast<int32_t>(std::get<FIREWALL_LOGTYPE_IND>(rule_)));
     return true;
 }
 
@@ -62,7 +63,10 @@ bool FirewallRuleParcel::Unmarshalling(MessageParcel& parcel, FirewallRuleParcel
     std::string appUid = parcel.ReadString();
     IPTABLES::Family family = IPTABLES::Family::IPV4;
     IptablesUtils::ProcessFirewallFamily(parcel.ReadInt32(), family);
-    firewallRuleParcel.rule_ = {direction, action, protocol, srcAddr, destAddr, srcPort, destPort, appUid, family};
+    IPTABLES::LogType logType = IPTABLES::LogType::INVALID;
+    IptablesUtils::ProcessFirewallLogType(parcel.ReadInt32(), logType);
+    firewallRuleParcel.rule_ = {direction, action, protocol, srcAddr, destAddr, srcPort,
+        destPort, appUid, family, logType};
     return true;
 }
 

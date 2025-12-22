@@ -857,5 +857,131 @@ bool ParseStringToLong(const std::string &strValue, int64_t &result)
     }
     return true;
 }
+
+void ConvertKeyCustomizationVectorToJS(napi_env env,
+    const std::vector<KeyCustomization> &KeyCustomizationVector, napi_value result)
+{
+    EDMLOGD("ApplicationInstance vector size: %{public}zu", KeyCustomizationVector.size());
+    size_t idx = 0;
+    for (const auto &item : KeyCustomizationVector) {
+        napi_value jsObj = nullptr;
+        napi_create_object(env, &jsObj);
+        
+        napi_value jsKeyCode = nullptr;
+        napi_create_int32(env, item.keyCode, &jsKeyCode);
+        napi_set_named_property(env, jsObj, "keyCode", jsKeyCode);
+
+        napi_value jsKeyPolicy = nullptr;
+        napi_create_int32(env, item.keyPolicy, &jsKeyPolicy);
+        napi_set_named_property(env, jsObj, "keyPolicy", jsKeyPolicy);
+
+        napi_set_element(env, result, idx, jsObj);
+        idx++;
+    }
+}
+
+napi_value ParseKeyCustomizationArray(napi_env env, std::vector<KeyCustomization> &keyCustomizationArray,
+                                      napi_value args)
+{
+    EDMLOGD("begin to parse KeyCustomization array");
+    bool isArray = false;
+    NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    if (!isArray) {
+        EDMLOGE("napi object is not array.");
+        return nullptr;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
+    EDMLOGD("length=%{public}ud", arrayLength);
+    for (uint32_t j = 0; j < arrayLength; j++) {
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_get_element(env, args, j, &value));
+        napi_valuetype valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, value, &valueType));
+        if (valueType != napi_object) {
+            keyCustomizationArray.clear();
+            return nullptr;
+        }
+        KeyCustomization keyCust;
+        if (!GetKeyCustomizationFromNAPI(env, value, keyCust)) {
+            return nullptr;
+        }
+        keyCustomizationArray.push_back(keyCust);
+    }
+    // create result code
+    napi_value result;
+    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    return result;
+}
+
+bool GetKeyCustomizationFromNAPI(napi_env env, napi_value value, KeyCustomization &result)
+{
+    napi_value jsKeyCode;
+    napi_value jsKeyPolicy;
+    napi_valuetype type = napi_undefined;
+
+    if (!GetKeyeventFromNAPI(env, value, result, type, jsKeyCode)) {
+        return false;
+    }
+    if (!GetKeypolicyFromNAPI(env, value, result, type, jsKeyPolicy)) {
+        return false;
+    }
+    return true;
+}
+
+bool GetKeyeventFromNAPI(napi_env env, napi_value value, KeyCustomization &result,
+    napi_valuetype type, napi_value &jsKeyCode)
+{
+    if (napi_get_named_property(env, value, "keyCode", &jsKeyCode) != napi_ok) {
+        EDMLOGE("GetKeyeventFromNAPI can not get keycode property");
+        return false;
+    }
+    if (napi_typeof(env, jsKeyCode, &type) != napi_ok) {
+        EDMLOGE("GetKeyeventFromNAPI keycode type error, not a number");
+        return false;
+    }
+    if (type != napi_number) {
+        EDMLOGE("GetKeyeventFromNAPI accountId must be a number, but got type: %d", type);
+        return false;
+    }
+    if (napi_get_value_int32(env, jsKeyCode, &result.keyCode) != napi_ok) {
+        EDMLOGE("GetKeyeventFromNAPI get keycode failed");
+        return false;
+    }
+    if (std::to_string(result.keyCode).empty()) {
+        EDMLOGE("GetAppIndexFromNAPI keyCode is empty");
+        return false;
+    }
+    return true;
+}
+
+bool GetKeypolicyFromNAPI(napi_env env, napi_value value, KeyCustomization &result,
+    napi_valuetype type, napi_value &jsKeyPolicy)
+{
+    if (napi_get_named_property(env, value, "keyPolicy", &jsKeyPolicy) != napi_ok) {
+        EDMLOGE("GetKeypolicyFromNAPI can not get keyevent property");
+        return false;
+    }
+    if (napi_typeof(env, jsKeyPolicy, &type) != napi_ok) {
+        EDMLOGE("GetKeypolicyFromNAPI keypolicy type error, not a number");
+        return false;
+    }
+    if (type != napi_number) {
+        EDMLOGE("GetKeypolicyFromNAPI keypolicy must be a number, but got type: %d", type);
+        return false;
+    }
+    if (napi_get_value_int32(env, jsKeyPolicy, &result.keyPolicy) != napi_ok) {
+        EDMLOGE("GetKeypolicyFromNAPI get keypolicy failed");
+        return false;
+    }
+    if (std::to_string(result.keyPolicy).empty()) {
+        EDMLOGE("GetAppIndexFromNAPI keypolicy is empty");
+        return false;
+    }
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

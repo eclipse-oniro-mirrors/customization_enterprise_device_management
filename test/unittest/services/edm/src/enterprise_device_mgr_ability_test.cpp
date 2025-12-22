@@ -4980,6 +4980,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTestWithEdcPermis
     data.WriteString("");
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == ERR_OK);
+    ASSERT_TRUE(Utils::GetEdmEnterpriseConfigState());
 }
 #endif
 

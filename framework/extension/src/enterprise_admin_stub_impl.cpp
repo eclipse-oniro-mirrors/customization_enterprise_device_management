@@ -177,5 +177,15 @@ void EnterpriseAdminStubImpl::OnLogCollected(bool isSuccess)
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }
+
+void EnterpriseAdminStubImpl::OnKeyEvent(const std::string &event)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnKeyEvent(event);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
 } // namespace EDM
 } // namespace OHOS

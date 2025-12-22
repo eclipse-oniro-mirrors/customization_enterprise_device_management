@@ -106,6 +106,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
       "./src/set_allowed_kiosk_apps_plugin.cpp",
+      "./src/install_enterprise_re_signature_certificate_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -638,6 +639,12 @@ ohos_shared_library("need_extra_plugin") {
       "./src/set_wall_paper_plugin.cpp",
     ]
   }
+
+  if (!enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/set_key_code_plugin.cpp",
+      ]
+    }
 
   if (power_manager_edm_enable && screenlock_mgr_edm_enable &&
       update_service_edm_enable) {

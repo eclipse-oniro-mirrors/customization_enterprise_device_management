@@ -97,6 +97,9 @@ int32_t EnterpriseAdminStub::CallFuncByCodeFirst(uint32_t code, MessageParcel& d
         case COMMAND_ON_LOG_COLLECTED:
             OnLogCollectedInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_KEY_EVENT:
+            OnKeyEventInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -211,6 +214,14 @@ void EnterpriseAdminStub::OnLogCollectedInner(MessageParcel& data, MessageParcel
     EDMLOGI("EnterpriseAdminStub::OnLogCollectedInner");
     bool isSuccess = data.ReadBool();
     OnLogCollected(isSuccess);
+}
+
+void EnterpriseAdminStub::OnKeyEventInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnKeyEventInner");
+
+    std::string event = data.ReadString();
+    OnKeyEvent(event);
 }
 
 void EnterpriseAdminStub::OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply)

@@ -69,7 +69,8 @@ ErrCode IptablesManager::AddFirewallRule(const FirewallRuleParcel& firewall, Fam
         }
     }
     auto chainRule = std::make_shared<FirewallChainRule>(rule);
-    return executer->Add(chainRule, ipType);
+    LogType logType = std::get<FIREWALL_LOGTYPE_IND>(rule);
+    return executer->Add(chainRule, ipType, logType);
 }
 
 ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall, Family family)
@@ -87,6 +88,7 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall, 
         return ret;
     }
     NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(family);
+    LogType logType = std::get<FIREWALL_LOGTYPE_IND>(rule);
     if (chainNameList.size() > 1) {
         bool ifParamNotEmpty = !std::get<FIREWALL_SRCADDR_IND>(rule).empty() ||
             !std::get<FIREWALL_DESTADDR_IND>(rule).empty() || !std::get<FIREWALL_SRCPORT_IND>(rule).empty() ||
@@ -102,7 +104,7 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall, 
                 EDMLOGE("RemoveFirewallRule:GetExecuter fail, this should not happen.");
                 continue;
             }
-            executer->Remove(nullptr, ipType);
+            executer->Remove(nullptr, ipType, logType);
         }
     } else if (chainNameList.size() == 1) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainNameList[0]);
@@ -110,7 +112,7 @@ ErrCode IptablesManager::RemoveFirewallRule(const FirewallRuleParcel& firewall, 
             EDMLOGE("RemoveFirewallRule:GetExecuter fail, this should not happen.");
         } else {
             auto chainRule = std::make_shared<FirewallChainRule>(rule);
-            executer->Remove(chainRule, ipType);
+            executer->Remove(chainRule, ipType, logType);
         }
     }
     if (!ExistOutputAllowFirewallRule(ipType)) {
@@ -220,7 +222,8 @@ ErrCode IptablesManager::AddDomainFilterRule(const DomainFilterRuleParcel& domai
         }
     }
     auto chainRule = std::make_shared<DomainChainRule>(rule);
-    return executer->Add(chainRule, ipType);
+    LogType logType = std::get<DOMAIN_LOGTYPE_IND>(rule);
+    return executer->Add(chainRule, ipType, logType);
 }
 
 ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& domainFilter, Family family)
@@ -240,6 +243,7 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& d
         return ret;
     }
     NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(family);
+    LogType logType = std::get<DOMAIN_LOGTYPE_IND>(rule);
     if (chainNameList.size() > 1) {
         for (const auto& chainName : chainNameList) {
             auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainName);
@@ -248,7 +252,7 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& d
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
             // flush chain
-            executer->Remove(nullptr, ipType);
+            executer->Remove(nullptr, ipType, logType);
         }
     } else if (chainNameList.size() == 1) {
         auto executer = ExecuterFactory::GetInstance()->GetExecuter(chainNameList[0]);
@@ -257,7 +261,7 @@ ErrCode IptablesManager::RemoveDomainFilterRules(const DomainFilterRuleParcel& d
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         auto chainRule = std::make_shared<DomainChainRule>(rule);
-        executer->Remove(chainRule, ipType);
+        executer->Remove(chainRule, ipType, logType);
     } else {
         // this branch should never happen
     }

@@ -64,7 +64,7 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_001, TestSize.Level1)
     std::string mergeData = "";
     int32_t id = 100;
     ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
-    EXPECT_TRUE(code == ERR_OK);
+    EXPECT_EQ(code, ERR_OK);
 }
 
 /**
@@ -80,7 +80,23 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_002, TestSize.Level1)
     std::string mergeData = "";
     int32_t id = 100;
     ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
-    EXPECT_TRUE(code == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestOnSetPolicy_003
+ * @tc.desc: Test OnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_003, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string data = "测试名称超限123测试名称超限123测试名称超限123测试名称超限123";
+    std::string currentData = "";
+    std::string mergeData = "";
+    int32_t id = 100;
+    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -99,7 +115,7 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnGetPolicy_001, TestSize.Level1)
 
     EdmDataAbilityUtils::SetResult("test success");
     code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    EXPECT_TRUE(code == ERR_OK);
+    EXPECT_EQ(code, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

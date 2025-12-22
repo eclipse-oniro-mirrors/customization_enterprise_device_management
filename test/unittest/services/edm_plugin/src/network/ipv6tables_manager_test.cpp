@@ -88,7 +88,7 @@ HWTEST_F(Ipv6tablesManagerTest, TestAddFilewallRule, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     FirewallRule firewallRule = {Direction::INPUT, Action::DENY, Protocol::UDP, "2409:8c54:871:1003::25", "",
-        "80", "90", "", Family::IPV6};
+        "80", "90", "", Family::IPV6, LogType::NFLOG};
     FirewallRuleParcel firewall(firewallRule);
     ErrCode ret = ipv6tablesManager->AddFirewallRule(firewall);
     EXPECT_EQ(ret, ERR_OK);
@@ -104,7 +104,7 @@ HWTEST_F(Ipv6tablesManagerTest, TestRemoveFilewall, TestSize.Level1)
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
     FirewallRule firewallRule = {Direction::INVALID, Action::INVALID, Protocol::INVALID, "", "", "", "", "",
-        Family::IPV6};
+        Family::IPV6, LogType::NFLOG};
     FirewallRuleParcel firewall(firewallRule);
     ErrCode ret = ipv6tablesManager->RemoveFirewallRule(firewall);
     EXPECT_EQ(ret, ERR_OK);
@@ -152,7 +152,8 @@ HWTEST_F(Ipv6tablesManagerTest, TestAddDomainFilter, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
-    DomainFilterRule domainFilterRule = {Action::ALLOW, "1000", "www.example.com", Direction::INVALID, Family::IPV6};
+    DomainFilterRule domainFilterRule = {Action::ALLOW, "1000", "www.example.com", Direction::INVALID, Family::IPV6,
+        LogType::NFLOG};
     DomainFilterRuleParcel domainFilter(domainFilterRule);
     ErrCode ret = ipv6tablesManager->AddDomainFilterRule(domainFilter);
     EXPECT_EQ(ret, ERR_OK);
@@ -167,7 +168,7 @@ HWTEST_F(Ipv6tablesManagerTest, TestRemoveDomainFilter, TestSize.Level1)
 {
     EXPECT_CALL(*executerUtilsMock, Execute).WillRepeatedly(DoAll(Invoke(PrintExecRule), Return(ERR_OK)));
 
-    DomainFilterRule domainFilterRule = {Action::INVALID, "", "", Direction::INVALID, Family::IPV6};
+    DomainFilterRule domainFilterRule = {Action::INVALID, "", "", Direction::INVALID, Family::IPV6, LogType::NFLOG};
     DomainFilterRuleParcel doaminFilter(domainFilterRule);
     ErrCode ret = ipv6tablesManager->RemoveDomainFilterRules(doaminFilter);
     EXPECT_EQ(ret, ERR_OK);

@@ -439,7 +439,7 @@ HWTEST_F(DeviceSettingsProxyTest, TestSetDeviceNameForAccountSuc, TestSize.Level
     int32_t id = 100;
     std::string name = "deviceName_test";
     int32_t ret = deviceSettingsProxy->SetValueForAccount(admin, id, name);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
@@ -455,7 +455,7 @@ HWTEST_F(DeviceSettingsProxyTest, TestSetDeviveNameForAccountFail, TestSize.Leve
     int32_t id = 100;
     std::string name = "deviceName_test";
     int32_t ret = deviceSettingsProxy->SetValueForAccount(admin, id, name);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
@@ -473,7 +473,7 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetDeviceNameForAccountSuc, TestSize.Level
     int32_t id = 100;
     std::string value;
     int32_t ret = deviceSettingsProxy->GetValueForAccount(admin, id, value);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
@@ -489,7 +489,7 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetDeviceNameForAccountFail, TestSize.Leve
     int32_t id = -1;
     std::string value;
     int32_t ret = deviceSettingsProxy->GetValueForAccount(admin, id, value);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

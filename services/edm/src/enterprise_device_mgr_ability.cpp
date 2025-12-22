@@ -73,6 +73,7 @@ const bool REGISTER_RESULT =
 
 const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
+const std::string PARAM_EDM_ENTERPRISE_CONFIG_ENABLE = "persist.edm.enterprise_config_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
 const std::string WANT_BUNDLE_NAME = "bundleName";
@@ -316,12 +317,41 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
         };
+    addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+        };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
         };
 #endif
+}
+
+void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::OnHandleInitExecute calling.");
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::currentUserId error.");
+        return;
+    }
+    auto ret = PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
+    if (ret != ERR_OK) {
+        return;
+    }
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGW("OnHandleInitExecute: get plugin failed, code: %{public}d", interfaceCode);
+        return;
+    }
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        std::string adminName = admin->adminInfo_.packageName_;
+        plugin->GetExecuteStrategy()->OnInitExecute(interfaceCode, adminName, currentUserId);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -476,6 +506,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
     CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+    OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
@@ -664,6 +695,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEve
 {
     EDMLOGI("OnCommonEventBmsReady");
     ConnectEnterpriseAbility();
+    CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn)
@@ -953,6 +985,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(RES_SCHED_SYS_ABILITY_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
+    AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
@@ -1549,10 +1582,10 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
     }
     std::string mergedPolicyData;
     plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
-    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
-    if (ret != ERR_OK) {
-        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
-            adminName.c_str(), policyValue.c_str(), ret);
+    ErrCode ret = plugin->GetExecuteStrategy()->OnAdminRemoveExecute(adminName, policyName, policyValue, userId);
+    if (FAILED(ret)) {
+        EDMLOGW("RemoveAdminItem: OnAdminRemoveExecute failed");
+        return ret;
     }
     if (plugin->NeedSavePolicy()) {
         ErrCode setRet = ERR_OK;
@@ -1942,6 +1975,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string permissionTag = data.ReadString();
     // 若PERMISSION_MANAGE_EDM_POLICY权限校验通过则直接进行业务处理；
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
@@ -1951,7 +1985,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
             return EdmReturnErrCode::ADMIN_INACTIVE;
         }
         int uid = IPCSkeleton::GetCallingUid();
-        std::string permissionTag = data.ReadString();
         if (uid != EDM_UID) {
             std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
                 GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
@@ -1966,6 +1999,11 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 #endif
     ReportFuncEvent(code);
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
+    std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
+    if (ret == ERR_OK && enterpriseConfigEnable == "false") {
+        EDMLOGD("HandleDevicePolicy success, set PARAM_EDM_ENTERPRISE_CONFIG_ENABLE true.");
+        system::SetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "true");
+    }
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(ret));
     SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;

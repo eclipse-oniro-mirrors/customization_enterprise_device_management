@@ -110,7 +110,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccessBeforeInit, TestS
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
-        Family::IPV4};
+        Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -126,7 +126,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestSuccess, TestSize.Level1
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
-        Family::IPV4};
+        Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -143,7 +143,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnSetPolicyTestFail, TestSize.Level1)
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
-        Family::IPV4};
+        Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnSetPolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
@@ -160,7 +160,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestSuccess, TestSize.Lev
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::ALLOW, "1000", "www.example.com", IPTABLES::Direction::OUTPUT,
-        Family::IPV4};
+        Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret == ERR_OK);
@@ -177,7 +177,7 @@ HWTEST_F(DomainFilterRulePluginTest, TestOnRemovePolicyTestFail, TestSize.Level1
 
     std::shared_ptr<DomainFilterRulePlugin> plugin = std::make_shared<DomainFilterRulePlugin>();
     IPTABLES::DomainFilterRule rule{IPTABLES::Action::INVALID, "1000", "www.example.com", IPTABLES::Direction::INVALID,
-        Family::IPV4};
+        Family::IPV4, IPTABLES::LogType::NFLOG};
     IPTABLES::DomainFilterRuleParcel ruleParcel{rule};
     ErrCode ret = plugin->OnRemovePolicy(ruleParcel);
     ASSERT_TRUE(ret != ERR_OK);
