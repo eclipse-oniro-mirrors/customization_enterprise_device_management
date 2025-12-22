@@ -95,6 +95,13 @@ void NetworkManagerAddon::CreateFirewallDirectionObject(napi_env env, napi_value
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FORWARD", nForward));
 }
 
+void NetworkManagerAddon::CreateFirewallLogTypeObject(napi_env env, napi_value value)
+{
+    napi_value nNflog;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(IPTABLES::LogType::NFLOG), &nNflog));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NFLOG", nNflog));
+}
+
 void NetworkManagerAddon::CreateFirewallAddMethodObject(napi_env env, napi_value value)
 {
     napi_value nAppend;
@@ -129,6 +136,10 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nFirewallDirection));
     CreateFirewallDirectionObject(env, nFirewallDirection);
 
+    napi_value nFirewallLogType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nFirewallLogType));
+    CreateFirewallLogTypeObject(env, nFirewallLogType);
+
     napi_value nFirewallAddMethod = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nFirewallAddMethod));
     CreateFirewallAddMethodObject(env, nFirewallAddMethod);
@@ -147,6 +158,7 @@ napi_value NetworkManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("Action", nFirewallAction),
         DECLARE_NAPI_PROPERTY("Protocol", nFirewallProtocol),
         DECLARE_NAPI_PROPERTY("Direction", nFirewallDirection),
+        DECLARE_NAPI_PROPERTY("LogType", nFirewallLogType),
         DECLARE_NAPI_PROPERTY("AddMethod", nFirewallAddMethod),
         DECLARE_NAPI_PROPERTY("IpSetMode", nIpSetMode),
         DECLARE_NAPI_FUNCTION("addIptablesFilterRule", AddIptablesFilterRule),
