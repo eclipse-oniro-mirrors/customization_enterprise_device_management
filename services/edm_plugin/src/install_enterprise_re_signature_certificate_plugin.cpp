@@ -92,8 +92,8 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckParamVaild(std::stri
 ErrCode InstallEnterpriseReSignatureCertificatePlugin::InstallEnterpriseReSignatureCertificate(MessageParcel &data)
 {
     std::string certificateAlias = data.ReadString();
-    int32_t accountId = data.ReadInt32();
     int32_t fd = data.ReadFileDescriptor();
+    int32_t accountId = data.ReadInt32();
     if (CheckParamVaild(certificateAlias, fd, accountId) != ERR_OK) {
         close(fd);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
