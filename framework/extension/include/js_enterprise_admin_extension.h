@@ -88,6 +88,10 @@ public:
 
     void OnKeyEvent(const std::string &event);
 
+    void OnStartupGuideCompleted(const int32_t type);
+
+    void OnDeviceBootCompleted();
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
     
