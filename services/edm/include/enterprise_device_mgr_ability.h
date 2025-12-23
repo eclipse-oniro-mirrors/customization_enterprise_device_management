@@ -86,8 +86,7 @@ public:
         override;
     ErrCode ReportAgInstallStatus(const std::string &bundleName,
         const std::string &mediaBundleName, int32_t status) override;
-    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-        const sptr<IRemoteObject> &callerToken) override;
+    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,

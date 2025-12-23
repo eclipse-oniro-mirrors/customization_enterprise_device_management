@@ -5100,11 +5100,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidAdmin
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     edmMgr_->adminMgr_->ClearAdmins();
     AAFwk::Want want;
-    sptr<IRemoteObject> token = nullptr;
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
-    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want, token);
+    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -5132,9 +5131,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidWant,
     
     AAFwk::Want want;
     want.SetElementName("", "");
-    sptr<IRemoteObject> token = nullptr;
 
-    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want, token);
+    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want);
     ASSERT_TRUE(ret != ERR_OK);
 }
 } // namespace TEST

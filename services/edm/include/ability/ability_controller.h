@@ -42,7 +42,7 @@ public:
 
     virtual ~AbilityController() = default;
 
-    virtual ErrCode StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId);
+    virtual ErrCode StartAbilityByAdmin(const AAFwk::Want &want, int32_t userId);
 
     virtual bool VerifyPermission(const std::string &callerName);
 protected:

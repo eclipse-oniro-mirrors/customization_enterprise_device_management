@@ -23,8 +23,7 @@
 
 namespace OHOS {
 namespace EDM {
-ErrCode AbilityController::StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token,
-    int32_t userId)
+ErrCode AbilityController::StartAbilityByAdmin(const AAFwk::Want &want, int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
