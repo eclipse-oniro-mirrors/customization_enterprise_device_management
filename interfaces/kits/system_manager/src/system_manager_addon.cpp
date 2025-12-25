@@ -40,6 +40,14 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nProtocol));
     CreateProtocolObject(env, nProtocol);
 
+    napi_value nKeyCode = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyCode));
+    CreateKeyCodeObject(env, nKeyCode);
+
+    napi_value nKeyPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyPolicy));
+    CreatenKeyPolicyObject(env, nKeyPolicy);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setNTPServer", SetNTPServer),
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
@@ -65,9 +73,43 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
         DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
         DECLARE_NAPI_PROPERTY("NearLinkProtocol", nProtocol),
+        DECLARE_NAPI_PROPERTY("KeyCode", nKeyCode),
+        DECLARE_NAPI_PROPERTY("KeyPolicy", nKeyPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+void SystemManagerAddon::CreatenKeyCodeObject(napi_env env, napi_value value)
+{
+    napi_value nPower;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::POWER), &nPower));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "POWER", nPower));
+    napi_value nVolumeUp;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::VOLUME_UP), &nVolumeUp));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "VOLUME_UP", nVolumeUp));
+    napi_value nVolumeDown;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::VOLUME_DOWN), &nVolumeDown));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "VOLUME_DOWN", nVolumeDown));
+    napi_value nBack;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::BACK), &nBack));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BACK", nBack));
+    napi_value nHome;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::HOME), &nHome));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "HOME", nHome));
+    napi_value nRecent;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::RECENT), &nRecent));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RECENT", nRecent));
+}
+
+void SystemManagerAddon::CreatenKeyPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nInterception;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyPolicy::INTERCEPTION), &nInterception));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INTERCEPTION", nInterception));
+    napi_value nCustom;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyPolicy::CUSTOM), &nCustom));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CUSTOM", nCustom));
 }
 
 void SystemManagerAddon::CreatePolicyTypeObject(napi_env env, napi_value value)

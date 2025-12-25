@@ -26,18 +26,33 @@ struct UpdateInfo {
     std::string packageType;
 };
 
-struct KeyEventItem {
-    int32_t pressed;
-    int32_t keyCode;
-    int64_t downTime;
+struct KeyItem {
+    bool pressed;
+    KeyCode keyCode;
+    int64_t downTime = 0;
 };
 
 struct KeyEvent {
-    int64_t actionTime;
-    int32_t keyCode;
-    int32_t keyAction;
-    std::vector<KeyEventItem> keyItems;
+    int64_t actionTime = 0;
+    KeyCode keyCode;
+    KeyAction keyAction;
+    std::vector<KeyItem> keyItems;
 };
+
+enum class KeyAction {
+    UNKNOWN = -1,
+    DOWN = 0,
+    UP = 1
+}
+
+enum class KeyCode {
+    POWER = 0,
+    VOLUME_UP = 1,
+    VOLUME_DOWN = 2,
+    BACK = 3,
+    HOME = 4,
+    RECENT = 5
+}
 
 } // namespace EDM
 } // namespace OHOS
