@@ -454,6 +454,8 @@ ohos_shared_library("sys_service_plugin") {
 
   defines = []
 
+  use_exceptions = true
+
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
     print("defines _ARM64_")
