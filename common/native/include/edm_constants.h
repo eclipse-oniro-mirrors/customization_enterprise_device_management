@@ -184,6 +184,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
         const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
+        const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -406,6 +407,7 @@ namespace PolicyName {
     const char* const POLICY_INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE =
         "install_enterprise_re_signature_certificate";
     const char* const POLICY_SET_KEY_CODE = "set_key_code";
+    const char* const POLICY_DISALLOW_USB_SERIAL = "disallow_usb_serial";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
