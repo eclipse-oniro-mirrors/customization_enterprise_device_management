@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace EDM {
 
-enum KeyPolicy {
+enum class KeyPolicy {
     INTERCEPTION = 0,
     CUSTOM = 1,
 };
