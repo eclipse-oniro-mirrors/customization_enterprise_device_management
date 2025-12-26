@@ -38,6 +38,15 @@ public:
     {
         return ERR_OK;
     }
+    virtual ErrCode OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
+    {
+        return ERR_OK;
+    }
+    virtual ErrCode OnAdminRemoveExecute(const std::string &adminName, const std::string &policyName,
+        const std::string &policyValue, int32_t userId)
+    {
+        return ERR_OK;
+    }
 };
 
 } // namespace EDM

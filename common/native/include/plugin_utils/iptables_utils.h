@@ -33,6 +33,8 @@ enum class Protocol { INVALID = -1, ALL, TCP, UDP, ICMP };
 
 enum class Family { IPV4 = 1, IPV6 = 2 };
 
+enum class LogType { INVALID = -1, NFLOG };
+
 struct Firewall {
     std::string srcAddr;
     std::string destAddr;
@@ -76,6 +78,7 @@ public:
     static bool ProcessFirewallDirection(int32_t type, Direction &direction);
     static void ProcessFirewallProtocol(int32_t type, Protocol &protocol);
     static void ProcessFirewallFamily(int32_t type, Family &family);
+    static void ProcessFirewallLogType(int32_t type, LogType &logType);
 };
 } // namespace IPTABLES
 } // namespace EDM

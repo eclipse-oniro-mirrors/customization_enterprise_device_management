@@ -202,9 +202,11 @@ private:
     std::string GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId);
     ErrCode CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin);
     ErrCode CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin);
+    void OnHandleInitExecute(uint32_t interfaceCode);
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
-    void CreateLogDirIfNeed(const std::string path);
-    void DeleteLogDirIfNeed(const std::string path);
+    void CreateLogDirIfNeed(const std::string &path);
+    void DeleteLogDirIfNeed(const std::string &adminName);
+    void DeleteSubUserLogDirIfNeed(int32_t userId);
 #endif
     static std::shared_mutex adminLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;

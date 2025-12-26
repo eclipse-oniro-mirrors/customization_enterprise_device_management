@@ -36,8 +36,10 @@ public:
 
     virtual ErrCode CreateChain(NetsysNative::IptablesType ipType);
     virtual ErrCode Init(NetsysNative::IptablesType ipType) = 0;
-    virtual ErrCode Add(const std::shared_ptr<ChainRule> &rule, NetsysNative::IptablesType ipType);
-    virtual ErrCode Remove(const std::shared_ptr<ChainRule> &rule, NetsysNative::IptablesType ipType);
+    virtual ErrCode Add(const std::shared_ptr<ChainRule> &rule, NetsysNative::IptablesType ipType,
+        LogType logType = LogType::INVALID);
+    virtual ErrCode Remove(const std::shared_ptr<ChainRule> &rule, NetsysNative::IptablesType ipType,
+        LogType logType = LogType::INVALID);
     virtual ErrCode GetAll(std::vector<std::string> &ruleList, NetsysNative::IptablesType ipType);
     virtual bool ChainInit(NetsysNative::IptablesType ipType);
 
@@ -48,7 +50,7 @@ public:
 
 private:
     virtual ErrCode ExecWithOption(std::ostringstream &oss, const std::shared_ptr<ChainRule> &rule,
-        NetsysNative::IptablesType ipType);
+        NetsysNative::IptablesType ipType, LogType logType = LogType::INVALID);
 
 protected:
     IExecuter() = default;

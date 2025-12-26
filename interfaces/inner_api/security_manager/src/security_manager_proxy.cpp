@@ -158,9 +158,10 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info)
+int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &admin,
+    std::string &info, const std::string &item)
 {
-    EDMLOGD("SecurityManagerProxy::GetRootCheckStatus");
+    EDMLOGD("SecurityManagerProxy::GetRootCheckStatus, item: %{public}s", item.c_str());
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -168,6 +169,7 @@ int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
+    data.WriteString(item);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::POLICY_CODE_END + 8);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(funcCode, data, reply);
@@ -317,26 +319,31 @@ int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &d
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::GetSecurityFastbootStatus(const AppExecFwk::ElementName &admin, std::string &info)
+int32_t SecurityManagerProxy::InstallEnterpriseReSignatureCertificate(MessageParcel &data)
 {
-    EDMLOGD("SecurityManagerProxy::GetSecurityFastbootStatus");
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
+    EDMLOGD("SecurityManagerProxy::InstallEnterpriseReSignatureCertificate");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::GET_SECURITY_FASTBOOT_STATUS);
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(funcCode, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+                         EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:InstallEnterpriseReSignatureCertificate fail. %{public}d", ret);
         return ret;
     }
-    reply.ReadString(info);
+    return ERR_OK;
+}
+
+int32_t SecurityManagerProxy::UninstallEnterpriseReSignatureCertificate(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::UninstallEnterpriseReSignatureCertificate");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+                         EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:UninstallEnterpriseReSignatureCertificate fail. %{public}d", ret);
+        return ret;
+    }
     return ERR_OK;
 }
 } // namespace EDM

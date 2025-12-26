@@ -35,6 +35,7 @@ public:
     static void SetEdmInitialEnv();
     static void ResetTokenTypeAndUid();
     static bool GetEdmServiceState();
+    static bool GetEdmEnterpriseConfigState();
     static bool IsOriginalUTEnv();
     static void SetEdmServiceEnable();
     static void SetEdmServiceDisable();

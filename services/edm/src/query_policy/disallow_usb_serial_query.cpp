@@ -13,20 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_FASTBOOT_STATUS_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_FASTBOOT_STATUS_PLUGIN_H
+#include "disallow_usb_serial_query.h"
 
-#include "plugin_singleton.h"
+#include "bool_serializer.h"
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-class GetSecurityFastbootStatusPlugin : public PluginSingleton<GetSecurityFastbootStatusPlugin, std::string> {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetSecurityFastbootStatusPlugin, std::string>> ptr) override;
+std::string DisallowUsbSerialQuery::GetPolicyName()
+{
+    return PolicyName::POLICY_DISALLOW_USB_SERIAL;
+}
 
-    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-};
+std::string DisallowUsbSerialQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+{
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+}
+
+ErrCode DisallowUsbSerialQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    return GetBoolPolicy(policyData, reply);
+}
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_GET_DEVICE_FASTBOOT_STATUS_PLUGIN_H

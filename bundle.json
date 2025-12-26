@@ -86,7 +86,6 @@
         "image_framework",
         "imf",
         "init",
-        "input",
         "ipc",
         "location",
         "napi",

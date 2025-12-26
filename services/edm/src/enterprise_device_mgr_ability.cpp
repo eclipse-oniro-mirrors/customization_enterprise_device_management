@@ -73,6 +73,7 @@ const bool REGISTER_RESULT =
 
 const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
+const std::string PARAM_EDM_ENTERPRISE_CONFIG_ENABLE = "persist.edm.enterprise_config_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
 const std::string WANT_BUNDLE_NAME = "bundleName";
@@ -316,12 +317,41 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
         };
+    addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+        };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
         };
 #endif
+}
+
+void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::OnHandleInitExecute calling.");
+    int32_t currentUserId = GetCurrentUserId();
+    if (currentUserId < 0) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::currentUserId error.");
+        return;
+    }
+    auto ret = PluginManager::GetInstance()->LoadPluginByCode(interfaceCode);
+    if (ret != ERR_OK) {
+        return;
+    }
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGW("OnHandleInitExecute: get plugin failed, code: %{public}d", interfaceCode);
+        return;
+    }
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    for (const auto& admin : admins) {
+        std::string adminName = admin->adminInfo_.packageName_;
+        plugin->GetExecuteStrategy()->OnInitExecute(interfaceCode, adminName, currentUserId);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
@@ -464,12 +494,19 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
         std::make_move_iterator(currentUserAdmins.end()));
     for (auto &admin : userAdmin) {
         if (admin->IsEnterpriseAdminKeepAlive()) {
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+            std::string packageName = admin->adminInfo_.packageName_;
+            if (GetBundleMgr()->IsBundleInstalled(packageName, userIdToSwitch)) {
+                CreateLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(userIdToSwitch) + "/" + packageName);
+            }
+#endif
             OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
                 IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userIdToSwitch, false);
         }
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
     CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+    OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
@@ -498,6 +535,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved: remove sub and super admin policy failed.");
         }
     }
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    DeleteSubUserLogDirIfNeed(userIdToRemove);
+#endif
     ConnectAbilityOnSystemAccountEvent(userIdToRemove, ManagedEvent::USER_REMOVED);
 }
 
@@ -655,6 +695,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEve
 {
     EDMLOGI("OnCommonEventBmsReady");
     ConnectEnterpriseAbility();
+    CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn)
@@ -944,6 +985,7 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(RES_SCHED_SYS_ABILITY_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
+    AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
     AddSystemAbilityListener(PASTEBOARD_SERVICE_ID);
 #endif
@@ -1540,10 +1582,10 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminItem(const std::string &adminName
     }
     std::string mergedPolicyData;
     plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
-    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
-    if (ret != ERR_OK) {
-        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
-            adminName.c_str(), policyValue.c_str(), ret);
+    ErrCode ret = plugin->GetExecuteStrategy()->OnAdminRemoveExecute(adminName, policyName, policyValue, userId);
+    if (FAILED(ret)) {
+        EDMLOGW("RemoveAdminItem: OnAdminRemoveExecute failed");
+        return ret;
     }
     if (plugin->NeedSavePolicy()) {
         ErrCode setRet = ERR_OK;
@@ -1592,9 +1634,6 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     if (shouldUnsubscribeAppState) {
         UnsubscribeAppState();
     }
-#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
-    DeleteLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(userId) + "/" + adminName);
-#endif
     return ERR_OK;
 }
 
@@ -1774,6 +1813,9 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
             DelDisallowUninstallAppForAccount(admin->adminInfo_.packageName_, userId);
         }
     }
+#if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
+    DeleteLogDirIfNeed(admin->adminInfo_.packageName_);
+#endif
     EDMLOGD("ReportEdmEventManagerAdmin DisableAdmin");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(admin->adminInfo_.packageName_.c_str(),
         static_cast<int32_t>(AdminAction::DISABLE), static_cast<int32_t>(adminType));
@@ -1933,6 +1975,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string permissionTag = data.ReadString();
     // 若PERMISSION_MANAGE_EDM_POLICY权限校验通过则直接进行业务处理；
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
@@ -1942,7 +1985,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
             return EdmReturnErrCode::ADMIN_INACTIVE;
         }
         int uid = IPCSkeleton::GetCallingUid();
-        std::string permissionTag = data.ReadString();
         if (uid != EDM_UID) {
             std::string setPermission = plugin->GetPermission(FuncOperateType::SET,
                 GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), permissionTag);
@@ -1957,6 +1999,11 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 #endif
     ReportFuncEvent(code);
     ErrCode ret = UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
+    std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
+    if (ret == ERR_OK && enterpriseConfigEnable == "false") {
+        EDMLOGD("HandleDevicePolicy success, set PARAM_EDM_ENTERPRISE_CONFIG_ENABLE true.");
+        system::SetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "true");
+    }
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), plugin->GetPolicyName(), std::to_string(ret));
     SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;
@@ -2710,7 +2757,13 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
 
     // 校验被拉起方是否是系统应用
     bool isSystemApp = true;
-    if (FAILED(GetBundleMgr()->IsSystemApp(bundleName, currentUserId, isSystemApp)) || isSystemApp) {
+    ErrCode ret = GetBundleMgr()->IsSystemApp(bundleName, currentUserId, isSystemApp);
+    if (FAILED(ret)) {
+        EDMLOGE("Call IsSystemApp Fail.");
+        return ret;
+    }
+
+    if (isSystemApp) {
         EDMLOGE("Not support start system app.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
@@ -2726,7 +2779,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, con
 }
 
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
-void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string path)
+void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string &path)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::CreateLogDirIfNeed.");
     std::error_code ec;
@@ -2738,9 +2791,42 @@ void EnterpriseDeviceMgrAbility::CreateLogDirIfNeed(const std::string path)
     }
 }
 
-void EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed(const std::string path)
+void EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed(const std::string &adminName)
 {
+    EDMLOGI("EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed.");
     std::error_code ec;
+    if (!std::filesystem::exists(EDM_LOG_PATH, ec) || ec) {
+        return;
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(EDM_LOG_PATH, ec)) {
+        if (ec) {
+            continue;
+        }
+        if (!std::filesystem::is_directory(entry, ec) || ec) {
+            continue;
+        }
+        std::string targetPath = entry.path().string() + "/" + adminName;
+        if (std::filesystem::exists(targetPath, ec) && !ec) {
+            std::filesystem::remove_all(targetPath, ec);
+            if (ec) {
+                EDMLOGE("EnterpriseDeviceMgrAbility::DeleteLogDirIfNeed fail. ec = %{public}d, %{public}s",
+                    ec.value(), ec.message().c_str());
+            }
+        }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::DeleteSubUserLogDirIfNeed(int32_t userId)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::DeleteSubUserLogDirIfNeed.");
+    if (userId < 0) {
+        return;
+    }
+    std::error_code ec;
+    if (!std::filesystem::exists(EDM_LOG_PATH, ec) || ec) {
+        return;
+    }
+    std::string path = EDM_LOG_PATH + "/" + std::to_string(userId);
     if (std::filesystem::exists(path, ec) && !ec) {
         std::filesystem::remove_all(path, ec);
         if (ec) {

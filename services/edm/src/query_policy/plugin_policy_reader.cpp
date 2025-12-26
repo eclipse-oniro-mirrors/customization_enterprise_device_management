@@ -162,6 +162,7 @@
 #include "disallow_distributed_transmission_query.h"
 #include "disallow_modify_datetime_query.h"
 #include "disallow_unmute_device_query.h"
+#include "disallow_usb_serial_query.h"
 #include "disallow_virtual_service_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
@@ -733,6 +734,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOW_USB_SERIAL:
+            obj = std::make_shared<DisallowUsbSerialQuery>();
+            return ERR_OK;
         default:
             break;
     }

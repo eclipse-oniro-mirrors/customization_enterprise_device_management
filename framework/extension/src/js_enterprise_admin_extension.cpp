@@ -25,6 +25,8 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "runtime.h"
+#include "cJSON.h"
+#include "cjson_check.h"
 
 namespace OHOS {
 namespace EDM {
@@ -223,8 +225,15 @@ void JsEnterpriseAdminExtension::OnDeviceAdminEnabled(const std::string &bundleN
     EDMLOGI("JsEnterpriseAdminExtension::OnDeviceAdminEnabled");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnDeviceAdminEnabled scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onDeviceAdminEnabled", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -234,8 +243,15 @@ void JsEnterpriseAdminExtension::OnDeviceAdminDisabled(const std::string &bundle
     EDMLOGI("JsEnterpriseAdminExtension::OnDeviceAdminDisabled");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnDeviceAdminDisabled scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onDeviceAdminDisabled", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -245,9 +261,16 @@ void JsEnterpriseAdminExtension::OnBundleAdded(const std::string &bundleName, in
     EDMLOGI("JsEnterpriseAdminExtension::OnBundleAdded");
     auto task = [bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnBundleAdded scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
             AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onBundleAdded", argv, JS_NAPI_ARGC_TWO);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -257,9 +280,16 @@ void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName, 
     EDMLOGI("JsEnterpriseAdminExtension::OnBundleRemoved");
     auto task = [bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnBundleRemoved scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
             AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onBundleRemoved", argv, JS_NAPI_ARGC_TWO);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -269,8 +299,15 @@ void JsEnterpriseAdminExtension::OnAppStart(const std::string &bundleName)
     EDMLOGI("JsEnterpriseAdminExtension::OnAppStart");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnAppStart scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onAppStart", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -280,8 +317,15 @@ void JsEnterpriseAdminExtension::OnAppStop(const std::string &bundleName)
     EDMLOGI("JsEnterpriseAdminExtension::OnAppStop");
     auto task = [bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnAppStop scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
         CallObjectMethod("onAppStop", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -291,8 +335,15 @@ void JsEnterpriseAdminExtension::OnSystemUpdate(const UpdateInfo &updateInfo)
     EDMLOGI("JsEnterpriseAdminExtension::OnSystemUpdate");
     auto task = [updateInfo, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnSystemUpdate scope is nullptr");
+            return;
+        }
         napi_value argv[] = { CreateUpdateInfoObject(env, updateInfo) };
         CallObjectMethod("onSystemUpdate", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -302,8 +353,15 @@ void JsEnterpriseAdminExtension::OnAccountAdded(const int32_t accountId)
     EDMLOGI("JsEnterpriseAdminExtension::OnAccountAdded");
     auto task = [accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnAccountAdded scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onAccountAdded", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -313,8 +371,15 @@ void JsEnterpriseAdminExtension::OnAccountSwitched(const int32_t accountId)
     EDMLOGI("JsEnterpriseAdminExtension::OnAccountSwitched");
     auto task = [accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnAccountSwitched scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onAccountSwitched", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -324,8 +389,15 @@ void JsEnterpriseAdminExtension::OnAccountRemoved(const int32_t accountId)
     EDMLOGI("JsEnterpriseAdminExtension::OnAccountRemoved");
     auto task = [accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnAccountRemoved scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onAccountRemoved", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -335,9 +407,16 @@ void JsEnterpriseAdminExtension::OnKioskModeEntering(const std::string &bundleNa
     EDMLOGI("JsEnterpriseAdminExtension::OnKioskModeEntering");
     auto task = [bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnKioskModeEntering scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
                               AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onKioskModeEntering", argv, JS_NAPI_ARGC_TWO);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -347,9 +426,16 @@ void JsEnterpriseAdminExtension::OnKioskModeExiting(const std::string &bundleNam
     EDMLOGI("JsEnterpriseAdminExtension::OnKioskModeExiting");
     auto task = [bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnKioskModeExiting scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
                               AbilityRuntime::CreateJsValue(env, accountId) };
         CallObjectMethod("onKioskModeExiting", argv, JS_NAPI_ARGC_TWO);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -359,9 +445,16 @@ void JsEnterpriseAdminExtension::OnMarketAppsInstallStatusChanged(const std::str
     EDMLOGI("JsEnterpriseAdminExtension::OnMarketAppsInstallStatusChanged");
     auto task = [bundleName, status, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnMarketAppsInstallStatusChanged scope is nullptr");
+            return;
+        }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
                               CreateInstallationResultObject(env, bundleName, status) };
         CallObjectMethod("onMarketAppInstallResult", argv, JS_NAPI_ARGC_TWO);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
 }
@@ -371,10 +464,128 @@ void JsEnterpriseAdminExtension::OnLogCollected(bool isSuccess)
     EDMLOGI("JsEnterpriseAdminExtension::OnLogCollected");
     auto task = [isSuccess, this]() {
         auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnLogCollected scope is nullptr");
+            return;
+        }
         napi_value argv[] = { CreateResultObject(env, isSuccess ? 0 : -1) };
         CallObjectMethod("onLogCollected", argv, JS_NAPI_ARGC_ONE);
+        napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);
+}
+
+void JsEnterpriseAdminExtension::OnKeyEvent(const std::string &event)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnKeyEvent");
+    OHOS::EDM::KeyEvent keyEventInfo;
+    if (ParseKeyEventInfo(event, keyEventInfo)) {
+        auto task = [keyEventInfo, this]() {
+            auto env = jsRuntime_.GetNapiEnv();
+            napi_handle_scope scope = nullptr;
+            napi_open_handle_scope(env, &scope);
+            if (scope == nullptr) {
+                EDMLOGE("OnKeyEvent scope is nullptr");
+                return;
+            }
+            napi_value argv[] = { CreateKeyEventInfoObject(env, keyEventInfo)};
+            CallObjectMethod("onKeyEvent", argv, JS_NAPI_ARGC_ONE);
+            napi_close_handle_scope(env, scope);
+        };
+        handler_->PostTask(task);
+    };
+}
+
+bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::ParseKeyEventInfo");
+    cJSON* root = cJSON_Parse(jsonString.c_str());
+    if (root == nullptr) {
+        EDMLOGE("Failed to parse JSON string");
+        return false;
+    }
+    
+    cJSON *actionTime = cJSON_GetObjectItem(root, "actionTime");
+    cJSON *keyCode = cJSON_GetObjectItem(root, "keyCode");
+    cJSON *keyAction = cJSON_GetObjectItem(root, "keyAction");
+    cJSON *keyItems = cJSON_GetObjectItem(root, "keyItems");
+    
+    if (!cJSON_IsNumber(actionTime) || !cJSON_IsNumber(keyCode) || !cJSON_IsNumber(keyAction) ||
+        !cJSON_IsArray(keyItems)) {
+        EDMLOGE("Invalid JSON structure");
+        cJSON_Delete(root);
+        return false;
+    }
+    keyEventInfo.actionTime = actionTime->valuedouble;
+    keyEventInfo.keyCode = keyCode->valueint;
+    keyEventInfo.keyAction = keyAction->valueint;
+
+    cJSON *keyItem;
+    cJSON_ArrayForEach(keyItem, keyItems) {
+        cJSON *pressed = cJSON_GetObjectItem(keyItem, "pressed");
+        cJSON *keyCodeItem = cJSON_GetObjectItem(keyItem, "keyCode");
+        cJSON *downTime = cJSON_GetObjectItem(keyItem, "downTime");
+
+        if (!cJSON_IsNumber(pressed) || !cJSON_IsNumber(keyCodeItem) || !cJSON_IsNumber(downTime)) {
+            EDMLOGE("Invalid JSON structure");
+            cJSON_Delete(root);
+            return false;
+        }
+        KeyEventItem KeyItemStruct;
+        KeyItemStruct.pressed = pressed->valueint;
+        KeyItemStruct.keyCode = keyCodeItem->valueint;
+        KeyItemStruct.downTime = downTime->valuedouble;
+
+        keyEventInfo.keyItems.push_back(KeyItemStruct);
+    }
+    cJSON_Delete(root);
+    return true;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo)
+{
+    napi_value nKeyEventInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyEventInfo));
+
+    napi_value nActionTime = nullptr;
+    NAPI_CALL(env, napi_create_int64(env, keyEventInfo.actionTime, &nActionTime));
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "actionTime", nActionTime));
+    
+    napi_value nKeyCode = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyCode, &nKeyCode));
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyCode", nKeyCode));
+
+    napi_value nKeyAction = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyAction, &nKeyAction));
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyAction", nKeyAction));
+
+    napi_value nKeyItems = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, keyEventInfo.keyItems.size(), &nKeyItems));
+
+    for (size_t i = 0; i < keyEventInfo.keyItems.size(); ++i) {
+        const KeyEventItem &keyItem = keyEventInfo.keyItems[i];
+
+        napi_value nKeyItem = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &nKeyItem));
+
+        napi_value nPressed = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, keyItem.pressed, &nPressed));
+        NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "pressed", nPressed));
+
+        napi_value nKeyCodeItem = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, keyItem.keyCode, &nKeyCodeItem));
+        NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "keyCode", nKeyCodeItem));
+
+        napi_value nDownTime = nullptr;
+        NAPI_CALL(env, napi_create_int64(env, keyItem.downTime, &nDownTime));
+        NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "downTime", nDownTime));
+
+        NAPI_CALL(env, napi_set_element(env, nKeyItems, i, nKeyItem));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyItems", nKeyItems));
+    return nKeyEventInfo;
 }
 
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)

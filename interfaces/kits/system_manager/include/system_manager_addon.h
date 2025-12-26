@@ -86,6 +86,9 @@ private:
         FuncOperateType operateType);
     static void CreateProtocolObject(napi_env env, napi_value value);
     static napi_value StartCollectLog(napi_env env, napi_callback_info info);
+    static napi_value AddKeyEventPolicies(napi_env env, napi_callback_info info);
+    static napi_value RemoveKeyEventPolicies(napi_env env, napi_callback_info info);
+    static napi_value GetKeyEventPolicies(napi_env env, napi_callback_info info);
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     static void NativeStartCollectLog(napi_env env, void *data);
 #endif

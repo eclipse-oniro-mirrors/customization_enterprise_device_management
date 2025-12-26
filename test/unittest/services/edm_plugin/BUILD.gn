@@ -60,6 +60,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallow_modify_datetime_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
     "./src/disallow_unmute_device_plugin_test.cpp",
+    "./src/disallow_usb_serial_plugin_test.cpp",
     "./src/disallow_virtual_service_plugin_test.cpp",
     "./src/install_plugin_test.cpp",
     "./src/kiosk_feature_plugin_test.cpp",
@@ -68,8 +69,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/ntp_server_plugin_test.cpp",
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
-    "./src/set_default_input_method_plugin_test.cpp",
     "./src/set_eye_comfort_mode_plugin_test.cpp",
+    "./src/set_device_name_plugin_test.cpp",
     "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
     "./src/utils/allowed_app_distribution_types_utils_test.cpp",
@@ -80,7 +81,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
     "./src/set_ability_disable_plugin_test.cpp",
-    "./src/get_security_fastboot_status_plugin_test.cpp",
   ]
 
   configs = [
@@ -159,6 +159,10 @@ ohos_unittest("EdmPluginTest") {
 
   if (screenlock_mgr_edm_enable) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
+  }
+
+  if (inputmethod_imf_enable) {
+    sources += [ "./src/set_default_input_method_plugin_test.cpp" ]
   }
 
   if (os_account_edm_enable && screenlock_mgr_edm_enable) {
@@ -349,6 +353,7 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/disable_private_space_plugin.cpp",
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/set_key_code_plugin.cpp",
     ]
   }
 
@@ -457,6 +462,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/disallow_distributed_transmission_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_modify_datetime_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_unmute_device_plugin.cpp",
+    "../../../../services/edm_plugin/src/disallow_usb_serial_plugin.cpp",
     "../../../../services/edm_plugin/src/disallow_virtual_service_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/disallowed_tethering_plugin.cpp",
@@ -472,8 +478,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/operate_device_plugin.cpp",
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
-    "../../../../services/edm_plugin/src/set_default_input_method_plugin.cpp",
     "../../../../services/edm_plugin/src/set_eye_comfort_mode_plugin.cpp",
+    "../../../../services/edm_plugin/src/set_device_name_plugin.cpp",
     "../../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
     "../../../../services/edm_plugin/src/snapshot_skip_plugin.cpp",
     "../../../../services/edm_plugin/src/uninstall_plugin.cpp",
@@ -487,7 +493,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
     "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../../services/edm_plugin/src/set_ability_disable_plugin.cpp",
-    "../../../../services/edm_plugin/src/get_security_fastboot_status_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
@@ -537,6 +542,13 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "update_service:updateservicekits" ]
     sources +=
         [ "../../../../services/edm_plugin/src/reset_factory_plugin.cpp" ]
+  }
+
+  if (inputmethod_imf_enable) {
+    external_deps += [ "imf:inputmethod_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/set_default_input_method_plugin.cpp"
+    ]
   }
 
   if (os_account_edm_enable) {

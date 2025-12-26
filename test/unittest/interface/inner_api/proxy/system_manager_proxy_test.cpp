@@ -23,6 +23,7 @@
 #include "func_code.h"
 #include "update_policy_utils.h"
 #include "utils.h"
+#include "key_code.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -540,6 +541,108 @@ HWTEST_F(SystemManagerProxyTest, TestFinishLogCollectedSuc, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
 }
 #endif
+
+/**
+ * @tc.name: TestSetKeyEventPolicysSuc
+ * @tc.desc: Test SetKeyEventPolicys func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetKeyEventPolicysSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    std::string errMsg;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    
+    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, keyCusts, errMsg);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+ 
+/**
+ * @tc.name: TestSetKeyEventPolicysFail
+ * @tc.desc: Test SetKeyEventPolicys func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetKeyEventPolicysFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    std::string errMsg;
+    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, keyCusts, errMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveKeyEventPolicysSuc
+ * @tc.desc: Test RemoveKeyEventPolicys func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestRemoveKeyEventPolicysSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<int32_t> KeyCodes;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    
+    int32_t ret = systemmanagerProxy->RemoveKeyEventPolicys(admin, KeyCodes);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+ 
+/**
+ * @tc.name: TestRemoveKeyEventPolicysFail
+ * @tc.desc: Test RemoveKeyEventPolicys func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestRemoveKeyEventPolicysFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<int32_t> KeyCodes;
+    int32_t ret = systemmanagerProxy->RemoveKeyEventPolicys(admin, KeyCodes);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetKeyEventPolicysSuc
+ * @tc.desc: Test GetKeyEventPolicys func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetKeyEventPolicysFail
+ * @tc.desc: Test GetKeyEventPolicys func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::vector<OHOS::EDM::KeyCustomization> keyCusts;
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -30,8 +30,10 @@ const int32_t DOMAIN_APPUID_IND = 1;
 const int32_t DOMAIN_DOMAINNAME_IND = 2;
 const int32_t DOMAIN_DIRECTION_IND = 3;
 const int32_t DOMAIN_FAMILY_IND = 4;
+const int32_t DOMAIN_LOGTYPE_IND = 5;
 
-using DomainFilterRule = std::tuple<Action, std::string /*appUid*/, std::string /*domainName*/, Direction, Family>;
+using DomainFilterRule = std::tuple<Action, std::string /*appUid*/, std::string /*domainName*/,
+    Direction, Family, LogType>;
 
 class DomainFilterRuleParcel {
 public:

@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#include "get_security_fastboot_status_plugin.h"
 #include <gtest/gtest.h>
-#include "edm_data_ability_utils_mock.h"
+
+#include "disallow_usb_serial_plugin.h"
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -26,42 +25,43 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class GetSecurityFastbootStatusPluginTest : public testing::Test {
+class DisallowUsbSerialPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void GetSecurityFastbootStatusPluginTest::SetUpTestSuite(void)
+void DisallowUsbSerialPluginTest::SetUpTestSuite(void)
 {
-    Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
-void GetSecurityFastbootStatusPluginTest::TearDownTestSuite(void)
+void DisallowUsbSerialPluginTest::TearDownTestSuite(void)
 {
-    Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
 /**
- * @tc.name: GetSecurityFastbootStatusSuc
- * @tc.desc: Test get device security fastboot status function.
+ * @tc.name: TestOnSetPolicy
+ * @tc.desc: Test DisallowUsbSerialPluginTest::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(GetSecurityFastbootStatusPluginTest, GetSecurityFastbootStatusSuc, TestSize.Level1)
+HWTEST_F(DisallowUsbSerialPluginTest, TestOnSetPolicy, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GetSecurityFastbootStatusPlugin::GetPlugin();
-    std::string policyValue{"GetSecurityFastbootStatus"};
     MessageParcel data;
     MessageParcel reply;
-    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(code == ERR_OK || code == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    data.WriteBool(false);
+    auto plugin = DisallowUsbSerialPlugin::GetPlugin();
+    HandlePolicyData handlePolicyData{"false", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOW_USB_SERIAL);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(handlePolicyData.isChanged);
 }
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -117,6 +117,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOW_REMOTE_DIAGNOSIS = 26;
         constexpr uint32_t GET_EXT_INFO = 29;
         constexpr uint32_t START_COLLECT_LOG = 30;
+        constexpr uint32_t SET_KEY_EVENTS = 31;
     }
 
     namespace KeepAlive {
@@ -183,6 +184,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE = "unmuteDevice";
         const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
+        const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -200,6 +202,7 @@ namespace EdmConstants {
         const char* const DATE_TIME = "dateTime";
         const char* const EYE_COMFORT = "eyeComfort";
         const char* const DEFAULT_INPUT_METHOD = "defaultInputMethod";
+        const char* const DEVICE_NAME = "deviceName";
     } // namespace DeviceSettings
 
     namespace DeviceControl {
@@ -403,6 +406,10 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     const char* const POLICY_MANAGE_USER_NON_STOP_APPS = "manage_user_non_stop_apps";
     const char* const POLICY_SET_DEFAULT_INPUT_METHOD = "set_default_input_method";
+    const char* const POLICY_INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE =
+        "install_enterprise_re_signature_certificate";
+    const char* const POLICY_SET_KEY_CODE = "set_key_code";
+    const char* const POLICY_DISALLOW_USB_SERIAL = "disallow_usb_serial";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
@@ -418,7 +425,6 @@ namespace PolicyName {
     const char* const POLICY_SET_NETWORK_INTERFACE_CONFIG = "set_network_interface_config";
     const char* const POLICY_DISALLOW_MODIFY_WALLPAPER = "disallow_modify_wallpaper";
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
-    const char* const POLICY_GET_DEVICE_FASTBOOT_STATUS = "fastboot";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

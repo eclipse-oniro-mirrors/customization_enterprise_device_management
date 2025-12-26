@@ -73,6 +73,7 @@ ohos_shared_library("edmservice_kits") {
     "./security_manager/src/security_manager_proxy.cpp",
     "./system_manager/src/system_manager_proxy.cpp",
     "./system_manager/src/update_policy_utils.cpp",
+    "./system_manager/src/key_code.cpp",
     "./usb_manager/src/array_usb_device_id_serializer.cpp",
     "./usb_manager/src/usb_manager_proxy.cpp",
     "./wifi_manager/src/array_wifi_id_serializer.cpp",

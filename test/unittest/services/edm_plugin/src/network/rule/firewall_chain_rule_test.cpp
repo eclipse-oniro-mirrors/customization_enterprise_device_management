@@ -40,13 +40,13 @@ class FirewallChainRuleTest : public testing::Test {};
 HWTEST_F(FirewallChainRuleTest, TestToFilterRule, TestSize.Level1)
 {
     FirewallRule firewallRule{Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80",
-        "90", "", Family::IPV4};
+        "90", "", Family::IPV4, LogType::INVALID};
 
     FirewallChainRule firewallChainRule{firewallRule};
     EXPECT_EQ(firewallChainRule.ToFilterRule(Direction::INPUT, Family::IPV4), firewallRule);
 
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.1.1", "192.168.2.2", "9090", "9091",
-        "1234567", Family::IPV4};
+        "1234567", Family::IPV4, LogType::INVALID};
     std::string rule =
         "1        0     0 ACCEPT     udp  --  *      *       192.168.1.1          192.168.2.2          "
         "udp spt:9090 dpt:9091 owner UID match 1234567";
@@ -54,7 +54,7 @@ HWTEST_F(FirewallChainRuleTest, TestToFilterRule, TestSize.Level1)
     EXPECT_EQ(firewallChainRule1.ToFilterRule(Direction::INPUT, Family::IPV4), firewallRule);
 
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.4.1", "192.168.5.1-192.168.5.254",
-        "55", "55", "6667", Family::IPV4};
+        "55", "55", "6667", Family::IPV4, LogType::INVALID};
     rule =
         "2        0     0 ACCEPT     udp  --  *      *       192.168.4.1          0.0.0.0/0            "
         "destination IP range 192.168.5.1-192.168.5.254 udp spt:55 dpt:55 owner UID match 6667";
@@ -63,7 +63,7 @@ HWTEST_F(FirewallChainRuleTest, TestToFilterRule, TestSize.Level1)
     EXPECT_EQ(firewallChainRule2.ToFilterRule(Direction::INPUT, Family::IPV4), firewallRule);
 
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::UDP, "192.168.6.1-192.168.6.254",
-        "192.168.5.1-192.168.5.254", "55:66", "55:77", "", Family::IPV4};
+        "192.168.5.1-192.168.5.254", "55:66", "55:77", "", Family::IPV4, LogType::INVALID};
     rule =
         "3        0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            "
         "source IP range 192.168.6.1-192.168.6.254 destination IP range 192.168.5.1-192.168.5.254 "
@@ -73,10 +73,12 @@ HWTEST_F(FirewallChainRuleTest, TestToFilterRule, TestSize.Level1)
     EXPECT_EQ(firewallChainRule3.ToFilterRule(Direction::INPUT, Family::IPV4), firewallRule);
 
     FirewallChainRule firewallChainRuleEmpty{};
-    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4};
+    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4,
+        LogType::INVALID};
     EXPECT_EQ(firewallChainRuleEmpty.ToFilterRule(Direction::INPUT, Family::IPV4), firewallRule);
 
-    firewallRule = {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4};
+    firewallRule = {Direction::OUTPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4,
+        LogType::INVALID};
     EXPECT_EQ(firewallChainRuleEmpty.ToFilterRule(Direction::OUTPUT, Family::IPV4), firewallRule);
 }
 
@@ -88,21 +90,21 @@ HWTEST_F(FirewallChainRuleTest, TestToFilterRule, TestSize.Level1)
 HWTEST_F(FirewallChainRuleTest, TestParameter, TestSize.Level1)
 {
     FirewallRule firewallRule{Direction::INPUT, Action::DENY, Protocol::UDP, "192.168.2.100", "192.168.2.200", "80",
-        "90", "", Family::IPV4};
+        "90", "", Family::IPV4, LogType::NFLOG};
     std::string parameter = " -p udp -s 192.168.2.100 -d 192.168.2.200 --sport 80 --dport 90";
 
     FirewallChainRule firewallChainRule{firewallRule};
     EXPECT_EQ(firewallChainRule.Parameter(false), parameter);
 
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::ALL, "192.168.2.100", "192.168.2.200", "", "", "9999",
-        Family::IPV4};
+        Family::IPV4, LogType::NFLOG};
     parameter = " -p all -s 192.168.2.100 -d 192.168.2.200 -m owner --uid-owner 9999";
 
     FirewallChainRule firewallChainRule1{firewallRule};
     EXPECT_EQ(firewallChainRule1.Parameter(false), parameter);
 
     firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::TCP, "192.168.2.1/22", "192.168.2.200", "99,100",
-        "800-900", "9999", Family::IPV4};
+        "800-900", "9999", Family::IPV4, LogType::NFLOG};
     parameter =
         " -p tcp -s 192.168.2.1/22 -d 192.168.2.200 -m multiport --sport 99,100 -m multiport --dport 800-900 "
         "-m owner --uid-owner 9999";
@@ -110,7 +112,8 @@ HWTEST_F(FirewallChainRuleTest, TestParameter, TestSize.Level1)
     FirewallChainRule firewallChainRule2{firewallRule};
     EXPECT_EQ(firewallChainRule2.Parameter(false), parameter);
 
-    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4};
+    firewallRule = {Direction::INPUT, Action::ALLOW, Protocol::INVALID, "", "", "", "", "", Family::IPV4,
+        LogType::NFLOG};
     parameter = "";
 
     FirewallChainRule firewallChainRule3{firewallRule};

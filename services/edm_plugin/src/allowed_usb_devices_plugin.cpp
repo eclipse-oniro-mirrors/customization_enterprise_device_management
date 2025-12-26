@@ -104,6 +104,13 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
             disallowUsbDevicePolicy.c_str());
         return true;
     }
+
+    std::string disableUsbSerial;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
+    if (disableUsbSerial == "true") {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! Usb serial is disabled.");
+        return true;
+    }
     return false;
 }
 

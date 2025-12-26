@@ -39,7 +39,8 @@ class DomainChainRuleTest : public testing::Test {};
  */
 HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
 {
-    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT, Family::IPV4};
+    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT, Family::IPV4,
+        LogType::INVALID};
     DomainChainRule domainChainRule{domainFilterRule};
 
     EXPECT_EQ(domainChainRule.ToFilterRule(Direction::OUTPUT, Family::IPV4), domainFilterRule);
@@ -58,14 +59,16 @@ HWTEST_F(DomainChainRuleTest, TestToFilterRule, TestSize.Level1)
  */
 HWTEST_F(DomainChainRuleTest, TestParameter, TestSize.Level1)
 {
-    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT, Family::IPV4};
+    DomainFilterRule domainFilterRule{Action::DENY, "9696", "www.example.com", Direction::OUTPUT, Family::IPV4,
+        LogType::NFLOG};
     std::string parameter =
         " -p udp --dport 53 -m owner --uid-owner 9696 -m string --hex-string |03|www|07|example|03|com| --algo bm";
 
     DomainChainRule domainChainRule{domainFilterRule};
     EXPECT_EQ(domainChainRule.Parameter(false), parameter);
 
-    DomainFilterRule domainFilterRule1{Action::ALLOW, "", "www.example.com", Direction::OUTPUT, Family::IPV4};
+    DomainFilterRule domainFilterRule1{Action::ALLOW, "", "www.example.com", Direction::OUTPUT, Family::IPV4,
+        LogType::NFLOG};
     std::string parameter1 = " -p udp --dport 53 -m string --hex-string |03|www|07|example|03|com| --algo bm";
 
     DomainChainRule domainChainRule1{domainFilterRule1};

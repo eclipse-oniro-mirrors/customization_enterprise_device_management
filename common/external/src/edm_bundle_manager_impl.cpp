@@ -231,7 +231,8 @@ ErrCode EdmBundleManagerImpl::IsSystemApp(const std::string &bundleName, int use
     }
     if (!proxy->GetApplicationInfo(bundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo)) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo failed.");
+        return EdmReturnErrCode::ABILITY_NOT_EXIST;
     }
     isSystemApp = appInfo.isSystemApp;
     return ERR_OK;

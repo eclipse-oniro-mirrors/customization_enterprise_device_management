@@ -74,7 +74,7 @@ void EdmAniUtils::AniThrow(ani_env *env, int32_t errCode, std::string errMsg)
         return;
     }
     ani_method ctor {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":V", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":", &ctor)) {
         EDMLOGE("find method BusinessError constructor failed");
         return;
     }
@@ -139,12 +139,16 @@ ani_string EdmAniUtils::StringToAniStr(ani_env *env, const std::string &str)
     return ret;
 }
 
-bool EdmAniUtils::GetStringProperty(ani_env *env,  ani_object aniAdmin, const std::string &propertyName,
+bool EdmAniUtils::GetStringProperty(ani_env *env, ani_object obj, const std::string &propertyName,
     std::string &property)
 {
     ani_ref ret;
-    if (ANI_OK != env->Object_GetPropertyByName_Ref(aniAdmin, propertyName.c_str(), &ret)) {
-        EDMLOGE("Get property [%{public}s] failed", propertyName.c_str());
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(obj, propertyName.c_str(), &ret)) {
+        EDMLOGE("GetStringProperty [%{public}s] failed", propertyName.c_str());
+        return false;
+    }
+    ani_boolean isUndefined;
+    if (env->Reference_IsUndefined(ret, &isUndefined) != ANI_OK || isUndefined) {
         return false;
     }
     if (ret == nullptr) {
@@ -152,6 +156,61 @@ bool EdmAniUtils::GetStringProperty(ani_env *env,  ani_object aniAdmin, const st
         return false;
     }
     property = AniStrToString(env, static_cast<ani_string>(ret));
+    return true;
+}
+
+bool EdmAniUtils::GetOptionalIntProperty(ani_env *env, ani_object obj, const std::string &name, int32_t &property)
+{
+    ani_ref ret;
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(obj, name.c_str(), &ret)) {
+        EDMLOGE("Object_GetPropertyByName_Ref [%{public}s] failed", name.c_str());
+        return false;
+    }
+    if (!GetOptionalInt(env, static_cast<ani_object>(ret), property)) {
+        EDMLOGE("GetOptionalInt [%{public}s] failed", name.c_str());
+        return false;
+    }
+    return true;
+}
+
+bool EdmAniUtils::GetOptionalInt(ani_env *env, ani_object optionalInt, int32_t &result)
+{
+    ani_boolean isUndefined;
+    ani_status status = env->Reference_IsUndefined(optionalInt, &isUndefined);
+    if (ANI_OK != status) {
+        EDMLOGE("GetOptionalInt failed to judge int is undefined, status: %{public}d", status);
+        return false;
+    }
+    ani_int value = 0;
+    if (!isUndefined) {
+        status = env->Object_CallMethodByName_Int(optionalInt, "intValue", nullptr, &value);
+        if (ANI_OK != status) {
+            EDMLOGE("GetOptionalInt failed to get int, status: %{public}d", status);
+            return false;
+        }
+    }
+    result = static_cast<int32_t>(value);
+    return true;
+}
+
+bool EdmAniUtils::GetEnumMember(ani_env *env, ani_object obj, const std::string &propertyName, int32_t &member)
+{
+    ani_ref ret;
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(obj, propertyName.c_str(), &ret)) {
+        EDMLOGE("GetEnumMember [%{public}s] failed", propertyName.c_str());
+        return false;
+    }
+    ani_boolean isUndefined;
+    if (env->Reference_IsUndefined(ret, &isUndefined) != ANI_OK || isUndefined) {
+        return false;
+    }
+    ani_enum_item id = static_cast<ani_enum_item>(ret);
+    ani_int number;
+    if (ANI_OK != env->EnumItem_GetValue_Int(id, &number)) {
+        EDMLOGE("Get [%{public}s] member value failed", propertyName.c_str());
+        return false;
+    }
+    member = static_cast<int32_t>(number);
     return true;
 }
 

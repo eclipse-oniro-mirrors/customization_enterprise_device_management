@@ -28,6 +28,9 @@ public:
         int32_t userId) override;
     ErrCode OnSetExecute(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
+    ErrCode OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId) override;
+    ErrCode OnAdminRemoveExecute(const std::string &adminName, const std::string &policyName,
+        const std::string &policyValue, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

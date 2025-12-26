@@ -43,5 +43,35 @@ ErrCode SingleExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParce
     EDMLOGE("SingleExecuteStrategy::OnGetExecute plugin %{public}d is not exist.", funcCode);
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
+
+ErrCode SingleExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
+{
+    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    if (plugin == nullptr) {
+        EDMLOGD("get Plugin fail %{public}d.", interfaceCode);
+        return ERR_EDM_HANDLE_POLICY_FAILED;
+    }
+    plugin->OnOtherServiceStartForAdmin(adminName, userId);
+    return ERR_EDM_HANDLE_POLICY_FAILED;
+}
+
+ErrCode SingleExecuteStrategy::OnAdminRemoveExecute(const std::string &adminName, const std::string &policyName,
+    const std::string &policyValue, int32_t userId)
+{
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName(policyName);
+    if (plugin == nullptr) {
+        EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}s\n", policyName.c_str());
+        return ERR_EDM_GET_PLUGIN_MGR_FAILED;
+    }
+    std::string mergedPolicyData;
+    plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
+    ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
+    if (ret != ERR_OK) {
+        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
+            adminName.c_str(), policyValue.c_str(), ret);
+        return ERR_EDM_HANDLE_POLICY_FAILED;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

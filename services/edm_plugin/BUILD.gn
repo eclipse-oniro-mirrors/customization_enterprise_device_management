@@ -62,7 +62,6 @@ ohos_shared_library("device_core_plugin") {
     "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
     "hilog:libhilog",
-    "imf:inputmethod_client",
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
@@ -98,15 +97,16 @@ ohos_shared_library("device_core_plugin") {
       "./src/ntp_server_plugin.cpp",
       "./src/power_policy_plugin.cpp",
       "./src/screen_off_time_plugin.cpp",
-      "./src/set_default_input_method_plugin.cpp",
       "./src/set_ability_disable_plugin.cpp",
       "./src/set_eye_comfort_mode_plugin.cpp",
+      "./src/set_device_name_plugin.cpp",
       "./src/snapshot_skip_plugin.cpp",
       "./src/uninstall_plugin.cpp",
       "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
       "./src/set_allowed_kiosk_apps_plugin.cpp",
+      "./src/install_enterprise_re_signature_certificate_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -207,6 +207,11 @@ ohos_shared_library("device_core_plugin") {
 
     if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
       sources += [ "./src/disallow_power_long_press_plugin.cpp" ]
+    }
+
+    if (inputmethod_imf_enable) {
+      external_deps += [ "imf:inputmethod_client" ]
+      sources += [ "./src/set_default_input_method_plugin.cpp" ]
     }
   }
 
@@ -373,6 +378,7 @@ ohos_shared_library("communication_plugin") {
         "./src/allowed_usb_devices_plugin.cpp",
         "./src/disable_usb_plugin.cpp",
         "./src/disallowed_usb_devices_plugin.cpp",
+        "./src/disallow_usb_serial_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/usb_policy_utils.cpp",
       ]
@@ -632,9 +638,14 @@ ohos_shared_library("need_extra_plugin") {
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",
       "./src/set_wall_paper_plugin.cpp",
-      "./src/get_security_fastboot_status_plugin.cpp",
     ]
   }
+
+  if (!enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/set_key_code_plugin.cpp",
+      ]
+    }
 
   if (power_manager_edm_enable && screenlock_mgr_edm_enable &&
       update_service_edm_enable) {

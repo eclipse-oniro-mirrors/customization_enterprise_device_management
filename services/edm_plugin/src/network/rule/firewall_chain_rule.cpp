@@ -26,6 +26,8 @@ namespace OHOS {
 namespace EDM {
 namespace IPTABLES {
 
+const std::string NFLOG = "NFLOG";
+
 FirewallChainRule::FirewallChainRule(): ChainRule()
 {
     target_ = ACCEPT_TARGET;
@@ -141,7 +143,9 @@ FirewallRule FirewallChainRule::ToFilterRule(Direction direction, Family family)
 {
     Action action = RuleUtils::StringToAction(target_);
     Protocol protocl = RuleUtils::StringProtocol(prot_);
-    return {direction, action, protocl, srcAddr_, destAddr_, srcPort_, destPort_, appUid_, family};
+    auto index = otherOptions_.find(NFLOG);
+    LogType logType = index != std::string::npos ? LogType::NFLOG : LogType::INVALID;
+    return {direction, action, protocl, srcAddr_, destAddr_, srcPort_, destPort_, appUid_, family, logType};
 }
 
 } // namespace IPTABLES
