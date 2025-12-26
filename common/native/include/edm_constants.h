@@ -292,6 +292,8 @@ namespace EdmPermission {
     const char* const PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POLICY";
     const char* const PERMISSION_ENTERPRISE_START_ABILITIES = "ohos.permission.ENTERPRISE_START_ABILITIES";
     const char* const PERMISSION_ENTERPRISE_READ_LOG = "ohos.permission.ENTERPRISE_READ_LOG";
+    const char* const PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN =
+        "ohos.permission.ENTERPRISE_DEACTIVATE_DEVICE_ADMIN";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source

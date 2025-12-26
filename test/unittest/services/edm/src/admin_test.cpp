@@ -93,7 +93,7 @@ HWTEST_F(AdminTest, TestDeviceAdmin, TestSize.Level1)
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SET_DELEGATED_POLICIES), false);
 #ifdef FEATURE_PC_ONLY
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
-    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN);
 #else
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), false);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_SET_BROWSER_POLICIES, FuncOperateType::GET), true);
@@ -145,7 +145,7 @@ HWTEST_F(AdminTest, TestSuperDeviceAdmin, TestSize.Level1)
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), true);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::IS_BYOD_ADMIN), false);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
-    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN);
+    EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN);
 }
 
 /**
