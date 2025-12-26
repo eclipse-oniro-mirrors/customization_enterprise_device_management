@@ -26,17 +26,17 @@ struct UpdateInfo {
     std::string packageType;
 };
 
-struct KeyItem {
+struct KeyEventItem {
     bool pressed;
-    KeyCode keyCode;
-    int64_t downTime = 0;
+    KeyCode keyCode = KeyCode::POWER;
+    int64_t downTime;
 };
 
 struct KeyEvent {
-    int64_t actionTime = 0;
-    KeyCode keyCode;
-    KeyAction keyAction;
-    std::vector<KeyItem> keyItems;
+    int64_t actionTime;
+    KeyCode keyCode = KeyCode::POWER;
+    KeyAction keyAction = KeyAction::UNKNOWN;
+    std::vector<KeyEventItem> keyItems;
 };
 
 enum class KeyAction {
@@ -52,7 +52,7 @@ enum class KeyCode {
     BACK = 3,
     HOME = 4,
     RECENT = 5
-}
+  }
 
 } // namespace EDM
 } // namespace OHOS

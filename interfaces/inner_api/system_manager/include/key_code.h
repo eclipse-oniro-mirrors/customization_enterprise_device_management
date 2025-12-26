@@ -40,13 +40,20 @@ enum class KeyPolicy {
     INTERCEPTION = 0,
     CUSTOM = 1
 }
+
+enum class KeyAction {
+    UNKNOWN = -1,
+    DOWN = 0,
+    UP = 1
+}
+
 class KeyEventHandle {
 public:
     static bool WriteKeyCustomizationVector(MessageParcel &data,
-        const std::vector<KeyCustomization> KeyCustomizations);
-    static bool WriteKeyCustomization(MessageParcel &data, const KeyCustomization keyCust);
+        const std::vector<KeyCustomization> &keyCustomizations);
+    static bool WriteKeyCustomization(MessageParcel &data, const KeyCustomization &keyCust);
     static bool ReadKeyCustomizationVector(MessageParcel &data,
-        std::vector<KeyCustomization> &KeyCustomizations);
+        std::vector<KeyCustomization> &keyCustomizations);
     static bool ReadKeyCustomization(MessageParcel &data, KeyCustomization &keyCust);
 };
 } // namespace EDM

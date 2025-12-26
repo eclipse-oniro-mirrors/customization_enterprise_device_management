@@ -48,6 +48,10 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nKeyPolicy));
     CreatenKeyPolicyObject(env, nKeyPolicy);
 
+    napi_value nKeyAction = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyAction));
+    CreatenKeyActionObject(env, nKeyAction);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setNTPServer", SetNTPServer),
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
@@ -75,6 +79,7 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("NearLinkProtocol", nProtocol),
         DECLARE_NAPI_PROPERTY("KeyCode", nKeyCode),
         DECLARE_NAPI_PROPERTY("KeyPolicy", nKeyPolicy),
+        DECLARE_NAPI_PROPERTY("KeyAction", nKeyAction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -100,6 +105,19 @@ void SystemManagerAddon::CreatenKeyCodeObject(napi_env env, napi_value value)
     napi_value nRecent;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::RECENT), &nRecent));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RECENT", nRecent));
+}
+
+void SystemManagerAddon::CreatenKeyActionObject(napi_env env, napi_value value)
+{
+    napi_value nUnknown;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyAction::nUnknown), &nUnknown));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UNKNOWN", nUnknown));
+    napi_value nDown;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyAction::DOWN), &nDown));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DOWN", nDown));
+    napi_value nUp;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyAction::UP), &nUp));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UP", nUp));
 }
 
 void SystemManagerAddon::CreatenKeyPolicyObject(napi_env env, napi_value value)

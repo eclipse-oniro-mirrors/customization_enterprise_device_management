@@ -26,21 +26,21 @@
 namespace OHOS {
 namespace EDM {
 bool KeyEventHandle::WriteKeyCustomizationVector(MessageParcel &data,
-    const std::vector<KeyCustomization> KeyCustomizations)
+    const std::vector<KeyCustomization> &keyCustomizations)
 {
-    if (!data.WriteInt32(KeyCustomizations.size())) {
+    if (!data.WriteInt32(keyCustomizations.size())) {
         return false;
     }
 
-    for (const auto &KeyCustomization : KeyCustomizations) {
-        if (!WriteKeyCustomization(data, KeyCustomization)) {
+    for (const auto &keyCustomization : keyCustomizations) {
+        if (!WriteKeyCustomization(data, keyCustomization)) {
             return false;
         }
     }
     return true;
 }
 
-bool KeyEventHandle::WriteKeyCustomization(MessageParcel &data, const KeyCustomization keyCust)
+bool KeyEventHandle::WriteKeyCustomization(MessageParcel &data, const KeyCustomization &keyCust)
 {
     if (!data.WriteInt32(keyCust.keyCode)) {
         return false;
@@ -59,18 +59,18 @@ bool KeyEventHandle::ReadKeyCustomization(MessageParcel &data, KeyCustomization 
 }
 
 bool KeyEventHandle::ReadKeyCustomizationVector(MessageParcel &data,
-    std::vector<KeyCustomization> &KeyCustomizations)
+    std::vector<KeyCustomization> &keyCustomizations)
 {
     int32_t size = data.ReadInt32();
-    KeyCustomizations.clear();
-    KeyCustomizations.reserve(size);
+    keyCustomizations.clear();
+    keyCustomizations.reserve(size);
 
     for (int32_t i = 0; i < size; i++) {
         KeyCustomization keyCust;
         if (!ReadKeyCustomization(data, keyCust)) {
             return false;
         }
-        KeyCustomizations.emplace_back(std::move(keyCust));
+        keyCustomizations.emplace_back(std::move(keyCust));
     }
     return true;
 }
