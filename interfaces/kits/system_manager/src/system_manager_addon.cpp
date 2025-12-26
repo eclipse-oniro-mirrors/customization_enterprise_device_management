@@ -52,6 +52,19 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nKeyAction));
     CreatenKeyActionObject(env, nKeyAction);
 
+    DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
+    DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
+    DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
+    DECLARE_NAPI_PROPERTY("NearLinkProtocol", nProtocol),
+    DECLARE_NAPI_PROPERTY("KeyCode", nKeyCode),
+    DECLARE_NAPI_PROPERTY("KeyPolicy", nKeyPolicy),
+    DECLARE_NAPI_PROPERTY("KeyAction", nKeyAction),
+    
+    InitSecond(env, exports);
+}
+
+napi_value SystemManagerAddon::InitSecond(napi_env env, napi_value exports)
+{
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setNTPServer", SetNTPServer),
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
@@ -72,14 +85,6 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addKeyEventPolicies", AddKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
-
-        DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
-        DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
-        DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
-        DECLARE_NAPI_PROPERTY("NearLinkProtocol", nProtocol),
-        DECLARE_NAPI_PROPERTY("KeyCode", nKeyCode),
-        DECLARE_NAPI_PROPERTY("KeyPolicy", nKeyPolicy),
-        DECLARE_NAPI_PROPERTY("KeyAction", nKeyAction),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;

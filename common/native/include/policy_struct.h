@@ -26,6 +26,20 @@ struct UpdateInfo {
     std::string packageType;
 };
 
+enum class KeyAction {
+    UNKNOWN = -1,
+    DOWN = 0,
+    UP = 1
+};
+
+enum class KeyCode {
+    POWER = 0,
+    VOLUME_UP = 1,
+    VOLUME_DOWN = 2,
+    BACK = 3,
+    HOME = 4,
+    RECENT = 5
+};
 struct KeyEventItem {
     bool pressed;
     KeyCode keyCode = KeyCode::POWER;
@@ -38,21 +52,6 @@ struct KeyEvent {
     KeyAction keyAction = KeyAction::UNKNOWN;
     std::vector<KeyEventItem> keyItems;
 };
-
-enum class KeyAction {
-    UNKNOWN = -1,
-    DOWN = 0,
-    UP = 1
-}
-
-enum class KeyCode {
-    POWER = 0,
-    VOLUME_UP = 1,
-    VOLUME_DOWN = 2,
-    BACK = 3,
-    HOME = 4,
-    RECENT = 5
-  }
 
 } // namespace EDM
 } // namespace OHOS

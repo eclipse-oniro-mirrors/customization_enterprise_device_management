@@ -21,31 +21,30 @@
 
 namespace OHOS {
 namespace EDM {
-
-struct KeyCustomization {
-    KeyCode keyCode = KeyCode::POWER;
-    KeyPolicy keyPolicy = KeyPolicy::INTERCEPTION;
-};
-
 enum class KeyCode {
-    POWER = 0;
-    VOLUME_UP = 1;
+    POWER = 0,
+    VOLUME_UP = 1,
     VOLUME_DOWN = 2,
     BACK = 3,
     HOME = 4,
     RECENT = 5
-}
+};
 
 enum class KeyPolicy {
     INTERCEPTION = 0,
     CUSTOM = 1
-}
+};
 
 enum class KeyAction {
     UNKNOWN = -1,
     DOWN = 0,
     UP = 1
-}
+};
+
+struct KeyCustomization {
+    KeyCode keyCode = KeyCode::POWER;
+    KeyPolicy keyPolicy = KeyPolicy::INTERCEPTION;
+};
 
 class KeyEventHandle {
 public:
