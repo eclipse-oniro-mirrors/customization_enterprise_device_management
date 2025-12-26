@@ -64,7 +64,7 @@ bool KeyEventHandle::ReadKeyCustomizationVector(MessageParcel &data,
 {
     int32_t size = data.ReadInt32();
     if (size > MAX_KEYEVENT_SIZE) {
-        return;
+        return false;
     }
     keyCustomizations.clear();
     keyCustomizations.reserve(size);
