@@ -42,8 +42,8 @@ enum class KeyAction {
 };
 
 struct KeyCustomization {
-    KeyCode keyCode = KeyCode::POWER;
-    KeyPolicy keyPolicy = KeyPolicy::INTERCEPTION;
+    int32_t keyCode = 0;
+    int32_t keyPolicy = 0;
 };
 
 class KeyEventHandle {
