@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr int32_t MAX_KEYEVENT_SIZE = 10;
+constexpr int32_t MAX_KEYEVENT_SIZE = 6;
 bool KeyEventHandle::WriteKeyCustomizationVector(MessageParcel &data,
     const std::vector<KeyCustomization> &keyCustomizations)
 {
