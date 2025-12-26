@@ -21,6 +21,7 @@
 #include "enterprise_admin_extension.h"
 #include "js_runtime.h"
 #include "policy_struct.h"
+#include "key_code.h"
 
 namespace OHOS {
 namespace EDM {

@@ -520,7 +520,7 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
     }
     keyEventInfo.actionTime = actionTime->valuedouble;
     keyEventInfo.keyCode = keyCode->valueint;
-    keyEventInfo.keyAction = keyAction->valueint;
+    keyEventInfo.keyAction = static_cast<OHOS::EDM::KeyAction>(keyAction->valueint);
 
     cJSON *keyItem;
     cJSON_ArrayForEach(keyItem, keyItems) {
@@ -558,7 +558,7 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyCode", nKeyCode));
 
     napi_value nKeyAction = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyAction, &nKeyAction));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(keyEventInfo.keyAction), &nKeyAction));
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyAction", nKeyAction));
 
     napi_value nKeyItems = nullptr;
