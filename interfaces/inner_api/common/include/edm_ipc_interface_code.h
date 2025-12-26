@@ -183,6 +183,7 @@ enum EdmInterfaceCode : uint32_t {
     SET_ABILITY_ENABLED = 1134,
     SET_KEY_CODE_POLICYS = 1135,
     DISALLOW_USB_SERIAL = 1136,
+    SET_DEVICE_NAME = 1137,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
