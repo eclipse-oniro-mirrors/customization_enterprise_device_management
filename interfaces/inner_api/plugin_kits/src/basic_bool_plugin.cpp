@@ -34,7 +34,7 @@ ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeP
         return ret;
     }
     if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
-        EDMLOGE("DisableBluetoothPlugin set param failed.");
+        EDMLOGE("BasicBoolPlugin set param failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     currentData = data;

@@ -57,9 +57,9 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedNearLinkProtocols", RemoveDisallowedNearlinkProtocols),
         DECLARE_NAPI_FUNCTION("startCollectLog", StartCollectLog),
         DECLARE_NAPI_FUNCTION("finishLogCollected", FinishLogCollected),
-        DECLARE_NAPI_FUNCTION("setKeyEventPolicy", SetKeyEventPolicy),
-        DECLARE_NAPI_FUNCTION("removeKeyEventPolicy", RemoveKeyEventPolicy),
-        DECLARE_NAPI_FUNCTION("getKeyEventPolicy", GetKeyEventPolicy),
+        DECLARE_NAPI_FUNCTION("addKeyEventPolicies", AddKeyEventPolicies),
+        DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
+        DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
 
         DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
         DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
@@ -877,9 +877,9 @@ void SystemManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DATA_TRANSFER", nDataTransfer));
 }
 
-napi_value SystemManagerAddon::SetKeyEventPolicy(napi_env env, napi_callback_info info)
+napi_value SystemManagerAddon::AddKeyEventPolicies(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetKeyEventPolicy called");
+    EDMLOGI("NAPI_AddKeyEventPolicies called");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -907,9 +907,9 @@ napi_value SystemManagerAddon::SetKeyEventPolicy(napi_env env, napi_callback_inf
     return nullptr;
 }
 
-napi_value SystemManagerAddon::RemoveKeyEventPolicy(napi_env env, napi_callback_info info)
+napi_value SystemManagerAddon::RemoveKeyEventPolicies(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_RemoveKeyEventPolicy called");
+    EDMLOGI("NAPI_RemoveKeyEventPolicies called");
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -935,9 +935,9 @@ napi_value SystemManagerAddon::RemoveKeyEventPolicy(napi_env env, napi_callback_
     return nullptr;
 }
 
-napi_value SystemManagerAddon::GetKeyEventPolicy(napi_env env, napi_callback_info info)
+napi_value SystemManagerAddon::GetKeyEventPolicies(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetUserNonStopApps called");
+    EDMLOGI("NAPI_GetKeyEventPolicies called");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;

@@ -52,19 +52,23 @@ ErrCode SetDeviceNamePlugin::OnSetPolicy(std::string &data, std::string &current
     int32_t userId)
 {
     EDMLOGI("SetDeviceNamePlugin start set set deviceName data = %{public}s.", data.c_str());
-    if (!data.empty() && data.length() <= DEVICE_NAME_MAX_LENGTH) {
-        std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
-        ErrCode code1 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_USER_DEFINED_DEVICE_NAME, data);
-        ErrCode code2 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_DISPLAY_DEVICE_NAME, data);
-        if (FAILED(code1) || FAILED(code2)) {
-            EDMLOGE("SetDeviceNamePlugin::set deviceName failed, code1: %{public}d, code2: %{public}d.",
-                code1, code2);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-    } else {
+    if (data.empty()) {
+        EDMLOGE("OnSetPolicy deviceName is empty.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (data.length() > DEVICE_NAME_MAX_LENGTH) {
+        EDMLOGE("OnSetPolicy deviceName length exceeds the limit.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
+    std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
+    ErrCode code1 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_USER_DEFINED_DEVICE_NAME, data);
+    ErrCode code2 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_DISPLAY_DEVICE_NAME, data);
+    if (FAILED(code1) || FAILED(code2)) {
+        EDMLOGE("SetDeviceNamePlugin::set deviceName failed, code1: %{public}d, code2: %{public}d.",
+            code1, code2);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 

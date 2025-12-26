@@ -71,6 +71,7 @@ private:
     static void CreateFirewallActionObject(napi_env env, napi_value value);
     static void CreateFirewallProtocolObject(napi_env env, napi_value value);
     static void CreateFirewallDirectionObject(napi_env env, napi_value value);
+    static void CreateFirewallLogTypeObject(napi_env env, napi_value value);
     static void CreateFirewallAddMethodObject(napi_env env, napi_value value);
     static void CreateIpSetModeObject(napi_env env, napi_value value);
     static bool JsObjToAddFirewallObject(napi_env env, napi_value object, IPTABLES::AddFilter &addFilter);
