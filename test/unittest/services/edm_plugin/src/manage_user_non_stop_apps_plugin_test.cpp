@@ -42,6 +42,9 @@ using namespace testing::ext;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string BOOT_OEM_MODE = "const.boot.oemmode";
+const std::string DEVELOP_PARAM = "rd";
+const std::string USER_MODE = "user";
 void ManageUserNonStopAppsPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
@@ -101,51 +104,55 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyRemoveFailWithNullDa
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData, TestSize.Level1)
 {
-    ManageUserNonStopAppsPlugin plugin;
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    std::string contactsBundleName, browserBundleName, appgalleryBundleName, thememanagerBundleName, settingsBundleName;
-    std::string mmsBundleName, photosBundleName, cameraBundleName, himovieBundleName, musicBundleName, booksBundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId("5765880207853624761", contactsBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1230215522310701824", browserBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1164531384803416384", appgalleryBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1173750081090759360", thememanagerBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("5765880207852919475", settingsBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("5765880207853068793", mmsBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1207824849184017472", photosBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("5765880207854258995", cameraBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1081898888199154560", himovieBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("976752519134849856", musicBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1062865240531676032", booksBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps = {
-        { "5765880207853624761", contactsBundleName, 100, 0 }, { "1230215522310701824", browserBundleName, 100, 0 },
-        { "1164531384803416384", appgalleryBundleName, 100, 0 }, { "1062865240531676032", booksBundleName, 100, 0 },
-        { "5765880207852919475", settingsBundleName, 100, 0 }, { "5765880207853068793", mmsBundleName, 100, 0 },
-        { "1207824849184017472", photosBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
-        { "1081898888199154560", himovieBundleName, 100, 0 }, { "976752519134849856", musicBundleName, 100, 0 },
-        { "1173750081090759360", thememanagerBundleName, 100, 0 }
-    };
-    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        ManageUserNonStopAppsPlugin plugin;
+        MessageParcel data;
+        MessageParcel reply;
+        HandlePolicyData policyData;
+        std::string contactsBundleName, browserBundleName, appgalleryBundleName, thememanagerBundleName;
+        std::string settingsBundleName, musicBundleName, booksBundleName;
+        std::string mmsBundleName, photosBundleName, cameraBundleName, himovieBundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId("5765880207853624761", contactsBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1230215522310701824", browserBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1164531384803416384", appgalleryBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1173750081090759360", thememanagerBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("5765880207852919475", settingsBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("5765880207853068793", mmsBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1207824849184017472", photosBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("5765880207854258995", cameraBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1081898888199154560", himovieBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("976752519134849856", musicBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1062865240531676032", booksBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps = {
+            { "5765880207853624761", contactsBundleName, 100, 0 }, { "1230215522310701824", browserBundleName, 100, 0 },
+            { "1164531384803416384", appgalleryBundleName, 100, 0 }, { "1062865240531676032", booksBundleName, 100, 0 },
+            { "5765880207852919475", settingsBundleName, 100, 0 }, { "5765880207853068793", mmsBundleName, 100, 0 },
+            { "1207824849184017472", photosBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
+            { "1081898888199154560", himovieBundleName, 100, 0 }, { "976752519134849856", musicBundleName, 100, 0 },
+            { "1173750081090759360", thememanagerBundleName, 100, 0 }
+        };
+        ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
 
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-    ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+        ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    }
 }
 
 /**
@@ -155,33 +162,36 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictData, TestSize.Level1)
 {
-    std::string settingsAppIdentifier = "5765880207852919475";
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps = {{ settingsAppIdentifier, bundleName, 100, 0 }};
-    std::vector<ApplicationInstance> currentData;
-    std::vector<ApplicationInstance> mergeData;
-    ManageUserNonStopAppsPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        std::string settingsAppIdentifier = "5765880207852919475";
+        std::string bundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps = {{ settingsAppIdentifier, bundleName, 100, 0 }};
+        std::vector<ApplicationInstance> currentData;
+        std::vector<ApplicationInstance> mergeData;
+        ManageUserNonStopAppsPlugin plugin;
+        ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
+        ASSERT_TRUE(ret == ERR_OK);
 
-    ManageUserNonStopAppsPlugin userNonStopPlugin;
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
+        ManageUserNonStopAppsPlugin userNonStopPlugin;
+        MessageParcel data;
+        MessageParcel reply;
+        HandlePolicyData policyData;
+        ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
 
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-    ret = userNonStopPlugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    mergeData.clear();
-    ret = plugin.OnRemovePolicy(userNonStopApps, currentData, mergeData);
-    ASSERT_TRUE(ret == ERR_OK);
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+        ret = userNonStopPlugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
+        mergeData.clear();
+        ret = plugin.OnRemovePolicy(userNonStopApps, currentData, mergeData);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 
 /**
@@ -191,29 +201,32 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictD
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithNotExistedData, TestSize.Level1)
 {
-    std::string settingsAppIdentifier = "5765880207852919475";
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps1 = { { settingsAppIdentifier, bundleName, 100, 0 } };
-    std::vector<ApplicationInstance> userNonStopApps2 = { { "111", "com.not.existed", 100, 0 } };
-    std::vector<ApplicationInstance> currentData;
-    std::vector<ApplicationInstance> mergeData;
-    ManageUserNonStopAppsPlugin plugin;
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        std::string settingsAppIdentifier = "5765880207852919475";
+        std::string bundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps1 = { { settingsAppIdentifier, bundleName, 100, 0 } };
+        std::vector<ApplicationInstance> userNonStopApps2 = { { "111", "com.not.existed", 100, 0 } };
+        std::vector<ApplicationInstance> currentData;
+        std::vector<ApplicationInstance> mergeData;
+        ManageUserNonStopAppsPlugin plugin;
 
-    MessageParcel data;
-    MessageParcel reply;
-    HandlePolicyData policyData;
-    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps2);
-    ManageAppsSerializer::GetInstance()->Serialize(userNonStopApps1, policyData.policyData);
+        MessageParcel data;
+        MessageParcel reply;
+        HandlePolicyData policyData;
+        ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps2);
+        ManageAppsSerializer::GetInstance()->Serialize(userNonStopApps1, policyData.policyData);
 
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-    res = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+        res = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+        ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    }
 }
 
 /**
@@ -248,38 +261,41 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnGetPolicy1, TestSize.Level1)
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnGetPolicy2, TestSize.Level1)
 {
-    ManageUserNonStopAppsPlugin plugin;
-    HandlePolicyData policyData;
-    MessageParcel data;
-    MessageParcel reply;
-    std::string settingsAppIdentifier = "5765880207852919475";
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
-    ASSERT_TRUE(res == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        ManageUserNonStopAppsPlugin plugin;
+        HandlePolicyData policyData;
+        MessageParcel data;
+        MessageParcel reply;
+        std::string settingsAppIdentifier = "5765880207852919475";
+        std::string bundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+        ASSERT_TRUE(res == ERR_OK);
 
-    std::vector<ApplicationInstance> userNonStopApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
-    ErrCode ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps1;
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps1);
-    ASSERT_TRUE(userNonStopApps1.empty());
+        std::vector<ApplicationInstance> userNonStopApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
+        ErrCode ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps1;
+        ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps1);
+        ASSERT_TRUE(userNonStopApps1.empty());
 
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-    ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
-    ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps2;
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps2);
-    ASSERT_TRUE(userNonStopApps2.size() == 1);
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
+        ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
+        ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+        ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
+        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps2;
+        ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps2);
+        ASSERT_TRUE(userNonStopApps2.size() == 1);
+    }
 }
 
 /**
@@ -289,20 +305,23 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnGetPolicy2, TestSize.Level1)
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy01, TestSize.Level1)
 {
-    ManageUserNonStopAppsPlugin plugin;
-    std::string settingsAppIdentifier = "5765880207852919475";
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
-    std::vector<ApplicationInstance> currentData;
-    std::vector<ApplicationInstance> mergeData;
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        ManageUserNonStopAppsPlugin plugin;
+        std::string settingsAppIdentifier = "5765880207852919475";
+        std::string bundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
+        std::vector<ApplicationInstance> currentData;
+        std::vector<ApplicationInstance> mergeData;
 
-    ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-    ASSERT_TRUE(ret == ERR_OK);
+        ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 
 /**
@@ -312,24 +331,27 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy01, TestSize.Level1)
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy02, TestSize.Level1)
 {
-    ManageUserNonStopAppsPlugin plugin;
-    std::string contactsBundleName, browserBundleName, appgalleryBundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId("5765880207853624761", contactsBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1230215522310701824", browserBundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    res = proxy->GetBundleNameByAppId("1164531384803416384", appgalleryBundleName);
-    ASSERT_TRUE(res == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        ManageUserNonStopAppsPlugin plugin;
+        std::string contactsBundleName, browserBundleName, appgalleryBundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId("5765880207853624761", contactsBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1230215522310701824", browserBundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        res = proxy->GetBundleNameByAppId("1164531384803416384", appgalleryBundleName);
+        ASSERT_TRUE(res == ERR_OK);
 
-    std::vector<ApplicationInstance> userNonStopApps = { { "5765880207853624761", contactsBundleName, 100, 0 } };
-    std::vector<ApplicationInstance> currentData = { { "1230215522310701824", browserBundleName, 100, 0 } };
-    std::vector<ApplicationInstance> mergeData = { { "1164531384803416384", appgalleryBundleName, 100, 0 } };
+        std::vector<ApplicationInstance> userNonStopApps = { { "5765880207853624761", contactsBundleName, 100, 0 } };
+        std::vector<ApplicationInstance> currentData = { { "1230215522310701824", browserBundleName, 100, 0 } };
+        std::vector<ApplicationInstance> mergeData = { { "1164531384803416384", appgalleryBundleName, 100, 0 } };
 
-    ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-    ASSERT_TRUE(ret == ERR_OK);
+        ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 
 /**
@@ -339,19 +361,22 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy02, TestSize.Level1)
  */
 HWTEST_F(ManageUserNonStopAppsPluginTest, TestSetOtherModulePolicy, TestSize.Level1)
 {
-    ManageUserNonStopAppsPlugin plugin;
-    std::string settingsAppIdentifier = "5765880207852919475";
-    std::string bundleName;
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    ASSERT_TRUE(proxy != nullptr);
-    ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
-    ASSERT_TRUE(res == ERR_OK);
-    std::vector<ApplicationInstance> userNonStopApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
-    int32_t systemAbilityId = 1901;
-    plugin.OnOtherServiceStart(systemAbilityId);
-    ErrCode ret = plugin.SetOtherModulePolicy(userNonStopApps);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam == DEVELOP_PARAM) {
+        ManageUserNonStopAppsPlugin plugin;
+        std::string settingsAppIdentifier = "5765880207852919475";
+        std::string bundleName;
+        auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+        ASSERT_TRUE(proxy != nullptr);
+        ErrCode res = proxy->GetBundleNameByAppId(settingsAppIdentifier, bundleName);
+        ASSERT_TRUE(res == ERR_OK);
+        std::vector<ApplicationInstance> userNonStopApps = { { settingsAppIdentifier, bundleName, 100, 0 } };
+        int32_t systemAbilityId = 1901;
+        plugin.OnOtherServiceStart(systemAbilityId);
+        ErrCode ret = plugin.SetOtherModulePolicy(userNonStopApps);
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 } // namespace TEST
 } // namespace EDM
