@@ -26,30 +26,16 @@ struct UpdateInfo {
     std::string packageType;
 };
 
-enum class KeyAction {
-    UNKNOWN = -1,
-    DOWN = 0,
-    UP = 1
-};
-
-enum class KeyCode {
-    POWER = 0,
-    VOLUME_UP = 1,
-    VOLUME_DOWN = 2,
-    BACK = 3,
-    HOME = 4,
-    RECENT = 5
-};
 struct KeyEventItem {
     bool pressed;
-    KeyCode keyCode = KeyCode::POWER;
+    int32_t keyCode;
     int64_t downTime;
 };
 
 struct KeyEvent {
     int64_t actionTime;
-    KeyCode keyCode = KeyCode::POWER;
-    KeyAction keyAction = KeyAction::UNKNOWN;
+    int32_t keyCode;
+    int32_t keyAction;
     std::vector<KeyEventItem> keyItems;
 };
 

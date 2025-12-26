@@ -554,11 +554,11 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "actionTime", nActionTime));
     
     napi_value nKeyCode = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(keyEventInfo.keyCode), &nKeyCode));
+    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyCode, &nKeyCode));
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyCode", nKeyCode));
 
     napi_value nKeyAction = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(keyEventInfo.keyAction), &nKeyAction));
+    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyAction, &nKeyAction));
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyAction", nKeyAction));
 
     napi_value nKeyItems = nullptr;
@@ -575,7 +575,7 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
         NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "pressed", nPressed));
 
         napi_value nKeyCodeItem = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(keyItem.keyCode), &nKeyCodeItem));
+        NAPI_CALL(env, napi_create_int32(env, keyItem.keyCode, &nKeyCodeItem));
         NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "keyCode", nKeyCodeItem));
 
         napi_value nDownTime = nullptr;
