@@ -30,7 +30,7 @@ enum class KeyCode {
     RECENT = 5
 };
 
-enum class KeyPolicy {
+enum KeyPolicy {
     INTERCEPTION = 0,
     CUSTOM = 1
 };

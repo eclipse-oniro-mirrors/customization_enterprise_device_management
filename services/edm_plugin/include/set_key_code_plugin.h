@@ -22,11 +22,6 @@
 namespace OHOS {
 namespace EDM {
 
-enum class KeyPolicy {
-    INTERCEPTION = 0,
-    CUSTOM = 1,
-};
-
 class SetKeyCodePlugin : public IPlugin {
 public:
     SetKeyCodePlugin();
