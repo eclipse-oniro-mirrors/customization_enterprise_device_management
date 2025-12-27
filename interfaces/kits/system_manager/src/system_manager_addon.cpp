@@ -22,37 +22,8 @@
 
 using namespace OHOS::EDM;
 
-napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
-{
-    napi_value nPolicyType = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nPolicyType));
-    CreatePolicyTypeObject(env, nPolicyType);
-
-    napi_value nPackageType = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nPackageType));
-    CreatePackageTypeObject(env, nPackageType);
-
-    napi_value nUpgradeStatus = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nUpgradeStatus));
-    CreateUpgradeStatusObject(env, nUpgradeStatus);
-
-    napi_value nProtocol = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nProtocol));
-    CreateProtocolObject(env, nProtocol);
-
-    napi_value nKeyCode = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nKeyCode));
-    CreateKeyCodeObject(env, nKeyCode);
-
-    napi_value nKeyPolicy = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nKeyPolicy));
-    CreateKeyPolicyObject(env, nKeyPolicy);
-
-    napi_value nKeyAction = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nKeyAction));
-    CreateKeyActionObject(env, nKeyAction);
-
-    napi_property_descriptor property[] = {
+void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports) {
+    napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("setNTPServer", SetNTPServer),
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
         DECLARE_NAPI_FUNCTION("setOtaUpdatePolicy", SetOTAUpdatePolicy),
@@ -72,16 +43,54 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addKeyEventPolicies", AddKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
-
-        DECLARE_NAPI_PROPERTY("PolicyType", nPolicyType),
-        DECLARE_NAPI_PROPERTY("PackageType", nPackageType),
-        DECLARE_NAPI_PROPERTY("UpdateStatus", nUpgradeStatus),
-        DECLARE_NAPI_PROPERTY("NearLinkProtocol", nProtocol),
-        DECLARE_NAPI_PROPERTY("KeyCode", nKeyCode),
-        DECLARE_NAPI_PROPERTY("KeyPolicy", nKeyPolicy),
-        DECLARE_NAPI_PROPERTY("KeyAction", nKeyAction),
     };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
+    
+    NAPI_CALL(env, 
+        napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+}
+
+void SystemManagerAddon::AddEnumsToExports(napi_env env, napi_value exports) {
+    napi_value nPolicyType = nullptr;
+    NAPI_CALLD(env, napi_create_object(env, &nPolicyType));
+    CreatePolicyTypeObject(env, nPolicyType);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "PolicyType", nPolicyType));
+
+    napi_value nPackageType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nPackageType));
+    CreatePackageTypeObject(env, nPackageType);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "PackageType", nPackageType));
+
+    napi_value nUpgradeStatus = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nUpgradeStatus));
+    CreateUpgradeStatusObject(env, nUpgradeStatus);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "UpdateStatus", nUpgradeStatus));
+
+    napi_value nProtocol = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nProtocol));
+    CreateProtocolObject(env, nProtocol);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "NearLinkProtocol", nProtocol));
+
+    napi_value nKeyCode = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyCode));
+    CreateKeyCodeObject(env, nKeyCode);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "KeyCode", nKeyCode));
+
+    napi_value nKeyPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyPolicy));
+    CreateKeyPolicyObject(env, nKeyPolicy);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "KeyPolicy", nKeyPolicy));
+
+    napi_value nKeyAction = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nKeyAction));
+    CreateKeyActionObject(env, nKeyAction);
+    NAPI_CALL(env, napi_set_named_property(env, exports, "KeyAction", nKeyAction));
+}
+
+napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
+{
+    AddFunctionsToExports(env, exports);
+    AddEnumsToExports(env, exports);
+    
     return exports;
 }
 
