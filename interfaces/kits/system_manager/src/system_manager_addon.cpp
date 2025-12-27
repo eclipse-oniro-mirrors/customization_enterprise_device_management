@@ -45,45 +45,45 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
     };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+    NAPI_CALL_RETURN_VOID(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
 
 void SystemManagerAddon::AddEnumsToExports(napi_env env, napi_value exports)
 {
     napi_value nPolicyType = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nPolicyType));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nPolicyType));
     CreatePolicyTypeObject(env, nPolicyType);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "PolicyType", nPolicyType));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "PolicyType", nPolicyType));
 
     napi_value nPackageType = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nPackageType));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nPackageType));
     CreatePackageTypeObject(env, nPackageType);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "PackageType", nPackageType));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "PackageType", nPackageType));
 
     napi_value nUpgradeStatus = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nUpgradeStatus));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nUpgradeStatus));
     CreateUpgradeStatusObject(env, nUpgradeStatus);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "UpdateStatus", nUpgradeStatus));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "UpdateStatus", nUpgradeStatus));
 
     napi_value nProtocol = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nProtocol));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nProtocol));
     CreateProtocolObject(env, nProtocol);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "NearLinkProtocol", nProtocol));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "NearLinkProtocol", nProtocol));
 
     napi_value nKeyCode = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nKeyCode));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nKeyCode));
     CreateKeyCodeObject(env, nKeyCode);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "KeyCode", nKeyCode));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "KeyCode", nKeyCode));
 
     napi_value nKeyPolicy = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nKeyPolicy));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nKeyPolicy));
     CreateKeyPolicyObject(env, nKeyPolicy);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "KeyPolicy", nKeyPolicy));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "KeyPolicy", nKeyPolicy));
 
     napi_value nKeyAction = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nKeyAction));
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nKeyAction));
     CreateKeyActionObject(env, nKeyAction);
-    NAPI_CALL(env, napi_set_named_property(env, exports, "KeyAction", nKeyAction));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "KeyAction", nKeyAction));
 }
 
 napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
