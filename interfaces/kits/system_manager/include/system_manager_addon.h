@@ -51,7 +51,7 @@ class SystemManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
     static void AddFunctionsToExports(napi_env env, napi_value exports);
-    static void AddEnumsToExports(napi_env env, napi_value exports)
+    static void AddEnumsToExports(napi_env env, napi_value exports);
 
 private:
     static napi_value SetNTPServer(napi_env env, napi_callback_info info);

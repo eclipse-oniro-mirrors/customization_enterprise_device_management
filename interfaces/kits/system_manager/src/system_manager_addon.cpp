@@ -22,7 +22,8 @@
 
 using namespace OHOS::EDM;
 
-void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports) {
+void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
+{
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("setNTPServer", SetNTPServer),
         DECLARE_NAPI_FUNCTION("getNTPServer", GetNTPServer),
@@ -44,14 +45,13 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
     };
-    
-    NAPI_CALL(env, 
-        napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
 
-void SystemManagerAddon::AddEnumsToExports(napi_env env, napi_value exports) {
+void SystemManagerAddon::AddEnumsToExports(napi_env env, napi_value exports)
+{
     napi_value nPolicyType = nullptr;
-    NAPI_CALLD(env, napi_create_object(env, &nPolicyType));
+    NAPI_CALL(env, napi_create_object(env, &nPolicyType));
     CreatePolicyTypeObject(env, nPolicyType);
     NAPI_CALL(env, napi_set_named_property(env, exports, "PolicyType", nPolicyType));
 
