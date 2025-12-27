@@ -1082,59 +1082,44 @@ napi_value ApplicationManagerAddon::ClearUpApplicationData(napi_env env, napi_ca
 napi_value ApplicationManagerAddon::SetAbilityDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetAbilityDisabled called");
-    size_t argc = ARGS_SIZE_FOUR;
-    napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "Parameter count error.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
-    ApplicationInstance appInstance;
-    ASSERT_AND_THROW_PARAM_ERROR(env, GetAppInstanceFromNAPI(env, argv[ARR_INDEX_ONE], appInstance),
-        "Parameter applicationInstance error");
-    std::string abilityName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseString(env, abilityName, argv[ARR_INDEX_TWO]), "Parameter abilityName parse error.");
-    bool isDisabled = false;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseBool(env, isDisabled, argv[ARR_INDEX_THREE]), "Parameter isDisabled parse error.");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetAbilityDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::USERID,
+        EdmAddonCommonType::STRING, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
 
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    int32_t ret = applicationManagerProxy->SetAbilityDisabled(elementName, appInstance, abilityName, isDisabled);
+    int32_t ret = applicationManagerProxy->SetAbilityDisabled(adapterAddonData.data);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
-
     return nullptr;
 }
 
 napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_IsAbilityDisabled called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = { nullptr };
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "Parameter count error.");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName parse error.");
-    ApplicationInstance appInstance;
-    ASSERT_AND_THROW_PARAM_ERROR(env, GetAppInstanceFromNAPI(env, argv[ARR_INDEX_ONE], appInstance),
-        "Parameter applicationInstance error");
-    std::string abilityName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseString(env, abilityName, argv[ARR_INDEX_TWO]), "Parameter abilityName parse error.");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "IsAbilityDisabled";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::USERID,
+        EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value res = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (res == nullptr) {
+        return nullptr;
+    }
 
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     bool isDisabled = false;
-    int32_t ret = applicationManagerProxy->IsAbilityDisabled(elementName, appInstance, abilityName, isDisabled);
+    int32_t ret = applicationManagerProxy->IsAbilityDisabled(adapterAddonData.data, isDisabled);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

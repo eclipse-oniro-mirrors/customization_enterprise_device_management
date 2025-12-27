@@ -560,25 +560,54 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::Commo
 void EnterpriseDeviceMgrAbility::UpdateAbilityEnabled(const std::string &bundleName,
     int32_t userId, int32_t appIndex)
 {
-    EDMLOGI("OnCommonEventPackageRemoved UpdateAbilityEnabled");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_ABILITY_ENABLED);
-        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
-        ApplicationInstance appMsg = { appIdentifier, bundleName, userId, appIndex };
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationInstance(data, appMsg)) {
-            EDMLOGE("UpdateAbilityEnabled WriteApplicationMsg fail");
-        }
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EDMLOGI("EnterpriseDeviceMgrAbility UpdateAbilityEnabled");
+    if (appIndex != 0) {
+        EDMLOGI("EnterpriseDeviceMgrAbility UpdateAbilityEnabled clone application created.");
+        return;
     }
+    std::string combinePolicy;
+    policyMgr_->GetPolicy("", PolicyName::POLICY_SET_ABILITY_ENABLED, combinePolicy, userId);
+    std::vector<std::string> policies;
+    ArrayStringSerializer::GetInstance()->Deserialize(combinePolicy, policies);
+    for (const std::string &policy : policies) {
+        size_t index = policy.find("/");
+        if (index == policy.npos) {
+            continue;
+        }
+        if (policy.substr(0, index) == bundleName) {
+            SetAbilityDisabled(bundleName, userId, policy.substr(index + 1));
+        }
+    }
+}
+
+ErrCode EnterpriseDeviceMgrAbility::SetAbilityDisabled(const std::string &bundleName, int32_t userId,
+    const std::string &abilityName)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (!proxy) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::SetAbilityDisabled GetBundleMgr failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::vector<OHOS::AppExecFwk::AbilityInfo> abilityInfos;
+    AppExecFwk::ElementName element;
+    element.SetBundleName(bundleName);
+    element.SetAbilityName(abilityName);
+    OHOS::AppExecFwk::IBundleMgr::Want want;
+    want.SetElement(element);
+    bool res = proxy->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_DISABLE,
+        userId, abilityInfos);
+    if (!res) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::SetAbilityDisabled QueryAbilityInfos failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (size_t appIndex = 0; appIndex < abilityInfos.size(); ++appIndex) {
+        ErrCode ret = proxy->SetCloneAbilityEnabled(abilityInfos[appIndex], appIndex, false, userId);
+        if (FAILED(ret)) {
+            EDMLOGE("SetAbilityEnabled failed, ret: %{public}d", ret);
+        }
+    }
+    return ERR_OK;
 }
 
 void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bundleName,
