@@ -500,47 +500,17 @@ int32_t ApplicationManagerProxy::GetUserNonStopApps(const AppExecFwk::ElementNam
     return ERR_OK;
 }
 
-int32_t ApplicationManagerProxy::SetAbilityDisabled(const AppExecFwk::ElementName &admin,
-    ApplicationInstance &application, const std::string &abilityName, bool isDisabled)
+int32_t ApplicationManagerProxy::SetAbilityDisabled(MessageParcel &data)
 {
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(abilityName);
-    data.WriteBool(isDisabled);
-    if (application.bundleName.empty()) {
-        ApplicationInstanceHandle::GetBundleNameByAppId(application);
-    }
-    ApplicationInstanceHandle::WriteApplicationInstance(data, application);
-
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_ABILITY_ENABLED);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::IsAbilityDisabled(const AppExecFwk::ElementName &admin,
-    ApplicationInstance &application, const std::string &abilityName, bool &isDisabled)
+int32_t ApplicationManagerProxy::IsAbilityDisabled(MessageParcel &data, bool &isDisabled)
 {
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(abilityName);
-    if (application.bundleName.empty()) {
-        ApplicationInstanceHandle::GetBundleNameByAppId(application);
-    }
-    ApplicationInstanceHandle::WriteApplicationInstance(data, application);
-
-    proxy->GetPolicy(EdmInterfaceCode::SET_ABILITY_ENABLED, data, reply);
-    
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_ABILITY_ENABLED, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
