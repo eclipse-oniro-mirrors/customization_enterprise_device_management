@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <regex>
+#include "regex.h"
 
 #include "password_policy_plugin.h"
 
@@ -47,9 +47,8 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
         EDMLOGE("PasswordPolicyPlugin set param failed. Empty param.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    try {
-        std::regex re(policy.complexityReg);
-    } catch (const std::regex_error& e) {
+    regex_t regex;
+    if(regcomp(&regex, policy.complexityReg.c_str(), REG_EXTENDED)){
         EDMLOGE("PasswordPolicyPlugin setComplexityReg failed. Invalid regular expression input.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
