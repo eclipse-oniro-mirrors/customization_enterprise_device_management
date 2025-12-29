@@ -105,7 +105,5 @@ void PasswordPolicyPlugin::SetGlobalConfigParam(const PasswordPolicy &policy)
         EDMLOGW("SetGlobalConfigParam SetPasswordPolicy Error");
     }
 }
-
-
 } // namespace EDM
 } // namespace OHOS
