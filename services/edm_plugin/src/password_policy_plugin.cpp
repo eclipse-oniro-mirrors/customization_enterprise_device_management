@@ -48,7 +48,7 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
         return EdmReturnErrCode::PARAM_ERROR;
     }
     regex_t regex;
-    if(regcomp(&regex, policy.complexityReg.c_str(), REG_EXTENDED)){
+    if (regcomp(&regex, policy.complexityReg.c_str(), REG_EXTENDED)) {
         EDMLOGE("PasswordPolicyPlugin setComplexityReg failed. Invalid regular expression input.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
