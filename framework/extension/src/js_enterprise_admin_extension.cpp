@@ -520,12 +520,12 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
     }
     keyEventInfo.actionTime = actionTime->valuedouble;
     keyEventInfo.keyCode = keyCode->valueint;
-    if (keyAction->valueint == static_cast<int32_t>(OHOS::EDM::KeyAction::DOWN) || 
+    if (keyAction->valueint == static_cast<int32_t>(OHOS::EDM::KeyAction::DOWN) ||
         keyAction->valueint == static_cast<int32_t>(OHOS::EDM::KeyAction::UP)) {
         keyEventInfo.keyAction = static_cast<OHOS::EDM::KeyAction>(keyAction->valueint);
     } else {
         keyEventInfo.keyAction = OHOS::EDM::KeyAction::UNKNOWN;
-        EDMLOG_WARN("Invalid keyAction value: %d", keyAction->valueint);
+        EDMLOGW("Invalid keyAction value: %{public}d", keyAction->valueint);
     }
 
     cJSON *keyItem;
