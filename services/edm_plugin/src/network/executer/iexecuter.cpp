@@ -38,6 +38,7 @@ const std::string JUMP_NFLOG_OPTION = " -j NFLOG --nflog-group 0 --nflog-prefix 
 const std::string LOG_TAG_DROP = "iptables-edm-drop:";
 const std::string LOG_TAG_REJECT = "iptables-edm-reject:";
 const std::string NFLOG = "NFLOG";
+const std::string LOG_FLAG = "LOG flags";
 const std::string IPTYPE_IPV4 = "ipv4-";
 const std::string IPTYPE_IPV6 = "ipv6-";
 const uint32_t RESULT_MIN_SIZE = 3;
@@ -123,6 +124,7 @@ ErrCode IExecuter::ExecWithOption(std::ostringstream& oss, const std::shared_ptr
     }
 #ifdef FEATURE_PC_ONLY
     if (logType == LogType::NFLOG) {
+        EDMLOGI("ExecWithOption: exec interception nflog rule = %{public}s.", nflogRule.c_str());
         ret = ExecuterUtils::GetInstance()->Execute(nflogRule, result, ipType);
         if (ret != ERR_OK) {
             EDMLOGE("ExecWithOption: exec interception rule nflog fail.");
@@ -157,7 +159,13 @@ ErrCode IExecuter::GetAll(std::vector<std::string>& ruleList, NetsysNative::Ipta
     for (uint32_t i = RESULT_MIN_SIZE - 1; i < ruleLines.size(); ++i) {
         auto nflogIndex = ruleLines[i].find(NFLOG);
         if (nflogIndex != std::string ::npos) {
+            EDMLOGI("GetAll: nflog string is: %{public}s", ruleLines[i].c_str());
             haveNflog = true;
+        }
+        // user remove rules without nflog, do not affect get next rule result
+        auto logIndex = ruleLines[i].find(LOG_FLAG);
+        if (logIndex != std::string ::npos) {
+            haveNflog = false;
         }
         auto index = ruleLines[i].find(LOG_TAG_REJECT);
         if (index != std::string ::npos) {
