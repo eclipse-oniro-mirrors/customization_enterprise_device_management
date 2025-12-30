@@ -520,7 +520,13 @@ bool JsEnterpriseAdminExtension::ParseKeyEventInfo(const std::string &jsonString
     }
     keyEventInfo.actionTime = actionTime->valuedouble;
     keyEventInfo.keyCode = keyCode->valueint;
-    keyEventInfo.keyAction = keyAction->valueint;
+    if (keyAction->valueint == static_cast<int32_t>(OHOS::EDM::KeyAction::DOWN) ||
+        keyAction->valueint == static_cast<int32_t>(OHOS::EDM::KeyAction::UP)) {
+        keyEventInfo.keyAction = static_cast<OHOS::EDM::KeyAction>(keyAction->valueint);
+    } else {
+        keyEventInfo.keyAction = OHOS::EDM::KeyAction::UNKNOWN;
+        EDMLOGW("Invalid keyAction value: %{public}d", keyAction->valueint);
+    }
 
     cJSON *keyItem;
     cJSON_ArrayForEach(keyItem, keyItems) {
@@ -558,7 +564,7 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyCode", nKeyCode));
 
     napi_value nKeyAction = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, keyEventInfo.keyAction, &nKeyAction));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(keyEventInfo.keyAction), &nKeyAction));
     NAPI_CALL(env, napi_set_named_property(env, nKeyEventInfo, "keyAction", nKeyAction));
 
     napi_value nKeyItems = nullptr;
@@ -571,7 +577,7 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
         NAPI_CALL(env, napi_create_object(env, &nKeyItem));
 
         napi_value nPressed = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, keyItem.pressed, &nPressed));
+        NAPI_CALL(env, napi_get_boolean(env, keyItem.pressed, &nPressed));
         NAPI_CALL(env, napi_set_named_property(env, nKeyItem, "pressed", nPressed));
 
         napi_value nKeyCodeItem = nullptr;

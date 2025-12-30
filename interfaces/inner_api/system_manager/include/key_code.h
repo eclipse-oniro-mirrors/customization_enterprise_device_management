@@ -21,18 +21,38 @@
 
 namespace OHOS {
 namespace EDM {
+enum class KeyCode {
+    POWER = 0,
+    VOLUME_UP = 1,
+    VOLUME_DOWN = 2,
+    BACK = 3,
+    HOME = 4,
+    RECENT = 5
+};
+
+enum KeyPolicy {
+    INTERCEPTION = 0,
+    CUSTOM = 1
+};
+
+enum class KeyAction {
+    UNKNOWN = -1,
+    DOWN = 0,
+    UP = 1
+};
 
 struct KeyCustomization {
-    int32_t keyCode;
-    int32_t keyPolicy;
+    int32_t keyCode = 0;
+    int32_t keyPolicy = 0;
 };
+
 class KeyEventHandle {
 public:
     static bool WriteKeyCustomizationVector(MessageParcel &data,
-        const std::vector<KeyCustomization> KeyCustomizations);
-    static bool WriteKeyCustomization(MessageParcel &data, const KeyCustomization keyCust);
+        const std::vector<KeyCustomization> &keyCustomizations);
+    static bool WriteKeyCustomization(MessageParcel &data, const KeyCustomization &keyCust);
     static bool ReadKeyCustomizationVector(MessageParcel &data,
-        std::vector<KeyCustomization> &KeyCustomizations);
+        std::vector<KeyCustomization> &keyCustomizations);
     static bool ReadKeyCustomization(MessageParcel &data, KeyCustomization &keyCust);
 };
 } // namespace EDM

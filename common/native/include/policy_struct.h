@@ -17,6 +17,7 @@
 #define COMMON_NATIVE_INCLUDE_POLICY_STRUCT_H
 
 #include <string>
+#include "key_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -27,7 +28,7 @@ struct UpdateInfo {
 };
 
 struct KeyEventItem {
-    int32_t pressed;
+    bool pressed;
     int32_t keyCode;
     int64_t downTime;
 };
@@ -35,7 +36,7 @@ struct KeyEventItem {
 struct KeyEvent {
     int64_t actionTime;
     int32_t keyCode;
-    int32_t keyAction;
+    KeyAction keyAction;
     std::vector<KeyEventItem> keyItems;
 };
 
