@@ -64,7 +64,7 @@ bool DeviceAdmin::HasPermissionToHandlePolicy(const std::string &policyName, Fun
 std::string DeviceAdmin::GetDisableSelfPermission() const
 {
 #ifdef FEATURE_PC_ONLY
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN;
+    return EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN;
 #else
     return EdmPermission::PERMISSION_DENIED;
 #endif
