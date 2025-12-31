@@ -274,7 +274,7 @@ int32_t RestrictionsProxy::GetUserRestricted(const AppExecFwk::ElementName *admi
 }
 
 int32_t RestrictionsProxy::SetUserRestrictionForAccount(const AppExecFwk::ElementName &admin, int32_t accountId,
-    bool disallow, int policyCode)
+    bool disallow, uint32_t policyCode)
 {
     EDMLOGD("RestrictionsProxy::SetUserRestrictionForAccount called");
     MessageParcel data;
