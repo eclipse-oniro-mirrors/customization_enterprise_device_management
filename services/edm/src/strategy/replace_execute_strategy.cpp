@@ -56,11 +56,11 @@ ErrCode ReplaceExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParc
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
 
-ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
+ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t funcCode, const std::string &adminName, int32_t userId)
 {
-    auto plugin = PluginManager::GetInstance()->GetPluginByCode(interfaceCode);
+    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
-        EDMLOGD("get Plugin fail %{public}d.", interfaceCode);
+        EDMLOGD("get Plugin fail %{public}d.", funcCode);
         return ERR_EDM_HANDLE_POLICY_FAILED;
     }
     auto extensionPlugin = plugin->GetExtensionPlugin();
@@ -71,30 +71,27 @@ ErrCode ReplaceExecuteStrategy::OnInitExecute(std::uint32_t interfaceCode, std::
         return ERR_OK;
     }
     plugin->OnOtherServiceStartForAdmin(adminName, userId);
-    EDMLOGE("ReplaceExecuteStrategy::OnInitExecute plugin %{public}d is not exist.", interfaceCode);
-    return ERR_EDM_HANDLE_POLICY_FAILED;
+    return ERR_OK;
 }
 
-ErrCode ReplaceExecuteStrategy::OnAdminRemoveExecute(const std::string &adminName, const std::string &policyName,
-    const std::string &policyValue, int32_t userId)
+ErrCode ReplaceExecuteStrategy::OnAdminRemoveExecute(std::uint32_t funcCode, const std::string &adminName,
+    const std::string &policyValue, const std::string &mergedPolicyData, int32_t userId)
 {
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByPolicyName(policyName);
+    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
-        EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}s\n", policyName.c_str());
+        EDMLOGW("RemoveAdminItem: Get plugin by policy failed: %{public}d", funcCode);
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
     }
-    std::string mergedPolicyData;
-    plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
     auto extensionPlugin = plugin->GetExtensionPlugin();
-        if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
-            EDMLOGD("ReplaceExecuteStrategy::OnAdminRemoveExecute extensionPlugin %{public}d start execute.",
-                extensionPlugin->GetCode());
-            extensionPlugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
-            return ERR_OK;
-        }
+    if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
+        EDMLOGD("ReplaceExecuteStrategy::OnAdminRemoveExecute extensionPlugin %{public}d start execute.",
+            extensionPlugin->GetCode());
+        extensionPlugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
+        return ERR_OK;
+    }
     ErrCode ret = plugin->OnAdminRemove(adminName, policyValue, mergedPolicyData, userId);
     if (ret != ERR_OK) {
-        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d\n",
+        EDMLOGW("RemoveAdminItem: OnAdminRemove failed, admin:%{public}s, value:%{public}s, res:%{public}d",
             adminName.c_str(), policyValue.c_str(), ret);
         return ERR_EDM_HANDLE_POLICY_FAILED;
     }

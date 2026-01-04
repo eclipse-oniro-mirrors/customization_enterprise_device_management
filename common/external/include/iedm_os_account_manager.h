@@ -35,6 +35,7 @@ public:
     virtual ErrCode CreateOsAccount(const std::string &name, const OHOS::AccountSA::OsAccountType &type,
         OHOS::AccountSA::OsAccountInfo &osAccountInfo) = 0;
 #endif
+    virtual int32_t GetCurrentUserId() = 0;
 };
 } // namespace EDM
 } // namespace OHOS

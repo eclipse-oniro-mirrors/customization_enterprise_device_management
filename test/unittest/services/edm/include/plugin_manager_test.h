@@ -67,7 +67,21 @@ public:
         return ERR_OK;
     }
 
+    void OnOtherServiceStart(int32_t systemAbilityId) override
+    {
+        callOnOtherServiceStartFlag_ = true;
+    }
+
+    void OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId) override
+    {
+        callOnOtherServiceStartForAdminFlag_ = true;
+    }
+
     ~TestPlugin() override = default;
+
+    bool callOnOtherServiceStartFlag_ = false;
+
+    bool callOnOtherServiceStartForAdminFlag_ = false;
 };
 
 class TestExtensionPlugin : public IPlugin {

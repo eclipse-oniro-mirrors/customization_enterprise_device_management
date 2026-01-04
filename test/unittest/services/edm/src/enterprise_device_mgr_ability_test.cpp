@@ -17,6 +17,7 @@
 #define protected public
 #include "enterprise_device_mgr_ability.h"
 #include "plugin_singleton.h"
+#include "plugin_manager.h"
 #undef protected
 #undef private
 
@@ -113,7 +114,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     permissionCheckerMock_ = std::make_shared<PermissionCheckerMock>();
     edmMgr_ = new (std::nothrow) EnterpriseDeviceMgrAbilityMock();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
-    edmMgr_->policyMgr_ = std::make_shared<PolicyManager>();
+    edmMgr_->policyMgr_ = PolicyManager::GetInstance();
     EXPECT_CALL(*edmMgr_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
     EXPECT_CALL(*edmMgr_, GetPermissionChecker).WillRepeatedly(DoAll(Return(permissionCheckerMock_)));
     EXPECT_CALL(*permissionCheckerMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
@@ -173,6 +174,7 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     PluginManager::GetInstance()->AddPlugin(plugin_);
+    PluginManager::GetInstance()->deviceCoreSoCodes_.push_back(INVALID_POLICYCODE);
 }
 
 void EnterpriseDeviceMgrAbilityTest::GetPolicySuccess(int32_t userId, const std::string& adminName,

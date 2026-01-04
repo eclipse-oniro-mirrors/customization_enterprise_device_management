@@ -80,13 +80,7 @@ ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &adminName, co
 ErrCode ExtraPolicyNotification::UnloadPlugin(uint32_t code)
 {
     EDMLOGI("ExtraPolicyNotification::UnloadCollectLogPlugin");
-    auto plugin = PluginManager::GetInstance()->GetPluginByCode(code);
-    if (plugin == nullptr) {
-        EDMLOGE("get Plugin fail %{public}d", code);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
-    plugin->SetPluginUnloadFlag(true);
-    return ERR_OK;
+    return PluginManager::GetInstance()->SetPluginUnloadFlag(code, true);
 }
 } // namespace EDM
 } // namespace OHOS
