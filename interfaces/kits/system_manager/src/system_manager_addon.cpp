@@ -892,8 +892,13 @@ napi_value SystemManagerAddon::StartCollectLog(napi_env env, napi_callback_info 
     return asyncWorkReturn;
 #else
     EDMLOGW("SystemManagerAddon::StartCollectLog Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-    return nullptr;
+    napi_value result = nullptr;
+    napi_deferred deferred = nullptr;
+    auto status = napi_create_promise(env, &deferred, &result);
+    if (status == napi_ok) {
+        napi_reject_deferred(env, deferred, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    }
+    return result;
 #endif
 }
 
