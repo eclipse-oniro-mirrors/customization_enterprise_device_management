@@ -304,5 +304,29 @@ int32_t SystemManagerProxy::GetKeyEventPolicys(const AppExecFwk::ElementName &ad
     KeyEventHandle::ReadKeyCustomizationVector(reply, KeyCustomizations);
     return ERR_OK;
 }
+
+int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementName &admin,
+ 	     bool &isDisabled, std::string &credential)
+ 	 {
+ 	     EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
+ 	     MessageParcel data;
+ 	     data.WriteInterfaceToken(DESCRIPTOR);
+ 	     data.WriteInt32(WITHOUT_USERID);
+ 	     data.WriteString(WITHOUT_PERMISSION_TAG);
+ 	     data.WriteInt32(HAS_ADMIN);
+ 	     data.WriteParcelable(&admin);
+ 	     data.WriteBool(isDisabled);
+ 	     data.WriteString(credential);
+ 	     EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
+ 	     std::uint32_t funcCode =
+ 	         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DIDABLED_ACTIVATION_LOCK);
+ 	     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+ 	     return ret;
+ 	 }
+ 	 
+ 	 int32_t SystemManagerProxy::IsActivationLockDisabled(AppExecFwk::ElementName &admin, uint32_t policyCode, bool &result)
+ 	 {
+ 	     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, policyCode, result);
+ 	 }
 } // namespace EDM
 } // namespace OHOS

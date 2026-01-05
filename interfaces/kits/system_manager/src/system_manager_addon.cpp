@@ -44,6 +44,8 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addKeyEventPolicies", AddKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
+        DECLARE_NAPI_FUNCTION("setActivationLockDisabled", SetActivationLockDisabled),
+ 	    DECLARE_NAPI_FUNCTION("isActivationLockDisabled", IsActivationLockDisabled),
     };
     NAPI_CALL_RETURN_VOID(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
@@ -1036,6 +1038,143 @@ napi_value SystemManagerAddon::GetKeyEventPolicies(napi_env env, napi_callback_i
     ConvertKeyCustomizationVectorToJS(env, KeyCustomizations, napiKeyCustomizations);
     return napiKeyCustomizations;
 }
+
+bool ApplicationManagerAddon::CheckSetActivationLockDisabledParamType(napi_env env, size_t argc,
+ 	     napi_value* argv, bool &hascredential)
+ 	 {
+ 	     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) || !MatchValueType(env, argv[ARR_INDEX_ONE],
+ 	         napi_boolean)) {
+ 	         EDMLOGE("CheckAddDisallowedRunningBundlesParamType admin or array type check failed");
+ 	         return false;
+ 	     }
+ 	     EDMLOGI("CheckAddDisallowedRunningBundlesParamType argc = %{public}zu", argc);
+ 	     if (argc == ARGS_SIZE_TWO) {
+ 	         hascredential = false;
+ 	         EDMLOGI("hasCallback = false;");
+ 	         return true;
+ 	     }
+ 	     hascredential = true;
+ 	     EDMLOGI("hascredential = true;");
+ 	     return MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
+ 	 }
+ 	 
+napi_value SystemManagerAddon::SetActivationLockDisabled(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    bool hascredential = false;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncActivationLockDisabledCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncActivationLockDisabledCallbackInfo> callbackPtr {asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        CheckSetActivationLockDisabledParamType(env, argc, argv, hascredential), "Parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, asyncCallbackInfo->isDisabled, argv[ARR_INDEX_ONE]),
+        "Parameter isDisabled error")
+    EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    if (hascredential) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->credential, argv[ARR_INDEX_TWO]),
+        "Parameter credential error")
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetActivationLockDisabled",
+        NativeSetActivationLockDisabled, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+#else
+    EDMLOGW("SystemManagerAddon::SetActivationLockDisabled Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+#if defined(FEATURE_PC_ONLY)
+void SystemManagerAddon::NativeSetActivationLockDisabled(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeSetActivationLockDisable called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbakInfo = static_cast<AdapterAddonData *>(data);
+    auto proxy = SystemManagerProxy::GetSystemManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return;
+    }
+    asyncCallbakInfo->ret = proxy->SetActivationLockDisabled(asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled,
+        asyncCallbackInfo->credential);
+}
+#endif
+
+#if defined(FEATURE_PC_ONLY)
+napi_value SystemManagerAddon::IsActivationLockDisabled(napi_env env, napi_callback_info info)
+{
+    return IsActivationLockDisabled(env, info, EdmInterfaceCode::DIDABLED_ACTIVATION_LOCK);
+}
+#endif
+
+napi_value SystemManagerAddon::IsActivationLockDisabled(napi_env env, napi_callback_info info, int policyCode)
+{
+    EDMLOGI("NAPI_IsPolicyDisabled called");
+#if defined(FEATURE_PC_ONLY)
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncActivationLockDisabledCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncActivationLockDisabledCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    EDMLOGD(
+        "IsActivationLockDisabled: asyncCallbackInfo->elementName.bundlename %{public}s, "
+        "asyncCallbackInfo->abilityname:%{public}s",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str());
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "IsActivationLockDisabled", NativeIsActivationLockDisabled, NativeBoolCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+#else
+    EDMLOGW("SystemManagerAddon::SetActivationLockDisabled Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+#if defined(FEATURE_PC_ONLY)
+void SystemManagerAddon::NativeIsActivationLockDisabled(napi_env env, void *data)
+{
+    EDMLOGI("NativeActivationLockDisabled called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncActivationLockDisabledCallbackInfo *asyncCallbackInfo = static_cast<AsyncActivationLockDisabledCallbackInfo *>(data);
+    auto proxy = SystemManagerProxy::GetSystemManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->IsActivationLockDisabled(asyncCallbackInfo->elementName, asyncCallbackInfo->policyCode,
+        asyncCallbackInfo->boolRet);
+}
+#endif
 
 static napi_module g_systemManagerModule = {
     .nm_version = 1,

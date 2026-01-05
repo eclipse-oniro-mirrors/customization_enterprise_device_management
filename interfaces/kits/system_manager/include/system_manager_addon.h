@@ -45,6 +45,12 @@ struct AsyncStartCollectLogCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
 };
 
+struct AsyncActivationLockDisabledCallbackInfo : AsyncCallbackInfo {
+ 	     OHOS::AppExecFwk::ElementName elementName;
+ 	     bool isDisabled;
+ 	     std::string credential;
+};
+
 enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 
 class SystemManagerAddon {
@@ -94,6 +100,12 @@ private:
     static void CreateKeyCodeObject(napi_env env, napi_value value);
     static void CreateKeyActionObject(napi_env env, napi_value value);
     static void CreateKeyPolicyObject(napi_env env, napi_value value);
+    static bool CheckSetActivationLockDisabledParamType(napi_env env, size_t argc,
+        napi_value* argv, bool &hascredential);
+    static napi_value SetActivationLockDisabled(napi_env env, napi_callback_info info);
+    static void NativeSetActivationLockDisabled(napi_env env, void *data);
+    static napi_value IsActivationLockDisabled(napi_env env, napi_callback_info info);
+    static void NativeIsActivationLockDisabled(napi_env env, void *data);
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     static void NativeStartCollectLog(napi_env env, void *data);
 #endif
