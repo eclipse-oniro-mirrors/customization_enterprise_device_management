@@ -157,6 +157,10 @@ bool ArraySerializer<DT, T_ARRAY>::Deserialize(const std::string &jsonString, T_
             return false;
         }
 
+        if (serializerInner_ == nullptr) {
+            return false;
+        }
+
         DT value;
         if (!serializerInner_->Deserialize(itemJson, value)) {
             cJSON_free(itemJson);
