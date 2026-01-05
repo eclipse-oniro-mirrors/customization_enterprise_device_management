@@ -33,6 +33,8 @@ ani_status AdminManagerAni::Init(ani_env* env)
     std::array methods = {
         ani_native_function { "getEnterpriseInfoSync", nullptr, reinterpret_cast<void*>(GetEnterpriseInfoSync) },
         ani_native_function { "getSuperAdminSync", nullptr, reinterpret_cast<void*>(GetSuperAdminSync) },
+        ani_native_function { "getEnterpriseManagedTipsSync", nullptr,
+            reinterpret_cast<void*>(GetEnterpriseManagedTipsSync) },
     };
     if (ANI_OK != env->Namespace_BindNativeFunctions(ns, methods.data(), methods.size())) {
         EDMLOGE("Cannot bind native methods to namespace[%{public}s]", NAMESPACE_NAME);
