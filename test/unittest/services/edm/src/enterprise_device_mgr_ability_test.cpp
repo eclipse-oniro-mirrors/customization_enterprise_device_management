@@ -4684,7 +4684,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetEnterpriseManagedTipsermissionDe
     EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall).WillOnce(DoAll(Return(false)));
     std::string result;
     ErrCode ret = edmMgr_->GetEnterpriseManagedTips(result);
-    ASSERT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_API_DENIED);
 }
 
 /**

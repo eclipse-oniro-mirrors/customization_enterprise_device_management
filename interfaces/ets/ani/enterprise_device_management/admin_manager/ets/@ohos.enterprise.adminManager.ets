@@ -72,7 +72,7 @@ export default namespace adminManager {
         });
     }
 
-    function getEnterpriseManaged(): Promise<string> {
+    function getEnterpriseManagedTips(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             taskpool.execute((): string => {
                 return getEnterpriseManagedTipsSync();

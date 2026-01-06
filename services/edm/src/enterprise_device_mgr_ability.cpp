@@ -2479,7 +2479,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips(std::string &tips)
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     if (!GetPermissionChecker()->CheckIsSystemApp()) {
         EDMLOGW("EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips check permission failed");
-        return EdmReturnErrCode::PERMISSION_DENIED;
+        return EdmReturnErrCode::SYSTEM_API_DENIED;
     }
     tips = LanguageManager::GetEnterpriseManagedTips();
     return ERR_OK;
