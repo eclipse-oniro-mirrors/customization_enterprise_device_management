@@ -219,7 +219,7 @@ HWTEST_F(SecurityManagerProxyTest, TestGetRootCheckStatusSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::string res;
-    int32_t ret = proxy_->GetRootCheckStatus(admin, res);
+    int32_t ret = proxy_->GetRootCheckStatus(admin, res, "root");
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(res == RETURN_STRING);
 }
@@ -235,7 +235,7 @@ HWTEST_F(SecurityManagerProxyTest, TestGetRootCheckStatusFail, TestSize.Level1)
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
     std::string res;
-    int32_t ret = proxy_->GetRootCheckStatus(admin, res);
+    int32_t ret = proxy_->GetRootCheckStatus(admin, res, "root");
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -480,6 +480,38 @@ HWTEST_F(SecurityManagerProxyTest, TestGetUserCertificatesFail, TestSize.Level1)
     data.WriteParcelable(&admin);
     data.WriteInt32(accountId);
     int32_t ret = proxy_->GetUserCertificates(data, uriList);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetSecurityFastbootStatusSuc
+ * @tc.desc: Test GetRootCheckStatus for fastboot success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetSecurityFastbootStatusSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    std::string name;
+    int32_t ret = proxy_->GetRootCheckStatus(admin, name, "fastboot");
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetSecurityFastbootStatusFail
+ * @tc.desc: Test GetRootCheckStatus without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetSecurityFastbootStatusFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string name;
+    int32_t ret = proxy_->GetRootCheckStatus(admin, name, "fastboot");
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST

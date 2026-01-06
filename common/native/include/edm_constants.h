@@ -193,6 +193,7 @@ namespace EdmConstants {
         const char* const ROOT = "root";
         const char* const SET_SINGLE_WATERMARK_TYPE = "single";
         const char* const SET_ALL_WATERMARK_TYPE = "all";
+        const char* const FASTBOOT  = "fastboot";
     } // namespace SecurityManager
 
     namespace DeviceSettings {
