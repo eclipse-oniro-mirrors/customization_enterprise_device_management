@@ -48,8 +48,8 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
         return EdmReturnErrCode::PARAM_ERROR;
     }
     try {	 
-         std::regex re(policy.complexityReg);	 
-     } catch (const std::regex_error& e) {
+        std::regex re(policy.complexityReg);	 
+    } catch (const std::regex_error& e) {
         EDMLOGE("PasswordPolicyPlugin setComplexityReg failed. Invalid regular expression input.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
