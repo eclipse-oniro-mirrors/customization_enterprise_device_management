@@ -266,12 +266,10 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfoForUpdate, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
 {
-    std::vector<int32_t> slotIds;
-    if (!HasValidSimCard(slotIds)) {
-        return;
+    std::string opkey = system::GetParameter("telephony.sim.opkey0", "");
+    if (opkey == "-1") {
+        opkey = system::GetParameter("telephony.sim.opkey1", "");
     }
-
-    std::string opkey = system::GetParameter(std::string("telephony.sim.opkey") + std::to_string(slotIds[0]), "");
     std::string apnId;
     GetApnId(opkey, apnId);
     ASSERT_TRUE(apnId.empty() == false);
@@ -284,7 +282,12 @@ HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
     data.WriteString(apnId);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    std::vector<int32_t> slotIds;
+    if (HasValidSimCard(slotIds)) {
+        ASSERT_TRUE(ret == ERR_OK);
+    } else {
+        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    }
 }
 } // namespace TEST
 } // namespace EDM
