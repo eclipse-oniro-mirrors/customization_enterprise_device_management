@@ -91,7 +91,8 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_002, TestSize.Level1)
 HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_003, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data = "测试名称超限123测试名称超限123测试名称超限123测试名称超限123";
+    std::string data =
+        "test1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
     std::string currentData = "";
     std::string mergeData = "";
     int32_t id = 100;

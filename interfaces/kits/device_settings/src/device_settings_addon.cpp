@@ -32,9 +32,9 @@ void DeviceSettingsAddon::CreatePowerSceneObject(napi_env env, napi_value value)
 
 void DeviceSettingsAddon::CreateSettingsItemObject(napi_env env, napi_value value)
 {
-    napi_value nDeivceName;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeivceName));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeivceName));
+    napi_value nDeviceName;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeviceName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeviceName));
 }
 
 void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
@@ -69,9 +69,9 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
     napi_value nPolicyAction = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nPolicyAction));
     CreatePowerPolicyActionObject(env, nPolicyAction);
-    napi_value nDeivceName = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nDeivceName));
-    CreateSettingsItemObject(env, nDeivceName);
+    napi_value nSettingsItem = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSettingsItem));
+    CreateSettingsItemObject(env, nSettingsItem);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
@@ -84,6 +84,7 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
         DECLARE_NAPI_FUNCTION("setValue", SetValue),
         DECLARE_NAPI_FUNCTION("getValue", GetValue),
+        DECLARE_NAPI_PROPERTY("SettingsItem", nSettingsItem),
         DECLARE_NAPI_FUNCTION("setValueForAccount", setValueForAccount),
         DECLARE_NAPI_FUNCTION("getValueForAccount", getValueForAccount),
         DECLARE_NAPI_FUNCTION("setHomeWallpaper", SetHomeWallPaper),
