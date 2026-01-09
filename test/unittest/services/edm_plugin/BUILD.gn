@@ -538,6 +538,9 @@ ohos_static_library("edm_all_plugin_static") {
     "window_manager:session_manager_lite",
   ]
   defines = []
+
+  use_exceptions = true
+
   if (update_service_edm_enable) {
     external_deps += [ "update_service:updateservicekits" ]
     sources +=
