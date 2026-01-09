@@ -468,9 +468,7 @@ HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase5, TestSize.Level1)
 {
     // Load a plugin first
     PluginManager::GetInstance()->LoadExtraPlugin();
-    if (PluginManager::GetInstance()->soLoadStateMap_.empty()) {
-        return;
-    }
+    ASSERT_TRUE(!PluginManager::GetInstance()->soLoadStateMap_.empty());
 
     std::string soName = PluginManager::GetInstance()->soLoadStateMap_.begin()->first;
     // Verify plugin is loaded
