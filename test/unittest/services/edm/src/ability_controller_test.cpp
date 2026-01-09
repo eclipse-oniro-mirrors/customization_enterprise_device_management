@@ -50,11 +50,10 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
 {
     AAFwk::Want want;
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
-    sptr<IRemoteObject> token;
 
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
     AbilityController controller = std::make_shared<AbilityController>(abilityInfo);
-    auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
+    auto ret = controller->StartAbilityByAdmin(want, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -67,11 +66,10 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
 {
     AAFwk::Want want;
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
-    sptr<IRemoteObject> token;
 
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
     AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
-    auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
+    auto ret = controller->StartAbilityByAdmin(want, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -84,11 +82,10 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToAppService, TestSize.Level1
 {
     AAFwk::Want want;
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
-    sptr<IRemoteObject> token = nullptr;
 
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
     AbilityController controller = std::make_shared<AppServiceExtensionController>(abilityInfo);
-    auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
+    auto ret = controller->StartAbilityByAdmin(want, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
 

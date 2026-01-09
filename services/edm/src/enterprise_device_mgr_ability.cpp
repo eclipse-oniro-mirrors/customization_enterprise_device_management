@@ -2739,8 +2739,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetBundleInstallPolicies(const std::vector<s
     return EdmReturnErrCode::PERMISSION_DENIED;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want)
 {
     int32_t userId = GetCurrentUserId();
     if (userId < 0) {
@@ -2764,7 +2763,7 @@ ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::Elemen
         EDMLOGE("StartAbilityByAdmin verify ability permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    return controller->StartAbilityByAdmin(want, callerToken, userId);
+    return controller->StartAbilityByAdmin(want, userId);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
