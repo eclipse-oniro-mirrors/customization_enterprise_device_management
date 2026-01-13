@@ -36,7 +36,7 @@ DisallowMobileDataPlugin::DisallowMobileDataPlugin()
     policyCode_ = EdmInterfaceCode::DISALLOWED_MOBILE_DATA;
     policyName_ = PolicyName::POLICY_DISALLOW_MOBILE_DATA;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }
