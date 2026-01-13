@@ -514,6 +514,88 @@ HWTEST_F(SecurityManagerProxyTest, TestGetSecurityFastbootStatusFail, TestSize.L
     int32_t ret = proxy_->GetRootCheckStatus(admin, name, "fastboot");
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestInstallEnterpriseReSignatureCertificateSuc
+ * @tc.desc: Test InstallEnterpriseReSignatureCertificate success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestInstallEnterpriseReSignatureCertificateSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString("test.cer");
+    data.WriteFileDescriptor(50);
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->InstallEnterpriseReSignatureCertificate(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallEnterpriseReSignatureCertificateFail
+ * @tc.desc: Test InstallEnterpriseReSignatureCertificate fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestInstallEnterpriseReSignatureCertificateFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString("test.cer");
+    data.WriteFileDescriptor(50);
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->InstallEnterpriseReSignatureCertificate(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestUninstallEnterpriseReSignatureCertificateSuc
+ * @tc.desc: Test UninstallEnterpriseReSignatureCertificate success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestUninstallEnterpriseReSignatureCertificateSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString("test.cer");
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->UninstallEnterpriseReSignatureCertificate(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestUninstallEnterpriseReSignatureCertificateFail
+ * @tc.desc: Test UninstallEnterpriseReSignatureCertificate fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestUninstallEnterpriseReSignatureCertificateFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteString("test.cer");
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->UninstallEnterpriseReSignatureCertificate(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
