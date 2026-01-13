@@ -46,6 +46,7 @@ ohos_unittest("EdmPluginPermissionUnitTest") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_manager",
