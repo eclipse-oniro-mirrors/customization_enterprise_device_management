@@ -47,7 +47,7 @@ napi_value TelephonyManagerAddon::SetSimDisabled(napi_env env, napi_callback_inf
 #if defined(TELEPHONY_EDM_ENABLE)
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setSimDisabled";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -72,7 +72,7 @@ napi_value TelephonyManagerAddon::SetSimEnabled(napi_env env, napi_callback_info
 #if defined(TELEPHONY_EDM_ENABLE)
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setSimEnabled";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);

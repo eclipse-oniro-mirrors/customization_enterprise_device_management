@@ -27,6 +27,9 @@
 #include "clipboard_policy.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+#include "core_service_client.h"
+#endif
 #include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
 #include "ipc_skeleton.h"
@@ -97,6 +100,7 @@ const int32_t AG_COMMON_EVENT_SIZE = 3;
 const int32_t AG_PERMISSION_INDEX = 2;
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
 const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
+const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
@@ -151,6 +155,10 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_OFF] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventKioskMode(data, false);
+        };
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventSimStateChanged(data);
         };
 }
 
@@ -750,6 +758,26 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventKioskMode CreateKioskConnection failed.");
         }
     }
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data)
+{
+    EDMLOGI("OnCommonEventSimStateChanged");
+    AAFwk::Want want = data.GetWant();
+    int32_t slotId = want.GetIntParam("slotId", -1);
+    if (slotId < 0) {
+        return;
+    }
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+    int32_t simStatus = want.GetIntParam("state", -1);
+    if (simStatus != static_cast<int32_t>(Telephony::SimState::SIM_STATE_LOADED) &&
+            simStatus != static_cast<int32_t>(Telephony::SimState::SIM_STATE_READY)) {
+        return;
+    }
+    if (system::GetBoolParameter(PARAM_DISABLE_SLOT + std::to_string(slotId), false)) {
+        Telephony::CoreServiceClient::GetInstance().SetActiveSim(slotId, 0);
+    }
+#endif
 }
 
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,

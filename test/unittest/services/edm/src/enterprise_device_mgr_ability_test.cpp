@@ -55,7 +55,7 @@ constexpr int32_t BEGIN_POLICY_CODE = 10;
 constexpr int32_t END_POLICY_CODE = 33;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 10;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 11;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
@@ -2771,6 +2771,18 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventKioskModeOff, TestSize
     ASSERT_TRUE(!admins.empty());
     DisableSuperAdminSuc(admin.GetBundleName());
 }
+
+/**
+ * @tc.name: TestOnCommonEventSimStateChanged
+ * @tc.desc: Test OnCommonEventSimStateChanged func.
+ * @tc.type: FUNC
+ */
+ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventSimStateChanged, TestSize.Level1)
+ {
+     EventFwk::CommonEventData data;
+     edmMgr_->OnCommonEventSimStateChanged(data);
+     EXPECT_TRUE(true);
+ }
 
 /**
  * @tc.name: TestAddOnAddSystemAbilityFuncMap

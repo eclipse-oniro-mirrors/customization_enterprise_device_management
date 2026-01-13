@@ -281,6 +281,11 @@ ohos_shared_library("edmservice") {
     defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
   }
 
+  if (telephony_core_edm_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
+  }
+
   if (netmanager_base_edm_enable) {
     sources += [ "./src/query_policy/disallowed_airplane_mode_query.cpp" ]
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
