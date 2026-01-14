@@ -351,6 +351,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
+        "../../../services/edm_plugin/src/install_enterprise_re_signature_certificate_plugin.cpp",
       ]
     }
 
