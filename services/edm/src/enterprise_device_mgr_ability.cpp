@@ -103,6 +103,7 @@ const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
+std::mutex EnterpriseDeviceMgrAbility::subscribeAppLock_;
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
@@ -1188,6 +1189,7 @@ std::shared_ptr<PermissionChecker> EnterpriseDeviceMgrAbility::GetPermissionChec
 
 bool EnterpriseDeviceMgrAbility::SubscribeAppState()
 {
+    std::unique_lock<std::mutex> lock(subscribeAppLock_);
     if (appStateObserver_) {
         EDMLOGD("appStateObserver has subscribed");
         return true;
@@ -1208,6 +1210,7 @@ bool EnterpriseDeviceMgrAbility::SubscribeAppState()
 
 bool EnterpriseDeviceMgrAbility::UnsubscribeAppState()
 {
+    std::unique_lock<std::mutex> lock(subscribeAppLock_);
     if (!appStateObserver_) {
         EDMLOGD("appStateObserver has subscribed");
         return true;
