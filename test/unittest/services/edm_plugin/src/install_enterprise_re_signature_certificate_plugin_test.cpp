@@ -223,6 +223,10 @@ static const uint8_t CERT_DATA[] = {
     0x2D, 0x45, 0x4E, 0x44, 0x20, 0x43, 0x45, 0x52, 0x54, 0x49, 0x46, 0x49, 0x43, 0x41, 0x54, 0x45, 0x2D, 0x2D, 0x2D,
     0x2D, 0x2D, 0x0D, 0x0A
 };
+static bool NotEnterpriseDevice()
+{
+    return !OHOS::system::GetBoolParameter("const.edm.is_enterprise_device", false);
+}
 
 void InstallEnterpriseReSignatureCertificatePluginTest::SetUpTestSuite(void)
 {
@@ -260,14 +264,22 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnHandlePolicySu
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
                                               EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, installData, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, ERR_OK);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT);
+    } else {
+        ASSERT_EQ(ret, ERR_OK);
+    }
     funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
                                 EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
     MessageParcel uninstallData;
     uninstallData.WriteString(certificateAlias);
     uninstallData.WriteInt32(accountId);
     ret = plugin->OnHandlePolicy(funcCode, uninstallData, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, ERR_OK);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_NOT_EXIST);
+    } else {
+        ASSERT_EQ(ret, ERR_OK);
+    }
     close(fd);
 }
 
@@ -325,7 +337,11 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestInstallSuccess, 
     data.WriteFileDescriptor(fd);
     data.WriteInt32(ACCOUNTID_VALID_VALUE);
     ErrCode ret = plugin->InstallEnterpriseReSignatureCertificate(data);
-    ASSERT_EQ(ret, ERR_OK);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT);
+    } else {
+        ASSERT_EQ(ret, ERR_OK);
+    }
     close(fd);
 }
 
@@ -369,7 +385,11 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestInstallSameCerti
     data.WriteFileDescriptor(fd);
     data.WriteInt32(accountId);
     ErrCode ret = plugin->InstallEnterpriseReSignatureCertificate(data);
-    ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_IS_INVALID);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT);
+    } else {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_IS_INVALID);
+    }
     close(fd);
 }
 
@@ -394,7 +414,11 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestInstallApiFailed
     data.WriteFileDescriptor(fd);
     data.WriteInt32(accountId);
     ErrCode ret = plugin->InstallEnterpriseReSignatureCertificate(data);
-    ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_IS_INVALID);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT);
+    } else {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_IS_INVALID);
+    }
     close(fd);
 }
 
@@ -419,7 +443,11 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestInstallReachedLi
         data.WriteFileDescriptor(fd);
         data.WriteInt32(accountId);
         ErrCode ret = plugin->InstallEnterpriseReSignatureCertificate(data);
-        ASSERT_EQ(ret, ERR_OK);
+        if (NotEnterpriseDevice()) {
+            ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT);
+        } else {
+            ASSERT_EQ(ret, ERR_OK);
+        }
     }
     MessageParcel data;
     std::string certificateAlias = "test_cert_10.cer";
@@ -446,7 +474,11 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestUninstallSuccess
     data.WriteString(certificateAlias);
     data.WriteInt32(accountId);
     ErrCode ret = plugin->UninstallEnterpriseReSignatureCertificate(data);
-    ASSERT_EQ(ret, ERR_OK);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_NOT_EXIST);
+    } else {
+        ASSERT_EQ(ret, ERR_OK);
+    }
 }
 
 /**
