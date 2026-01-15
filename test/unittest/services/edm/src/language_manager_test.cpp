@@ -171,9 +171,7 @@ HWTEST_F(LanguageManagerTest, TestGetValueFromCloudSettings_ReturnsValue, TestSi
 {
     std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
     cJSON* root = cJSON_CreateObject();
-    if (root == nullptr) {
-        return;
-    }
+    ASSERT_TRUE(root != nullptr);
     cJSON_AddStringToObject(root, language.c_str(), "lockInfo");
     char* enterpriseInfo = cJSON_Print(root);
     EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS, enterpriseInfo);
@@ -195,9 +193,7 @@ HWTEST_F(LanguageManagerTest, TestGetValueFromCloudSettings_ReturnsParseEmpty, T
 {
     std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
     cJSON* root = cJSON_CreateObject();
-    if (root == nullptr) {
-        return;
-    }
+    ASSERT_TRUE(root != nullptr);
     cJSON_AddStringToObject(root, language.c_str(), "");
     char* enterpriseInfo = cJSON_Print(root);
     EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS, enterpriseInfo);
@@ -235,9 +231,7 @@ HWTEST_F(LanguageManagerTest, TestGetEnterpriseManagedTips, TestSize.Level1)
     LanguageManager::GetEnterpriseManagedTips();
     std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
     cJSON* root = cJSON_CreateObject();
-    if (root == nullptr) {
-        return;
-    }
+    ASSERT_TRUE(root != nullptr);
     cJSON_AddStringToObject(root, language.c_str(), "lockInfo");
     char* enterpriseInfo = cJSON_Print(root);
     EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS, enterpriseInfo);

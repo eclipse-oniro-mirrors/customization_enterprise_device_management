@@ -131,11 +131,28 @@ HWTEST_F(EnterpriseConnManagerTest, TestKeyEventConnectAbility, TestSize.Level1)
     std::string abilityName{"com.edm.test.demo.Ability"};
     AAFwk::Want connectWant;
     connectWant.SetElementName(bundleName, abilityName);
-    std::string keyEventStr = "{\"actionTime\": 344510, \"keyCode\": 10012, \"keyAction\": 2,"
-        "\"keyItems\": [{\"pressed\": 1, \"keyCode\": 10012, \"downTime\": 344510}]}";
+    std::string keyEventStr = "{\"actionTime\": 344510, \"keyCode\": 1, \"keyAction\": 2,"
+        "\"keyItems\": [{\"pressed\": 1, \"keyCode\": 1, \"downTime\": 344510}]}";
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     bool ret = manager->CreateKeyEventConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_KEY_EVENT,
         DEFAULT_USERID, keyEventStr);
+    EXPECT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: TestOobeConnectAbility
+ * @tc.desc: Test EnterpriseConnManager::CreateOobeConnection func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseConnManagerTest, TestOobeConnectAbility, TestSize.Level1)
+{
+    std::string bundleName{"com.edm.test.demo"};
+    std::string abilityName{"com.edm.test.demo.Ability"};
+    AAFwk::Want connectWant;
+    connectWant.SetElementName(bundleName, abilityName);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    bool ret = manager->CreateOobeConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_STARTUP_GUIDE_COMPLETED,
+        DEFAULT_USERID, 0);
     EXPECT_TRUE(!ret);
 }
 } // namespace TEST

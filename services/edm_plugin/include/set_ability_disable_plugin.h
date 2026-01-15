@@ -30,17 +30,17 @@ public:
         HandlePolicyData &policyData, int32_t userId) override;
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override{};
-    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
-        const std::string &mergeData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentData, const std::string &mergeData,
+        int32_t userId) override;
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 private:
-    void SetPolicyData(HandlePolicyData &policyData,
-        const ApplicationInstance &application, const std::string &abilityName, bool isDisable);
-    ErrCode SetDisableByBundle(const ApplicationInstance &application, const std::string &abilityName, bool isDisable);
-    ErrCode GetAppInfoByPolicyData(const std::string policyData, ApplicationInstance &application,
-        std::string &abilityName);
-    void OnRemovePolicy(ApplicationInstance &application, HandlePolicyData &policyData);
+    ErrCode SetPolicy(const std::string &bundleName, const std::string &abilityName,
+        std::vector<std::string> &currentPolicy, std::vector<std::string> &mergePolicy, int32_t userId);
+    ErrCode RemovePolicy(const std::string &bundleName, const std::string &abilityName,
+        std::vector<std::string> &currentPolicy, std::vector<std::string> &mergePolicy, int32_t userId);
+    ErrCode SetAbilityDisabled(const std::string &bundleName, int32_t userId, const std::string &abilityName,
+        bool isDisabled);
 };
 } // namespace EDM
 } // namespace OHOS

@@ -188,7 +188,7 @@ void EnterpriseAdminStubImpl::OnKeyEvent(const std::string &event)
     }
 }
 
-void EnterpriseAdminStubImpl::OnStartupGuideCompleted(const int32_t type)
+void EnterpriseAdminStubImpl::OnStartupGuideCompleted(int32_t type)
 {
     EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();

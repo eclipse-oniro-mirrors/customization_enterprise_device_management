@@ -239,7 +239,9 @@ napi_value SecurityManagerAddon::GetSecurityStatus(napi_env env, napi_callback_i
             ret = ConvertDeviceEncryptionToJson(env, deviceEncryptionStatus, stringRet);
         }
     } else if (item == EdmConstants::SecurityManager::ROOT) {
-        ret = securityManagerProxy->GetRootCheckStatus(elementName, stringRet);
+        ret = securityManagerProxy->GetRootCheckStatus(elementName, stringRet, item);
+    } else if (item == EdmConstants::SecurityManager::FASTBOOT) {
+        ret = securityManagerProxy-> GetRootCheckStatus(elementName, stringRet, item);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }

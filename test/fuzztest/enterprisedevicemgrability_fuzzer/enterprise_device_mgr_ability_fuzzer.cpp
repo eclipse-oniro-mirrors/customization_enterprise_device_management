@@ -184,8 +184,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnAdminEnabled(edmAdmin, code, userId, bundleName);
     AAFwk::Want want;
     want.SetElement(admin);
-    sptr<IRemoteObject> callerToken = nullptr;
-    enterpriseDeviceMgrAbility->StartAbilityByAdmin(admin, want, callerToken);
+    enterpriseDeviceMgrAbility->StartAbilityByAdmin(admin, want);
     enterpriseDeviceMgrAbility->CheckStartAbility(userId, admin, bundleName);
     std::string tips;
     enterpriseDeviceMgrAbility->GetEnterpriseManagedTips(tips);

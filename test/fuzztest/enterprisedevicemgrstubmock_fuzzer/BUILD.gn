@@ -103,6 +103,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/disallow_modify_ethernet_ip_query.cpp",
     "../../../services/edm/src/query_policy/disallow_modify_wallpaper_query.cpp",
     "../../../services/edm/src/query_policy/disallow_unmute_device_query.cpp",
+    "../../../services/edm/src/query_policy/disallow_usb_serial_query.cpp",
     "../../../services/edm/src/query_policy/disallow_virtual_service_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
@@ -141,6 +142,8 @@ ohos_static_library("edmservice_fuzz_static") {
   ]
 
   defines = []
+
+  use_exceptions = true
 
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
@@ -349,6 +352,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
+        "../../../services/edm_plugin/src/install_enterprise_re_signature_certificate_plugin.cpp",
       ]
     }
 

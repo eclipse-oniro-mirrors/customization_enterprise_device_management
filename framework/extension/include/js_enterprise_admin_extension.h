@@ -21,6 +21,7 @@
 #include "enterprise_admin_extension.h"
 #include "js_runtime.h"
 #include "policy_struct.h"
+#include "key_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -88,7 +89,7 @@ public:
 
     void OnKeyEvent(const std::string &event);
 
-    void OnStartupGuideCompleted(const int32_t type);
+    void OnStartupGuideCompleted(int32_t type);
 
     void OnDeviceBootCompleted();
 

@@ -109,12 +109,21 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
     cJSON *complexityReg = cJSON_GetObjectItem(root_, COMPLEXITY_REG.c_str());
     cJSON *validityPeriod = cJSON_GetObjectItem(root_, VALIDITY_PERIOD.c_str());
     cJSON *additionalDescription = cJSON_GetObjectItem(root_, ADDITIONAL_DESCRIPTION.c_str());
-    if (!cJSON_IsString(complexityReg) || !cJSON_IsNumber(validityPeriod) || !cJSON_IsString(additionalDescription)) {
+    if (!cJSON_IsString(complexityReg) || !cJSON_IsNumber(validityPeriod)) {
+        EDMLOGE("complexityReg or validityPeriod is incorrect format");
+        return false;
+    }
+    if (additionalDescription != nullptr && !cJSON_IsString(additionalDescription)) {
+        EDMLOGE("additionalDescription is incorrect format");
         return false;
     }
     policy.complexityReg = cJSON_GetStringValue(complexityReg);
     policy.validityPeriod = cJSON_GetNumberValue(validityPeriod);
-    policy.additionalDescription = cJSON_GetStringValue(additionalDescription);
+    if (additionalDescription == nullptr) {
+        policy.additionalDescription = "";
+    } else {
+        policy.additionalDescription = cJSON_GetStringValue(additionalDescription);
+    }
     return true;
 }
  

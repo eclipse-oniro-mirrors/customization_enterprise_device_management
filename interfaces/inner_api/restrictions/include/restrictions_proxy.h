@@ -48,7 +48,7 @@ public:
     int32_t SetUserRestriction(const AppExecFwk::ElementName &admin, bool disallow, int policyCode);
     int32_t GetUserRestricted(const AppExecFwk::ElementName *admin, int policyCode, bool &result);
     int32_t SetUserRestrictionForAccount(const AppExecFwk::ElementName &admin, int32_t accountId,
-        bool disallow, int policyCode);
+        bool disallow, uint32_t policyCode);
     int32_t GetUserRestrictedForAccount(const AppExecFwk::ElementName *admin, int32_t accountId,
         int policyCode, bool &result);
 private:

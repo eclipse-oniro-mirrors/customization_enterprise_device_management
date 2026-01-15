@@ -44,6 +44,8 @@ private:
     static ErrCode InstallEnterpriseReSignatureCertificate(MessageParcel &data);
     static ErrCode UninstallEnterpriseReSignatureCertificate(MessageParcel &data);
     static ErrCode CheckParamVaild(std::string certificateAlias, int32_t fd, int32_t accountId);
+    static ErrCode GetBundleInstaller(
+        sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller, const std::string &methodName);
     static sptr<AppExecFwk::IBundleMgr> GetIBundleManager();
 };
 } // namespace EDM

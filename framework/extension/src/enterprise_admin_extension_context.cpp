@@ -30,7 +30,7 @@ ErrCode EnterpriseAdminExtensionContext::StartAbilityByAdmin(const AppExecFwk::E
     const AAFwk::Want &want, std::string& errMsg)
 {
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    ErrCode ret = proxy->StartAbilityByAdmin(admin, want, token_);
+    ErrCode ret = proxy->StartAbilityByAdmin(admin, want);
     if (ret != ERR_OK && !IsEDMErrCode(ret)) {
         auto abilityCode = AbilityRuntime::GetJsErrorCodeByNativeError(ret);
         errMsg = AbilityRuntime::GetErrorMsg(abilityCode);

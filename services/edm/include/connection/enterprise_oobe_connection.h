@@ -20,11 +20,6 @@
 
 namespace OHOS {
 namespace EDM {
-enum class StartUpScene {
-    USER_SETUP = 0,
-    OTA,
-    DEVICE_PROVISION
-};
 class EnterpriseOobeConnection : public IEnterpriseConnection {
 public:
     EnterpriseOobeConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, int32_t type)

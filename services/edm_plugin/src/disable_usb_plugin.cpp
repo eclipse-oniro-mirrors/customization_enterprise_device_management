@@ -91,6 +91,13 @@ ErrCode DisableUsbPlugin::HasConflictPolicy(bool &hasConflict)
         hasConflict = true;
         return ERR_OK;
     }
+    std::string disableUsbSerial;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
+    if (disableUsbSerial == "true") {
+        EDMLOGE("DisableUsbPlugin policy conflict! Usb serial is disabled.");
+        hasConflict = true;
+        return ERR_OK;
+    }
 #ifdef FEATURE_PC_ONLY
     bool isDisallowed = false;
     if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {

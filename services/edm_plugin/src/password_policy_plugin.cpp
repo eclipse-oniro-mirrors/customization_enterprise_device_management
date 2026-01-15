@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <regex>
 
 #include "password_policy_plugin.h"
 
@@ -43,7 +44,13 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
 {
     EDMLOGI("PasswordPolicyPlugin OnSetPolicy...");
     if (!mergeData.complexityReg.empty() || mergeData.validityPeriod != 0 || !mergeData.additionalDescription.empty()) {
-        EDMLOGE("LocationPolicyPlugin set location failed. Other admin has already set policies.");
+        EDMLOGE("PasswordPolicyPlugin set param failed. Empty param.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    try {
+        std::regex re(policy.complexityReg);
+    } catch (const std::regex_error& e) {
+        EDMLOGE("PasswordPolicyPlugin setComplexityReg failed. Invalid regular expression input.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     SetGlobalConfigParam(policy);
@@ -51,7 +58,7 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
     mergeData = policy;
     PasswordPolicyUtils passwordPolicyUtils;
     if (!passwordPolicyUtils.UpdatePasswordPolicy(mergeData)) {
-        EDMLOGE("LocationPolicyPlugin set location failed. UpdatePasswordPolicy error.");
+        EDMLOGE("PasswordPolicyPlugin set policy failed. UpdatePasswordPolicy error.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

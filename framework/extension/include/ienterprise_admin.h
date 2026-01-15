@@ -119,7 +119,7 @@ public:
     /**
      * Called back when oobe is finished.
      */
-    virtual void OnStartupGuideCompleted(const int32_t type) = 0;
+    virtual void OnStartupGuideCompleted(int32_t type) = 0;
 
     /**
      * Called back when teh device is power on.

@@ -50,6 +50,8 @@ enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 class SystemManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
+    static void AddFunctionsToExports(napi_env env, napi_value exports);
+    static void AddEnumsToExports(napi_env env, napi_value exports);
 
 private:
     static napi_value SetNTPServer(napi_env env, napi_callback_info info);
@@ -86,9 +88,12 @@ private:
         FuncOperateType operateType);
     static void CreateProtocolObject(napi_env env, napi_value value);
     static napi_value StartCollectLog(napi_env env, napi_callback_info info);
-    static napi_value SetKeyEventPolicy(napi_env env, napi_callback_info info);
-    static napi_value RemoveKeyEventPolicy(napi_env env, napi_callback_info info);
-    static napi_value GetKeyEventPolicy(napi_env env, napi_callback_info info);
+    static napi_value AddKeyEventPolicies(napi_env env, napi_callback_info info);
+    static napi_value RemoveKeyEventPolicies(napi_env env, napi_callback_info info);
+    static napi_value GetKeyEventPolicies(napi_env env, napi_callback_info info);
+    static void CreateKeyCodeObject(napi_env env, napi_value value);
+    static void CreateKeyActionObject(napi_env env, napi_value value);
+    static void CreateKeyPolicyObject(napi_env env, napi_value value);
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     static void NativeStartCollectLog(napi_env env, void *data);
 #endif

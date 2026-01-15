@@ -30,6 +30,13 @@ void DeviceSettingsAddon::CreatePowerSceneObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TIME_OUT", nTimeOut));
 }
 
+void DeviceSettingsAddon::CreateSettingsItemObject(napi_env env, napi_value value)
+{
+    napi_value nDeviceName;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeviceName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeviceName));
+}
+
 void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
 {
     napi_value nActionNone;
@@ -62,6 +69,9 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
     napi_value nPolicyAction = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nPolicyAction));
     CreatePowerPolicyActionObject(env, nPolicyAction);
+    napi_value nSettingsItem = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSettingsItem));
+    CreateSettingsItemObject(env, nSettingsItem);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
@@ -74,6 +84,9 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
         DECLARE_NAPI_FUNCTION("setValue", SetValue),
         DECLARE_NAPI_FUNCTION("getValue", GetValue),
+        DECLARE_NAPI_PROPERTY("SettingsItem", nSettingsItem),
+        DECLARE_NAPI_FUNCTION("setValueForAccount", setValueForAccount),
+        DECLARE_NAPI_FUNCTION("getValueForAccount", getValueForAccount),
         DECLARE_NAPI_FUNCTION("setHomeWallpaper", SetHomeWallPaper),
         DECLARE_NAPI_FUNCTION("setUnlockWallpaper", SetUnlockWallPaper)
     };
@@ -405,6 +418,77 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         EDMLOGE("GetValue failed! item is %{public}s", item.c_str());
+        return nullptr;
+    }
+    napi_value result;
+    NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result));
+    return result;
+}
+
+napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetValue called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    int32_t item = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, item, argv[ARR_INDEX_ONE]), "param 'item' error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]), "param 'accountId' error");
+    std::string value;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, value, argv[ARR_INDEX_THREE]), "param 'value' error");
+
+    int32_t ret = ERR_OK;
+    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
+    if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
+        ret = proxy->SetValueForAccount(elementName, accountId, value);
+    } else {
+        ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetValue failed! item is %{public}d", item);
+    }
+    return nullptr;
+}
+
+
+napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetValue called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    int32_t item = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, item, argv[ARR_INDEX_ONE]), "param 'item' error");
+
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
+    int32_t ret = ERR_OK;
+    std::string stringRet;
+    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
+    if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
+        ret = proxy->GetValueForAccount(elementName, accountId, stringRet);
+    } else {
+        ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("GetValue failed! item is %{public}d", item);
         return nullptr;
     }
     napi_value result;

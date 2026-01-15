@@ -68,7 +68,7 @@ bool SuperDeviceAdmin::HasPermissionToHandlePolicy(const std::string &policyName
 
 std::string SuperDeviceAdmin::GetDisableSelfPermission() const
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN;
+    return EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN;
 }
 } // namespace EDM
 } // namespace OHOS

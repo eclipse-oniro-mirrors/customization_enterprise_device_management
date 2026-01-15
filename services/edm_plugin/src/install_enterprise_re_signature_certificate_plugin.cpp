@@ -29,6 +29,7 @@
 #include "ipolicy_manager.h"
 #include "bundle_mgr_proxy.h"
 #include "edm_sys_manager.h"
+#include "edm_os_account_manager_impl.h"
 
 namespace OHOS {
 namespace EDM {
@@ -64,9 +65,14 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::OnHandlePolicy(std::uint3
 ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckParamVaild(std::string certificateAlias, int32_t fd,
     int32_t accountId)
 {
-    if (certificateAlias.empty() || fd < 0 || accountId < 0) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificate: parameter verification failed - "
-                "certificateAlias empty or invalid fd or invalid accountId");
+    bool isExist = false;
+    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(accountId, isExist);
+    if (FAILED(ret) || !isExist) {
+        EDMLOGE("accountId check - accountId is not exist");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (certificateAlias.empty() || accountId < 0) {
+        EDMLOGE("parameter verification failed - certificateAlias empty or invalid accountId");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     auto aliasLength = certificateAlias.length();
@@ -75,16 +81,33 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckParamVaild(std::stri
     std::transform(lowerFileExt.begin(), lowerFileExt.end(), lowerFileExt.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     if (aliasLength < strlen(LOWER_CERT_EXT) || lowerFileExt != LOWER_CERT_EXT) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificate: certificate alias format invalid - "
-                "alias too short or invalid extension");
+        EDMLOGE("certificate alias format invalid - alias too short or invalid extension");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    struct stat statbuf;
-    int fstatResult = fstat(fd, &statbuf);
-    if (fstatResult != 0 || statbuf.st_size > MAX_FILE_SIZE) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificate: file validation failed - "
-                "fstat failed or file too large");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    if (fd >= 0) {
+        struct stat statbuf;
+        int fstatResult = fstat(fd, &statbuf);
+        if (fstatResult != 0 || statbuf.st_size > MAX_FILE_SIZE) {
+            EDMLOGE("file validation failed - fstat failed or file too large");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+    }
+    return ERR_OK;
+}
+
+ErrCode InstallEnterpriseReSignatureCertificatePlugin::GetBundleInstaller(
+    sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller, const std::string &methodName)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (iBundleMgr == nullptr) {
+        EDMLOGE("%{public}s: failed to get IBundleMgr", methodName.c_str());
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    iBundleInstaller = iBundleMgr->GetBundleInstaller();
+    if (iBundleInstaller == nullptr) {
+        EDMLOGE("%{public}s: failed to get IBundleInstaller", methodName.c_str());
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }
@@ -98,18 +121,11 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::InstallEnterpriseReSignat
         close(fd);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (iBundleMgr == nullptr) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificate: failed to get IBundleMgr");
+    sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
+    ErrCode ret = GetBundleInstaller(iBundleInstaller, __func__);
+    if (ret != ERR_OK) {
         close(fd);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    auto iBundleInstaller = iBundleMgr->GetBundleInstaller();
-    if (iBundleInstaller == nullptr) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificate: failed to get IBundleInstaller");
-        close(fd);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return ret;
     }
     std::vector<std::string> certificateAliasList;
     if (iBundleInstaller->GetEnterpriseReSignatureCert(accountId, certificateAliasList) != ERR_OK) {
@@ -141,29 +157,13 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::UninstallEnterpriseReSign
 {
     std::string certificateAlias = data.ReadString();
     int32_t accountId = data.ReadInt32();
-    auto aliasLength = certificateAlias.length();
-    auto fileExt = aliasLength >= strlen(LOWER_CERT_EXT) ? certificateAlias.substr(aliasLength - 4) : "";
-    std::string lowerFileExt = fileExt;
-    std::transform(lowerFileExt.begin(), lowerFileExt.end(), lowerFileExt.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
-    if (certificateAlias.empty() || accountId < 0) {
-        EDMLOGE("UninstallEnterpriseReSignatureCertificate: certificateAlias empty or invalid accountId");
+    if (CheckParamVaild(certificateAlias, -1, accountId) != ERR_OK) {
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (aliasLength < strlen(LOWER_CERT_EXT) || lowerFileExt != LOWER_CERT_EXT) {
-        EDMLOGE("UninstallEnterpriseReSignatureCertificate: alias too short or invalid extension");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (iBundleMgr == nullptr) {
-        EDMLOGE("UninstallEnterpriseReSignatureCertificate: failed to get IBundleMgr");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    auto iBundleInstaller = iBundleMgr->GetBundleInstaller();
-    if (iBundleInstaller == nullptr) {
-        EDMLOGE("UninstallEnterpriseReSignatureCertificate: failed to get IBundleInstaller");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
+    ErrCode ret = GetBundleInstaller(iBundleInstaller, __func__);
+    if (ret != ERR_OK) {
+        return ret;
     }
     std::vector<std::string> certificateAliasList;
     ErrCode getRet = iBundleInstaller->GetEnterpriseReSignatureCert(accountId, certificateAliasList);

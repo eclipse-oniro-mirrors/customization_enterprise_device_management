@@ -27,6 +27,9 @@
 #include "clipboard_policy.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+#include "core_service_client.h"
+#endif
 #include "device_policies_storage_rdb.h"
 #include "directory_ex.h"
 #include "ipc_skeleton.h"
@@ -53,6 +56,7 @@
 #include "language_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
+#include "startup_scene.h"
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
@@ -97,6 +101,7 @@ const int32_t AG_COMMON_EVENT_SIZE = 3;
 const int32_t AG_PERMISSION_INDEX = 2;
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
 const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
+const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 const std::string OOBE_FINISHED_EVENT = "custom.event.OOBE.HWSTARTUPGUIDE.FINISHED";
 const std::string PERMISSION_OOBE_FINISHED = "ohos.permission.ACCESS_STARTUPGUIDE";
 
@@ -159,6 +164,10 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
 
 void EnterpriseDeviceMgrAbility::AddCommonEventFuncMapSecond()
 {
+    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED] =
+        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
+            that->OnCommonEventSimStateChanged(data);
+        };
     commonEventFuncMap_[OOBE_FINISHED_EVENT] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventOobeFinish(data);
@@ -292,17 +301,19 @@ void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonE
     bool isFirstBoot = data.GetWant().GetBoolParam("firstBoot", false);
     bool isSubUserScene = data.GetWant().GetBoolParam("subUserScene", false);
 
-    int32_t type = -1;
+    int32_t type = 0;
     if (isSubUserScene) {
-        type = static_cast<int32_t>(StartUpScene::USER_SETUP);
-    } else if (isOtaFinish) {
-        type = static_cast<int32_t>(StartUpScene::OTA);
-    } else if (isFirstBoot) {
-        type = static_cast<int32_t>(StartUpScene::DEVICE_PROVISION);
+        type |= 1 << static_cast<int32_t>(StartupScene::USER_SETUP);
+    }
+    if (isOtaFinish) {
+        type |= 1 << static_cast<int32_t>(StartupScene::OTA);
+    }
+    if (isFirstBoot) {
+        type |= 1 << static_cast<int32_t>(StartupScene::DEVICE_PROVISION);
     }
     EDMLOGI("OnCommonEventOobeFinish type:%{public}d", type);
 
-    if (type == -1) {
+    if (type == 0) {
         EDMLOGE("OnCommonEventOobeFinish type is error!");
         return;
     }
@@ -331,7 +342,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonE
 void EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data)
 {
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::STARTUP_GUIDE_COMPLETED, subAdmins);
+    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::BOOT_COMPLETED, subAdmins);
     if (subAdmins.empty()) {
         EDMLOGW("Get subscriber by common event failed.");
         return;
@@ -653,25 +664,54 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::Commo
 void EnterpriseDeviceMgrAbility::UpdateAbilityEnabled(const std::string &bundleName,
     int32_t userId, int32_t appIndex)
 {
-    EDMLOGI("OnCommonEventPackageRemoved UpdateAbilityEnabled");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SET_ABILITY_ENABLED);
-        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
-        ApplicationInstance appMsg = { appIdentifier, bundleName, userId, appIndex };
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationInstance(data, appMsg)) {
-            EDMLOGE("UpdateAbilityEnabled WriteApplicationMsg fail");
-        }
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EDMLOGI("EnterpriseDeviceMgrAbility UpdateAbilityEnabled");
+    if (appIndex != 0) {
+        EDMLOGI("EnterpriseDeviceMgrAbility UpdateAbilityEnabled clone application created.");
+        return;
     }
+    std::string combinePolicy;
+    policyMgr_->GetPolicy("", PolicyName::POLICY_SET_ABILITY_ENABLED, combinePolicy, userId);
+    std::vector<std::string> policies;
+    ArrayStringSerializer::GetInstance()->Deserialize(combinePolicy, policies);
+    for (const std::string &policy : policies) {
+        size_t index = policy.find("/");
+        if (index == policy.npos) {
+            continue;
+        }
+        if (policy.substr(0, index) == bundleName) {
+            SetAbilityDisabled(bundleName, userId, policy.substr(index + 1));
+        }
+    }
+}
+
+ErrCode EnterpriseDeviceMgrAbility::SetAbilityDisabled(const std::string &bundleName, int32_t userId,
+    const std::string &abilityName)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (!proxy) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::SetAbilityDisabled GetBundleMgr failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::vector<OHOS::AppExecFwk::AbilityInfo> abilityInfos;
+    AppExecFwk::ElementName element;
+    element.SetBundleName(bundleName);
+    element.SetAbilityName(abilityName);
+    OHOS::AppExecFwk::IBundleMgr::Want want;
+    want.SetElement(element);
+    bool res = proxy->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_DISABLE,
+        userId, abilityInfos);
+    if (!res) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::SetAbilityDisabled QueryAbilityInfos failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (size_t appIndex = 0; appIndex < abilityInfos.size(); ++appIndex) {
+        ErrCode ret = proxy->SetCloneAbilityEnabled(abilityInfos[appIndex], appIndex, false, userId);
+        if (FAILED(ret)) {
+            EDMLOGE("SetAbilityEnabled failed, ret: %{public}d", ret);
+        }
+    }
+    return ERR_OK;
 }
 
 void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bundleName,
@@ -814,6 +854,26 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
             EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventKioskMode CreateKioskConnection failed.");
         }
     }
+}
+
+void EnterpriseDeviceMgrAbility::OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data)
+{
+    EDMLOGI("OnCommonEventSimStateChanged");
+    AAFwk::Want want = data.GetWant();
+    int32_t slotId = want.GetIntParam("slotId", -1);
+    if (slotId < 0) {
+        return;
+    }
+#ifdef TELEPHONY_CORE_EDM_ENABLE
+    int32_t simStatus = want.GetIntParam("state", -1);
+    if (simStatus != static_cast<int32_t>(Telephony::SimState::SIM_STATE_LOADED) &&
+            simStatus != static_cast<int32_t>(Telephony::SimState::SIM_STATE_READY)) {
+        return;
+    }
+    if (system::GetBoolParameter(PARAM_DISABLE_SLOT + std::to_string(slotId), false)) {
+        Telephony::CoreServiceClient::GetInstance().SetActiveSim(slotId, 0);
+    }
+#endif
 }
 
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
@@ -2546,7 +2606,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips(std::string &tips)
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     if (!GetPermissionChecker()->CheckIsSystemApp()) {
         EDMLOGW("EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips check permission failed");
-        return EdmReturnErrCode::PERMISSION_DENIED;
+        return EdmReturnErrCode::SYSTEM_API_DENIED;
     }
     tips = LanguageManager::GetEnterpriseManagedTips();
     return ERR_OK;
@@ -2806,8 +2866,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetBundleInstallPolicies(const std::vector<s
     return EdmReturnErrCode::PERMISSION_DENIED;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want)
 {
     int32_t userId = GetCurrentUserId();
     if (userId < 0) {
@@ -2831,7 +2890,7 @@ ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::Elemen
         EDMLOGE("StartAbilityByAdmin verify ability permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    return controller->StartAbilityByAdmin(want, callerToken, userId);
+    return controller->StartAbilityByAdmin(want, userId);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,

@@ -72,7 +72,7 @@ public:
 
     void OnKeyEvent(const std::string &event) override {}
 
-    void OnStartupGuideCompleted(const int32_t type) override {}
+    void OnStartupGuideCompleted(int32_t type) override {}
 
     void OnDeviceBootCompleted() override {}
 

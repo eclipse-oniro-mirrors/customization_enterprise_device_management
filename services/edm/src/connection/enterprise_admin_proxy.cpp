@@ -227,7 +227,7 @@ void EnterpriseAdminProxy::OnKeyEvent(const std::string &keyEvent)
     SendRequest(COMMAND_ON_KEY_EVENT, data);
 }
 
-void EnterpriseAdminProxy::OnStartupGuideCompleted(const int32_t type)
+void EnterpriseAdminProxy::OnStartupGuideCompleted(int32_t type)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {

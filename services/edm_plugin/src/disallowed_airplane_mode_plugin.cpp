@@ -30,7 +30,7 @@ void DisallowedAirplaneModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     EDMLOGI("DisallowedAirplaneModePlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
         PolicyName::POLICY_DISALLOWED_AIRPLANE_MODE, config, true);

@@ -55,12 +55,14 @@ constexpr int32_t BEGIN_POLICY_CODE = 10;
 constexpr int32_t END_POLICY_CODE = 33;
 constexpr int32_t INVALID_POLICYCODE = 123456;
 constexpr int32_t ERROR_USER_ID = 0;
-constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 10;
+constexpr size_t COMMON_EVENT_FUNC_MAP_SIZE = 13;
 constexpr uint32_t INVALID_MANAGED_EVENT_TEST = 20;
 constexpr uint32_t BUNDLE_ADDED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
 constexpr uint32_t BUNDLE_REMOVED_EVENT = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
 constexpr uint32_t APP_START_EVENT = static_cast<uint32_t>(ManagedEvent::APP_START);
 constexpr uint32_t APP_STOP_EVENT = static_cast<uint32_t>(ManagedEvent::APP_STOP);
+constexpr uint32_t OOBE_EVENT = static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED);
+constexpr uint32_t BOOT_COMPLETED_EVENT = static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED);
 constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_FOUR = 4;
 constexpr int32_t TEST_SLEEP_TIME = 5;
@@ -2773,6 +2775,176 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventKioskModeOff, TestSize
 }
 
 /**
+ * @tc.name: TestOnCommonEventSimStateChanged
+ * @tc.desc: Test OnCommonEventSimStateChanged func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventSimStateChanged, TestSize.Level1)
+{
+    EventFwk::CommonEventData data;
+    edmMgr_->OnCommonEventSimStateChanged(data);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestOnCommonEventOobeFinish
+ * @tc.desc: Test OnCommonEventOobeFinish func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventOobeFinishError, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    edmMgr_->OnCommonEventOobeFinish(data);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventOobeFinish
+ * @tc.desc: Test OnCommonEventOobeFinish func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventOobeFinishOta, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    const std::vector<uint32_t> events = {OOBE_EVENT, BOOT_COMPLETED_EVENT};
+    edmMgr_->adminMgr_->SaveSubscribeEvents(events, ADMIN_PACKAGENAME, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam("ota", true);
+    edmMgr_->OnCommonEventOobeFinish(data);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventOobeFinish
+ * @tc.desc: Test OnCommonEventOobeFinish func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventOobeFinishUser, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    const std::vector<uint32_t> events = {OOBE_EVENT, BOOT_COMPLETED_EVENT};
+    edmMgr_->adminMgr_->SaveSubscribeEvents(events, ADMIN_PACKAGENAME, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam("subUserScene", true);
+    edmMgr_->OnCommonEventOobeFinish(data);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventOobeFinish
+ * @tc.desc: Test OnCommonEventOobeFinish func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventOobeFinishDevice, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    const std::vector<uint32_t> events = {OOBE_EVENT, BOOT_COMPLETED_EVENT};
+    edmMgr_->adminMgr_->SaveSubscribeEvents(events, ADMIN_PACKAGENAME, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    want.SetParam("firstBoot", true);
+    edmMgr_->OnCommonEventOobeFinish(data);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestOnCommonEventDevicePowerOn
+ * @tc.desc: Test OnCommonEventDevicePowerOn func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventDevicePowerOn, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {EDM_TEST_PERMISSION};
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    edmMgr_->adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    const std::vector<uint32_t> events = {OOBE_EVENT, BOOT_COMPLETED_EVENT};
+    edmMgr_->adminMgr_->SaveSubscribeEvents(events, ADMIN_PACKAGENAME, DEFAULT_USER_ID);
+
+    EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName(admin.GetBundleName(), admin.GetAbilityName());
+    edmMgr_->OnCommonEventDevicePowerOn(data);
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    edmMgr_->adminMgr_->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_TRUE(!admins.empty());
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
  * @tc.name: TestAddOnAddSystemAbilityFuncMap
  * @tc.desc: Test AddOnAddSystemAbilityFuncMap func.
  * @tc.type: FUNC
@@ -4684,7 +4856,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetEnterpriseManagedTipsermissionDe
     EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall).WillOnce(DoAll(Return(false)));
     std::string result;
     ErrCode ret = edmMgr_->GetEnterpriseManagedTips(result);
-    ASSERT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_API_DENIED);
 }
 
 /**
@@ -5100,11 +5272,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidAdmin
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     edmMgr_->adminMgr_->ClearAdmins();
     AAFwk::Want want;
-    sptr<IRemoteObject> token = nullptr;
 
     std::vector<int32_t> ids = {DEFAULT_USER_ID};
     EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
-    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want, token);
+    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -5132,9 +5303,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidWant,
     
     AAFwk::Want want;
     want.SetElementName("", "");
-    sptr<IRemoteObject> token = nullptr;
 
-    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want, token);
+    ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want);
     ASSERT_TRUE(ret != ERR_OK);
 }
 } // namespace TEST

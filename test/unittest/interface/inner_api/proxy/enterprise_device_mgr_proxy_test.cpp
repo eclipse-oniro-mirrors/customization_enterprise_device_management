@@ -1444,11 +1444,10 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestStartAbilityByAdminSuc, TestSize.Leve
     admin.SetAbilityName("com.edm.test.demo.Ability");
     AAFwk::Want want;
     want.SetElementName("com.edm.test.demo2", "com.edm.test.demo2.Ability");
-    sptr<IRemoteObject> token = nullptr;
-    EXPECT_CALL(*object_, StartAbilityByAdmin(_, _, _))
+    EXPECT_CALL(*object_, StartAbilityByAdmin(_, _))
         .Times(1)
         .WillOnce(Return(ERR_OK));
-    ErrCode ret = enterpriseDeviceMgrProxyTest->StartAbilityByAdmin(admin, want, token);
+    ErrCode ret = enterpriseDeviceMgrProxyTest->StartAbilityByAdmin(admin, want);
     EXPECT_TRUE(ret == ERR_OK);
 }
 
@@ -1464,11 +1463,10 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestStartAbilityByAdminFail, TestSize.Lev
     admin.SetAbilityName("com.edm.test.demo.Ability");
     AAFwk::Want want;
     want.SetElementName("com.edm.test.demo2", "com.edm.test.demo2.ServiceExtAbility");
-    sptr<IRemoteObject> token = nullptr;
-    EXPECT_CALL(*object_, StartAbilityByAdmin(_, _, _))
+    EXPECT_CALL(*object_, StartAbilityByAdmin(_, _))
         .Times(1)
         .WillOnce(Return(EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-    ErrCode ret = enterpriseDeviceMgrProxyTest->StartAbilityByAdmin(admin, want, token);
+    ErrCode ret = enterpriseDeviceMgrProxyTest->StartAbilityByAdmin(admin, want);
     EXPECT_TRUE(ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 } // namespace TEST
