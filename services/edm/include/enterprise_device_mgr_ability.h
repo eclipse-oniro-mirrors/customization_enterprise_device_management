@@ -170,6 +170,7 @@ private:
     void OnCommonEventPackageChanged(const EventFwk::CommonEventData &data);
     void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
     void OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn);
+    void OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
