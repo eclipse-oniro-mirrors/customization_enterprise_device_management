@@ -259,7 +259,7 @@ int32_t DeviceSettingsProxy::SetDefaultInputMethod(const AppExecFwk::ElementName
 }
 
 int32_t DeviceSettingsProxy::SetValueForAccount(const AppExecFwk::ElementName &admin,
-    int32_t accountId, const std::string &value)
+    int32_t accountId, const std::string &value, const std::string &permissionTag)
 {
     EDMLOGD("DeviceSettingsProxy::SetValueForAccount");
     MessageParcel data;
@@ -267,7 +267,7 @@ int32_t DeviceSettingsProxy::SetValueForAccount(const AppExecFwk::ElementName &a
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteString(value);
 
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_DEVICE_NAME);
@@ -275,7 +275,7 @@ int32_t DeviceSettingsProxy::SetValueForAccount(const AppExecFwk::ElementName &a
 }
 
 int32_t DeviceSettingsProxy::GetValueForAccount(const AppExecFwk::ElementName &admin,
-    int32_t accountId, std::string &value)
+    int32_t accountId, std::string &value, const std::string &permissionTag)
 {
     EDMLOGD("DeviceSettingsProxy::GetValueForAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -284,7 +284,7 @@ int32_t DeviceSettingsProxy::GetValueForAccount(const AppExecFwk::ElementName &a
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::SET_DEVICE_NAME, data, reply);

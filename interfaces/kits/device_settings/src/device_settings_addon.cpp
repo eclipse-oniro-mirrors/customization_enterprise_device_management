@@ -448,7 +448,7 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     int32_t ret = ERR_OK;
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
-        ret = proxy->SetValueForAccount(elementName, accountId, value);
+        ret = proxy->SetValueForAccount(elementName, accountId, value, EdmConstants::PERMISSION_TAG_VERSION_23);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -482,7 +482,7 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     std::string stringRet;
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
-        ret = proxy->GetValueForAccount(elementName, accountId, stringRet);
+        ret = proxy->GetValueForAccount(elementName, accountId, stringRet, EdmConstants::PERMISSION_TAG_VERSION_23);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
