@@ -405,6 +405,13 @@ ErrCode ManagedBrowserPolicyPlugin::OnAdminRemove(const std::string &adminName,
             EDMLOGE("ManagedBrowserPolicyPlugin::OnAdminRemove remove failed.bundleName:%{public}s", it.first.c_str());
         }
     }
+    AAFwk::Want want;
+    want.SetAction(BROWSER_POLICY_CHANGED_EVENT);
+    EventFwk::CommonEventData eventData;
+    eventData.SetWant(want);
+    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
+        EDMLOGE("NotifyBrowserPolicyRemoved failed.");
+    }
     return ERR_OK;
 }
 
