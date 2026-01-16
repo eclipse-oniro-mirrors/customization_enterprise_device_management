@@ -210,6 +210,7 @@ private:
     void DeleteSubUserLogDirIfNeed(int32_t userId);
 #endif
     static std::shared_mutex adminLock_;
+    static std::mutex subscribeAppLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<ExtraPolicyNotification> policyNotification_;
