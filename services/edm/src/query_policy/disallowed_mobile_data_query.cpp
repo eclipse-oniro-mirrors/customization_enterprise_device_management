@@ -28,7 +28,7 @@ std::string DisallowedMobileDataQuery::GetPolicyName()
 std::string DisallowedMobileDataQuery::GetPermission(IPlugin::PermissionType permissionType,
     const std::string &permissionTag)
 {
-    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK;
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
 ErrCode DisallowedMobileDataQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
