@@ -35,6 +35,11 @@ void DisallowAddLocalAccountPluginTest::SetUpTestSuite(void)
 
 void DisallowAddLocalAccountPluginTest::TearDownTestSuite(void)
 {
+    DisallowAddLocalAccountPlugin plugin;
+    bool data = false;
+    bool currentdata = true;
+    bool mergeData = false;
+    plugin.OnSetPolicy(data, currentdata, mergeData, DEFAULT_USER_ID);
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
@@ -56,6 +61,7 @@ HWTEST_F(DisallowAddLocalAccountPluginTest, TestDisallowAddLocalAccountPlugin, T
 
     string adminName{"testAdminName"};
     bool allowAddLocalAccount = true;
+    mergeData = false;
     ret = plugin.OnAdminRemove(adminName, allowAddLocalAccount, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
