@@ -36,6 +36,7 @@ constexpr uint32_t INVAILD_PLUGIN_CODE = 10000;
 void PluginManagerTest::SetUp()
 {
     PluginManager::GetInstance()->AddPlugin(std::make_shared<TestPlugin>());
+    PluginManager::GetInstance()->deviceCoreSoCodes_.push_back(0);
 }
 
 void PluginManagerTest::TearDown()
@@ -538,6 +539,276 @@ HWTEST_F(PluginManagerTest, TestRemovePlugin_NonExistentPlugin, TestSize.Level1)
     EXPECT_TRUE(PluginManager::GetInstance()->GetPluginByCode(0) != nullptr);
 }
 
+/**
+ * @tc.name: TestCallOnOtherServiceStart_NonExistPlugin
+ * @tc.desc: Test PluginManager CallOnOtherServiceStart with non-existent plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestCallOnOtherServiceStart_NonExistPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->CallOnOtherServiceStart(nonExistentPlugin->policyCode_, 0);
+    EXPECT_EQ(nonExistentPlugin->callOnOtherServiceStartFlag_, false);
+}
+
+/**
+ * @tc.name: TestCallOnOtherServiceStart_NullptrPlugin
+ * @tc.desc: Test PluginManager CallOnOtherServiceStart with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestCallOnOtherServiceStart_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nullptr;
+    PluginManager::GetInstance()->CallOnOtherServiceStart(nonExistentPlugin->policyCode_, 0);
+    EXPECT_EQ(nonExistentPlugin->callOnOtherServiceStartFlag_, false);
+}
+
+/**
+ * @tc.name: TestCallOnOtherServiceStart_Suc
+ * @tc.desc: Test PluginManager CallOnOtherServiceStart success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestCallOnOtherServiceStart_Suc, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nonExistentPlugin;
+    PluginManager::GetInstance()->CallOnOtherServiceStart(nonExistentPlugin->policyCode_, 0);
+    EXPECT_EQ(nonExistentPlugin->callOnOtherServiceStartFlag_, true);
+}
+
+/**
+ * @tc.name: TestOnInitExecute_NonExistPlugin
+ * @tc.desc: Test PluginManager OnInitExecute with non-existent plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestOnInitExecute_NonExistPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    std::vector<std::string> bundleNames;
+    PluginManager::GetInstance()->OnInitExecute(nonExistentPlugin->policyCode_, bundleNames, 0);
+    EXPECT_EQ(nonExistentPlugin->callOnOtherServiceStartForAdminFlag_, false);
+}
+
+/**
+ * @tc.name: TestCOnInitExecute_NullptrPlugin
+ * @tc.desc: Test PluginManager OnInitExecute with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestCOnInitExecute_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nullptr;
+    std::vector<std::string> bundleNames;
+    PluginManager::GetInstance()->OnInitExecute(nonExistentPlugin->policyCode_, bundleNames, 0);
+    EXPECT_EQ(nonExistentPlugin->callOnOtherServiceStartForAdminFlag_, false);
+}
+
+/**
+ * @tc.name: TestOnInitExecute_Suc
+ * @tc.desc: Test PluginManager OnInitExecute success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestOnInitExecute_Suc, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    nonExistentPlugin->SetExecuteStrategy(std::make_shared<SingleExecuteStrategy>());
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nonExistentPlugin;
+    std::vector<std::string> bundleNames = {"TestAdmin"};
+    PluginManager::GetInstance()->OnInitExecute(nonExistentPlugin->policyCode_, bundleNames, 0);
+    EXPECT_EQ(nonExistentPlugin->callOnOtherServiceStartForAdminFlag_, true);
+}
+
+/**
+ * @tc.name: TestSetPluginUnloadFlag_NonExistPlugin
+ * @tc.desc: Test PluginManager SetPluginUnloadFlag with non-existent plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestSetPluginUnloadFlag_NonExistPlugin, TestSize.Level1)
+{
+    PluginManager::GetInstance()->pluginsCode_.clear();
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    auto ret = PluginManager::GetInstance()->SetPluginUnloadFlag(nonExistentPlugin->policyCode_, false);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestSetPluginUnloadFlag_NullptrPlugin
+ * @tc.desc: Test PluginManager SetPluginUnloadFlag with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestSetPluginUnloadFlag_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nullptr;
+    auto ret = PluginManager::GetInstance()->SetPluginUnloadFlag(nonExistentPlugin->policyCode_, false);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TesSetPluginUnloadFlag_Suc
+ * @tc.desc: Test PluginManager SetPluginUnloadFlag success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TesSetPluginUnloadFlag_Suc, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nonExistentPlugin;
+    EXPECT_EQ(nonExistentPlugin->pluginUnloadFlag_, true);
+    auto ret = PluginManager::GetInstance()->SetPluginUnloadFlag(nonExistentPlugin->policyCode_, false);
+    EXPECT_EQ(nonExistentPlugin->pluginUnloadFlag_, false);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetPermission_NullptrPlugin
+ * @tc.desc: Test PluginManager GetPermission with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPermission_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nullptr;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, nonExistentPlugin->policyCode_);
+    auto permission = PluginManager::GetInstance()->GetPermission(funcCode, FuncOperateType::GET,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, "");
+    EXPECT_EQ(permission, NONE_PERMISSION_MATCH);
+}
+
+/**
+ * @tc.name: TesGetPermission_Suc
+ * @tc.desc: Test PluginManager GetPermission success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TesGetPermission_Suc, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nonExistentPlugin;
+    EXPECT_EQ(nonExistentPlugin->pluginUnloadFlag_, true);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, nonExistentPlugin->policyCode_);
+    auto permission = PluginManager::GetInstance()->GetPermission(funcCode, FuncOperateType::GET,
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, "");
+    EXPECT_EQ(permission,
+        nonExistentPlugin->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN]);
+}
+
+/**
+ * @tc.name: TestGetPluginType_NullptrPlugin
+ * @tc.desc: Test PluginManager GetPluginType with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPluginType_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nullptr;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, nonExistentPlugin->policyCode_);
+    auto pluginType = PluginManager::GetInstance()->GetPluginType(funcCode, FuncOperateType::GET);
+    EXPECT_EQ(pluginType, IPlugin::ApiType::UNKNOWN);
+}
+
+/**
+ * @tc.name: TesGetPluginType_Suc
+ * @tc.desc: Test PluginManager GetPluginType success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TesGetPluginType_Suc, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nonExistentPlugin;
+    EXPECT_EQ(nonExistentPlugin->pluginUnloadFlag_, true);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, nonExistentPlugin->policyCode_);
+    auto pluginType = PluginManager::GetInstance()->GetPluginType(funcCode, FuncOperateType::GET);
+    EXPECT_EQ(pluginType, nonExistentPlugin->permissionConfig_.apiType);
+}
+
+/**
+ * @tc.name: TestGetPolicyName_NullptrPlugin
+ * @tc.desc: Test PluginManager GetPolicyName with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPolicyName_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nullptr;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, nonExistentPlugin->policyCode_);
+    auto policyName = PluginManager::GetInstance()->GetPolicyName(funcCode);
+    EXPECT_TRUE(policyName.empty());
+}
+
+/**
+ * @tc.name: TesGetPolicyName_Suc
+ * @tc.desc: Test PluginManager GetPolicyName success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TesGetPolicyName_Suc, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsCode_[nonExistentPlugin->policyCode_] = nonExistentPlugin;
+    EXPECT_EQ(nonExistentPlugin->pluginUnloadFlag_, true);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, nonExistentPlugin->policyCode_);
+    auto policyName = PluginManager::GetInstance()->GetPolicyName(funcCode);
+    EXPECT_EQ(policyName, nonExistentPlugin->policyName_);
+}
+
+/**
+ * @tc.name: TestGetPluginPermissionByPolicyName_NonExistPlugin
+ * @tc.desc: Test PluginManager GetPluginPermissionByPolicyName with non-existent plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPluginPermissionByPolicyName_NonExistPlugin, TestSize.Level1)
+{
+    PluginManager::GetInstance()->pluginsName_.clear();
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    auto permission = PluginManager::GetInstance()->GetPluginPermissionByPolicyName(nonExistentPlugin->policyName_,
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    EXPECT_TRUE(permission.empty());
+}
+
+/**
+ * @tc.name: TestGetPluginPermissionByPolicyName_NullptrPlugin
+ * @tc.desc: Test PluginManager GetPluginPermissionByPolicyName with nullptr plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPluginPermissionByPolicyName_NullptrPlugin, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsName_[nonExistentPlugin->policyName_] = nullptr;
+    auto permission = PluginManager::GetInstance()->GetPluginPermissionByPolicyName(nonExistentPlugin->policyName_,
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    EXPECT_TRUE(permission.empty());
+}
+
+/**
+ * @tc.name: TestGetPluginPermissionByPolicyName_WithWrongPermissionType
+ * @tc.desc: Test PluginManager GetPluginPermissionByPolicyName success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPluginPermissionByPolicyName_WithWrongPermissionType, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsName_[nonExistentPlugin->policyName_] = nonExistentPlugin;
+    nonExistentPlugin->permissionConfig_.typePermissions[IPlugin::PermissionType::SUPER_DEVICE_ADMIN] =
+            "ohos.permission.EDM_TEST_PERMISSION";
+    auto permission = PluginManager::GetInstance()->GetPluginPermissionByPolicyName(nonExistentPlugin->policyName_,
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    EXPECT_EQ(permission,
+        nonExistentPlugin->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN]);
+}
+
+/**
+ * @tc.name: TestGetPluginPermissionByPolicyName_WithRightPermissionType
+ * @tc.desc: Test PluginManager GetPluginPermissionByPolicyName success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPluginPermissionByPolicyName_WithRightPermissionType, TestSize.Level1)
+{
+    auto nonExistentPlugin = std::make_shared<TestPlugin>();
+    PluginManager::GetInstance()->pluginsName_[nonExistentPlugin->policyName_] = nonExistentPlugin;
+    auto permission = PluginManager::GetInstance()->GetPluginPermissionByPolicyName(nonExistentPlugin->policyName_,
+        IPlugin::PermissionType::NORMAL_DEVICE_ADMIN);
+    EXPECT_EQ(permission,
+        nonExistentPlugin->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN]);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

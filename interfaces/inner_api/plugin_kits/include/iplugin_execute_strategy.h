@@ -38,12 +38,12 @@ public:
     {
         return ERR_OK;
     }
-    virtual ErrCode OnInitExecute(std::uint32_t interfaceCode, std::string &adminName, int32_t userId)
+    virtual ErrCode OnInitExecute(std::uint32_t funcCode, const std::string &adminName, int32_t userId)
     {
         return ERR_OK;
     }
-    virtual ErrCode OnAdminRemoveExecute(const std::string &adminName, const std::string &policyName,
-        const std::string &policyValue, int32_t userId)
+    virtual ErrCode OnAdminRemoveExecute(std::uint32_t funcCode, const std::string &adminName,
+        const std::string &policyValue, const std::string &mergedPolicyData, int32_t userId)
     {
         return ERR_OK;
     }
