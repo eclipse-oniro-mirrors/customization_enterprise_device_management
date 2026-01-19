@@ -17,6 +17,7 @@
 #define protected public
 #include "enterprise_device_mgr_ability.h"
 #include "plugin_singleton.h"
+#include "plugin_manager.h"
 #undef protected
 #undef private
 
@@ -113,7 +114,7 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
     permissionCheckerMock_ = std::make_shared<PermissionCheckerMock>();
     edmMgr_ = new (std::nothrow) EnterpriseDeviceMgrAbilityMock();
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
-    edmMgr_->policyMgr_ = std::make_shared<PolicyManager>();
+    edmMgr_->policyMgr_ = PolicyManager::GetInstance();
     EXPECT_CALL(*edmMgr_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
     EXPECT_CALL(*edmMgr_, GetPermissionChecker).WillRepeatedly(DoAll(Return(permissionCheckerMock_)));
     EXPECT_CALL(*permissionCheckerMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
@@ -173,6 +174,7 @@ void EnterpriseDeviceMgrAbilityTest::PrepareBeforeHandleDevicePolicy()
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     PluginManager::GetInstance()->AddPlugin(plugin_);
+    PluginManager::GetInstance()->deviceCoreSoCodes_.push_back(INVALID_POLICYCODE);
 }
 
 void EnterpriseDeviceMgrAbilityTest::GetPolicySuccess(int32_t userId, const std::string& adminName,
@@ -305,6 +307,27 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
 }
+
+/**
+ * @tc.name: TestHandleDevicePolicyWithUserNotExsistApi23
+ * @tc.desc: Test HandleDevicePolicy function with userId is not exist.
+ * @tc.type: FUNC
+ */
+ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsistApi23, TestSize.Level1)
+ {
+     PrepareBeforeHandleDevicePolicy();
+
+     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+     AppExecFwk::ElementName elementName;
+     elementName.SetBundleName(ADMIN_PACKAGENAME_FAILED);
+     MessageParcel data;
+     MessageParcel reply;
+     data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
+     ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+ }
 
 /**
  * @tc.name: TestHandleDevicePolicyWithoutAdmin
@@ -654,6 +677,23 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithUserNotExsist, T
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
 }
+
+/**
+ * @tc.name: TestGetDevicePolicyWithUserNotExsistApi23
+ * @tc.desc: Test GetDevicePolicy function with userId is not exist.
+ * @tc.type: FUNC
+ */
+ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithUserNotExsistApi23, TestSize.Level1)
+ {
+     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, INVALID_POLICYCODE);
+     MessageParcel data;
+     MessageParcel reply;
+     data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
+     ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+ }
 
 /**
  * @tc.name: TestGetDevicePolicyWithNotExistPlugin

@@ -113,8 +113,6 @@ private:
     void NotifyAdminEnabled(bool isEnabled);
     void CheckAndUpdateByodSettingsData();
     void UpdateClipboardInfo(const std::string &bundleName, int32_t userId);
-    ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
-        int32_t userId);
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
@@ -131,8 +129,6 @@ private:
     ErrCode VerifyEnableAdminConditionCheckExistAdmin(const AppExecFwk::ElementName &admin, AdminType type,
         int32_t userId, bool isDebug);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
-    ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
-        int32_t userId);
     ErrCode CheckDelegatedPolicies(AdminType adminType, const std::vector<std::string> &policies);
     ErrCode CheckReplaceAdmins(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
@@ -209,6 +205,7 @@ private:
     void DeleteSubUserLogDirIfNeed(int32_t userId);
 #endif
     static std::shared_mutex adminLock_;
+    static std::mutex subscribeAppLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<ExtraPolicyNotification> policyNotification_;

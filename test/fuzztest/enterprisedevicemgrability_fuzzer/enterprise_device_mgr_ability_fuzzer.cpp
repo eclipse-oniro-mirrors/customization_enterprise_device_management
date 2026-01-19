@@ -128,7 +128,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string adminName(reinterpret_cast<const char*>(data), size);
     const std::string policyName(reinterpret_cast<const char*>(data), size);
     const std::string policyValue(reinterpret_cast<const char*>(data), size);
-    enterpriseDeviceMgrAbility->RemoveAdminItem(adminName, policyName, policyValue, userId);
     std::string bundleName(reinterpret_cast<const char*>(data), size);
     TEST::Utils::ResetUid();
     PluginManager::GetInstance()->DumpPlugin();
