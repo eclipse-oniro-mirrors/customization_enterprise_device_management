@@ -183,7 +183,7 @@ bool EdmAniUtils::GetOptionalInt(ani_env *env, ani_object optionalInt, int32_t &
     }
     ani_int value = 0;
     if (!isUndefined) {
-        status = env->Object_CallMethodByName_Int(optionalInt, "intValue", nullptr, &value);
+        status = env->Object_CallMethodByName_Int(optionalInt, "toInt", nullptr, &value);
         if (ANI_OK != status) {
             EDMLOGE("GetOptionalInt failed to get int, status: %{public}d", status);
             return false;
