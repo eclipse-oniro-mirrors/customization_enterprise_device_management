@@ -13,25 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLED_ACTIVATION_LOCK_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLED_ACTIVATION_LOCK_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_ACTIVATION_LOCK_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_ACTIVATION_LOCK_PLUGIN_H
 
 #include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisabledActivationLockPlugin : public IPlugin {
+class DisableActivationLockPlugin : public IPlugin {
 public:
-    DisabledActivationLockPlugin();
+    DisableActivationLockPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override{};
     ErrCode OnSetPolicy(MessageParcel &data, MessageParcel &reply);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
     ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
         const std::string &mergeJsonData, int32_t userId) override;
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override{};
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLED_ACTIVATION_LOCK_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_ACTIVATION_LOCK_PLUGIN_H
