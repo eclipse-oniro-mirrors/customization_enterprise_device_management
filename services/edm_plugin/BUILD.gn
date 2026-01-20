@@ -647,6 +647,12 @@ ohos_shared_library("need_extra_plugin") {
       ]
     }
 
+  if (enterprise_device_management_feature_pc_only) {
+      sources += [
+        "./src/disable_activation_lock_plugin.cpp",
+      ]
+    }
+
   if (power_manager_edm_enable && screenlock_mgr_edm_enable &&
       update_service_edm_enable) {
     external_deps += [

@@ -1183,8 +1183,3 @@ extern "C" __attribute__((constructor)) void SystemManagerRegister()
 {
     napi_module_register(&g_systemManagerModule);
 }
-
-bool ShutdownRebootUpgradeSwitch::IsShutdownRebootUpgradeEnable()
-{
-    return FirmwareConfig().IsShutdownRebootUpgrade();
-}

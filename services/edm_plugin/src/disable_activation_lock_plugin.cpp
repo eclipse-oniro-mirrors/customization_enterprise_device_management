@@ -15,36 +15,45 @@
 
 #include "disable_activation_lock_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisabledActivationLockPlugin::GetPlugin());
+const bool REGISTER_RESULT =
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetKeyCodePlugin>());
 
-void DisabledActivationLockPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisabledActivationLockPlugin, bool>>> ptr)
+SetKeyCodePlugin::SetKeyCodePlugin()
 {
-    EDMLOGI("DisabledActivationLockPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, PolicyName::POLICY_DISABLED_ACTIVATION_LOCK,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisabledActivationLockPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisabledActivationLockPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISABLED_ACTIVATION_LOCK;
+    policyName_ = PolicyName::POLICY_DISABLED_ACTIVATION_LOCK;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = false;
 }
 
-ErrCode DisabledActivationLockPlugin::SetOtherModulePolicy(bool data, int32_t userId)
+ErrCode SetKeyCodePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
+    MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("DisabledActivationLockPlugin OnSetPolicy...isDisallow = %{public}d", data);
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-ErrCode DisabledActivationLockPlugin::RemoveOtherModulePolicy(int32_t userId)
+ErrCode SetKeyCodePlugin::OnSetPolicy(MessageParcel &data, MessageParcel &reply)
 {
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
+ErrCode SetKeyCodePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
+{
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
+
+ErrCode SetKeyCodePlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+    const std::string &mergeJsonData, int32_t userId)
+{
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
 } // namespace EDM
 } // namespace OHOS

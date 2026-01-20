@@ -16,19 +16,20 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLED_ACTIVATION_LOCK_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLED_ACTIVATION_LOCK_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisabledActivationLockPlugin : public PluginSingleton<DisabledActivationLockPlugin, bool> {
+class DisabledActivationLockPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisabledActivationLockPlugin,
-        bool>> ptr) override;
-
-private:
-    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
+    DisabledActivationLockPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    ErrCode OnSetPolicy(MessageParcel &data, MessageParcel &reply);
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeJsonData, int32_t userId) override;  
 };
 } // namespace EDM
 } // namespace OHOS
