@@ -668,9 +668,10 @@ std::shared_ptr<OHOS::Media::PixelMap> SecurityManagerAddon::Decode(const std::s
         EDMLOGE("Decode Open file fail!");
         return nullptr;
     }
+    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
     uint32_t ret = ERR_INVALID_VALUE;
     std::shared_ptr<int> fdPtr(&fd, [](int *fd) {
-        close(*fd);
+        fdsan_close_with_tag(*fd, EdmConstants::LOG_DOMAINID);
         *fd = -1;
     });
     Media::SourceOptions sourceOption;

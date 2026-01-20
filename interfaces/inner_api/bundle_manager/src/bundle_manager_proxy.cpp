@@ -249,25 +249,26 @@ ErrCode BundleManagerProxy::WriteFileToInner(MessageParcel &reply, const std::st
         errMessage = "write file to stream failed due to open the hap file";
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
     off_t offset = 0;
     struct stat stat_buff;
     if (fstat(inputFd, &stat_buff) != 0) {
         EDMLOGE("fstat file failed!");
         close(outputFd);
-        close(inputFd);
+        fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
 
     if (sendfile(outputFd, inputFd, &offset, stat_buff.st_size) == -1) {
         EDMLOGE("send file failed!");
         close(outputFd);
-        close(inputFd);
+        fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
 
-    close(inputFd);
     fsync(outputFd);
     close(outputFd);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
     return ERR_OK;
 }
 
