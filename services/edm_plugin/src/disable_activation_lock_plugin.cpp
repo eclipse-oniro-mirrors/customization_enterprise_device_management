@@ -28,7 +28,7 @@ void DisabledActivationLockPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<DisabledActivationLockPlugin, bool>>> ptr)
 {
     EDMLOGI("DisabledActivationLockPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DIDABLED_ACTIVATION_LOCK, PolicyName::POLICY_DISABLED_ACTIVATION_LOCK,
+    ptr->InitAttribute(EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, PolicyName::POLICY_DISABLED_ACTIVATION_LOCK,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisabledActivationLockPlugin::OnSetPolicy, FuncOperateType::SET);

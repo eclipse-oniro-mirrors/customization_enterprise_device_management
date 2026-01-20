@@ -49,7 +49,7 @@ public:
         std::vector<KeyCustomization> &KeyCustomizations);
     int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementName &admin,
  	         bool &isDisabled, std::string &credential);
-    int32_t IsActivationLockDisabled(AppExecFwk::ElementName &admin, uint32_t policyCode, bool &result);
+    int32_t IsActivationLockDisabled(AppExecFwk::ElementName &admin, bool &result);
 
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     int32_t StartCollectlog(const AppExecFwk::ElementName &admin);

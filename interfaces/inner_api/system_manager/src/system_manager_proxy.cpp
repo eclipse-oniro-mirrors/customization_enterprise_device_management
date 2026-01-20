@@ -306,27 +306,42 @@ int32_t SystemManagerProxy::GetKeyEventPolicys(const AppExecFwk::ElementName &ad
 }
 
 int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementName &admin,
- 	     bool &isDisabled, std::string &credential)
- 	 {
- 	     EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
- 	     MessageParcel data;
- 	     data.WriteInterfaceToken(DESCRIPTOR);
- 	     data.WriteInt32(WITHOUT_USERID);
- 	     data.WriteString(WITHOUT_PERMISSION_TAG);
- 	     data.WriteInt32(HAS_ADMIN);
- 	     data.WriteParcelable(&admin);
- 	     data.WriteBool(isDisabled);
- 	     data.WriteString(credential);
- 	     EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
- 	     std::uint32_t funcCode =
- 	         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DIDABLED_ACTIVATION_LOCK);
- 	     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
- 	     return ret;
- 	 }
- 	 
- 	 int32_t SystemManagerProxy::IsActivationLockDisabled(AppExecFwk::ElementName &admin, uint32_t policyCode, bool &result)
- 	 {
- 	     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, policyCode, result);
- 	 }
+ 	bool &isDisabled, std::string &credential)
+{
+    EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteBool(isDisabled);
+    data.WriteString(credential);
+    EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_ACTIVATION_LOCK);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    return ret;
+}
+
+int32_t SystemManagerProxy::IsActivationLockDisabled(AppExecFwk::ElementName &admin, bool &result)
+{
+    EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, data, reply);
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGD("SystemManagerProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -1117,14 +1117,7 @@ void SystemManagerAddon::NativeSetActivationLockDisabled(napi_env env, void *dat
 }
 #endif
 
-#if defined(FEATURE_PC_ONLY)
 napi_value SystemManagerAddon::IsActivationLockDisabled(napi_env env, napi_callback_info info)
-{
-    return IsActivationLockDisabled(env, info, EdmInterfaceCode::DIDABLED_ACTIVATION_LOCK);
-}
-#endif
-
-napi_value SystemManagerAddon::IsActivationLockDisabled(napi_env env, napi_callback_info info, int policyCode)
 {
     EDMLOGI("NAPI_IsPolicyDisabled called");
 #if defined(FEATURE_PC_ONLY)
@@ -1189,4 +1182,9 @@ static napi_module g_systemManagerModule = {
 extern "C" __attribute__((constructor)) void SystemManagerRegister()
 {
     napi_module_register(&g_systemManagerModule);
+}
+
+bool ShutdownRebootUpgradeSwitch::IsShutdownRebootUpgradeEnable()
+{
+    return FirmwareConfig().IsShutdownRebootUpgrade();
 }
