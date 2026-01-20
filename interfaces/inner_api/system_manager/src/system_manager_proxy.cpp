@@ -306,7 +306,7 @@ int32_t SystemManagerProxy::GetKeyEventPolicys(const AppExecFwk::ElementName &ad
 }
 
 int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementName &admin,
- 	bool &isDisabled, std::string &credential)
+    bool &isDisabled, std::string &credential)
 {
     EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
     MessageParcel data;
@@ -334,7 +334,8 @@ int32_t SystemManagerProxy::IsActivationLockDisabled(AppExecFwk::ElementName &ad
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, data, reply);
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISABLED_ACTIVATION_LOCK,
+        data, reply);
     reply.ReadInt32(ret);
     if (ret != ERR_OK) {
         EDMLOGD("SystemManagerProxy::GetPolicy fail. %{public}d", ret);

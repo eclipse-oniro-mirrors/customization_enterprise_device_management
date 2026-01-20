@@ -1040,23 +1040,23 @@ napi_value SystemManagerAddon::GetKeyEventPolicies(napi_env env, napi_callback_i
 }
 
 bool ApplicationManagerAddon::CheckSetActivationLockDisabledParamType(napi_env env, size_t argc,
- 	     napi_value* argv, bool &hascredential)
- 	 {
- 	     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) || !MatchValueType(env, argv[ARR_INDEX_ONE],
- 	         napi_boolean)) {
- 	         EDMLOGE("CheckAddDisallowedRunningBundlesParamType admin or array type check failed");
- 	         return false;
- 	     }
- 	     EDMLOGI("CheckAddDisallowedRunningBundlesParamType argc = %{public}zu", argc);
- 	     if (argc == ARGS_SIZE_TWO) {
- 	         hascredential = false;
- 	         EDMLOGI("hasCallback = false;");
- 	         return true;
- 	     }
- 	     hascredential = true;
- 	     EDMLOGI("hascredential = true;");
- 	     return MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
- 	 }
+    napi_value* argv, bool &hascredential)
+{
+    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) || !MatchValueType(env, argv[ARR_INDEX_ONE],
+        napi_boolean)) {
+        EDMLOGE("CheckAddDisallowedRunningBundlesParamType admin or array type check failed");
+        return false;
+    }
+    EDMLOGI("CheckAddDisallowedRunningBundlesParamType argc = %{public}zu", argc);
+    if (argc == ARGS_SIZE_TWO) {
+        hascredential = false;
+        EDMLOGI("hasCallback = false;");
+        return true;
+    }
+    hascredential = true;
+    EDMLOGI("hascredential = true;");
+    return MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
+}
  	 
 napi_value SystemManagerAddon::SetActivationLockDisabled(napi_env env, napi_callback_info info)
 {
@@ -1112,8 +1112,8 @@ void SystemManagerAddon::NativeSetActivationLockDisabled(napi_env env, void *dat
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbakInfo->ret = proxy->SetActivationLockDisabled(asyncCallbackInfo->elementName, asyncCallbackInfo->isDisabled,
-        asyncCallbackInfo->credential);
+    asyncCallbakInfo->ret = proxy->SetActivationLockDisabled(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->isDisabled, asyncCallbackInfo->credential);
 }
 #endif
 
@@ -1140,7 +1140,8 @@ napi_value SystemManagerAddon::IsActivationLockDisabled(napi_env env, napi_callb
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     napi_value asyncWorkReturn =
-        HandleAsyncWork(env, asyncCallbackInfo, "IsActivationLockDisabled", NativeIsActivationLockDisabled, NativeBoolCallbackComplete);
+        HandleAsyncWork(env, asyncCallbackInfo, "IsActivationLockDisabled", NativeIsActivationLockDisabled,
+            NativeBoolCallbackComplete);
     callbackPtr.release();
     return asyncWorkReturn;
 #else
@@ -1158,14 +1159,15 @@ void SystemManagerAddon::NativeIsActivationLockDisabled(napi_env env, void *data
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncActivationLockDisabledCallbackInfo *asyncCallbackInfo = static_cast<AsyncActivationLockDisabledCallbackInfo *>(data);
+    AsyncActivationLockDisabledCallbackInfo *asyncCallbackInfo =
+        static_cast<AsyncActivationLockDisabledCallbackInfo *>(data);
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbackInfo->ret = proxy->IsActivationLockDisabled(asyncCallbackInfo->elementName, asyncCallbackInfo->policyCode,
-        asyncCallbackInfo->boolRet);
+    asyncCallbackInfo->ret = proxy->IsActivationLockDisabled(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->policyCode, asyncCallbackInfo->boolRet);
 }
 #endif
 

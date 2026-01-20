@@ -47,8 +47,8 @@ public:
     int32_t RemoveKeyEventPolicys(const AppExecFwk::ElementName &admin, const std::vector<int32_t> &KeyCodes);
     int32_t GetKeyEventPolicys(const AppExecFwk::ElementName &admin,
         std::vector<KeyCustomization> &KeyCustomizations);
-    int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementName &admin,
- 	         bool &isDisabled, std::string &credential);
+    int32_t SetActivationLockDisabled(const AppExecFwk::ElementName &admin, bool &isDisabled,
+        std::string &credential);
     int32_t IsActivationLockDisabled(AppExecFwk::ElementName &admin, bool &result);
 
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)

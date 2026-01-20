@@ -46,9 +46,9 @@ struct AsyncStartCollectLogCallbackInfo : AsyncCallbackInfo {
 };
 
 struct AsyncActivationLockDisabledCallbackInfo : AsyncCallbackInfo {
- 	     OHOS::AppExecFwk::ElementName elementName;
- 	     bool isDisabled;
- 	     std::string credential;
+    OHOS::AppExecFwk::ElementName elementName;
+    bool isDisabled;
+    std::string credential;
 };
 
 enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
