@@ -48,6 +48,7 @@ namespace EdmConstants {
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
     constexpr uint32_t MANAGE_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
+    constexpr int32_t LOG_DOMAINID = 0xD001E00;
 
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
     constexpr size_t MAX_PARCEL_CAPACITY_OF_ASHMEM = 1024 * 1024 * 1024; // max allow 1 GB resource size
