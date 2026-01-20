@@ -420,6 +420,7 @@ bool ManagedBrowserPolicyPlugin::UpdatePolicyFile(std::map<std::string, ManagedB
     }
     return true;
 }
+
 void PublishEventToBrowser()
 {
     AAFwk::Want want;
