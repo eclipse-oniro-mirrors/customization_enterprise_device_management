@@ -1078,14 +1078,14 @@ napi_value SystemManagerAddon::SetActivationLockDisabled(napi_env env, napi_call
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, asyncCallbackInfo->isDisabled, argv[ARR_INDEX_ONE]),
-        "Parameter isDisabled error")
+        "Parameter isDisabled error");
     EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
         "asyncCallbackInfo->abilityname:%{public}s",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str());
     if (hascredential) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->credential, argv[ARR_INDEX_TWO]),
-        "Parameter credential error")
+        "Parameter credential error");
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "SetActivationLockDisabled",
         NativeSetActivationLockDisabled, NativeVoidCallbackComplete);
@@ -1106,13 +1106,13 @@ void SystemManagerAddon::NativeSetActivationLockDisabled(napi_env env, void *dat
         EDMLOGE("data is nullptr");
         return;
     }
-    auto *asyncCallbakInfo = static_cast<AdapterAddonData *>(data);
+    auto *asyncCallbackInfo = static_cast<AsyncActivationLockDisabledCallbackInfo *>(data);
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
         return;
     }
-    asyncCallbakInfo->ret = proxy->SetActivationLockDisabled(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = proxy->SetActivationLockDisabled(asyncCallbackInfo->elementName,
         asyncCallbackInfo->isDisabled, asyncCallbackInfo->credential);
 }
 #endif

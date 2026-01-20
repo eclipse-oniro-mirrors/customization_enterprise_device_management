@@ -17,13 +17,14 @@
 
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
+#include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
-    IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetKeyCodePlugin>());
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisabledActivationLockPlugin>());
 
-SetKeyCodePlugin::SetKeyCodePlugin()
+DisabledActivationLockPlugin::DisabledActivationLockPlugin()
 {
     policyCode_ = EdmInterfaceCode::DISABLED_ACTIVATION_LOCK;
     policyName_ = PolicyName::POLICY_DISABLED_ACTIVATION_LOCK;
@@ -33,24 +34,24 @@ SetKeyCodePlugin::SetKeyCodePlugin()
     needSave_ = false;
 }
 
-ErrCode SetKeyCodePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
+ErrCode DisabledActivationLockPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
     MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-ErrCode SetKeyCodePlugin::OnSetPolicy(MessageParcel &data, MessageParcel &reply)
+ErrCode DisabledActivationLockPlugin::OnSetPolicy(MessageParcel &data, MessageParcel &reply)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-ErrCode SetKeyCodePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+ErrCode DisabledActivationLockPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-ErrCode SetKeyCodePlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
+ErrCode DisabledActivationLockPlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
     const std::string &mergeJsonData, int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
