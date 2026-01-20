@@ -1925,6 +1925,10 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 #ifndef EDM_FUZZ_TEST
     bool isUserExist = false;
     GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
+    std::string permissionTag = data.ReadString();
+    if (!isUserExist && permissionTag == EdmConstants::PERMISSION_TAG_VERSION_23) {
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
     if (!isUserExist) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -1936,7 +1940,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    std::string permissionTag = data.ReadString();
     // 若PERMISSION_MANAGE_EDM_POLICY权限校验通过则直接进行业务处理；
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
@@ -1980,9 +1983,13 @@ void EnterpriseDeviceMgrAbility::ReportFuncEvent(uint32_t code)
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId, int32_t hasUserId)
 {
+    std::string permissionTag = data.ReadString();
     if (hasUserId != 0) {
         bool isUserExist = false;
         GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
+        if (!isUserExist && permissionTag == EdmConstants::PERMISSION_TAG_VERSION_23) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
         if (!isUserExist) {
             EDMLOGW("GetDevicePolicy: IsOsAccountExists failed");
             return EdmReturnErrCode::PARAM_ERROR;
@@ -1990,26 +1997,26 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     }
 
     std::shared_lock<std::shared_mutex> autoLock(adminLock_);
-    ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCode(policyMgr_, code, data, reply, userId);
+    ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCode(policyMgr_, code, data, reply, userId,
+        permissionTag);
     if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
         EDMLOGW("GetDevicePolicy: GetPolicyByCode INTERFACE_UNSUPPORTED");
         return errCode;
     }
     if (errCode == ERR_CANNOT_FIND_QUERY_FAILED) {
-        return GetDevicePolicyFromPlugin(code, data, reply, userId);
+        return GetDevicePolicyFromPlugin(code, data, reply, userId, permissionTag);
     }
     EDMLOGI("policy query get finished");
     return errCode;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
+    int32_t userId, const std::string &permissionTag)
 {
     std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
     if (policyName.empty()) {
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
-    std::string permissionTag = data.ReadString();
     ErrCode systemCallingCheck = GetPermissionChecker()->CheckSystemCalling(
         PluginManager::GetInstance()->GetPluginType(code, FuncOperateType::GET), permissionTag);
     if (FAILED(systemCallingCheck)) {

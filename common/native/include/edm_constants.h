@@ -55,6 +55,7 @@ namespace EdmConstants {
 
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
+    const char* const PERMISSION_TAG_VERSION_23 = "version_23";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
     const char* const PERMISSION_TAG_NORMAL = "normal";
     const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";

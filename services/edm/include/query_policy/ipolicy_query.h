@@ -31,7 +31,7 @@ public:
     virtual ~IPolicyQuery() = default;
 
     ErrCode GetPolicy(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
-        MessageParcel &reply, int32_t userId);
+        MessageParcel &reply, int32_t userId, const std::string &permissionTag);
 
 protected:
     virtual IPlugin::ApiType GetApiType();

@@ -120,7 +120,8 @@ private:
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);
     ErrCode RemoveSubOrSuperAdminAndAdminPolicy(const std::string &bundleName,
         const std::vector<int32_t> &nonDefaultUserIds);
-    ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
+        const std::string &permissionTag);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode VerifyEnableAdminCondition(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,

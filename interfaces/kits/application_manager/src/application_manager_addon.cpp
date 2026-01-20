@@ -1088,6 +1088,7 @@ napi_value ApplicationManagerAddon::SetAbilityDisabled(napi_env env, napi_callba
         EdmAddonCommonType::STRING, EdmAddonCommonType::BOOLEAN};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -1111,6 +1112,7 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
         EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
     AdapterAddonData adapterAddonData{};
     napi_value res = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (res == nullptr) {

@@ -30,10 +30,10 @@ public:
     static std::shared_ptr<PluginPolicyReader> GetInstance();
 
     ErrCode GetPolicyByCode(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
-        MessageParcel &reply, int32_t userId);
+        MessageParcel &reply, int32_t userId, const std::string &permissionTag);
 
     ErrCode GetPolicyByCodeInner(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
-        MessageParcel &reply, int32_t userId);
+        MessageParcel &reply, int32_t userId, const std::string &permissionTag);
 
     ErrCode GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
     ErrCode GetPolicyQueryFirst(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);

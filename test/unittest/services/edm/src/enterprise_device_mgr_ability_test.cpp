@@ -309,6 +309,27 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsist
 }
 
 /**
+ * @tc.name: TestHandleDevicePolicyWithUserNotExsistApi23
+ * @tc.desc: Test HandleDevicePolicy function with userId is not exist.
+ * @tc.type: FUNC
+ */
+ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyWithUserNotExsistApi23, TestSize.Level1)
+ {
+     PrepareBeforeHandleDevicePolicy();
+
+     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+     AppExecFwk::ElementName elementName;
+     elementName.SetBundleName(ADMIN_PACKAGENAME_FAILED);
+     MessageParcel data;
+     MessageParcel reply;
+     data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+     ErrCode res = edmMgr_->HandleDevicePolicy(code, elementName, data, reply, DEFAULT_USER_ID);
+     ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+ }
+
+/**
  * @tc.name: TestHandleDevicePolicyWithoutAdmin
  * @tc.desc: Test HandleDevicePolicy with none admmin.
  * @tc.type: FUNC
@@ -656,6 +677,23 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithUserNotExsist, T
     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(res == EdmReturnErrCode::PARAM_ERROR);
 }
+
+/**
+ * @tc.name: TestGetDevicePolicyWithUserNotExsistApi23
+ * @tc.desc: Test GetDevicePolicy function with userId is not exist.
+ * @tc.type: FUNC
+ */
+ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyWithUserNotExsistApi23, TestSize.Level1)
+ {
+     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, INVALID_POLICYCODE);
+     MessageParcel data;
+     MessageParcel reply;
+     data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+     ErrCode res = edmMgr_->GetDevicePolicy(code, data, reply, DEFAULT_USER_ID);
+     ASSERT_TRUE(res == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+ }
 
 /**
  * @tc.name: TestGetDevicePolicyWithNotExistPlugin
