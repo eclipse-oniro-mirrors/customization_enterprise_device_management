@@ -45,7 +45,7 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeKeyEventPolicies", RemoveKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("setActivationLockDisabled", SetActivationLockDisabled),
- 	    DECLARE_NAPI_FUNCTION("isActivationLockDisabled", IsActivationLockDisabled),
+        DECLARE_NAPI_FUNCTION("isActivationLockDisabled", IsActivationLockDisabled),
     };
     NAPI_CALL_RETURN_VOID(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
@@ -1039,7 +1039,7 @@ napi_value SystemManagerAddon::GetKeyEventPolicies(napi_env env, napi_callback_i
     return napiKeyCustomizations;
 }
 
-bool ApplicationManagerAddon::CheckSetActivationLockDisabledParamType(napi_env env, size_t argc,
+bool SystemManagerAddon::CheckSetActivationLockDisabledParamType(napi_env env, size_t argc,
     napi_value* argv, bool &hascredential)
 {
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) || !MatchValueType(env, argv[ARR_INDEX_ONE],
