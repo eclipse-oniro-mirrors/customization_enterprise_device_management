@@ -1167,7 +1167,7 @@ void SystemManagerAddon::NativeIsActivationLockDisabled(napi_env env, void *data
         return;
     }
     asyncCallbackInfo->ret = proxy->IsActivationLockDisabled(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->policyCode, asyncCallbackInfo->boolRet);
+        asyncCallbackInfo->boolRet);
 }
 #endif
 
