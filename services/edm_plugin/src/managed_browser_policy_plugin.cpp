@@ -421,7 +421,7 @@ bool ManagedBrowserPolicyPlugin::UpdatePolicyFile(std::map<std::string, ManagedB
     return true;
 }
 
-void PublishEventToBrowser()
+void ManagedBrowserPolicyPlugin::PublishEventToBrowser()
 {
     AAFwk::Want want;
     want.SetAction(BROWSER_POLICY_CHANGED_EVENT);
