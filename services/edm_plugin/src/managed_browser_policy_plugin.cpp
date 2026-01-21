@@ -428,7 +428,7 @@ void PublishEventToBrowser()
     EventFwk::CommonEventData eventData;
     eventData.SetWant(want);
     if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
-        EDMLOGE("NotifyBrowserPolicyRemoved failed.");
+        EDMLOGE("NotifyBrowserPolicyChanged failed.");
     }
 }
 } // namespace EDM
