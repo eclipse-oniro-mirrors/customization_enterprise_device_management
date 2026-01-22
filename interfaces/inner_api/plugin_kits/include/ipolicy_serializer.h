@@ -141,6 +141,12 @@ bool ArraySerializer<DT, T_ARRAY>::Deserialize(const std::string &jsonString, T_
         return false;
     }
 
+    if (serializerInner_ == nullptr) {
+        EDMLOGE("serializerInner_ is null.");
+        cJSON_Delete(root);
+        return false;
+    }
+
     dataObj = std::vector<DT>(array_size);
     for (int i = 0; i < array_size; ++i) {
         cJSON *item = cJSON_GetArrayItem(root, i);
@@ -154,10 +160,6 @@ bool ArraySerializer<DT, T_ARRAY>::Deserialize(const std::string &jsonString, T_
         if (itemJson == nullptr) {
             EDMLOGE("Failed to serialize JSON item at index");
             cJSON_Delete(root);
-            return false;
-        }
-
-        if (serializerInner_ == nullptr) {
             return false;
         }
 
