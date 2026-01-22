@@ -23,20 +23,13 @@
 
 namespace OHOS {
 namespace EDM {
-std::shared_ptr<PolicyManager> PolicyManager::instance_;
 std::shared_timed_mutex PolicyManager::mutexLock_;
 
 std::shared_ptr<PolicyManager> PolicyManager::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-        if (instance_ == nullptr) {
-            instance_.reset(new (std::nothrow) PolicyManager());
-        }
-    }
-
-    IPolicyManager::policyManagerInstance_ = instance_.get();
-    return instance_;
+    static std::shared_ptr<PolicyManager> instance = std::make_shared<PolicyManager>();
+    IPolicyManager::policyManagerInstance_ = instance.get();
+    return instance;
 }
 
 ErrCode PolicyManager::GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems,
