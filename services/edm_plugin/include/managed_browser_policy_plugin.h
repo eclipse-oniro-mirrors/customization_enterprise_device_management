@@ -64,6 +64,8 @@ private:
     ErrCode UpdateCurrentAndMergePolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
         std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const std::string &bundleName,
         const std::string &policyName, const std::string &policyValue);
+
+    void PublishEventToBrowser();
 };
 } // namespace EDM
 } // namespace OHOS
