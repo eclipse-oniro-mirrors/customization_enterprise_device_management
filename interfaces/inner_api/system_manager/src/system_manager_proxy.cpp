@@ -306,7 +306,7 @@ int32_t SystemManagerProxy::GetKeyEventPolicys(const AppExecFwk::ElementName &ad
 }
 
 int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementName &admin,
-    bool &isDisabled, std::string &credential)
+    bool &isDisabled, std::string &credential = "")
 {
     EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
     MessageParcel data;
