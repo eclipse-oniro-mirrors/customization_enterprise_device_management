@@ -60,7 +60,6 @@ private:
     std::map<std::int32_t, std::shared_ptr<UserPolicyManager>> policyMgrMap_;
     std::shared_ptr<UserPolicyManager> defaultPolicyMgr_;
     static std::shared_timed_mutex mutexLock_;
-    static std::shared_ptr<PolicyManager> instance_;
 };
 } // namespace EDM
 } // namespace OHOS
