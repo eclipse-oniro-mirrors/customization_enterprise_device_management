@@ -106,6 +106,7 @@ protected:
 
 private:
     void AddCommonEventFuncMap();
+    void AddCommonEventFuncMapSecond();
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
     bool SubscribeAppState();
@@ -155,6 +156,8 @@ private:
         EnterpriseDeviceMgrAbility &listener);
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateAGEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
+    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateOobeEventSubscriber(
+        EnterpriseDeviceMgrAbility &listener);
     std::vector<std::string> GetAgCommonEventName();
 #endif
     void OnCommonEventUserAdded(const EventFwk::CommonEventData &data);
@@ -166,6 +169,8 @@ private:
     void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
     void OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn);
     void OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data);
+    void OnCommonEventOobeFinish(const EventFwk::CommonEventData &data);
+    void OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();

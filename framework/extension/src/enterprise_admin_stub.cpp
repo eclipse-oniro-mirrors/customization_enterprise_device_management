@@ -100,6 +100,12 @@ int32_t EnterpriseAdminStub::CallFuncByCodeFirst(uint32_t code, MessageParcel& d
         case COMMAND_ON_KEY_EVENT:
             OnKeyEventInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_STARTUP_GUIDE_COMPLETED:
+            OnStartupGuideCompletedInner(data, reply);
+            return ERR_NONE;
+        case COMMAND_ON_DEVICE_BOOT_COMPLETED:
+            OnDeviceBootCompletedInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -222,6 +228,19 @@ void EnterpriseAdminStub::OnKeyEventInner(MessageParcel& data, MessageParcel& re
 
     std::string event = data.ReadString();
     OnKeyEvent(event);
+}
+
+void EnterpriseAdminStub::OnStartupGuideCompletedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnStartupGuideCompletedInner");
+    int32_t type = data.ReadInt32();
+    OnStartupGuideCompleted(type);
+}
+
+void EnterpriseAdminStub::OnDeviceBootCompletedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnDeviceBootCompletedInner");
+    OnDeviceBootCompleted();
 }
 
 void EnterpriseAdminStub::OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply)

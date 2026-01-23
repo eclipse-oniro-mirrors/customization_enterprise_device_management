@@ -29,6 +29,7 @@
 #include "enterprise_key_event_connection.h"
 #include "enterprise_market_connection.h"
 #include "enterprise_update_connection.h"
+#include "enterprise_oobe_connection.h"
 #include "ienterprise_connection.h"
 #include "singleton.h"
 
@@ -51,6 +52,7 @@ public:
     bool CreateCollectLogConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, bool isSuccess);
     bool CreateKeyEventConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
         const std::string &keyEvent);
+    bool CreateOobeConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, int32_t type);
 private:
     bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
 };

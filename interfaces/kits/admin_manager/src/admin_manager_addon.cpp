@@ -1081,6 +1081,15 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::USER_REMOVED),
         &nUserRemoved));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_ACCOUNT_REMOVED", nUserRemoved));
+    napi_value nStartupCompleted;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED),
+        &nStartupCompleted));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_STARTUP_GUIDE_COMPLETED",
+        nStartupCompleted));
+    napi_value nBootCompleted;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED),
+        &nBootCompleted));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_BOOT_COMPLETED", nBootCompleted));
 }
 
 void AdminManager::CreateRunningModeObject(napi_env env, napi_value value)

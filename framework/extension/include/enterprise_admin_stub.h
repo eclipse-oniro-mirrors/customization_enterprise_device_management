@@ -77,6 +77,10 @@ private:
     void OnLogCollectedInner(MessageParcel& data, MessageParcel& reply);
 
     void OnKeyEventInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnStartupGuideCompletedInner(MessageParcel& data, MessageParcel& reply);
+
+    void OnDeviceBootCompletedInner(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace EDM
 } // namespace OHOS

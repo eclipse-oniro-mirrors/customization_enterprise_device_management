@@ -227,6 +227,29 @@ void EnterpriseAdminProxy::OnKeyEvent(const std::string &keyEvent)
     SendRequest(COMMAND_ON_KEY_EVENT, data);
 }
 
+void EnterpriseAdminProxy::OnStartupGuideCompleted(int32_t type)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteInt32(type);
+    EDMLOGI("EnterpriseAdminProxy proxy OnOobeFinish");
+    SendRequest(COMMAND_ON_STARTUP_GUIDE_COMPLETED, data);
+}
+
+void EnterpriseAdminProxy::OnDeviceBootCompleted()
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    EDMLOGI("EnterpriseAdminProxy proxy OnDevicePowerOn");
+    SendRequest(COMMAND_ON_DEVICE_BOOT_COMPLETED, data);
+}
+
 void EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
 {
     MessageParcel reply;
