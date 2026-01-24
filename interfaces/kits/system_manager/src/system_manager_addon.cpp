@@ -1067,11 +1067,11 @@ napi_value SystemManagerAddon::SetActivationLockDisabled(napi_env env, napi_call
     void *data = nullptr;
     bool hascredential = false;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    auto asyncCallbackInfo = new (std::nothrow) AsyncActivationLockDisabledCallbackInfo();
+    auto asyncCallbackInfo = new (std::nothrow) AsyncSetActivationLockDisabledCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncActivationLockDisabledCallbackInfo> callbackPtr {asyncCallbackInfo};
+    std::unique_ptr<AsyncSetActivationLockDisabledCallbackInfo> callbackPtr {asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env,
         CheckSetActivationLockDisabledParamType(env, argc, argv, hascredential), "Parameter type error");
@@ -1106,7 +1106,7 @@ void SystemManagerAddon::NativeSetActivationLockDisabled(napi_env env, void *dat
         EDMLOGE("data is nullptr");
         return;
     }
-    auto *asyncCallbackInfo = static_cast<AsyncActivationLockDisabledCallbackInfo *>(data);
+    auto *asyncCallbackInfo = static_cast<AsyncSetActivationLockDisabledCallbackInfo *>(data);
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
@@ -1127,11 +1127,11 @@ napi_value SystemManagerAddon::IsActivationLockDisabled(napi_env env, napi_callb
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    auto asyncCallbackInfo = new (std::nothrow) AsyncActivationLockDisabledCallbackInfo();
+    auto asyncCallbackInfo = new (std::nothrow) AsyncIsActivationLockDisabledCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::unique_ptr<AsyncActivationLockDisabledCallbackInfo> callbackPtr{asyncCallbackInfo};
+    std::unique_ptr<AsyncIsActivationLockDisabledCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
     EDMLOGD(
@@ -1159,8 +1159,7 @@ void SystemManagerAddon::NativeIsActivationLockDisabled(napi_env env, void *data
         EDMLOGE("data is nullptr");
         return;
     }
-    AsyncActivationLockDisabledCallbackInfo *asyncCallbackInfo =
-        static_cast<AsyncActivationLockDisabledCallbackInfo *>(data);
+    auto *asyncCallbackInfo = static_cast<AsyncIsActivationLockDisabledCallbackInfo *>(data);
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");
