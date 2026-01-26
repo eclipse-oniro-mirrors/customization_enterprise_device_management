@@ -23,10 +23,11 @@
 #include "admin.h"
 #include "admin_policies_storage_rdb.h"
 #include "ent_info.h"
+#include "iadmin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class AdminManager : public std::enable_shared_from_this<AdminManager> {
+class AdminManager : public std::enable_shared_from_this<AdminManager>, IAdminManager {
 public:
     static std::shared_ptr<AdminManager> GetInstance();
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
@@ -58,7 +59,7 @@ public:
     void GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
     ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const AdminInfo &newAdminInfo);
-    ~AdminManager();
+    ~AdminManager() override;
     void Dump();
     void ClearAdmins();
     void InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins);
@@ -66,6 +67,7 @@ public:
     int32_t GetSuperDeviceAdminAndDeviceAdminCount();
     ErrCode UpdateAdminPermission(const std::string &bundleName, int32_t userId,
         std::vector<std::string> permissionList);
+    AdminType GetAdminTypeByName(const std::string &bundleName, int32_t userId) override;
 
 private:
     AdminManager();

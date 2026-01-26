@@ -30,7 +30,7 @@ void NotifyUpdatePackagesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Noti
 {
     EDMLOGI("NotifyUpdatePackagesPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(UpgradePackageInfoSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&NotifyUpdatePackagesPlugin::OnSetPolicy, FuncOperateType::SET);
 }

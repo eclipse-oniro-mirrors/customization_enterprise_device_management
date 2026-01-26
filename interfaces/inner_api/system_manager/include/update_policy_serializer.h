@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_UTILS_UPDATE_POLICY_SERIALIZER_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_UTILS_UPDATE_POLICY_SERIALIZER_H
+#ifndef INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_UPDATE_POLICY_SERIALIZER_H
+#define INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_UPDATE_POLICY_SERIALIZER_H
 
 #include "singleton.h"
 
@@ -40,4 +40,4 @@ public:
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_UTILS_UPDATE_POLICY_SERIALIZER_H
+#endif // INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_UPDATE_POLICY_SERIALIZER_H

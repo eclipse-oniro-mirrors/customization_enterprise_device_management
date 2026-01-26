@@ -654,6 +654,28 @@ HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
     ASSERT_TRUE(userAdmin != nullptr);
     ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::ENT);
 }
+
+/**
+ * @tc.name: TestGetAdminTypeByName
+ * @tc.desc: Test AdminManager::TestGetAdminTypeByName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetAdminTypeByName, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
+    AdminInfo adminInfo = {.packageName_ = bundleName, .className_ = "testDemo", .entInfo_ = entInfo,
+        .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    ErrCode res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    EXPECT_EQ(res, ERR_OK);
+    auto adminType = adminMgr_->GetAdminTypeByName("com.edm.test.error", DEFAULT_USER_ID);
+    EXPECT_EQ(adminType, AdminType::UNKNOWN);
+    adminType = IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, DEFAULT_USER_ID);
+    EXPECT_EQ(adminType, AdminType::NORMAL);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
