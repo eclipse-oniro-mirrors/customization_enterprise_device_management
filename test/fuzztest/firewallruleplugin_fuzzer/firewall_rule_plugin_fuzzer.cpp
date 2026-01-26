@@ -50,7 +50,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     int32_t pos = 0;
-    int32_t stringSize = size / 6;
+    int32_t stringSize = size / 21;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::FIREWALL_RULE;
@@ -65,11 +65,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         if (operateType) {
             parcel.WriteParcelable(&admin);
             IPTABLES::FirewallRule firewall;
-            std::string srcAddr(reinterpret_cast<const char*>(data), size);
-            std::string destAddr(reinterpret_cast<const char*>(data), size);
-            std::string srcPort(reinterpret_cast<const char*>(data), size);
-            std::string destPort(reinterpret_cast<const char*>(data), size);
-            std::string uid(reinterpret_cast<const char*>(data), size);
+            std::string srcAddr = CommonFuzzer::GetString(data, pos, stringSize, size);
+            std::string destAddr = CommonFuzzer::GetString(data, pos, stringSize, size);
+            std::string srcPort = CommonFuzzer::GetString(data, pos, stringSize, size);
+            std::string destPort = CommonFuzzer::GetString(data, pos, stringSize, size);
+            std::string uid = CommonFuzzer::GetString(data, pos, stringSize, size);
             IPTABLES::Direction directionEnum =
                 static_cast<IPTABLES::Direction>(CommonFuzzer::GetU32Data(data) % MAX_ENUM_LENGTH);
             IPTABLES::Action actionEnum =
