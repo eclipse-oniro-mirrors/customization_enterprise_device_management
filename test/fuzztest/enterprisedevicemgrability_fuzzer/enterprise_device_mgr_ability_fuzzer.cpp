@@ -95,7 +95,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_size = size;
     g_pos = 0;
     int32_t pos = 0;
-    int32_t stringSize = (size - pos) / 5;
+    int32_t stringSize = (size - pos) / 8;
 
     TEST::Utils::SetUid();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
@@ -107,7 +107,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnCommonEventPackageAdded(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventPackageRemoved(eventData);
     int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
-    const std::string deviceId(reinterpret_cast<const char*>(data), size);
+    const std::string deviceId = CommonFuzzer::GetString(data, pos, stringSize, size);
     enterpriseDeviceMgrAbility->OnAddSystemAbility(systemAbilityId, deviceId);
     enterpriseDeviceMgrAbility->OnAppManagerServiceStart();
     enterpriseDeviceMgrAbility->OnAbilityManagerServiceStart();
@@ -119,16 +119,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->SubscribeAppState();
     enterpriseDeviceMgrAbility->UnsubscribeAppState();
     AppExecFwk::ElementName admin;
-    std::string fuzzString(reinterpret_cast<const char*>(data), size);
+    std::string fuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
     admin.SetBundleName(fuzzString);
     admin.SetAbilityName(fuzzString);
     AdminType type = GetData<AdminType>();
     bool isDebug = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
     enterpriseDeviceMgrAbility->VerifyEnableAdminCondition(admin, type, userId, isDebug);
-    std::string adminName(reinterpret_cast<const char*>(data), size);
-    const std::string policyName(reinterpret_cast<const char*>(data), size);
-    const std::string policyValue(reinterpret_cast<const char*>(data), size);
-    std::string bundleName(reinterpret_cast<const char*>(data), size);
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    const std::string policyName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    const std::string policyValue = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string bundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
     TEST::Utils::ResetUid();
     PluginManager::GetInstance()->DumpPlugin();
 
