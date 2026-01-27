@@ -754,35 +754,37 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     EDMLOGI("OnCommonEventPackageRemoved");
     std::string bundleName = data.GetWant().GetElement().GetBundleName();
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+    int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
+        AppExecFwk::Constants::DEFAULT_APP_INDEX);
     if (userId == AppExecFwk::Constants::INVALID_USERID) {
         EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
         return;
     }
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
-    if (admin != nullptr) {
-        if (!admin->IsAllowedAcrossAccountSetPolicy()) {
-            RemoveAdminAndAdminPolicy(bundleName, userId);
-        }
-        if (!admin->IsSuperAdmin() && admin->IsAllowedAcrossAccountSetPolicy() &&
-            userId == EdmConstants::DEFAULT_USER_ID) {
-            // remove sub super admin and sub super admin policy
-            RemoveSubSuperAdminAndAdminPolicy(bundleName);
-        }
-        if (admin->IsSuperAdmin() && userId == EdmConstants::DEFAULT_USER_ID) {
-            // remove super admin and super admin policy
-            RemoveSuperAdminAndAdminPolicy(bundleName);
-        }
-        if (!AdminManager::GetInstance()->IsAdminExist()) {
-            system::SetParameter(PARAM_EDM_ENABLE, "false");
-            NotifyAdminEnabled(false);
+    if (appIndex == 0) {
+        std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
+        if (admin != nullptr) {
+            if (!admin->IsAllowedAcrossAccountSetPolicy()) {
+                RemoveAdminAndAdminPolicy(bundleName, userId);
+            }
+            if (!admin->IsSuperAdmin() && admin->IsAllowedAcrossAccountSetPolicy() &&
+                userId == EdmConstants::DEFAULT_USER_ID) {
+                // remove sub super admin and sub super admin policy
+                RemoveSubSuperAdminAndAdminPolicy(bundleName);
+            }
+            if (admin->IsSuperAdmin() && userId == EdmConstants::DEFAULT_USER_ID) {
+                // remove super admin and super admin policy
+                RemoveSuperAdminAndAdminPolicy(bundleName);
+            }
+            if (!AdminManager::GetInstance()->IsAdminExist()) {
+                system::SetParameter(PARAM_EDM_ENABLE, "false");
+                NotifyAdminEnabled(false);
+            }
         }
     }
     ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
     autoLock.unlock();
     UpdateClipboardInfo(bundleName, userId);
-    int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
-        AppExecFwk::Constants::DEFAULT_APP_INDEX);
     UpdateFreezeExemptedApps(bundleName, userId, appIndex);
     UpdateUserNonStopInfo(bundleName, userId, appIndex);
 }
