@@ -56,6 +56,7 @@
 #include "language_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
+#include "update_policy_utils.h"
 #include "startup_scene.h"
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
@@ -286,6 +287,27 @@ void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::Commo
     updateInfo.packageType = data.GetWant().GetStringParam(FIRMWARE_EVENT_INFO_TYPE);
 
     ConnectAbilityOnSystemUpdate(updateInfo);
+    UpdateNotifyPackagePolicy();
+}
+
+void EnterpriseDeviceMgrAbility::UpdateNotifyPackagePolicy()
+{
+    EDMLOGI("OnCommonEventSystemUpdate UpdateNotifyPackagePolicy");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES);
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        UpgradePackageInfo packageInfo;
+        UpdatePolicyUtils::WriteUpgradePackageInfo(data, packageInfo);
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonEventData &data)

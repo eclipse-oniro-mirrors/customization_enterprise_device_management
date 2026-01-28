@@ -38,6 +38,7 @@ std::shared_ptr<AdminManager> AdminManager::GetInstance()
             instance_.reset(new (std::nothrow) AdminManager());
         }
     });
+    IAdminManager::adminManagerInstance_ = instance_.get();
     return instance_;
 }
 
@@ -520,6 +521,16 @@ bool AdminManager::IsExistTargetAdmin(bool isDebug)
 int32_t AdminManager::GetSuperDeviceAdminAndDeviceAdminCount()
 {
     return AdminContainer::GetInstance()->GetSuperDeviceAdminAndDeviceAdminCount();
+}
+
+AdminType AdminManager::GetAdminTypeByName(const std::string &bundleName, int32_t userId)
+{
+    std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
+    if (admin == nullptr) {
+        EDMLOGE("AdminManager::GetAdminTypeByName get admin failed.");
+        return AdminType::UNKNOWN;
+    }
+    return admin->adminInfo_.adminType_;
 }
 } // namespace EDM
 } // namespace OHOS

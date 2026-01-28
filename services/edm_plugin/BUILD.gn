@@ -596,8 +596,6 @@ ohos_shared_library("need_extra_plugin") {
   sources = [
     "./src/utils/operate_device_param_serializer.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
-    "./src/utils/update_policy_serializer.cpp",
-    "./src/utils/upgrade_package_info_serializer.cpp",
   ]
   public_configs = [
     ":edm_plugin_config",

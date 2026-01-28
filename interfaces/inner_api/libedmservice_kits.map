@@ -97,6 +97,10 @@
             OHOS::EDM::InstallMarketAppsSerializer::*;
             vtable?for?OHOS::EDM::InstallMarketAppsSerializer;
             OHOS::EDM::KeyEventHandle::*;
+            "OHOS::EDM::IAdminManager::GetInstance()";
+            "OHOS::EDM::IAdminManager::adminManagerInstance_";
+            vtable?for?OHOS::EDM::UpdatePolicySerializer;
+            vtable?for?OHOS::EDM::UpgradePackageInfoSerializer;
         };
     local:
         *;

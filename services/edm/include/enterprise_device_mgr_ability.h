@@ -151,6 +151,7 @@ private:
     ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
         const std::string &bundleName);
     ErrCode SetAbilityDisabled(const std::string &bundleName, int32_t userId, const std::string &abilityName);
+    void UpdateNotifyPackagePolicy();
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
