@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../common/config/common.gni")
 
 ohos_shared_library("devicesettings") {
   include_dirs = [
@@ -38,6 +39,12 @@ ohos_shared_library("devicesettings") {
     "ipc:ipc_single",
     "napi:ace_napi",
   ]
+
+  defines = []
+  if (os_account_edm_enable) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
 
   relative_install_dir = "module/enterprise"
   sanitize = {

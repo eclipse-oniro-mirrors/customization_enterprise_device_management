@@ -20,6 +20,7 @@
 #include "enterprise_device_mgr_proxy.h"
 #include "power_policy.h"
 #include "setting_item_policy.h"
+#include "settings_menu_policy.h"
 
 namespace OHOS {
 namespace EDM {
@@ -52,6 +53,12 @@ public:
         int32_t accountId, const std::string &value);
     int32_t GetFloatingNavigationForAccount(const AppExecFwk::ElementName &admin,
         int32_t accountId, std::string &value);
+    int32_t GetHiddenSettingsMenu(const AppExecFwk::ElementName &admin, int32_t &userId,
+        std::vector<int32_t> &hiddenSettingsMenu);
+    int32_t AddHiddenSettingsMenu(const AppExecFwk::ElementName &admin, int32_t &userId,
+        std::vector<int32_t> &hiddenSettingsMenu);
+    int32_t RemoveHiddenSettingsMenu(const AppExecFwk::ElementName &admin, int32_t &userId,
+        std::vector<int32_t> &hiddenSettingsMenu);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

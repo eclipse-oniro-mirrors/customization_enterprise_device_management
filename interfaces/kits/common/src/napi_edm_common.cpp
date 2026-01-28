@@ -750,6 +750,18 @@ void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &strin
     }
 }
 
+void ConvertInt32VectorToJS(napi_env env, const std::vector<int32_t> &int32Vector, napi_value result)
+{
+    EDMLOGD("vector size: %{public}zu", int32Vector.size());
+    size_t idx = 0;
+    for (const auto &num : int32Vector) {
+        napi_value obj = nullptr;
+        napi_create_int32(env, num, &obj);
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
+}
+
 void ConvertApplicationInstanceVectorToJS(napi_env env,
     const std::vector<ApplicationInstance> &applicationInstanceVector, napi_value result)
 {

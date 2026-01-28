@@ -646,6 +646,7 @@ ohos_shared_library("need_extra_plugin") {
   if (!enterprise_device_management_feature_pc_only) {
       sources += [
         "./src/set_key_code_plugin.cpp",
+        "./src/hidden_settings_menu_plugin.cpp",
       ]
     }
 

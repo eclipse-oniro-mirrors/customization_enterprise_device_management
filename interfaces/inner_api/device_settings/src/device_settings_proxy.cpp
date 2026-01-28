@@ -337,5 +337,65 @@ int32_t DeviceSettingsProxy::GetFloatingNavigationForAccount(const AppExecFwk::E
     value = reply.ReadString();
     return ERR_OK;
 }
+
+int32_t DeviceSettingsProxy::GetHiddenSettingsMenu(
+    const AppExecFwk::ElementName &admin, int32_t &userId, std::vector<int32_t> &hiddenSettingsMenu)
+{
+    EDMLOGD("DeviceSettingsProxy::GetHiddenSettingsMenu");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::HIDDEN_SETTINGS_MENU, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetHiddenSettingsMenu GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadInt32Vector(&hiddenSettingsMenu);
+    if (hiddenSettingsMenu.empty()) {
+        return ERR_OK;
+    }
+    return ERR_OK;
+}
+
+int32_t DeviceSettingsProxy::AddHiddenSettingsMenu(
+    const AppExecFwk::ElementName &admin, int32_t &userId, std::vector<int32_t> &hiddenSettingsMenu)
+{
+    EDMLOGD("DeviceSettingsProxy::AddHiddenSettingsMenu");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32Vector(hiddenSettingsMenu);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+}
+
+int32_t DeviceSettingsProxy::RemoveHiddenSettingsMenu(
+    const AppExecFwk::ElementName &admin, int32_t &userId, std::vector<int32_t> &hiddenSettingsMenu)
+{
+    EDMLOGD("DeviceSettingsProxy::RemoveHiddenSettingsMenu");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32Vector(hiddenSettingsMenu);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+}
 } // namespace EDM
 } // namespace OHOS
