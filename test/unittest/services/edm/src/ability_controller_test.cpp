@@ -36,9 +36,6 @@ const std::string APP_SERVICE_EXTENSION_NAME = "com.edm.test.AppServiceExtension
 const std::string NOT_EXIST_ABILITY_NAME = "com.edm.test.NotExistAbility";
 const std::string TEST_PERMISSION = "ohos.permission.test";
 class AbilityControllerTest : public testing::Test {
-public:
-    void SetUp() override;
-    void TearDown() override;
 };
 
 /**

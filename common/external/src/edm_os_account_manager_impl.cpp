@@ -52,10 +52,10 @@ int32_t EdmOsAccountManagerImpl::GetCurrentUserId()
     std::vector<int32_t> ids;
     ErrCode ret = QueryActiveOsAccountIds(ids);
     if (FAILED(ret) || ids.empty()) {
-        EDMLOGE("EnterpriseDeviceMgrAbility GetCurrentUserId failed");
+        EDMLOGE("EdmOsAccountManagerImpl GetCurrentUserId failed");
         return -1;
     }
-    EDMLOGD("EnterpriseDeviceMgrAbility GetCurrentUserId");
+    EDMLOGD("EdmOsAccountManagerImpl GetCurrentUserId");
     return (ids.at(0));
 }
 } // namespace EDM

@@ -21,6 +21,7 @@
 #include <unordered_map>
 
 #include "admin.h"
+#include "admin_observer.h"
 #include "admin_policies_storage_rdb.h"
 #include "ent_info.h"
 #include "iadmin_manager.h"
@@ -56,6 +57,8 @@ public:
     ErrCode GetAllowedAcrossAccountSetPolicyAdmin(const std::string &subAdminName,
         std::shared_ptr<Admin> &subOrSuperOrByodAdmin);
     void GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
+    std::vector<std::string> GetDisallowedCrossAccountAdmins(int userId);
+    void Register(std::shared_ptr<IAdminObserver> observer);
     void GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
     ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const AdminInfo &newAdminInfo);
@@ -74,6 +77,7 @@ private:
 
     static std::once_flag flag_;
     static std::shared_ptr<AdminManager> instance_;
+    std::vector<std::shared_ptr<IAdminObserver>> adminObservers_;
 };
 } // namespace EDM
 } // namespace OHOS
