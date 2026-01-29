@@ -40,6 +40,7 @@ bool UpdatePolicySerializer::GetPolicy(MessageParcel &data, UpdatePolicy &result
 
 bool UpdatePolicySerializer::WritePolicy(MessageParcel &reply, UpdatePolicy &result)
 {
+    UpdatePolicyUtils::WriteUpdatePolicy(reply, result);
     return true;
 }
 
