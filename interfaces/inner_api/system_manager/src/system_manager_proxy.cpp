@@ -313,7 +313,6 @@ int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementN
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteBool(isDisabled);
     data.WriteString(credential);
