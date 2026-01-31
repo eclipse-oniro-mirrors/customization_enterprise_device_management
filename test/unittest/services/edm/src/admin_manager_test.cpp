@@ -676,6 +676,48 @@ HWTEST_F(AdminManagerTest, TestGetAdminTypeByName, TestSize.Level1)
     adminType = IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, DEFAULT_USER_ID);
     EXPECT_EQ(adminType, AdminType::NORMAL);
 }
+
+/**
+ * @tc.name: TestGetDisallowedCrossAccountAdmins
+ * @tc.desc: Test AdminManager::TestGetDisallowedCrossAccountAdmins.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetDisallowedCrossAccountAdmins, TestSize.Level1)
+{
+    ErrCode res;
+    std::string byodBundleName = "com.edm.test.byod";
+    AdminInfo sda = {.packageName_ = "com.edm.test.sda", .className_ = "testDemo", .adminType_ = AdminType::ENT};
+    AdminInfo da = {.packageName_ = "com.edm.test.da", .className_ = "testDemo", .adminType_ = AdminType::NORMAL};
+    AdminInfo subSda = {.packageName_ = "com.edm.test.subSda", .className_ = "testDemo",
+        .adminType_ = AdminType::SUB_SUPER_ADMIN};
+    AdminInfo va = {.packageName_ = "com.edm.test.va", .className_ = "testDemo",
+        .adminType_ = AdminType::VIRTUAL_ADMIN};
+    AdminInfo byod = {.packageName_ = byodBundleName, .className_ = "testDemo", .adminType_ = AdminType::BYOD};
+    
+    // 设置数据
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, sda);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, da);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, subSda);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, va);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, byod);
+    ASSERT_TRUE(res == ERR_OK);
+
+    // 查询数据
+    std::vector<std::string> bundleNames;
+    bundleNames = adminMgr_->GetDisallowedCrossAccountAdmins(DEFAULT_USER_ID);
+    ASSERT_TRUE(bundleNames.size() == 1);
+
+    // 删除数据
+    res = adminMgr_->DeleteAdmin(byodBundleName, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+    
+    bundleNames= adminMgr_->GetDisallowedCrossAccountAdmins(DEFAULT_USER_ID);
+    ASSERT_TRUE(bundleNames.size() == 0);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -22,6 +22,7 @@
 
 #include "ability_controller.h"
 #include "ability_controller_factory.h"
+#include "admin_observer.h"
 #include "application_state_observer.h"
 #include "bundle_info.h"
 #include "clipboard_policy.h"
@@ -39,6 +40,7 @@
 #include "parameters.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
+#include "system_service_start_handler.h"
 #include "application_instance.h"
 #include "array_string_serializer.h"
 #include "admin_action.h"
@@ -473,6 +475,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
     addSystemAbilityFuncMap_[COMM_NET_POLICY_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLED_NETWORK_INTERFACE);
+            SystemServiceStartHandler::GetInstance()->OnNetPolicyManagerStart();
         };
 #endif
 #ifdef USB_SERVICE_EDM_ENABLE
@@ -589,6 +592,11 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEv
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
 {
+    int32_t oldUserId = -1;
+    std::string oldId = data.GetWant().GetStringParam("oldId");
+    if (oldId.empty() || !OHOS::StrToInt(oldId, oldUserId)) {
+        EDMLOGE("get old user id failed.");
+    }
     int userIdToSwitch = data.GetCode();
     if (userIdToSwitch < 0) {
         EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserSwitched error");
@@ -618,6 +626,15 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
     CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
+    UpdateNetworkAccessPolicy(oldUserId, userIdToSwitch);
+}
+
+void EnterpriseDeviceMgrAbility::UpdateNetworkAccessPolicy(int oldId, int newId)
+{
+    std::vector<std::string> oldbundleNames = AdminManager::GetInstance()->GetDisallowedCrossAccountAdmins(oldId);
+    std::vector<std::string> newbundleNames = AdminManager::GetInstance()->GetDisallowedCrossAccountAdmins(newId);
+    SystemServiceStartHandler::GetInstance()->RemoveNetworkAccessPolicy(oldbundleNames);
+    SystemServiceStartHandler::GetInstance()->AddNetworkAccessPolicy(newbundleNames);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::CommonEventData &data)
@@ -1079,6 +1096,8 @@ void EnterpriseDeviceMgrAbility::OnStart()
         AddOnAddSystemAbilityFuncMap();
         AddSystemAbilityListeners();
         CheckAndUpdateByodSettingsData();
+        std::shared_ptr<IAdminObserver> observer = std::make_shared<AdminObserver>();
+        AdminManager::GetInstance()->Register(observer);
     }
     InitAgTask();
 }

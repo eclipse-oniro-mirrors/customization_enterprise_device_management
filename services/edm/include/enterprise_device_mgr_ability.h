@@ -37,7 +37,8 @@
 
 namespace OHOS {
 namespace EDM {
-class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDeviceMgrStub {
+class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDeviceMgrStub,
+    public std::enable_shared_from_this<EnterpriseDeviceMgrAbility> {
     DECLARE_SYSTEM_ABILITY(EnterpriseDeviceMgrAbility);
 
 public:
@@ -198,6 +199,7 @@ private:
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
+    void UpdateNetworkAccessPolicy(int oldId, int newId);
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
     ErrCode DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType);
