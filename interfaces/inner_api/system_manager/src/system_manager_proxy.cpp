@@ -312,11 +312,10 @@ int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementN
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteBool(isDisabled);
     data.WriteString(credential);
-    EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLED_ACTIVATION_LOCK);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);

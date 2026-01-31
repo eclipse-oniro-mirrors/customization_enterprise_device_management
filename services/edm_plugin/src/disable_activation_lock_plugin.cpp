@@ -42,11 +42,6 @@ ErrCode DisableActivationLockPlugin::OnHandlePolicy(std::uint32_t funcCode, Mess
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-ErrCode DisableActivationLockPlugin::OnSetPolicy(MessageParcel &data, MessageParcel &reply)
-{
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-}
-
 ErrCode DisableActivationLockPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
