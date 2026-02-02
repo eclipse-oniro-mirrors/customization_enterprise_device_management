@@ -22,22 +22,10 @@
 #include "message_parcel.h"
 
 #include "edm_constants.h"
+#include "update_policy_info.h"
 
 namespace OHOS {
 namespace EDM {
-enum class UpdatePolicyType {
-    DEFAULT = 0,
-    PROHIBIT,
-    UPDATE_TO_SPECIFIC_VERSION,
-    WINDOWS,
-    POSTPONE
-};
-
-enum class PackageType {
-    UNKNOWN = 0,
-    FIRMWARE = 1
-};
-
 enum class UpgradeStatus {
     NO_UPGRADE_PACKAGE = -4,
     UPGRADE_WAITING = -3,
@@ -49,49 +37,6 @@ enum class UpgradeStatus {
 enum class GetUpdateInfo {
     UPDATE_RESULT = 0,
     UPDATE_AUTH_DATA = 1
-};
-
-enum class OtaPolicyType {
-    DEFAULT = -1, // 默认值，不处理
-    ENABLE_OTA = 0, // 允许OTA
-    DISABLE_OTA = 1 // 不允许OTA
-};
-
-struct UpdateTime {
-    int64_t latestUpdateTime = 0;
-    int64_t delayUpdateTime = 0;
-    int64_t installWindowStart = 0;
-    int64_t installWindowEnd = 0;
-};
-
-struct UpdatePolicy {
-    UpdatePolicyType type = UpdatePolicyType::DEFAULT;
-    std::string version;
-    UpdateTime installTime;
-    OtaPolicyType otaPolicyType = OtaPolicyType::DEFAULT;
-};
-
-struct Package {
-    std::string path;
-    PackageType type = PackageType::UNKNOWN;
-    int32_t fd = -1;
-};
-
-struct NotifyDescription {
-    std::string installTips;
-    std::string installTipsDetail;
-};
-
-struct PackageDescription {
-    NotifyDescription notify;
-};
-
-struct UpgradePackageInfo {
-    std::string version;
-    std::vector<Package> packages;
-    PackageDescription description;
-    char authInfo[EdmConstants::AUTH_INFO_MAX_SIZE] = {0};
-    uint32_t authInfoSize = 0;
 };
 
 struct UpgradeResult {
