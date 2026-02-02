@@ -22,6 +22,7 @@
 #include "edm_errors.h"
 #include "func_code.h"
 #include "handle_policy_data.h"
+#include "iexternal_module_adapter.h"
 #include "iplugin_execute_strategy.h"
 #include "message_parcel.h"
 
@@ -130,6 +131,16 @@ public:
     {
         this->pluginUnloadFlag_ = flag;
     }
+
+    void SetExternalModuleAdapter(std::shared_ptr<IExternalModuleAdapter> externalModuleAdapter)
+    {
+        this->externalModuleAdapter_ = externalModuleAdapter;
+    }
+
+    std::shared_ptr<IExternalModuleAdapter> GetExternalModuleAdapter()
+    {
+        return this->externalModuleAdapter_;
+    }
     virtual ~IPlugin();
 
 protected:
@@ -140,6 +151,7 @@ protected:
     std::map<FuncOperateType, PolicyPermissionConfig> permissionMap_;
     std::shared_ptr<IPlugin> extensionPlugin_ = nullptr;
     std::shared_ptr<IPluginExecuteStrategy> strategy_ = std::make_shared<IPluginExecuteStrategy>();
+    std::shared_ptr<IExternalModuleAdapter> externalModuleAdapter_ = std::make_shared<IExternalModuleAdapter>();
     bool needSave_ = true;
     bool isGlobal_ = true;
     IPlugin::PluginType type_ = PluginType::BASIC;

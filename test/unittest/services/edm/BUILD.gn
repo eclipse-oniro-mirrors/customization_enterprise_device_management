@@ -377,6 +377,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/replace_execute_strategy_test.cpp",
     "./src/single_execute_strategy_test.cpp",
     "./src/system_service_start_handler_test.cpp",
+    "./src/update_policy_conflict_test.cpp",
     "./src/user_policy_manager_test.cpp",
   ]
 
