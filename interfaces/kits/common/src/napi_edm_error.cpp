@@ -56,6 +56,10 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::START_ABILITY_FAILED, "Failed to start the ability. $"},
     {EdmReturnErrCode::FAULTLOG_COLLECT_FAILED, "Logs are being collected."},
     {EdmReturnErrCode::ABILITY_NOT_EXIST, "The ability does not exist."},
+    {EdmReturnErrCode::EXECUTE_TIME_OUT, "Execution time out."},
+    {EdmReturnErrCode::INVALID_ACTIVATION_LOCK_CREDENTIALS, "Invalid activation lock credentials."},
+    {EdmReturnErrCode::ENABLE_ACTIVATION_LOCK_FAILED, "Failed to set the activation lock status."},
+
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)
