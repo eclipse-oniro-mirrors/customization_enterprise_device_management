@@ -644,6 +644,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+#if defined(FEATURE_PC_ONLY)
 /**
  * @tc.name: TestSetActivationLockDisabledSuc
  * @tc.desc: Test SetActivationLockDisabled func.
@@ -711,6 +712,7 @@ HWTEST_F(SystemManagerProxyTest, TestIsActivationLockDisabledFail, TestSize.Leve
     int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
