@@ -643,6 +643,74 @@ HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysFail, TestSize.Level1)
     int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetActivationLockDisabledSuc
+ * @tc.desc: Test SetActivationLockDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetActivationLockDisabledSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisabled = true;
+    std::string credential = "test_credential";
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    
+    int32_t ret = systemmanagerProxy->SetActivationLockDisabled(admin, isDisabled, credential);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+ 
+/**
+ * @tc.name: TestSetActivationLockDisabledFail
+ * @tc.desc: Test SetActivationLockDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetActivationLockDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisabled = true;
+    std::string credential = "test_credential";
+    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, isDisabled, credential);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsActivationLockDisabledSuc
+ * @tc.desc: Test IsActivationLockDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestIsActivationLockDisabledSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    bool isDisabled;
+    int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsActivationLockDisabledFail
+ * @tc.desc: Test IsActivationLockDisabled func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestIsActivationLockDisabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisabled;
+    int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
