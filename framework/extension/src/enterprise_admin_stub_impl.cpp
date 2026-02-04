@@ -78,6 +78,16 @@ void EnterpriseAdminStubImpl::OnBundleRemoved(const std::string &bundleName, int
     }
 }
 
+void EnterpriseAdminStubImpl::OnBundleUpdated(const std::string &bundleName, int32_t accountId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
+    auto extension = extension_.lock();
+    if (extension != nullptr) {
+        extension->OnBundleUpdated(bundleName, accountId);
+        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    }
+}
+
 void EnterpriseAdminStubImpl::OnAppStart(const std::string &bundleName)
 {
     EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);

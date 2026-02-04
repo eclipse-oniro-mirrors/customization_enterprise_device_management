@@ -156,6 +156,29 @@ HWTEST_F(EnterpriseBundleConnectionTest, TestOnAbilityConnectDone05, TestSize.Le
     EXPECT_TRUE(remoteObject->code_ == ERR_OK);
 }
 
+/**
+ * @tc.name: TestOnAbilityConnectDone06
+ * @tc.desc: Test EnterpriseBundleConnection::OnAbilityConnectDone func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseBundleConnectionTest, TestOnAbilityConnectDone06, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    AAFwk::Want connectWant;
+    connectWant.SetElementName("com.edm.test.demo", "com.edm.test.demo.Ability");
+    int32_t resultCode = 0;
+    enterpriseBundleConnectionTest =
+        std::make_shared<EnterpriseBundleConnection>(connectWant, static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED),
+        DEFAULT_USER_ID, "com.edm.test.update", DEFAULT_USER_ID);
+    EXPECT_CALL(*remoteObject, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(remoteObject.GetRefPtr(), &EnterpriseAdminStubMock::InvokeSendRequest));
+    enterpriseBundleConnectionTest->OnAbilityConnectDone(admin, remoteObject, resultCode);
+    enterpriseBundleConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
+    EXPECT_TRUE(remoteObject->code_ == IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

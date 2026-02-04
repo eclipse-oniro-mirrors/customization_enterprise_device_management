@@ -106,6 +106,9 @@ int32_t EnterpriseAdminStub::CallFuncByCodeFirst(uint32_t code, MessageParcel& d
         case COMMAND_ON_DEVICE_BOOT_COMPLETED:
             OnDeviceBootCompletedInner(data, reply);
             return ERR_NONE;
+        case COMMAND_ON_BUNDLE_UPDATED:
+            OnBundleUpdatedInner(data, reply);
+            return ERR_NONE;
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -137,6 +140,14 @@ void EnterpriseAdminStub::OnBundleRemovedInner(MessageParcel& data, MessageParce
     std::string bundleName = data.ReadString();
     int32_t accountId = data.ReadInt32();
     OnBundleRemoved(bundleName, accountId);
+}
+
+void EnterpriseAdminStub::OnBundleUpdatedInner(MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnBundleUpdatedInner");
+    std::string bundleName = data.ReadString();
+    int32_t accountId = data.ReadInt32();
+    OnBundleUpdated(bundleName, accountId);
 }
 
 void EnterpriseAdminStub::OnAppStartInner(MessageParcel& data, MessageParcel& reply)

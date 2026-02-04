@@ -295,6 +295,25 @@ void JsEnterpriseAdminExtension::OnBundleRemoved(const std::string &bundleName, 
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnBundleUpdated(const std::string &bundleName, int32_t accountId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnBundleUpdated");
+    auto task = [bundleName, accountId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            EDMLOGE("OnBundleUpdated scope is nullptr");
+            return;
+        }
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
+            AbilityRuntime::CreateJsValue(env, accountId) };
+        CallObjectMethod("onBundleUpdated", argv, JS_NAPI_ARGC_TWO);
+        napi_close_handle_scope(env, scope);
+    };
+    handler_->PostTask(task);
+}
+
 void JsEnterpriseAdminExtension::OnAppStart(const std::string &bundleName)
 {
     EDMLOGI("JsEnterpriseAdminExtension::OnAppStart");

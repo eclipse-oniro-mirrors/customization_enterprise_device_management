@@ -39,6 +39,9 @@ void EnterpriseBundleConnection::OnAbilityConnectDone(
         case static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED):
             proxy_->OnBundleRemoved(bundleName_, accountId_);
             break;
+        case static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED):
+            proxy_->OnBundleUpdated(bundleName_, accountId_);
+            break;
         case static_cast<uint32_t>(ManagedEvent::APP_START):
             proxy_->OnAppStart(bundleName_);
             break;

@@ -52,6 +52,8 @@ private:
 
     void OnBundleRemovedInner(MessageParcel& data, MessageParcel& reply);
 
+    void OnBundleUpdatedInner(MessageParcel& data, MessageParcel& reply);
+
     void OnAppStartInner(MessageParcel& data, MessageParcel& reply);
 
     void OnAppStopInner(MessageParcel& data, MessageParcel& reply);
