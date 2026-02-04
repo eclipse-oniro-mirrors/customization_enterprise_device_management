@@ -1126,6 +1126,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
 void EnterpriseDeviceMgrAbility::OnDistributedKvDataServiceStart()
 {
     EDMLOGI("OnDistributedKvDataServiceStart");
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (isNeedRemoveSettigsMenu_ && !AdminManager::GetInstance()->IsAdminExist()) {
         system::SetParameter(PARAM_EDM_ENABLE, "false");
         NotifyAdminEnabled(false);
