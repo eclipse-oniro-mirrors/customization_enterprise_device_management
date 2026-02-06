@@ -16,6 +16,7 @@
 #include "system_service_start_handler.h"
 
 #include "admin_manager.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "external_manager_factory.h"
 #include "net_policy_client.h"
@@ -53,6 +54,9 @@ bool SystemServiceStartHandler::OnNetPolicyManagerStart()
     // 查询出所有激活的admin的包名
     std::vector<std::shared_ptr<Admin>> admins;
     int32_t userId = std::make_shared<EdmOsAccountManagerImpl>()->GetCurrentUserId();
+    if (userId == -1) {
+        userId = EdmConstants::DEFAULT_USER_ID;
+    }
     AdminManager::GetInstance()->GetAdminByUserId(userId, admins);
     std::vector<std::string> bundleNames;
     for (auto const &admin : admins) {
