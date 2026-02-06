@@ -434,6 +434,7 @@ namespace PolicyName {
     const char* const POLICY_SET_NETWORK_INTERFACE_CONFIG = "set_network_interface_config";
     const char* const POLICY_DISALLOW_MODIFY_WALLPAPER = "disallow_modify_wallpaper";
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
+    const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
