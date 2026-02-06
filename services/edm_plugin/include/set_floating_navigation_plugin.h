@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 class SetFloatingNavigationPlugin : public PluginSingleton<SetFloatingNavigationPlugin, std::string> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDeviceNamePlugin, std::string>> ptr) override;
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetFloatingNavigationPlugin, std::string>> ptr) override;
     ErrCode OnSetPolicy(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId);
     ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };

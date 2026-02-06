@@ -57,7 +57,7 @@ ErrCode SetFloatingNavigationPlugin::OnSetPolicy(std::string &data, std::string 
     }
         
     std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
-    code = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_MODE, data);
+    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_MODE, data);
     if (FAILED(code)) {
         EDMLOGE("SetFloatingNavigationPlugin::set eyecomfort failed : %{public}d.", code);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -71,7 +71,7 @@ ErrCode SetFloatingNavigationPlugin::OnGetPolicy(std::string &value, MessageParc
     EDMLOGD("SetFloatingNavigationPlugin OnGetPolicy");
     std::string result;
     std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
-    code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(uri, KEY_EYE_COMFORT_MODE, result);
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(uri, KEY_EYE_COMFORT_MODE, result);
     if (code != ERR_OK) {
         EDMLOGE("SetFloatingNavigationPlugin::get data from database failed : %{public}d.", code);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
