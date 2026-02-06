@@ -21,6 +21,8 @@ namespace EDM {
 enum class KioskFeature {
     ALLOW_NOTIFICATION_CENTER = 1,
     ALLOW_CONTROL_CENTER = 2,
+    ALLOW_GESTURE_CONTROL = 3,
+    ALLOW_SIDE_DOCK = 4,
 };
 } // namespace EDM
 } // namespace OHOS

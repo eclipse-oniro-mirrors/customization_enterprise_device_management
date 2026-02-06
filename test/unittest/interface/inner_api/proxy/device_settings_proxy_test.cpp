@@ -491,6 +491,74 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetDeviceNameForAccountFail, TestSize.Leve
     int32_t ret = deviceSettingsProxy->GetValueForAccount(admin, id, value);
     EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetFloatingNavigationForAccountSuc
+ * @tc.desc: Test SetFloatingNavigationForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetFloatingNavigationForAccountSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t id = 100;
+    std::string mode = "0";
+    int32_t ret = deviceSettingsProxy->SetFloatingNavigationForAccount(admin, id, mode);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetFloatingNavigationForAccountFail
+ * @tc.desc: Test SetFloatingNavigationForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetFloatingNavigationForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t id = 100;
+    std::string mode = "0";
+    int32_t ret = deviceSettingsProxy->SetFloatingNavigationForAccount(admin, id, mode);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetFloatingNavigationForAccountSuc
+ * @tc.desc: Test GetFloatingNavigationForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetFloatingNavigationForAccountSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    int32_t id = 100;
+    std::string value;
+    int32_t ret = deviceSettingsProxy->GetFloatingNavigationForAccount(admin, id, value);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetFloatingNavigationForAccountFail
+ * @tc.desc: Test GetFloatingNavigationForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetFloatingNavigationForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t id = -1;
+    std::string value;
+    int32_t ret = deviceSettingsProxy->GetFloatingNavigationForAccount(admin, id, mode);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -84,6 +84,10 @@ HWTEST_F(KioskFeaturePluginTest, TestOnSetPolicyInputNull, TestSize.Level1)
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER, false));
     ASSERT_FALSE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER,
         false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK,
+        false));
 }
 
 /**
@@ -108,6 +112,27 @@ HWTEST_F(KioskFeaturePluginTest, TestOnSetPolicyAllowNotifyCenter, TestSize.Leve
 }
 
 /**
+ * @tc.name: TestOnSetPolicyAllowThreeButtonNavigationAndSideDock.
+ * @tc.desc: Test TestOnSetPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(KioskFeaturePluginTest, TestOnSetPolicyAllowThreeButtonNavigationAndSideDock, TestSize.Level1)
+{
+    std::shared_ptr<KioskFeaturePlugin> plugin = std::make_shared<KioskFeaturePlugin>();
+    std::vector<int32_t> data;
+    data.push_back(static_cast<int32_t>(KioskFeature::ALLOW_GESTURE_CONTROL));
+    data.push_back(static_cast<int32_t>(KioskFeature::ALLOW_SIDE_DOCK));
+    std::vector<int32_t> currentData;
+    std::vector<int32_t> mergeData;
+    ErrCode errCode = plugin->OnSetPolicy(data, currentData, mergeData, EdmConstants::DEFAULT_USER_ID);
+    EXPECT_TRUE(errCode == ERR_OK);
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, false));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, false));
+}
+
+/**
  * @tc.name: TestSetDefaultKioskFeaturesTrue
  * @tc.desc: Test SetDefaultKioskFeatures function.
  * @tc.type: FUNC
@@ -120,6 +145,10 @@ HWTEST_F(KioskFeaturePluginTest, TestSetDefaultKioskFeaturesTrue, TestSize.Level
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER, false));
     ASSERT_TRUE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER,
         false));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL,
+        false));
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(EdmConstants::ApplicationManager::
+        PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, false));
 }
 
 /**
@@ -135,6 +164,10 @@ HWTEST_F(KioskFeaturePluginTest, TestSetDefaultKioskFeaturesFalse, TestSize.Leve
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER, false));
     ASSERT_FALSE(OHOS::system::GetBoolParameter(
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, false));
 }
 
 /**
@@ -155,6 +188,14 @@ HWTEST_F(KioskFeaturePluginTest, TestSetSpecifiedKioskFeaturesNormal, TestSize.L
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, false));
     ErrCode retInvalidCode = plugin->SetSpecifiedKioskFeatures(100);
     EXPECT_TRUE(retInvalidCode == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ErrCode retThree = plugin->SetSpecifiedKioskFeatures(static_cast<int32_t>(KioskFeature::ALLOW_GESTURE_CONTROL));
+    EXPECT_TRUE(retThree == ERR_OK);
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, false));
+    ErrCode retFour = plugin->SetSpecifiedKioskFeatures(static_cast<int32_t>(KioskFeature::ALLOW_SIDE_DOCK));
+    EXPECT_TRUE(retFour == ERR_OK);
+    ASSERT_TRUE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, false));
 }
 
 /**
@@ -173,6 +214,10 @@ HWTEST_F(KioskFeaturePluginTest, TestOnAdminRemove, TestSize.Level1)
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER, false));
     ASSERT_FALSE(OHOS::system::GetBoolParameter(
         EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, false));
+    ASSERT_FALSE(OHOS::system::GetBoolParameter(
+        EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, false));
 }
 
 } // namespace TEST
