@@ -487,7 +487,7 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
         ret = proxy->GetValueForAccount(elementName, accountId, stringRet, EdmConstants::PERMISSION_TAG_VERSION_23);
     } else if (item == EdmConstants::DeviceSettings::FLOATING_NAVIGATION) {
- 	    ret = proxy->GetFloatingNavigation(elementName, accountId, stringRet);
+        ret = proxy->GetFloatingNavigation(elementName, accountId, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
