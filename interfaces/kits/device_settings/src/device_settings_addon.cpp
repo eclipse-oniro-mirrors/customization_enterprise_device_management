@@ -35,6 +35,10 @@ void DeviceSettingsAddon::CreateSettingsItemObject(napi_env env, napi_value valu
     napi_value nDeviceName;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeviceName));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeviceName));
+
+    napi_value nFloatingNavigation;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::FLOATING_NAVIGATION), &nFloatingNavigation));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FLOATING_NAVIGATION", nFloatingNavigation));
 }
 
 void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
