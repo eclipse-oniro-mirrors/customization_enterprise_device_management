@@ -556,7 +556,7 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetFloatingNavigationForAccountFail, TestS
     admin.SetBundleName(ADMIN_PACKAGENAME);
     int32_t id = -1;
     std::string value;
-    int32_t ret = deviceSettingsProxy->GetFloatingNavigationForAccount(admin, id, mode);
+    int32_t ret = deviceSettingsProxy->GetFloatingNavigationForAccount(admin, id, value);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
