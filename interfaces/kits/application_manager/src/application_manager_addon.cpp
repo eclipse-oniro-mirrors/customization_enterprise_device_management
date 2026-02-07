@@ -927,7 +927,7 @@ void ApplicationManagerAddon::CreateKioskFeatureObject(napi_env env, napi_value 
 
     napi_value nAllowGestureControl;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(KioskFeature::ALLOW_GESTURE_CONTROL), nAllowGestureControl));
+        static_cast<uint32_t>(KioskFeature::ALLOW_GESTURE_CONTROL), &nAllowGestureControl));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_GESTURE_CONTROL", nAllowGestureControl));
 
     napi_value nAllowSideDock;
