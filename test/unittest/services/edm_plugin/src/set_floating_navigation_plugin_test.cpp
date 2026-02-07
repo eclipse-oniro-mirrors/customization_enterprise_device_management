@@ -87,7 +87,7 @@ HWTEST_F(SetFloatingNavigationPluginTest, TestOnGetPolicy_001, TestSize.Level1)
     MessageParcel reply;
 
     EdmDataAbilityUtils::SetResult("test success");
-    code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
+    ErrCode code = plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
 }
 
