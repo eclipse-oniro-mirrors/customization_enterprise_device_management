@@ -81,6 +81,8 @@ namespace EdmConstants {
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
+        const char* const PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL = "persist.edm.kiosk.allow_gesture_control";
+        const char* const PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK = "persist.edm.kiosk.allow_side_dock";
     }
 
     namespace Browser {
@@ -104,6 +106,8 @@ namespace EdmConstants {
         constexpr int32_t SIM_SLOT_ID_1 = 1;
         constexpr int32_t EYE_COMFORT_ON = 1;
         constexpr int32_t EYE_COMFORT_OFF = 0;
+        constexpr int32_t FLOATING_NAVIGATION_ON = 0;
+        constexpr int32_t FLOATING_NAVIGATION_OFF = 1;
     } // namespace DeviceInfo
 
     namespace PolicyCode {
@@ -205,6 +209,7 @@ namespace EdmConstants {
         const char* const EYE_COMFORT = "eyeComfort";
         const char* const DEFAULT_INPUT_METHOD = "defaultInputMethod";
         const char* const DEVICE_NAME = "deviceName";
+        const char* const FLOATING_NAVIGATION = "floatingNavigation";
     } // namespace DeviceSettings
 
     namespace DeviceControl {
@@ -429,6 +434,7 @@ namespace PolicyName {
     const char* const POLICY_SET_NETWORK_INTERFACE_CONFIG = "set_network_interface_config";
     const char* const POLICY_DISALLOW_MODIFY_WALLPAPER = "disallow_modify_wallpaper";
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
+    const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

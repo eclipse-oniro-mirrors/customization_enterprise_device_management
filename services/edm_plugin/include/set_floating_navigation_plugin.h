@@ -13,17 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_KIOSK_FEATURE_H
-#define INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_KIOSK_FEATURE_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_FLOATING_NAVIGATION_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_SET_FLOATING_NAVIGATION_PLUGIN_H
+
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-enum class KioskFeature {
-    ALLOW_NOTIFICATION_CENTER = 1,
-    ALLOW_CONTROL_CENTER = 2,
-    ALLOW_GESTURE_CONTROL = 3,
-    ALLOW_SIDE_DOCK = 4,
+class SetFloatingNavigationPlugin : public PluginSingleton<SetFloatingNavigationPlugin, std::string> {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetFloatingNavigationPlugin, std::string>> ptr) override;
+    ErrCode OnSetPolicy(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId);
+    ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_KIOSK_FEATURE_H
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_FLOATING_NAVIGATION_PLUGIN_H
