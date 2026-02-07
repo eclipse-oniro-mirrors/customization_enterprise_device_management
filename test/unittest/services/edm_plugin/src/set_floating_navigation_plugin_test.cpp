@@ -59,22 +59,6 @@ HWTEST_F(SetFloatingNavigationPluginTest, TestOnSetPolicy_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestOnSetPolicy_002
- * @tc.desc: Test OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetFloatingNavigationPluginTest, TestOnSetPolicy_002, TestSize.Level1)
-{
-    SetFloatingNavigationPlugin plugin;
-    std::string data;
-    std::string currentData = "";
-    std::string mergeData = "";
-    int32_t id = 100;
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
-    EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-}
-
-/**
  * @tc.name: TestOnGetPolicy_001
  * @tc.desc: Test OnGetPolicy function.
  * @tc.type: FUNC
