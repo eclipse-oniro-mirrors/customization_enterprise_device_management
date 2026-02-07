@@ -66,7 +66,7 @@ HWTEST_F(SetFloatingNavigationPluginTest, TestOnSetPolicy_001, TestSize.Level1)
 HWTEST_F(SetFloatingNavigationPluginTest, TestOnSetPolicy_002, TestSize.Level1)
 {
     SetFloatingNavigationPlugin plugin;
-    std::string data = "0";
+    std::string data;
     std::string currentData = "";
     std::string mergeData = "";
     int32_t id = 100;
