@@ -29,7 +29,6 @@
 using namespace OHOS::EDM;
 
 constexpr int64_t MAX_VALIDITY_PERIOD = 31536000000000; // 60 * 60 * 24 * 365 * 1000 * 1000
-constexpr int32_t MAX_WATERMARK_IMAGE_SIZE = 512000; // 500 * 1024
 static const std::string VALIDITY_PERIOD_OUT_OF_RANGE_ERROR = "validityPeriod out of range!";
 
 napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
@@ -743,7 +742,7 @@ napi_value SecurityManagerAddon::CheckBuildWatermarkParam(napi_env env, napi_val
         pixelMap = Decode(url);
     }
     ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr &&
-        pixelMap->GetByteCount() <= MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
+        pixelMap->GetByteCount() <= EdmConstants::MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, paramPtr->accountId, argv[ARR_INDEX_THREE]),
         "Parameter accountId error");
     if (!GetPixelMapData(pixelMap, paramPtr)) {
