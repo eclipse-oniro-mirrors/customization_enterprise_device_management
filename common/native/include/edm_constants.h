@@ -53,6 +53,7 @@ namespace EdmConstants {
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
     constexpr size_t MAX_PARCEL_CAPACITY_OF_ASHMEM = 1024 * 1024 * 1024; // max allow 1 GB resource size
     constexpr size_t MAX_IPC_RAWDATA_SIZE = 120 * 1024 * 1024; // max ipc size 120MB
+    constexpr int32_t MAX_WATERMARK_IMAGE_SIZE = 512000; // 500 * 1024
 
     const char* const PERMISSION_TAG_VERSION_11 = "version_11";
     const char* const PERMISSION_TAG_VERSION_12 = "version_12";
