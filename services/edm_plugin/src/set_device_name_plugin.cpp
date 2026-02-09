@@ -29,7 +29,7 @@ const std::string KEY_DISPLAY_DEVICE_NAME = "settings.general.display_device_nam
 const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_";
 const std::string SETTINGS_DATA_PREFIX = "?Proxy=true";
-const int32_t DEVICE_NAME_MAX_LENGTH = 30;
+const int32_t DEVICE_NAME_MAX_LENGTH = 100;
 
 
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDeviceNamePlugin::GetPlugin());

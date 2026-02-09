@@ -24,7 +24,7 @@ class AppServiceExtensionController : public AbilityController {
 public:
     AppServiceExtensionController(const EdmAbilityInfo &abilityInfo):  AbilityController(abilityInfo) {}
 
-    ErrCode StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token, int32_t userId) override;
+    ErrCode StartAbilityByAdmin(const AAFwk::Want &want, int32_t userId) override;
 
     bool VerifyPermission(const std::string &callerName) override;
 };

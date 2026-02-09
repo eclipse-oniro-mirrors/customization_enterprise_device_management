@@ -116,6 +116,16 @@ public:
      */
     virtual void OnKeyEvent(const std::string &event) = 0;
 
+    /**
+     * Called back when oobe is finished.
+     */
+    virtual void OnStartupGuideCompleted(int32_t type) = 0;
+
+    /**
+     * Called back when teh device is power on.
+     */
+    virtual void OnDeviceBootCompleted() = 0;
+
     enum {
         COMMAND_ON_ADMIN_ENABLED = 1,
         COMMAND_ON_ADMIN_DISABLED = 2,
@@ -133,7 +143,9 @@ public:
         COMMAND_ON_DEVICE_ADMIN_ENABLED = 14,
         COMMAND_ON_DEVICE_ADMIN_DISABLED = 15,
         COMMAND_ON_LOG_COLLECTED = 16,
-        COMMAND_ON_KEY_EVENT = 17
+        COMMAND_ON_KEY_EVENT = 17,
+        COMMAND_ON_STARTUP_GUIDE_COMPLETED = 18,
+        COMMAND_ON_DEVICE_BOOT_COMPLETED = 19
     };
 };
 } // namespace EDM

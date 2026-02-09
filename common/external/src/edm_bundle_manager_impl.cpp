@@ -237,5 +237,21 @@ ErrCode EdmBundleManagerImpl::IsSystemApp(const std::string &bundleName, int use
     isSystemApp = appInfo.isSystemApp;
     return ERR_OK;
 }
+
+bool EdmBundleManagerImpl::SetApplicationDisableForbidden(const std::string &bundleName,
+    int32_t userId, int32_t appIndex, bool forbidden)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::SetApplicationDisableForbidden failed.");
+        return false;
+    }
+    if (FAILED(proxy->SetApplicationDisableForbidden(bundleName, userId, appIndex, forbidden))) {
+        EDMLOGE("EdmBundleManagerImpl::%{public}s SetApplicationDisableForbidden fail.", bundleName.c_str());
+        return false;
+    }
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

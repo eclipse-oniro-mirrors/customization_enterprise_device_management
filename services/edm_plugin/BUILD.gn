@@ -106,6 +106,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
       "./src/set_allowed_kiosk_apps_plugin.cpp",
+      "./src/set_floating_navigation_plugin.cpp",
       "./src/install_enterprise_re_signature_certificate_plugin.cpp",
     ]
 
@@ -456,6 +457,8 @@ ohos_shared_library("sys_service_plugin") {
 
   defines = []
 
+  use_exceptions = true
+
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
     print("defines _ARM64_")
@@ -594,8 +597,6 @@ ohos_shared_library("need_extra_plugin") {
   sources = [
     "./src/utils/operate_device_param_serializer.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
-    "./src/utils/update_policy_serializer.cpp",
-    "./src/utils/upgrade_package_info_serializer.cpp",
   ]
   public_configs = [
     ":edm_plugin_config",

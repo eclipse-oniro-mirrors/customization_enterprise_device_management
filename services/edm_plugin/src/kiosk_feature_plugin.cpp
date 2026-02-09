@@ -64,6 +64,8 @@ void KioskFeaturePlugin::SetDefaultKioskFeatures(bool isDisallow)
     std::string value = isDisallow ? "true" : "false";
     system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER, value);
     system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, value);
+    system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, value);
+    system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, value);
 }
 
 ErrCode KioskFeaturePlugin::SetSpecifiedKioskFeatures(int32_t data)
@@ -75,6 +77,12 @@ ErrCode KioskFeaturePlugin::SetSpecifiedKioskFeatures(int32_t data)
             break;
         case static_cast<int32_t>(KioskFeature::ALLOW_CONTROL_CENTER):
             system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, "true");
+            break;
+        case static_cast<int32_t>(KioskFeature::ALLOW_GESTURE_CONTROL):
+            system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, "true");
+            break;
+        case static_cast<int32_t>(KioskFeature::ALLOW_SIDE_DOCK):
+            system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, "true");
             break;
         default:
             EDMLOGE("KioskFeaturePlugin kiosk feature illegal. Value = %{public}d.", data);

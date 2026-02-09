@@ -22,10 +22,9 @@
 
 namespace OHOS {
 namespace EDM {
-ErrCode UIAbilityController::StartAbilityByAdmin(const AAFwk::Want &want, const sptr<IRemoteObject> &token,
-    int32_t userId)
+ErrCode UIAbilityController::StartAbilityByAdmin(const AAFwk::Want &want, int32_t userId)
 {
-    auto ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token, userId);
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, userId);
     if (FAILED(ret)) {
         EDMLOGE("UIAbilityController::StartAbilityByAdmin fail ret: %{public}d", ret);
         return ret;

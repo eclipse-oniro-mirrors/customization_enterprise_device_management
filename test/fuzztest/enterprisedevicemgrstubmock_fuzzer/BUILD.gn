@@ -30,6 +30,7 @@ config("edm_config") {
     "../../../services/edm/include/admin",
     "../../../services/edm/include/connection",
     "../../../services/edm/include/database",
+    "../../../services/edm/include/observer",
     "../../../services/edm/include/query_policy",
     "../../../services/edm/include/strategy",
     "../../../services/edm/include/watermark",
@@ -70,6 +71,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/enterprise_key_event_connection.cpp",
     "../../../services/edm/src/connection/enterprise_market_connection.cpp",
     "../../../services/edm/src/connection/enterprise_update_connection.cpp",
+    "../../../services/edm/src/connection/enterprise_oobe_connection.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
     "../../../services/edm/src/device_policies_storage_rdb.cpp",
@@ -78,6 +80,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/extra_policy_notification.cpp",
     "../../../services/edm/src/hisysevent_adapter.cpp",
     "../../../services/edm/src/language_manager.cpp",
+    "../../../services/edm/src/observer/admin_observer.cpp",
     "../../../services/edm/src/permission_checker.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
@@ -121,6 +124,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../services/edm/src/strategy/single_execute_strategy.cpp",
+    "../../../services/edm/src/system_service_start_handler.cpp",
     "../../../services/edm/src/user_policy_manager.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
@@ -141,6 +145,8 @@ ohos_static_library("edmservice_fuzz_static") {
   ]
 
   defines = []
+
+  use_exceptions = true
 
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
@@ -180,6 +186,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "i18n:intl_util",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "netmanager_base:net_policy_manager_if",
     "netmanager_base:netsys_controller",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
@@ -349,6 +356,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
+        "../../../services/edm_plugin/src/install_enterprise_re_signature_certificate_plugin.cpp",
       ]
     }
 

@@ -27,7 +27,7 @@ void SetUpdatePolicyPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetUpdate
 {
     EDMLOGI("SetUpdatePolicyPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::SET_OTA_UPDATE_POLICY, PolicyName::POLICY_SET_UPDATE_POLICY,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(UpdatePolicySerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetUpdatePolicyPlugin::OnSetPolicy, FuncOperateType::SET);
 }

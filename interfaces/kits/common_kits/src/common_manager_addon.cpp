@@ -19,6 +19,7 @@
 #include "napi_edm_adapter.h"
 #include "managed_policy.h"
 #include "result.h"
+#include "startup_scene.h"
 
 using namespace OHOS::EDM;
 
@@ -30,10 +31,14 @@ napi_value CommonManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nResult = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nResult));
     CreateResultObject(env, nResult);
+    napi_value nStartupScene = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nStartupScene));
+    CreateStartupSceneObject(env, nStartupScene);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_PROPERTY("ManagedPolicy", nManagedPolicy),
         DECLARE_NAPI_PROPERTY("Result", nResult),
+        DECLARE_NAPI_PROPERTY("StartupScene", nStartupScene),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -65,6 +70,22 @@ void CommonManagerAddon::CreateResultObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<int32_t>(Result::FAIL), &nFail));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FAIL", nFail));
+}
+
+void CommonManagerAddon::CreateStartupSceneObject(napi_env env, napi_value value)
+{
+    napi_value nUserSetup;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(StartupScene::USER_SETUP), &nUserSetup));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "USER_SETUP", nUserSetup));
+    napi_value nOta;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(StartupScene::OTA), &nOta));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "OTA", nOta));
+    napi_value nDeviceProvision;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(StartupScene::DEVICE_PROVISION), &nDeviceProvision));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_PROVISION", nDeviceProvision));
 }
 
 static napi_module g_commonManagerServiceModule = {

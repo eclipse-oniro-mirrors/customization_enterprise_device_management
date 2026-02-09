@@ -32,9 +32,14 @@ void DeviceSettingsAddon::CreatePowerSceneObject(napi_env env, napi_value value)
 
 void DeviceSettingsAddon::CreateSettingsItemObject(napi_env env, napi_value value)
 {
-    napi_value nDeivceName;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeivceName));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeivceName));
+    napi_value nDeviceName;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeviceName));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeviceName));
+
+    napi_value nFloatingNavigation;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::FLOATING_NAVIGATION),
+        &nFloatingNavigation));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FLOATING_NAVIGATION", nFloatingNavigation));
 }
 
 void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
@@ -69,9 +74,9 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
     napi_value nPolicyAction = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nPolicyAction));
     CreatePowerPolicyActionObject(env, nPolicyAction);
-    napi_value nDeivceName = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nDeivceName));
-    CreateSettingsItemObject(env, nDeivceName);
+    napi_value nSettingsItem = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSettingsItem));
+    CreateSettingsItemObject(env, nSettingsItem);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
@@ -84,6 +89,7 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PowerPolicyAction", nPolicyAction),
         DECLARE_NAPI_FUNCTION("setValue", SetValue),
         DECLARE_NAPI_FUNCTION("getValue", GetValue),
+        DECLARE_NAPI_PROPERTY("SettingsItem", nSettingsItem),
         DECLARE_NAPI_FUNCTION("setValueForAccount", setValueForAccount),
         DECLARE_NAPI_FUNCTION("getValueForAccount", getValueForAccount),
         DECLARE_NAPI_FUNCTION("setHomeWallpaper", SetHomeWallPaper),
@@ -447,7 +453,10 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     int32_t ret = ERR_OK;
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
-        ret = proxy->SetValueForAccount(elementName, accountId, value);
+        ret = proxy->SetValueForAccount(elementName, accountId, value, EdmConstants::PERMISSION_TAG_VERSION_23);
+    } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, (value == "0" || value == "1"), "param 'floatingNavigation' error");
+        ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -481,7 +490,9 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     std::string stringRet;
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
-        ret = proxy->GetValueForAccount(elementName, accountId, stringRet);
+        ret = proxy->GetValueForAccount(elementName, accountId, stringRet, EdmConstants::PERMISSION_TAG_VERSION_23);
+    } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
+        ret = proxy->GetFloatingNavigationForAccount(elementName, accountId, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }

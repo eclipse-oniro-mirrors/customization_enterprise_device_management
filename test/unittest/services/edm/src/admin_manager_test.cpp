@@ -654,6 +654,70 @@ HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
     ASSERT_TRUE(userAdmin != nullptr);
     ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::ENT);
 }
+
+/**
+ * @tc.name: TestGetAdminTypeByName
+ * @tc.desc: Test AdminManager::TestGetAdminTypeByName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetAdminTypeByName, TestSize.Level1)
+{
+    std::string bundleName = "com.edm.test.demo";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company in wuhan";
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
+    AdminInfo adminInfo = {.packageName_ = bundleName, .className_ = "testDemo", .entInfo_ = entInfo,
+        .permission_ = permissions, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    ErrCode res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    EXPECT_EQ(res, ERR_OK);
+    auto adminType = adminMgr_->GetAdminTypeByName("com.edm.test.error", DEFAULT_USER_ID);
+    EXPECT_EQ(adminType, AdminType::UNKNOWN);
+    adminType = IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, DEFAULT_USER_ID);
+    EXPECT_EQ(adminType, AdminType::NORMAL);
+}
+
+/**
+ * @tc.name: TestGetDisallowedCrossAccountAdmins
+ * @tc.desc: Test AdminManager::TestGetDisallowedCrossAccountAdmins.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestGetDisallowedCrossAccountAdmins, TestSize.Level1)
+{
+    ErrCode res;
+    std::string byodBundleName = "com.edm.test.byod";
+    AdminInfo sda = {.packageName_ = "com.edm.test.sda", .className_ = "testDemo", .adminType_ = AdminType::ENT};
+    AdminInfo da = {.packageName_ = "com.edm.test.da", .className_ = "testDemo", .adminType_ = AdminType::NORMAL};
+    AdminInfo subSda = {.packageName_ = "com.edm.test.subSda", .className_ = "testDemo",
+        .adminType_ = AdminType::SUB_SUPER_ADMIN};
+    AdminInfo va = {.packageName_ = "com.edm.test.va", .className_ = "testDemo",
+        .adminType_ = AdminType::VIRTUAL_ADMIN};
+    AdminInfo byod = {.packageName_ = byodBundleName, .className_ = "testDemo", .adminType_ = AdminType::BYOD};
+    
+    // 设置数据
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, sda);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, da);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, subSda);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, va);
+    ASSERT_TRUE(res == ERR_OK);
+    res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, byod);
+    ASSERT_TRUE(res == ERR_OK);
+
+    // 查询数据
+    std::vector<std::string> bundleNames;
+    bundleNames = adminMgr_->GetDisallowedCrossAccountAdmins(DEFAULT_USER_ID);
+    ASSERT_TRUE(bundleNames.size() == 1);
+
+    // 删除数据
+    res = adminMgr_->DeleteAdmin(byodBundleName, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+    
+    bundleNames= adminMgr_->GetDisallowedCrossAccountAdmins(DEFAULT_USER_ID);
+    ASSERT_TRUE(bundleNames.size() == 0);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

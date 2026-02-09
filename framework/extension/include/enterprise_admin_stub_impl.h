@@ -69,6 +69,10 @@ public:
     void OnLogCollected(bool isSuccess) override;
 
     void OnKeyEvent(const std::string &event) override;
+
+    void OnStartupGuideCompleted(int32_t type) override;
+
+    void OnDeviceBootCompleted() override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

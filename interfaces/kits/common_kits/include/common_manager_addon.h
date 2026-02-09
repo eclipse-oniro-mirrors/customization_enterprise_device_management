@@ -32,6 +32,7 @@ public:
 private:
     static void CreateManagedPolicyTypeObject(napi_env env, napi_value value);
     static void CreateResultObject(napi_env env, napi_value value);
+    static void CreateStartupSceneObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

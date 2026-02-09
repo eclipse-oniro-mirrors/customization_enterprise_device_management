@@ -38,6 +38,7 @@ std::shared_ptr<AdminManager> AdminManager::GetInstance()
             instance_.reset(new (std::nothrow) AdminManager());
         }
     });
+    IAdminManager::adminManagerInstance_ = instance_.get();
     return instance_;
 }
 
@@ -79,6 +80,9 @@ ErrCode AdminManager::SetAdminValue(int32_t userId, const AdminInfo &adminItem)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     AdminContainer::GetInstance()->SetAdminByUserId(userId, adminItem);
+    for (auto observer : adminObservers_) {
+        observer->OnAdminAdd(adminItem.packageName_, userId);
+    }
     return ERR_OK;
 }
 
@@ -121,6 +125,9 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
     AdminContainer::GetInstance()->DeleteAdmin(packageName, userId);
+    for (auto observer : adminObservers_) {
+        observer->OnAdminRemove(packageName, userId);
+    }
     return ERR_OK;
 }
 
@@ -172,6 +179,11 @@ ErrCode AdminManager::ReplaceSuperAdminByPackageName(const std::string &packageN
         PACKAGE_NAME | CLASS_NAME, newAdminInfo);
     AdminContainer::GetInstance()->UpdateParentAdminName(EdmConstants::DEFAULT_USER_ID, packageName,
         newAdminInfo.packageName_);
+
+    for (auto observer : adminObservers_) {
+        observer->OnAdminAdd(newAdminInfo.packageName_, EdmConstants::DEFAULT_USER_ID);
+        observer->OnAdminRemove(packageName, EdmConstants::DEFAULT_USER_ID);
+    }
     return ERR_OK;
 }
 
@@ -324,6 +336,26 @@ void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_
             std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
             return admin->adminInfo_.adminType_ == AdminType::BYOD;
         });
+    }
+}
+
+std::vector<std::string> AdminManager::GetDisallowedCrossAccountAdmins(int userId)
+{
+    std::vector<std::shared_ptr<Admin>> userAdmins;
+    AdminManager::GetInstance()->GetAdminByUserId(userId, userAdmins);
+    std::vector<std::string> bundleNames;
+    for (const auto& adminPtr : userAdmins) {
+        if (adminPtr != nullptr && !adminPtr->IsAllowedAcrossAccountSetPolicy()) {
+            bundleNames.push_back(adminPtr->adminInfo_.packageName_);
+        }
+    }
+    return bundleNames;
+}
+
+void AdminManager::Register(std::shared_ptr<IAdminObserver> observer)
+{
+    if (observer != nullptr) {
+        adminObservers_.push_back(observer);
     }
 }
 
@@ -520,6 +552,16 @@ bool AdminManager::IsExistTargetAdmin(bool isDebug)
 int32_t AdminManager::GetSuperDeviceAdminAndDeviceAdminCount()
 {
     return AdminContainer::GetInstance()->GetSuperDeviceAdminAndDeviceAdminCount();
+}
+
+AdminType AdminManager::GetAdminTypeByName(const std::string &bundleName, int32_t userId)
+{
+    std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
+    if (admin == nullptr) {
+        EDMLOGE("AdminManager::GetAdminTypeByName get admin failed.");
+        return AdminType::UNKNOWN;
+    }
+    return admin->adminInfo_.adminType_;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -47,7 +47,7 @@ constexpr int32_t WITHOUT_ADMIN = 1;
 void HapCallPluginGetPolicySuccessTest::SetUp()
 {
     edmMgr_->adminMgr_ = AdminManager::GetInstance();
-    edmMgr_->policyMgr_ = std::make_shared<PolicyManager>();
+    edmMgr_->policyMgr_ = PolicyManager::GetInstance();
     PermissionChecker::instance_ = permissionCheckerMock_;
     EXPECT_CALL(*edmMgr_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
     EXPECT_CALL(*edmMgr_, GetPermissionChecker).WillRepeatedly(DoAll(Return(permissionCheckerMock_)));

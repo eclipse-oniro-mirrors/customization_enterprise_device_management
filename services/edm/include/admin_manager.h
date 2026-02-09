@@ -21,12 +21,14 @@
 #include <unordered_map>
 
 #include "admin.h"
+#include "admin_observer.h"
 #include "admin_policies_storage_rdb.h"
 #include "ent_info.h"
+#include "iadmin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class AdminManager : public std::enable_shared_from_this<AdminManager> {
+class AdminManager : public std::enable_shared_from_this<AdminManager>, IAdminManager {
 public:
     static std::shared_ptr<AdminManager> GetInstance();
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
@@ -55,10 +57,12 @@ public:
     ErrCode GetAllowedAcrossAccountSetPolicyAdmin(const std::string &subAdminName,
         std::shared_ptr<Admin> &subOrSuperOrByodAdmin);
     void GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
+    std::vector<std::string> GetDisallowedCrossAccountAdmins(int userId);
+    void Register(std::shared_ptr<IAdminObserver> observer);
     void GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins);
     ErrCode GetSubSuperAdminsByParentName(const std::string &parentName, std::vector<std::string> &subAdmins);
     ErrCode ReplaceSuperAdminByPackageName(const std::string &packageName, const AdminInfo &newAdminInfo);
-    ~AdminManager();
+    ~AdminManager() override;
     void Dump();
     void ClearAdmins();
     void InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins);
@@ -66,12 +70,14 @@ public:
     int32_t GetSuperDeviceAdminAndDeviceAdminCount();
     ErrCode UpdateAdminPermission(const std::string &bundleName, int32_t userId,
         std::vector<std::string> permissionList);
+    AdminType GetAdminTypeByName(const std::string &bundleName, int32_t userId) override;
 
 private:
     AdminManager();
 
     static std::once_flag flag_;
     static std::shared_ptr<AdminManager> instance_;
+    std::vector<std::shared_ptr<IAdminObserver>> adminObservers_;
 };
 } // namespace EDM
 } // namespace OHOS

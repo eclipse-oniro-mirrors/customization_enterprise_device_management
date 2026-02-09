@@ -136,21 +136,9 @@ bool LanguageManager::GetDefaultLanguageResourcePath(std::string &path)
 {
     std::uint32_t code =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
-    auto loadRet = PluginManager::GetInstance()->LoadPluginByFuncCode(code);
-    if (loadRet != ERR_OK) {
-        EDMLOGE("GetDefaultLanguageResourcePath loadRet error");
-        return false;
-    }
-    std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(code);
-    if (plugin == nullptr || plugin->GetExecuteStrategy() == nullptr) {
-        EDMLOGE("GetDefaultLanguageResourcePath plugin error");
-        return false;
-    }
-    std::string policyValue;
     MessageParcel data;
     MessageParcel reply;
-    ErrCode getRet =
-        plugin->GetExecuteStrategy()->OnGetExecute(code, policyValue, data, reply, EdmConstants::DEFAULT_USER_ID);
+    ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, "", data, reply, EdmConstants::DEFAULT_USER_ID);
     if (getRet != ERR_OK) {
         EDMLOGE("GetDefaultLanguageResourcePath getRet error");
         return false;

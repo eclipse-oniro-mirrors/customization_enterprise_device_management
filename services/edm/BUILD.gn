@@ -22,6 +22,7 @@ config("edm_config") {
     "include/admin",
     "include/connection",
     "include/database",
+    "include/observer",
     "include/query_policy",
     "include/strategy",
     "include/watermark",
@@ -68,6 +69,7 @@ ohos_shared_library("edmservice") {
     "i18n:intl_util",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "netmanager_base:net_policy_manager_if",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
@@ -103,6 +105,7 @@ ohos_shared_library("edmservice") {
       "./src/connection/enterprise_market_connection.cpp",
       "./src/connection/enterprise_update_connection.cpp",
       "./src/connection/enterprise_key_event_connection.cpp",
+      "./src/connection/enterprise_oobe_connection.cpp",
       "./src/database/edm_rdb_data_manager.cpp",
       "./src/database/edm_rdb_open_callback.cpp",
       "./src/device_policies_storage_rdb.cpp",
@@ -110,6 +113,7 @@ ohos_shared_library("edmservice") {
       "./src/extra_policy_notification.cpp",
       "./src/hisysevent_adapter.cpp",
       "./src/language_manager.cpp",
+      "./src/observer/admin_observer.cpp",
       "./src/permission_checker.cpp",
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
@@ -144,6 +148,7 @@ ohos_shared_library("edmservice") {
       "./src/strategy/enhance_execute_strategy.cpp",
       "./src/strategy/replace_execute_strategy.cpp",
       "./src/strategy/single_execute_strategy.cpp",
+      "./src/system_service_start_handler.cpp",
       "./src/user_policy_manager.cpp",
       "../../interfaces/inner_api/application_manager/src/application_instance.cpp",
     ]
@@ -279,6 +284,11 @@ ohos_shared_library("edmservice") {
 
   if (log_service_plugin_edm_enable) {
     defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
+  }
+
+  if (telephony_core_edm_enable) {
+    external_deps += [ "core_service:tel_core_service_api" ]
+    defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
   }
 
   if (netmanager_base_edm_enable) {

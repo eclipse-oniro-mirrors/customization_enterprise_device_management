@@ -197,7 +197,7 @@ std::shared_ptr<PluginPolicyReader> PluginPolicyReader::GetInstance()
 }
 
 ErrCode PluginPolicyReader::GetPolicyByCode(std::shared_ptr<PolicyManager> policyManager, uint32_t funcCode,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
+    MessageParcel &data, MessageParcel &reply, int32_t userId, const std::string &permissionTag)
 {
     FuncCodeUtils::PrintFuncCode(funcCode);
     FuncFlag flag = FuncCodeUtils::GetSystemFlag(funcCode);
@@ -205,11 +205,11 @@ ErrCode PluginPolicyReader::GetPolicyByCode(std::shared_ptr<PolicyManager> polic
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
-    return GetPolicyByCodeInner(policyManager, code, data, reply, userId);
+    return GetPolicyByCodeInner(policyManager, code, data, reply, userId, permissionTag);
 }
 
 ErrCode PluginPolicyReader::GetPolicyByCodeInner(std::shared_ptr<PolicyManager> policyManager, uint32_t code,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
+    MessageParcel &data, MessageParcel &reply, int32_t userId, const std::string &permissionTag)
 {
     EDMLOGI("PluginPolicyReader query policy ::code %{public}u", code);
     std::shared_ptr<IPolicyQuery> obj;
@@ -219,7 +219,7 @@ ErrCode PluginPolicyReader::GetPolicyByCodeInner(std::shared_ptr<PolicyManager> 
         EDMLOGI("GetPolicyQuery obj is null, query from plugin");
         return ret;
     }
-    return obj->GetPolicy(policyManager, code, data, reply, userId);
+    return obj->GetPolicy(policyManager, code, data, reply, userId, permissionTag);
 }
 
 ErrCode PluginPolicyReader::GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)

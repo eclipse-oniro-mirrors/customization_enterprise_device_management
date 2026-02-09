@@ -31,6 +31,7 @@ public:
     MOCK_METHOD(ErrCode, CreateOsAccount, (const std::string &name, const OHOS::AccountSA::OsAccountType &type,
         OHOS::AccountSA::OsAccountInfo &osAccountInfo), (override));
 #endif
+    MOCK_METHOD(int32_t, GetCurrentUserId, (), (override));
 };
 } // namespace EDM
 } // namespace OHOS

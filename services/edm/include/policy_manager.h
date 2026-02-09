@@ -17,7 +17,7 @@
 #define SERVICES_EDM_INCLUDE_EDM_POLICY_MANAGER_H
 
 #include <memory>
-#include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -32,6 +32,8 @@ namespace EDM {
 
 class PolicyManager final: public IPolicyManager {
 public:
+    static std::shared_ptr<PolicyManager> GetInstance();
+
     ErrCode GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems,
         int32_t userId = EdmConstants::DEFAULT_USER_ID) override;
 
@@ -57,6 +59,7 @@ private:
 
     std::map<std::int32_t, std::shared_ptr<UserPolicyManager>> policyMgrMap_;
     std::shared_ptr<UserPolicyManager> defaultPolicyMgr_;
+    static std::shared_timed_mutex mutexLock_;
 };
 } // namespace EDM
 } // namespace OHOS

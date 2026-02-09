@@ -24,6 +24,7 @@
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "directory_ex.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "installer_callback.h"
@@ -78,10 +79,11 @@ ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
     reply.WriteInt32(ERR_OK);
     reply.WriteFileDescriptor(fd);
     reply.WriteString(bundlePath);
-    close(fd);
+    fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
     fd = -1;
     return ERR_OK;
 }

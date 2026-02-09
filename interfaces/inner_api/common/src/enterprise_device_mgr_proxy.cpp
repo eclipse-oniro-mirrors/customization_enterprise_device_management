@@ -684,8 +684,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetBundleInstallPolicies(std::vector<std::stri
     return mgrService->SetBundleInstallPolicies(bundles, userId, policyType);
 }
 
-ErrCode EnterpriseDeviceMgrProxy::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode EnterpriseDeviceMgrProxy::StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::StartAbilityByAdmin");
     if (!IsEdmEnabled()) {
@@ -696,7 +695,7 @@ ErrCode EnterpriseDeviceMgrProxy::StartAbilityByAdmin(const AppExecFwk::ElementN
     if (!mgrService) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    return mgrService->StartAbilityByAdmin(admin, want, callerToken);
+    return mgrService->StartAbilityByAdmin(admin, want);
 }
 } // namespace EDM
 } // namespace OHOS

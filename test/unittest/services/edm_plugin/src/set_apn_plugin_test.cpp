@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-#include "set_apn_plugin_test.h"
 
+#define private public
+#include "set_apn_plugin_test.h"
+#undef private
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
 #include "utils.h"
@@ -266,12 +268,10 @@ HWTEST_F(SetApnPluginTest, TestQueryApnInfoForUpdate, TestSize.Level1)
  */
 HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
 {
-    std::vector<int32_t> slotIds;
-    if (!HasValidSimCard(slotIds)) {
-        return;
+    std::string opkey = system::GetParameter("telephony.sim.opkey0", "");
+    if (opkey == "-1") {
+        opkey = system::GetParameter("telephony.sim.opkey1", "");
     }
-
-    std::string opkey = system::GetParameter(std::string("telephony.sim.opkey") + std::to_string(slotIds[0]), "");
     std::string apnId;
     GetApnId(opkey, apnId);
     ASSERT_TRUE(apnId.empty() == false);
@@ -284,7 +284,12 @@ HWTEST_F(SetApnPluginTest, TestSetPreferApn, TestSize.Level1)
     data.WriteString(apnId);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    int32_t simId = ApnUtils::GetValidSimId(apnId);
+    if (simId < 0) {
+        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    } else {
+        ASSERT_TRUE(ret == ERR_OK);
+    }
 }
 } // namespace TEST
 } // namespace EDM

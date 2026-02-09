@@ -14,6 +14,9 @@
  */
 #include <gtest/gtest.h>
 
+#define private public
+#include "plugin_manager.h"
+#undef private
 #include "edm_log.h"
 #include "enhance_execute_strategy.h"
 #include "func_code.h"
@@ -29,7 +32,10 @@ namespace EDM {
 namespace TEST {
 class EnhanceExecuteStrategyTest : public testing::Test {
 public:
-    void SetUp() override {}
+    void SetUp() override
+    {
+        PluginManager::GetInstance()->deviceCoreSoCodes_.push_back(0);
+    }
 
     void TearDown() override {}
 };

@@ -29,6 +29,7 @@ public:
     ErrCode CreateOsAccount(const std::string &name, const OHOS::AccountSA::OsAccountType &type,
         OHOS::AccountSA::OsAccountInfo &osAccountInfo) override;
 #endif
+    int32_t GetCurrentUserId() override;
 };
 } // namespace EDM
 } // namespace OHOS

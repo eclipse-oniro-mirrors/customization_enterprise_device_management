@@ -924,6 +924,16 @@ void ApplicationManagerAddon::CreateKioskFeatureObject(napi_env env, napi_value 
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(KioskFeature::ALLOW_CONTROL_CENTER), &nAllowContorlCenter));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_CONTROL_CENTER", nAllowContorlCenter));
+
+    napi_value nAllowGestureControl;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(KioskFeature::ALLOW_GESTURE_CONTROL), &nAllowGestureControl));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_GESTURE_CONTROL", nAllowGestureControl));
+
+    napi_value nAllowSideDock;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(KioskFeature::ALLOW_SIDE_DOCK), &nAllowSideDock));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_SIDE_DOCK", nAllowSideDock));
 }
 
 napi_value ApplicationManagerAddon::SetKioskFeatures(napi_env env, napi_callback_info info)
@@ -1088,6 +1098,7 @@ napi_value ApplicationManagerAddon::SetAbilityDisabled(napi_env env, napi_callba
         EdmAddonCommonType::STRING, EdmAddonCommonType::BOOLEAN};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -1111,6 +1122,7 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
         EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
     AdapterAddonData adapterAddonData{};
     napi_value res = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (res == nullptr) {

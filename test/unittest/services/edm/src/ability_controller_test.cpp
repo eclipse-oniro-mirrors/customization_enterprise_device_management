@@ -19,8 +19,9 @@
 #define private public
 #include "ability_controller.h"
 #undef private
+#include "app_service_extension_controller.h"
 #include "edm_bundle_manager_impl_mock.h"
-#include "external_manager_factory_mock.h"
+#include "ui_ability_controller.h"
  
 using namespace testing::ext;
 using namespace testing;
@@ -29,16 +30,13 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 constexpr int32_t TEST_USER_ID = 100;
-constexpr int32_t INDEX_THREE = 3;
+const std::string CALLER_BUNDLE_NAME = "com.edm.callertest";
 const std::string BUNDLE_NAME = "com.edm.test";
 const std::string UI_ABILITY_NAME = "com.edm.test.MainAbility";
 const std::string APP_SERVICE_EXTENSION_NAME = "com.edm.test.AppServiceExtension";
 const std::string NOT_EXIST_ABILITY_NAME = "com.edm.test.NotExistAbility";
 const std::string TEST_PERMISSION = "ohos.permission.test";
 class AbilityControllerTest : public testing::Test {
-public:
-    void SetUp() override;
-    void TearDown() override;
 };
 
 /**
@@ -46,15 +44,14 @@ public:
  * @tc.desc: Test AbilityControllerTest::StartAbilityByAdmin function.
  * @tc.type: FUNC
  */
-HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
+HWTEST_F(AbilityControllerTest, StartAbilityByAdminWithDafultController, TestSize.Level1)
 {
-    AAFwk::Want want;
+    AAFwk::Want uiWant;
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
-    sptr<IRemoteObject> token;
 
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
-    AbilityController controller = std::make_shared<AbilityController>(abilityInfo);
-    auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
+    auto controller = std::make_shared<AbilityController>(abilityInfo);
+    auto ret = controller->StartAbilityByAdmin(uiWant, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -65,13 +62,12 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
  */
 HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
 {
-    AAFwk::Want want;
+    AAFwk::Want uiWant;
     uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
-    sptr<IRemoteObject> token;
 
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
-    AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
-    auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
+    auto controller = std::make_shared<UIAbilityController>(abilityInfo);
+    auto ret = controller->StartAbilityByAdmin(uiWant, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -83,12 +79,11 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToUIAbility, TestSize.Level1)
 HWTEST_F(AbilityControllerTest, StartAbilityByAdminToAppService, TestSize.Level1)
 {
     AAFwk::Want want;
-    uiWant.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
-    sptr<IRemoteObject> token = nullptr;
+    want.SetElementName(BUNDLE_NAME, NOT_EXIST_ABILITY_NAME);
 
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
-    AbilityController controller = std::make_shared<AppServiceExtensionController>(abilityInfo);
-    auto ret = controller->StartAbilityByAdmin(want, token, TEST_USER_ID);
+    auto controller = std::make_shared<AppServiceExtensionController>(abilityInfo);
+    auto ret = controller->StartAbilityByAdmin(want, TEST_USER_ID);
     ASSERT_TRUE(ret != ERR_OK);
 }
 
@@ -100,9 +95,10 @@ HWTEST_F(AbilityControllerTest, StartAbilityByAdminToAppService, TestSize.Level1
 HWTEST_F(AbilityControllerTest, VerifyPermissionFail, TestSize.Level1)
 {
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
+    abilityInfo.visible = true;
     abilityInfo.permissions = {TEST_PERMISSION};
-    AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
-    bool ret = controller->VerifyPermission(BUNDLE_NAME);
+    auto controller = std::make_shared<UIAbilityController>(abilityInfo);
+    bool ret = controller->VerifyPermission(CALLER_BUNDLE_NAME);
     ASSERT_FALSE(ret);
 }
 
@@ -114,9 +110,9 @@ HWTEST_F(AbilityControllerTest, VerifyPermissionFail, TestSize.Level1)
 HWTEST_F(AbilityControllerTest, VerifyPermissionSuccess, TestSize.Level1)
 {
     EdmAbilityInfo abilityInfo(BUNDLE_NAME);
-    AbilityController controller = std::make_shared<UIAbilityController>(abilityInfo);
+    auto controller = std::make_shared<UIAbilityController>(abilityInfo);
     bool ret = controller->VerifyPermission(BUNDLE_NAME);
-    ASSERT_FALSE(ret);
+    ASSERT_TRUE(ret);
 }
 } // namespace TEST
 } // namespace EDM

@@ -51,17 +51,28 @@ const char* const OLD_EDM_PLUGIN_SO = "libedmplugin.z.so";
 class PluginManager : public std::enable_shared_from_this<PluginManager>, IPluginManager {
 public:
     static std::shared_ptr<PluginManager> GetInstance();
+    // 该接口仅可在IPluginExecuteStrategy的子类中调用，禁止在其他模块中调用，避免不可预期的行为。
     std::shared_ptr<IPlugin> GetPluginByFuncCode(std::uint32_t funcCode);
-    std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
-    std::shared_ptr<IPlugin> GetPluginByCode(std::uint32_t code);
     bool AddPlugin(std::shared_ptr<IPlugin> plugin) override;
     bool AddExtensionPlugin(std::shared_ptr<IPlugin> extensionPlugin, uint32_t basicPluginCode,
         ExecuteStrategy strategy) override;
+    ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
+        int32_t userId);
+    ErrCode GetPolicy(uint32_t funcCode, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
+        int32_t userId);
+    ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
+        int32_t userId);
+    void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
+    void OnInitExecute(uint32_t interfaceCode, const std::vector<std::string> &bundleNames, int32_t userId);
+    ErrCode SetPluginUnloadFlag(uint32_t code, bool unloadFlag);
+    ErrCode UnloadCollectLogPlugin();
+    std::string GetPermission(uint32_t funcCode, FuncOperateType operateType, IPlugin::PermissionType permissionType,
+        const std::string &permissionTag);
+    IPlugin::ApiType GetPluginType(uint32_t funcCode, FuncOperateType operateType);
+    std::string GetPolicyName(uint32_t funcCode);
+    std::string GetPluginPermissionByPolicyName(const std::string &policyName, IPlugin::PermissionType permissionType);
     virtual ~PluginManager();
-    
-    void LoadAllPlugin();
-    ErrCode LoadPluginByCode(uint32_t code);
-    ErrCode LoadPluginByFuncCode(uint32_t funcCode);
+
     void DumpPlugin();
     void NotifyUnloadAllPlugin();
 
@@ -75,13 +86,18 @@ private:
     static std::vector<uint32_t> communicationSoCodes_;
     static std::vector<uint32_t> sysServiceSoCodes_;
     static std::vector<uint32_t> needExtraSoCodes_;
-    
+
     static std::shared_timed_mutex mutexLock_;
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
+    std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
+    std::shared_ptr<IPlugin> GetPluginByCode(std::uint32_t code);
     void DlopenPlugin(const std::string &pluginPath, std::shared_ptr<SoLoadState> loadStatePtr);
     void LoadPlugin(const std::string &soName);
     bool UnloadPlugin(const std::string &soName);
+    void LoadAllPlugin();
+    ErrCode LoadPluginByCode(uint32_t code);
+    ErrCode LoadPluginByFuncCode(uint32_t funcCode);
     void LoadExtraPlugin();
     bool IsExtraPlugin(const std::string &soName);
     void UnloadPluginTask(const std::string &soName, std::shared_ptr<SoLoadState> loadStatePtr);

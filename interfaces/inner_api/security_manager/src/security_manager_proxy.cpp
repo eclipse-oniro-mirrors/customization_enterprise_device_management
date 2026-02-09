@@ -158,9 +158,10 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
     return ERR_OK;
 }
 
-int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info)
+int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &admin,
+    std::string &info, const std::string &item)
 {
-    EDMLOGD("SecurityManagerProxy::GetRootCheckStatus");
+    EDMLOGD("SecurityManagerProxy::GetRootCheckStatus, item: %{public}s", item.c_str());
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -168,6 +169,7 @@ int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
+    data.WriteString(item);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::POLICY_CODE_END + 8);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(funcCode, data, reply);

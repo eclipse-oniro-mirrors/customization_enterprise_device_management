@@ -261,13 +261,7 @@ void ManagedBrowserPolicyPlugin::OnHandlePolicyDone(std::uint32_t funcCode, cons
     bool isGlobalChanged, int32_t userId)
 {
     EDMLOGD("ManagedBrowserPolicyPlugin::OnHandlePolicyDone called");
-    AAFwk::Want want;
-    want.SetAction(BROWSER_POLICY_CHANGED_EVENT);
-    EventFwk::CommonEventData eventData;
-    eventData.SetWant(want);
-    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
-        EDMLOGE("NotifyBrowserPolicyChanged failed.");
-    }
+    PublishEventToBrowser();
 }
 
 ErrCode ManagedBrowserPolicyPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -405,6 +399,7 @@ ErrCode ManagedBrowserPolicyPlugin::OnAdminRemove(const std::string &adminName,
             EDMLOGE("ManagedBrowserPolicyPlugin::OnAdminRemove remove failed.bundleName:%{public}s", it.first.c_str());
         }
     }
+    PublishEventToBrowser();
     return ERR_OK;
 }
 
@@ -424,6 +419,17 @@ bool ManagedBrowserPolicyPlugin::UpdatePolicyFile(std::map<std::string, ManagedB
         return false;
     }
     return true;
+}
+
+void ManagedBrowserPolicyPlugin::PublishEventToBrowser()
+{
+    AAFwk::Want want;
+    want.SetAction(BROWSER_POLICY_CHANGED_EVENT);
+    EventFwk::CommonEventData eventData;
+    eventData.SetWant(want);
+    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
+        EDMLOGE("NotifyBrowserPolicyChanged failed.");
+    }
 }
 } // namespace EDM
 } // namespace OHOS

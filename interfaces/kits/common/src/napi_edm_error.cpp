@@ -54,7 +54,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "but the function has not taken effect in real time."},
     {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
     {EdmReturnErrCode::START_ABILITY_FAILED, "Failed to start the ability. $"},
-    {EdmReturnErrCode::FAULTLOG_COLLECT_FAILED, "Logs are being collected."},
+    {EdmReturnErrCode::FAULTLOG_COLLECT_FAILED, "Collecting logs, please try again later."},
     {EdmReturnErrCode::ABILITY_NOT_EXIST, "The ability does not exist."},
     {EdmReturnErrCode::EXECUTE_TIME_OUT, "Execution time out."},
     {EdmReturnErrCode::INVALID_ACTIVATION_LOCK_CREDENTIALS, "Invalid activation lock credentials."},

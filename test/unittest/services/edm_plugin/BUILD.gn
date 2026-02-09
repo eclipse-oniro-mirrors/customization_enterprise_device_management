@@ -81,6 +81,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
     "./src/set_ability_disable_plugin_test.cpp",
+    "./src/set_floating_navigation_plugin_test.cpp",
+    "./src/install_enterprise_re_signature_certificate_plugin_test.cpp",
   ]
 
   configs = [
@@ -100,6 +102,7 @@ ohos_unittest("EdmPluginTest") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
@@ -493,6 +496,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
     "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../../services/edm_plugin/src/set_ability_disable_plugin.cpp",
+    "../../../../services/edm_plugin/src/install_enterprise_re_signature_certificate_plugin.cpp",
+    "../../../../services/edm_plugin/src/set_floating_navigation_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
@@ -538,6 +543,9 @@ ohos_static_library("edm_all_plugin_static") {
     "window_manager:session_manager_lite",
   ]
   defines = []
+
+  use_exceptions = true
+
   if (update_service_edm_enable) {
     external_deps += [ "update_service:updateservicekits" ]
     sources +=

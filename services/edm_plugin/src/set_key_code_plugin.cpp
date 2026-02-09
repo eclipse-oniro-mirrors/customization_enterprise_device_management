@@ -77,7 +77,7 @@ ErrCode SetKeyCodePlugin::OnAdminRemove(const std::string &adminName, const std:
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
-void SetKeyCodePlugin::OnOtherServiceStartForAdmin(std::string &adminName, int32_t userId)
+void SetKeyCodePlugin::OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId)
 {
     EDMLOGI("SetKeyCodePlugin::OnOtherServiceStartForAdmin...");
     return;

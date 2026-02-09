@@ -37,7 +37,8 @@
 
 namespace OHOS {
 namespace EDM {
-class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDeviceMgrStub {
+class EnterpriseDeviceMgrAbility : public SystemAbility, public EnterpriseDeviceMgrStub,
+    public std::enable_shared_from_this<EnterpriseDeviceMgrAbility> {
     DECLARE_SYSTEM_ABILITY(EnterpriseDeviceMgrAbility);
 
 public:
@@ -86,8 +87,7 @@ public:
         override;
     ErrCode ReportAgInstallStatus(const std::string &bundleName,
         const std::string &mediaBundleName, int32_t status) override;
-    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want,
-        const sptr<IRemoteObject> &callerToken) override;
+    ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
@@ -107,6 +107,7 @@ protected:
 
 private:
     void AddCommonEventFuncMap();
+    void AddCommonEventFuncMapSecond();
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
     bool SubscribeAppState();
@@ -114,8 +115,6 @@ private:
     void NotifyAdminEnabled(bool isEnabled);
     void CheckAndUpdateByodSettingsData();
     void UpdateClipboardInfo(const std::string &bundleName, int32_t userId);
-    ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
-        int32_t userId);
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
@@ -123,9 +122,8 @@ private:
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);
     ErrCode RemoveSubOrSuperAdminAndAdminPolicy(const std::string &bundleName,
         const std::vector<int32_t> &nonDefaultUserIds);
-    ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
-    ErrCode CheckGetPolicyParam(MessageParcel &data, std::shared_ptr<IPlugin> &plugin,
-        AppExecFwk::ElementName &elementName, const std::string &permissionTag, int32_t userId);
+    ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
+        const std::string &permissionTag);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode VerifyEnableAdminCondition(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
@@ -133,8 +131,6 @@ private:
     ErrCode VerifyEnableAdminConditionCheckExistAdmin(const AppExecFwk::ElementName &admin, AdminType type,
         int32_t userId, bool isDebug);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
-    ErrCode UpdateDevicePolicy(uint32_t code, const std::string &bundleName, MessageParcel &data, MessageParcel &reply,
-        int32_t userId);
     ErrCode CheckDelegatedPolicies(AdminType adminType, const std::vector<std::string> &policies);
     ErrCode CheckReplaceAdmins(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);
@@ -156,10 +152,13 @@ private:
     ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
         const std::string &bundleName);
     ErrCode SetAbilityDisabled(const std::string &bundleName, int32_t userId, const std::string &abilityName);
+    void UpdateNotifyPackagePolicy();
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateAGEventSubscriber(
+        EnterpriseDeviceMgrAbility &listener);
+    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateOobeEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
     std::vector<std::string> GetAgCommonEventName();
 #endif
@@ -171,6 +170,9 @@ private:
     void OnCommonEventPackageChanged(const EventFwk::CommonEventData &data);
     void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
     void OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn);
+    void OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data);
+    void OnCommonEventOobeFinish(const EventFwk::CommonEventData &data);
+    void OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data);
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
@@ -197,6 +199,7 @@ private:
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
+    void UpdateNetworkAccessPolicy(int oldId, int newId);
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
     ErrCode DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType);
@@ -210,6 +213,7 @@ private:
     void DeleteSubUserLogDirIfNeed(int32_t userId);
 #endif
     static std::shared_mutex adminLock_;
+    static std::mutex subscribeAppLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<ExtraPolicyNotification> policyNotification_;
