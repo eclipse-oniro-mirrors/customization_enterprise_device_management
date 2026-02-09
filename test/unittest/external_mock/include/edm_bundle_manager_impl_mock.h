@@ -30,6 +30,8 @@ public:
     MOCK_METHOD(bool, QueryExtensionAbilityInfos, (const AAFwk::Want &want,
         const AppExecFwk::ExtensionAbilityType &extensionType, int32_t flag, int32_t userId,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos), (override));
+    MOCK_METHOD(bool, SetApplicationDisableForbidden, (const std::string &bundleName,
+        int32_t userId, int32_t appIndex, bool forbidden), (override));
     MOCK_METHOD(bool, GetBundleInfo, (const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId), (override));
     MOCK_METHOD(bool, GetBundleInfoV9, (const std::string &bundleName, int32_t flag,

@@ -184,6 +184,14 @@ ErrCode ManageUserNonStopAppsPlugin::SetOtherModulePolicy(const std::vector<Appl
         EDMLOGE("ManageUserNonStopAppsPlugin SetOtherModulePolicy ReportLockSession fail, res = %{public}d", res);
         return res;
     }
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    for (const ApplicationInstance &appInstance : userNonStopApps) {
+        if (!bundleMgr->SetApplicationDisableForbidden(appInstance.bundleName,
+            appInstance.accountId, appInstance.appIndex, true)) {
+            EDMLOGE("ManageUserNonStopAppsPlugin SetOtherModulePolicy SetApplicationDisableForbidden::%{public}s fail.",
+                appInstance.bundleName.c_str());
+        }
+    }
     return ERR_OK;
 }
 
@@ -238,6 +246,15 @@ ErrCode ManageUserNonStopAppsPlugin::RemoveOtherModulePolicy(const std::vector<A
     if (res != ERR_OK) {
         EDMLOGE("ManageUserNonStopAppsPlugin RemoveOtherModulePolicy ReportLockSession fail, res = %{public}d", res);
         return res;
+    }
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    for (const ApplicationInstance &appInstance : needRemovePolicy) {
+        if (!bundleMgr->SetApplicationDisableForbidden(appInstance.bundleName,
+            appInstance.accountId, appInstance.appIndex, false)) {
+            EDMLOGE(
+                "ManageUserNonStopAppsPlugin RemoveOtherModulePolicy SetApplicationDisableForbidden::%{public}s fail.",
+                appInstance.bundleName.c_str());
+        }
     }
     return ERR_OK;
 }
