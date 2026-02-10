@@ -324,7 +324,7 @@ int32_t SystemManagerProxy::SetActivationLockDisabled(const AppExecFwk::ElementN
 
 int32_t SystemManagerProxy::IsActivationLockDisabled(AppExecFwk::ElementName &admin, bool &result)
 {
-    EDMLOGD("SystemManagerProxy::SetActivationLockDisabled");
+    EDMLOGD("SystemManagerProxy::IsActivationLockDisabled");
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
