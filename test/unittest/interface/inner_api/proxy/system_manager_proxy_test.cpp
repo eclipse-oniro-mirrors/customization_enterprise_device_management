@@ -677,7 +677,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetActivationLockDisabledFail, TestSize.Lev
     admin.SetBundleName(ADMIN_PACKAGENAME);
     bool isDisabled = true;
     std::string credential = "test_credential";
-    int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, isDisabled, credential);
+    int32_t ret = systemmanagerProxy->SetActivationLockDisabled(admin, isDisabled, credential);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
