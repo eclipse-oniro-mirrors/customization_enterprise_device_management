@@ -42,6 +42,8 @@ private:
     static napi_value RemoveIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
     static napi_value GetIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
     static napi_value HangupCalling(napi_env env, napi_callback_info info);
+    static napi_value ActiveSim(napi_env env, napi_callback_info info);
+    static napi_value DeactiveSim(napi_env env, napi_callback_info info);
     static bool CheckVectorStringLength(const std::vector<std::string> &array);
 };
 } // namespace EDM

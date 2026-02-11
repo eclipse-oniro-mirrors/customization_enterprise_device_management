@@ -334,6 +334,7 @@ ohos_unittest("EdmPluginTest") {
       "core_service:tel_core_service_api"
     ]
     sources += [
+      "./src/active_sim_plugin_test.cpp",
       "./src/disallow_mobile_data_plugin_test.cpp",
       "./src/disallow_modify_apn_plugin_test.cpp",
       "./src/disallowed_sim_plugin_test.cpp",
@@ -790,6 +791,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       "telephony_data:tel_telephony_data",
     ]
     sources += [
+      "../../../../services/edm_plugin/src/active_sim_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_modify_apn_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_telephony_call_plugin.cpp",

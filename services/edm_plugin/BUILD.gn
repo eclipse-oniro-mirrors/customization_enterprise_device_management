@@ -301,6 +301,7 @@ ohos_shared_library("communication_plugin") {
         "telephony_data:tel_telephony_data",
       ]
       sources += [
+        "./src/active_sim_plugin.cpp",
         "./src/disallow_mobile_data_plugin.cpp",
         "./src/disallow_modify_apn_plugin.cpp",
         "./src/disallowed_sim_plugin.cpp",
