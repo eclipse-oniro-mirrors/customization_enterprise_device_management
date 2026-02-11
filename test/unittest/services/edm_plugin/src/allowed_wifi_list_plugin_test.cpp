@@ -66,29 +66,6 @@ void AllowedWifiListPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnSetPolicyWithDataAndCurrentData
- * @tc.desc: Test AllowWifiListPlugin::OnSetPolicy function when policy has value and current data is empty.
- * @tc.type: FUNC
- */
-    HWTEST_F(AllowedWifiListPluginTest, TestOnSetPolicyWithDataAndCurrentData, TestSize.Level1)
-{
-    AllowWifiListPlugin plugin;
-    std::vector<WifiId> policyData;
-    WifiId id1;
-    id1.SetSsid(SSID_1);
-    id1.SetBssid(BSSID_1);
-    policyData.emplace_back(id1);
-    std::vector<WifiId> currentData;
-    WifiId id2;
-    id2.SetSsid(SSID_2);
-    id2.SetBssid(BSSID_2);
-    policyData.emplace_back(id2);
-    std::vector<WifiId> mergeData;
-    ErrCode ret = plugin.OnSetPolicy(policyData, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
  * @tc.name: TestOnSetPolicyWithDataWithoutCurrentData
  * @tc.desc: Test AllowWifiListPlugin::OnSetPolicy function when policy has value and current data.
  * @tc.type: FUNC

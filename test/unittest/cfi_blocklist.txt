@@ -21,6 +21,7 @@ src:*/customization/enterprise_device_management/test/unittest/services/edm_plug
 src:*/customization/enterprise_device_management/test/unittest/services/edm_plugin/src/disallowed_telephony_call_plugin_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm/src/enterprise_admin_connection_test.cpp
 src:*/customization/enterprise_device_management/test/unittest/services/edm/src/enterprise_bundle_connection_test.cpp
+src:*/customization/enterprise_device_management/test/unittest/services/edm/src/language_manager_test.cpp
 src:*/third_party/googletest/googlemock/include/gmock/gmock-cardinalities.h
 src:*/third_party/googletest/googletest/include/gtest/internal/gtest-port.h
 src:*/third_party/googletest/innerapis/gtest/includes/gtest/internal/gtest-port.h
