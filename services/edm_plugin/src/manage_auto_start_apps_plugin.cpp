@@ -303,7 +303,7 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         autoStartupInfo.bundleName = item.GetBundleName();
         autoStartupInfo.abilityName = item.GetAbilityName();
         autoStartupInfo.userId = userId;
-        if (!CheckBundleAndAbilityExited(autoStartupInfo.bundleName, autoStartupInfo.abilityName)) {
+        if (!CheckBundleAndAbilityExited(autoStartupInfo.bundleName, autoStartupInfo.abilityName, userId)) {
             EDMLOGW("CheckBundleAndAbilityExited failed bundleName: %{public}s, abilityName: %{public}s",
                 autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str());
             if (!isSet) {
@@ -330,7 +330,7 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
 }
 
 bool ManageAutoStartAppsPlugin::CheckBundleAndAbilityExited(const std::string &bundleName,
-    const std::string &abilityName)
+    const std::string &abilityName, int32_t userId)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
@@ -347,9 +347,9 @@ bool ManageAutoStartAppsPlugin::CheckBundleAndAbilityExited(const std::string &b
     want.SetElement(element);
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionAbilityInfo;
     return proxy->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT,
-        DEFAULT_USER_ID, abilityInfos) ||
+        userId, abilityInfos) ||
         proxy->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::SERVICE,
-            AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_DEFAULT, DEFAULT_USER_ID,
+            AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_DEFAULT, userId,
             extensionAbilityInfo);
 }
 } // namespace EDM
