@@ -420,6 +420,7 @@ namespace PolicyName {
         "install_enterprise_re_signature_certificate";
     const char* const POLICY_SET_KEY_CODE = "set_key_code";
     const char* const POLICY_DISALLOW_USB_SERIAL = "disallow_usb_serial";
+    const char* const POLICY_DISABLED_ACTIVATION_LOCK = "disable_activation_lock";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
