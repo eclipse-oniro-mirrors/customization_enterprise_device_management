@@ -35,6 +35,11 @@ void DeviceSettingsAddon::CreateSettingsItemObject(napi_env env, napi_value valu
     napi_value nDeviceName;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::DEVICE_NAME), &nDeviceName));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_NAME", nDeviceName));
+
+    napi_value nFloatingNavigation;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::FLOATING_NAVIGATION),
+        &nFloatingNavigation));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FLOATING_NAVIGATION", nFloatingNavigation));
 }
 
 void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
@@ -449,6 +454,9 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
         ret = proxy->SetValueForAccount(elementName, accountId, value, EdmConstants::PERMISSION_TAG_VERSION_23);
+    } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, (value == "0" || value == "1"), "param 'floatingNavigation' error");
+        ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -483,6 +491,8 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
         ret = proxy->GetValueForAccount(elementName, accountId, stringRet, EdmConstants::PERMISSION_TAG_VERSION_23);
+    } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
+        ret = proxy->GetFloatingNavigationForAccount(elementName, accountId, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }

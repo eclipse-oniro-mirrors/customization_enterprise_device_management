@@ -51,7 +51,7 @@ private:
         int32_t userId);
     ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
         int32_t userId, std::vector<ManageAutoStartAppInfo> &failedData, bool disallowModify);
-    bool CheckBundleAndAbilityExited(const std::string &bundleName, const std::string &abilityName);
+    bool CheckBundleAndAbilityExited(const std::string &bundleName, const std::string &abilityName, int32_t userId);
     uint32_t maxListSize_ = 0;
 };
 } // namespace EDM

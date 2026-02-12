@@ -13,17 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_KIOSK_FEATURE_H
-#define INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_KIOSK_FEATURE_H
+#ifndef EDM_UNIT_TEST_SET_FLOATING_NAVIGATION_PLUGIN_TEST_H
+#define EDM_UNIT_TEST_SET_FLOATING_NAVIGATION_PLUGIN_TEST_H
+
+#include <gtest/gtest.h>
+#include "set_floating_navigation_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-enum class KioskFeature {
-    ALLOW_NOTIFICATION_CENTER = 1,
-    ALLOW_CONTROL_CENTER = 2,
-    ALLOW_GESTURE_CONTROL = 3,
-    ALLOW_SIDE_DOCK = 4,
+namespace TEST {
+class SetFloatingNavigationPluginTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-#endif // INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_KIOSK_FEATURE_H
+#endif // EDM_UNIT_TEST_SET_FLOATING_NAVIGATION_PLUGIN_TEST_H
