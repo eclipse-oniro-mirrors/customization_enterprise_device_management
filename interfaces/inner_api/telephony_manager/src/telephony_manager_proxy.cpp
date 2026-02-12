@@ -141,5 +141,19 @@ int32_t TelephonyManagerProxy::HangupCalling(MessageParcel &data)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::HANG_UP_CALLING);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t TelephonyManagerProxy::ActiveSim(MessageParcel &data)
+{
+    EDMLOGD("TelephonyManagerProxy::ActiveSim ");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_SIM);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t TelephonyManagerProxy::DeactiveSim(MessageParcel &data)
+{
+    EDMLOGD("TelephonyManagerProxy::DeactiveSim");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_SIM);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

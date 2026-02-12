@@ -35,6 +35,8 @@ public:
     int32_t GetCallPolicyNumbers(const AppExecFwk::ElementName &admin, const std::string &callType,
         const int32_t policyFlag, std::vector<std::string> &numbers);
     int32_t HangupCalling(MessageParcel &data);
+    int32_t ActiveSim(MessageParcel &data);
+    int32_t DeactiveSim(MessageParcel &data);
 private:
     static std::shared_ptr<TelephonyManagerProxy> instance_;
     static std::once_flag flag_;

@@ -186,6 +186,7 @@ enum EdmInterfaceCode : uint32_t {
     SET_DEVICE_NAME = 1137,
     SET_FLOATING_NAVIGATION = 1138,
     DISABLED_ACTIVATION_LOCK = 1139,
+    MANAGE_SIM = 1140,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
