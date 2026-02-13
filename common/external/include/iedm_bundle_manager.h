@@ -53,6 +53,7 @@ public:
     virtual ErrCode IsSystemApp(const std::string &bundleName, int userId, bool &isSystemApp) = 0;
     virtual bool SetApplicationDisableForbidden(const std::string &bundleName,
         int32_t userId, int32_t appIndex, bool forbidden) = 0;
+    virtual std::string GetIconByBundleName(const std::string &bundleName) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

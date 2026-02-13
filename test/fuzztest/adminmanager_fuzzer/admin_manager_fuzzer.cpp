@@ -74,7 +74,7 @@ void DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
     adminManager->GetAdminBySubscribeEvent(event, subscribeAdmins);
     adminManager->SetAdminValue(userId, admin);
     adminManager->GetAdminByPkgName(packageName, userId);
-    adminManager->DeleteAdmin(packageName, userId);
+    adminManager->DeleteAdmin(packageName, userId, role);
     adminManager->IsSuperAdminExist();
     adminManager->IsByodAdminExist();
     adminManager->IsSuperAdmin(bundleName);

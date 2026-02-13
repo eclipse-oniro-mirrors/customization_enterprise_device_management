@@ -138,7 +138,8 @@ ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInner(uint32_t code, MessageParc
 ErrCode EnterpriseDeviceMgrStub::CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    ErrCode errCode = CheckAndGetAdminProvisionInfo(code, data, reply, userId);
+    uint32_t extInfoCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);
+    ErrCode errCode = CheckAndGetAdminProvisionInfo(extInfoCode, data, reply, userId);
     reply.WriteInt32(errCode);
     return ERR_OK;
 }

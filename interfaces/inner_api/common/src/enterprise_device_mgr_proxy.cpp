@@ -478,7 +478,6 @@ ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(AppExecFwk::Elem
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     MessageParcel reply;
     MessageOption option;
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);

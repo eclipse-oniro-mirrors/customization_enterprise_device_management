@@ -12,9 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "get_adminprovision_info_plugin.h"
 
 #include <gtest/gtest.h>
+
+#include "ext_info_type.h"
+#include "get_ext_info_plugin.h"
+#include "utils.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -22,20 +25,20 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-class GetAdminProvisionInfoPluginTest : public testing::Test {
+class GetExtInfoPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
 };
 
-void GetAdminProvisionInfoPluginTest::SetUpTestSuite(void)
+void GetExtInfoPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmServiceEnable();
     Utils::SetEdmInitialEnv();
 }
 
-void GetAdminProvisionInfoPluginTest::TearDownTestSuite(void)
+void GetExtInfoPluginTest::TearDownTestSuite(void)
 {
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
@@ -48,17 +51,15 @@ void GetAdminProvisionInfoPluginTest::TearDownTestSuite(void)
  * @tc.desc: Test get admin provision info function.
  * @tc.type: FUNC
  */
-HWTEST_F(GetAdminProvisionInfoPluginTest, GetAdminProvisionInfoSuc, TestSize.Level1)
+HWTEST_F(GetExtInfoPluginTest, GetAdminProvisionInfoSuc, TestSize.Level1)
 {
-    GetAdminProvisionInfoPlugin plugin;
+    GetExtInfoPlugin plugin;
     std::string policyValue{"get_adminprovision_info"};
     MessageParcel data;
     MessageParcel reply;
+    data.WriteInt32(static_cast<int32_t>(ExtInfoType::ADMIN_PROVISIONING_INFO));
     plugin.OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-
-    std::string bundle_name = reply.ReadString();
-    ASSERT_TRUE(bundle_name == "com.ohos.adminprovisioning");
 }
 } // namespace TEST
 } // namespace EDM

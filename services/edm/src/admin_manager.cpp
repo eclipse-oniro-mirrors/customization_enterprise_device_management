@@ -81,7 +81,7 @@ ErrCode AdminManager::SetAdminValue(int32_t userId, const AdminInfo &adminItem)
     }
     AdminContainer::GetInstance()->SetAdminByUserId(userId, adminItem);
     for (auto observer : adminObservers_) {
-        observer->OnAdminAdd(adminItem.packageName_, userId);
+        observer->OnAdminAdd(adminItem.packageName_, userId, adminItem.isDebug_);
     }
     return ERR_OK;
 }
@@ -109,7 +109,7 @@ std::shared_ptr<Admin> AdminManager::GetAdminByPkgName(const std::string &packag
     return nullptr;
 }
 
-ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId)
+ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId, AdminType adminType)
 {
     if (!AdminContainer::GetInstance()->HasAdmin(userId)) {
         EDMLOGW("DeleteAdmin::get userId Admin failed.");
@@ -126,7 +126,7 @@ ErrCode AdminManager::DeleteAdmin(const std::string &packageName, int32_t userId
     }
     AdminContainer::GetInstance()->DeleteAdmin(packageName, userId);
     for (auto observer : adminObservers_) {
-        observer->OnAdminRemove(packageName, userId);
+        observer->OnAdminRemove(packageName, userId, adminType);
     }
     return ERR_OK;
 }
@@ -181,8 +181,8 @@ ErrCode AdminManager::ReplaceSuperAdminByPackageName(const std::string &packageN
         newAdminInfo.packageName_);
 
     for (auto observer : adminObservers_) {
-        observer->OnAdminAdd(newAdminInfo.packageName_, EdmConstants::DEFAULT_USER_ID);
-        observer->OnAdminRemove(packageName, EdmConstants::DEFAULT_USER_ID);
+        observer->OnAdminAdd(newAdminInfo.packageName_, EdmConstants::DEFAULT_USER_ID, false);
+        observer->OnAdminRemove(packageName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
     }
     return ERR_OK;
 }

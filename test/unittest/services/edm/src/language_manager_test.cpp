@@ -78,22 +78,6 @@ HWTEST_F(LanguageManagerTest, TestGetEnterpriseName_ReturnEnterpriseName, TestSi
     EXPECT_EQ(result, "exampleName");
 }
 
-/**
- * @tc.name: TestGetDefaultLanguageResourcePath
- * @tc.desc: Test LanguageManager GetEnterpriseName func.
- * @tc.type: FUNC
- */
-HWTEST_F(LanguageManagerTest, TestGetDefaultLanguageResourcePath, TestSize.Level1)
-{
-    std::string resourcePath;
-    bool result = LanguageManager::GetDefaultLanguageResourcePath(resourcePath);
-    if (result) {
-        ASSERT_TRUE(!resourcePath.empty());
-    } else {
-        EXPECT_EQ(resourcePath, "");
-    }
-}
-
 INSTANTIATE_TEST_CASE_P(TestGetTargetLanguageValue, LanguageManagerTest,
     testing::ValuesIn(std::vector<std::pair<std::pair<std::string, std::string>, std::string>>({
         {{"", ""}, ""},

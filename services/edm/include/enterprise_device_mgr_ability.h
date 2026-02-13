@@ -115,13 +115,13 @@ private:
     void NotifyAdminEnabled(bool isEnabled);
     void CheckAndUpdateByodSettingsData();
     void UpdateClipboardInfo(const std::string &bundleName, int32_t userId);
-    ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId);
-    ErrCode RemoveAdmin(const std::string &adminName, int32_t userId);
+    ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
+    ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
-    ErrCode RemoveSubSuperAdminAndAdminPolicy(const std::string &bundleName);
+    ErrCode RemoveSubSuperAdminAndAdminPolicy(const std::string &bundleName, AdminType adminType);
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);
     ErrCode RemoveSubOrSuperAdminAndAdminPolicy(const std::string &bundleName,
-        const std::vector<int32_t> &nonDefaultUserIds);
+        const std::vector<int32_t> &nonDefaultUserIds, AdminType adminType);
     ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
         const std::string &permissionTag);
     int32_t GetCurrentUserId();
@@ -160,7 +160,6 @@ private:
         EnterpriseDeviceMgrAbility &listener);
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateOobeEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);
-    std::vector<std::string> GetAgCommonEventName();
 #endif
     void OnCommonEventUserAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventUserSwitched(const EventFwk::CommonEventData &data);

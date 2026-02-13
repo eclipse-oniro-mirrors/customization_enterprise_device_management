@@ -50,6 +50,8 @@ namespace EdmConstants {
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
 
+    constexpr int32_t EDM_UID = 3057;
+
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
     constexpr size_t MAX_PARCEL_CAPACITY_OF_ASHMEM = 1024 * 1024 * 1024; // max allow 1 GB resource size
     constexpr size_t MAX_IPC_RAWDATA_SIZE = 120 * 1024 * 1024; // max ipc size 120MB
@@ -69,6 +71,10 @@ namespace EdmConstants {
     const char* const ENTERPRISE_DEVICE_TEXT = "EnterpriseDeviceText";
     const char* const ENTERPRISE_MANAGED_TIPS = "enterpriseManagedTips";
     const char* const MANAGED_TIPS_DISABLED = "persist.edm.show_managed_tips_disabled";
+
+    const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
+    const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
+    const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";
 
     // app-distribution-type
     constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
@@ -351,7 +357,7 @@ namespace PolicyName {
     const char* const POLICY_DOMAIN_FILTER_RULE = "domain_filter_rule";
     const char* const POLICY_FINGERPRINT_AUTH = "fingerprint_auth";
     const char* const POLICY_FIREWALL_RULE = "firewall_rule";
-    const char* const POLICY_GET_ADMINPROVISION_INFO = "get_adminprovision_info";
+    const char* const POLICY_GET_EXT_INFO = "get_ext_info";
     const char* const POLICY_GET_NETWORK_INTERFACES = "get_network_interfaces";
     const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
     const char* const POLICY_GET_DEVICE_INFO = "get_device_info";

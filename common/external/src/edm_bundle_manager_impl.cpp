@@ -253,5 +253,28 @@ bool EdmBundleManagerImpl::SetApplicationDisableForbidden(const std::string &bun
     }
     return true;
 }
+
+std::string EdmBundleManagerImpl::GetIconByBundleName(const std::string &bundleName)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetIconByBundleName getBundleProxy failed.");
+        return "";
+    }
+    auto bundleResourceProxy = proxy->GetBundleResourceProxy();
+    if (bundleResourceProxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetIconByBundleName GetBundleResourceProxy failed.");
+        return "";
+    }
+    AppExecFwk::BundleResourceInfo bundleResourceInfo;
+    ErrCode res = bundleResourceProxy->GetBundleResourceInfo(bundleName,
+        static_cast<uint32_t>(AppExecFwk::ResourceFlag::GET_RESOURCE_INFO_WITH_ICON), bundleResourceInfo);
+    if (FAILED(res)) {
+        EDMLOGE("EdmBundleManagerImpl::GetIconByBundleName GetBundleResourceInfo failed.");
+        return "";
+    }
+    return bundleResourceInfo.icon;
+}
 } // namespace EDM
 } // namespace OHOS

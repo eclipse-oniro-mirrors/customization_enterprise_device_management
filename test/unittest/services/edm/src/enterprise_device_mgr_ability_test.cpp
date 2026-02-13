@@ -34,10 +34,12 @@
 #include "admin_container.h"
 #include "byod_admin.h"
 #include "device_admin.h"
+#include "ext_info_type.h"
 #include "iplugin_template_test.h"
 #include "plugin_manager_test.h"
 #include "utils.h"
 #include "edm_log.h"
+#include "parameters.h"
 #include "set_browser_policies_plugin.h"
 
 using namespace testing;
@@ -1322,12 +1324,13 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminAndAdminPolicy, TestSize
     admin.SetBundleName(ADMIN_PACKAGENAME);
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID, AdminType::ENT)));
     std::shared_ptr<Admin> superAdmin;
     EXPECT_TRUE(FAILED(edmMgr_->adminMgr_->GetAllowedAcrossAccountSetPolicyAdmin(admin.GetBundleName(), superAdmin)));
 
     EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID,
+        AdminType::NORMAL)));
     auto normalAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
     EXPECT_TRUE(normalAdmin == nullptr);
 }
@@ -1375,7 +1378,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubSuperAdminAndAdminPolicy, 
     SetPolicy(subSuperBundleName, plugin->GetPolicyName());
 
     // remove policy with userId = 100
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveSubSuperAdminAndAdminPolicy(subSuperBundleName)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveSubSuperAdminAndAdminPolicy(subSuperBundleName, AdminType::SUB_SUPER_ADMIN)));
 
     auto superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(subSuperBundleName, DEFAULT_USER_ID);
     EXPECT_TRUE(superAdmin == nullptr);
@@ -1402,7 +1405,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSuperAdminAndAdminPolicy, Tes
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
     // remove policy with userId = 100
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveSubSuperAdminAndAdminPolicy(admin.GetBundleName())));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveSubSuperAdminAndAdminPolicy(admin.GetBundleName(), AdminType::ENT)));
 
     auto superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
     EXPECT_TRUE(superAdmin == nullptr);
@@ -1432,7 +1435,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubOrSuperAdminAndAdminPolicy
 
     std::vector<int32_t> userIds{TEST_USER_ID};
     // remove policy with userId = 100
-    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveSubOrSuperAdminAndAdminPolicy(admin.GetBundleName(), userIds)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveSubOrSuperAdminAndAdminPolicy(admin.GetBundleName(), userIds,
+        AdminType::ENT)));
 
     auto superAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
     EXPECT_TRUE(superAdmin == nullptr);
@@ -2251,8 +2255,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageAdded, TestSize
     func = edmMgr_->commonEventFuncMap_.find(action);
     EXPECT_TRUE(func != edmMgr_->commonEventFuncMap_.end());
 
-    EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(ADMIN_PACKAGENAME, DEFAULT_USER_ID), ERR_OK);
-    EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(ADMIN_PACKAGENAME_1, DEFAULT_USER_ID), ERR_OK);
+    EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(ADMIN_PACKAGENAME, DEFAULT_USER_ID, AdminType::NORMAL), ERR_OK);
+    EXPECT_EQ(edmMgr_->adminMgr_->DeleteAdmin(ADMIN_PACKAGENAME_1, DEFAULT_USER_ID, AdminType::NORMAL), ERR_OK);
 }
 
 /**
@@ -4294,7 +4298,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithAd
     MessageParcel data;
     MessageParcel reply;
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_EXT_INFO);
     ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 
@@ -4313,7 +4317,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithou
     MessageParcel data;
     MessageParcel reply;
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_EXT_INFO);
     ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
 }
@@ -4332,7 +4336,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoWithou
     MessageParcel reply;
     data.WriteParcelable(&admin);
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_EXT_INFO);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
         .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
     ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);
@@ -4353,7 +4357,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckAndGetAdminProvisionInfoGetHap
     MessageParcel reply;
     data.WriteParcelable(&admin);
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_EXT_INFO);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
         .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
     ErrCode ret = edmMgr_->CheckAndGetAdminProvisionInfo(funcCode, data, reply, DEFAULT_USER_ID);

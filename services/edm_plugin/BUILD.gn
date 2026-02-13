@@ -634,8 +634,8 @@ ohos_shared_library("need_extra_plugin") {
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     sources += [
-      "./src/get_adminprovision_info_plugin.cpp",
       "./src/get_device_info_plugin.cpp",
+      "./src/get_ext_info_plugin.cpp",
       "./src/install_market_apps_plugin.cpp",
       "./src/notify_update_packages_plugin.cpp",
       "./src/set_update_policy_plugin.cpp",

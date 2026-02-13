@@ -35,7 +35,7 @@ public:
     void GetAdminBySubscribeEvent(ManagedEvent event,
         std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
-    ErrCode DeleteAdmin(const std::string &packageName, int32_t userId);
+    ErrCode DeleteAdmin(const std::string &packageName, int32_t userId, AdminType adminType);
     ErrCode UpdateAdmin(int32_t userId, const AdminInfo &adminInfo, uint32_t code);
     bool IsSuperAdminExist();
     bool IsByodAdminExist();
