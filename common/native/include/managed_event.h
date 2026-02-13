@@ -30,7 +30,8 @@ enum class ManagedEvent : uint32_t {
     USER_SWITCHED = 6,
     USER_REMOVED = 7,
     STARTUP_GUIDE_COMPLETED = 8,
-    BOOT_COMPLETED = 9
+    BOOT_COMPLETED = 9,
+    BUNDLE_UPDATED = 10
 };
 } // namespace EDM
 } // namespace OHOS

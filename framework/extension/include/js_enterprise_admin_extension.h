@@ -63,6 +63,8 @@ public:
 
     void OnBundleRemoved(const std::string &bundleName, int32_t accountId);
 
+    void OnBundleUpdated(const std::string &bundleName, int32_t accountId);
+
     void OnAppStart(const std::string &bundleName);
 
     void OnAppStop(const std::string &bundleName);

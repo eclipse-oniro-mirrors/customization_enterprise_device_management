@@ -43,6 +43,12 @@ public:
     virtual void OnBundleRemoved(const std::string &bundleName, int32_t accountId) = 0;
 
     /**
+     * Called when an application package has been updated on the device.
+     * @param bundleName Indicates the name of the bundle whose state has been updated.
+     */
+    virtual void OnBundleUpdated(const std::string &bundleName, int32_t accountId) = 0;
+
+    /**
      * Called when an application start on the device.
      * @param bundleName Indicates the bundle name of application that has been started.
      */
@@ -145,7 +151,8 @@ public:
         COMMAND_ON_LOG_COLLECTED = 16,
         COMMAND_ON_KEY_EVENT = 17,
         COMMAND_ON_STARTUP_GUIDE_COMPLETED = 18,
-        COMMAND_ON_DEVICE_BOOT_COMPLETED = 19
+        COMMAND_ON_DEVICE_BOOT_COMPLETED = 19,
+        COMMAND_ON_BUNDLE_UPDATED = 20
     };
 };
 } // namespace EDM

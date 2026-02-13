@@ -103,10 +103,13 @@ const int32_t INSTALL_MARKET_APPS_PLUGIN_CODE = 3028;
 const int32_t AG_COMMON_EVENT_SIZE = 3;
 const int32_t AG_PERMISSION_INDEX = 2;
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
+constexpr int32_t BUNDLE_UPDATE_EVENT = 2;
+constexpr int32_t BUNDLE_INVALID_EVENT = -1;
 const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 const std::string OOBE_FINISHED_EVENT = "custom.event.OOBE.HWSTARTUPGUIDE.FINISHED";
 const std::string PERMISSION_OOBE_FINISHED = "ohos.permission.ACCESS_STARTUPGUIDE";
+const std::string BUNDLE_EVENT_PARAM_TYPE = "type";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 std::mutex EnterpriseDeviceMgrAbility::subscribeAppLock_;
@@ -833,6 +836,10 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::Com
     EDMLOGI("OnCommonEventPackageChanged");
     std::string bundleName = data.GetWant().GetElement().GetBundleName();
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+    int32_t eventType = data.GetWant().GetIntParam(BUNDLE_EVENT_PARAM_TYPE, BUNDLE_INVALID_EVENT);
+    if (eventType == BUNDLE_UPDATE_EVENT) {
+        ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_UPDATED, userId);
+    }
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
     if (admin != nullptr) {
         if (admin->IsEnterpriseAdminKeepAlive()) {
@@ -2452,7 +2459,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
 bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 {
     if (event >= static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED) &&
-        event <= static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED)) {
+        event <= static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED)) {
         return true;
     }
     return false;

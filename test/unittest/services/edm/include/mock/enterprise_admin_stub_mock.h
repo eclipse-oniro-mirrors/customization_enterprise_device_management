@@ -76,6 +76,8 @@ public:
 
     void OnDeviceBootCompleted() override {}
 
+    void OnBundleUpdated(const std::string &bundleName, int32_t accountId) override {}
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

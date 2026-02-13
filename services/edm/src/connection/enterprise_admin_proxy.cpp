@@ -90,6 +90,19 @@ void EnterpriseAdminProxy::OnBundleRemoved(const std::string &bundleName, int32_
     SendRequest(COMMAND_ON_BUNDLE_REMOVED, data);
 }
 
+void EnterpriseAdminProxy::OnBundleUpdated(const std::string &bundleName, int32_t accountId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::%{public}s write descriptor failed!", __func__);
+        return;
+    }
+    data.WriteString(bundleName);
+    data.WriteInt32(accountId);
+    EDMLOGI("EnterpriseAdminProxy proxy OnBundleUpdated");
+    SendRequest(COMMAND_ON_BUNDLE_UPDATED, data);
+}
+
 void EnterpriseAdminProxy::OnAppStart(const std::string &bundleName)
 {
     MessageParcel data;

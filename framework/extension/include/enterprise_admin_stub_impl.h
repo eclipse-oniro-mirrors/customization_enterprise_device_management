@@ -44,6 +44,8 @@ public:
 
     void OnBundleRemoved(const std::string &bundleName, int32_t accountId) override;
 
+    void OnBundleUpdated(const std::string &bundleName, int32_t accountId) override;
+
     void OnAppStart(const std::string &bundleName) override;
 
     void OnAppStop(const std::string &bundleName) override;
