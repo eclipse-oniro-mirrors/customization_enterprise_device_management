@@ -16,6 +16,7 @@
 #include "active_sim_plugin.h"
 
 #include "core_service_client.h"
+#include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
@@ -29,6 +30,8 @@ constexpr uint32_t SOLT0_ID = 0;
 constexpr uint32_t SOLT1_ID = 1;
 constexpr int32_t ACTIVATE_SIM = 1;
 constexpr int32_t DEACTIVATE_SIM = 0;
+const std::string AIRPLANE_MODE = "settings.telephony.airplanemode";
+const std::string ACTIVE_AIRPLANE_MODE = "1";
 
 void ActiveSimPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ActiveSimPlugin, int32_t>> ptr)
 {
@@ -57,7 +60,17 @@ ErrCode ActiveSimPlugin::ManageSim(int32_t slotId, int32_t status)
     int32_t maxSlotId = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
     if (slotId < 0 || slotId >= maxSlotId) {
         EDMLOGE("ManageSim slotId is abnormally.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    std::string value = "";
+    ErrCode res = EdmDataAbilityUtils::GetStringFromSettingsDataShare(AIRPLANE_MODE, value);
+    if (res != ERR_OK) {
+        EDMLOGE("ManageSim get settings airplane mode failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (value == ACTIVE_AIRPLANE_MODE) {
+        EDMLOGE("ManageSim current has active airplane mode");
+        return EdmReturnErrCode::ACTIVE_SIM_FAILED;
     }
     bool isDisable = false;
     if (slotId == SOLT0_ID) {
@@ -65,7 +78,7 @@ ErrCode ActiveSimPlugin::ManageSim(int32_t slotId, int32_t status)
     } else if (slotId == SOLT1_ID) {
         isDisable = system::GetBoolParameter(PARAM_DISABLE_SLOT1, false);
     } else {
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (isDisable) {
         EDMLOGE("ManageSim current slotId : %{public}d has disabled", slotId);
@@ -74,7 +87,7 @@ ErrCode ActiveSimPlugin::ManageSim(int32_t slotId, int32_t status)
     int32_t ret = Telephony::CoreServiceClient::GetInstance().SetActiveSim(slotId, status);
     if (ret != 0) {
         EDMLOGE("ManageSim error in telephony, errCode is %{public}d.", ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::ACTIVE_SIM_FAILED;
     }
     return ERR_OK;
 }
