@@ -56,7 +56,7 @@ HWTEST_F(ActiveSimPluginTest, TestActiveSimAbnormal, TestSize.Level1)
     ActiveSimPlugin plugin;
     int32_t slotId = -1;
     ErrCode ret = plugin.OnSetPolicy(slotId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -69,7 +69,7 @@ HWTEST_F(ActiveSimPluginTest, TestActiveSimFail, TestSize.Level1)
     ActiveSimPlugin plugin;
     int32_t slotId = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
     ErrCode ret = plugin.OnSetPolicy(slotId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -82,7 +82,7 @@ HWTEST_F(ActiveSimPluginTest, TestActiveSimSuc, TestSize.Level1)
     ActiveSimPlugin plugin;
     int32_t slotId = 0;
     ErrCode ret = plugin.OnSetPolicy(slotId);
-    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::ACTIVE_SIM_FAILED);
 }
 
 /**
@@ -95,7 +95,7 @@ HWTEST_F(ActiveSimPluginTest, TestActiveSimRemoveAbnormal, TestSize.Level1)
     ActiveSimPlugin plugin;
     int32_t slotId = -1;
     ErrCode ret = plugin.OnRemovePolicy(slotId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -108,7 +108,7 @@ HWTEST_F(ActiveSimPluginTest, TestActiveSimRemoveFail, TestSize.Level1)
     ActiveSimPlugin plugin;
     int32_t slotId = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
     ErrCode ret = plugin.OnRemovePolicy(slotId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -121,7 +121,7 @@ HWTEST_F(ActiveSimPluginTest, TestActiveSimRemoveSuc, TestSize.Level1)
     ActiveSimPlugin plugin;
     int32_t slotId = 0;
     ErrCode ret = plugin.OnRemovePolicy(slotId);
-    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::ACTIVE_SIM_FAILED);
 }
 } // namespace TEST
 } // namespace EDM
