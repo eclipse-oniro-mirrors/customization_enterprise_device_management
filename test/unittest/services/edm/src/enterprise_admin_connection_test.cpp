@@ -167,7 +167,7 @@ HWTEST_F(EnterpriseAdminConnectionTest, TestOnAbilityDisconnectDoneWithSuperAdmi
     enterpriseAdminConnectionTest->OnAbilityDisconnectDone(admin, resultCode);
     EXPECT_TRUE(AdminManager::GetInstance()->IsSuperAdmin(bundleName));
 
-    AdminManager::GetInstance()->DeleteAdmin(admin.GetBundleName(), DEFAULT_USER_ID);
+    AdminManager::GetInstance()->DeleteAdmin(admin.GetBundleName(), DEFAULT_USER_ID, AdminType::ENT);
 }
 
 /**

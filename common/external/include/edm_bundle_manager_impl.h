@@ -46,6 +46,7 @@ public:
     ErrCode IsSystemApp(const std::string &bundleName, int userId, bool &isSystemApp) override;
     bool SetApplicationDisableForbidden(const std::string &bundleName,
         int32_t userId, int32_t appIndex, bool forbidden) override;
+    std::string GetIconByBundleName(const std::string &bundleName) override;
 };
 } // namespace EDM
 } // namespace OHOS

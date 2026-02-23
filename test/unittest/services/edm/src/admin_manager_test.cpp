@@ -43,11 +43,11 @@ void AdminManagerTest::TearDown()
     std::vector<std::shared_ptr<Admin>> userAdmin;
     adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     for (const auto &admin : userAdmin) {
-        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, DEFAULT_USER_ID);
+        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, DEFAULT_USER_ID, admin->adminInfo_.adminType_);
     }
     adminMgr_->GetAdminByUserId(TEST_USER_ID, userAdmin);
     for (const auto &admin : userAdmin) {
-        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, TEST_USER_ID);
+        adminMgr_->DeleteAdmin(admin->adminInfo_.packageName_, TEST_USER_ID, admin->adminInfo_.adminType_);
     }
     adminMgr_->ClearAdmins();
 }
@@ -146,12 +146,12 @@ HWTEST_F(AdminManagerTest, TestDeleteAdmin, TestSize.Level1)
     res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
     ASSERT_TRUE(res == ERR_OK);
 
-    res = adminMgr_->DeleteAdmin("com.edm.test.demo", DEFAULT_USER_ID);
+    res = adminMgr_->DeleteAdmin("com.edm.test.demo", DEFAULT_USER_ID, AdminType::NORMAL);
     ASSERT_TRUE(res == ERR_OK);
     adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     ASSERT_TRUE(userAdmin.size() == 1);
 
-    res = adminMgr_->DeleteAdmin("com.edm.test.demo1", DEFAULT_USER_ID);
+    res = adminMgr_->DeleteAdmin("com.edm.test.demo1", DEFAULT_USER_ID, AdminType::ENT);
     ASSERT_TRUE(res == ERR_OK);
     adminMgr_->GetAdminByUserId(DEFAULT_USER_ID, userAdmin);
     ASSERT_TRUE(userAdmin.empty());
@@ -504,9 +504,9 @@ HWTEST_F(AdminManagerTest, TestSaveAuthorizedAdmin, TestSize.Level1)
     ASSERT_TRUE(admin->GetAdminType() == AdminType::SUB_SUPER_ADMIN);
     ASSERT_TRUE(admin->GetParentAdminName() == bundleName);
 
-    res = adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
+    res = adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID, AdminType::ENT);
     ASSERT_TRUE(res == ERR_OK);
-    res = adminMgr_->DeleteAdmin(subBundleName, DEFAULT_USER_ID);
+    res = adminMgr_->DeleteAdmin(subBundleName, DEFAULT_USER_ID, AdminType::SUB_SUPER_ADMIN);
     ASSERT_TRUE(res == ERR_OK);
 }
 
@@ -630,7 +630,7 @@ HWTEST_F(AdminManagerTest, TestGetAdmins, TestSize.Level1)
     ASSERT_TRUE(userAdmin != nullptr);
     ASSERT_TRUE(userAdmin->adminInfo_.adminType_ == AdminType::NORMAL);
     userAdmins.clear();
-    res = adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID);
+    res = adminMgr_->DeleteAdmin(bundleName, DEFAULT_USER_ID, AdminType::NORMAL);
     ASSERT_TRUE(res == ERR_OK);
 
     adminInfo.adminType_ = AdminType::BYOD;
@@ -712,7 +712,7 @@ HWTEST_F(AdminManagerTest, TestGetDisallowedCrossAccountAdmins, TestSize.Level1)
     ASSERT_TRUE(bundleNames.size() == 1);
 
     // 删除数据
-    res = adminMgr_->DeleteAdmin(byodBundleName, DEFAULT_USER_ID);
+    res = adminMgr_->DeleteAdmin(byodBundleName, DEFAULT_USER_ID, AdminType::BYOD);
     ASSERT_TRUE(res == ERR_OK);
     
     bundleNames= adminMgr_->GetDisallowedCrossAccountAdmins(DEFAULT_USER_ID);

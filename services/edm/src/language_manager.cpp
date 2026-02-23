@@ -24,6 +24,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "external_manager_factory.h"
+#include "ext_info_manager.h"
 #include "func_code_utils.h"
 #include "iexternal_manager_factory.h"
 #include "locale_config.h"
@@ -93,6 +94,25 @@ bool LanguageManager::GetValueFromLocal(std::string& result)
     return false;
 }
 
+std::string LanguageManager::GetSystemStringByName(const std::string &name)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager(false));
+    if (resMgr == nullptr) {
+        return "";
+    }
+    if (!InitResourceManager(resMgr)) {
+        return "";
+    }
+    AddDataToResourceManager(resMgr);
+    std::string resultValue;
+    Global::Resource::RState res = resMgr->GetStringByName(name.c_str(), resultValue);
+    if (res == Global::Resource::RState::SUCCESS) {
+        return resultValue;
+    }
+    EDMLOGE("GetTargetLanguageValue GetSystemStringByName failed. %{public}d", res);
+    return "";
+}
+
 std::string LanguageManager::GetTargetLanguageValue(const std::string& jsonStr, const std::string& language)
 {
     if (jsonStr.empty() || language.empty()) {
@@ -132,26 +152,6 @@ std::string LanguageManager::GetTargetLanguageValue(const std::string& jsonStr, 
     return "";
 }
 
-bool LanguageManager::GetDefaultLanguageResourcePath(std::string &path)
-{
-    std::uint32_t code =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, (std::uint32_t)EdmInterfaceCode::GET_ADMINPROVISION_INFO);
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, "", data, reply, EdmConstants::DEFAULT_USER_ID);
-    if (getRet != ERR_OK) {
-        EDMLOGE("GetDefaultLanguageResourcePath getRet error");
-        return false;
-    }
-    int32_t resCode = ERR_INVALID_VALUE;
-    if (!reply.ReadInt32(resCode) || FAILED(resCode)) {
-        EDMLOGE("GetDefaultLanguageResourcePath reply error");
-        return false;
-    }
-    path = reply.ReadString();
-    return true;
-}
-
 bool LanguageManager::InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager>& resMgr)
 {
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -177,12 +177,8 @@ bool LanguageManager::InitResourceManager(std::shared_ptr<Global::Resource::Reso
 
 void LanguageManager::AddDataToResourceManager(std::shared_ptr<Global::Resource::ResourceManager>& resMgr)
 {
-    std::string resourcePath;
-    bool ret = GetDefaultLanguageResourcePath(resourcePath);
-    if (!ret) {
-        EDMLOGE("AddDataToResourceManager ret failed");
-        return;
-    }
+    ExtInfoManager extInfoManager;
+    std::string resourcePath = extInfoManager.GetAdminProvisioningInfo();
     if (resourcePath.empty()) {
         EDMLOGE("AddDataToResourceManager resourcePath empty");
         return;

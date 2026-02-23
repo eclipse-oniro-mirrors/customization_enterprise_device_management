@@ -25,6 +25,7 @@ namespace EDM {
 class LanguageManager {
 public:
     static std::string GetEnterpriseManagedTips();
+    static std::string GetSystemStringByName(const std::string &name);
 
 private:
     static bool GetValueFromCloudSettings(std::string &result);
@@ -32,7 +33,6 @@ private:
     static std::string GetTargetLanguageValue(const std::string &jsonStr, const std::string &language);
     static bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
     static void AddDataToResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
-    static bool GetDefaultLanguageResourcePath(std::string &path);
     static std::string GetEnterpriseName();
 };
 } // namespace EDM

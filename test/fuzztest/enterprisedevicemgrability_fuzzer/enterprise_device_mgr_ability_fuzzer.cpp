@@ -160,10 +160,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->DelDisallowUninstallAppForAccount(bundleName, userId);
     enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr->adminInfo_);
     enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
-    enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId);
-    enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId);
+    enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId, type);
+    enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId, type);
     enterpriseDeviceMgrAbility->RemoveAdminPolicy(adminName, userId);
-    enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName);
+    enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName, type);
     enterpriseDeviceMgrAbility->RemoveSuperAdminAndAdminPolicy(bundleName);
     enterpriseDeviceMgrAbility->CheckDelegatedPolicies(type, policies);
     enterpriseDeviceMgrAbility->CheckRunningMode(code);

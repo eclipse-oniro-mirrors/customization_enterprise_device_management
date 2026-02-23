@@ -18,12 +18,18 @@
 
 #include "iadmin_observer.h"
 
+#include "notification_info.h"
+
 namespace OHOS {
 namespace EDM {
 class AdminObserver : public IAdminObserver {
 public:
-    void OnAdminAdd(const std::string &bundleName, int32_t userId) override;
-    void OnAdminRemove(const std::string &bundleName, int32_t userId) override;
+    void OnAdminAdd(const std::string &bundleName, int32_t userId, bool isDebug) override;
+    void OnAdminRemove(const std::string &bundleName, int32_t userId, AdminType amdinType) override;
+
+private:
+    void SendAdminNotification(const std::string &text, const WantAgentInfo &wantAgentInfo);
+    void SendByodDisableSelfNotification(const std::string &bundleName);
 };
 } // namespace EDM
 } // namespace OHOS

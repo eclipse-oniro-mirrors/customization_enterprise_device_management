@@ -50,6 +50,7 @@ public:
     MOCK_METHOD(bool, QueryAbilityInfo, (const AAFwk::Want &want, int32_t flags, int32_t userId,
         AppExecFwk::AbilityInfo &abilityInfo), (override));
     MOCK_METHOD(ErrCode, IsSystemApp, (const std::string &bundleName, int userId, bool &isSystemApp), (override));
+    MOCK_METHOD(std::string, GetIconByBundleName, (const std::string &bundleName), (override));
 };
 } // namespace EDM
 } // namespace OHOS
