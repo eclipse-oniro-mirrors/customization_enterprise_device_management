@@ -67,6 +67,7 @@ public:
     void ClearAdmins();
     void InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> admins);
     bool IsExistTargetAdmin(bool isDebug);
+    bool IsExistTargetAdmin(bool isDebug, int32_t userId);
     int32_t GetSuperDeviceAdminAndDeviceAdminCount();
     ErrCode UpdateAdminPermission(const std::string &bundleName, int32_t userId,
         std::vector<std::string> permissionList);
