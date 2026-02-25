@@ -455,7 +455,6 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
         ret = proxy->SetValueForAccount(elementName, accountId, value, EdmConstants::PERMISSION_TAG_VERSION_23);
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, (value == "0" || value == "1"), "param 'floatingNavigation' error");
         ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
