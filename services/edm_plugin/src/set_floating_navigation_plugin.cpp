@@ -15,17 +15,15 @@
 
 #include "set_floating_navigation_plugin.h"
 
-#include "battery_utils.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
-#include "edm_os_account_manager_impl.h"
 #include "iplugin_manager.h"
 #include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
 
-const std::string KEY_EYE_COMFORT_MODE = "floatingNavigation";
+const std::string KEY_FLOATING_NAVIGATION = "floatingNavigation";
 const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_";
 const std::string SETTINGS_DATA_PREFIX = "?Proxy=true";
@@ -55,9 +53,14 @@ ErrCode SetFloatingNavigationPlugin::OnSetPolicy(std::string &data, std::string 
         EDMLOGE("OnSetPolicy floating nagivation is empty.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
+
+    if ((data != "0") && (data != "1")) {
+        EDMLOGE("OnSetPolicy floating nagivation is error.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
         
     std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
-    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_MODE, data);
+    ErrCode code = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_FLOATING_NAVIGATION, data);
     if (FAILED(code)) {
         EDMLOGE("SetFloatingNavigationPlugin::set eyecomfort failed : %{public}d.", code);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -71,7 +74,7 @@ ErrCode SetFloatingNavigationPlugin::OnGetPolicy(std::string &value, MessageParc
     EDMLOGD("SetFloatingNavigationPlugin OnGetPolicy");
     std::string result;
     std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
-    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(uri, KEY_EYE_COMFORT_MODE, result);
+    ErrCode code = EdmDataAbilityUtils::GetStringFromSettingsDataShare(uri, KEY_FLOATING_NAVIGATION, result);
     if (code != ERR_OK) {
         EDMLOGE("SetFloatingNavigationPlugin::get data from database failed : %{public}d.", code);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);

@@ -106,7 +106,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/utils/battery_utils.cpp",
       "./src/utils/bluetooth_config_utils.cpp",
       "./src/set_allowed_kiosk_apps_plugin.cpp",
-      "./src/set_floating_navigation_plugin.cpp",
       "./src/install_enterprise_re_signature_certificate_plugin.cpp",
     ]
 
@@ -199,6 +198,7 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/disable_backup_and_restore_plugin.cpp",
         "./src/disable_private_space_plugin.cpp",
+        "./src/set_floating_navigation_plugin.cpp",
       ]
     }
 
