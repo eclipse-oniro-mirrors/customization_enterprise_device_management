@@ -15,10 +15,8 @@
 
 #include "set_floating_navigation_plugin.h"
 
-#include "battery_utils.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
-#include "edm_os_account_manager_impl.h"
 #include "iplugin_manager.h"
 #include "string_serializer.h"
 
@@ -56,7 +54,7 @@ ErrCode SetFloatingNavigationPlugin::OnSetPolicy(std::string &data, std::string 
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    if ((data != "0") || (data != "1")) {
+    if ((data != "0") && (data != "1")) {
         EDMLOGE("OnSetPolicy floating nagivation is error.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
