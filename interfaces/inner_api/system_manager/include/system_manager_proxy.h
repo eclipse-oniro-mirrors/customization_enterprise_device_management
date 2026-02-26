@@ -55,6 +55,10 @@ public:
     int32_t StartCollectlog(const AppExecFwk::ElementName &admin);
     int32_t FinishLogCollected(MessageParcel &data);
 #endif
+#if defined(FEATURE_PC_ONLY)
+    int32_t SetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data);
+    int32_t GetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data, bool &isAllowedInstall);
+#endif
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;
     static std::once_flag flag_;

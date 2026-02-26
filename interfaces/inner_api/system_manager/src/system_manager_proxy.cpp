@@ -195,6 +195,33 @@ int32_t SystemManagerProxy::GetInstallLocalEnterpriseAppEnabled(MessageParcel &d
     return ERR_OK;
 }
 
+#if defined(FEATURE_PC_ONLY)
+int32_t SystemManagerProxy::SetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetInstallLocalEnterpriseAppEnabledForAccount");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data, bool &isAllowedInstall)
+{
+    EDMLOGD("SystemManagerProxy::GetInstallLocalEnterpriseAppEnabledForAccount");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(isAllowedInstall);
+    return ERR_OK;
+}
+#endif
+
 int32_t SystemManagerProxy::AddOrRemoveDisallowedNearlinkProtocols(MessageParcel &data, FuncOperateType operateType)
 {
     EDMLOGD("SystemManagerProxy::AddOrRemoveDisallowedNearlinkProtocols");

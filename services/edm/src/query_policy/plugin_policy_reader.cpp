@@ -130,6 +130,7 @@
 #include "disable_usb_storage_device_write_query.h"
 #include "disallow_modify_ethernet_ip_query.h"
 #include "install_local_enterprise_app_enabled_query.h"
+#include "install_local_enterprise_app_enabled_for_account_query.h"
 #include "disable_hdc_remote_query.h"
 #endif
 
@@ -737,6 +738,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOW_USB_SERIAL:
             obj = std::make_shared<DisallowUsbSerialQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT:
+#ifdef FEATURE_PC_ONLY
+            obj = std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }
