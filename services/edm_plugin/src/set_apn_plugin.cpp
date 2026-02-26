@@ -135,20 +135,20 @@ std::map<std::string, std::string> SetApnPlugin::ParserApnMap(MessageParcel &dat
 {
     EDMLOGI("SetApnPlugin::ParserApnMap start");
     std::map<std::string, std::string> result;
-    int32_t mapSize = -1;
-    if (!data.ReadInt32(mapSize) || static_cast<uint32_t>(mapSize) > EdmConstants::SetApn::MAX_MAP_SIZE) {
+    uint32_t mapSize = 0;
+    if (!data.ReadUint32(mapSize) || mapSize > EdmConstants::SetApn::MAX_MAP_SIZE) {
         EDMLOGE("ParserApnMap size error");
         return {};
     }
     std::vector<std::string> keys(mapSize);
-    for (int32_t idx = 0; idx < mapSize; ++idx) {
+    for (uint32_t idx = 0; idx < mapSize; ++idx) {
         keys[idx] = data.ReadString();
     }
     std::vector<std::string> values(mapSize);
-    for (int32_t idx = 0; idx < mapSize; ++idx) {
+    for (uint32_t idx = 0; idx < mapSize; ++idx) {
         values[idx] = data.ReadString();
     }
-    for (int32_t idx = 0; idx < mapSize; ++idx) {
+    for (uint32_t idx = 0; idx < mapSize; ++idx) {
         result[keys[idx]] = values[idx];
     }
     int32_t pwdLen = data.ReadInt32();
@@ -167,14 +167,14 @@ void SetApnPlugin::GenerateApnMap(std::map<std::string, std::string> &apnInfo, M
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return;
     }
-    int32_t size = 0;
+    uint32_t size = 0;
     for (const auto &[key, value] : apnInfo) {
         if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
             size++;
         }
     }
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(size);
+    reply.WriteUint32(size);
     for (const auto &[key, value] : apnInfo) {
         if (ALL_APN_INFO_FIELD.find(key) != ALL_APN_INFO_FIELD.end()) {
             reply.WriteString(key);
@@ -226,7 +226,7 @@ ErrCode SetApnPlugin::QueryId(MessageParcel &data, MessageParcel &reply)
     std::map<std::string, std::string> apnInfo = ParserApnMap(data, apnUtilsPassword);
     std::vector<std::string> result = ApnUtils::ApnQuery(apnInfo);
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(static_cast<int32_t>(result.size()));
+    reply.WriteUint32(result.size());
     for (const auto &ele : result) {
         reply.WriteString(ele);
     }
