@@ -159,9 +159,9 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
 }
 
 int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &admin,
-    std::string &info, const std::string &item)
+    std::string &info)
 {
-    EDMLOGD("SecurityManagerProxy::GetRootCheckStatus, item: %{public}s", item.c_str());
+    EDMLOGD("SecurityManagerProxy::GetRootCheckStatus");
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -169,7 +169,6 @@ int32_t SecurityManagerProxy::GetRootCheckStatus(const AppExecFwk::ElementName &
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
-    data.WriteString(item);
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::POLICY_CODE_END + 8);
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(funcCode, data, reply);
@@ -318,13 +317,12 @@ int32_t SecurityManagerProxy::GetExternalSourceExtensionsPolicy(MessageParcel &d
     policy = reply.ReadInt32();
     return ERR_OK;
 }
-
+ 
 int32_t SecurityManagerProxy::InstallEnterpriseReSignatureCertificate(MessageParcel &data)
 {
     EDMLOGD("SecurityManagerProxy::InstallEnterpriseReSignatureCertificate");
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-                         EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
     if (ret != ERR_OK) {
         EDMLOGE("SecurityManagerProxy:InstallEnterpriseReSignatureCertificate fail. %{public}d", ret);
@@ -336,9 +334,8 @@ int32_t SecurityManagerProxy::InstallEnterpriseReSignatureCertificate(MessagePar
 int32_t SecurityManagerProxy::UninstallEnterpriseReSignatureCertificate(MessageParcel &data)
 {
     EDMLOGD("SecurityManagerProxy::UninstallEnterpriseReSignatureCertificate");
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-                         EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
     if (ret != ERR_OK) {
         EDMLOGE("SecurityManagerProxy:UninstallEnterpriseReSignatureCertificate fail. %{public}d", ret);

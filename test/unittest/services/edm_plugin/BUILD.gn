@@ -70,7 +70,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/power_policy_plugin_test.cpp",
     "./src/screen_off_time_plugin_test.cpp",
     "./src/set_eye_comfort_mode_plugin_test.cpp",
-    "./src/set_device_name_plugin_test.cpp",
     "./src/snapshot_skip_plugin_test.cpp",
     "./src/uninstall_plugin_test.cpp",
     "./src/utils/allowed_app_distribution_types_utils_test.cpp",
@@ -81,7 +80,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
     "./src/clear_up_application_data_plugin_test.cpp",
     "./src/set_ability_disable_plugin_test.cpp",
-    "./src/install_enterprise_re_signature_certificate_plugin_test.cpp",
   ]
 
   configs = [
@@ -481,7 +479,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/screen_off_time_plugin.cpp",
     "../../../../services/edm_plugin/src/set_eye_comfort_mode_plugin.cpp",
-    "../../../../services/edm_plugin/src/set_device_name_plugin.cpp",
     "../../../../services/edm_plugin/src/set_allowed_kiosk_apps_plugin.cpp",
     "../../../../services/edm_plugin/src/snapshot_skip_plugin.cpp",
     "../../../../services/edm_plugin/src/uninstall_plugin.cpp",
@@ -495,7 +492,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
     "../../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../../services/edm_plugin/src/set_ability_disable_plugin.cpp",
-    "../../../../services/edm_plugin/src/install_enterprise_re_signature_certificate_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]

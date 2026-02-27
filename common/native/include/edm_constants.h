@@ -195,7 +195,6 @@ namespace EdmConstants {
         const char* const ROOT = "root";
         const char* const SET_SINGLE_WATERMARK_TYPE = "single";
         const char* const SET_ALL_WATERMARK_TYPE = "all";
-        const char* const FASTBOOT  = "fastboot";
     } // namespace SecurityManager
 
     namespace DeviceSettings {
@@ -204,7 +203,6 @@ namespace EdmConstants {
         const char* const DATE_TIME = "dateTime";
         const char* const EYE_COMFORT = "eyeComfort";
         const char* const DEFAULT_INPUT_METHOD = "defaultInputMethod";
-        const char* const DEVICE_NAME = "deviceName";
     } // namespace DeviceSettings
 
     namespace DeviceControl {

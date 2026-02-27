@@ -56,9 +56,6 @@ private:
 
     static napi_value SetValue(napi_env env, napi_callback_info info);
     static napi_value GetValue(napi_env env, napi_callback_info info);
-    static napi_value setValueForAccount(napi_env env, napi_callback_info info);
-    static napi_value getValueForAccount(napi_env env, napi_callback_info info);
-    static void CreateSettingsItemObject(napi_env env, napi_value value);
     static bool JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene);
     static bool JsStrToPowerPolicy(napi_env env, std::string jsStr, PowerPolicy &powerPolicy);
     static int32_t ConvertPowerPolicyToJsStr(

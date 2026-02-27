@@ -94,14 +94,6 @@ bool EnterpriseConnManager::CreateKeyEventConnection(const AAFwk::Want &want, ui
     return ConnectAbility(connection);
 }
 
-bool EnterpriseConnManager::CreateOobeConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-    int32_t type)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterpriseOobeConnection(want, code, userId, type));
-    return ConnectAbility(connection);
-}
-
 bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
 {
     if (connection == nullptr) {

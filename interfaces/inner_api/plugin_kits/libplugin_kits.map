@@ -30,6 +30,7 @@
             vtable?for?OHOS::EDM::IPolicyManager;
             vtable?for?OHOS::EDM::IWatermarkObserverManager;
             vtable?for?OHOS::EDM::Basic*Plugin;
+            vtable?for?OHOS::EDM::IExternalModuleAdapter;
         };
     local:
         *;

@@ -63,10 +63,6 @@ public:
     void OnLogCollected(bool isSuccess) override;
 
     void OnKeyEvent(const std::string &keyEvent) override;
-
-    void OnStartupGuideCompleted(int32_t type) override;
-
-    void OnDeviceBootCompleted() override;
 private:
     void SendRequest(uint32_t code, MessageParcel &data);
 };

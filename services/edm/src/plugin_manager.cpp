@@ -71,8 +71,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
     EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE, EdmInterfaceCode::SET_EYE_COMFORT_MODE,
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD,
-    EdmInterfaceCode::SET_ABILITY_ENABLED, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER,
-    EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE, EdmInterfaceCode::SET_DEVICE_NAME
+    EdmInterfaceCode::SET_ABILITY_ENABLED, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -114,7 +113,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::GET_DEVICE_INFO, EdmInterfaceCode::OPERATE_DEVICE,
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
     EdmInterfaceCode::GET_ADMINPROVISION_INFO, EdmInterfaceCode::SET_WALL_PAPER,
-    EdmInterfaceCode::INSTALL_MARKET_APPS, EdmInterfaceCode::SET_KEY_CODE_POLICYS,
+    EdmInterfaceCode::INSTALL_MARKET_APPS
 };
 
 PluginManager::PluginManager()

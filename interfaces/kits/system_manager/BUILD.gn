@@ -28,6 +28,7 @@ ohos_shared_library("systemmanager") {
 
   deps = [
     "../../inner_api:edmservice_kits",
+    "../../inner_api/plugin_kits:plugin_kits",
     "../common:napi_edm_common",
   ]
 
