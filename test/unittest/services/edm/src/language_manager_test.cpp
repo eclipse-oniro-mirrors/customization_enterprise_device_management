@@ -223,7 +223,47 @@ HWTEST_F(LanguageManagerTest, TestGetEnterpriseManagedTips, TestSize.Level1)
     EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS, "");
     free(enterpriseInfo);
     cJSON_Delete(root);
+#ifdef FEATURE_PC_ONLY
     EXPECT_EQ(result, "lockInfo");
+#else
+    EXPECT_TRUE(result.empty());
+#endif
+}
+
+/**
+ * @tc.name: TestIsNeedToShowEnterpriseManagedTips_ReturnsFalse
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ReturnsFalse, TestSize.Level1)
+{
+    std::string bundleName = "test";
+    AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo);
+    bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
+#ifdef FEATURE_PC_ONLY
+    EXPECT_EQ(ret, true);
+#else
+    EXPECT_EQ(ret, false);
+#endif
+    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::NORMAL);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: TestIsNeedToShowEnterpriseManagedTips_ReturnsTrue
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ReturnsTrue, TestSize.Level1)
+{
+    std::string bundleName = "test";
+    AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::ENT, .isDebug_ = true};
+    AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo);
+    bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
+    EXPECT_EQ(ret, true);
+    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
+    EXPECT_EQ(res, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
