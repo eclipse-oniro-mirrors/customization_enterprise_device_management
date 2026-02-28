@@ -19,7 +19,6 @@
 #include "edm_constants.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "power_policy.h"
-#include "setting_item_policy.h"
 
 namespace OHOS {
 namespace EDM {
@@ -44,10 +43,6 @@ public:
     int32_t SetEyeComfortMode(const AppExecFwk::ElementName &admin, const std::string &value);
     int32_t GetEyeComfortMode(const AppExecFwk::ElementName &admin, std::string &value);
     int32_t SetDefaultInputMethod(const AppExecFwk::ElementName &admin, const std::string &value);
-    int32_t SetValueForAccount(const AppExecFwk::ElementName &admin, int32_t accountId, const std::string &value,
-        const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_23);
-    int32_t GetValueForAccount(const AppExecFwk::ElementName &admin, int32_t accountId, std::string &value,
-        const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_23);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

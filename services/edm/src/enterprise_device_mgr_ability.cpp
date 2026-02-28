@@ -105,8 +105,6 @@ const int32_t AG_PERMISSION_INDEX = 2;
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
 const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
-const std::string OOBE_FINISHED_EVENT = "custom.event.OOBE.HWSTARTUPGUIDE.FINISHED";
-const std::string PERMISSION_OOBE_FINISHED = "ohos.permission.ACCESS_STARTUPGUIDE";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 std::mutex EnterpriseDeviceMgrAbility::subscribeAppLock_;
@@ -162,23 +160,6 @@ void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
     commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_OFF] =
         [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
             that->OnCommonEventKioskMode(data, false);
-        };
-    AddCommonEventFuncMapSecond();
-}
-
-void EnterpriseDeviceMgrAbility::AddCommonEventFuncMapSecond()
-{
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventSimStateChanged(data);
-        };
-    commonEventFuncMap_[OOBE_FINISHED_EVENT] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventOobeFinish(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_BOOT_COMPLETED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventDevicePowerOn(data);
         };
 }
 
@@ -309,73 +290,6 @@ void EnterpriseDeviceMgrAbility::UpdateNotifyPackagePolicy()
         elementName.SetBundleName(admin->adminInfo_.packageName_);
         elementName.SetAbilityName(admin->adminInfo_.className_);
         HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
-    }
-}
-
-void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonEventData &data)
-{
-    bool isOtaFinish = data.GetWant().GetBoolParam("ota", false);
-    bool isFirstBoot = data.GetWant().GetBoolParam("firstBoot", false);
-    bool isSubUserScene = data.GetWant().GetBoolParam("subUserScene", false);
-
-    int32_t type = 0;
-    if (isSubUserScene) {
-        type |= 1 << static_cast<int32_t>(StartupScene::USER_SETUP);
-    }
-    if (isOtaFinish) {
-        type |= 1 << static_cast<int32_t>(StartupScene::OTA);
-    }
-    if (isFirstBoot) {
-        type |= 1 << static_cast<int32_t>(StartupScene::DEVICE_PROVISION);
-    }
-    EDMLOGI("OnCommonEventOobeFinish type:%{public}d", type);
-
-    if (type == 0) {
-        EDMLOGE("OnCommonEventOobeFinish type is error!");
-        return;
-    }
-
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::STARTUP_GUIDE_COMPLETED, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("Get subscriber by common event failed.");
-        return;
-    }
-    AAFwk::Want want;
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    for (const auto& subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            bool ret = manager->CreateOobeConnection(want,
-                static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_STARTUP_GUIDE_COMPLETED),
-                subAdmin.first, type);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish CreateOobeConnection failed.");
-            }
-        }
-    }
-}
-
-void EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data)
-{
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::BOOT_COMPLETED, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("Get subscriber by common event failed.");
-        return;
-    }
-    AAFwk::Want want;
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    for (const auto& subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            bool ret = manager->CreateOobeConnection(want,
-                static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_DEVICE_BOOT_COMPLETED),
-                subAdmin.first, -1);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn CreateOobeConnection failed.");
-            }
-        }
     }
 }
 
@@ -532,23 +446,10 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::Cre
         if (item.first == SYSTEM_UPDATE_FOR_POLICY) {
             continue;
         }
-        if (item.first == OOBE_FINISHED_EVENT) {
-            continue;
-        }
         skill.AddEvent(item.first);
         EDMLOGI("CreateEnterpriseDeviceEventSubscriber AddEvent: %{public}s", item.first.c_str());
     }
     EventFwk::CommonEventSubscribeInfo info(skill);
-    return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
-}
-
-std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::CreateOobeEventSubscriber(
-    EnterpriseDeviceMgrAbility &listener)
-{
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    skill.AddEvent(OOBE_FINISHED_EVENT);
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    info.SetPermission(PERMISSION_OOBE_FINISHED);
     return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
 }
 #endif
@@ -1256,9 +1157,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
         EDMLOGI("create agEventSubscriber success");
         EventFwk::CommonEventManager::SubscribeCommonEvent(agEventSubscriber);
     }
-
-    auto oobeEventSubscriber = CreateOobeEventSubscriber(*this);
-    EventFwk::CommonEventManager::SubscribeCommonEvent(oobeEventSubscriber);
 #else
     EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventServiceStart Unsupported Capabilities.");
     return;
@@ -2451,7 +2349,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
 bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 {
     if (event >= static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED) &&
-        event <= static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED)) {
+        event <= static_cast<uint32_t>(ManagedEvent::USER_REMOVED)) {
         return true;
     }
     return false;

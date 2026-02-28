@@ -595,47 +595,6 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
     return nKeyEventInfo;
 }
 
-void JsEnterpriseAdminExtension::OnStartupGuideCompleted(int32_t type)
-{
-    EDMLOGI("JsEnterpriseAdminExtension::OnStartupGuideCompleted");
-    if (type & (1 << static_cast<int32_t>(StartupScene::USER_SETUP))) {
-        auto task = [type, this]() {
-            auto env = jsRuntime_.GetNapiEnv();
-            napi_value argv[] = { AbilityRuntime::CreateJsValue(env,
-                static_cast<int32_t>(StartupScene::USER_SETUP)) };
-            CallObjectMethod("onStartupGuideCompleted", argv, JS_NAPI_ARGC_ONE);
-        };
-        handler_->PostTask(task);
-    }
-    if (type & (1 << static_cast<int32_t>(StartupScene::OTA))) {
-        auto task = [type, this]() {
-            auto env = jsRuntime_.GetNapiEnv();
-            napi_value argv[] = { AbilityRuntime::CreateJsValue(env,
-                static_cast<int32_t>(StartupScene::OTA)) };
-            CallObjectMethod("onStartupGuideCompleted", argv, JS_NAPI_ARGC_ONE);
-        };
-        handler_->PostTask(task);
-    }
-    if (type & (1 << static_cast<int32_t>(StartupScene::DEVICE_PROVISION))) {
-        auto task = [type, this]() {
-            auto env = jsRuntime_.GetNapiEnv();
-            napi_value argv[] = { AbilityRuntime::CreateJsValue(env,
-                static_cast<int32_t>(StartupScene::DEVICE_PROVISION)) };
-            CallObjectMethod("onStartupGuideCompleted", argv, JS_NAPI_ARGC_ONE);
-        };
-        handler_->PostTask(task);
-    }
-}
-
-void JsEnterpriseAdminExtension::OnDeviceBootCompleted()
-{
-    EDMLOGI("JsEnterpriseAdminExtension::OnDeviceBootCompleted");
-    auto task = [this]() {
-        CallObjectMethod("onDeviceBootCompleted", nullptr, JS_NAPI_ARGC_ZERO);
-    };
-    handler_->PostTask(task);
-}
-
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)
 {
     napi_value nSystemUpdateInfo = nullptr;

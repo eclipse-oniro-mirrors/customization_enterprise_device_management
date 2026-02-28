@@ -45,7 +45,7 @@ public:
     int32_t SetPasswordPolicy(MessageParcel &data);
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
-    int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info, const std::string &item);
+    int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info);
     int32_t SetAppClipboardPolicy(MessageParcel &data);
     int32_t GetAppClipboardPolicy(MessageParcel &data, std::string &policy);
     int32_t SetPermissionManagedState(MessageParcel &data);

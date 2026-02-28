@@ -38,6 +38,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
   deps = [
     "../../../../common/native:edm_commom",
     "../../../../interfaces/inner_api:edmservice_kits",
+    "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
     "../../../../services/idl:enterprise_device_mgr_idl_proxy",
     "../../utils:edm_unittest_utils",
   ]

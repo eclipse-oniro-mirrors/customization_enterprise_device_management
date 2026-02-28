@@ -187,25 +187,5 @@ void EnterpriseAdminStubImpl::OnKeyEvent(const std::string &event)
         EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
     }
 }
-
-void EnterpriseAdminStubImpl::OnStartupGuideCompleted(int32_t type)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnStartupGuideCompleted(type);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnDeviceBootCompleted()
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnDeviceBootCompleted();
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
 } // namespace EDM
 } // namespace OHOS

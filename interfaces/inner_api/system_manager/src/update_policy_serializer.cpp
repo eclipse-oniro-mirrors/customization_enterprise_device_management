@@ -47,6 +47,11 @@ bool UpdatePolicySerializer::WritePolicy(MessageParcel &reply, UpdatePolicy &res
 bool UpdatePolicySerializer::MergePolicy(std::vector<UpdatePolicy> &data,
     UpdatePolicy &result)
 {
+    for (auto &policy : data) {
+        if (policy.type == UpdatePolicyType::DEFAULT) {
+            result.type = policy.type;
+        }
+    }
     return true;
 }
 } // namespace EDM
