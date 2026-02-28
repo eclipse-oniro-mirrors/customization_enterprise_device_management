@@ -229,7 +229,7 @@ bool SetWatermarkImagePlugin::GetWatermarkParam(WatermarkParam &param, MessagePa
     param.width = data.ReadInt32();
     param.height = data.ReadInt32();
     param.size = data.ReadInt32();
-    if (param.size <= 0 || param.size > static_cast<int32_t>(data.GetRawDataCapacity())) {
+    if (param.size <= 0 || param.size > EdmConstants::MAX_WATERMARK_IMAGE_SIZE) {
         EDMLOGE("GetWatermarkParam size error");
         return false;
     }
@@ -319,10 +319,17 @@ std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::GetImageFromUrlUint8(c
         return nullptr;
     }
     infile.seekg(0, std::ios::beg);
-    uint8_t data[size];
+    uint8_t* data = (uint8_t*) malloc(size);
+    if (data == nullptr) {
+        EDMLOGE("GetImageFromUrlUint8 malloc fail");
+        infile.close();
+        return nullptr;
+    }
     infile.read(reinterpret_cast<char *>(data), size);
     infile.close();
-    return CreatePixelMapFromUint8(data, size, imageType.width, imageType.height);
+    auto pixelMap = CreatePixelMapFromUint8(data, size, imageType.width, imageType.height);
+    free(data);
+    return pixelMap;
 }
 
 std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::CreatePixelMapFromUint8(const uint8_t *data, size_t size,
