@@ -61,7 +61,12 @@ bool ArrayUsbDeviceIdSerializer::Deserialize(const std::string &jsonString, std:
     }
 
     const int arraySize = cJSON_GetArraySize(root);
-    if (arraySize > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
+    if (arraySize < 0) {
+        EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize data size=%{public}d is invalid", arraySize);
+        cJSON_Delete(root);
+        return false;
+    }
+    if (static_cast<uint32_t>(arraySize) > EdmConstants::ALLOWED_USB_DEVICES_MAX_SIZE) {
         EDMLOGE("ArrayUsbDeviceIdSerializer Deserialize data size=%{public}d is too large", arraySize);
         cJSON_Delete(root);
         return false;
