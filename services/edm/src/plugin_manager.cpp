@@ -73,7 +73,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD,
     EdmInterfaceCode::SET_ABILITY_ENABLED, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER,
     EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE, EdmInterfaceCode::SET_DEVICE_NAME,
-    EdmInterfaceCode::SET_FLOATING_NAVIGATION
+    EdmInterfaceCode::SET_FLOATING_NAVIGATION, EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

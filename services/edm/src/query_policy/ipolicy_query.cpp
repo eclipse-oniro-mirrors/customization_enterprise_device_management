@@ -80,6 +80,7 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
     }
     EDMLOGW("IPolicyQuery: GetPolicy read want");
     AppExecFwk::ElementName elementName;
+    bool isAdminNull = false;
     if (data.ReadInt32() == 0) {
         std::unique_ptr<AppExecFwk::ElementName> admin(data.ReadParcelable<AppExecFwk::ElementName>());
         if (!admin) {
@@ -101,6 +102,7 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
         elementName.SetBundleName(admin->GetBundleName());
         elementName.SetAbilityName(admin->GetAbilityName());
     } else {
+        isAdminNull = true;
         if (!PermissionChecker::GetInstance()->CheckElementNullPermission(code,
             this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag))) {
             EDMLOGE("IPolicyQuery: permission check failed");
@@ -113,10 +115,16 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
     if (this->IsPolicySaved()) {
         policyManager->GetPolicy(elementName.GetBundleName(), policyName, policyValue, userId);
     }
-    ErrCode getRet = this->QueryPolicy(policyValue, data, reply, userId);
+    ErrCode getRet = this->QueryPolicy(policyValue, data, reply, userId, isAdminNull);
     ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), reportInfo, true);
     return getRet;
+}
+
+ErrCode IPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId,
+    bool isAdminNull)
+{
+    return this->QueryPolicy(policyData, data, reply, userId);
 }
 } // namespace EDM
 } // namespace OHOS
