@@ -309,6 +309,7 @@ ohos_shared_library("communication_plugin") {
         "./src/disallowed_telephony_call_plugin.cpp",
         "./src/telephony_call_policy_plugin.cpp",
         "./src/set_apn_plugin.cpp",
+        "./src/set_default_data_sim_plugin.cpp",
         "./src/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
         "./src/hang_up_calling_plugin.cpp",

@@ -37,6 +37,8 @@ public:
     int32_t HangupCalling(MessageParcel &data);
     int32_t ActiveSim(MessageParcel &data);
     int32_t DeactiveSim(MessageParcel &data);
+    int32_t SetDefaultDataSim(MessageParcel &data);
+    int32_t GetDefaultDataSim(MessageParcel &data, int32_t &simId);
 private:
     static std::shared_ptr<TelephonyManagerProxy> instance_;
     static std::once_flag flag_;

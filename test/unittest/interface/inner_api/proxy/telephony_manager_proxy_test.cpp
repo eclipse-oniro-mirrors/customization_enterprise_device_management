@@ -394,6 +394,76 @@ HWTEST_F(TelephonyManagerProxyTest, TestDeactiveSimFail, TestSize.Level1)
     int32_t ret = telephonyManagerProxy->DeactiveSim(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetDefaultDataSimSuc
+ * @tc.desc: Test SetDefaultDataSim success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestSetDefaultDataSimSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = telephonyManagerProxy->SetDefaultDataSim(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDefaultDataSimFail
+ * @tc.desc: Test SetDefaultDataSim without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestSetDefaultDataSimFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    int32_t ret = telephonyManagerProxy->SetDefaultDataSim(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDefaultDataSimSuc
+ * @tc.desc: Test GetDefaultDataSim success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetDefaultDataSimSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    int32_t simId = -1;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = telephonyManagerProxy->GetDefaultDataSim(data, simId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDefaultDataSimFail
+ * @tc.desc: Test GetDefaultDataSim without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetDefaultDataSimFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    int32_t simId = -1;
+    int32_t ret = telephonyManagerProxy->GetDefaultDataSim(data, simId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

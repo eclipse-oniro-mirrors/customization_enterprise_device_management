@@ -69,6 +69,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t INVALID_ACTIVATION_LOCK_CREDENTIALS = 9201011;
     constexpr uint32_t ENABLE_ACTIVATION_LOCK_FAILED = 9201012;
     constexpr uint32_t ACTIVE_SIM_FAILED = 9201017;
+    constexpr uint32_t SET_DEFAULT_DATA_SIM_FAILED = 9201018;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

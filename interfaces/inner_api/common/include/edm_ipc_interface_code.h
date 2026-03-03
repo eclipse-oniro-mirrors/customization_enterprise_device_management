@@ -188,6 +188,7 @@ enum EdmInterfaceCode : uint32_t {
     DISABLED_ACTIVATION_LOCK = 1139,
     MANAGE_SIM = 1140,
     GET_EXT_INFO = 1141,
+    SET_DEFAULT_DATA_SIM = 1142,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

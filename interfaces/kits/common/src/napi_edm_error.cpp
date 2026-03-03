@@ -60,6 +60,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::INVALID_ACTIVATION_LOCK_CREDENTIALS, "Invalid activation lock credentials."},
     {EdmReturnErrCode::ENABLE_ACTIVATION_LOCK_FAILED, "Failed to set the activation lock status."},
     {EdmReturnErrCode::ACTIVE_SIM_FAILED, "Failed to active sim, please turn off airplane mode or insert sim card."},
+    {EdmReturnErrCode::SET_DEFAULT_DATA_SIM_FAILED,
+        "Failed to set default data sim, please turn off airplane mode or insert sim card."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

@@ -429,6 +429,8 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_ACTIVATION_LOCK = "disable_activation_lock";
     const char* const POLICY_ACTIVE_SIM = "active_sim";
     const char* const POLICY_DEACTIVE_SIM = "deactive_sim";
+    const char* const POLICY_SET_DEFAULT_DATA_SIM = "set_default_data_sim";
+
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
