@@ -616,5 +616,37 @@ bool ApplicationManagerProxy::ParseDockInfos(MessageParcel &reply, std::vector<D
     return true;
 }
 #endif
+
+int32_t ApplicationManagerProxy::AddAllowedNotificationBundles(MessageParcel &data)
+{
+    EDMLOGI("ApplicationManagerProxy::AddAllowedNotificationBundles");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::RemoveAllowedNotificationBundles(MessageParcel &data)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveAllowedNotificationBundles");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetAllowedNotificationBundles(MessageParcel &data,
+    std::vector<std::string> &bundleNames)
+{
+    EDMLOGI("ApplicationManagerProxy::GetAllowedNotificationBundles");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&bundleNames);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

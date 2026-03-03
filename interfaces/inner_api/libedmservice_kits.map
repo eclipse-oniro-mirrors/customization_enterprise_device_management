@@ -102,6 +102,8 @@
             "OHOS::EDM::IAdminManager::adminManagerInstance_";
             vtable?for?OHOS::EDM::UpdatePolicySerializer;
             vtable?for?OHOS::EDM::UpgradePackageInfoSerializer;
+            OHOS::EDM::AllowedNotificationBundlesSerializer::*;
+            vtable?for?OHOS::EDM::AllowedNotificationBundlesSerializer;
         };
     local:
         *;

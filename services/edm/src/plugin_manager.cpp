@@ -108,7 +108,8 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::CLIPBOARD_POLICY, EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS,
     EdmInterfaceCode::CLEAR_UP_APPLICATION_DATA, EdmInterfaceCode::DISALLOWED_NOTIFICATION,
     EdmInterfaceCode::PERMISSION_MANAGED_STATE, EdmInterfaceCode::ALLOW_RUNNING_BUNDLES,
-    EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS
+    EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS,
+    EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {

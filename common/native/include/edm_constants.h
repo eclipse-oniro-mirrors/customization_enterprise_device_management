@@ -48,6 +48,7 @@ namespace EdmConstants {
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
     constexpr uint32_t MANAGE_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
+    constexpr uint32_t NOTIFICATION_BUNDLES_MAX_SIZE = 200;
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
     constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
 
@@ -398,6 +399,7 @@ namespace PolicyName {
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
+    const char* const POLICY_ALLOWED_NOTIFICATION_BUNDLES = "allowed_notification_bundles";
     const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
     const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
