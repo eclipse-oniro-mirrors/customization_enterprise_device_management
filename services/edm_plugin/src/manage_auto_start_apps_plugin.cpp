@@ -261,8 +261,7 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
         appInfo.SetUniqueKey(uniqueKey);
         appInfo.SetDisallowModify(disallowModify);
         std::string isHiddenStartStr = item.substr(index + 1);
-        bool isHiddenStart = isHiddenStartStr == "true" ? true : false;
-        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy isHiddenStart %{piublic}d.", isHiddenStart);
+        bool isHiddenStart = isHiddenStartStr == "true";
         appInfo.SetIsHiddenStart(isHiddenStart);
         tmpData.push_back(appInfo);
     }
@@ -323,7 +322,7 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         ErrCode res;
         if (isSet) {
             bool isHiddenStart = item.GetIsHiddenStart();
-            EDMLOGW("OnSetPolicy bundleName : %{public}s abilityName:%{public}s isHiddenStart is %{public}d",
+            EDMLOGD("OnSetPolicy bundleName : %{public}s abilityName:%{public}s isHiddenStart is %{public}d",
                 autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str(), isHiddenStart);
             res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify(),
                 isHiddenStart);

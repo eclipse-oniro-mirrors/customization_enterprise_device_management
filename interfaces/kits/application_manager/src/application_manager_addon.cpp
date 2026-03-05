@@ -390,15 +390,12 @@ bool ApplicationManagerAddon::EdmParseElementName(napi_env env, OHOS::EDM::EdmEl
     elementName.SetAbilityName(abilityName);
     
     napi_has_named_property(env, args, "parameters", &hasParameters);
-    EDMLOGI("01 --- EdmParseElementName parameters %{public}d", hasParameters);
-    if (hasParameters) 
+    if (hasParameters)
     {
         napi_value parameters;
-        EDMLOGI("02 --- 进来hasParameters了");
         napi_get_named_property(env, args, "parameters", &parameters);
         JsObjectToBool(env, parameters, "isHiddenStart", false, isHiddenStart);
     }
-    EDMLOGI("1 --- EdmParseElementName isHiddenStart %{public}d", isHiddenStart);
     elementName.SetIsHiddenStart(isHiddenStart);
     EDMLOGD("GetAutoStartApps parse auto start app set parameters isHiddenStart OK");
     
@@ -473,7 +470,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     std::vector<std::string> autoStartAppsString;
     for (size_t i = 0; i < autoStartApps.size(); i++) {
         std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
- 	    std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
  	        "/" + isHiddenStartString;
         autoStartAppsString.push_back(appWant);
     }

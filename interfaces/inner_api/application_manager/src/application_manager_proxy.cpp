@@ -177,7 +177,7 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
         element.SetBundleName(bundleName);
         element.SetAbilityName(abilityName);
         element.SetIsHiddenStart(isHiddenStartString == "true" ? true : false);
- 	    EDMLOGD("GetAutoStartApps parse auto start app set isHiddenStart OK");
+        EDMLOGD("GetAutoStartApps parse auto start app set isHiddenStart OK");
         autoStartApps.push_back(element);
     }
     return ERR_OK;

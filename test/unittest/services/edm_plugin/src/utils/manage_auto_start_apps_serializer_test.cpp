@@ -148,7 +148,8 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestDeserializeSuc, TestSize.Level1)
 HWTEST_F(ManageAutoStartAppsSerializerTest, TestIsHiddenStart, TestSize.Level1)
 {
     auto serializer = ManageAutoStartAppsSerializer::GetInstance();
-    std::string jsonString = R"([{"bundleName": "test", "abilityName": "testAB", "disallowModify": false, "isHiddenStart": true}])";
+    std::string jsonString = R"([{"bundleName": "test", "abilityName": "testAB",
+        "disallowModify": false, "isHiddenStart": true}])";
     std::vector<ManageAutoStartAppInfo> dataObj;
     bool ret = serializer->Deserialize(jsonString, dataObj);
     ASSERT_TRUE(ret);
