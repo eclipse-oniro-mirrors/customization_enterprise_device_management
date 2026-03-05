@@ -390,8 +390,7 @@ bool ApplicationManagerAddon::EdmParseElementName(napi_env env, OHOS::EDM::EdmEl
     elementName.SetAbilityName(abilityName);
     
     napi_has_named_property(env, args, "parameters", &hasParameters);
-    if (hasParameters)
-    {
+    if (hasParameters) {
         napi_value parameters;
         napi_get_named_property(env, args, "parameters", &parameters);
         JsObjectToBool(env, parameters, "isHiddenStart", false, isHiddenStart);

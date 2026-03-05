@@ -256,6 +256,9 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
     std::vector<ManageAutoStartAppInfo> tmpData;
     for (const auto &item : data) {
         ManageAutoStartAppInfo appInfo;
+        if (item.rfind("/") == std::string::npos) {
+            continue;
+        }
         int32_t index = item.rfind("/");
         std::string uniqueKey = item.substr(0, index);
         appInfo.SetUniqueKey(uniqueKey);
@@ -264,6 +267,10 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
         bool isHiddenStart = isHiddenStartStr == "true";
         appInfo.SetIsHiddenStart(isHiddenStart);
         tmpData.push_back(appInfo);
+    }
+    if (tmpData.empty()) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy input data is error.");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<ManageAutoStartAppInfo> addData =
         ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
