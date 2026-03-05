@@ -553,7 +553,6 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     }
     napi_value napiAutoStartApps = nullptr;
     NAPI_CALL(env, napi_create_array(env, &napiAutoStartApps));
-    size_t idx = 0;
     ParseAutoStartAppsInfo(env, napiAutoStartApps, autoStartApps);
     return napiAutoStartApps;
 }
