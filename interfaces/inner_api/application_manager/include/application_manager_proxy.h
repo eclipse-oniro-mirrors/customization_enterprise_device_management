@@ -19,6 +19,7 @@
 #include "clear_up_application_data_param.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "application_instance.h"
+#include "napi_edm_element_name.h"
 
 namespace OHOS {
 namespace EDM {
@@ -36,7 +37,7 @@ public:
     int32_t GetAllowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<std::string> &bundles);
     int32_t AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd);
-    int32_t GetAutoStartApps(MessageParcel &data, std::vector<AppExecFwk::ElementName> &autoStartApps);
+    int32_t GetAutoStartApps(MessageParcel &data, std::vector<OHOS::EDM::EdmElementName> &autoStartApps);
     int32_t RemoveKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
         int32_t userId);
     int32_t GetKeepAliveApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &keepAliveApps,

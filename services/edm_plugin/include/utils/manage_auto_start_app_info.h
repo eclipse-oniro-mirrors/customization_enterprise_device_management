@@ -30,11 +30,13 @@ public:
     void SetBundleName(const std::string &bundleName);
     void SetAbilityName(const std::string &abilityName);
     void SetDisallowModify(bool disallowModify);
+    void SetIsHiddenStart(bool isHiddenStart);
     bool SetUniqueKey(const std::string &uniqueKey);
  
     std::string GetBundleName() const;
     std::string GetAbilityName() const;
     bool GetDisallowModify() const;
+    bool GetIsHiddenStart() const;
  
     std::string GetUniqueKey() const
     {
@@ -44,7 +46,9 @@ public:
     bool operator<(const ManageAutoStartAppInfo &other) const
     {
         return (GetUniqueKey() == other.GetUniqueKey()) ?
-            GetDisallowModify() < other.GetDisallowModify() :
+            (GetDisallowModify() == other.GetDisallowModify() ?
+            GetIsHiddenStart() < other.GetIsHiddenStart() :
+            GetDisallowModify() < other.GetDisallowModify()) :
             GetUniqueKey() < other.GetUniqueKey();
     }
  
@@ -52,6 +56,7 @@ private:
     std::string bundleName_;
     std::string abilityName_;
     bool disallowModify_ = false;
+    bool isHiddenStart_ = false;
 };
 } // namespace EDM
 } // namespace OHOS

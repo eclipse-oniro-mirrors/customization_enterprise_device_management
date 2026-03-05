@@ -25,6 +25,7 @@ namespace EDM {
 const char* const BUNDLE_NAME = "bundleName";
 const char* const ABILITY_NAME = "abilityName";
 const char* const DISALLOW_MODIFY = "disallowModify";
+const char* const ISHIDDENSTART_MODIFY = "isHiddenStart";
  
 std::vector<ManageAutoStartAppInfo> ManageAutoStartAppsSerializer::SetUnionPolicyData(
     std::vector<ManageAutoStartAppInfo> &data, std::vector<ManageAutoStartAppInfo> &currentData)
@@ -96,6 +97,7 @@ bool ManageAutoStartAppsSerializer::Deserialize(const std::string &policy, std::
         cJSON* bundleName = cJSON_GetObjectItem(mapItem, BUNDLE_NAME);
         cJSON* abilityName = cJSON_GetObjectItem(mapItem, ABILITY_NAME);
         cJSON* disallowModify = cJSON_GetObjectItem(mapItem, DISALLOW_MODIFY);
+        cJSON* isHiddenStart = cJSON_GetObjectItem(mapItem, ISHIDDENSTART_MODIFY);
         ManageAutoStartAppInfo appInfo;
         if (bundleName == nullptr && disallowModify == nullptr && abilityName == nullptr && cJSON_IsString(mapItem)) {
             std::string autoStartString = cJSON_GetStringValue(mapItem);
@@ -104,6 +106,7 @@ bool ManageAutoStartAppsSerializer::Deserialize(const std::string &policy, std::
                 appInfo.SetBundleName(autoStartString.substr(0, index));
                 appInfo.SetAbilityName(autoStartString.substr(index + 1));
                 appInfo.SetDisallowModify(true);
+                appInfo.SetIsHiddenStart(false);
                 dataObj.emplace_back(appInfo);
             } else {
                 EDMLOGE("ManageAutoStartAppsSerializer parse auto start app want failed");
@@ -118,6 +121,7 @@ bool ManageAutoStartAppsSerializer::Deserialize(const std::string &policy, std::
             appInfo.SetBundleName(cJSON_GetStringValue(bundleName));
             appInfo.SetAbilityName(cJSON_GetStringValue(abilityName));
             appInfo.SetDisallowModify(cJSON_IsTrue(disallowModify));
+            appInfo.SetIsHiddenStart(cJSON_IsTrue(isHiddenStart));
             dataObj.emplace_back(appInfo);
         }
     }
@@ -139,6 +143,7 @@ bool ManageAutoStartAppsSerializer::Serialize(const std::vector<ManageAutoStartA
         cJSON_AddStringToObject(policyObject, BUNDLE_NAME, mapIt.GetBundleName().c_str());
         cJSON_AddStringToObject(policyObject, ABILITY_NAME, mapIt.GetAbilityName().c_str());
         cJSON_AddBoolToObject(policyObject, DISALLOW_MODIFY, mapIt.GetDisallowModify());
+        cJSON_AddBoolToObject(policyObject, ISHIDDENSTART_MODIFY, mapIt.GetIsHiddenStart());
         if (!cJSON_AddItemToArray(root, policyObject)) {
             cJSON_Delete(root);
             cJSON_Delete(policyObject);
@@ -204,6 +209,7 @@ bool ManageAutoStartAppsSerializer::UpdateByMergePolicy(std::vector<ManageAutoSt
         for (const ManageAutoStartAppInfo &mergeItem : mergeData) {
             if (dataItem.GetUniqueKey() == mergeItem.GetUniqueKey()) {
                 dataItem.SetDisallowModify(mergeItem.GetDisallowModify());
+                dataItem.SetIsHiddenStart(mergeItem.GetIsHiddenStart());
                 break;
             }
         }

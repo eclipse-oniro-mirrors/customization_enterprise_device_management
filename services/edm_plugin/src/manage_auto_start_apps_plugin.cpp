@@ -144,7 +144,9 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
         ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
         std::vector<std::string> policies;
         for (const ManageAutoStartAppInfo &item : appInfos) {
-            policies.push_back(item.GetUniqueKey());
+            std::string isHiddenStartStr = item.GetIsHiddenStart() ? "true" : "false";
+            policies.push_back(item.GetUniqueKey() + "/" + isHiddenStartStr);
+            EDMLOGD("GetAutoStartApps parse auto start app join isHiddenStart OK");
         }
         reply.WriteInt32(ERR_OK);
         reply.WriteStringVector(policies);
@@ -254,8 +256,14 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
     std::vector<ManageAutoStartAppInfo> tmpData;
     for (const auto &item : data) {
         ManageAutoStartAppInfo appInfo;
-        appInfo.SetUniqueKey(item);
+        int32_t index = item.rfind("/");
+        std::string uniqueKey = item.substr(0, index);
+        appInfo.SetUniqueKey(uniqueKey);
         appInfo.SetDisallowModify(disallowModify);
+        std::string isHiddenStartStr = item.substr(index + 1);
+        bool isHiddenStart = isHiddenStartStr == "true" ? true : false;
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy isHiddenStart %{piublic}d.", isHiddenStart);
+        appInfo.SetIsHiddenStart(isHiddenStart);
         tmpData.push_back(appInfo);
     }
     std::vector<ManageAutoStartAppInfo> addData =
@@ -314,7 +322,11 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         }
         ErrCode res;
         if (isSet) {
-            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify());
+            bool isHiddenStart = item.GetIsHiddenStart();
+            EDMLOGW("OnSetPolicy bundleName : %{public}s abilityName:%{public}s isHiddenStart is %{public}d",
+                autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str(), isHiddenStart);
+            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify(),
+                isHiddenStart);
         } else {
             res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify());
         }

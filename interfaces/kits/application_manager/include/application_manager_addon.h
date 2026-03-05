@@ -24,6 +24,7 @@
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
 #include "want.h"
+#include "napi_edm_element_name.h"
 
 namespace OHOS {
 namespace EDM {
@@ -80,6 +81,11 @@ private:
     static napi_value AddOrRemoveKeepAliveApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveFreezeExemptedApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveUserNonStopApps(napi_env env, napi_callback_info info, std::string function);
+    static bool EdmParseElementName(napi_env env, OHOS::EDM::EdmElementName &elementName, napi_value args);
+    static napi_value EdmParseElementArray(napi_env env, std::vector<OHOS::EDM::EdmElementName> &elementArray,
+        napi_value args);
+    static napi_value ParseAutoStartAppsInfo(napi_env env, napi_value &napiAutoStartApps,
+    std::vector<EdmElementName> autoStartApps);
 
     static void CreateKioskFeatureObject(napi_env env, napi_value value);
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);

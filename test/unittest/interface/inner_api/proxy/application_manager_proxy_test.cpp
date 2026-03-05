@@ -333,10 +333,10 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsSuc, TestSize.Level
 HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsSuc, TestSize.Level1)
 {
     MessageParcel data;
-    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    std::vector<OHOS::EDM::EdmElementName> apps;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayEdmElementSendRequestGetPolicy));
     ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(apps.size() == 1);
@@ -351,7 +351,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
     MessageParcel data;
-    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    std::vector<OHOS::EDM::EdmElementName> apps;
     ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
@@ -879,10 +879,10 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsWithUserIdSuc, TestSiz
     MessageParcel data;
     int32_t userId = 1;
     data.WriteInt32(userId);
-    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    std::vector<OHOS::EDM::EdmElementName> apps;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayEdmElementSendRequestGetPolicy));
     ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(apps.size() == 1);
@@ -899,7 +899,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAutoStartAppsWithUserIdFail, TestSi
     MessageParcel data;
     int32_t userId = 1;
     data.WriteInt32(userId);
-    std::vector<OHOS::AppExecFwk::ElementName> apps;
+    std::vector<OHOS::EDM::EdmElementName> apps;
     ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }

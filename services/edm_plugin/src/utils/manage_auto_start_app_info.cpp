@@ -25,6 +25,7 @@ bool ManageAutoStartAppInfo::Marshalling(MessageParcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String, parcel, bundleName_);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String, parcel, abilityName_);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, disallowModify_);
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isHiddenStart_);
     return true;
 }
  
@@ -33,9 +34,11 @@ bool ManageAutoStartAppInfo::Unmarshalling(MessageParcel &parcel, ManageAutoStar
     std::string bundleName = parcel.ReadString();
     std::string abilityName = parcel.ReadString();
     bool disallowModify = parcel.ReadBool();
+    bool isHiddenStart = parcel.ReadBool();
     appInfo.SetBundleName(bundleName);
     appInfo.SetAbilityName(abilityName);
     appInfo.SetDisallowModify(disallowModify);
+    appInfo.SetIsHiddenStart(isHiddenStart);
     return true;
 }
  
@@ -66,6 +69,11 @@ void ManageAutoStartAppInfo::SetDisallowModify(bool disallowModify)
 {
     disallowModify_ = disallowModify;
 }
+
+void ManageAutoStartAppInfo::SetIsHiddenStart(bool isHiddenStart)
+{
+    isHiddenStart_ = isHiddenStart;
+}
  
 std::string ManageAutoStartAppInfo::GetBundleName() const
 {
@@ -80,6 +88,11 @@ std::string ManageAutoStartAppInfo::GetAbilityName() const
 bool ManageAutoStartAppInfo::GetDisallowModify() const
 {
     return disallowModify_;
+}
+
+bool ManageAutoStartAppInfo::GetIsHiddenStart() const
+{
+    return isHiddenStart_;
 }
 } // namespace EDM
 } // namespace OHOS
