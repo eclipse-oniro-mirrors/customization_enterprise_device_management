@@ -60,6 +60,12 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::INVALID_ACTIVATION_LOCK_CREDENTIALS, "Invalid activation lock credentials."},
     {EdmReturnErrCode::ENABLE_ACTIVATION_LOCK_FAILED, "Failed to set the activation lock status."},
     {EdmReturnErrCode::ACTIVE_SIM_FAILED, "Failed to active sim, please turn off airplane mode or insert sim card."},
+    {EdmReturnErrCode::DOCK_APP_IS_OVER_MAX, "The number of applications in the Dock has reached the maximum."},
+    {EdmReturnErrCode::DOCK_APP_IS_ALREADY_IN_DOCK, "The application is already in the Dock."},
+    {EdmReturnErrCode::DOCK_APP_NOT_INSTALLED, "The application is not installed."},
+    {EdmReturnErrCode::DOCK_APP_NOT_IN_DOCK, "The application has not been added to the Dock."},
+    {EdmReturnErrCode::DOCK_APP_BUNDLE_NOT_SUPPORT, "The application is inoperable"},
+    {EdmReturnErrCode::DOCK_APP_INDEX_NOT_SUPPORT, "The location is inoperable"},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

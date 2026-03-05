@@ -646,6 +646,7 @@ ohos_shared_library("need_extra_plugin") {
   if (enterprise_device_management_feature_pc_only) {
       sources += [
         "./src/disable_activation_lock_plugin.cpp",
+        "./src/add_dock_app_plugin.cpp",
       ]
     }
 
