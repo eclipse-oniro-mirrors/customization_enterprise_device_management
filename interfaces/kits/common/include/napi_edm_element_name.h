@@ -12,37 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef INTERFACES_KITS_COMMON_INCLUDE_NAPI_EDM_ELEMENT_NAME_H
 #define INTERFACES_KITS_COMMON_INCLUDE_NAPI_EDM_ELEMENT_NAME_H
- 
+
 #include <string>
 #include "edm_errors.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "element_name.h"
- 
+
 namespace OHOS {
 namespace EDM {
 class EdmElementName : public AppExecFwk::ElementName {
 public:
-    void SetIsHiddenStart(const bool isHiddenStart)
-    {
-        isHiddenStart_ = isHiddenStart;
-    }
- 
-    bool GetIsHiddenStart() const
-    {
-        return isHiddenStart_;
-    }
- 
-    void ClearElement(EdmElementName *element);
- 
+    void SetIsHiddenStart(const bool isHiddenStart);
+    bool GetIsHiddenStart() const;
+
 private:
     bool isHiddenStart_ = false;
 };
- 
+
 } // namespace EDM
 } // namespace OHOS
- 
-#endif // INTERFACES_KITS_COMMON_INCLUDE_NAPI_EDM_ELEMENT_NAME_H
+
+#endif

@@ -12,23 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "napi_edm_element_name.h"
- 
+
 namespace OHOS {
 namespace EDM {
- 
-void EdmElementName::ClearElement(EdmElementName *element)
+void EdmElementName::SetIsHiddenStart(const bool isHiddenStart)
 {
-    if (element == nullptr) {
-        return;
-    }
-    element->SetDeviceID("");
-    element->SetBundleName("");
-    element->SetAbilityName("");
-    element->SetModuleName("");
-    element->SetIsHiddenStart(false);
+    isHiddenStart_ = isHiddenStart;
 }
- 
+
+bool EdmElementName::GetIsHiddenStart() const
+{
+    return isHiddenStart_;
+}
+
 } // namespace EDM
 } // namespace OHOS
