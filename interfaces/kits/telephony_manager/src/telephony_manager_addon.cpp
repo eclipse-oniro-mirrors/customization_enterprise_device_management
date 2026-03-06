@@ -37,6 +37,8 @@ napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("hangupCalling", HangupCalling),
         DECLARE_NAPI_FUNCTION("activeSim", ActiveSim),
         DECLARE_NAPI_FUNCTION("deactiveSim", DeactiveSim),
+        DECLARE_NAPI_FUNCTION("setDefaultDataSim", SetDefaultDataSim),
+        DECLARE_NAPI_FUNCTION("getDefaultDataSim", GetDefaultDataSim),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -450,6 +452,61 @@ napi_value TelephonyManagerAddon::DeactiveSim(napi_env env, napi_callback_info i
     return nullptr;
 #else
     EDMLOGW("TelephonyManagerAddon::DeactiveSim Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value TelephonyManagerAddon::SetDefaultDataSim(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDefaultDataSim called");
+#if defined(TELEPHONY_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setDefaultDataSim";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->SetDefaultDataSim(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("TelephonyManagerAddon::SetDefaultDataSim Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDefaultDataSim called");
+#if defined(TELEPHONY_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getDefaultDataSim";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t simId = -1;
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetDefaultDataSim(adapterAddonData.data, simId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+
+    napi_value jsResult = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, simId, &jsResult));
+    return jsResult;
+#else
+    EDMLOGW("TelephonyManagerAddon::GetDefaultDataSim Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif

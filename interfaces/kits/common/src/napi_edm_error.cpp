@@ -66,6 +66,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::DOCK_APP_NOT_IN_DOCK, "The application has not been added to the Dock."},
     {EdmReturnErrCode::DOCK_APP_BUNDLE_NOT_SUPPORT, "The application is inoperable"},
     {EdmReturnErrCode::DOCK_APP_INDEX_NOT_SUPPORT, "The location is inoperable"},
+    {EdmReturnErrCode::SET_DEFAULT_DATA_SIM_FAILED,
+        "Failed to set default data sim, please turn off airplane mode or insert sim card."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

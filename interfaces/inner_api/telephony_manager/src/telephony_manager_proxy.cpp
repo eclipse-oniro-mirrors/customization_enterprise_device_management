@@ -155,5 +155,28 @@ int32_t TelephonyManagerProxy::DeactiveSim(MessageParcel &data)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_SIM);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t TelephonyManagerProxy::SetDefaultDataSim(MessageParcel &data)
+{
+    EDMLOGD("TelephonyManagerProxy::SetDefaultDataSim");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::SET_DEFAULT_DATA_SIM);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t TelephonyManagerProxy::GetDefaultDataSim(MessageParcel &data, int32_t &simId)
+{
+    EDMLOGD("TelephonyManagerProxy::GetDefaultDataSim");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::SET_DEFAULT_DATA_SIM, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!isSuccess) {
+        EDMLOGE("GetDefaultDataSim:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadInt32(simId);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
