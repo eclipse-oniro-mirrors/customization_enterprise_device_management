@@ -163,6 +163,7 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
         size_t index = autoStartAppsString[i].find("/");
         std::string bundleName;
         std::string abilityName;
+        std::string isHiddenStartString;
         if (index != autoStartAppsString[i].npos) {
             bundleName = autoStartAppsString[i].substr(0, index);
             std::string abilityAndHidden = autoStartAppsString[i].substr(index + 1);
