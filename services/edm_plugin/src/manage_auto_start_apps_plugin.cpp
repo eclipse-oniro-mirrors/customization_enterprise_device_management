@@ -250,7 +250,7 @@ void ManageAutoStartAppsPlugin::ParseManageAutoStartAppsInfo(std::vector<std::st
         if (item.rfind("/") == std::string::npos) {
             continue;
         }
-        int32_t index = item.rfind("/");
+        size_t index = item.rfind("/");
         std::string uniqueKey = item.substr(0, index);
         appInfo.SetUniqueKey(uniqueKey);
         appInfo.SetDisallowModify(disallowModify);
