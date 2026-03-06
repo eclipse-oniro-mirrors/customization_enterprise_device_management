@@ -526,5 +526,95 @@ int32_t ApplicationManagerProxy::IsAbilityDisabled(MessageParcel &data, bool &is
     reply.ReadBool(isDisabled);
     return ERR_OK;
 }
+
+#ifdef FEATURE_PC_ONLY
+int32_t ApplicationManagerProxy::AddDockApp(const AppExecFwk::ElementName &admin, const std::string &bundleName,
+    const std::string &abilityName, bool hasIndex, int32_t index)
+{
+    EDMLOGI("ApplicationManagerProxy::AddDockApp");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ADD_DOCK_APP);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(bundleName);
+    data.WriteString(abilityName);
+    data.WriteBool(hasIndex);
+    if (hasIndex) {
+        data.WriteInt32(index);
+    }
+    return proxy->HandleDevicePolicy(funcCode, data, reply);
+}
+
+int32_t ApplicationManagerProxy::RemoveDockApp(const AppExecFwk::ElementName &admin, const std::string &bundleName,
+    const std::string &abilityName)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveDockApp");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::ADD_DOCK_APP);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(bundleName);
+    data.WriteString(abilityName);
+    return proxy->HandleDevicePolicy(funcCode, data, reply);
+}
+
+int32_t ApplicationManagerProxy::GetDockApps(const AppExecFwk::ElementName &admin, std::vector<DockInfo> &dockInfos)
+{
+    EDMLOGI("ApplicationManagerProxy::GetDockApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    proxy->GetPolicy(EdmInterfaceCode::ADD_DOCK_APP, data, reply);
+
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    if (!ParseDockInfos(reply, dockInfos)) {
+        EDMLOGE("GetDockApps parse dock infos failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+bool ApplicationManagerProxy::ParseDockInfos(MessageParcel &reply, std::vector<DockInfo> &dockInfos)
+{
+    int32_t size = reply.ReadInt32();
+    if (size < 0 || size > EdmConstants::POLICIES_MAX_SIZE) {
+        return false;
+    }
+    dockInfos.clear();
+    dockInfos.reserve(size);
+    for (int32_t i = 0; i < size; i++) {
+        DockInfo dockInfo;
+        if (!reply.ReadString(dockInfo.bundleName)) {
+            return false;
+        }
+        if (!reply.ReadString(dockInfo.abilityName)) {
+            return false;
+        }
+        if (!reply.ReadInt32(dockInfo.index)) {
+            return false;
+        }
+        dockInfos.emplace_back(std::move(dockInfo));
+    }
+    return true;
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

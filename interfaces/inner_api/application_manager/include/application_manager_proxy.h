@@ -19,6 +19,10 @@
 #include "clear_up_application_data_param.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "application_instance.h"
+
+#ifdef FEATURE_PC_ONLY
+#include "dock_info.h"
+#endif
 #include "napi_edm_element_name.h"
 
 namespace OHOS {
@@ -65,9 +69,20 @@ public:
     int32_t GetUserNonStopApps(const AppExecFwk::ElementName &admin, std::vector<ApplicationInstance> &userNonStopApps);
     int32_t SetAbilityDisabled(MessageParcel &data);
     int32_t IsAbilityDisabled(MessageParcel &data, bool &isDisabled);
+
+#ifdef FEATURE_PC_ONLY
+    int32_t AddDockApp(const AppExecFwk::ElementName &admin, const std::string &bundleName,
+        const std::string &abilityName, bool hasIndex, int32_t index);
+    int32_t RemoveDockApp(const AppExecFwk::ElementName &admin, const std::string &bundleName,
+        const std::string &abilityName);
+    int32_t GetDockApps(const AppExecFwk::ElementName &admin, std::vector<DockInfo> &dockInfos);
+#endif
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;
+#ifdef FEATURE_PC_ONLY
+    bool ParseDockInfos(MessageParcel &reply, std::vector<DockInfo> &dockInfos);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

@@ -24,6 +24,10 @@
 #include "os_account_manager.h"
 #endif
 
+#ifdef FEATURE_PC_ONLY
+#include "dock_info.h"
+#endif
+
 using namespace OHOS::EDM;
 
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
@@ -65,6 +69,9 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
         DECLARE_NAPI_FUNCTION("setAbilityDisabled", SetAbilityDisabled),
         DECLARE_NAPI_FUNCTION("isAbilityDisabled", IsAbilityDisabled),
+        DECLARE_NAPI_FUNCTION("addDockApp", AddDockApp),
+        DECLARE_NAPI_FUNCTION("removeDockApp", RemoveDockApp),
+        DECLARE_NAPI_FUNCTION("getDockApps", GetDockApps),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1225,6 +1232,130 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
     NAPI_CALL(env, napi_get_boolean(env, isDisabled, &result));
     return result;
 }
+
+napi_value ApplicationManagerAddon::AddDockApp(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddDockApp called");
+    return AddOrRemoveDockApp(env, info, "AddDockApp");
+}
+
+napi_value ApplicationManagerAddon::RemoveDockApp(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveDockApp called");
+    return AddOrRemoveDockApp(env, info, "RemoveDockApp");
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveDockApp(napi_env env, napi_callback_info info,
+    std::string function)
+{
+    EDMLOGI("NAPI_AddOrRemoveDockApp called");
+#ifdef FEATURE_PC_ONLY
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::string bundleName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, bundleName, argv[ARR_INDEX_ONE]),
+        "Parameter bundleName error");
+    std::string abilityName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, abilityName, argv[ARR_INDEX_TWO]),
+        "Parameter abilityName error");
+
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = 0;
+    if (function == "AddDockApp") {
+        bool hasIndex = false;
+        int32_t index = -1;
+        if (argc >= ARGS_SIZE_FOUR) {
+            ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, index, argv[ARR_INDEX_THREE]), "Parameter index error");
+            hasIndex = true;
+        }
+        ret = applicationManagerProxy->AddDockApp(elementName, bundleName, abilityName, hasIndex, index);
+    } else {
+        ret = applicationManagerProxy->RemoveDockApp(elementName, bundleName, abilityName);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+#else
+    EDMLOGW("ApplicationManagerAddon::AddOrRemoveDockApp Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value ApplicationManagerAddon::GetDockApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDockApps called");
+#ifdef FEATURE_PC_ONLY
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+
+    EDMLOGD("EnableAdmin: elementName.bundlename %{public}s, elementName.abilityname:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = 0;
+    std::vector<DockInfo> dockInfos;
+    ret = applicationManagerProxy->GetDockApps(elementName, dockInfos);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value nDockInfos;
+    NAPI_CALL(env, napi_create_array(env, &nDockInfos));
+    ConvertDockInfoVectorToJs(env, dockInfos, nDockInfos);
+    return nDockInfos;
+#else
+    EDMLOGW("ApplicationManagerAddon::AddOrRemoveDockApp Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+#ifdef FEATURE_PC_ONLY
+void ApplicationManagerAddon::ConvertDockInfoVectorToJs(napi_env env, const std::vector<DockInfo> &dockInfos,
+    napi_value &nDockInfos)
+{
+    EDMLOGD("ConvertDockInfoVectorToJs size: %{public}zu", dockInfos.size());
+    size_t idx = 0;
+    for (const auto &dockInfo : dockInfos) {
+        napi_value obj = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &obj));
+        napi_value bundleName;
+        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, dockInfo.bundleName.c_str(),
+            NAPI_AUTO_LENGTH, &bundleName));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, "bundleName", bundleName));
+        napi_value abilityName;
+        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, dockInfo.abilityName.c_str(),
+            NAPI_AUTO_LENGTH, &abilityName));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, "abilityName", abilityName));
+        napi_value index;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, dockInfo.index, &index));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, "index", index));
+        napi_set_element(env, nDockInfos, idx, obj);
+        idx++;
+    }
+}
+#endif
 
 static napi_module g_applicationManagerModule = {
     .nm_version = 1,

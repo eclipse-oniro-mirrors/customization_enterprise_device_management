@@ -189,6 +189,7 @@ enum EdmInterfaceCode : uint32_t {
     MANAGE_SIM = 1140,
     GET_EXT_INFO = 1141,
 	INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT = 1143,
+    ADD_DOCK_APP = 1144,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
