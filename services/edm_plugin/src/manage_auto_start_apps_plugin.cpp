@@ -242,18 +242,9 @@ ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &a
     return ERR_OK;
 }
 
-ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
-    std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId)
+void ManageAutoStartAppsPlugin::ParseManageAutoStartAppsInfo(std::vector<std::string> &data, bool disallowModify,
+    std::vector<ManageAutoStartAppInfo> &appInfoArray)
 {
-    if (data.empty()) {
-        EDMLOGW("ManageAutoStartAppsPlugin OnSetPolicy data is empty.");
-        return ERR_OK;
-    }
-    if (data.size() > maxListSize_) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy input data is too large.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::vector<ManageAutoStartAppInfo> tmpData;
     for (const auto &item : data) {
         ManageAutoStartAppInfo appInfo;
         if (item.rfind("/") == std::string::npos) {
@@ -266,8 +257,23 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
         std::string isHiddenStartStr = item.substr(index + 1);
         bool isHiddenStart = isHiddenStartStr == "true";
         appInfo.SetIsHiddenStart(isHiddenStart);
-        tmpData.push_back(appInfo);
+        appInfoArray.push_back(appInfo);
     }
+}
+
+ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
+    std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId)
+{
+    if (data.empty()) {
+        EDMLOGW("ManageAutoStartAppsPlugin OnSetPolicy data is empty.");
+        return ERR_OK;
+    }
+    if (data.size() > maxListSize_) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy input data is too large.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::vector<ManageAutoStartAppInfo> tmpData;
+    ParseManageAutoStartAppsInfo(data, disallowModify, tmpData);
     if (tmpData.empty()) {
         EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy input data is error.");
         return EdmReturnErrCode::PARAM_ERROR;

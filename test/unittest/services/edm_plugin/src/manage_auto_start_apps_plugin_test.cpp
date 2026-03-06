@@ -347,7 +347,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         EXPECT_TRUE(res.size() >= 1);
         EXPECT_TRUE(std::find(res.begin(), res.end(), RIGHT_TEST_EDM_BUNDLE) != res.end());
 
-        std::vector<std::string> removeData = {RIGHT_TEST_BUNDLE, ERROR_TEST_BUNDLE, INVALID_TEST_BUNDLE};
+        std::vector<std::string> removeData = {RIGHT_TEST_EDM_BUNDLE, ERROR_TEST_EDM_BUNDLE, INVALID_TEST_BUNDLE};
         mergeData.clear();
         ret = plugin.OnRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
@@ -413,7 +413,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, Tes
 {
     ManageAutoStartAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
-    std::vector<std::string> data = {ERROR_TEST_BUNDLE};
+    std::vector<std::string> data = {ERROR_TEST_EDM_BUNDLE};
     std::vector<ManageAutoStartAppInfo> currentData;
     std::vector<ManageAutoStartAppInfo> mergeData;
     ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
@@ -452,7 +452,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
-        data = {RIGHT_TEST_BUNDLE};
+        data = {RIGHT_TEST_EDM_BUNDLE};
         ManageAutoStartAppInfo info1;
         info1.SetUniqueKey(RIGHT_TEST_BUNDLE);
         currentData = {info1};
@@ -497,7 +497,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
         EXPECT_TRUE(ret == ERR_OK);
 
-        data = {RIGHT_TEST_BUNDLE};
+        data = {RIGHT_TEST_EDM_BUNDLE};
         mergeData.clear();
         ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);

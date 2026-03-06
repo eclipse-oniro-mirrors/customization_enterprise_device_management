@@ -318,8 +318,8 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestSetIntersectionPolicyData, TestS
 {
     auto serializer = ManageAutoStartAppsSerializer::GetInstance();
     std::vector<std::string> uniqueKey;
-    uniqueKey.push_back("test1/testAB1");
-    uniqueKey.push_back("test2/testAB2");
+    uniqueKey.push_back("test1/testAB1/true");
+    uniqueKey.push_back("test2/testAB2/true");
     
     std::vector<ManageAutoStartAppInfo> data;
     ManageAutoStartAppInfo id1;
