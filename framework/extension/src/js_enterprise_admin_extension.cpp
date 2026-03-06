@@ -617,7 +617,7 @@ napi_value JsEnterpriseAdminExtension::CreateKeyEventInfoObject(napi_env env, co
 void JsEnterpriseAdminExtension::OnStartupGuideCompleted(int32_t type)
 {
     EDMLOGI("JsEnterpriseAdminExtension::OnStartupGuideCompleted");
-    if (type & (1 << static_cast<int32_t>(StartupScene::USER_SETUP))) {
+    if (type & (1 << static_cast<uint32_t>(StartupScene::USER_SETUP))) {
         auto task = [type, this]() {
             auto env = jsRuntime_.GetNapiEnv();
             napi_value argv[] = { AbilityRuntime::CreateJsValue(env,
@@ -626,7 +626,7 @@ void JsEnterpriseAdminExtension::OnStartupGuideCompleted(int32_t type)
         };
         handler_->PostTask(task);
     }
-    if (type & (1 << static_cast<int32_t>(StartupScene::OTA))) {
+    if (type & (1 << static_cast<uint32_t>(StartupScene::OTA))) {
         auto task = [type, this]() {
             auto env = jsRuntime_.GetNapiEnv();
             napi_value argv[] = { AbilityRuntime::CreateJsValue(env,
@@ -635,7 +635,7 @@ void JsEnterpriseAdminExtension::OnStartupGuideCompleted(int32_t type)
         };
         handler_->PostTask(task);
     }
-    if (type & (1 << static_cast<int32_t>(StartupScene::DEVICE_PROVISION))) {
+    if (type & (1 << static_cast<uint32_t>(StartupScene::DEVICE_PROVISION))) {
         auto task = [type, this]() {
             auto env = jsRuntime_.GetNapiEnv();
             napi_value argv[] = { AbilityRuntime::CreateJsValue(env,

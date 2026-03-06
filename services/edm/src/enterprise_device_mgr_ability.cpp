@@ -297,13 +297,13 @@ void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonE
 
     int32_t type = 0;
     if (isSubUserScene) {
-        type |= 1 << static_cast<int32_t>(StartupScene::USER_SETUP);
+        type |= 1 << static_cast<uint32_t>(StartupScene::USER_SETUP);
     }
     if (isOtaFinish) {
-        type |= 1 << static_cast<int32_t>(StartupScene::OTA);
+        type |= 1 << static_cast<uint32_t>(StartupScene::OTA);
     }
     if (isFirstBoot) {
-        type |= 1 << static_cast<int32_t>(StartupScene::DEVICE_PROVISION);
+        type |= 1 << static_cast<uint32_t>(StartupScene::DEVICE_PROVISION);
     }
     EDMLOGI("OnCommonEventOobeFinish type:%{public}d", type);
 

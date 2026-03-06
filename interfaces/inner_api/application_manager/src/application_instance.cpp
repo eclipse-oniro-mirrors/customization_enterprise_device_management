@@ -115,7 +115,7 @@ bool ApplicationInstanceHandle::ReadApplicationInstanceVector(MessageParcel &dat
     freezeExemptedApps.clear();
     freezeExemptedApps.reserve(size);
 
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         ApplicationInstance instance;
         if (!ReadApplicationInstance(data, instance)) {
             return false;
