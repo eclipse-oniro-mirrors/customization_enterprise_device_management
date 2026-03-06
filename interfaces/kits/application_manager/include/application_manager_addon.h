@@ -89,8 +89,7 @@ private:
     static napi_value EdmParseElementArray(napi_env env, std::vector<OHOS::EDM::EdmElementName> &elementArray,
         napi_value args);
     static napi_value ParseAutoStartAppsInfo(napi_env env, napi_value &napiAutoStartApps,
-    std::vector<EdmElementName> autoStartApps);
-
+        std::vector<EdmElementName> autoStartApps);
 
     static void CreateKioskFeatureObject(napi_env env, napi_value value);
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);
