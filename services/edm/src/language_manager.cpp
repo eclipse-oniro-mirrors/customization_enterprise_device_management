@@ -15,6 +15,9 @@
 
 #include "language_manager.h"
 
+#include "ipc_skeleton.h"
+#include "parameters.h"
+
 #include "admin_manager.h"
 #include "bundle_info.h"
 #include "cJSON.h"
@@ -23,6 +26,7 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "edm_os_account_manager_impl.h"
 #include "external_manager_factory.h"
 #include "ext_info_manager.h"
 #include "func_code_utils.h"
@@ -30,6 +34,7 @@
 #include "locale_config.h"
 #include "locale_info.h"
 #include "message_parcel.h"
+#include "permission_checker.h"
 #include "plugin_manager.h"
 #include "res_common.h"
 
@@ -37,6 +42,10 @@ namespace OHOS {
 namespace EDM {
 std::string LanguageManager::GetEnterpriseManagedTips()
 {
+    if (!IsNeedToShowEnterpriseManagedTips()) {
+        EDMLOGW("LanguageManager::GetEnterpriseManagedTips no need to show enterprise managed tips.");
+        return "";
+    }
     std::string result;
     if (GetValueFromCloudSettings(result)) {
         return result;
@@ -204,6 +213,42 @@ std::string LanguageManager::GetEnterpriseName()
         return "";
     }
     return adminItem->adminInfo_.entInfo_.enterpriseName;
+}
+
+bool LanguageManager::IsNeedToShowEnterpriseManagedTips()
+{
+    EdmOsAccountManagerImpl osAccountMgr;
+    int32_t userId = osAccountMgr.GetCurrentUserId();
+    if (userId < 0) {
+        EDMLOGE("IsNeedToShowEnterpriseManagedTips get current account failed.");
+        return false;
+    }
+    if (AdminManager::GetInstance()->IsExistTargetAdmin(true, userId)) {
+        EDMLOGW("IsNeedToShowEnterpriseManagedTips has debug admin, need to show.");
+        return true;
+    }
+    if (userId != EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGW("IsNeedToShowEnterpriseManagedTips not default account, does not show.");
+        return false;
+    }
+#ifdef FEATURE_PC_ONLY
+    return true;
+#else
+    if (IsSettingsCalling()) {
+        return true;
+    }
+    return false;
+#endif
+}
+
+bool LanguageManager::IsSettingsCalling()
+{
+    ExtInfoManager extInfoManager;
+    auto settingsInfo = extInfoManager.GetWantAgentInfo();
+    if (settingsInfo.bundleName.empty()) {
+        return false;
+    }
+    return PermissionChecker::GetInstance()->CheckCallingUid(settingsInfo.bundleName) == ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

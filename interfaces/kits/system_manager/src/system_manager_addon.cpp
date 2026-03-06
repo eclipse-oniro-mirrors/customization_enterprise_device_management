@@ -46,6 +46,10 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getKeyEventPolicies", GetKeyEventPolicies),
         DECLARE_NAPI_FUNCTION("setActivationLockDisabled", SetActivationLockDisabled),
         DECLARE_NAPI_FUNCTION("isActivationLockDisabled", IsActivationLockDisabled),
+        DECLARE_NAPI_FUNCTION("setInstallLocalEnterpriseAppEnabledForAccount",
+            SetInstallLocalEnterpriseAppEnabledForAccount),
+        DECLARE_NAPI_FUNCTION("getInstallLocalEnterpriseAppEnabledForAccount",
+            GetInstallLocalEnterpriseAppEnabledForAccount),
     };
     NAPI_CALL_RETURN_VOID(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
@@ -743,7 +747,7 @@ napi_value SystemManagerAddon::GetInstallLocalEnterpriseAppEnabled(napi_env env,
     EDMLOGI("SystemManagerAddon::GetInstallLocalEnterpriseAppEnabled called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetInstallLocalEnterpriseAppEnabled";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -1174,6 +1178,64 @@ void SystemManagerAddon::NativeIsActivationLockDisabled(napi_env env, void *data
         asyncCallbackInfo->boolRet);
 }
 #endif
+
+napi_value SystemManagerAddon::SetInstallLocalEnterpriseAppEnabledForAccount(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetInstallLocalEnterpriseAppEnabledForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetInstallLocalEnterpriseAppEnabledForAccount(
+        adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("NAPI_SetInstallLocalEnterpriseAppEnabledForAccount failed!");
+    }
+    return nullptr;
+#else
+    EDMLOGW("SystemManagerAddon::SetInstallLocalEnterpriseAppEnabledForAccount Unsupported Capabilities");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value SystemManagerAddon::GetInstallLocalEnterpriseAppEnabledForAccount(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetInstallLocalEnterpriseAppEnabledForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetInstallLocalEnterpriseAppEnabledForAccount(
+        adapterAddonData.data, adapterAddonData.boolRet);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    napi_value res = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, adapterAddonData.boolRet, &res));
+    return res;
+#else
+    EDMLOGW("SystemManagerAddon::GetInstallLocalEnterpriseAppEnabledForAccount Unsupported Capabilities");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
 
 static napi_module g_systemManagerModule = {
     .nm_version = 1,

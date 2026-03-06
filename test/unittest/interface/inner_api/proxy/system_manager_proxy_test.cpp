@@ -712,6 +712,72 @@ HWTEST_F(SystemManagerProxyTest, TestIsActivationLockDisabledFail, TestSize.Leve
     int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetInstallLocalEnterpriseAppEnabledForAccountFail
+ * @tc.desc: Test SetInstallLocalEnterpriseAppEnabledForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabledForAccount(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetInstallLocalEnterpriseAppEnabledForAccountSuc
+ * @tc.desc: Test SetInstallLocalEnterpriseAppEnabledForAccount func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledForAccountSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabledForAccount(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetInstallLocalEnterpriseAppEnabledForAccountFail
+ * @tc.desc: Test GetInstallLocalEnterpriseAppEnabledForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    bool isAllowedInstall = false;
+    ErrCode ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabledForAccount(data, isAllowedInstall);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetInstallLocalEnterpriseAppEnabledForAccountSuc
+ * @tc.desc: Test GetInstallLocalEnterpriseAppEnabledForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledForAccountSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    bool isAllowedInstall = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabledForAccount(data, isAllowedInstall);
+    ASSERT_TRUE(ret == ERR_OK);
+}
 #endif
 } // namespace TEST
 } // namespace EDM

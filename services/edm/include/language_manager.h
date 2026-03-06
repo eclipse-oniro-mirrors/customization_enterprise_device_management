@@ -34,6 +34,8 @@ private:
     static bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
     static void AddDataToResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
     static std::string GetEnterpriseName();
+    static bool IsNeedToShowEnterpriseManagedTips();
+    static bool IsSettingsCalling();
 };
 } // namespace EDM
 } // namespace OHOS

@@ -111,6 +111,7 @@ const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 const std::string OOBE_FINISHED_EVENT = "custom.event.OOBE.HWSTARTUPGUIDE.FINISHED";
 const std::string PERMISSION_OOBE_FINISHED = "ohos.permission.ACCESS_STARTUPGUIDE";
 const std::string BUNDLE_EVENT_PARAM_TYPE = "type";
+const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 std::mutex EnterpriseDeviceMgrAbility::subscribeAppLock_;
@@ -1379,6 +1380,9 @@ ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(const AppExecFwk::Element
     const AppExecFwk::ElementName &newAdmin, std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo,
     std::vector<std::string> &permissionList)
 {
+    if (IsInMaintenanceMode()) {
+        return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
+    }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
         EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
@@ -1564,9 +1568,9 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
     const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType type, int32_t userId)
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin");
-    if (type != AdminType::NORMAL && type != AdminType::ENT && type != AdminType::BYOD) {
-        EDMLOGE("EnterpriseDeviceMgrAbility::EnableAdmin admin type is invalid.");
-        return EdmReturnErrCode::PARAM_ERROR;
+    ErrCode res = EnableAdminPreCheck(type);
+    if (FAILED(res)) {
+        return res;
     }
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (AdminManager::GetInstance()->GetSuperDeviceAdminAndDeviceAdminCount() >= MAX_SDA_AND_DA_COUNT) {
@@ -2889,5 +2893,27 @@ void EnterpriseDeviceMgrAbility::DeleteSubUserLogDirIfNeed(int32_t userId)
     }
 }
 #endif
+
+bool EnterpriseDeviceMgrAbility::IsInMaintenanceMode()
+{
+    std::string isMaintenanceMode = system::GetParameter(PARAM_MAINTENANCE_MODE, "false");
+    if (isMaintenanceMode == "true") {
+        EDMLOGE("EnterpriseDeviceMgrAbility::IsInMaintenanceMode device is in maintenance mode.");
+        return true;
+    }
+    return false;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::EnableAdminPreCheck(AdminType type)
+{
+    if (type != AdminType::NORMAL && type != AdminType::ENT && type != AdminType::BYOD) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::EnableAdmin admin type is invalid.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    if (IsInMaintenanceMode()) {
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -118,6 +118,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
     "../../../services/edm/src/query_policy/inactive_user_freeze_query.cpp",
     "../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
+    "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_for_account_query.cpp",
     "../../../services/edm/src/query_policy/ipolicy_query.cpp",
     "../../../services/edm/src/query_policy/is_app_kiosk_allowed_query.cpp",
     "../../../services/edm/src/query_policy/ntp_server_query.cpp",
@@ -198,7 +199,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "window_manager:sms",
     "window_manager:libwm",
     "window_manager:session_manager_lite",
-    "jsoncpp:jsoncpp",
   ]
 
   deps = [
@@ -234,6 +234,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/get_device_info_plugin.cpp",
       "../../../services/edm_plugin/src/install_plugin.cpp",
       "../../../services/edm_plugin/src/installed_bundle_info_list_plugin.cpp",
+      "../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
       "../../../services/edm_plugin/src/ntp_server_plugin.cpp",
       "../../../services/edm_plugin/src/operate_device_plugin.cpp",
       "../../../services/edm_plugin/src/power_policy_plugin.cpp",
@@ -473,7 +474,6 @@ ohos_static_library("edmservice_fuzz_static") {
     if (!enterprise_device_management_feature_pc_only) {
       sources += [ 
         "../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
-        "../../../services/edm_plugin/src/manage_user_non_stop_apps_plugin.cpp",
         "../../../services/edm_plugin/src/set_key_code_plugin.cpp",
         ]
     }
@@ -582,7 +582,6 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "jsoncpp:jsoncpp",
   ]
 
   if (enterprise_device_management_support_all) {

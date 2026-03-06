@@ -87,9 +87,9 @@ HWTEST_F(ClipboardPolicyPluginTest, TestOnSetPolicyFail, TestSize.Level1)
     ClipboardPolicyPlugin plugin;
     std::map<int32_t, ClipboardInfo> data;
     ClipboardInfo info1 = {ClipboardPolicy::IN_APP, -1, ""};
-    data.insert(std::make_pair(101, info1));
+    data.insert(std::make_pair(501, info1));
     std::map<int32_t, ClipboardInfo> currentData;
-    for (int i = 1; i <= 100; i++) {
+    for (int i = 1; i <= 500; i++) {
         ClipboardInfo info2 = {ClipboardPolicy::IN_APP, -1, ""};
         currentData.insert(std::make_pair(i, info2));
     }

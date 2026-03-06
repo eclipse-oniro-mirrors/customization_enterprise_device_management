@@ -563,5 +563,28 @@ AdminType AdminManager::GetAdminTypeByName(const std::string &bundleName, int32_
     }
     return admin->adminInfo_.adminType_;
 }
+
+bool AdminManager::IsExistTargetAdmin(bool isDebug, int32_t userId)
+{
+    std::vector<std::shared_ptr<Admin>> admins;
+    GetAdminByUserId(EdmConstants::DEFAULT_USER_ID, admins);
+    if (userId == EdmConstants::DEFAULT_USER_ID) {
+        auto defaultUserIter = std::find_if(admins.begin(), admins.end(), [&](std::shared_ptr<Admin> admin) {
+            return admin != nullptr && admin->adminInfo_.isDebug_ == isDebug;
+        });
+        return defaultUserIter != admins.end();
+    }
+    auto acrossUserIter = std::find_if(admins.begin(), admins.end(), [&](std::shared_ptr<Admin> admin) {
+        return admin != nullptr && admin->IsAllowedAcrossAccountSetPolicy() && admin->adminInfo_.isDebug_ == isDebug;
+    });
+    if (acrossUserIter != admins.end()) {
+        return true;
+    }
+    GetAdminByUserId(userId, admins);
+    auto currentUserIter = std::find_if(admins.begin(), admins.end(), [&](std::shared_ptr<Admin> admin) {
+        return admin != nullptr && admin->adminInfo_.isDebug_ == isDebug;
+    });
+    return currentUserIter != admins.end();
+}
 } // namespace EDM
 } // namespace OHOS

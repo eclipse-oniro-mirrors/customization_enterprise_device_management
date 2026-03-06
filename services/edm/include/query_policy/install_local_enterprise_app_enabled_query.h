@@ -28,8 +28,14 @@ public:
     std::string GetPolicyName() override;
  
     std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
- 
-    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override
+    {
+        return ERR_OK;
+    }
+
+    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId,
+        bool isAdminNull) override;
 };
 } // namespace EDM
 } // namespace OHOS

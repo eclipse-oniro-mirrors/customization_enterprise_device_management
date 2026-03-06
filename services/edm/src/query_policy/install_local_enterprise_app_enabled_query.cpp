@@ -32,8 +32,14 @@ std::string InstallLocalEnterpriceAppEnabledQuery::GetPermission(IPlugin::Permis
 }
  
 ErrCode InstallLocalEnterpriceAppEnabledQuery::QueryPolicy(std::string &policyData,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
+    MessageParcel &data, MessageParcel &reply, int32_t userId, bool isAdminNull)
 {
+    if (isAdminNull) {
+        std::string isAllowedInstall = system::GetParameter("persist.edm.is_local_install_enable", "false");
+        reply.WriteInt32(ERR_OK);
+        reply.WriteBool(isAllowedInstall == "true");
+        return ERR_OK;
+    }
     return GetBoolPolicy(policyData, reply);
 }
 } // namespace EDM
