@@ -74,7 +74,7 @@ std::vector<ManageAutoStartAppInfo> ManageAutoStartAppsSerializer::SetIntersecti
     std::vector<ManageAutoStartAppInfo> mergeData;
     for (const std::string &dataItem : data) {
         for (const ManageAutoStartAppInfo &item : currentData) {
-            int32_t index = dataItem.rfind("/");
+            size_t index = dataItem.rfind("/");
             std::string uniqueKey = dataItem.substr(0, index);
             if (item.GetUniqueKey() == uniqueKey) {
                 mergeData.push_back(item);
