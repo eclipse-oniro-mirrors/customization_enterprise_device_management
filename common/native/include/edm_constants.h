@@ -449,6 +449,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_WALLPAPER = "disallow_modify_wallpaper";
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
     const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
+    const char* const POLICY_ADD_DOCK_APP = "dock_info";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
