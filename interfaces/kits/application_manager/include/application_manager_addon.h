@@ -70,6 +70,9 @@ public:
     static napi_value GetUserNonStopApps(napi_env env, napi_callback_info info);
     static napi_value SetAbilityDisabled(napi_env env, napi_callback_info info);
     static napi_value IsAbilityDisabled(napi_env env, napi_callback_info info);
+    static napi_value AddDockApp(napi_env env, napi_callback_info info);
+    static napi_value RemoveDockApp(napi_env env, napi_callback_info info);
+    static napi_value GetDockApps(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
@@ -80,6 +83,7 @@ private:
     static napi_value AddOrRemoveKeepAliveApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveFreezeExemptedApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveUserNonStopApps(napi_env env, napi_callback_info info, std::string function);
+    static napi_value AddOrRemoveDockApp(napi_env env, napi_callback_info info, std::string function);
 
     static void CreateKioskFeatureObject(napi_env env, napi_value value);
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);
@@ -89,6 +93,9 @@ private:
         napi_value* argv, bool &hasCallback, bool &hasUserId);
     static std::shared_ptr<ApplicationManagerProxy> applicationManagerProxy_;
     static void SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data);
+#ifdef FEATURE_PC_ONLY
+    static void ConvertDockInfoVectorToJs(napi_env env, const std::vector<DockInfo> &dockInfos, napi_value &nDockInfos);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS
