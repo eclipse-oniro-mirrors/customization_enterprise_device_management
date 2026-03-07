@@ -59,6 +59,7 @@ public:
         std::vector<int32_t> &hiddenSettingsMenu);
     int32_t RemoveHiddenSettingsMenu(const AppExecFwk::ElementName &admin, int32_t &userId,
         std::vector<int32_t> &hiddenSettingsMenu);
+    int32_t SetSwitchStatus(MessageParcel &data);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

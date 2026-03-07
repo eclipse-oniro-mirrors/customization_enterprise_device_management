@@ -311,6 +311,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_READ_LOG = "ohos.permission.ENTERPRISE_READ_LOG";
     const char* const PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN =
         "ohos.permission.ENTERPRISE_DEACTIVATE_DEVICE_ADMIN";
+    const char* const PERMISSION_PERSONAL_MANAGE_SETTINGS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -434,6 +435,7 @@ namespace PolicyName {
     const char* const POLICY_SET_DEFAULT_DATA_SIM = "set_default_data_sim";
     const char* const POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT =
         "install_local_enterprise_app_enabled_for_account";
+    const char* const POLICY_SET_SWITCH_STATUS = "set_switch_status";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
