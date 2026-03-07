@@ -17,6 +17,7 @@
 
 #include "edm_log.h"
 #include "func_code.h"
+#include "switch_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -396,6 +397,13 @@ int32_t DeviceSettingsProxy::RemoveHiddenSettingsMenu(
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+}
+
+int32_t DeviceSettingsProxy::SetSwitchStatus(MessageParcel &data)
+{
+    EDMLOGD("DeviceSettingsProxy::SetSwitchStatus");
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_SWITCH_STATUS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -20,6 +20,7 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
+#include "switch_param.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -242,6 +243,35 @@ void DeviceSettingsAddon::CreateSettingsMenuObject(napi_env env, napi_value valu
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SEARCH", nSearch));
 }
 
+void DeviceSettingsAddon::CreateSwitchKeyObject(napi_env env, napi_value value)
+{
+    napi_value nNearlink;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchKey::NEARLINK), &nNearlink));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NEARLINK", nNearlink));
+    napi_value nBluetooth;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchKey::BLUETOOTH), &nBluetooth));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BLUETOOTH", nBluetooth));
+    napi_value nWifi;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchKey::WIFI), &nWifi));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI", nWifi));
+    napi_value nNfc;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchKey::NFC), &nNfc));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NFC", nNfc));
+}
+
+void DeviceSettingsAddon::CreateSwitchStatusObject(napi_env env, napi_value value)
+{
+    napi_value nOn;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchStatus::ON), &nOn));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ON", nOn));
+    napi_value nOff;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchStatus::OFF), &nOff));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "OFF", nOff));
+    napi_value nForceOn;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(SwitchStatus::FORCE_ON), &nForceOn));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FORCE_ON", nForceOn));
+}
+
 napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nTimeOut = nullptr;
@@ -256,6 +286,12 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
     napi_value nPolicySettingsMenu = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nPolicySettingsMenu));
     CreateSettingsMenuObject(env, nPolicySettingsMenu);
+    napi_value nSwitchKey = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSwitchKey));
+    CreateSwitchKeyObject(env, nSwitchKey);
+    napi_value nSwitchStatus = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSwitchStatus));
+    CreateSwitchStatusObject(env, nSwitchStatus);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
@@ -276,7 +312,10 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("settingsMenu", nPolicySettingsMenu),
         DECLARE_NAPI_FUNCTION("getHiddenSettingsMenu", GetHiddenSettingsMenu),
         DECLARE_NAPI_FUNCTION("addHiddenSettingsMenu", AddHiddenSettingsMenu),
-        DECLARE_NAPI_FUNCTION("removeHiddenSettingsMenu", RemoveHiddenSettingsMenu)
+        DECLARE_NAPI_FUNCTION("removeHiddenSettingsMenu", RemoveHiddenSettingsMenu),
+        DECLARE_NAPI_FUNCTION("setSwitchStatus", SetSwitchStatus),
+        DECLARE_NAPI_PROPERTY("SwitchKey", nSwitchKey),
+        DECLARE_NAPI_PROPERTY("SwitchStatus", nSwitchStatus),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -819,6 +858,23 @@ void DeviceSettingsAddon::NativeSetWallPaper(napi_env env, void* data, bool isHo
     if (FAILED(ret)) {
         asyncCallbackInfo->ret = ret;
     }
+}
+
+napi_value DeviceSettingsAddon::SetSwitchStatus(napi_env env, napi_callback_info info)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetSwitchStatus";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetSwitchStatus(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
 }
 
 static napi_value ConvertInt32VectorToJs(napi_env env, const std::vector<int32_t> &int32Vector)

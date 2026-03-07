@@ -559,6 +559,42 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetFloatingNavigationForAccountFail, TestS
     int32_t ret = deviceSettingsProxy->GetFloatingNavigationForAccount(admin, id, value);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetSwitchStatusSuccess
+ * @tc.desc: Test SetSwitchStatus func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetSwitchStatusSuccess, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = deviceSettingsProxy->SetSwitchStatus(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+ 
+/**
+* @tc.name: TestSetSwitchStatusFail
+* @tc.desc: Test SetSwitchStatus func without enable edm service.
+* @tc.type: FUNC
+*/
+HWTEST_F(DeviceSettingsProxyTest, TestSetSwitchStatusFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(false);
+    int32_t ret = deviceSettingsProxy->SetSwitchStatus(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
