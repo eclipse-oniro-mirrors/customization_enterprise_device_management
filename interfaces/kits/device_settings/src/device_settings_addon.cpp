@@ -20,6 +20,9 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
+#ifdef OS_ACCOUNT_EDM_ENABLE
+#include "os_account_manager.h"
+#endif
 
 using namespace OHOS::EDM;
 
@@ -66,6 +69,179 @@ void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SHUTDOWN", nActionShutDown));
 }
 
+void DeviceSettingsAddon::CreateSettingsMenuObject(napi_env env, napi_value value)
+{
+    napi_value nAccountId;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::ACCOUNT_ID), &nAccountId));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACCOUNT_ID", nAccountId));
+    napi_value nWifi;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::WIFI), &nWifi));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI", nWifi));
+    napi_value nWifiProxySettings;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::WIFI_PROXY_SETTINGS), &nWifiProxySettings));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI_PROXY_SETTINGS", nWifiProxySettings));
+    napi_value nWifiIpSettings;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::WIFI_IP_SETTINGS), &nWifiIpSettings));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI_IP_SETTINGS", nWifiIpSettings));
+    napi_value nBluetooth;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::BLUETOOTH), &nBluetooth));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BLUETOOTH", nBluetooth));
+    napi_value nNetwork;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::NETWORK), &nNetwork));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NETWORK", nNetwork));
+    napi_value nSuperDevice;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SUPER_DEVICE), &nSuperDevice));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUPER_DEVICE", nSuperDevice));
+    napi_value nMoreConnectivityOptions;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::MORE_CONNECTIVITY_OPTIONS), &nMoreConnectivityOptions));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env,
+        value, "MORE_CONNECTIVITY_OPTIONS", nMoreConnectivityOptions));
+    napi_value nHomeScreenStyle;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::HOME_SCREEN_STYLE), &nHomeScreenStyle));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "HOME_SCREEN_STYLE", nHomeScreenStyle));
+    napi_value nDisplayBrightness;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::DISPLAY_BRIGHTNESS), &nDisplayBrightness));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISPLAY_BRIGHTNESS", nDisplayBrightness));
+    napi_value nSoundVibration;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SOUND_VIBRATION), &nSoundVibration));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SOUND_VIBRATION", nSoundVibration));
+    napi_value nNotifications;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::NOTIFICATIONS), &nNotifications));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NOTIFICATIONS", nNotifications));
+    napi_value nBiometricsPassword;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::BIOMETRICS_PASSWORD), &nBiometricsPassword));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BIOMETRICS_PASSWORD", nBiometricsPassword));
+    napi_value nAppsAndServices;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::APPS_AND_SERVICES), &nAppsAndServices));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "APPS_AND_SERVICES", nAppsAndServices));
+    napi_value nBattery;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::BATTERY), &nBattery));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BATTERY", nBattery));
+    napi_value nStorage;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::STORAGE), &nStorage));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "STORAGE", nStorage));
+    napi_value nPrivacyAndSecurity;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::PRIVACY_AND_SECURITY), &nPrivacyAndSecurity));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PRIVACY_AND_SECURITY", nPrivacyAndSecurity));
+    napi_value nDigitalBalance;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::DIGITAL_BALANCE), &nDigitalBalance));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DIGITAL_BALANCE", nDigitalBalance));
+    napi_value nSmartAssistant;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SMART_ASSISTANT), &nSmartAssistant));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SMART_ASSISTANT", nSmartAssistant));
+    napi_value nAccessibility;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::ACCESSIBILITY), &nAccessibility));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ACCESSIBILITY", nAccessibility));
+    napi_value nSystem;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SYSTEM), &nSystem));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SYSTEM", nSystem));
+    napi_value nAboutDevice;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::ABOUT_DEVICE), &nAboutDevice));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ABOUT_DEVICE", nAboutDevice));
+    napi_value nSystemNavigation;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SYSTEM_NAVIGATION), &nSystemNavigation));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SYSTEM_NAVIGATION", nSystemNavigation));
+    napi_value nLanguageRegion;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::LANGUAGE_REGION), &nLanguageRegion));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LANGUAGE_REGION", nLanguageRegion));
+    napi_value nInputMethods;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::INPUT_METHODS), &nInputMethods));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INPUT_METHODS", nInputMethods));
+    napi_value nDateTime;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::DATE_TIME), &nDateTime));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DATE_TIME", nDateTime));
+    napi_value nDataClone;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::DATA_CLONE), &nDataClone));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DATA_CLONE", nDataClone));
+    napi_value nBackupSettings;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::BACKUP_SETTINGS), &nBackupSettings));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BACKUP_SETTINGS", nBackupSettings));
+    napi_value nReset;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::RESET), &nReset));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RESET", nReset));
+    napi_value nSuperhub;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SUPERHUB), &nSuperhub));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUPERHUB", nSuperhub));
+    napi_value nUserExperience;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::USER_EXPERIENCE), &nUserExperience));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "USER_EXPERIENCE", nUserExperience));
+    napi_value nScreenCast;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SCREEN_CAST), &nScreenCast));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SCREEN_CAST", nScreenCast));
+    napi_value nPrintersScanners;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::PRINTERS_SCANNERS), &nPrintersScanners));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PRINTERS_SCANNERS", nPrintersScanners));
+    napi_value nMobileData;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::MOBILE_DATA), &nMobileData));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MOBILE_DATA", nMobileData));
+    napi_value nPersonalHotspot;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::PERSONAL_HOTSPOT), &nPersonalHotspot));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PERSONAL_HOTSPOT", nPersonalHotspot));
+    napi_value nSimManagement;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SIM_MANAGEMENT), &nSimManagement));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SIM_MANAGEMENT", nSimManagement));
+    napi_value nAirplaneMode;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::AIRPLANE_MODE), &nAirplaneMode));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "AIRPLANE_MODE", nAirplaneMode));
+    napi_value nManageDataUsage;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::MANAGE_DATA_USAGE), &nManageDataUsage));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGE_DATA_USAGE", nManageDataUsage));
+    napi_value nVpnSettings;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::VPN_SETTINGS), &nVpnSettings));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "VPN_SETTINGS", nVpnSettings));
+    napi_value nTextDisplaySize;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::TEXT_DISPLAY_SIZE), &nTextDisplaySize));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TEXT_DISPLAY_SIZE", nTextDisplaySize));
+    napi_value nAppDuplicator;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::APP_DUPLICATOR), &nAppDuplicator));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "APP_DUPLICATOR", nAppDuplicator));
+    napi_value nSearch;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::SEARCH), &nSearch));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SEARCH", nSearch));
+}
+
 napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nTimeOut = nullptr;
@@ -77,6 +253,9 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
     napi_value nSettingsItem = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nSettingsItem));
     CreateSettingsItemObject(env, nSettingsItem);
+    napi_value nPolicySettingsMenu = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nPolicySettingsMenu));
+    CreateSettingsMenuObject(env, nPolicySettingsMenu);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
@@ -93,7 +272,11 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setValueForAccount", setValueForAccount),
         DECLARE_NAPI_FUNCTION("getValueForAccount", getValueForAccount),
         DECLARE_NAPI_FUNCTION("setHomeWallpaper", SetHomeWallPaper),
-        DECLARE_NAPI_FUNCTION("setUnlockWallpaper", SetUnlockWallPaper)
+        DECLARE_NAPI_FUNCTION("setUnlockWallpaper", SetUnlockWallPaper),
+        DECLARE_NAPI_PROPERTY("settingsMenu", nPolicySettingsMenu),
+        DECLARE_NAPI_FUNCTION("getHiddenSettingsMenu", GetHiddenSettingsMenu),
+        DECLARE_NAPI_FUNCTION("addHiddenSettingsMenu", AddHiddenSettingsMenu),
+        DECLARE_NAPI_FUNCTION("removeHiddenSettingsMenu", RemoveHiddenSettingsMenu)
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -636,6 +819,100 @@ void DeviceSettingsAddon::NativeSetWallPaper(napi_env env, void* data, bool isHo
     if (FAILED(ret)) {
         asyncCallbackInfo->ret = ret;
     }
+}
+
+static napi_value ConvertInt32VectorToJs(napi_env env, const std::vector<int32_t> &int32Vector)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    ConvertInt32VectorToJS(env, int32Vector, result);
+    return result;
+}
+
+napi_value DeviceSettingsAddon::GetHiddenSettingsMenu(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetHiddenSettingsMenu called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+                                 "parameter admin error");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error");
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    std::vector<int32_t> hiddenSettingsMenu;
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetHiddenSettingsMenu(elementName, userId,
+                                                                                       hiddenSettingsMenu);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("GetHiddenSettingsMenu failed!");
+        return nullptr;
+    }
+    napi_value result = ConvertInt32VectorToJs(env, hiddenSettingsMenu);
+    return result;
+}
+
+napi_value DeviceSettingsAddon::AddHiddenSettingsMenu(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddHiddenSettingsMenu called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+                                 "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+                                 "The element name param error.");
+    std::vector<int32_t> hiddenSettingsMenu;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseIntArray(env, hiddenSettingsMenu, argv[ARR_INDEX_ONE]),
+                                 "The second parameter must be array.");
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->AddHiddenSettingsMenu(elementName, userId,
+                                                                                       hiddenSettingsMenu);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("AddHiddenSettingsMenu failed!");
+        return nullptr;
+    }
+    return nullptr;
+}
+
+napi_value DeviceSettingsAddon::RemoveHiddenSettingsMenu(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveHiddenSettingsMenu called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+                                 "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+                                 "The element name param error.");
+    std::vector<int32_t> hiddenSettingsMenu;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseIntArray(env, hiddenSettingsMenu, argv[ARR_INDEX_ONE]),
+                                 "The second parameter must be array.");
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->RemoveHiddenSettingsMenu(elementName, userId,
+                                                                                          hiddenSettingsMenu);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("RemoveHiddenSettingsMenu failed!");
+        return nullptr;
+    }
+    return nullptr;
 }
 
 static napi_module g_deviceSettingsModule = {

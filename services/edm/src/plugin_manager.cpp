@@ -117,7 +117,8 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
     EdmInterfaceCode::GET_EXT_INFO, EdmInterfaceCode::SET_WALL_PAPER,
     EdmInterfaceCode::INSTALL_MARKET_APPS, EdmInterfaceCode::SET_KEY_CODE_POLICYS,
-    EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::ADD_DOCK_APP
+    EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::ADD_DOCK_APP,
+    EdmInterfaceCode::HIDDEN_SETTINGS_MENU
 };
 
 PluginManager::PluginManager()

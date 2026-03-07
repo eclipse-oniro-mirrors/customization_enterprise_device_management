@@ -24,6 +24,7 @@ config("plugin_kits_config") {
 
 ohos_shared_library("plugin_kits") {
   sources = [
+    "./src/basic_array_int_plugin.cpp",
     "./src/basic_array_string_plugin.cpp",
     "./src/basic_bool_plugin.cpp",
     "./src/iplugin.cpp",

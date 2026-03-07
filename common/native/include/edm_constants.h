@@ -49,6 +49,7 @@ namespace EdmConstants {
     constexpr uint32_t MANAGE_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
+    constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
 
     constexpr int32_t EDM_UID = 3057;
 
@@ -429,10 +430,10 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_ACTIVATION_LOCK = "disable_activation_lock";
     const char* const POLICY_ACTIVE_SIM = "active_sim";
     const char* const POLICY_DEACTIVE_SIM = "deactive_sim";
+    const char* const POLICY_HIDDEN_SETTINGS_MENU = "hidden_settings_menu";
     const char* const POLICY_SET_DEFAULT_DATA_SIM = "set_default_data_sim";
     const char* const POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT =
         "install_local_enterprise_app_enabled_for_account";
-
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

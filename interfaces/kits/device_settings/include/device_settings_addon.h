@@ -69,6 +69,10 @@ private:
     static void NativeSetHomeWallPaper(napi_env env, void* data);
     static void NativeSetUnlockWallPaper(napi_env env, void* data);
     static void NativeSetWallPaper(napi_env env, void* data, bool isHomeWallPaper);
+    static void CreateSettingsMenuObject(napi_env env, napi_value value);
+    static napi_value GetHiddenSettingsMenu(napi_env env, napi_callback_info info);
+    static napi_value AddHiddenSettingsMenu(napi_env env, napi_callback_info info);
+    static napi_value RemoveHiddenSettingsMenu(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

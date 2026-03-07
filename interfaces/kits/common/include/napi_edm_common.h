@@ -105,6 +105,7 @@ void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
+void ConvertInt32VectorToJS(napi_env env, const std::vector<int32_t> &int32Vector, napi_value result);
 void ConvertApplicationInstanceVectorToJS(napi_env env,
     const std::vector<ApplicationInstance> &applicationInstanceVector, napi_value result);
 bool CheckAdminWithUserIdParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback, bool &hasUserId);
