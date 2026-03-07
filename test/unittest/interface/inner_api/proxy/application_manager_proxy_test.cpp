@@ -996,6 +996,112 @@ HWTEST_F(ApplicationManagerProxyTest, TestIsAbilityDisabledFail, TestSize.Level1
     int32_t ret = applicationManagerProxy_->IsAbilityDisabled(data, isDisable);
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+#ifdef FEATURE_PC_ONLY
+/**
+ * @tc.name: TestAddDockAppSuc
+ * @tc.desc: Test AddDockApp success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddDockAppSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string bundleName = "com.test.app";
+    std::string abilityName = "MainAbility";
+    bool hasIndex = true;
+    int32_t index = 0;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddDockApp(admin, bundleName, abilityName, hasIndex, index);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddDockAppFail
+ * @tc.desc: Test AddDockApp without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestAddDockAppFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::string bundleName = "com.test.app";
+    std::string abilityName = "MainAbility";
+    bool hasIndex = false;
+    int32_t index = -1;
+    
+    ErrCode ret = applicationManagerProxy_->AddDockApp(admin, bundleName, abilityName, hasIndex, index);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveDockAppSuc
+ * @tc.desc: Test RemoveDockApp success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveDockAppSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string bundleName = "com.test.app";
+    std::string abilityName = "MainAbility";
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->RemoveDockApp(admin, bundleName, abilityName);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveDockAppFail
+ * @tc.desc: Test RemoveDockApp without enable edm service func.
+ * @tc.type: {FUNC}
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestRemoveDockAppFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::string bundleName = "com.test.app";
+    std::string abilityName = "MainAbility";
+    
+    ErrCode ret = applicationManagerProxy_->RemoveDockApp(admin, bundleName, abilityName);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDockAppsSuc
+ * @tc.desc: Test GetDockApps success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetDockAppsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<DockInfo> dockInfos;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetDockApps(admin, dockInfos);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDockAppsFail
+ * @tc.desc: Test GetDockApps without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetDockAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<DockInfo> dockInfos;
+    
+    ErrCode ret = applicationManagerProxy_->GetDockApps(admin, dockInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

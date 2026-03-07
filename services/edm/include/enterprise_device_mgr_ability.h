@@ -206,6 +206,8 @@ private:
     ErrCode CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin);
     ErrCode CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin);
     void OnHandleInitExecute(uint32_t interfaceCode);
+    bool IsInMaintenanceMode();
+    ErrCode EnableAdminPreCheck(AdminType type);
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     void CreateLogDirIfNeed(const std::string &path);
     void DeleteLogDirIfNeed(const std::string &adminName);

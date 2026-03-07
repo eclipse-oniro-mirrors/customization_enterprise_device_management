@@ -49,6 +49,9 @@ protected:
     virtual ErrCode GetArrayStringPolicy(const std::string &policyData, MessageParcel &reply);
 
     virtual ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) = 0;
+
+    virtual ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId,
+        bool isAdminNull);
 };
 } // namespace EDM
 } // namespace OHOS

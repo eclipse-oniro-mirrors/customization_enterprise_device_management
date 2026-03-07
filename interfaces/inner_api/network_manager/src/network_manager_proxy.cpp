@@ -409,7 +409,7 @@ int32_t NetworkManagerProxy::AddApn(const AppExecFwk::ElementName &admin,
     if (apnInfoMap.size() > EdmConstants::SetApn::MAX_MAP_SIZE) {
         return ERR_INVALID_VALUE;
     }
-    data.WriteInt32(apnInfoMap.size());
+    data.WriteUint32(apnInfoMap.size());
     for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
     }
@@ -444,7 +444,7 @@ int32_t NetworkManagerProxy::UpdateApn(const AppExecFwk::ElementName &admin,
     data.WriteString(WITHOUT_PERMISSION_TAG);
     data.WriteString(EdmConstants::SetApn::UPDATE_FLAG);
     data.WriteString(apnId);
-    data.WriteInt32(apnInfoMap.size());
+    data.WriteUint32(apnInfoMap.size());
     for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
     }
@@ -496,22 +496,22 @@ int32_t NetworkManagerProxy::QueryApn(const AppExecFwk::ElementName &admin, cons
         return ret;
     }
 
-    int32_t size = reply.ReadInt32();
+    uint32_t size = reply.ReadUint32();
     if (size > POLICIES_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:QueryApn invalid size: %{public}d", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     std::vector<std::string> keys;
     std::vector<std::string> values;
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         std::string key = reply.ReadString();
         keys.push_back(key);
     }
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         std::string value = reply.ReadString();
         values.push_back(value);
     }
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         apnInfoMap[keys[i]] = values[i];
     }
 
@@ -530,7 +530,7 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     data.WriteString(EdmConstants::SetApn::QUERY_ID_FLAG);
-    data.WriteInt32(apnInfoMap.size());
+    data.WriteUint32(apnInfoMap.size());
     for (const auto& iter : apnInfoMap) {
         data.WriteString(iter.first);
     }
@@ -544,12 +544,12 @@ int32_t NetworkManagerProxy::QueryApnIds(const AppExecFwk::ElementName &admin,
         return ret;
     }
     
-    int32_t size = reply.ReadInt32();
+    uint32_t size = reply.ReadUint32();
     if (size > POLICIES_MAX_SIZE) {
         EDMLOGE("EnterpriseDeviceMgrProxy:QueryApnIds invalid size: %{public}d", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         std::string id = reply.ReadString();
         apnIds.push_back(id);
     }

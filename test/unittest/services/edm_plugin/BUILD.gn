@@ -118,7 +118,6 @@ ohos_unittest("EdmPluginTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "netmanager_base:netsys_controller",
     "netmanager_base:net_native_manager_if",
     "safwk:system_ability_fwk",
@@ -309,6 +308,7 @@ ohos_unittest("EdmPluginTest") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
+      "./src/add_dock_app_plugin_test.cpp",
       "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
       "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
       "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
@@ -316,6 +316,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_usb_storage_device_write_plugin_test.cpp",
       "./src/disable_hdc_remote_plugin_test.cpp",
       "./src/disable_running_binary_app_plugin_test.cpp",
+      "./src/install_local_enterprise_app_enabled_for_account_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -342,6 +343,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallowed_sim_plugin_test.cpp",
       "./src/disallowed_telephony_call_plugin_test.cpp",
       "./src/set_apn_plugin_test.cpp",
+      "./src/set_default_data_sim_plugin_test.cpp",
       "./src/telephony_call_policy_plugin_test.cpp",
       "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/utils/telephony_call_policy_serializer_test.cpp",
@@ -765,9 +767,11 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
+      "../../../../services/edm_plugin/src/add_dock_app_plugin.cpp",
       "../../../../services/edm_plugin/src/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/disallow_modify_ethernet_ip_plugin.cpp",
       "../../../../services/edm_plugin/src/install_local_enterprise_app_enabled_plugin.cpp",
+      "../../../../services/edm_plugin/src/install_local_enterprise_app_enabled_for_account_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_nearlink_protocols_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
@@ -801,6 +805,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       "../../../../services/edm_plugin/src/disallowed_telephony_call_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_sim_plugin.cpp",
       "../../../../services/edm_plugin/src/set_apn_plugin.cpp",
+      "../../../../services/edm_plugin/src/set_default_data_sim_plugin.cpp",
       "../../../../services/edm_plugin/src/telephony_call_policy_plugin.cpp",
       "../../../../services/edm_plugin/src/turnonoff_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",

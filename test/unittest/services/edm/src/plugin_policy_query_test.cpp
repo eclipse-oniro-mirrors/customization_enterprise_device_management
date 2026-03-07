@@ -90,6 +90,7 @@
 #include "set_wifi_disabled_query.h"
 #include "snapshot_skip_query.h"
 #include "usb_read_only_query.h"
+#include "utils.h"
 #include "disallowed_sms_query.h"
 #include "disallowed_mms_query.h"
 #include "disallow_modify_wallpaper_query.h"
@@ -101,6 +102,7 @@
 #include "get_auto_unlock_after_reboot_query.h"
 #include "disable_usb_storage_device_write_query.h"
 #include "disable_hdc_remote_query.h"
+#include "install_local_enterprise_app_enabled_for_account_query.h"
 #endif
 
 #ifdef NETMANAGER_EXT_EDM_ENABLE
@@ -127,6 +129,10 @@ protected:
     void SetUp() override;
 
     void TearDown() override;
+
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
 };
 const std::string POLICY_DATA = "[{\"tokenId\":1,\"userId\":100,\"bundleName\":\"com.ohos.test1\","
     "\"clipboardPolicy\":1},{\"tokenId\":2,\"userId\":100,\"bundleName\":\"com.ohos.test2\",\"clipboardPolicy\":2}]";
@@ -161,6 +167,18 @@ const std::string TEST_PERMISSION_ENTERPRISE_SET_USER_RESTRICTION = "ohos.permis
 void PluginPolicyQueryTest::SetUp() {}
 
 void PluginPolicyQueryTest::TearDown() {}
+
+void PluginPolicyQueryTest::SetUpTestSuite(void)
+{
+    Utils::SetEdmInitialEnv();
+}
+
+void PluginPolicyQueryTest::TearDownTestSuite(void)
+{
+    Utils::ResetTokenTypeAndUid();
+    ASSERT_TRUE(Utils::IsOriginalUTEnv());
+    std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
 
 /**
  * @tc.name: TestAllowedBluetoothDevicesQuery
@@ -2488,6 +2506,60 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowUsbSerialQuery002, TestSize.Level1)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOW_USB_SERIAL);
 }
+
+#if defined(FEATURE_PC_ONLY)
+/**
+ * @tc.name: TestInstallLocalEnterpriceAppEnabledForAccountQuery001
+ * @tc.desc: Test InstallLocalEnterpriceAppEnabledForAccountQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestInstallLocalEnterpriceAppEnabledForAccountQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID, false);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallLocalEnterpriceAppEnabledForAccountQuery002
+ * @tc.desc: Test InstallLocalEnterpriceAppEnabledForAccountQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestInstallLocalEnterpriceAppEnabledForAccountQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID, true);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestInstallLocalEnterpriceAppEnabledForAccountQuery003
+ * @tc.desc: Test InstallLocalEnterpriceAppEnabledForAccountQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestInstallLocalEnterpriceAppEnabledForAccountQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

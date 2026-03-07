@@ -68,7 +68,14 @@ namespace EdmReturnErrCode {
     constexpr uint32_t ETHERNET_CONFIGURATION_FAILED = 9201010;
     constexpr uint32_t INVALID_ACTIVATION_LOCK_CREDENTIALS = 9201011;
     constexpr uint32_t ENABLE_ACTIVATION_LOCK_FAILED = 9201012;
+    constexpr uint32_t DOCK_APP_IS_OVER_MAX = 9201013;
+    constexpr uint32_t DOCK_APP_IS_ALREADY_IN_DOCK = 9201014;
+    constexpr uint32_t DOCK_APP_NOT_INSTALLED = 9201015;
+    constexpr uint32_t DOCK_APP_NOT_IN_DOCK = 9201016;
     constexpr uint32_t ACTIVE_SIM_FAILED = 9201017;
+    constexpr uint32_t DOCK_APP_BUNDLE_NOT_SUPPORT = 9201018;
+    constexpr uint32_t DOCK_APP_INDEX_NOT_SUPPORT = 9201019;
+    constexpr uint32_t SET_DEFAULT_DATA_SIM_FAILED = 9201020;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

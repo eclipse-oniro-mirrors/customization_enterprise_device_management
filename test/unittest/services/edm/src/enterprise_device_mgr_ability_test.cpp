@@ -81,6 +81,7 @@ const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string EDM_TEST_ENT_PERMISSION = "ohos.permission.EDM_TEST_ENT_PERMISSION";
 const std::string TEST_POLICY_VALUE = "test_policy_value";
 const std::string PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POLICY";
+const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
 
 void EnterpriseDeviceMgrAbilityTest::initPolicies()
 {
@@ -5350,6 +5351,36 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestStartAbilityByAdminWithInvalidWant,
 
     ErrCode ret = edmMgr_->StartAbilityByAdmin(admin, want);
     ASSERT_TRUE(ret != ERR_OK);
+}
+
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, IsInMaintenanceMode_EmptyParam, TestSize.Level1)
+{
+    system::SetParameter(PARAM_MAINTENANCE_MODE, "");
+    bool result = edmMgr_->IsInMaintenanceMode();
+    EXPECT_FALSE(result);
+}
+
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, IsInMaintenanceMode_FalseParam, TestSize.Level1)
+{
+    system::SetParameter(PARAM_MAINTENANCE_MODE, "false");
+    bool result = edmMgr_->IsInMaintenanceMode();
+    EXPECT_FALSE(result);
+}
+
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, IsInMaintenanceMode_TrueParam, TestSize.Level1)
+{
+    system::SetParameter(PARAM_MAINTENANCE_MODE, "true");
+    bool result = edmMgr_->IsInMaintenanceMode();
+    EXPECT_TRUE(result);
+    system::SetParameter(PARAM_MAINTENANCE_MODE, "false");
+}
+
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, IsInMaintenanceMode_NonEmptyParam, TestSize.Level1)
+{
+    system::SetParameter(PARAM_MAINTENANCE_MODE, "maintenance");
+    bool result = edmMgr_->IsInMaintenanceMode();
+    EXPECT_FALSE(result);
+    system::SetParameter(PARAM_MAINTENANCE_MODE, "false");
 }
 } // namespace TEST
 } // namespace EDM

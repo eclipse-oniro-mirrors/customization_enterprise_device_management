@@ -76,7 +76,7 @@ bool ApplicationInstanceHandle::WriteApplicationInstance(MessageParcel &data, co
 bool ApplicationInstanceHandle::WriteApplicationInstanceVector(MessageParcel &data,
     const std::vector<ApplicationInstance> freezeExemptedApps)
 {
-    if (!data.WriteInt32(freezeExemptedApps.size())) {
+    if (!data.WriteUint32(freezeExemptedApps.size())) {
         return false;
     }
 
@@ -108,14 +108,14 @@ bool ApplicationInstanceHandle::ReadApplicationInstance(MessageParcel &data, App
 bool ApplicationInstanceHandle::ReadApplicationInstanceVector(MessageParcel &data,
     std::vector<ApplicationInstance> &freezeExemptedApps)
 {
-    int32_t size = data.ReadInt32();
-    if (size < 0 || size > EdmConstants::MANAGE_APPS_MAX_SIZE) {
+    uint32_t size = data.ReadUint32();
+    if (size > EdmConstants::MANAGE_APPS_MAX_SIZE) {
         return false;
     }
     freezeExemptedApps.clear();
     freezeExemptedApps.reserve(size);
 
-    for (int32_t i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         ApplicationInstance instance;
         if (!ReadApplicationInstance(data, instance)) {
             return false;

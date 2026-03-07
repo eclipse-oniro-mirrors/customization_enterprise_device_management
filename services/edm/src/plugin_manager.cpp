@@ -73,7 +73,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD,
     EdmInterfaceCode::SET_ABILITY_ENABLED, EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER,
     EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE, EdmInterfaceCode::SET_DEVICE_NAME,
-    EdmInterfaceCode::SET_FLOATING_NAVIGATION
+    EdmInterfaceCode::SET_FLOATING_NAVIGATION, EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -97,7 +97,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOW_VPN, EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
     EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS, EdmInterfaceCode::HANG_UP_CALLING,
     EdmInterfaceCode::SET_NETWORK_INTERFACE_CONFIG, EdmInterfaceCode::DISALLOW_USB_SERIAL,
-    EdmInterfaceCode::MANAGE_SIM
+    EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -117,7 +117,8 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::SET_OTA_UPDATE_POLICY, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES,
     EdmInterfaceCode::GET_EXT_INFO, EdmInterfaceCode::SET_WALL_PAPER,
     EdmInterfaceCode::INSTALL_MARKET_APPS, EdmInterfaceCode::SET_KEY_CODE_POLICYS,
-    EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::HIDDEN_SETTINGS_MENU
+    EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::ADD_DOCK_APP,
+    EdmInterfaceCode::HIDDEN_SETTINGS_MENU
 };
 
 PluginManager::PluginManager()
