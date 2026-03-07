@@ -35,6 +35,7 @@ config("edmservice_kits_config") {
     "usb_manager/include",
     "wifi_manager/include",
     "telephony_manager/include",
+    "../kits/common/include",
   ]
 }
 
@@ -83,7 +84,8 @@ ohos_shared_library("edmservice_kits") {
     "./wifi_manager/src/wifi_manager_proxy.cpp",
     "./telephony_manager/src/telephony_manager_proxy.cpp",
     "./telephony_manager/src/telephony_call_policy_serializer.cpp",
-    "../../common/native/src/edm_utils.cpp"
+    "../../common/native/src/edm_utils.cpp",
+    "../kits/common/src/napi_edm_element_name.cpp",
   ]
 
   innerapi_tags = [ "platformsdk" ]
@@ -108,7 +110,8 @@ ohos_shared_library("edmservice_kits") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "ability_base:want"
+    "ability_base:want",
+    "napi:ace_napi",
   ]
 
   defines = []

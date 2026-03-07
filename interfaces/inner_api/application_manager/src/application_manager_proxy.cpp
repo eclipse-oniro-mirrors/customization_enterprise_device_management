@@ -146,7 +146,7 @@ int32_t ApplicationManagerProxy::AddOrRemoveAutoStartApps(MessageParcel &data, b
 }
 
 int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
-    std::vector<AppExecFwk::ElementName> &autoStartApps)
+    std::vector<OHOS::EDM::EdmElementName> &autoStartApps)
 {
     EDMLOGD("ApplicationManagerProxy::GetAutoStartApps");
     MessageParcel reply;
@@ -163,16 +163,22 @@ int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,
         size_t index = autoStartAppsString[i].find("/");
         std::string bundleName;
         std::string abilityName;
+        std::string isHiddenStartString;
         if (index != autoStartAppsString[i].npos) {
             bundleName = autoStartAppsString[i].substr(0, index);
-            abilityName = autoStartAppsString[i].substr(index + 1);
+            std::string abilityAndHidden = autoStartAppsString[i].substr(index + 1);
+            size_t index_child = abilityAndHidden.find("/");
+            abilityName = abilityAndHidden.substr(0, index_child);
+            isHiddenStartString = abilityAndHidden.substr(index_child + 1);
         } else {
             EDMLOGE("GetAutoStartApps parse auto start app want failed");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        AppExecFwk::ElementName element;
+        OHOS::EDM::EdmElementName element;
         element.SetBundleName(bundleName);
         element.SetAbilityName(abilityName);
+        element.SetIsHiddenStart(isHiddenStartString == "true");
+        EDMLOGD("GetAutoStartApps parse auto start app set isHiddenStart OK");
         autoStartApps.push_back(element);
     }
     return ERR_OK;

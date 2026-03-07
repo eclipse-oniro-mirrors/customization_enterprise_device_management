@@ -25,6 +25,7 @@ ohos_shared_library("napi_edm_common") {
     "./src/napi_edm_adapter.cpp",
     "./src/napi_edm_common.cpp",
     "./src/napi_edm_error.cpp",
+    "./src/napi_edm_element_name.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]

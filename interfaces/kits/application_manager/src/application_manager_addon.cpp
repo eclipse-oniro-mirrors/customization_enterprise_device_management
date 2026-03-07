@@ -373,6 +373,76 @@ napi_value ApplicationManagerAddon::RemoveAutoStartApps(napi_env env, napi_callb
     return AddOrRemoveAutoStartApps(env, info, "RemoveAutoStartApps");
 }
 
+bool ApplicationManagerAddon::EdmParseElementName(napi_env env, OHOS::EDM::EdmElementName &elementName, napi_value args)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
+    if (valueType != napi_object) {
+        EDMLOGE("Parameter element valueType error");
+        return false;
+    }
+    std::string bundleName;
+    std::string abilityName;
+    bool isHiddenStart = false;
+    bool hasParameters;
+    if (!JsObjectToString(env, args, "bundleName", true, bundleName) ||
+        !JsObjectToString(env, args, "abilityName", true, abilityName)) {
+        EDMLOGE("Parameter element bundleName error");
+        return false;
+    }
+    EDMLOGD("EdmParseElementName bundleName %{public}s ", bundleName.c_str());
+    EDMLOGD("EdmParseElementName abilityname %{public}s", abilityName.c_str());
+
+    elementName.SetBundleName(bundleName);
+    elementName.SetAbilityName(abilityName);
+    
+    napi_has_named_property(env, args, "parameters", &hasParameters);
+    if (hasParameters) {
+        napi_value parameters;
+        napi_get_named_property(env, args, "parameters", &parameters);
+        JsObjectToBool(env, parameters, "isHiddenStart", false, isHiddenStart);
+    }
+    elementName.SetIsHiddenStart(isHiddenStart);
+    EDMLOGD("GetAutoStartApps parse auto start app set parameters isHiddenStart OK");
+    
+    return true;
+}
+
+napi_value ApplicationManagerAddon::EdmParseElementArray(napi_env env,
+    std::vector<OHOS::EDM::EdmElementName> &elementArray, napi_value args)
+{
+    EDMLOGD("begin to parse element array");
+    bool isArray = false;
+    NAPI_CALL(env, napi_is_array(env, args, &isArray));
+    if (!isArray) {
+        EDMLOGE("napi object is not array.");
+        return nullptr;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL(env, napi_get_array_length(env, args, &arrayLength));
+    EDMLOGD("length=%{public}ud", arrayLength);
+    for (uint32_t j = 0; j < arrayLength; j++) {
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_get_element(env, args, j, &value));
+        napi_valuetype valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, value, &valueType));
+        if (valueType != napi_object) {
+            elementArray.clear();
+            return nullptr;
+        }
+        OHOS::EDM::EdmElementName element;
+        EdmParseElementName(env, element, value);
+        elementArray.push_back(element);
+    }
+    // create result code
+    napi_value result;
+    napi_status status = napi_create_int32(env, NAPI_RETURN_ONE, &result);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    return result;
+}
+ 	 
 napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_callback_info info,
     std::string function)
 {
@@ -388,8 +458,8 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
-    std::vector<AppExecFwk::ElementName> autoStartApps;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
+    std::vector<OHOS::EDM::EdmElementName> autoStartApps;
+    ASSERT_AND_THROW_PARAM_ERROR(env, EdmParseElementArray(env, autoStartApps, argv[ARR_INDEX_ONE]),
         "Parameter autoStartApps error");
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
@@ -405,7 +475,9 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     parcelData.WriteString(WITHOUT_PERMISSION_TAG);
     std::vector<std::string> autoStartAppsString;
     for (size_t i = 0; i < autoStartApps.size(); i++) {
-        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName();
+        std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
+ 	        "/" + isHiddenStartString;
         autoStartAppsString.push_back(appWant);
     }
     parcelData.WriteStringVector(autoStartAppsString);
@@ -422,6 +494,33 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
+}
+
+napi_value ApplicationManagerAddon::ParseAutoStartAppsInfo(napi_env env, napi_value &napiAutoStartApps,
+    std::vector<EdmElementName> autoStartApps)
+{
+    size_t idx = 0;
+    for (const auto &element : autoStartApps) {
+        napi_value objAutoStartApps = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &objAutoStartApps));
+        napi_value napi_bundleName;
+        napi_value napi_abilityName;
+        napi_value napi_isHiddenStart;
+        NAPI_CALL(env, napi_create_string_utf8(env, element.GetBundleName().c_str(),
+            element.GetBundleName().size(), &napi_bundleName));
+        NAPI_CALL(env, napi_create_string_utf8(env, element.GetAbilityName().c_str(),
+            element.GetAbilityName().size(), &napi_abilityName));
+        NAPI_CALL(env, napi_get_boolean(env, element.GetIsHiddenStart(), &napi_isHiddenStart));
+        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "bundleName", napi_bundleName));
+        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "abilityName", napi_abilityName));
+        napi_value objParamenters = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &objParamenters));
+        NAPI_CALL(env, napi_set_named_property(env, objParamenters, "isHiddenStart", napi_isHiddenStart));
+        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "parameters", objParamenters));
+        napi_set_element(env, napiAutoStartApps, idx, objAutoStartApps);
+        idx++;
+    }
+    return napiAutoStartApps;
 }
 
 napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback_info info)
@@ -448,7 +547,7 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     parcelData.WriteInt32(HAS_ADMIN);
     parcelData.WriteParcelable(&elementName);
     parcelData.WriteString(OHOS::EDM::EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO);
-    std::vector<OHOS::AppExecFwk::ElementName> autoStartApps;
+    std::vector<OHOS::EDM::EdmElementName> autoStartApps;
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->GetAutoStartApps(
         parcelData, autoStartApps);
     if (FAILED(ret)) {
@@ -457,21 +556,7 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     }
     napi_value napiAutoStartApps = nullptr;
     NAPI_CALL(env, napi_create_array(env, &napiAutoStartApps));
-    size_t idx = 0;
-    for (const auto &element : autoStartApps) {
-        napi_value objAutoStartApps = nullptr;
-        NAPI_CALL(env, napi_create_object(env, &objAutoStartApps));
-        napi_value napi_bundleName;
-        napi_value napi_abilityName;
-        NAPI_CALL(env, napi_create_string_utf8(env, element.GetBundleName().c_str(),
-            element.GetBundleName().size(), &napi_bundleName));
-        NAPI_CALL(env, napi_create_string_utf8(env, element.GetAbilityName().c_str(),
-            element.GetAbilityName().size(), &napi_abilityName));
-        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "bundleName", napi_bundleName));
-        NAPI_CALL(env, napi_set_named_property(env, objAutoStartApps, "abilityName", napi_abilityName));
-        napi_set_element(env, napiAutoStartApps, idx, objAutoStartApps);
-        idx++;
-    }
+    ParseAutoStartAppsInfo(env, napiAutoStartApps, autoStartApps);
     return napiAutoStartApps;
 }
 

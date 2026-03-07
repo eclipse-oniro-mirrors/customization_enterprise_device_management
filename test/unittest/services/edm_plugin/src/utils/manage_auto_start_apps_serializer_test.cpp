@@ -79,6 +79,7 @@ void ManageAutoStartAppsSerializerTest::TearDownTestSuite(void)
     info1.SetBundleName("test1");
     info1.SetAbilityName("testAB1");
     info1.SetDisallowModify(true);
+    info1.SetIsHiddenStart(true);
     dataObj.push_back(info1);
     bool ret = serializer->Serialize(dataObj, jsonString);
     ASSERT_TRUE(ret);
@@ -117,6 +118,7 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestDeserializeWithJustBundleNameAnd
     ASSERT_TRUE(dataObj[0].GetAbilityName() == "testAB1");
     ASSERT_TRUE(dataObj[0].GetUniqueKey() == "test1/testAB1");
     ASSERT_TRUE(dataObj[0].GetDisallowModify());
+    ASSERT_TRUE(dataObj[0].GetIsHiddenStart() == false);
 }
  
 /**
@@ -135,6 +137,27 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestDeserializeSuc, TestSize.Level1)
     ASSERT_EQ(dataObj[0].GetBundleName(), "test");
     ASSERT_EQ(dataObj[0].GetAbilityName(), "testAB");
     ASSERT_EQ(dataObj[0].GetDisallowModify(), false);
+    ASSERT_EQ(dataObj[0].GetIsHiddenStart(), false);
+}
+
+/**
+ * @tc.name: TestIsHiddenStart
+ * @tc.desc: Test ManageAutoStartAppsSerializerTest::Deserialize
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsSerializerTest, TestIsHiddenStart, TestSize.Level1)
+{
+    auto serializer = ManageAutoStartAppsSerializer::GetInstance();
+    std::string jsonString = R"([{"bundleName": "test", "abilityName": "testAB",
+        "disallowModify": false, "isHiddenStart": true}])";
+    std::vector<ManageAutoStartAppInfo> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(dataObj.size(), 1);
+    ASSERT_EQ(dataObj[0].GetBundleName(), "test");
+    ASSERT_EQ(dataObj[0].GetAbilityName(), "testAB");
+    ASSERT_EQ(dataObj[0].GetDisallowModify(), false);
+    ASSERT_EQ(dataObj[0].GetIsHiddenStart(), true);
 }
  
 /**
@@ -183,11 +206,13 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestGetPolicy, TestSize.Level1)
     data.WriteString("test1");
     data.WriteString("testAB1");
     data.WriteBool(true);
+    data.WriteBool(true);
     bool ret = serializer->GetPolicy(data, dataObj);
     ASSERT_TRUE(ret);
     ASSERT_TRUE(dataObj[0].GetBundleName() == "test1");
     ASSERT_TRUE(dataObj[0].GetAbilityName() == "testAB1");
     ASSERT_TRUE(dataObj[0].GetDisallowModify());
+    ASSERT_TRUE(dataObj[0].GetIsHiddenStart());
 }
  
 /**
@@ -218,6 +243,7 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestMergePolicy, TestSize.Level1)
     id1.SetBundleName("test1");
     id1.SetAbilityName("testAB1");
     id1.SetDisallowModify(true);
+    id1.SetIsHiddenStart(true);
     data.push_back(id1);
     dataObj.push_back(data);
  
@@ -225,12 +251,14 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestMergePolicy, TestSize.Level1)
     ManageAutoStartAppInfo id2;
     id2.SetUniqueKey("test1/testAB1");
     id2.SetDisallowModify(false);
+    id2.SetIsHiddenStart(false);
     data2.push_back(id2);
     dataObj.push_back(data2);
     std::vector<ManageAutoStartAppInfo> result;
     serializer->MergePolicy(dataObj, result);
     ASSERT_TRUE(result.size() == 1);
     ASSERT_TRUE(result[0].GetDisallowModify());
+    ASSERT_TRUE(result[0].GetIsHiddenStart());
 }
  
 /**
@@ -252,6 +280,7 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestUpdateByMergePolicy, TestSize.Le
     id2.SetBundleName("test2");
     id2.SetAbilityName("testAB2");
     id2.SetDisallowModify(true);
+    id2.SetIsHiddenStart(true);
     data.push_back(id2);
  
     std::vector<ManageAutoStartAppInfo> data2;
@@ -259,6 +288,7 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestUpdateByMergePolicy, TestSize.Le
     id3.SetBundleName("test2");
     id3.SetAbilityName("testAB2");
     id3.SetDisallowModify(false);
+    id3.SetIsHiddenStart(false);
     data2.push_back(id3);
  
     ManageAutoStartAppInfo id4;
@@ -276,6 +306,7 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestUpdateByMergePolicy, TestSize.Le
     serializer->UpdateByMergePolicy(data, data2);
     ASSERT_TRUE(data.size() == 2);
     ASSERT_FALSE(data[1].GetDisallowModify());
+    ASSERT_FALSE(data[1].GetIsHiddenStart());
 }
  
 /**
@@ -287,8 +318,8 @@ HWTEST_F(ManageAutoStartAppsSerializerTest, TestSetIntersectionPolicyData, TestS
 {
     auto serializer = ManageAutoStartAppsSerializer::GetInstance();
     std::vector<std::string> uniqueKey;
-    uniqueKey.push_back("test1/testAB1");
-    uniqueKey.push_back("test2/testAB2");
+    uniqueKey.push_back("test1/testAB1/true");
+    uniqueKey.push_back("test2/testAB2/true");
     
     std::vector<ManageAutoStartAppInfo> data;
     ManageAutoStartAppInfo id1;

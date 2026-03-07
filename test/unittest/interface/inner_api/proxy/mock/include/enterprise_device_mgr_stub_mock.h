@@ -31,6 +31,7 @@ constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 constexpr int EDM_MAXREQUESTSIZE = 99999;
 const std::string RETURN_STRING = "test_string";
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
+const std::string EDM_ELEMENT_STRING = "com.example.myapplication/MainAbility/true";
 const std::string UPGRADE_VERSION = "version_1.0";
 constexpr int32_t UPGRADE_FAILED_CODE = -1;
 const std::string UPGRADE_FAILED_MESSAGE = "upgrade failed";
@@ -132,6 +133,9 @@ public:
 
     int InvokeArrayElementSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
+
+    int InvokeArrayEdmElementSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
 
     int InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);

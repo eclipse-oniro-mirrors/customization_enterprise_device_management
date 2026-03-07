@@ -144,7 +144,9 @@ ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageP
         ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
         std::vector<std::string> policies;
         for (const ManageAutoStartAppInfo &item : appInfos) {
-            policies.push_back(item.GetUniqueKey());
+            std::string isHiddenStartStr = item.GetIsHiddenStart() ? "true" : "false";
+            policies.push_back(item.GetUniqueKey() + "/" + isHiddenStartStr);
+            EDMLOGD("GetAutoStartApps parse auto start app join isHiddenStart OK");
         }
         reply.WriteInt32(ERR_OK);
         reply.WriteStringVector(policies);
@@ -240,6 +242,25 @@ ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &a
     return ERR_OK;
 }
 
+void ManageAutoStartAppsPlugin::ParseManageAutoStartAppsInfo(std::vector<std::string> &data, bool disallowModify,
+    std::vector<ManageAutoStartAppInfo> &appInfoArray)
+{
+    for (const auto &item : data) {
+        ManageAutoStartAppInfo appInfo;
+        if (item.rfind("/") == std::string::npos) {
+            continue;
+        }
+        size_t index = item.rfind("/");
+        std::string uniqueKey = item.substr(0, index);
+        appInfo.SetUniqueKey(uniqueKey);
+        appInfo.SetDisallowModify(disallowModify);
+        std::string isHiddenStartStr = item.substr(index + 1);
+        bool isHiddenStart = isHiddenStartStr == "true";
+        appInfo.SetIsHiddenStart(isHiddenStart);
+        appInfoArray.push_back(appInfo);
+    }
+}
+
 ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
     std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId)
 {
@@ -252,11 +273,10 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<ManageAutoStartAppInfo> tmpData;
-    for (const auto &item : data) {
-        ManageAutoStartAppInfo appInfo;
-        appInfo.SetUniqueKey(item);
-        appInfo.SetDisallowModify(disallowModify);
-        tmpData.push_back(appInfo);
+    ParseManageAutoStartAppsInfo(data, disallowModify, tmpData);
+    if (tmpData.empty()) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnSetPolicy input data is error.");
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     std::vector<ManageAutoStartAppInfo> addData =
         ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
@@ -314,7 +334,11 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         }
         ErrCode res;
         if (isSet) {
-            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify());
+            bool isHiddenStart = item.GetIsHiddenStart();
+            EDMLOGD("OnSetPolicy bundleName : %{public}s abilityName:%{public}s isHiddenStart is %{public}d",
+                autoStartupInfo.bundleName.c_str(), autoStartupInfo.abilityName.c_str(), isHiddenStart);
+            res = autoStartupClient->SetApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify(),
+                isHiddenStart);
         } else {
             res = autoStartupClient->CancelApplicationAutoStartupByEDM(autoStartupInfo, item.GetDisallowModify());
         }
