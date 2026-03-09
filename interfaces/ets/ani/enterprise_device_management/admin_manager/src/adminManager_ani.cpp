@@ -109,7 +109,7 @@ ani_object AdminManagerAni::GetSuperAdminSync(ani_env* env)
     }
 
     ani_method ctor;
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":", &ctor)) {
         EdmAniUtils::AniThrow(env, EdmReturnErrCode::PARAM_ERROR);
         EDMLOGE("Find method '<ctor>' failed");
         return nullptr;
