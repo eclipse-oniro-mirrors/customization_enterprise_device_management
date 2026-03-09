@@ -69,13 +69,53 @@ ErrCode HiddenSettingsMenuPlugin::RemoveOtherModulePolicy(const std::vector<int3
 ErrCode HiddenSettingsMenuPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
     std::string &othersMergePolicyData)
 {
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    std::unordered_map<std::string, std::string> adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
+    EDMLOGI("HiddenSettingsMenuPlugin GetOthersMergePolicyData %{public}s value size %{public}d",
+        GetPolicyName().c_str(), (uint32_t)adminValues.size());
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    auto serializer = ArrayIntSerializer::GetInstance();
+    std::vector<std::vector<int32_t>> data;
+    for (const auto &item : adminValues) {
+        std::vector<int32_t> dataItem;
+        if (!item.second.empty()) {
+            if (!serializer->Deserialize(item.second, dataItem)) {
+                return ERR_EDM_OPERATE_JSON;
+            }
+            data.push_back(dataItem);
+        }
+    }
+    std::vector<int32_t> result;
+    if (!serializer->MergePolicy(data, result)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+    std::string mergePolicyStr;
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
+    std::vector<int32_t> mergePolicyData;
+    if (!serializer->Deserialize(mergePolicyStr, mergePolicyData)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+    if (!serializer->Serialize(result, othersMergePolicyData)) {
+        return ERR_EDM_OPERATE_JSON;
+    }
+    return ERR_OK;
 }
 
 ErrCode HiddenSettingsMenuPlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
     const std::string &mergeJsonData, int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
+
+void HiddenSettingsMenuPlugin::OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId)
+{
+    return;
 }
 } // namespace EDM
 } // namespace OHOS

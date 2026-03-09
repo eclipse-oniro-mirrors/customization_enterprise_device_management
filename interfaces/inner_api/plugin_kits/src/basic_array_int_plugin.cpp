@@ -23,12 +23,6 @@ namespace EDM {
 ErrCode BasicArrayIntPlugin::OnBasicSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
     std::vector<int32_t> &mergeData, int32_t userId)
 {
-    return OnBasicSetPolicy(data, currentData, mergeData, userId, false);
-}
-
-ErrCode BasicArrayIntPlugin::OnBasicSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
-    std::vector<int32_t> &mergeData, int32_t userId, bool needAdminPolicyIsolation)
-{
     if (data.empty()) {
         EDMLOGW("BasicArrayIntPlugin OnSetPolicy data is empty.");
         return ERR_OK;
@@ -54,10 +48,6 @@ ErrCode BasicArrayIntPlugin::OnBasicSetPolicy(std::vector<int32_t> &data, std::v
         ErrCode ret = SetOtherModulePolicy(needAddMergeData, userId, failedData);
         if (FAILED(ret)) {
             return ret;
-        }
-    } else {
-        if (needAdminPolicyIsolation) {
-            return ERR_OK;
         }
     }
     if (failedData.empty()) {

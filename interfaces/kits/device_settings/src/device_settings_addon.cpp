@@ -95,6 +95,10 @@ void DeviceSettingsAddon::CreateSettingsMenuObject(napi_env env, napi_value valu
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(SettingsMenu::NETWORK), &nNetwork));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NETWORK", nNetwork));
+    napi_value nMobileNetwork;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(SettingsMenu::MOBILE_NETWORK), &nMobileNetwork));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MOBILE_NETWORK", nMobileNetwork));
     napi_value nSuperDevice;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(SettingsMenu::SUPER_DEVICE), &nSuperDevice));

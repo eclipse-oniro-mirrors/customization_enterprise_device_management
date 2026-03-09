@@ -27,8 +27,6 @@ class BasicArrayIntPlugin {
 protected:
     virtual ErrCode OnBasicSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
         std::vector<int32_t> &mergeData, int32_t userId);
-    virtual ErrCode OnBasicSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
-        std::vector<int32_t> &mergeData, int32_t userId, bool needAdminPolicyIsolation);
     virtual ErrCode BasicGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId);
     virtual ErrCode OnBasicRemovePolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
         std::vector<int32_t> &mergeData, int32_t userId);
