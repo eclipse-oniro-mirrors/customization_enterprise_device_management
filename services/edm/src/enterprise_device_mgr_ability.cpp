@@ -2739,6 +2739,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetAdmins(std::vector<std::shared_ptr<AAFwk:
         want->SetParam("bundleName", admin->adminInfo_.packageName_);
         want->SetParam("abilityName", admin->adminInfo_.className_);
         want->SetParam("adminType", static_cast<int32_t>(admin->adminInfo_.adminType_));
+        want->SetParam("isDebug", admin->adminInfo_.isDebug_);
         wants.push_back(want);
     }
     return ERR_OK;
