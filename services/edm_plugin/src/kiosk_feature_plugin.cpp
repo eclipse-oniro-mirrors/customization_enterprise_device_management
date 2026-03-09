@@ -16,6 +16,8 @@
 #include "kiosk_feature_plugin.h"
 
 #include "array_int_serializer.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "kiosk_feature.h"
@@ -24,6 +26,7 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(KioskFeaturePlugin::GetPlugin());
+const char *const GESTURE_CONTROL_CHANGED_EVENT = "com.ohos.edm.gesturecontrolchanged";
 
 void KioskFeaturePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<KioskFeaturePlugin, std::vector<int32_t>>> ptr)
 {
@@ -66,6 +69,7 @@ void KioskFeaturePlugin::SetDefaultKioskFeatures(bool isDisallow)
     system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER, value);
     system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, value);
     system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, value);
+    NotifyGestureControlChanged();
 }
 
 ErrCode KioskFeaturePlugin::SetSpecifiedKioskFeatures(int32_t data)
@@ -80,6 +84,7 @@ ErrCode KioskFeaturePlugin::SetSpecifiedKioskFeatures(int32_t data)
             break;
         case static_cast<int32_t>(KioskFeature::ALLOW_GESTURE_CONTROL):
             system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL, "true");
+            NotifyGestureControlChanged();
             break;
         case static_cast<int32_t>(KioskFeature::ALLOW_SIDE_DOCK):
             system::SetParameter(EdmConstants::ApplicationManager::PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK, "true");
@@ -96,6 +101,18 @@ ErrCode KioskFeaturePlugin::OnAdminRemove(const std::string &adminName, std::vec
 {
     SetDefaultKioskFeatures(false);
     return ERR_OK;
+}
+
+void KioskFeaturePlugin::NotifyGestureControlChanged()
+{
+    EDMLOGD("KioskFeaturePlugin NotifyGestureControlChanged.");
+    AAFwk::Want want;
+    want.SetAction(GESTURE_CONTROL_CHANGED_EVENT);
+    EventFwk::CommonEventData eventData;
+    eventData.SetWant(want);
+    if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
+        EDMLOGE("NotifyGestureControlChanged failed.");
+    }
 }
 } // namespace EDM
 } // namespace OHOS
