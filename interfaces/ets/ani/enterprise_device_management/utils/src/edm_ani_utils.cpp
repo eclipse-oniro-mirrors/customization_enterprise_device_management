@@ -108,11 +108,17 @@ bool EdmAniUtils::AniStringToString(ani_env *env, const ani_string aniStr, std::
         return false;
     }
     ani_size size = 0;
-    env->String_GetUTF8Size(aniStr, &size);
+    if (env->String_GetUTF8Size(aniStr, &size) != ANI_OK) {
+        EDMLOGE("String_GetUTF8Size error");
+        return false;
+    }
 
     outStr.resize(size);
     ani_size written;
-    env->String_GetUTF8(aniStr, outStr.data(), size + 1, &written);
+    if (env->String_GetUTF8(aniStr, outStr.data(), size + 1, &written) != ANI_OK) {
+        EDMLOGE("String_GetUTF8 error");
+        return false;
+    }
     return true;
 }
 
@@ -120,12 +126,18 @@ std::string EdmAniUtils::AniStrToString(ani_env *env, ani_ref aniStr)
 {
     ani_string str = static_cast<ani_string>(aniStr);
     ani_size size = 0;
-    env->String_GetUTF8Size(str, &size);
+    if (env->String_GetUTF8Size(str, &size) != ANI_OK) {
+        EDMLOGE("String_GetUTF8Size error");
+        return "";
+    }
 
     std::string result;
     result.resize(size);
     ani_size written;
-    env->String_GetUTF8(str, result.data(), size + 1, &written);
+    if (env->String_GetUTF8(str, result.data(), size + 1, &written) != ANI_OK) {
+        EDMLOGE("String_GetUTF8 error");
+        return "";
+    }
     return result;
 }
 
@@ -217,7 +229,10 @@ bool EdmAniUtils::GetEnumMember(ani_env *env, ani_object obj, const std::string 
 bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin, bool &hasAdmin)
 {
     ani_boolean isNull;
-    env->Reference_IsNull(aniAdmin, &isNull);
+    if (env->Reference_IsNull(aniAdmin, &isNull) != ANI_OK) {
+        EDMLOGE("Reference_IsNull error");
+        return false;
+    }
     if (isNull) {
         hasAdmin = false;
         return true;
