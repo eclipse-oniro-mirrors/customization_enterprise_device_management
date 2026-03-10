@@ -480,6 +480,7 @@ ohos_shared_library("sys_service_plugin") {
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
+    "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -493,6 +494,7 @@ ohos_shared_library("sys_service_plugin") {
 
   if (enterprise_device_management_support_all) {
     sources += [
+      "./src/allowed_notification_bundles_plugin.cpp",
       "./src/clear_up_application_data_plugin.cpp",
       "./src/utils/clear_up_application_data_param_serializer.cpp",
       "./src/manage_user_non_stop_apps_plugin.cpp",
@@ -565,7 +567,7 @@ ohos_shared_library("sys_service_plugin") {
     }
 
     if (notification_edm_enable) {
-      sources += [ "./src/disallowed_notification_plugin.cpp" ]
+        sources += [ "./src/disallowed_notification_plugin.cpp" ]
     }
   }
   deps = [

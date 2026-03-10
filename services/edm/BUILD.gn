@@ -124,6 +124,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_app_clone_query.cpp",
       "./src/query_policy/allowed_app_distribution_types_query.cpp",
       "./src/query_policy/allowed_install_bundles_query.cpp",
+      "./src/query_policy/allowed_notification_bundles_query.cpp",
       "./src/query_policy/disable_maintenance_mode_query.cpp",
       "./src/query_policy/disable_mtp_client_query.cpp",
       "./src/query_policy/disable_mtp_server_query.cpp",

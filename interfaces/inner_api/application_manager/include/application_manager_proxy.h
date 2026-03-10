@@ -77,6 +77,10 @@ public:
         const std::string &abilityName);
     int32_t GetDockApps(const AppExecFwk::ElementName &admin, std::vector<DockInfo> &dockInfos);
 #endif
+    int32_t AddAllowedNotificationBundles(MessageParcel &data);
+    int32_t RemoveAllowedNotificationBundles(MessageParcel &data);
+    int32_t GetAllowedNotificationBundles(MessageParcel &data,
+        std::vector<std::string> &bundleNames);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

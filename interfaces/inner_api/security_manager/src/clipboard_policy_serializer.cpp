@@ -117,7 +117,7 @@ bool ClipboardSerializer::WritePolicy(MessageParcel &reply, std::map<int32_t, Cl
 bool ClipboardSerializer::MergePolicy(std::vector<std::map<int32_t, ClipboardInfo>> &data,
     std::map<int32_t, ClipboardInfo> &result)
 {
-        for (auto policyMap : data) {
+    for (auto policyMap : data) {
         for (auto iter : policyMap) {
             if (iter.second.policy == ClipboardPolicy::DEFAULT) {
                 return false;

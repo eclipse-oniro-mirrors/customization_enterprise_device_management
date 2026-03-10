@@ -72,6 +72,9 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDockApp", AddDockApp),
         DECLARE_NAPI_FUNCTION("removeDockApp", RemoveDockApp),
         DECLARE_NAPI_FUNCTION("getDockApps", GetDockApps),
+        DECLARE_NAPI_FUNCTION("addAllowedNotificationBundles", AddAllowedNotificationBundles),
+        DECLARE_NAPI_FUNCTION("removeAllowedNotificationBundles", RemoveAllowedNotificationBundles),
+        DECLARE_NAPI_FUNCTION("getAllowedNotificationBundles", GetAllowedNotificationBundles),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -115,6 +118,83 @@ napi_value ApplicationManagerAddon::IsModifyKeepAliveAppsDisallowed(napi_env env
     napi_value napiIsModify = nullptr;
     napi_get_boolean(env, isModifyKeepAliveAppsDisallowed, &napiIsModify);
     return napiIsModify;
+}
+
+napi_value ApplicationManagerAddon::AddAllowedNotificationBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddAllowedNotificationBundles called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddAllowedNotificationBundles";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING,
+        EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->AddAllowedNotificationBundles(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("AddAllowedNotificationBundles failed!");
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::RemoveAllowedNotificationBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveAllowedNotificationBundles called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "RemoveAllowedNotificationBundles";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING,
+        EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->RemoveAllowedNotificationBundles(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("RemoveAllowedNotificationBundles failed!");
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetAllowedNotificationBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAllowedNotificationBundles called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllowedNotificationBundles";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<std::string> bundleNames;
+    int32_t ret = applicationManagerProxy->GetAllowedNotificationBundles(adapterAddonData.data, bundleNames);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("GetAllowedNotificationBundles failed!");
+        return nullptr;
+    }
+    napi_value bundleArray;
+    NAPI_CALL(env, napi_create_array(env, &bundleArray));
+    for (size_t i = 0; i < bundleNames.size(); ++i) {
+        napi_value bundleName;
+        NAPI_CALL(env, napi_create_string_utf8(env, bundleNames[i].c_str(), NAPI_AUTO_LENGTH, &bundleName));
+        NAPI_CALL(env, napi_set_element(env, bundleArray, i, bundleName));
+    }
+    return bundleArray;
 }
 
 napi_value ApplicationManagerAddon::AddKeepAliveApps(napi_env env, napi_callback_info info)

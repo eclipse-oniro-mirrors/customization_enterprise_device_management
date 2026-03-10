@@ -152,6 +152,7 @@
 
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
+#include "allowed_notification_bundles_query.h"
 #include "disable_app_clone_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
@@ -745,6 +746,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES:
+            obj = std::make_shared<AllowedNotificationBundlesQuery>();
+            return ERR_OK;
         default:
             break;
     }
