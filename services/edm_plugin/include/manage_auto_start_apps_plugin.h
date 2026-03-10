@@ -51,6 +51,8 @@ private:
         int32_t userId);
     ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
         int32_t userId, std::vector<ManageAutoStartAppInfo> &failedData, bool disallowModify);
+    void ParseErrCode(ErrCode &ret);
+    void GetErrorMessage(ErrCode &errCode, std::string &errMessage);
     bool CheckBundleAndAbilityExited(const std::string &bundleName, const std::string &abilityName, int32_t userId);
     void ParseManageAutoStartAppsInfo(std::vector<std::string> &data, bool disallowModify,
         std::vector<ManageAutoStartAppInfo> &appInfoArray);

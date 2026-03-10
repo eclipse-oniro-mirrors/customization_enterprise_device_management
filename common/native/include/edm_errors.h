@@ -76,6 +76,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t DOCK_APP_BUNDLE_NOT_SUPPORT = 9201018;
     constexpr uint32_t DOCK_APP_INDEX_NOT_SUPPORT = 9201019;
     constexpr uint32_t SET_DEFAULT_DATA_SIM_FAILED = 9201020;
+    constexpr uint32_t ADD_AUTO_START_APP_FAILED = 9201021;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

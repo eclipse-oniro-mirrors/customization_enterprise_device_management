@@ -136,13 +136,19 @@ int32_t ApplicationManagerProxy::GetAllowedRunningBundles(AppExecFwk::ElementNam
     return ERR_OK;
 }
 
-int32_t ApplicationManagerProxy::AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd)
+int32_t ApplicationManagerProxy::AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd, std::string &retMessage)
 {
     EDMLOGD("ApplicationManagerProxy::AddOrRemoveAutoStartApps");
     FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::MANAGE_AUTO_START_APPS);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    MessageParcel reply;
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+    if (ret != ERR_OK) {
+        retMessage = reply.ReadString();
+        return ret;
+    }
+    return ERR_OK;
 }
 
 int32_t ApplicationManagerProxy::GetAutoStartApps(MessageParcel &data,

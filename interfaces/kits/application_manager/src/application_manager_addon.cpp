@@ -443,6 +443,16 @@ napi_value ApplicationManagerAddon::GetUserNonStopApps(napi_env env, napi_callba
     return napiUserNonStopApps;
 }
 
+void ApplicationManagerAddon::JoinParcelData(MessageParcel &parcelData, int32_t userId,
+    OHOS::AppExecFwk::ElementName &elementName)
+{
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(HAS_USERID);
+    parcelData.WriteInt32(userId);
+    parcelData.WriteParcelable(&elementName);
+    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+}
+
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)
 {
     return AddOrRemoveAutoStartApps(env, info, "AddAutoStartApps");
@@ -548,11 +558,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
     MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(HAS_USERID);
-    parcelData.WriteInt32(userId);
-    parcelData.WriteParcelable(&elementName);
-    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+    JoinParcelData(parcelData, userId, elementName);
     std::vector<std::string> autoStartAppsString;
     for (size_t i = 0; i < autoStartApps.size(); i++) {
         std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
@@ -568,10 +574,15 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         EDMLOGI("NAPI_AddOrRemoveAutoStartApps called disallowModify: %{public}d", disallowModify);
     }
     parcelData.WriteBool(disallowModify);
+    std::string retMessage;
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
-        parcelData, function == "AddAutoStartApps");
+        parcelData, function == "AddAutoStartApps", retMessage);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        if (ret == EdmReturnErrCode::ADD_AUTO_START_APP_FAILED) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, retMessage));
+        } else {
+            napi_throw(env, CreateError(env, ret));
+        }
     }
     return nullptr;
 }

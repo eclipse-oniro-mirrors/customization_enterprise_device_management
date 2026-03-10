@@ -45,9 +45,9 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string RIGHT_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.MainAbility";
-const std::string RIGHT_TEST_EDM_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.MainAbility/true";
+const std::string RIGHT_TEST_EDM_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.MainAbility/false";
 const std::string ERROR_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility";
-const std::string ERROR_TEST_EDM_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility/true";
+const std::string ERROR_TEST_EDM_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility/false";
 const std::string INVALID_TEST_BUNDLE = "com.example.l3jsdemo.com.example.l3jsdemo.ErrorAbility";
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
 const std::string BOOT_OEM_MODE = "const.boot.oemmode";

@@ -262,8 +262,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsFail, TestSize.Level1)
     std::vector<std::string> apps;
     data.WriteParcelable(&admin);
     data.WriteStringVector(apps);
-
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -283,7 +283,8 @@ HWTEST_F(ApplicationManagerProxyTest, AddAutoStartAppsSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true, errMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -300,8 +301,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsFail, TestSize.Leve
     std::vector<std::string> apps;
     data.WriteParcelable(&admin);
     data.WriteStringVector(apps);
-
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -321,7 +322,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsSuc, TestSize.Level
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false, errMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -800,8 +802,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsWithDisallowModifyFail
     data.WriteParcelable(&admin);
     data.WriteStringVector(apps);
     data.WriteBool(disallowModify);
- 
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
  
@@ -823,7 +825,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddAutoStartAppsWithDisallowModifySuc,
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true, errMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
  
@@ -842,8 +845,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsWithUserIdFail, Tes
     data.WriteParcelable(&admin);
     data.WriteStringVector(apps);
     data.WriteInt32(userId);
-    
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
  
@@ -865,7 +868,8 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveAutoStartAppsWithUserIdSuc, Test
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false);
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, false, errMessage);
     ASSERT_TRUE(ret == ERR_OK);
 }
  

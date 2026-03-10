@@ -40,7 +40,7 @@ public:
         int32_t userId, bool isAdd);
     int32_t GetAllowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<std::string> &bundles);
-    int32_t AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd);
+    int32_t AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd, std::string &retMessage);
     int32_t GetAutoStartApps(MessageParcel &data, std::vector<OHOS::EDM::EdmElementName> &autoStartApps);
     int32_t RemoveKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
         int32_t userId);
