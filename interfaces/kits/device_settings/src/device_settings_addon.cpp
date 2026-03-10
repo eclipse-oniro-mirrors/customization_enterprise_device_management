@@ -677,7 +677,8 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
         ret = proxy->SetValueForAccount(elementName, accountId, value, EdmConstants::PERMISSION_TAG_VERSION_23);
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
-        ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value);
+        ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value,
+            EdmConstants::PERMISSION_TAG_VERSION_23);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -713,7 +714,8 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
         ret = proxy->GetValueForAccount(elementName, accountId, stringRet, EdmConstants::PERMISSION_TAG_VERSION_23);
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
-        ret = proxy->GetFloatingNavigationForAccount(elementName, accountId, stringRet);
+        ret = proxy->GetFloatingNavigationForAccount(elementName, accountId, stringRet,
+            EdmConstants::PERMISSION_TAG_VERSION_23);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }

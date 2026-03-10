@@ -300,7 +300,7 @@ int32_t DeviceSettingsProxy::GetValueForAccount(const AppExecFwk::ElementName &a
 }
 
 int32_t DeviceSettingsProxy::SetFloatingNavigationForAccount(const AppExecFwk::ElementName &admin,
-    int32_t accountId, const std::string &value)
+    int32_t accountId, const std::string &value, const std::string &permissionTag)
 {
     EDMLOGD("DeviceSettingsProxy::SetFloatingNavigationForAccount");
     MessageParcel data;
@@ -308,7 +308,7 @@ int32_t DeviceSettingsProxy::SetFloatingNavigationForAccount(const AppExecFwk::E
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteString(value);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_FLOATING_NAVIGATION);
@@ -316,7 +316,7 @@ int32_t DeviceSettingsProxy::SetFloatingNavigationForAccount(const AppExecFwk::E
 }
 
 int32_t DeviceSettingsProxy::GetFloatingNavigationForAccount(const AppExecFwk::ElementName &admin,
-    int32_t accountId, std::string &value)
+    int32_t accountId, std::string &value, const std::string &permissionTag)
 {
     EDMLOGD("DeviceSettingsProxy::GetFloatingNavigationForAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -325,7 +325,7 @@ int32_t DeviceSettingsProxy::GetFloatingNavigationForAccount(const AppExecFwk::E
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteInt32(HAS_ADMIN);
     data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::SET_FLOATING_NAVIGATION, data, reply);
