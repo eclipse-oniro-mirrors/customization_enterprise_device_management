@@ -30,7 +30,7 @@ public:
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<int32_t> &policyData,
         std::vector<int32_t> &mergeData, int32_t userId);
 
-    void NotifyGestureControlChanged();
+    void NotifyKioskFeatureChanged();
 
 private:
     void SetDefaultKioskFeatures(bool isDisallow);
