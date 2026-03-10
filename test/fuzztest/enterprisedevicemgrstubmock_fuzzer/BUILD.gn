@@ -133,13 +133,20 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
-    "../../../services/edm_plugin/src/utils/manage_apps_serializer.cpp"
+    "../../../services/edm_plugin/src/utils/manage_apps_serializer.cpp",
+    "../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
+    "../../../services/edm_plugin/src/utils/bt_protocol_utils.cpp",
+    "../../../services/edm_plugin/src/utils/bluetooth_config_utils.cpp",
   ]
 
   sources += [
     "../../../services/edm_plugin/src/disallowed_nearlink_protocols_plugin.cpp",
     "../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
     "../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
+    "../../../services/edm_plugin/src/managed_browser_policy_plugin.cpp",
+    "../../../services/edm_plugin/src/set_watermark_image_plugin.cpp",
+    "../../../services/edm_plugin/src/disallowed_usb_devices_plugin.cpp",
+    "../../../services/edm_plugin/src/disallowed_bluetooth_protocols_plugin.cpp",
   ]
   
   public_configs = [
@@ -166,6 +173,7 @@ ohos_static_library("edmservice_fuzz_static") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_manager",
     "ability_runtime:ability_manager",
     "resource_schedule_service:ressched_client",
