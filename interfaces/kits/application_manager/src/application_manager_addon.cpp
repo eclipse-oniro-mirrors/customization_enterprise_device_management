@@ -444,13 +444,21 @@ napi_value ApplicationManagerAddon::GetUserNonStopApps(napi_env env, napi_callba
 }
 
 void ApplicationManagerAddon::JoinParcelData(MessageParcel &parcelData, int32_t userId,
-    OHOS::AppExecFwk::ElementName &elementName)
+    OHOS::AppExecFwk::ElementName &elementName, std::vector<OHOS::EDM::EdmElementName> autoStartApps)
 {
     parcelData.WriteInterfaceToken(DESCRIPTOR);
     parcelData.WriteInt32(HAS_USERID);
     parcelData.WriteInt32(userId);
     parcelData.WriteParcelable(&elementName);
     parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> autoStartAppsString;
+    for (size_t i = 0; i < autoStartApps.size(); i++) {
+        std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
+ 	        "/" + isHiddenStartString;
+        autoStartAppsString.push_back(appWant);
+    }
+    parcelData.WriteStringVector(autoStartAppsString);
 }
 
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)
@@ -558,15 +566,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
     MessageParcel parcelData;
-    JoinParcelData(parcelData, userId, elementName);
-    std::vector<std::string> autoStartAppsString;
-    for (size_t i = 0; i < autoStartApps.size(); i++) {
-        std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
-        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
- 	        "/" + isHiddenStartString;
-        autoStartAppsString.push_back(appWant);
-    }
-    parcelData.WriteStringVector(autoStartAppsString);
+    JoinParcelData(parcelData, userId, elementName, autoStartApps);
     bool disallowModify = true;
     if (argc >= ARGS_SIZE_FOUR) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),

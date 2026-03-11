@@ -103,7 +103,7 @@ private:
     static std::shared_ptr<ApplicationManagerProxy> applicationManagerProxy_;
     static void SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data);
     static void JoinParcelData(MessageParcel &parcelData, int32_t userId,
-        OHOS::AppExecFwk::ElementName &elementName);
+        OHOS::AppExecFwk::ElementName &elementName, std::vector<OHOS::EDM::EdmElementName> autoStartApps);
 #ifdef FEATURE_PC_ONLY
     static void ConvertDockInfoVectorToJs(napi_env env, const std::vector<DockInfo> &dockInfos, napi_value &nDockInfos);
 #endif

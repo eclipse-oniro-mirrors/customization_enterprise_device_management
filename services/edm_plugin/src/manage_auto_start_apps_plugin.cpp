@@ -74,8 +74,7 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     if (!isDeserializeOk) {
         EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Deserialize failed.");
     }
-    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
-        totalMergePolicyData);
+    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData, totalMergePolicyData);
     ErrCode res = EdmReturnErrCode::PARAM_ERROR;
     std::string errMessage;
     if (type == FuncOperateType::SET) {
