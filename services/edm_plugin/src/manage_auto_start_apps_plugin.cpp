@@ -31,6 +31,7 @@
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
 #include "func_code_utils.h"
+#include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
@@ -258,11 +259,11 @@ void ManageAutoStartAppsPlugin::GetErrorMessage(ErrCode &errCode, std::string &e
 {
     switch (errCode) {
         case ERR_NO_STATUS_BAR_ABILITY:
-            errCode = EdmReturnErrCode::ADD_AUTO_START_APP_FAILED;
+            errCode = EDM_ADD_AUTO_START_APP_FAILED;
             errMessage = "Parameter error. Application does not have status bar ability.";
             break;
         case ERR_CAPABILITY_NOT_SUPPORT:
-            errCode = EdmReturnErrCode::ADD_AUTO_START_APP_FAILED;
+            errCode = EDM_ADD_AUTO_START_APP_FAILED;
             errMessage = "Add auto start applications failed. The system ability works abnormally.";
             break;
         default:

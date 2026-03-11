@@ -20,6 +20,7 @@
 #include "edm_log.h"
 #include "kiosk_feature.h"
 #include "napi_edm_adapter.h"
+#include "edm_errors.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -578,7 +579,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
         parcelData, function == "AddAutoStartApps", retMessage);
     if (FAILED(ret)) {
-        if (ret == EdmReturnErrCode::ADD_AUTO_START_APP_FAILED) {
+        if (ret == EDM_ADD_AUTO_START_APP_FAILED) {
             napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, retMessage));
         } else {
             napi_throw(env, CreateError(env, ret));

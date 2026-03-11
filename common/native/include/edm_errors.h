@@ -29,6 +29,7 @@ enum {
     EDM_MODULE_PLUGINMGR = 0x04,
     EDM_MODULE_EXTERNAL = 0x05,
     EDM_MODULE_TOOLS = 0x06,
+    EDM_MODULE_PLUGIN = 0x07,
     // Reserved 0x04 ~ 0x0f for new modules, Event related modules start from 0x10
 };
 
@@ -76,7 +77,6 @@ namespace EdmReturnErrCode {
     constexpr uint32_t DOCK_APP_BUNDLE_NOT_SUPPORT = 9201018;
     constexpr uint32_t DOCK_APP_INDEX_NOT_SUPPORT = 9201019;
     constexpr uint32_t SET_DEFAULT_DATA_SIM_FAILED = 9201020;
-    constexpr uint32_t ADD_AUTO_START_APP_FAILED = 9201021;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432
@@ -161,6 +161,13 @@ enum {
     ERR_EDM_TOOLS_COMMAND_NO_ADMIN_TYPE_OPTION,
     ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE,
     ERR_EDM_TOOLS_COMMAND_OPTION_REQUIRES_ONE_ARGUMENT,
+};
+
+// Error code for ADD_AUTO_START_APP: 0x2070000,value:33882112
+constexpr ErrCode EDM_PLUGIN_ERR_OFFSET = ErrCodeOffset(SUBSYS_CUSTOMIZATION, EDM_MODULE_PLUGIN);
+
+enum {
+    EDM_ADD_AUTO_START_APP_FAILED = EDM_PLUGIN_ERR_OFFSET + 1,
 };
 
 #define RETURN_IF_FAILED(errcode) if (FAILED(errcode)) { return errcode; }
