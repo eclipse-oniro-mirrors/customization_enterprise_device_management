@@ -264,7 +264,8 @@ void ManageAutoStartAppsPlugin::GetErrorMessage(ErrCode &errCode, std::string &e
             break;
         case ERR_CAPABILITY_NOT_SUPPORT:
             errCode = EDM_ADD_AUTO_START_APP_FAILED;
-            errMessage = "Add auto start applications failed. The system ability works abnormally.";
+            errMessage = "Parameter error. This device does not support the status bar,
+                so can not auto start application with hidden UI.";
             break;
         default:
             break;
