@@ -31,11 +31,14 @@
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
 #include "func_code_utils.h"
+#include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ManageAutoStartAppsPlugin>());
 const std::string SEPARATOR = "/";
+const ErrCode ERR_NO_STATUS_BAR_ABILITY = 29360136;
+const ErrCode ERR_CAPABILITY_NOT_SUPPORT = 2097230;
 
 ManageAutoStartAppsPlugin::ManageAutoStartAppsPlugin()
 {
@@ -72,16 +75,19 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     if (!isDeserializeOk) {
         EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Deserialize failed.");
     }
-    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData,
-        totalMergePolicyData);
+    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData, totalMergePolicyData);
     ErrCode res = EdmReturnErrCode::PARAM_ERROR;
+    std::string errMessage;
     if (type == FuncOperateType::SET) {
         res = OnSetPolicy(autoStartApps, disallowModify, currentData, mergeData, userId);
+        GetErrorMessage(res, errMessage);
     } else if (type == FuncOperateType::REMOVE) {
         res = OnRemovePolicy(autoStartApps, currentData, mergeData, userId);
+        GetErrorMessage(res, errMessage);
     }
     if (res != ERR_OK) {
         reply.WriteInt32(res);
+        reply.WriteString(errMessage);
         return res;
     }
     reply.WriteInt32(ERR_OK);
@@ -242,6 +248,30 @@ ErrCode ManageAutoStartAppsPlugin::GetOthersMergePolicyData(const std::string &a
     return ERR_OK;
 }
 
+void ManageAutoStartAppsPlugin::ParseErrCode(ErrCode &res)
+{
+    if (res != ERR_NO_STATUS_BAR_ABILITY && res != ERR_CAPABILITY_NOT_SUPPORT && res != ERR_OK) {
+        res = EdmReturnErrCode::PARAM_ERROR;
+    }
+}
+ 
+void ManageAutoStartAppsPlugin::GetErrorMessage(ErrCode &errCode, std::string &errMessage)
+{
+    switch (errCode) {
+        case ERR_NO_STATUS_BAR_ABILITY:
+            errCode = EDM_ADD_AUTO_START_APP_FAILED;
+            errMessage = "Parameter error. Application does not have status bar ability.";
+            break;
+        case ERR_CAPABILITY_NOT_SUPPORT:
+            errCode = EDM_ADD_AUTO_START_APP_FAILED;
+            errMessage = "Parameter error. This device does not support the status bar, "
+                "so can not auto start application with hidden UI.";
+            break;
+        default:
+            break;
+    }
+}
+
 void ManageAutoStartAppsPlugin::ParseManageAutoStartAppsInfo(std::vector<std::string> &data, bool disallowModify,
     std::vector<ManageAutoStartAppInfo> &appInfoArray)
 {
@@ -318,6 +348,7 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     bool flag = false;
+    ErrCode res = ERR_OK;
     for (const ManageAutoStartAppInfo &item : data) {
         OHOS::AbilityRuntime::AutoStartupInfo autoStartupInfo;
         autoStartupInfo.bundleName = item.GetBundleName();
@@ -330,9 +361,9 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
                 flag = true;
             }
             failedData.push_back(item);
+            res = EdmReturnErrCode::PARAM_ERROR;
             continue;
         }
-        ErrCode res;
         if (isSet) {
             bool isHiddenStart = item.GetIsHiddenStart();
             EDMLOGD("OnSetPolicy bundleName : %{public}s abilityName:%{public}s isHiddenStart is %{public}d",
@@ -350,7 +381,8 @@ ErrCode ManageAutoStartAppsPlugin::SetOrRemoveOtherModulePolicy(const std::vecto
         }
         flag = true;
     }
-    return flag ? ERR_OK : EdmReturnErrCode::PARAM_ERROR;
+    ParseErrCode(res);
+    return flag ? ERR_OK : res;
 }
 
 bool ManageAutoStartAppsPlugin::CheckBundleAndAbilityExited(const std::string &bundleName,

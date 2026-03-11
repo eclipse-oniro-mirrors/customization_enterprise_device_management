@@ -20,6 +20,7 @@
 #include "edm_log.h"
 #include "kiosk_feature.h"
 #include "napi_edm_adapter.h"
+#include "edm_errors.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -443,6 +444,24 @@ napi_value ApplicationManagerAddon::GetUserNonStopApps(napi_env env, napi_callba
     return napiUserNonStopApps;
 }
 
+void ApplicationManagerAddon::JoinParcelData(MessageParcel &parcelData, int32_t userId,
+    OHOS::AppExecFwk::ElementName &elementName, std::vector<OHOS::EDM::EdmElementName> autoStartApps)
+{
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(HAS_USERID);
+    parcelData.WriteInt32(userId);
+    parcelData.WriteParcelable(&elementName);
+    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> autoStartAppsString;
+    for (size_t i = 0; i < autoStartApps.size(); i++) {
+        std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
+        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
+ 	        "/" + isHiddenStartString;
+        autoStartAppsString.push_back(appWant);
+    }
+    parcelData.WriteStringVector(autoStartAppsString);
+}
+
 napi_value ApplicationManagerAddon::AddAutoStartApps(napi_env env, napi_callback_info info)
 {
     return AddOrRemoveAutoStartApps(env, info, "AddAutoStartApps");
@@ -548,19 +567,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_TWO]), "Parameter userId error");
     }
     MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(HAS_USERID);
-    parcelData.WriteInt32(userId);
-    parcelData.WriteParcelable(&elementName);
-    parcelData.WriteString(WITHOUT_PERMISSION_TAG);
-    std::vector<std::string> autoStartAppsString;
-    for (size_t i = 0; i < autoStartApps.size(); i++) {
-        std::string isHiddenStartString = autoStartApps[i].GetIsHiddenStart() ? "true" : "false";
-        std::string appWant = autoStartApps[i].GetBundleName() + "/" + autoStartApps[i].GetAbilityName() +
- 	        "/" + isHiddenStartString;
-        autoStartAppsString.push_back(appWant);
-    }
-    parcelData.WriteStringVector(autoStartAppsString);
+    JoinParcelData(parcelData, userId, elementName, autoStartApps);
     bool disallowModify = true;
     if (argc >= ARGS_SIZE_FOUR) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallowModify, argv[ARR_INDEX_THREE]),
@@ -568,10 +575,15 @@ napi_value ApplicationManagerAddon::AddOrRemoveAutoStartApps(napi_env env, napi_
         EDMLOGI("NAPI_AddOrRemoveAutoStartApps called disallowModify: %{public}d", disallowModify);
     }
     parcelData.WriteBool(disallowModify);
+    std::string retMessage;
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveAutoStartApps(
-        parcelData, function == "AddAutoStartApps");
+        parcelData, function == "AddAutoStartApps", retMessage);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        if (ret == EDM_ADD_AUTO_START_APP_FAILED) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, retMessage));
+        } else {
+            napi_throw(env, CreateError(env, ret));
+        }
     }
     return nullptr;
 }
