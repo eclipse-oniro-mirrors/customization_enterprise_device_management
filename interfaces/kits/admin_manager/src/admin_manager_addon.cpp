@@ -1258,6 +1258,9 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
         napi_value adminTypeToJs = nullptr;
         NAPI_CALL(env, napi_create_int32(env, AdminTypeToJsAdminType(adminType), &adminTypeToJs));
         NAPI_CALL(env, napi_set_named_property(env, parameters, "adminType", adminTypeToJs));
+        napi_value isDebugToJs = nullptr;
+        NAPI_CALL(env, napi_get_boolean(env, want->GetBoolParam("isDebug", false), &isDebugToJs));
+        NAPI_CALL(env, napi_set_named_property(env, parameters, "isDebug", isDebugToJs));
         NAPI_CALL(env, napi_set_named_property(env, wantItem, "parameters", parameters));
         NAPI_CALL(env, napi_set_element(env, result, idx, wantItem));
         idx++;
