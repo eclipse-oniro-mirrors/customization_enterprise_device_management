@@ -200,6 +200,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
+        const char* const LABEL_DISALLOWED_POLICY_P2P = "wifiP2P";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -455,6 +456,7 @@ namespace PolicyName {
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
     const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
     const char* const POLICY_ADD_DOCK_APP = "dock_info";
+    const char* const POLICY_DISALLOWED_P2P = "disallowed_p2p";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

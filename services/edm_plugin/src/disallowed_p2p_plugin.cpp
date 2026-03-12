@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,47 +13,45 @@
  * limitations under the License.
  */
 
-#include "disallowed_tethering_plugin.h"
+#include "disallowed_p2p_plugin.h"
 
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#ifdef WIFI_EDM_ENABLE
-#include "inner_api/wifi_hotspot.h"
-#endif
+#include "inner_api/wifi_p2p.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedTetheringPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedP2PPlugin::GetPlugin());
 
-void DisallowedTetheringPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTetheringPlugin, bool>> ptr)
+void DisallowedP2PPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedP2PPlugin, bool>>
+    ptr)
 {
-    EDMLOGI("DisallowedTetheringPlugin InitPlugin...");
+    EDMLOGI("DisallowedP2PPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TETHERING, PolicyName::POLICY_DISALLOWED_TETHERING, config, true);
+    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_P2P, PolicyName::POLICY_DISALLOWED_P2P,
+        config, true);
     ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedTetheringPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedTetheringPlugin::OnAdminRemove);
-    persistParam_ = "persist.edm.tethering_disallowed";
+    ptr->SetOnHandlePolicyListener(&DisallowedP2PPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisallowedP2PPlugin::OnAdminRemove);
+    persistParam_ = "persist.edm.p2p_disallowed";
 }
 
-ErrCode DisallowedTetheringPlugin::SetOtherModulePolicy(bool data, int32_t userId)
+ErrCode DisallowedP2PPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-#ifdef WIFI_EDM_ENABLE
-    EDMLOGI("DisallowedTetheringPlugin SetOtherModulePolicy");
-    auto hotspot = Wifi::WifiHotspot::GetInstance(WIFI_HOTSPOT_ABILITY_ID);
-    auto ret = hotspot->DisableHotspot();
+    EDMLOGI("DisallowedP2PPlugin SetOtherModulePolicy");
+    auto p2p = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
+    auto ret = p2p->DisableP2p();
     if (ret != ERR_OK) {
-        EDMLOGE("DisallowedTetheringPlugin SetOtherModulePolicy DisableHotspot error.%{public}d", ret);
+        EDMLOGE("DisallowedP2PPlugin SetOtherModulePolicy DisableP2p error.%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-#endif
     return ERR_OK;
 }
 } // namespace EDM

@@ -194,6 +194,7 @@ enum EdmInterfaceCode : uint32_t {
     HIDDEN_SETTINGS_MENU = 1145,
     SET_SWITCH_STATUS = 1146,
     ALLOWED_NOTIFICATION_BUNDLES = 1147,
+    DISALLOWED_P2P = 1148,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
