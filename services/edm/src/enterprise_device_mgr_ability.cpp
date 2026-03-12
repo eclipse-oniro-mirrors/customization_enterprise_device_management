@@ -406,6 +406,10 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
         };
+    addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnHandleInitExecute(EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
+        };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
@@ -604,6 +608,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
     CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
     OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
     UpdateNetworkAccessPolicy(oldUserId, userIdToSwitch);
+    OnHandleInitExecute(EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
 }
 
 void EnterpriseDeviceMgrAbility::UpdateNetworkAccessPolicy(int oldId, int newId)
