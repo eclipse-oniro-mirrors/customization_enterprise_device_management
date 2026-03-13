@@ -24,8 +24,6 @@ const char* const POLICY_DISABLE_RESET_FACTORY = "disable_reset_factory";
 const char* const POLICY_DISABLE_NEAR_LINK = "policy_near_link";
 const char* const POLICY_DISABLE_SCREEN_RECORD = "policy_screen_record";
 const char* const POLICY_DISABLE_SCREEN_SHOT = "policy_screen_shot";
-const char* const POLICY_SWITCH_BLUETOOTH = "switch_bluetooth";
-const char* const POLICY_SWITCH_WIFI = "switch_wifi";
 ByodAdmin::ByodAdmin(const AdminInfo& adminInfo): Admin(adminInfo)
 {
     adminInfo_.adminType_ = AdminType::BYOD;
@@ -34,7 +32,7 @@ ByodAdmin::ByodAdmin(const AdminInfo& adminInfo): Admin(adminInfo)
         PolicyName::POLICY_DISABLE_MICROPHONE, PolicyName::POLICY_DISABLE_USB, PolicyName::POLICY_DISALLOWED_TETHERING,
         PolicyName::POLICY_DISABLE_WIFI, PolicyName::POLICY_SET_SWITCH_STATUS,
         POLICY_DISABLE_RESET_FACTORY, POLICY_DISABLE_NEAR_LINK, POLICY_DISABLE_SCREEN_RECORD,
-        POLICY_DISABLE_SCREEN_SHOT, POLICY_SWITCH_BLUETOOTH, POLICY_SWITCH_WIFI
+        POLICY_DISABLE_SCREEN_SHOT
     };
 }
 

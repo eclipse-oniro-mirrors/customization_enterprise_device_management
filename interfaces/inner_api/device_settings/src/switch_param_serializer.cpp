@@ -43,6 +43,8 @@ bool SwitchParamSerializer::GetPolicy(MessageParcel &data, SwitchParam &result)
  
 bool SwitchParamSerializer::WritePolicy(MessageParcel &reply, SwitchParam &result)
 {
+    reply.WriteInt32(static_cast<int32_t>(result.key));
+    reply.WriteInt32(static_cast<int32_t>(result.status));
     return true;
 }
  
