@@ -35,13 +35,15 @@ group("fuzztest") {
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
     "disallowedbluetoothdevicesplugin_fuzzer:DisallowedBluetoothDevicesPluginFuzzTest",
     "disallowedrunningbundlesplugin_fuzzer:DisallowedRunningBundlesPluginFuzzTest",
+    "disallowedbluetoothprotocolsplugin_fuzzer:DisallowedBluetoothProtocolsPluginFuzzTest",
     "disallowedairplanemodeplugin_fuzzer:DisallowedAirplaneModePluginFuzzTest",
-    "disallowvpnplugin_fuzzer:DisallowVpnPluginFuzzTest",
     "disallowedwifilistplugin_fuzzer:DisallowedWifiListPluginFuzzTest",
+    "disallowedusbdevicesplugin_fuzzer:DisallowedUsbDevicesPluginFuzzTest",
     "edmplugin_fuzzer:EdmPluginFuzzTest",
     "disallowednearlinkprotocolsplugin_fuzzer:DisallowedNearlinkProtocolsPluginFuzzTest",
     "enterprisedevicemgrability_fuzzer:EnterpriseDeviceMgrAbilityFuzzTest",
     "enterprisedevicemgrstubmock_fuzzer:EnterpriseDeviceMgrStubMockFuzzTest",
+    "fingerprintauthplugin_fuzzer:FingerprintAuthPluginFuzzTest",
     "firewallruleplugin_fuzzer:FireWallRulePluginFuzzTest",
     "getbluetoothinfoplugin_fuzzer:GetBluetoothInfoPluginFuzzTest",
     "getdeviceinfoplugin_fuzzer:GetDeviceInfoPluginFuzzTest",
@@ -51,6 +53,7 @@ group("fuzztest") {
     "kioskfeatureplugin_fuzzer:KioskFeaturePluginFuzzTest",
     "locationpolicyplugin_fuzzer:LocationPolicyPluginFuzzTest",
     "manageautostartappsplugin_fuzzer:ManageAutoStartAppsPluginFuzzTest",
+    "managedbrowserpolicyplugin_fuzzer:ManagedBrowserPolicyPluginFuzzTest",
     "powerpolicyplugin_fuzzer:PowerPolicyPluginFuzzTest",
     "setbrowserpoliciesplugin_fuzzer:SetBrowserPoliciesPluginFuzzTest",
     "usbreadonlyplugin_fuzzer:UsbReadOnlyPluginFuzzTest",
@@ -60,6 +63,8 @@ group("fuzztest") {
     "adminpoliciesstoragerdbupdate_fuzzer:AdminPoliciesStorageRdbUpdateFuzzTest",
     "manageusernonstopappsplugin_fuzzer:ManageUserNonStopAppsPluginFuzzTest",
     "installenterpriseresignaturecertificateplugin_fuzzer:InstallEnterpriseReSignatureCertificatePluginFuzzTest",
+    "setallowedkioskappsplugin_fuzzer:SetAllowedKioskAppsPluginFuzzTest",
+    "setwatermarkimageplugin_fuzzer:SetWatermarkImagePluginFuzzTest",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {
