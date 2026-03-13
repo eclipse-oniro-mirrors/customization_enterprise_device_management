@@ -312,7 +312,6 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_READ_LOG = "ohos.permission.ENTERPRISE_READ_LOG";
     const char* const PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN =
         "ohos.permission.ENTERPRISE_DEACTIVATE_DEVICE_ADMIN";
-    const char* const PERMISSION_PERSONAL_MANAGE_SETTINGS = "ohos.permission.PERSONAL_MANAGE_RESTRICTIONS";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source

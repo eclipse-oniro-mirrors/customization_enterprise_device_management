@@ -24,7 +24,10 @@ namespace EDM {
 class SetSwitchStatusPlugin : public PluginSingleton<SetSwitchStatusPlugin, SwitchParam> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, SwitchParam>> ptr) override;
-    ErrCode OnSetPolicy(SwitchParam &param);
+    ErrCode OnSetPolicy(SwitchParam &param,  MessageParcel &reply);
+    ErrCode OnSetBluetoothStatus(SwitchStatus status);
+    ErrCode OnSetWifiStatus(SwitchStatus status);
+    ~SetSwitchStatusPlugin();
 };
 } // namespace EDM
 } // namespace OHOS
