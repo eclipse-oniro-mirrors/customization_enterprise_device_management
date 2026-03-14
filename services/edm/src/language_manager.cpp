@@ -217,6 +217,10 @@ std::string LanguageManager::GetEnterpriseName()
 
 bool LanguageManager::IsNeedToShowEnterpriseManagedTips()
 {
+    if (AdminManager::GetInstance()->IsByodAdminExist()) {
+        EDMLOGW("IsNeedToShowEnterpriseManagedTips exist byod admin, does not show.");
+        return false;
+    }
     EdmOsAccountManagerImpl osAccountMgr;
     int32_t userId = osAccountMgr.GetCurrentUserId();
     if (userId < 0) {

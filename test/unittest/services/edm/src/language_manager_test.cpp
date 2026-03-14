@@ -265,6 +265,22 @@ HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ReturnsTrue,
     auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
     EXPECT_EQ(res, ERR_OK);
 }
+
+/**
+ * @tc.name: TestIsNeedToShowEnterpriseManagedTips_ByodReturnsFalse
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ByodReturnsFalse, TestSize.Level1)
+{
+    std::string bundleName = "test";
+    AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::BYOD, .isDebug_ = false};
+    AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo);
+    bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
+    EXPECT_EQ(ret, false);
+    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
+    EXPECT_EQ(res, ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
