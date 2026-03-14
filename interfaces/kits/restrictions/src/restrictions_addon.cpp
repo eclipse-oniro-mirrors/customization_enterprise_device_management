@@ -70,6 +70,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE, EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE, EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_SERIAL, EdmInterfaceCode::DISALLOW_USB_SERIAL},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_P2P, EdmInterfaceCode::DISALLOWED_P2P},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {

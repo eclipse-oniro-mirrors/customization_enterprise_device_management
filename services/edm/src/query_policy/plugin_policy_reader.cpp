@@ -154,6 +154,7 @@
 #include "allowed_install_bundles_query.h"
 #include "allowed_notification_bundles_query.h"
 #include "disable_app_clone_query.h"
+#include "disallowed_p2p_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
@@ -748,6 +749,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
 #endif
         case EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES:
             obj = std::make_shared<AllowedNotificationBundlesQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_P2P:
+            obj = std::make_shared<DisallowedP2PQuery>();
             return ERR_OK;
         default:
             break;

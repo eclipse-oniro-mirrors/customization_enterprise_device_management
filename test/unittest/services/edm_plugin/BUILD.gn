@@ -607,6 +607,7 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../common/native/src/plugin_utils/message_parcel_utils.cpp",
       "../../../../services/edm_plugin/src/allowed_wifi_list_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallowed_p2p_plugin.cpp",
       "../../../../services/edm_plugin/src/disallowed_wifi_list_plugin.cpp",
       "../../../../services/edm_plugin/src/is_wifi_active_plugin.cpp",
       "../../../../services/edm_plugin/src/set_wifi_disabled_plugin.cpp",
