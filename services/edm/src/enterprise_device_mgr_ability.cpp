@@ -2400,8 +2400,12 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     RETURN_IF_FAILED(HandleApplicationEvent(events, true));
-    int32_t userId = AdminManager::GetInstance()->IsSuperOrSubSuperAdmin(admin.GetBundleName()) ?
-        EdmConstants::DEFAULT_USER_ID : GetCurrentUserId();
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
+    std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
+        GetCurrentUserId());
+    if (adminItem != nullptr && !adminItem->IsAllowedAcrossAccountSetPolicy()) {
+        userId = GetCurrentUserId();
+    }
     AdminManager::GetInstance()->SaveSubscribeEvents(events, admin.GetBundleName(), userId);
     return ERR_OK;
 }
@@ -2411,8 +2415,12 @@ ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::El
 {
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
-    int32_t userId = AdminManager::GetInstance()->IsSuperOrSubSuperAdmin(admin.GetBundleName()) ?
-        EdmConstants::DEFAULT_USER_ID : GetCurrentUserId();
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
+    std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
+        GetCurrentUserId());
+    if (adminItem != nullptr && !adminItem->IsAllowedAcrossAccountSetPolicy()) {
+        userId = GetCurrentUserId();
+    }
     AdminManager::GetInstance()->RemoveSubscribeEvents(events, admin.GetBundleName(), userId);
     return HandleApplicationEvent(events, false);
 }
