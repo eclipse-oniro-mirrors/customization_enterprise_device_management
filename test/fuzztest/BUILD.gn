@@ -76,6 +76,7 @@ group("fuzztest") {
       "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
       "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
       "managefreezeexemptedappsplugin_fuzzer:ManageFreezeExemptedAppsPluginFuzzTest",
+      "hiddensettingsmenuplugin_fuzzer:HiddenSettingsMenuPluginFuzzTest",
     ]
   }
 

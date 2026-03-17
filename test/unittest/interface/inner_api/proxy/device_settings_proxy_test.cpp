@@ -595,6 +595,108 @@ HWTEST_F(DeviceSettingsProxyTest, TestSetSwitchStatusFail, TestSize.Level1)
     int32_t ret = deviceSettingsProxy->SetSwitchStatus(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetHiddenSettingsMenuSuc
+ * @tc.desc: Test GetHiddenSettingsMenu func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetHiddenSettingsMenuSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    int32_t id = 100;
+    std::vector<int32_t> hiddenSettingsMenu;
+    int32_t ret = deviceSettingsProxy->GetHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetHiddenSettingsMenuFail
+ * @tc.desc: Test GetHiddenSettingsMenu func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetHiddenSettingsMenuFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t id = -1;
+    std::vector<int32_t> hiddenSettingsMenu;
+    int32_t ret = deviceSettingsProxy->GetHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddHiddenSettingsMenuSuc
+ * @tc.desc: Test AddHiddenSettingsMenu func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestAddHiddenSettingsMenuSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t id = 100;
+    std::vector<int32_t> hiddenSettingsMenu = {0, 1, 2};
+    int32_t ret = deviceSettingsProxy->AddHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddHiddenSettingsMenuFail
+ * @tc.desc: Test AddHiddenSettingsMenu func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestAddHiddenSettingsMenuFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t id = -1;
+    std::vector<int32_t> hiddenSettingsMenu = {0, 1, 2};
+    int32_t ret = deviceSettingsProxy->AddHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveHiddenSettingsMenuSuc
+ * @tc.desc: Test RemoveHiddenSettingsMenu func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestRemoveHiddenSettingsMenuSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t id = 100;
+    std::vector<int32_t> hiddenSettingsMenu = {0, 1, 2};
+    int32_t ret = deviceSettingsProxy->RemoveHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveHiddenSettingsMenuFail
+ * @tc.desc: Test RemoveHiddenSettingsMenu func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestRemoveHiddenSettingsMenuFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t id = -1;
+    std::vector<int32_t> hiddenSettingsMenu = {0, 1, 2};
+    int32_t ret = deviceSettingsProxy->RemoveHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
