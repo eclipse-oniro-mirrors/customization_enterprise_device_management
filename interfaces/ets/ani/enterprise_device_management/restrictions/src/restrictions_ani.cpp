@@ -37,7 +37,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAni::labelCodeMapForAccoun
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST, EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
 };
 
-static const char* NAMESPACE_NAME = "@ohos.enterprise.restrictions.restrictions";
+static const char* NAMESPACE_NAME = "@ohos:enterprise.restrictions.restrictions";
 
 ani_status RestrictionsAni::Init(ani_env* env)
 {
