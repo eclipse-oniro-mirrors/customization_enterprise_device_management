@@ -95,6 +95,25 @@ INSTANTIATE_TEST_CASE_P(TestWithParam, HapCallPluginGetPolicyPermissionDeniedTes
         AdminType::ENT, true, "", ""),
     TestParam(EdmInterfaceCode::PASSWORD_POLICY, PasswordPolicyPlugin::GetPlugin(),
         AdminType::UNKNOWN, false, "", ""),
+
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::ENT, false, "", ""),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::ENT, true, "", ""),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::UNKNOWN, false, "", ""),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::BYOD, false, "", ""),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::BYOD, true, "", ""),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::ENT, false, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::ENT, true, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::BYOD, false, "", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::BYOD, true, "", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS),
 })));
 
 /**
