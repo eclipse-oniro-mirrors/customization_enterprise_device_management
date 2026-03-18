@@ -313,7 +313,7 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getValueForAccount", getValueForAccount),
         DECLARE_NAPI_FUNCTION("setHomeWallpaper", SetHomeWallPaper),
         DECLARE_NAPI_FUNCTION("setUnlockWallpaper", SetUnlockWallPaper),
-        DECLARE_NAPI_PROPERTY("settingsMenu", nPolicySettingsMenu),
+        DECLARE_NAPI_PROPERTY("SettingsMenu", nPolicySettingsMenu),
         DECLARE_NAPI_FUNCTION("getHiddenSettingsMenu", GetHiddenSettingsMenu),
         DECLARE_NAPI_FUNCTION("addHiddenSettingsMenu", AddHiddenSettingsMenu),
         DECLARE_NAPI_FUNCTION("removeHiddenSettingsMenu", RemoveHiddenSettingsMenu),
