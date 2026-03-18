@@ -203,6 +203,16 @@ public:
 
     int InvokeSendRequestSizeError(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
+
+    int InvokeSendRequestGetBundleStorageStats(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetBundleStorageStatsMultiple(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetBundleStorageStatsEmpty(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

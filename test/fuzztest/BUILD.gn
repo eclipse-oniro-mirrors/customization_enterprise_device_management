@@ -65,6 +65,7 @@ group("fuzztest") {
     "installenterpriseresignaturecertificateplugin_fuzzer:InstallEnterpriseReSignatureCertificatePluginFuzzTest",
     "setallowedkioskappsplugin_fuzzer:SetAllowedKioskAppsPluginFuzzTest",
     "setwatermarkimageplugin_fuzzer:SetWatermarkImagePluginFuzzTest",
+    "getinstalledbundlestoragestatsquery_fuzzer:GetInstalledBundleStorageStatsQueryFuzzTest",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {

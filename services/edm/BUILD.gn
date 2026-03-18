@@ -142,6 +142,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallowed_uninstall_bundles_query.cpp",
       "./src/query_policy/get_device_encryption_status_query.cpp",
       "./src/query_policy/get_display_version_query.cpp",
+      "./src/query_policy/get_installed_bundle_storage_stats_query.cpp",
       "./src/query_policy/get_security_patch_tag_query.cpp",
       "./src/query_policy/inactive_user_freeze_query.cpp",
       "./src/query_policy/installed_bundle_info_list_query.cpp",

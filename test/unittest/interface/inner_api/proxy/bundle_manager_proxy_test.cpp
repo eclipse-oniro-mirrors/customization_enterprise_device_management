@@ -23,6 +23,7 @@
 #define private public
 #include "bundle_manager_proxy.h"
 #undef private
+#include "bundle_storage_info.h"
 #include "directory_ex.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
@@ -622,6 +623,95 @@ HWTEST_F(BundleManagerProxyTest, TestInstallMarketAppsFail, TestSize.Level1)
     std::vector<std::string> allowedAppDistributionTypes;
     int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetInstalledBundleStorageStatsListSuccess
+ * @tc.desc: Test GetInstalledBundleStorageStatsList success
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstalledBundleStorageStatsListSuccess, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    std::vector<BundleStorageInfo> result;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStats));
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleStorageStatsList(admin, bundles, 100, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result.size() == 1);
+    ASSERT_TRUE(result[0].bundleName == ADMIN_PACKAGENAME);
+}
+
+/**
+ * @tc.name: TestGetInstalledBundleStorageStatsListFail
+ * @tc.desc: Test GetInstalledBundleStorageStatsList with service disabled
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstalledBundleStorageStatsListFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    std::vector<BundleStorageInfo> result;
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleStorageStatsList(admin, bundles, 100, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetInstalledBundleStorageStatsListMultipleBundles
+ * @tc.desc: Test GetInstalledBundleStorageStatsList with multiple bundles
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstalledBundleStorageStatsListMultipleBundles, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {"com.test.app1", "com.test.app2", "com.test.app3"};
+    std::vector<BundleStorageInfo> result;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsMultiple));
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleStorageStatsList(admin, bundles, 100, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result.size() == 3);
+}
+
+/**
+ * @tc.name: TestGetInstalledBundleStorageStatsListEmptyBundles
+ * @tc.desc: Test GetInstalledBundleStorageStatsList with empty bundles
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstalledBundleStorageStatsListEmptyBundles, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles;
+    std::vector<BundleStorageInfo> result;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsEmpty));
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleStorageStatsList(admin, bundles, 100, result);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(result.size() == 0);
+}
+
+/**
+ * @tc.name: TestGetInstalledBundleStorageStatsListReplyError
+ * @tc.desc: Test GetInstalledBundleStorageStatsList with reply error
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestGetInstalledBundleStorageStatsListReplyError, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
+    std::vector<BundleStorageInfo> result;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    ErrCode ret = bundleManagerProxy->GetInstalledBundleStorageStatsList(admin, bundles, 100, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 } // namespace TEST
 } // namespace EDM

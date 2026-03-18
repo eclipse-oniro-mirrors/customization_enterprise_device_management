@@ -16,6 +16,8 @@
 #include "enterprise_device_mgr_stub_mock.h"
 
 #include <fcntl.h>
+
+#include "bundle_storage_info.h"
 #include "domain_filter_rule.h"
 #include "edm_bundle_info.h"
 #include "firewall_rule.h"
@@ -33,6 +35,9 @@ const uint32_t APPID_MAX_SIZE = 200;
 const int32_t BASE_CLASS = 3;
 const int32_t SUB_CLASS = 1;
 const int32_t PROTOCOL = 2;
+const int32_t TEST_BUNDLE_SIZE = 3;
+const int32_t TEST_APP_SIZE = 1024;
+const int32_t TEST_DATA_SIZE = 2048;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
@@ -528,6 +533,48 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestSizeError(uint32_t code, Messa
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(EDM_MAXREQUESTSIZE);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStats(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetBundleStorageStats code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(1);
+    BundleStorageInfo info;
+    info.bundleName = "com.edm.test.demo";
+    info.appSize = TEST_APP_SIZE;
+    info.dataSize = TEST_DATA_SIZE;
+    info.Marshalling(reply);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsMultiple(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock GetBundleStorageStatsMultiple code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(TEST_BUNDLE_SIZE);
+    for (int i = 1; i <= TEST_BUNDLE_SIZE; i++) {
+        BundleStorageInfo info;
+        info.bundleName = "com.test.app" + std::to_string(i);
+        info.appSize = TEST_APP_SIZE * i;
+        info.dataSize = TEST_DATA_SIZE * i;
+        info.Marshalling(reply);
+    }
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsEmpty(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock GetBundleStorageStatsEmpty code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(0);
     return 0;
 }
 
