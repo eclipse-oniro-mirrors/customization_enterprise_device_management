@@ -73,6 +73,7 @@
         "data_share",
         "distributed_notification_service",
         "drivers_interface_usb",
+        "ets_frontend",
         "ets_runtime",
         "eventhandler",
         "file_api",
