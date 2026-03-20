@@ -41,6 +41,8 @@ UsbReadOnlyPlugin::UsbReadOnlyPlugin()
     policyName_ = PolicyName::POLICY_USB_READ_ONLY;
     permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB);
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
 }

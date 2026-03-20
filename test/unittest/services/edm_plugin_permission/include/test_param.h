@@ -26,8 +26,10 @@
 #include "add_os_account_plugin.h"
 #include "allowed_app_distribution_types_plugin.h"
 #include "allowed_bluetooth_devices_plugin.h"
-#include "password_policy_plugin.h"
+#include "disable_mtp_server_plugin.h"
 #include "set_browser_policies_plugin.h"
+#include "password_policy_plugin.h"
+#include "usb_read_only_plugin.h"
 
 namespace OHOS {
 namespace EDM {

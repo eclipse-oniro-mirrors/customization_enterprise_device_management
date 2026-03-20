@@ -61,6 +61,12 @@ ohos_unittest("EdmPluginPermissionUnitTest") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
   ]
+  if (drivers_interface_usb_edm_enable && storage_service_edm_enable && usb_manager_edm_enable) {
+    external_deps += [
+      "storage_service:storage_manager_sa_proxy",
+      "usb_manager:usbsrv_client",
+    ]
+  }
 
   sanitize = {
     boundary_sanitize = true
