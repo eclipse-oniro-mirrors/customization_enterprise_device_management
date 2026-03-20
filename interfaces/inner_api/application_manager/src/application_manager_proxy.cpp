@@ -654,5 +654,32 @@ int32_t ApplicationManagerProxy::GetAllowedNotificationBundles(MessageParcel &da
     reply.ReadStringVector(&bundleNames);
     return ERR_OK;
 }
+
+int32_t ApplicationManagerProxy::QueryTrafficStats(const AppExecFwk::ElementName &admin,
+    const NetStatsNetwork &networkInfo, NetStatsInfo &netStatsInfo)
+{
+    EDMLOGI("ApplicationManagerProxy::QueryTrafficStats");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    networkInfo.Marshalling(data);
+    proxy->GetPolicy(EdmInterfaceCode::QUERY_TRAFFIC_STATS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    if (!NetStatsInfo::Unmarshalling(reply, netStatsInfo)) {
+        EDMLOGE("NetStatsInfo::Unmarshalling fail");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
