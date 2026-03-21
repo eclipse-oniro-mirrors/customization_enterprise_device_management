@@ -24,6 +24,7 @@
 #include "dock_info.h"
 #endif
 #include "napi_edm_element_name.h"
+#include "net_stats_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -81,6 +82,8 @@ public:
     int32_t RemoveAllowedNotificationBundles(MessageParcel &data);
     int32_t GetAllowedNotificationBundles(MessageParcel &data,
         std::vector<std::string> &bundleNames);
+    int32_t QueryTrafficStats(const AppExecFwk::ElementName &admin, const NetStatsNetwork &networkInfo,
+        NetStatsInfo &netStatsInfo);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

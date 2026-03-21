@@ -98,7 +98,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS, EdmInterfaceCode::HANG_UP_CALLING,
     EdmInterfaceCode::SET_NETWORK_INTERFACE_CONFIG, EdmInterfaceCode::DISALLOW_USB_SERIAL,
     EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM,
-    EdmInterfaceCode::DISALLOWED_P2P
+    EdmInterfaceCode::DISALLOWED_P2P, EdmInterfaceCode::QUERY_TRAFFIC_STATS
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

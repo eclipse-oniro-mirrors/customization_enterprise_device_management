@@ -76,6 +76,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addAllowedNotificationBundles", AddAllowedNotificationBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedNotificationBundles", RemoveAllowedNotificationBundles),
         DECLARE_NAPI_FUNCTION("getAllowedNotificationBundles", GetAllowedNotificationBundles),
+        DECLARE_NAPI_FUNCTION("queryTrafficStats", QueryTrafficStats),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1448,6 +1449,127 @@ void ApplicationManagerAddon::ConvertDockInfoVectorToJs(napi_env env, const std:
     }
 }
 #endif
+
+napi_value ApplicationManagerAddon::QueryTrafficStats(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_QueryTrafficStats called");
+#ifdef NETMANAGER_BASE_EDM_ENABLE
+    size_t argc = ARGS_SIZE_FIVE;
+    napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FIVE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "parameter admin error");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncQueryTrafficStatsCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncQueryTrafficStatsCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName,
+        argv[ARR_INDEX_ZERO]), "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInfo.bundleName,
+        argv[ARR_INDEX_ONE]), "bundleName param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->networkInfo.appIndex,
+        argv[ARR_INDEX_TWO]), "appIndex param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->networkInfo.accountId,
+        argv[ARR_INDEX_THREE]), "accountId param error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseNetworkInfo(env, asyncCallbackInfo->networkInfo,
+        argv[ARR_INDEX_FOUR]), "networkInfo param error");
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "QueryTrafficStats",
+        NativeQueryTrafficStats, NativeQueryTrafficStatsComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+#else
+    EDMLOGW("ApplicationManagerAddon::QueryTrafficStats Unsupported Capabilities.");
+    napi_value result = nullptr;
+    napi_deferred deferred = nullptr;
+    auto status = napi_create_promise(env, &deferred, &result);
+    if (status == napi_ok) {
+        napi_reject_deferred(env, deferred, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    }
+    return result;
+#endif
+}
+
+bool ApplicationManagerAddon::ParseNetworkInfo(napi_env env, NetStatsNetwork &networkInfo, napi_value args)
+{
+    napi_valuetype valueType;
+    NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
+    if (valueType != napi_object) {
+        EDMLOGE("Parameter networkInfo valueType error");
+        return false;
+    }
+    uint32_t type = 0;
+    int64_t startTime = 0;
+    int64_t endTime = 0;
+    uint32_t simId = UINT32_MAX;
+    if (!JsObjectToUint(env, args, "type", true, type) ||
+        !JsObjectToLong(env, args, "startTime", true, startTime) ||
+        !JsObjectToLong(env, args, "endTime", true, endTime) ||
+        !JsObjectToUint(env, args, "simId", false, simId)) {
+        EDMLOGE("Parameter networkInfo error");
+        return false;
+    }
+    networkInfo.type = type;
+    networkInfo.startTime = startTime;
+    networkInfo.endTime = endTime;
+    networkInfo.simId = simId;
+    return true;
+}
+
+void ApplicationManagerAddon::NativeQueryTrafficStats(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeQueryTrafficStats called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncQueryTrafficStatsCallbackInfo *>(data);
+    auto proxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get ApplicationManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->QueryTrafficStats(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->networkInfo, asyncCallbackInfo->netStatsInfo);
+}
+
+void ApplicationManagerAddon::NativeQueryTrafficStatsComplete(napi_env env, napi_status status,
+    void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncQueryTrafficStatsCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            NetStatsInfo netStatsInfo = asyncCallbackInfo->netStatsInfo;
+            napi_value result = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &result));
+            napi_value rxBytes = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, netStatsInfo.rxBytes, &rxBytes));
+            NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "rxBytes", rxBytes));
+            napi_value txBytes = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, netStatsInfo.txBytes, &txBytes));
+            NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "txBytes", txBytes));
+            napi_value rxPackets = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, netStatsInfo.rxPackets, &rxPackets));
+            NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "rxPackets", rxPackets));
+            napi_value txPackets = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, netStatsInfo.txPackets, &txPackets));
+            NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "txPackets", txPackets));
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
 
 static napi_module g_applicationManagerModule = {
     .nm_version = 1,

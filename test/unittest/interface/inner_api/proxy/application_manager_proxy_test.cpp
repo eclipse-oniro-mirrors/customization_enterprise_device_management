@@ -1001,6 +1001,53 @@ HWTEST_F(ApplicationManagerProxyTest, TestIsAbilityDisabledFail, TestSize.Level1
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestQueryTrafficStatsSuc
+ * @tc.desc: Test QueryTrafficStats success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestQueryTrafficStatsSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.simId = 12345;
+    NetStatsInfo netStatsInfo;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeNetStatsInfoSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->QueryTrafficStats(admin, networkInfo, netStatsInfo);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(netStatsInfo.rxBytes, 0);
+    ASSERT_EQ(netStatsInfo.txBytes, 0);
+    ASSERT_EQ(netStatsInfo.rxPackets, 0);
+    ASSERT_EQ(netStatsInfo.txPackets, 0);
+}
+
+/**
+ * @tc.name: TestQueryTrafficStatsFail
+ * @tc.desc: Test QueryTrafficStats without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestQueryTrafficStatsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    NetStatsInfo netStatsInfo;
+    ErrCode ret = applicationManagerProxy_->QueryTrafficStats(admin, networkInfo, netStatsInfo);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
 #ifdef FEATURE_PC_ONLY
 /**
  * @tc.name: TestAddDockAppSuc
