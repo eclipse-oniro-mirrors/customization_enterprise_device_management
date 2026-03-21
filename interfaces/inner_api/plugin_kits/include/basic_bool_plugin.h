@@ -31,6 +31,8 @@ protected:
 
     virtual ErrCode RemoveOtherModulePolicy(int32_t userId);
 
+    virtual ErrCode CheckConflictPolicy();
+
     std::string persistParam_;
 };
 } // namespace EDM

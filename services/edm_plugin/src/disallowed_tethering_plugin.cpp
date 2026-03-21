@@ -43,12 +43,57 @@ void DisallowedTetheringPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disal
     persistParam_ = "persist.edm.tethering_disallowed";
 }
 
+ErrCode DisallowedTetheringPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId)
+{
+    EDMLOGE("BasicBoolPlugin %{public}d, %{public}d, %{public}d.", data, currentData, mergePolicy);
+    if (mergePolicy) {
+        currentData = data;
+        return ERR_OK;
+    }
+    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
+        EDMLOGE("BasicBoolPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = SetOtherModulePolicy(data, userId);
+    if (FAILED(ret)) {
+        return ret;
+    }
+    currentData = data;
+    mergePolicy = data;
+    return ERR_OK;
+}
+
+ErrCode DisallowedTetheringPlugin::OnAdminRemove(const std::string &adminName,
+    bool &data, bool &mergeData, int32_t userId)
+{
+    EDMLOGI("BasicBoolPlugin OnAdminRemove adminName : %{public}s, data : %{public}d", adminName.c_str(), data);
+    if (!mergeData && data) {
+        if (!persistParam_.empty() && !system::SetParameter(persistParam_, "false")) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        ErrCode ret = SetOtherModulePolicy(false, userId);
+        if (FAILED(ret)) {
+            return ret;
+        }
+    }
+    return ERR_OK;
+}
+
 ErrCode DisallowedTetheringPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
 #ifdef WIFI_EDM_ENABLE
     EDMLOGI("DisallowedTetheringPlugin SetOtherModulePolicy");
     auto hotspot = Wifi::WifiHotspot::GetInstance(WIFI_HOTSPOT_ABILITY_ID);
-    auto ret = hotspot->DisableHotspot();
+    if (hotspot == nullptr) {
+        EDMLOGE("DisallowedTetheringPlugin SetOtherModulePolicy WifiHotspot nullptr");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    auto ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (data) {
+        ret = hotspot->DisableHotspot();
+    } else {
+        ret = hotspot->EnableHotspot();
+    }
     if (ret != ERR_OK) {
         EDMLOGE("DisallowedTetheringPlugin SetOtherModulePolicy DisableHotspot error.%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

@@ -38,15 +38,14 @@ private:
         std::vector<AllowedNotificationBundlesType> &mergeData, int32_t userId);
 
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<AllowedNotificationBundlesType> &data,
-        std::vector<AllowedNotificationBundlesType> &mergeData, int32_t userId)
-    {
-        return ERR_OK;
-    }
+        std::vector<AllowedNotificationBundlesType> &mergeData, int32_t userId);
 
     void FindUserTrustList(std::vector<AllowedNotificationBundlesType> &data, int32_t userId,
         std::set<std::string> *&trustList);
 
     ErrCode SetAdditionConfig(std::vector<AllowedNotificationBundlesType> &data);
+
+    bool CheckConflictPolicy();
 };
 
 } // namespace EDM

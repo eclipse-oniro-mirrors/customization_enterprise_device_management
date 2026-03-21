@@ -15,10 +15,12 @@
 
 #include "disallowed_notification_plugin.h"
 
+#include "allowed_notification_bundles_serializer.h"
 #include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -38,6 +40,22 @@ void DisallowedNotificationPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     ptr->SetOnHandlePolicyListener(&DisallowedNotificationPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowedNotificationPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.notification_disable";
+}
+
+ErrCode DisallowedNotificationPlugin::CheckConflictPolicy()
+{
+    std::string policyData;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_NOTIFICATION_BUNDLES,
+        policyData, EdmConstants::DEFAULT_USER_ID);
+    std::vector<AllowedNotificationBundlesType> data;
+    if (!AllowedNotificationBundlesSerializer::GetInstance()->Deserialize(policyData, data)) {
+        EDMLOGE("DisallowedNotificationPlugin::SetOtherModulePolicy Deserialize error");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (data.size() > 0) {
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
