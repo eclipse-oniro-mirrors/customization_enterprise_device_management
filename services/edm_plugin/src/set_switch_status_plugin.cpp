@@ -80,7 +80,7 @@ ErrCode SetSwitchStatusPlugin::OnSetBluetoothStatus(SwitchStatus status)
     } else if (status == SwitchStatus::OFF) {
         ret = Bluetooth::BluetoothHost::GetDefaultHost().DisableBt();
     } else {
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (ret != Bluetooth::BT_NO_ERROR) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetBluetoothStatus send request fail. %{public}d", ret);
@@ -109,7 +109,7 @@ ErrCode SetSwitchStatusPlugin::OnSetWifiStatus(SwitchStatus status)
     } else if (status == SwitchStatus::OFF) {
         ret = devicePtr->DisableWifi();
     } else {
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetWifiStatus send request fail. %{public}d", ret);
