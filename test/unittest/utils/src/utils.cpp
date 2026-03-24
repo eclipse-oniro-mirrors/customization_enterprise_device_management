@@ -78,6 +78,7 @@ const std::string PERMISSION_MANAGE_MISSIONS = "ohos.permission.MANAGE_MISSIONS"
 const std::string PERMISSION_GET_BUNDLE_INFO_PRIVILEGED = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
 const std::string PERMISSION_REPORT_RESOURCE_SCHEDULE_EVENT = "ohos.permission.REPORT_RESOURCE_SCHEDULE_EVENT";
 const std::string PERMISSION_ACCESS_SYSTEM_SETTINGS = "ohos.permission.ACCESS_SYSTEM_SETTINGS";
+const std::string PERMISSION_GET_NETWORK_STATS = "ohos.permission.GET_NETWORK_STATS";
 void Utils::ExecCmdSync(const std::string &cmd)
 {
     FILE *fp = popen(cmd.c_str(), "r");
@@ -166,7 +167,8 @@ void Utils::SetEdmPermissions()
         PERMISSION_MANAGE_MISSIONS.c_str(),
         PERMISSION_GET_BUNDLE_INFO_PRIVILEGED.c_str(),
         PERMISSION_REPORT_RESOURCE_SCHEDULE_EVENT.c_str(),
-        PERMISSION_ACCESS_SYSTEM_SETTINGS.c_str()
+        PERMISSION_ACCESS_SYSTEM_SETTINGS.c_str(),
+        PERMISSION_GET_NETWORK_STATS.c_str()
 
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
