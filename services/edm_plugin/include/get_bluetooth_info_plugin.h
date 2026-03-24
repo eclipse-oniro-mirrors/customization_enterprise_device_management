@@ -31,8 +31,6 @@ public:
     int32_t TransformBluetoothConnectionState(int32_t connectionState);
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-
-    ~GetBluetoothInfoPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

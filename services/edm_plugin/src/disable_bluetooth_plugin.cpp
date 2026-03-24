@@ -59,10 +59,5 @@ ErrCode DisableBluetoothPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     }
     return ERR_OK;
 }
-
-DisableBluetoothPlugin::~DisableBluetoothPlugin()
-{
-    Bluetooth::BluetoothHost::GetDefaultHost().Close();
-}
 } // namespace EDM
 } // namespace OHOS
