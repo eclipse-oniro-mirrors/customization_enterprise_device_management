@@ -110,10 +110,5 @@ ErrCode GetBluetoothInfoPlugin::OnGetPolicy(std::string &policyData, MessageParc
     reply.WriteInt32(realConnectionState);
     return ERR_OK;
 }
-
-GetBluetoothInfoPlugin::~GetBluetoothInfoPlugin()
-{
-    Bluetooth::BluetoothHost::GetDefaultHost().Close();
-}
 } // namespace EDM
 } // namespace OHOS
