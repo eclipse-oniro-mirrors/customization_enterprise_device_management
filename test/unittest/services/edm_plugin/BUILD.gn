@@ -364,6 +364,8 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
       "../../../../services/edm_plugin/src/set_key_code_plugin.cpp",
+      "./src/disallow_multi_window_test_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallow_multi_window_plugin.cpp",
       "./src/hidden_settings_menu_plugin_test.cpp",
       "../../../../services/edm_plugin/src/hidden_settings_menu_plugin.cpp",
     ]

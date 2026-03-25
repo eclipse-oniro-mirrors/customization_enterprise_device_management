@@ -150,6 +150,10 @@
 #include "disallow_external_storage_card_query.h"
 #endif
 
+#ifdef MULTI_WINDOW_EDM_ENABLE
+#include "disallow_multi_window_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "allowed_notification_bundles_query.h"
@@ -753,6 +757,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
         case EdmInterfaceCode::DISALLOWED_P2P:
             obj = std::make_shared<DisallowedP2PQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_MULTI_WINDOW:
+#ifdef MULTI_WINDOW_EDM_ENABLE
+            obj = std::make_shared<DisallowMultiWindowQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }

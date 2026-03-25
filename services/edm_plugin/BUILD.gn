@@ -199,6 +199,7 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/disable_backup_and_restore_plugin.cpp",
         "./src/disable_private_space_plugin.cpp",
+        "./src/disallow_multi_window_plugin.cpp",
         "./src/set_floating_navigation_plugin.cpp",
       ]
     }
