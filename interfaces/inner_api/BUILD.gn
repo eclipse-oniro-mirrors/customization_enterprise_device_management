@@ -53,6 +53,7 @@ ohos_shared_library("edmservice_kits") {
     "./application_manager/src/manage_apps_serializer.cpp",
     "./application_manager/src/net_stats_utils.cpp",
     "./bluetooth_manager/src/bluetooth_manager_proxy.cpp",
+    "./bluetooth_manager/src/bluetooth_protocol_policy_serializer.cpp",
     "./browser/src/browser_proxy.cpp",
     "./bundle_manager/src/bundle_storage_info.cpp",
     "./bundle_manager/src/bundle_manager_proxy.cpp",

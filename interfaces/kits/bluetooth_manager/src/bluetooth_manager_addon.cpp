@@ -25,6 +25,30 @@
 
 using namespace OHOS::EDM;
 
+auto convertAccountIdForBluetoothProtocol = [](napi_env env, napi_value argv, OHOS::MessageParcel &data,
+    const AddonMethodSign &methodSign) {
+    int32_t accountId;
+    if (!ParseInt(env, accountId, argv)) {
+        EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseInt fail");
+        return false;
+    }
+    data.WriteInt32(BluetoothPolicyType::SET_DISALLOWED_PROTOCOLS);
+    data.WriteInt32(accountId);
+    return true;
+};
+
+auto convertAccountIdWithPolicyForBluetoothProtocol = [](napi_env env, napi_value argv, OHOS::MessageParcel &data,
+    const AddonMethodSign &methodSign) {
+    int32_t accountId;
+    if (!ParseInt(env, accountId, argv)) {
+        EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseInt fail");
+        return false;
+    }
+    data.WriteInt32(BluetoothPolicyType::SET_DISALLOWED_PROTOCOLS_WITH_POLICY);
+    data.WriteInt32(accountId);
+    return true;
+};
+
 napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nProtocol = nullptr;
@@ -266,11 +290,30 @@ napi_value BluetoothManagerAddon::AddDisallowedBluetoothProtocols(napi_env env, 
 napi_value BluetoothManagerAddon::GetDisallowedBluetoothProtocols(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedBluetoothProtocols called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDisallowedBluetoothProtocols";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::USERID};
-    addonMethodSign.argsConvert = {nullptr, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
+    if (argc == ARGS_SIZE_TWO) {
+        EDMLOGI("NAPI_GetDisallowedBluetoothProtocols argc == ARGS_SIZE_TWO");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+        addonMethodSign.argsConvert = {nullptr, convertAccountIdForBluetoothProtocol};
+    } else if (argc == ARGS_SIZE_THREE) {
+        EDMLOGI("NAPI_GetDisallowedBluetoothProtocols argc == ARGS_SIZE_THREE");
+        
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL,
+            EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+        addonMethodSign.argsConvert = {nullptr, convertAccountIdWithPolicyForBluetoothProtocol, nullptr};
+    } else {
+        EDMLOGE("NAPI_GetDisallowedBluetoothProtocols parameter count error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter count error"));
+        return nullptr;
+    }
+
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
@@ -302,6 +345,12 @@ napi_value BluetoothManagerAddon::AddOrRemoveDisallowedBluetoothProtocols(napi_e
     std::string function)
 {
     EDMLOGI("NAPI_AddOrRemoveDisallowedBluetoothProtocols called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
     auto convertBtProtocol2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) {
         std::vector<int32_t> bluetoothProtocols;
@@ -314,9 +363,25 @@ napi_value BluetoothManagerAddon::AddOrRemoveDisallowedBluetoothProtocols(napi_e
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddOrRemoveDisallowedBluetoothProtocols";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::USERID, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.argsConvert = {nullptr, nullptr, convertBtProtocol2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+
+    if (argc == ARGS_SIZE_THREE) {
+        EDMLOGI("NAPI_AddOrRemoveDisallowedBluetoothProtocols argc == ARGS_SIZE_THREE");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
+            EdmAddonCommonType::CUSTOM};
+        addonMethodSign.argsConvert = {nullptr, convertAccountIdForBluetoothProtocol, convertBtProtocol2Data};
+    } else if (argc == ARGS_SIZE_FOUR) {
+        EDMLOGI("NAPI_AddOrRemoveDisallowedBluetoothProtocols argc == ARGS_SIZE_FOUR");
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
+            EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+        addonMethodSign.argsConvert = {nullptr,
+            convertAccountIdWithPolicyForBluetoothProtocol, convertBtProtocol2Data, nullptr};
+    } else {
+        EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols parameter count error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter count error"));
+        return nullptr;
+    }
+
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;

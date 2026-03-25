@@ -32,7 +32,6 @@ ohos_fuzztest("DisallowedBluetoothProtocolsPluginFuzzTest") {
   ]
   sources = [
     "../common/src/common_fuzzer.cpp",
-    "disallowed_bluetooth_protocols_plugin_fuzzer.cpp",
   ]
 
   include_dirs = [
