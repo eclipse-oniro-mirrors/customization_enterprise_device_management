@@ -21,7 +21,7 @@
 using namespace OHOS;
 using namespace EDM;
 
-static const char* CLASS_NAME_BUSINESSERROR = "@ohos.base.BusinessError";
+static const char* CLASS_NAME_BUSINESSERROR = "@ohos:base.BusinessError";
 
 const std::unordered_map<int32_t, std::string> EdmAniUtils::errMessageMap = {
     {EdmReturnErrCode::PERMISSION_DENIED,
@@ -266,7 +266,7 @@ bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::Ele
 
 bool EdmAniUtils::SetNumberMember(ani_env *env, ani_object obj, const std::string &name, const ani_long value)
 {
-    static const char *className = "std.core.Long";
+    static const char *className = "std:core.Long";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         EDMLOGE("Find class '%{public}s' failed", className);

@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace EDM {
 
-static const char* NAMESPACE_NAME = "@ohos.enterprise.networkManager.networkManager";
+static const char* NAMESPACE_NAME = "@ohos:enterprise.networkManager.networkManager";
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 ani_status NetworkManagerAni::Init(ani_env* env)
