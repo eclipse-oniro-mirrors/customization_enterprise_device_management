@@ -44,10 +44,10 @@ ErrCode GetInstalledBundleStorageStatsQuery::QueryPolicy(std::string &policyData
     MessageParcel &reply, int32_t userId)
 {
     uint32_t dataSize = data.ReadUint32();
- 	if (dataSize > EdmConstants::POLICIES_MAX_SIZE) {
- 	    EDMLOGI("GetInstalledBundleStorageStatsQuery QueryPolicy data size = %{public}d", dataSize);
- 	    return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
- 	}
+    if (dataSize > EdmConstants::POLICIES_MAX_SIZE) {
+        EDMLOGI("GetInstalledBundleStorageStatsQuery QueryPolicy data size = %{public}d", dataSize);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
     std::vector<std::string> bundles;
     if (!data.ReadStringVector(&bundles)) {
         EDMLOGI("GetInstalledBundleStorageStatsQuery read string vector error");
