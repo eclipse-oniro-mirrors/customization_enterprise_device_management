@@ -197,6 +197,7 @@ enum EdmInterfaceCode : uint32_t {
     DISALLOWED_P2P = 1148,
     QUERY_TRAFFIC_STATS = 1149,
     DISALLOWED_MULTI_WINDOW = 1150,
+    GET_BUNDLE_STORAGE_STATS = 1151,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

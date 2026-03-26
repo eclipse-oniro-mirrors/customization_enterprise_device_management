@@ -75,6 +75,9 @@
             OHOS::EDM::EdmSignatureInfo::*;
             VTT?for?OHOS::EDM::EdmSignatureInfo;
             vtable?for?OHOS::EDM::EdmSignatureInfo;
+            OHOS::EDM::BundleStorageInfo::*;
+            VTT?for?OHOS::EDM::BundleStorageInfo;
+            vtable?for?OHOS::EDM::BundleStorageInfo;
             VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
             vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
             OHOS::EDM::TelephonyCallPolicySerializer::*;

@@ -358,6 +358,38 @@ int32_t BundleManagerProxy::GetInstalledBundleInfoList(AppExecFwk::ElementName &
     return InnerGetVectorFromParcelIntelligent(reply, bundleInfos);
 }
 
+int32_t BundleManagerProxy::GetInstalledBundleStorageStatsList(AppExecFwk::ElementName &admin,
+    const std::vector<std::string> &bundles, int32_t userId, std::vector<BundleStorageInfo> &result)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteUint32(bundles.size());
+    data.WriteStringVector(bundles);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_BUNDLE_STORAGE_STATS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("BundleManagerProxy:GetInstalledBundleStorageStatsList fail. %{public}d", ret);
+        return ret;
+    }
+    uint32_t size = reply.ReadUint32();
+    for (uint32_t i = 0; i < size; i++) {
+        BundleStorageInfo *bundleStorageInfo = BundleStorageInfo::Unmarshalling(reply);
+        if (bundleStorageInfo == nullptr) {
+            EDMLOGE("BundleManagerProxy:GetInstalledBundleStorageStatsList Unmarshalling null");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        result.emplace_back(*bundleStorageInfo);
+    }
+    return ERR_OK;
+}
+
 int32_t BundleManagerProxy::AddOrRemoveInstallationAllowedAppDistributionTypes(MessageParcel &data,
     FuncOperateType operateType)
 {

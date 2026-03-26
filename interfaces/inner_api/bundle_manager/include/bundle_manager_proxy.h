@@ -15,11 +15,12 @@
 
 #ifndef INTERFACES_INNER_API_BUNDLE_MANAGER_INCLUDE_BUNDLE_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_BUNDLE_MANAGER_INCLUDE_BUNDLE_MANAGER_PROXY_H
-#include "enterprise_device_mgr_proxy.h"
-#include "install_param.h"
 
+#include "bundle_storage_info.h"
+#include "enterprise_device_mgr_proxy.h"
 #include "edm_bundle_info.h"
 #include "func_code.h"
+#include "install_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -44,6 +45,8 @@ public:
     int32_t GetInstallationAllowedAppDistributionTypes(MessageParcel &data,
         std::vector<int32_t> &installationAllowedAppDistributionTypes);
     int32_t InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps);
+    int32_t GetInstalledBundleStorageStatsList(AppExecFwk::ElementName &admin, const std::vector<std::string> &bundles,
+        int32_t userId, std::vector<BundleStorageInfo> &result);
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;

@@ -70,6 +70,8 @@ constexpr const char* ICON_DATA = "iconData";
 constexpr const char* ICON_ID = "iconId";
 constexpr const char* DEBUG = "debug";
 constexpr const char* APP_INDEX = "appIndex";
+constexpr const char* APP_SIZE = "appSize";
+constexpr const char* DATA_SIZE = "dataSize";
 static const std::string CONTEXT_DATA_STORAGE_BUNDLE("/data/storage/el1/bundle/");
 
 static const std::unordered_map<std::string, int32_t> POLICY_TYPE_MAP = {
@@ -122,6 +124,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getInstallationAllowedAppDistributionTypes",
             GetInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_FUNCTION("installMarketApps", InstallMarketApps),
+        DECLARE_NAPI_FUNCTION("getInstalledBundleStorageStats", GetInstalledBundleStorageStats),
         DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
         DECLARE_NAPI_PROPERTY("BundleInfoGetFlag", nBundleInfoGetFlag),
     };
@@ -1259,6 +1262,105 @@ void BundleManagerAddon::ConvertResource(napi_env env, const EdmResource &resour
     napi_value nId;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, resource.id, &nId));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objResource, ID, nId));
+}
+
+napi_value BundleManagerAddon::GetInstalledBundleStorageStats(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetInstalledBundleStorageStats called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncBundleStorageStatsCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncBundleStorageStatsCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "parameter admin parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "parameter bundleNames error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->bundles, argv[ARR_INDEX_ONE]),
+        "parameter bundleNames parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "parameter userId error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO]),
+        "parameter userId parse error");
+
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetInstalledBundleStorageStats",
+        NativeGetInstalledBundleStorageStats, NativeGetInstalledBundleStorageStatsComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void BundleManagerAddon::NativeGetInstalledBundleStorageStats(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeGetInstalledBundleStorageStats called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncBundleStorageStatsCallbackInfo *asyncCallbackInfo = static_cast<AsyncBundleStorageStatsCallbackInfo *>(data);
+    auto proxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->GetInstalledBundleStorageStatsList(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->bundles, asyncCallbackInfo->userId, asyncCallbackInfo->bundleStorageStats);
+}
+
+void BundleManagerAddon::NativeGetInstalledBundleStorageStatsComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    EDMLOGI("NativeGetInstalledBundleStorageStatsComplete start");
+    auto *asyncCallbackInfo = static_cast<AsyncBundleStorageStatsCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        EDMLOGE("asyncCallbackInfo->deferred != nullptr");
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value nBundleStorageStats;
+            NAPI_CALL_RETURN_VOID(env, napi_create_array(env, &nBundleStorageStats));
+            ConvertBundleStorageStatsToJs(env, asyncCallbackInfo->bundleStorageStats, nBundleStorageStats);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, nBundleStorageStats);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+void BundleManagerAddon::ConvertBundleStorageStatsToJs(napi_env env,
+    const std::vector<BundleStorageInfo> &bundleStorageStats, napi_value &result)
+{
+    if (bundleStorageStats.size() == 0) {
+        EDMLOGI("bundleStorageStats is null");
+        return;
+    }
+    size_t idx = 0;
+    for (const auto &item : bundleStorageStats) {
+        napi_value obj = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &obj));
+        napi_value nBundleName;
+        NAPI_CALL_RETURN_VOID(env,
+            napi_create_string_utf8(env, item.bundleName.c_str(), NAPI_AUTO_LENGTH, &nBundleName));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, BUNDLE_NAME, nBundleName));
+        napi_value nappSize;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, item.appSize, &nappSize));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, APP_SIZE, nappSize));
+        napi_value ndataSize;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, item.dataSize, &ndataSize));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, DATA_SIZE, ndataSize));
+
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
 }
 
 static napi_module g_bundleManagerModule = {

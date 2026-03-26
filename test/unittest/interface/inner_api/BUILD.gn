@@ -31,6 +31,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./application_manager/src/net_stats_utils_test.cpp",
     "./common/domain_account_policy_test.cpp",
     "./common/ent_info_test.cpp",
+    "./proxy/bundle_storage_info_test.cpp",
   ]
 
   configs = [

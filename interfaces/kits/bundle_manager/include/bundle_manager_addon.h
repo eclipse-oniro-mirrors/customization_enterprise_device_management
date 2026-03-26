@@ -16,6 +16,7 @@
 #ifndef INTERFACES_KITS_BUNDLE_MANAGER_INCLUDE_BUNDLE_MANAGER_ADDON_H
 #define INTERFACES_KITS_BUNDLE_MANAGER_INCLUDE_BUNDLE_MANAGER_ADDON_H
 
+#include "bundle_storage_info.h"
 #include "bundle_manager_proxy.h"
 #include "edm_errors.h"
 #include "napi/native_api.h"
@@ -49,6 +50,13 @@ struct AsyncBundleInfoCallbackInfo : AsyncCallbackInfo {
     uint32_t bundleInfoGetFlag = static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_INFO) |
         static_cast<uint32_t>(BundleInfoGetFlag::WITH_SIGNATURE_INFO);
     std::vector<EdmBundleInfo> bundleInfos;
+};
+
+struct AsyncBundleStorageStatsCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    int32_t userId = 0;
+    std::vector<std::string> bundles;
+    std::vector<BundleStorageInfo> bundleStorageStats;
 };
 
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
@@ -93,6 +101,7 @@ public:
         FuncOperateType operateType);
     static napi_value GetInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
     static napi_value InstallMarketApps(napi_env env, napi_callback_info info);
+    static napi_value GetInstalledBundleStorageStats(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
@@ -115,6 +124,10 @@ private:
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
     static void CreateAppDistributionTypeObject(napi_env env, napi_value value);
     static void CreateBundleInfoGetFlagObject(napi_env env, napi_value value);
+    static void NativeGetInstalledBundleStorageStats(napi_env env, void *data);
+    static void NativeGetInstalledBundleStorageStatsComplete(napi_env env, napi_status status, void *data);
+    static void ConvertBundleStorageStatsToJs(napi_env env, const std::vector<BundleStorageInfo> &bundleStorageStats,
+        napi_value &result);
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
         AsyncInstallCallbackInfo *asyncCallbackInfo);

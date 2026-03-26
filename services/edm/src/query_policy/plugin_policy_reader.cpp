@@ -187,6 +187,7 @@
 #include "parameters.h"
 #include "snapshot_skip_query.h"
 #include "disallow_modify_wallpaper_query.h"
+#include "get_installed_bundle_storage_stats_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -724,6 +725,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::GET_BUNDLE_STORAGE_STATS:
+            obj = std::make_shared<GetInstalledBundleStorageStatsQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE:
             obj = std::make_shared<DisallowVirtualServiceQuery>();
             return ERR_OK;
