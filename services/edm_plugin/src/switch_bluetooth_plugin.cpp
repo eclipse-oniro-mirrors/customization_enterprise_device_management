@@ -56,5 +56,10 @@ ErrCode SwitchBluetoothPlugin::OnSetPolicy(bool &isOpen)
     }
     return ERR_OK;
 }
+
+SwitchBluetoothPlugin::~SwitchBluetoothPlugin()
+{
+    Bluetooth::BluetoothHost::GetDefaultHost().Close();
+}
 } // namespace EDM
 } // namespace OHOS
