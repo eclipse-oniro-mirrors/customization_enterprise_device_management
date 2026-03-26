@@ -79,6 +79,8 @@ const std::string PERMISSION_GET_BUNDLE_INFO_PRIVILEGED = "ohos.permission.GET_B
 const std::string PERMISSION_REPORT_RESOURCE_SCHEDULE_EVENT = "ohos.permission.REPORT_RESOURCE_SCHEDULE_EVENT";
 const std::string PERMISSION_ACCESS_SYSTEM_SETTINGS = "ohos.permission.ACCESS_SYSTEM_SETTINGS";
 const std::string PERMISSION_GET_NETWORK_STATS = "ohos.permission.GET_NETWORK_STATS";
+const std::string PERMISSION_MANAGE_WIFI_HOTSPOT = "ohos.permission.MANAGE_WIFI_HOTSPOT";
+
 void Utils::ExecCmdSync(const std::string &cmd)
 {
     FILE *fp = popen(cmd.c_str(), "r");
@@ -168,8 +170,8 @@ void Utils::SetEdmPermissions()
         PERMISSION_GET_BUNDLE_INFO_PRIVILEGED.c_str(),
         PERMISSION_REPORT_RESOURCE_SCHEDULE_EVENT.c_str(),
         PERMISSION_ACCESS_SYSTEM_SETTINGS.c_str(),
-        PERMISSION_GET_NETWORK_STATS.c_str()
-
+        PERMISSION_GET_NETWORK_STATS.c_str(),
+        PERMISSION_MANAGE_WIFI_HOTSPOT.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 }
