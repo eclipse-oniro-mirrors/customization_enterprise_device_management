@@ -26,6 +26,10 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedP2PPlugin, bool>> ptr) override;
 
 private:
+    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId) override;
+
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId) override;
+
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM

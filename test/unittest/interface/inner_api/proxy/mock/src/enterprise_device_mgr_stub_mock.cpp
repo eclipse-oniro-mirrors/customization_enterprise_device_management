@@ -23,6 +23,7 @@
 #include "firewall_rule.h"
 #include "http_proxy.h"
 #include "iptables_utils.h"
+#include "net_stats_utils.h"
 #include "os_account_info.h"
 #include "update_policy_utils.h"
 #include "usb_device_id.h"
@@ -575,6 +576,18 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsEmpty(uin
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(0);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeNetStatsInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeNetStatsInfoSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    NetStatsInfo netStatsInfo;
+    netStatsInfo.Marshalling(reply);
+
     return 0;
 }
 

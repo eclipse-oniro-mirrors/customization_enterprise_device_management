@@ -29,7 +29,11 @@ ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeP
         currentData = data;
         return ERR_OK;
     }
-    ErrCode ret = SetOtherModulePolicy(data, userId);
+    ErrCode ret = CheckConflictPolicy();
+    if (FAILED(ret)) {
+        return ret;
+    }
+    ret = SetOtherModulePolicy(data, userId);
     if (FAILED(ret)) {
         return ret;
     }
@@ -63,6 +67,11 @@ ErrCode BasicBoolPlugin::OnAdminRemove(const std::string &adminName, bool &data,
 }
 
 ErrCode BasicBoolPlugin::RemoveOtherModulePolicy(int32_t userId)
+{
+    return ERR_OK;
+}
+
+ErrCode BasicBoolPlugin::CheckConflictPolicy()
 {
     return ERR_OK;
 }

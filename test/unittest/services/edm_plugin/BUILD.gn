@@ -207,6 +207,7 @@ ohos_unittest("EdmPluginTest") {
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
     external_deps += [
       "netmanager_base:net_conn_manager_if",
+      "netmanager_base:net_stats_manager_if",
       "core_service:tel_core_service_api",
     ]
     sources += [
@@ -228,6 +229,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/network/rule/domain_chain_rule_test.cpp",
       "./src/network/rule/firewall_chain_rule_test.cpp",
       "./src/network_manager_plugin_test.cpp",
+      "./src/query_traffic_stats_plugin_test.cpp",
       "./src/set_network_interface_config_plugin_test.cpp"
     ]
   }
@@ -362,11 +364,16 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
       "../../../../services/edm_plugin/src/set_key_code_plugin.cpp",
+      "./src/hidden_settings_menu_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/hidden_settings_menu_plugin.cpp",
     ]
   }
 
   if (notification_edm_enable) {
-    sources += [ "./src/disallowed_notification_plugin_test.cpp" ]
+    sources += [
+      "./src/disallowed_notification_plugin_test.cpp",
+      "./src/allowed_notification_bundles_plugin_test.cpp",
+    ]
   }
 
   if (netmanager_ext_edm_enable) {
@@ -624,6 +631,7 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [
       "netmanager_base:net_conn_manager_if",
       "netmanager_base:net_policy_manager_if",
+      "netmanager_base:net_stats_manager_if",
       "netmanager_base:netsys_controller",
       "netmanager_ext:ethernet_manager_if",
     ]
@@ -655,6 +663,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/permission_managed_state_serializer.cpp",
       "../../../../services/edm_plugin/src/set_permission_managed_state_plugin.cpp",
       "../../../../services/edm_plugin/src/set_network_interface_config_plugin.cpp",
+      "../../../../services/edm_plugin/src/query_traffic_stats_plugin.cpp",
     ]
   }
 
@@ -821,7 +830,10 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
   }
 
   if (notification_edm_enable) {
-    sources += [ "../../../../services/edm_plugin/src/disallowed_notification_plugin.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disallowed_notification_plugin.cpp",
+      "../../../../services/edm_plugin/src/allowed_notification_bundles_plugin.cpp",
+    ]
   }
 
   if (netmanager_ext_edm_enable) {

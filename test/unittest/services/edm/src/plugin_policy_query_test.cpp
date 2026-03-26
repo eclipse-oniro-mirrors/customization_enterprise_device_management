@@ -616,6 +616,8 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableMtpServerQuery002, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "disabled_mtp_server");
 }
 
@@ -1060,6 +1062,8 @@ HWTEST_F(PluginPolicyQueryTest, TestUsbReadOnlyQuery004, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_USB);
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == "usb_read_only");
 }
 

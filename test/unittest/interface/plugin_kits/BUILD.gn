@@ -31,6 +31,8 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "./utils/array_int_serializer_test.cpp",
     "./utils/cjson_serializer_test.cpp",
     "./utils_test.cpp",
+    "./basic_array_int_plugin_test.cpp",
+    "./basic_array_string_plugin_test.cpp",
   ]
 
   configs = [

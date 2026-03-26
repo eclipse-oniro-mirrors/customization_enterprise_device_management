@@ -22,10 +22,13 @@ ohos_unittest("EdmInnerApiUnitTest") {
   include_dirs = [
     "./proxy/mock/include",
     "../../common/mock/include",
+    "../../../../interfaces/inner_api/application_manager/include/net_stats_utils.h",
   ]
 
   sources = [
+    "../../../../interfaces/inner_api/application_manager/src/net_stats_utils.cpp",
     "../../common/mock/src/edm_sys_manager_mock.cpp",
+    "./application_manager/src/net_stats_utils_test.cpp",
     "./common/domain_account_policy_test.cpp",
     "./common/ent_info_test.cpp",
     "./proxy/bundle_storage_info_test.cpp",

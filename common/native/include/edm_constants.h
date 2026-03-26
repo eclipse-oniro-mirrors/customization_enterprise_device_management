@@ -457,6 +457,7 @@ namespace PolicyName {
     const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
     const char* const POLICY_ADD_DOCK_APP = "dock_info";
     const char* const POLICY_DISALLOWED_P2P = "disallowed_p2p";
+    const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

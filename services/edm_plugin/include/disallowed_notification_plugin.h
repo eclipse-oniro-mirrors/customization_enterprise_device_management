@@ -25,6 +25,9 @@ class DisallowedNotificationPlugin : public PluginSingleton<DisallowedNotificati
     public BasicBoolPlugin {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNotificationPlugin, bool>> ptr) override;
+
+private:
+    ErrCode CheckConflictPolicy() override;
 };
 } // namespace EDM
 } // namespace OHOS

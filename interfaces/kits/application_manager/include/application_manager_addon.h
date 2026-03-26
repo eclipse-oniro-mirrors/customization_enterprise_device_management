@@ -25,6 +25,7 @@
 #include "napi/native_api.h"
 #include "want.h"
 #include "napi_edm_element_name.h"
+#include "net_stats_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -32,6 +33,12 @@ struct AsyncDisallowedRunningBundlesCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     std::vector<std::string> appIds;
     int32_t userId = 0;
+};
+
+struct AsyncQueryTrafficStatsCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    NetStatsNetwork networkInfo;
+    NetStatsInfo netStatsInfo;
 };
 
 class ApplicationManagerAddon {
@@ -77,6 +84,7 @@ public:
     static napi_value AddAllowedNotificationBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedNotificationBundles(napi_env env, napi_callback_info info);
     static napi_value GetAllowedNotificationBundles(napi_env env, napi_callback_info info);
+    static napi_value QueryTrafficStats(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
@@ -104,6 +112,9 @@ private:
     static void SetBaseDataForGetPolicy(int32_t userId, MessageParcel &data);
     static void JoinParcelData(MessageParcel &parcelData, int32_t userId,
         OHOS::AppExecFwk::ElementName &elementName, std::vector<OHOS::EDM::EdmElementName> autoStartApps);
+    static bool ParseNetworkInfo(napi_env env, NetStatsNetwork &networkInfo, napi_value args);
+    static void NativeQueryTrafficStats(napi_env env, void *data);
+    static void NativeQueryTrafficStatsComplete(napi_env env, napi_status status, void *data);
 #ifdef FEATURE_PC_ONLY
     static void ConvertDockInfoVectorToJs(napi_env env, const std::vector<DockInfo> &dockInfos, napi_value &nDockInfos);
 #endif

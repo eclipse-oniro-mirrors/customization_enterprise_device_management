@@ -70,6 +70,22 @@ INSTANTIATE_TEST_CASE_P(TestWithParam, HapCallPluginSetPolicySuccessTest, testin
         AdminType::ENT, true, "", EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY),
     TestParam(EdmInterfaceCode::ADD_OS_ACCOUNT, AddOsAccountPlugin::GetPlugin(),
         AdminType::ENT, false, "", EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::ENT, false, "", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::ENT, true, "", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::BYOD, false, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
+        AdminType::BYOD, true, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::USB_READ_ONLY, std::make_shared<UsbReadOnlyPlugin>(),
+        AdminType::ENT, false, "", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB),
+    TestParam(EdmInterfaceCode::USB_READ_ONLY, std::make_shared<UsbReadOnlyPlugin>(),
+        AdminType::ENT, true, "", EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB),
+    TestParam(EdmInterfaceCode::USB_READ_ONLY, std::make_shared<UsbReadOnlyPlugin>(),
+        AdminType::BYOD, false, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
+    TestParam(EdmInterfaceCode::USB_READ_ONLY, std::make_shared<UsbReadOnlyPlugin>(),
+        AdminType::BYOD, true, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
 })));
 
 /**

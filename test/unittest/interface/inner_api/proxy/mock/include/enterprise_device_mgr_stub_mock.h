@@ -213,6 +213,9 @@ public:
     int InvokeSendRequestGetBundleStorageStatsEmpty(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeNetStatsInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     uint32_t code_ = 0;
 };
 } // namespace EDM
