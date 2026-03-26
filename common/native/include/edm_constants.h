@@ -201,6 +201,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
         const char* const LABEL_DISALLOWED_POLICY_P2P = "wifiP2P";
+        const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -456,6 +457,7 @@ namespace PolicyName {
     const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
     const char* const POLICY_ADD_DOCK_APP = "dock_info";
     const char* const POLICY_DISALLOWED_P2P = "disallowed_p2p";
+    const char* const POLICY_DISALLOWED_MULTI_WINDOW = "disallowed_multi_window";
     const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
 } // namespace PolicyName
 } // namespace EDM

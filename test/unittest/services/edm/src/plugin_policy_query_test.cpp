@@ -27,6 +27,10 @@
 #include "disable_private_space_query.h"
 #endif
 
+#ifdef MULTI_WINDOW_EDM_ENABLE
+#include "disallow_multi_window_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_bluetooth_devices_query.h"
 #include "allowed_running_bundles_query.h"
@@ -2562,6 +2566,48 @@ HWTEST_F(PluginPolicyQueryTest, TestInstallLocalEnterpriceAppEnabledForAccountQu
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT);
+}
+#endif
+
+#ifdef MULTI_WINDOW_EDM_ENABLE
+/**
+ * @tc.name: TestDisallowMultiWindowQuery001
+ * @tc.desc: Test DisallowMultiWindowQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowMultiWindowQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowMultiWindowQuery>();
+    std::string policyData("false");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = true;
+    reply.ReadBool(result);
+    ASSERT_TRUE(!result);
+}
+ 
+/**
+ * @tc.name: TestDisallowMultiWindowQuery002
+ * @tc.desc: Test DisallowMultiWindowQuery::QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowMultiWindowQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowMultiWindowQuery>();
+    std::string policyData("true");
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
 }
 #endif
 } // namespace TEST
