@@ -29,7 +29,7 @@ ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeP
         currentData = data;
         return ERR_OK;
     }
-    ErrCode ret = CheckConflictPolicy();
+    ErrCode ret = CheckConflictPolicy(data, userId);
     if (FAILED(ret)) {
         return ret;
     }
@@ -71,7 +71,7 @@ ErrCode BasicBoolPlugin::RemoveOtherModulePolicy(int32_t userId)
     return ERR_OK;
 }
 
-ErrCode BasicBoolPlugin::CheckConflictPolicy()
+ErrCode BasicBoolPlugin::CheckConflictPolicy(bool data, int32_t userId)
 {
     return ERR_OK;
 }

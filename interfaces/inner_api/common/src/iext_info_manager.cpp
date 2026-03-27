@@ -13,31 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EXT_INFO_MANAGER_H
-#define SERVICES_EDM_INCLUDE_EXT_INFO_MANAGER_H
-
-#include <vector>
-
-#include "message_parcel.h"
-
-#include "ext_info_type.h"
 #include "iext_info_manager.h"
-#include "notification_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class ExtInfoManager : IExtInfoManager {
-public:
-    std::vector<std::string> GetAgCommonEventName();
-
-    std::string GetAdminProvisioningInfo();
-
-    WantAgentInfo GetWantAgentInfo();
-
-    std::string GetSuperHubInfo() override;
-
-    ErrCode GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply);
-};
+std::string IExtInfoManager::GetSuperHubInfo()
+{
+    return "";
+}
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_EXT_INFO_MANAGER_H

@@ -378,6 +378,38 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestSetOtherModulePolicy, TestSize.Lev
         ASSERT_TRUE(ret == ERR_OK);
     }
 }
+
+/**
+ * @tc.name: TestHasConflictPolicyWithEmptyData
+ * @tc.desc: Test ManageUserNonStopAppsPlugin::HasConflictPolicy with empty data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageUserNonStopAppsPluginTest, TestHasConflictPolicyWithEmptyData, TestSize.Level1)
+{
+    ManageUserNonStopAppsPlugin plugin;
+    std::vector<ApplicationInstance> nonStopApps;
+    bool hasConflict = true;
+    
+    ErrCode ret = plugin.HasConflictPolicy(nonStopApps, hasConflict);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(hasConflict);
+}
+
+/**
+ * @tc.name: TestHasConflictPolicyWithoutDisabledSuperhub
+ * @tc.desc: Test ManageUserNonStopAppsPlugin::HasConflictPolicy when disabled_superhub is false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageUserNonStopAppsPluginTest, TestHasConflictPolicyWithoutDisabledSuperhub, TestSize.Level1)
+{
+    ManageUserNonStopAppsPlugin plugin;
+    std::vector<ApplicationInstance> nonStopApps = { { "test_app_id", "com.test.app", 100, 0 } };
+    bool hasConflict = true;
+    
+    ErrCode ret = plugin.HasConflictPolicy(nonStopApps, hasConflict);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(hasConflict);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

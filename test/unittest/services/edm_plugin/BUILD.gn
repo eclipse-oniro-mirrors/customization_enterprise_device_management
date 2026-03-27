@@ -686,7 +686,6 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
       "../../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
       "../../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
-      "../../../../services/edm_plugin/src/utils/manage_apps_serializer.cpp",
     ]
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H
+#ifndef INTERFACES_INNER_API_COMMON_INCLUDE_IEXT_INFO_MANAGER_H
+#define INTERFACES_INNER_API_COMMON_INCLUDE_IEXT_INFO_MANAGER_H
 
-#include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
+#include <string>
 
 namespace OHOS {
 namespace EDM {
-class DisallowedNotificationPlugin : public PluginSingleton<DisallowedNotificationPlugin, bool>,
-    public BasicBoolPlugin {
+class IExtInfoManager {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNotificationPlugin, bool>> ptr) override;
-
-private:
-    ErrCode CheckConflictPolicy(bool data, int32_t userId) override;
+    virtual std::string GetSuperHubInfo();
 };
+
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H
+#endif // INTERFACES_INNER_API_COMMON_INCLUDE_IEXT_INFO_MANAGER_H

@@ -502,7 +502,6 @@ ohos_shared_library("sys_service_plugin") {
       "./src/clear_up_application_data_plugin.cpp",
       "./src/utils/clear_up_application_data_param_serializer.cpp",
       "./src/manage_user_non_stop_apps_plugin.cpp",
-      "./src/utils/manage_apps_serializer.cpp",
     ]
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     if (update_service_edm_enable) {

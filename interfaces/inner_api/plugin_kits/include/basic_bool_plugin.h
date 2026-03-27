@@ -31,7 +31,7 @@ protected:
 
     virtual ErrCode RemoveOtherModulePolicy(int32_t userId);
 
-    virtual ErrCode CheckConflictPolicy();
+    virtual ErrCode CheckConflictPolicy(bool data, int32_t userId);
 
     std::string persistParam_;
 };

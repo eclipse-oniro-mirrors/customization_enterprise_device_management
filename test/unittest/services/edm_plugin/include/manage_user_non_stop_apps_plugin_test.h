@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include "manage_user_non_stop_apps_plugin.h"
+#include "edm_os_account_manager_impl_mock.h"
 
 namespace OHOS {
 namespace EDM {
@@ -27,6 +28,8 @@ protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+    std::shared_ptr<EdmOsAccountManagerImplMock> osAccountMgrMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
 };
 } // namespace TEST
 } // namespace EDM

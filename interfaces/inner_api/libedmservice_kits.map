@@ -107,6 +107,10 @@
             vtable?for?OHOS::EDM::UpgradePackageInfoSerializer;
             OHOS::EDM::AllowedNotificationBundlesSerializer::*;
             vtable?for?OHOS::EDM::AllowedNotificationBundlesSerializer;
+            OHOS::EDM::ManageAppsSerializer::*;
+            vtable?for?OHOS::EDM::ManageAppsSerializer;
+            OHOS::EDM::IExtInfoManager::*;
+            vtable?for?OHOS::EDM::IExtInfoManager;
             OHOS::EDM::NetStatsNetwork::*;
             OHOS::EDM::NetStatsInfo::*;
         };
