@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,33 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-{
-  "app": {
-    "products": [
-      {
-        "name": "default",
-        "compileSdkVersion": 26,
-        "compatibleSdkVersion": 20,
-        "targetSdkVersion": 20,
-        "runtimeOS": "OpenHarmony",
-        "signingConfig": "default"
-      }
-    ],
-    "signingConfigs": [
-    ]
-  },
-  "modules": [
-    {
-      "name": "entry",
-      "srcPath": "./entry",
-      "targets": [
-        {
-          "name": "default",
-          "applyToProducts": [
-            "default"
-          ]
-        }
-      ]
-    }
-  ]
-}
+
+#ifndef INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_BUNDLE_STATS_INFO_H
+#define INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_BUNDLE_STATS_INFO_H
+
+#include <string>
+
+namespace OHOS {
+namespace EDM {
+struct BundleStatsInfo {
+    std::string bundleName;
+    int32_t abilityInFgTotalTime;
+    int32_t appIndex;
+};
+} // namespace EDM
+} // namespace OHOS
+#endif // INTERFACES_INNER_API_APPLICATION_MANAGER_INCLUDE_BUNDLE_STATS_INFO_H

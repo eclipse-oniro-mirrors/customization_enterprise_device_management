@@ -591,5 +591,22 @@ int EnterpriseDeviceMgrStubMock::InvokeNetStatsInfoSendRequestGetPolicy(uint32_t
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStatsInfos(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetBundleStatsInfos code :" << code;
+    code_ = code;
+
+    const int32_t size = 1;
+    const int64_t abilityInFgTotalTime = 100;
+    const int32_t accountId = 100;
+
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(size);
+    reply.WriteString("com.test.bundle");
+    reply.WriteInt64(abilityInFgTotalTime);
+    reply.WriteInt32(accountId);
+    return 0;
+}
 } // namespace EDM
 } // namespace OHOS

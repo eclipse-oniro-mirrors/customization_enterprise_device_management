@@ -47,6 +47,7 @@ public:
     ErrCode GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
     ErrCode GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
     ErrCode GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
+    ErrCode GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
 
 private:
     static std::shared_ptr<PluginPolicyReader> instance_;
