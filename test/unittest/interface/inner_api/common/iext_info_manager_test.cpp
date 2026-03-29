@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,34 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H
+#include <gtest/gtest.h>
+#include <string>
 
-#include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
+#include "iext_info_manager.h"
+
+using namespace testing::ext;
 
 namespace OHOS {
 namespace EDM {
-class DisallowedNotificationPlugin : public PluginSingleton<DisallowedNotificationPlugin, bool>,
-    public BasicBoolPlugin {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNotificationPlugin, bool>> ptr) override;
+namespace TEST {
+class IExtInfoManagerTest : public testing::Test {
+protected:
+    void SetUp() override {}
 
-private:
-    ErrCode CheckConflictPolicy(bool data, int32_t userId) override;
+    void TearDown() override {}
 };
+
+/**
+ * @tc.name: TestGetSuperHubInfo
+ * @tc.desc: Test GetSuperHubInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IExtInfoManagerTest, TestGetSuperHubInfo, TestSize.Level1)
+{
+    IExtInfoManager extInfoManager;
+    std::string ret = extInfoManager.GetSuperHubInfo();
+    EXPECT_EQ(ret, "");
+}
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H

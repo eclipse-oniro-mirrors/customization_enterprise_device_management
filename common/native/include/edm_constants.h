@@ -133,6 +133,7 @@ namespace EdmConstants {
         constexpr uint32_t GET_EXT_INFO = 29;
         constexpr uint32_t START_COLLECT_LOG = 30;
         constexpr uint32_t SET_KEY_EVENTS = 31;
+        constexpr uint32_t DISABLE_SUPERHUB = 36;
     }
 
     namespace KeepAlive {
@@ -201,6 +202,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
         const char* const LABEL_DISALLOWED_POLICY_P2P = "wifiP2P";
+        const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
     } // namespace Restrictions
 
@@ -460,6 +462,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_P2P = "disallowed_p2p";
     const char* const POLICY_DISALLOWED_MULTI_WINDOW = "disallowed_multi_window";
     const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
+    const char* const POLICY_DISABLED_SUPERHUB = "disabled_superhub";
     const char* const POLICY_QUERY_BUNDLE_STATS_INFOS = "query_bundle_stats_infos";
 } // namespace PolicyName
 } // namespace EDM

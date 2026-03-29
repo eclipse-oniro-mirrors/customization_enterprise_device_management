@@ -42,17 +42,17 @@ void DisallowedNotificationPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Di
     persistParam_ = "persist.edm.notification_disable";
 }
 
-ErrCode DisallowedNotificationPlugin::CheckConflictPolicy()
+ErrCode DisallowedNotificationPlugin::CheckConflictPolicy(bool data, int32_t userId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_NOTIFICATION_BUNDLES,
         policyData, EdmConstants::DEFAULT_USER_ID);
-    std::vector<AllowedNotificationBundlesType> data;
-    if (!AllowedNotificationBundlesSerializer::GetInstance()->Deserialize(policyData, data)) {
+    std::vector<AllowedNotificationBundlesType> allowData;
+    if (!AllowedNotificationBundlesSerializer::GetInstance()->Deserialize(policyData, allowData)) {
         EDMLOGE("DisallowedNotificationPlugin::SetOtherModulePolicy Deserialize error");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (data.size() > 0) {
+    if (allowData.size() > 0) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     return ERR_OK;

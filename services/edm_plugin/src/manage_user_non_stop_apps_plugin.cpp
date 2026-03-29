@@ -35,6 +35,7 @@
 #include "edm_data_ability_utils.h"
 #include "wm_common.h"
 #include "edm_os_account_manager_impl.h"
+#include "iext_info_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -120,6 +121,15 @@ ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationInstance
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
+    bool isConflict = false;
+    if (FAILED(HasConflictPolicy(needAddMergeData, isConflict))) {
+        EDMLOGE("ManageUserNonStopAppsPlugin::OnSetPolicy, HasConflictPolicy failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (isConflict) {
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+
     if (!needAddMergeData.empty()) {
         ErrCode ret = SetOtherModulePolicy(afterHandle);
         if (FAILED(ret)) {
@@ -130,6 +140,46 @@ ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationInstance
 
     currentData = afterHandle;
     mergeData = afterMerge;
+    return ERR_OK;
+}
+
+ErrCode ManageUserNonStopAppsPlugin::HasConflictPolicy(std::vector<ApplicationInstance> nonStopApps, bool &hasConflict)
+{
+    hasConflict = false;
+    if (nonStopApps.empty()) {
+        return ERR_OK;
+    }
+
+    // appIdentifier在不同的accountId下都一样，所以直接获取100下的
+    IExtInfoManager extInfoManager;
+    std::string SUPER_HUB_BUNDLE_NAME = extInfoManager.GetSuperHubInfo();
+    std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(SUPER_HUB_BUNDLE_NAME,
+        EdmConstants::DEFAULT_USER_ID);
+    if (appIdentifier.empty()) {
+        EDMLOGE("ManageUserNonStopAppsPlugin GetBundleInfo failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    std::vector<int32_t> ids;
+    ErrCode accountRet = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
+    if (FAILED(accountRet) || ids.empty()) {
+        EDMLOGE("ManageUserNonStopAppsPlugin QueryActiveOsAccountIds failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (int32_t accountId : ids) {
+        std::string disableSuperHubValue;
+        IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLED_SUPERHUB, disableSuperHubValue,
+            accountId);
+        if (disableSuperHubValue != "true") {
+            continue;
+        }
+        if (std::find_if(nonStopApps.begin(), nonStopApps.end(), [&](const ApplicationInstance &nonStopApp) {
+            return nonStopApp.accountId == accountId && nonStopApp.appIdentifier == appIdentifier;
+        }) != nonStopApps.end()) {
+            hasConflict = true;
+            break;
+        }
+    }
     return ERR_OK;
 }
 

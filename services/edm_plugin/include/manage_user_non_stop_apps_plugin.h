@@ -52,6 +52,7 @@ private:
     ErrCode OnRemovePolicy(std::vector<ApplicationInstance> &data,
         std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
     ErrCode SetOtherModulePolicy(const std::vector<ApplicationInstance> &userNonStopApps);
+    ErrCode HasConflictPolicy(std::vector<ApplicationInstance>nonStopApps, bool &hasConflict);
     ErrCode ConvertAppPolicyToJsonStr(const ApplicationInstance &userNonStopApps, std::string &appPolicyJsonStr);
     ErrCode ReportLockSession(const std::vector<ApplicationInstance> &userNonStopAppInfo, bool isLocked);
     void GetSessionParam(const ApplicationInstance &userNonStopAppInfo, std::vector<Rosen::AbilityInfoBase> &infoBase);

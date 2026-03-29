@@ -23,6 +23,7 @@ enum class ExtInfoType {
     AG_EVENT_AND_PERMISSION = 0,
     ADMIN_PROVISIONING_INFO = 1,
     SETTINGS_DEVICE_MANAGEMENT = 2,
+    SUPERHUB_INFO = 3,
 };
 } // namespace EDM
 } // namespace OHOS

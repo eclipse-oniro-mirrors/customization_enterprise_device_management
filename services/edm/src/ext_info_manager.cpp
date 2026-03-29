@@ -57,6 +57,20 @@ WantAgentInfo ExtInfoManager::GetWantAgentInfo()
     return wantAgentInfo;
 }
 
+std::string ExtInfoManager::GetSuperHubInfo()
+{
+    MessageParcel reply;
+    if (FAILED(GetExtInfo(ExtInfoType::SUPERHUB_INFO, reply))) {
+        return "";
+    }
+    int32_t res = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(res) || FAILED(res)) {
+        EDMLOGE("ExtInfoManager::GetSuperHubInfo failed, %{public}d", res);
+        return "";
+    }
+    return reply.ReadString();
+}
+
 ErrCode ExtInfoManager::GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply)
 {
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);
