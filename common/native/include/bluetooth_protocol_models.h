@@ -17,6 +17,7 @@
 #define COMMON_NATIVE_INCLUDE_BLUETOOTH_PROTOCOL_MODELS_H
 
 #include <map>
+#include <string>
 
 namespace OHOS {
 namespace EDM {
@@ -25,6 +26,12 @@ enum class BtProtocol {
     SPP = 1,
     OPP = 2,
 };
+
+namespace BtProtocolStr {
+    const std::string GATT = "GATT";
+    const std::string SPP = "SPP";
+    const std::string OPP = "OPP";
+}
 
 enum class TransferPolicy {
     SEND_ONLY = 0,

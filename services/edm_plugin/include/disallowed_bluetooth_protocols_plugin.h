@@ -39,6 +39,20 @@ private:
     void NotifyBluetoothProtocolsChanged();
     bool ReadMergeDataFromFile(BluetoothProtocolPolicy &mergeData);
     bool WriteMergeDataToFile(const BluetoothProtocolPolicy &mergeData);
+    void ConvertProtocolListToInt(const std::vector<std::string> &protocolList, std::vector<int32_t> &protocols);
+    void GetSendOnlyProtocols(const BluetoothProtocolPolicy &mergeDataFromFile, int32_t accountId,
+        std::vector<int32_t> &protocols);
+    void GetReceiveOnlyProtocols(const BluetoothProtocolPolicy &mergeDataFromFile, int32_t accountId,
+        std::vector<int32_t> &protocols);
+    void GetReceiveSendProtocols(const BluetoothProtocolPolicy &mergeDataFromFile, int32_t accountId,
+        std::vector<int32_t> &protocols);
+    bool CreateBluetoothConfigDir(const std::string dir);
+    void RemoveProtocolsFromPolicy(const std::map<int32_t, std::vector<std::string>> &source,
+        std::map<int32_t, std::vector<std::string>> &target);
+    void RemoveUnusedProtocolsFromFile(const std::map<int32_t, std::vector<std::string>> &data,
+        const std::map<int32_t, std::vector<std::string>> &mergeData,
+        std::map<int32_t, std::vector<std::string>> &mergeDataFromFile);
+    bool ValidateBluetoothProtocolPolicy(const BluetoothProtocolPolicy &policy);
 };
 } // namespace EDM
 } // namespace OHOS

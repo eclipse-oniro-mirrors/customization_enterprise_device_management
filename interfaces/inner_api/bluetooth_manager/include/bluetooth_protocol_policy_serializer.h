@@ -42,6 +42,18 @@ public:
 private:
     static const std::unordered_map<BtProtocol, std::string> protocolToStrMap;
     static const std::unordered_map<std::string, BtProtocol> strToProtocolMap;
+    int32_t accountId_ = 100;
+
+    void ParseProtocolDenyList(cJSON* denyList, std::map<int32_t, std::vector<std::string>>& result);
+    void ProcessProtocolEntry(cJSON* entry, std::map<int32_t, std::vector<std::string>>& denyList);
+    void ProcessProtocolArray(cJSON* protocolArray, std::vector<std::string>& protocolNames);
+    void BuildProtocolDenyList(const std::map<int32_t, std::vector<std::string>>& protocolList,
+        cJSON* parent, const char* key);
+    bool HandleDisallowedProtocols(int32_t accountId, const std::vector<std::string>& protocolStrs,
+        BluetoothProtocolPolicy& result);
+    bool HandleDisallowedWithPolicy(int32_t accountId, const std::vector<std::string>& protocolStrs,
+        int32_t transferPolicy, BluetoothProtocolPolicy& result);
+    void ParseLegacyProtocolArray(cJSON* array, std::map<int32_t, std::vector<std::string>>& result);
 };
 }
 }

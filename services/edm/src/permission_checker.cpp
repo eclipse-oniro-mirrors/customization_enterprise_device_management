@@ -94,6 +94,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT,
     EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES,
+    EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

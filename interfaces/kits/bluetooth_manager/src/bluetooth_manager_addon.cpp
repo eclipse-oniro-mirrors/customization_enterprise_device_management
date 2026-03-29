@@ -55,6 +55,10 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nProtocol));
     CreateProtocolObject(env, nProtocol);
 
+    napi_value nTransferPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nTransferPolicy));
+    CreateTransferPolicyObject(env, nTransferPolicy);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getBluetoothInfo", GetBluetoothInfo),
         DECLARE_NAPI_FUNCTION("setBluetoothDisabled", SetBluetoothDisabled),
@@ -72,6 +76,7 @@ napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeDisallowedBluetoothProtocols", RemoveDisallowedBluetoothProtocols),
 
         DECLARE_NAPI_PROPERTY("Protocol", nProtocol),
+        DECLARE_NAPI_PROPERTY("TransferPolicy", nTransferPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -405,6 +410,21 @@ void BluetoothManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
     napi_value nOpp;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(BtProtocol::OPP), &nOpp));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "OPP", nOpp));
+}
+
+void BluetoothManagerAddon::CreateTransferPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nSendOnly;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(TransferPolicy::SEND_ONLY), &nSendOnly));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SEND_ONLY", nSendOnly));
+    napi_value nReceiveOnly;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(TransferPolicy::RECEIVE_ONLY), &nReceiveOnly));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RECEIVE_ONLY", nReceiveOnly));
+    napi_value nReceiveSend;
+    NAPI_CALL_RETURN_VOID(env,
+        napi_create_uint32(env, static_cast<uint32_t>(TransferPolicy::RECEIVE_SEND), &nReceiveSend));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RECEIVE_SEND", nReceiveSend));
 }
 
 static napi_module g_bluetoothModule = {

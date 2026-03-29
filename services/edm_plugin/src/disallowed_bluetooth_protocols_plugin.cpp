@@ -20,6 +20,7 @@
 #include "bluetooth_protocol_policy_serializer.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "directory_ex.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -31,6 +32,11 @@
 namespace OHOS {
 namespace EDM {
 const std::string CONFIG_PATH = "/data/service/el1/public/edm/config/system/all/bluetooth/config.json";
+const std::string CONFIG_SYSTEM_ALL_DIR = "/data/service/el1/public/edm/config/system/all";
+const std::string BLUETOOTH_DIR = "bluetooth";
+const std::string SEPARATOR = "/";
+constexpr int32_t EDM_UID = 3057;
+constexpr int32_t EDM_GID = 3057;
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedBluetoothProtocolsPlugin::GetPlugin());
 
 void DisallowedBluetoothProtocolsPlugin::InitPlugin(
@@ -53,6 +59,13 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnSetPolicy(BluetoothProtocolPolicy 
     BluetoothProtocolPolicy &currentData, BluetoothProtocolPolicy &mergeData, int32_t userId)
 {
     EDMLOGI("DisallowedBluetoothProtocolsPlugin OnSetPolicy");
+    
+    // 参数校验：accountId需要大于等于0，协议列表不能全部为空
+    if (!ValidateBluetoothProtocolPolicy(data)) {
+        EDMLOGE("DisallowedBluetoothProtocolsPlugin OnSetPolicy validate policy failed");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    
     auto serializer = BluetoothProtocolPolicySerializer::GetInstance();
     std::vector<BluetoothProtocolPolicy> adminValues = {currentData, data};
     BluetoothProtocolPolicy afterHandle;
@@ -87,18 +100,31 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnRemovePolicy(BluetoothProtocolPoli
 {
     EDMLOGI("DisallowedBluetoothProtocolsPlugin OnRemovePolicy");
     
-    BluetoothProtocolPolicy afterHandle = currentData;
-    if (data.protocolDenyList.count(userId) > 0) {
-        for (const auto &protocol : data.protocolDenyList[userId]) {
-            auto it = std::find(afterHandle.protocolDenyList[userId].begin(),
-                afterHandle.protocolDenyList[userId].end(), protocol);
-            if (it != afterHandle.protocolDenyList[userId].end()) {
-                afterHandle.protocolDenyList[userId].erase(it);
-            }
-        }
+    // 参数校验：accountId需要大于等于0，协议列表不能全部为空
+    if (!ValidateBluetoothProtocolPolicy(data)) {
+        EDMLOGE("DisallowedBluetoothProtocolsPlugin OnRemovePolicy validate policy failed");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
+    
+    BluetoothProtocolPolicy afterHandle = currentData;
+    
+    // 从currentData中删除data中指定的协议（currentData - data）
+    RemoveProtocolsFromPolicy(data.protocolDenyList, afterHandle.protocolDenyList);
+    RemoveProtocolsFromPolicy(data.protocolRecDenyList, afterHandle.protocolRecDenyList);
+    
+    BluetoothProtocolPolicy mergeDataFromFile;
+    if (!ReadMergeDataFromFile(mergeDataFromFile)) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    
+    // 从mergeDataFromFile中删除那些在data中存在但不在mergeData中存在的协议
+    RemoveUnusedProtocolsFromFile(data.protocolDenyList, mergeData.protocolDenyList,
+        mergeDataFromFile.protocolDenyList);
+    RemoveUnusedProtocolsFromFile(data.protocolRecDenyList, mergeData.protocolRecDenyList,
+        mergeDataFromFile.protocolRecDenyList);
+    
     auto serializer = BluetoothProtocolPolicySerializer::GetInstance();
-    std::vector<BluetoothProtocolPolicy> mergeValues = {mergeData, afterHandle};
+    std::vector<BluetoothProtocolPolicy> mergeValues = {mergeDataFromFile, mergeData, afterHandle};
     BluetoothProtocolPolicy afterMerge;
     if (!serializer->MergePolicy(mergeValues, afterMerge)) {
         EDMLOGE("DisallowedBluetoothProtocolsPlugin OnRemovePolicy merge failed");
@@ -114,32 +140,142 @@ ErrCode DisallowedBluetoothProtocolsPlugin::OnRemovePolicy(BluetoothProtocolPoli
     return ERR_OK;
 }
 
+void DisallowedBluetoothProtocolsPlugin::RemoveProtocolsFromPolicy(
+    const std::map<int32_t, std::vector<std::string>> &source,
+    std::map<int32_t, std::vector<std::string>> &target)
+{
+    for (const auto& [accountId, protocolsToRemove] : source) {
+        if (target.count(accountId) == 0) {
+            continue;
+        }
+        for (const auto &protocol : protocolsToRemove) {
+            auto it = std::find(target[accountId].begin(), target[accountId].end(), protocol);
+            if (it != target[accountId].end()) {
+                target[accountId].erase(it);
+            }
+        }
+    }
+}
+
+void DisallowedBluetoothProtocolsPlugin::RemoveUnusedProtocolsFromFile(
+    const std::map<int32_t, std::vector<std::string>> &data,
+    const std::map<int32_t, std::vector<std::string>> &mergeData,
+    std::map<int32_t, std::vector<std::string>> &mergeDataFromFile)
+{
+    for (const auto& [accountId, protocolsInData] : data) {
+        auto fileDataIt = mergeDataFromFile.find(accountId);
+        if (fileDataIt == mergeDataFromFile.end()) {
+            continue;
+        }
+        
+        for (const auto &protocol : protocolsInData) {
+            auto mergeDataIt = mergeData.find(accountId);
+            if (mergeDataIt != mergeData.end() &&
+                std::find(mergeDataIt->second.begin(), mergeDataIt->second.end(), protocol) !=
+                mergeDataIt->second.end()) {
+                continue;
+            }
+            auto it = std::find(fileDataIt->second.begin(), fileDataIt->second.end(), protocol);
+            if (it != fileDataIt->second.end()) {
+                fileDataIt->second.erase(it);
+            }
+        }
+    }
+}
+
 ErrCode DisallowedBluetoothProtocolsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("DisallowedBluetoothProtocolsPlugin OnGetPolicy");
+    int32_t type = data.ReadInt32();
     int32_t accountId = data.ReadInt32();
+    if (accountId < 0) {
+        EDMLOGE("DisallowedBluetoothProtocolsPlugin OnGetPolicy validate accountId failed");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    std::vector<int32_t> protocols;
     
     BluetoothProtocolPolicy mergeDataFromFile;
     if (!ReadMergeDataFromFile(mergeDataFromFile)) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     
+    if (type == BluetoothPolicyType::SET_DISALLOWED_PROTOCOLS) {
+        GetSendOnlyProtocols(mergeDataFromFile, accountId, protocols);
+    } else if (type == BluetoothPolicyType::SET_DISALLOWED_PROTOCOLS_WITH_POLICY) {
+        int32_t transferPolicy = data.ReadInt32();
+        if (transferPolicy == static_cast<int32_t>(TransferPolicy::SEND_ONLY)) {
+            GetSendOnlyProtocols(mergeDataFromFile, accountId, protocols);
+        } else if (transferPolicy == static_cast<int32_t>(TransferPolicy::RECEIVE_ONLY)) {
+            GetReceiveOnlyProtocols(mergeDataFromFile, accountId, protocols);
+        } else if (transferPolicy == static_cast<int32_t>(TransferPolicy::RECEIVE_SEND)) {
+            GetReceiveSendProtocols(mergeDataFromFile, accountId, protocols);
+        }
+    } else {
+        EDMLOGE("DisallowedBluetoothProtocolsPlugin::OnGetPolicy type error");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32Vector(protocols);
+    return ERR_OK;
+}
+
+void DisallowedBluetoothProtocolsPlugin::ConvertProtocolListToInt(const std::vector<std::string> &protocolList,
+    std::vector<int32_t> &protocols)
+{
     auto serializer = BluetoothProtocolPolicySerializer::GetInstance();
-    std::vector<int32_t> protocols;
-    if (mergeDataFromFile.protocolDenyList.count(accountId) > 0) {
-        for (const auto &protocol : mergeDataFromFile.protocolDenyList[accountId]) {
+    for (const auto &protocol : protocolList) {
+        int32_t protocolInt;
+        if (!serializer->StrToProtocolInt(protocol, protocolInt)) {
+            continue;
+        }
+        protocols.push_back(protocolInt);
+    }
+}
+
+void DisallowedBluetoothProtocolsPlugin::GetSendOnlyProtocols(const BluetoothProtocolPolicy &mergeDataFromFile,
+    int32_t accountId, std::vector<int32_t> &protocols)
+{
+    auto it = mergeDataFromFile.protocolDenyList.find(accountId);
+    if (it != mergeDataFromFile.protocolDenyList.end()) {
+        ConvertProtocolListToInt(it->second, protocols);
+    }
+}
+
+void DisallowedBluetoothProtocolsPlugin::GetReceiveOnlyProtocols(const BluetoothProtocolPolicy &mergeDataFromFile,
+    int32_t accountId, std::vector<int32_t> &protocols)
+{
+    auto it = mergeDataFromFile.protocolRecDenyList.find(accountId);
+    if (it != mergeDataFromFile.protocolRecDenyList.end()) {
+        ConvertProtocolListToInt(it->second, protocols);
+    }
+}
+
+void DisallowedBluetoothProtocolsPlugin::GetReceiveSendProtocols(const BluetoothProtocolPolicy &mergeDataFromFile,
+    int32_t accountId, std::vector<int32_t> &protocols)
+{
+    std::vector<std::string> sendProtocols;
+    std::vector<std::string> receiveProtocols;
+    
+    auto it = mergeDataFromFile.protocolDenyList.find(accountId);
+    if (it != mergeDataFromFile.protocolDenyList.end()) {
+        sendProtocols = it->second;
+    }
+    auto recvIt = mergeDataFromFile.protocolRecDenyList.find(accountId);
+    if (recvIt != mergeDataFromFile.protocolRecDenyList.end()) {
+        receiveProtocols = recvIt->second;
+    }
+    
+    for (const auto &protocol : sendProtocols) {
+        if (std::find(receiveProtocols.begin(), receiveProtocols.end(), protocol) != receiveProtocols.end()) {
             int32_t protocolInt;
+            auto serializer = BluetoothProtocolPolicySerializer::GetInstance();
             if (!serializer->StrToProtocolInt(protocol, protocolInt)) {
                 continue;
             }
             protocols.push_back(protocolInt);
         }
     }
-    
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32Vector(protocols);
-    return ERR_OK;
 }
 
 ErrCode DisallowedBluetoothProtocolsPlugin::OnAdminRemove(const std::string &adminName,
@@ -224,6 +360,13 @@ bool DisallowedBluetoothProtocolsPlugin::ReadMergeDataFromFile(BluetoothProtocol
 bool DisallowedBluetoothProtocolsPlugin::WriteMergeDataToFile(const BluetoothProtocolPolicy &mergeData)
 {
     EDMLOGI("DisallowedBluetoothProtocolsPlugin::WriteMergeDataToFile");
+    std::vector<std::string> files;
+    OHOS::GetDirFiles(CONFIG_SYSTEM_ALL_DIR, files);
+    if (std::find(files.begin(), files.end(), BLUETOOTH_DIR) == files.end() &&
+        !CreateBluetoothConfigDir(CONFIG_SYSTEM_ALL_DIR + SEPARATOR + BLUETOOTH_DIR)) {
+        EDMLOGE("Failed to create bluetooth dir");
+        return false;
+    }
     auto serializer = BluetoothProtocolPolicySerializer::GetInstance();
     std::string jsonStr;
     if (!serializer->Serialize(mergeData, jsonStr)) {
@@ -241,6 +384,77 @@ bool DisallowedBluetoothProtocolsPlugin::WriteMergeDataToFile(const BluetoothPro
         return false;
     }
     outFile.close();
+    return true;
+}
+
+bool DisallowedBluetoothProtocolsPlugin::CreateBluetoothConfigDir(const std::string dir)
+{
+    EDMLOGI("DisallowedBluetoothProtocolsPlugin::CreateBluetoothConfigDir");
+    if (!OHOS::ForceCreateDirectory(dir)) {
+        EDMLOGE("mkdir dir failed");
+        return false;
+    }
+    if (chown(dir.c_str(), EDM_UID, EDM_GID) != 0) {
+        EDMLOGE("fail to change dir ownership");
+        return false;
+    }
+    mode_t mode = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
+    if (!OHOS::ChangeModeFile(dir, mode)) {
+        EDMLOGE("change mode failed, temp install dir");
+        return false;
+    }
+    return true;
+}
+
+bool DisallowedBluetoothProtocolsPlugin::ValidateBluetoothProtocolPolicy(const BluetoothProtocolPolicy &policy)
+{
+    // 一定会有一个 accountId，否则就是异常场景
+    // 从两个列表中找出 accountId（优先从 protocolDenyList 中获取）
+    int32_t accountId = -1;
+    if (!policy.protocolDenyList.empty()) {
+        accountId = policy.protocolDenyList.begin()->first;
+    } else if (!policy.protocolRecDenyList.empty()) {
+        accountId = policy.protocolRecDenyList.begin()->first;
+    } else {
+        // 两个列表都为空，说明没有数据
+        EDMLOGE("ValidateBluetoothProtocolPolicy: all protocol lists are empty");
+        return false;
+    }
+    if (accountId < 0) {
+        EDMLOGE("ValidateBluetoothProtocolPolicy: invalid accountId %{public}d", accountId);
+        return false;
+    }
+    // 校验至少有一个协议列表不为空
+    bool hasValidData = false;
+    auto denyIt = policy.protocolDenyList.find(accountId);
+    if (denyIt != policy.protocolDenyList.end() && !denyIt->second.empty()) {
+        hasValidData = true;
+    }
+    auto recIt = policy.protocolRecDenyList.find(accountId);
+    if (recIt != policy.protocolRecDenyList.end() && !recIt->second.empty()) {
+        hasValidData = true;
+    }
+    if (!hasValidData) {
+        EDMLOGE("ValidateBluetoothProtocolPolicy: all protocol lists are empty for accountId %{public}d", accountId);
+        return false;
+    }
+    // SPP协议必须在两个列表中同时存在或同时不存在
+    bool sppInDenyList = false;
+    if (denyIt != policy.protocolDenyList.end()) {
+        sppInDenyList = std::find(denyIt->second.begin(), denyIt->second.end(), "SPP") !=
+            denyIt->second.end();
+    }
+
+    bool sppInRecDenyList = false;
+    if (recIt != policy.protocolRecDenyList.end()) {
+        sppInRecDenyList = std::find(recIt->second.begin(), recIt->second.end(), "SPP") !=
+            recIt->second.end();
+    }
+    if (sppInDenyList != sppInRecDenyList) {
+        EDMLOGE("ValidateBluetoothProtocolPolicy: SPP protocol must exist in both lists or neither for "
+            "accountId %{public}d", accountId);
+        return false;
+    }
     return true;
 }
 } // namespace EDM
