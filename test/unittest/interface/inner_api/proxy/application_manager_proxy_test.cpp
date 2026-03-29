@@ -1048,6 +1048,123 @@ HWTEST_F(ApplicationManagerProxyTest, TestQueryTrafficStatsFail, TestSize.Level1
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestQueryBundleStatsInfosSuc
+ * @tc.desc: Test QueryBundleStatsInfos success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosSuc, TestSize.Level1)
+{
+    std::vector<BundleStatsInfo> bundleStatsInfos;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStatsInfos));
+    
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    int32_t intervalType = 0;
+    int64_t startTime = 0;
+    int64_t endTime = 10000000;
+    int32_t accountId = 100;
+    
+    data.WriteParcelable(&admin);
+    data.WriteInt32(intervalType);
+    data.WriteInt64(startTime);
+    data.WriteInt64(endTime);
+    data.WriteInt32(accountId);
+    int32_t ret = applicationManagerProxy_->QueryBundleStatsInfos(data, bundleStatsInfos);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(bundleStatsInfos.size(), 1);
+    ASSERT_EQ(bundleStatsInfos[0].bundleName, "com.test.bundle");
+    ASSERT_EQ
+    (bundleStatsInfos[0].abilityInFgTotalTime, 100);
+}
+
+/**
+ * @tc.name: TestQueryBundleStatsInfosFail
+ * @tc.desc: Test QueryBundleStatsInfos without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    std::vector<BundleStatsInfo> bundleStatsInfos;
+    
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    int32_t intervalType = 0;
+    int64_t startTime = 0;
+    int64_t endTime = 10000000;
+    int32_t accountId = 100;
+    
+    data.WriteParcelable(&admin);
+    data.WriteInt32(intervalType);
+    data.WriteInt64(startTime);
+    data.WriteInt64(endTime);
+    data.WriteInt32(accountId);
+    int32_t ret = applicationManagerProxy_->QueryBundleStatsInfos(data, bundleStatsInfos);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestQueryBundleStatsInfosReplyFail
+ * @tc.desc: Test QueryBundleStatsInfos when reply fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosReplyFail, TestSize.Level1)
+{
+    std::vector<BundleStatsInfo> bundleStatsInfos;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    int32_t intervalType = 0;
+    int64_t startTime = 0;
+    int64_t endTime = 10000000;
+    int32_t accountId = 100;
+    
+    data.WriteParcelable(&admin);
+    data.WriteInt32(intervalType);
+    data.WriteInt64(startTime);
+    data.WriteInt64(endTime);
+    data.WriteInt32(accountId);
+    int32_t ret = applicationManagerProxy_->QueryBundleStatsInfos(data, bundleStatsInfos);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestQueryBundleStatsInfosSizeOverLimit
+ * @tc.desc: Test QueryBundleStatsInfos when size over limit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosSizeOverLimit, TestSize.Level1)
+{
+    std::vector<BundleStatsInfo> bundleStatsInfos;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyExceedsMax));
+    
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    int32_t intervalType = 0;
+    int64_t startTime = 0;
+    int64_t endTime = 10000000;
+    int32_t accountId = 100;
+    
+    data.WriteParcelable(&admin);
+    data.WriteInt32(intervalType);
+    data.WriteInt64(startTime);
+    data.WriteInt64(endTime);
+    data.WriteInt32(accountId);
+    int32_t ret = applicationManagerProxy_->QueryBundleStatsInfos(data, bundleStatsInfos);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
 #ifdef FEATURE_PC_ONLY
 /**
  * @tc.name: TestAddDockAppSuc

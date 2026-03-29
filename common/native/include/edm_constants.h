@@ -463,6 +463,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_MULTI_WINDOW = "disallowed_multi_window";
     const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
     const char* const POLICY_DISABLED_SUPERHUB = "disabled_superhub";
+    const char* const POLICY_QUERY_BUNDLE_STATS_INFOS = "query_bundle_stats_infos";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

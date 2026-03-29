@@ -77,6 +77,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeAllowedNotificationBundles", RemoveAllowedNotificationBundles),
         DECLARE_NAPI_FUNCTION("getAllowedNotificationBundles", GetAllowedNotificationBundles),
         DECLARE_NAPI_FUNCTION("queryTrafficStats", QueryTrafficStats),
+        DECLARE_NAPI_FUNCTION("queryBundleStatsInfos", QueryBundleStatsInfos),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -197,6 +198,35 @@ napi_value ApplicationManagerAddon::GetAllowedNotificationBundles(napi_env env, 
         NAPI_CALL(env, napi_set_element(env, bundleArray, i, bundleName));
     }
     return bundleArray;
+}
+
+napi_value ApplicationManagerAddon::QueryBundleStatsInfos(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_QueryBundleStatsInfos called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "QueryBundleStatsInfos";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT64,
+        EdmAddonCommonType::INT64, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<BundleStatsInfo> bundleStatsInfos;
+    int32_t ret = applicationManagerProxy->QueryBundleStatsInfos(adapterAddonData.data, bundleStatsInfos);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("QueryBundleStatsInfos failed!");
+        return nullptr;
+    }
+    
+    napi_value resultArray;
+    NAPI_CALL(env, napi_create_array(env, &resultArray));
+    ConvertyBundleStatsInfosVectorToJS(env, bundleStatsInfos, resultArray);
+    return resultArray;
 }
 
 napi_value ApplicationManagerAddon::AddKeepAliveApps(napi_env env, napi_callback_info info)

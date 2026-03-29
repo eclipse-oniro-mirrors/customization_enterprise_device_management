@@ -108,7 +108,8 @@
         "user_auth_framework",
         "wifi",
         "window_manager",
-        "resource_schedule_service"
+        "resource_schedule_service",
+        "device_usage_statistics"
       ]
     },
     "build": {

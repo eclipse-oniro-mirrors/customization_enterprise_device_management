@@ -85,6 +85,7 @@ public:
     static napi_value RemoveAllowedNotificationBundles(napi_env env, napi_callback_info info);
     static napi_value GetAllowedNotificationBundles(napi_env env, napi_callback_info info);
     static napi_value QueryTrafficStats(napi_env env, napi_callback_info info);
+    static napi_value QueryBundleStatsInfos(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,

@@ -892,6 +892,31 @@ void ConvertKeyCustomizationVectorToJS(napi_env env,
     }
 }
 
+void ConvertyBundleStatsInfosVectorToJS(napi_env env,
+    const std::vector<BundleStatsInfo> &bundleStatsInfos, napi_value result)
+{
+    EDMLOGD("bundleStatsInfos vector size: %{public}zu", bundleStatsInfos.size());
+    for (size_t i = 0; i < bundleStatsInfos.size(); ++i) {
+        napi_value obj = nullptr;
+        napi_create_object(env, &obj);
+        
+        napi_value bundleName = nullptr;
+        napi_create_string_utf8(env, bundleStatsInfos[i].bundleName.c_str(),
+            NAPI_AUTO_LENGTH, &bundleName);
+        napi_set_named_property(env, obj, "bundleName", bundleName);
+        
+        napi_value abilityInFgTotalTime = nullptr;
+        napi_create_int64(env, bundleStatsInfos[i].abilityInFgTotalTime, &abilityInFgTotalTime);
+        napi_set_named_property(env, obj, "abilityInFgTotalTime", abilityInFgTotalTime);
+        
+        napi_value appIndex = nullptr;
+        napi_create_int32(env, bundleStatsInfos[i].appIndex, &appIndex);
+        napi_set_named_property(env, obj, "appIndex", appIndex);
+        
+        napi_set_element(env, result, i, obj);
+    }
+}
+
 napi_value ParseKeyCustomizationArray(napi_env env, std::vector<KeyCustomization> &keyCustomizationArray,
                                       napi_value args)
 {
