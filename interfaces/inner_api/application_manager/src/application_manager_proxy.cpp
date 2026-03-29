@@ -681,5 +681,55 @@ int32_t ApplicationManagerProxy::QueryTrafficStats(const AppExecFwk::ElementName
     }
     return ERR_OK;
 }
+
+int32_t ApplicationManagerProxy::QueryBundleStatsInfos(MessageParcel &data,
+    std::vector<BundleStatsInfo> &bundleStatsInfos)
+{
+    EDMLOGI("ApplicationManagerProxy::QueryBundleStatsInfos");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    if (!ParseBundleStatsInfos(reply, bundleStatsInfos)) {
+        EDMLOGE("QueryBundleStatsInfos parse bundleStats infos failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+bool ApplicationManagerProxy::ParseBundleStatsInfos(MessageParcel &reply,
+    std::vector<BundleStatsInfo> &bundleStatsInfos)
+{
+    uint32_t size = 0;
+    if (!reply.ReadUint32(size)) {
+        return false;
+    }
+    if (size < 0 || size > EdmConstants::POLICIES_MAX_SIZE) {
+        EDMLOGE("QueryBundleStatsInfos size invalid: %{public}d", size);
+        return false;
+    }
+    
+    bundleStatsInfos.clear();
+    bundleStatsInfos.reserve(size);
+    for (uint32_t i = 0; i < size; i++) {
+        BundleStatsInfo bundleStatsInfo;
+        if (!reply.ReadString(bundleStatsInfo.bundleName)) {
+            return false;
+        }
+        if (!reply.ReadInt32(bundleStatsInfo.abilityInFgTotalTime)) {
+            return false;
+        }
+        if (!reply.ReadInt32(bundleStatsInfo.appIndex)) {
+            return false;
+        }
+        bundleStatsInfos.emplace_back(std::move(bundleStatsInfo));
+    }
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "bundle_stats_info.h"
 #include "napi/native_api.h"
 #include "want.h"
 #include "application_instance.h"
@@ -121,6 +122,8 @@ bool GetKeyeventFromNAPI(napi_env env, napi_value value, KeyCustomization &resul
 bool GetKeypolicyFromNAPI(napi_env env, napi_value value, KeyCustomization &result,
     napi_valuetype type, napi_value &jsKeyPolicy);
 void ConvertKeyCustomizationVectorToJS(napi_env env, const std::vector<KeyCustomization> &KeyCustomizationVector,
+    napi_value result);
+void ConvertyBundleStatsInfosVectorToJS(napi_env env, const std::vector<BundleStatsInfo> &bundleStatsInfos,
     napi_value result);
 } // namespace EDM
 } // namespace OHOS

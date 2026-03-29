@@ -188,6 +188,7 @@
 #include "snapshot_skip_query.h"
 #include "disallow_modify_wallpaper_query.h"
 #include "get_installed_bundle_storage_stats_query.h"
+#include "query_bundle_stats_infos_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -760,6 +761,24 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
             return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_P2P:
             obj = std::make_shared<DisallowedP2PQuery>();
+        case EdmInterfaceCode::DISALLOWED_MULTI_WINDOW:
+#ifdef MULTI_WINDOW_EDM_ENABLE
+            obj = std::make_shared<DisallowMultiWindowQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+        default:
+            break;
+    }
+    return GetPolicyQueryEleventh(obj, code);
+}
+
+ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
+{
+    switch (code) {
+        case EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS:
+            obj = std::make_shared<QueryBundleStatsInfosQuery>();
             return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_MULTI_WINDOW:
 #ifdef MULTI_WINDOW_EDM_ENABLE

@@ -23,6 +23,7 @@
 #ifdef FEATURE_PC_ONLY
 #include "dock_info.h"
 #endif
+#include "bundle_stats_info.h"
 #include "napi_edm_element_name.h"
 #include "net_stats_utils.h"
 
@@ -84,12 +85,14 @@ public:
         std::vector<std::string> &bundleNames);
     int32_t QueryTrafficStats(const AppExecFwk::ElementName &admin, const NetStatsNetwork &networkInfo,
         NetStatsInfo &netStatsInfo);
+    int32_t QueryBundleStatsInfos(MessageParcel &data, std::vector<BundleStatsInfo> &bundleStatsInfos);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;
 #ifdef FEATURE_PC_ONLY
     bool ParseDockInfos(MessageParcel &reply, std::vector<DockInfo> &dockInfos);
 #endif
+    bool ParseBundleStatsInfos(MessageParcel &reply, std::vector<BundleStatsInfo> &bundleStatsInfos);
 };
 } // namespace EDM
 } // namespace OHOS
