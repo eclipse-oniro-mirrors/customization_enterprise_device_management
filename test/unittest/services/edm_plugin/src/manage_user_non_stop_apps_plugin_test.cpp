@@ -112,7 +112,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
         HandlePolicyData policyData;
         std::string contactsBundleName, browserBundleName, appgalleryBundleName, thememanagerBundleName;
         std::string settingsBundleName, musicBundleName, booksBundleName;
-        std::string mmsBundleName, photosBundleName, cameraBundleName, himovieBundleName;
+        std::string mmsBundleName, calcBundleName, cameraBundleName, himovieBundleName;
         auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
         ASSERT_TRUE(proxy != nullptr);
@@ -128,7 +128,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
         ASSERT_TRUE(res == ERR_OK);
         res = proxy->GetBundleNameByAppId("5765880207853068793", mmsBundleName);
         ASSERT_TRUE(res == ERR_OK);
-        res = proxy->GetBundleNameByAppId("1207824849184017472", photosBundleName);
+        res = proxy->GetBundleNameByAppId("5765880207853537763", calcBundleName);
         ASSERT_TRUE(res == ERR_OK);
         res = proxy->GetBundleNameByAppId("5765880207854258995", cameraBundleName);
         ASSERT_TRUE(res == ERR_OK);
@@ -142,7 +142,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicyFailWithOversizeData
             { "5765880207853624761", contactsBundleName, 100, 0 }, { "1230215522310701824", browserBundleName, 100, 0 },
             { "1164531384803416384", appgalleryBundleName, 100, 0 }, { "1062865240531676032", booksBundleName, 100, 0 },
             { "5765880207852919475", settingsBundleName, 100, 0 }, { "5765880207853068793", mmsBundleName, 100, 0 },
-            { "1207824849184017472", photosBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
+            { "5765880207853537763", calcBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
             { "1081898888199154560", himovieBundleName, 100, 0 }, { "976752519134849856", musicBundleName, 100, 0 },
             { "1173750081090759360", thememanagerBundleName, 100, 0 }
         };
@@ -176,7 +176,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictD
         std::vector<ApplicationInstance> mergeData;
         ManageUserNonStopAppsPlugin plugin;
         ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 
         ManageUserNonStopAppsPlugin userNonStopPlugin;
         MessageParcel data;
@@ -287,7 +287,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnGetPolicy2, TestSize.Level1)
             POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
         ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
         ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
         ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
         ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
@@ -320,7 +320,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy01, TestSize.Level1)
         std::vector<ApplicationInstance> mergeData;
 
         ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
 }
 
@@ -350,7 +350,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy02, TestSize.Level1)
         std::vector<ApplicationInstance> mergeData = { { "1164531384803416384", appgalleryBundleName, 100, 0 } };
 
         ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-        ASSERT_TRUE(ret == ERR_OK);
+        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
 }
 
@@ -407,7 +407,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestHasConflictPolicyWithoutDisabledSu
     bool hasConflict = true;
     
     ErrCode ret = plugin.HasConflictPolicy(nonStopApps, hasConflict);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     ASSERT_FALSE(hasConflict);
 }
 } // namespace TEST

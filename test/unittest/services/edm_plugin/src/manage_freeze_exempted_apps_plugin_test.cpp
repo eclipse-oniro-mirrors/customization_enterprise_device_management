@@ -112,7 +112,7 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyFailWithOversizeD
         HandlePolicyData policyData;
         std::string contactsBundleName, browserBundleName, appgalleryBundleName, thememanagerBundleName;
         std::string settingsBundleName, musicBundleName, booksBundleName;
-        std::string mmsBundleName, photosBundleName, cameraBundleName, himovieBundleName;
+        std::string mmsBundleName, calcBundleName, cameraBundleName, himovieBundleName;
         auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
         ASSERT_TRUE(proxy != nullptr);
@@ -128,7 +128,7 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyFailWithOversizeD
         ASSERT_TRUE(res == ERR_OK);
         res = proxy->GetBundleNameByAppId("5765880207853068793", mmsBundleName);
         ASSERT_TRUE(res == ERR_OK);
-        res = proxy->GetBundleNameByAppId("1207824849184017472", photosBundleName);
+        res = proxy->GetBundleNameByAppId("5765880207853537763", calcBundleName);
         ASSERT_TRUE(res == ERR_OK);
         res = proxy->GetBundleNameByAppId("5765880207854258995", cameraBundleName);
         ASSERT_TRUE(res == ERR_OK);
@@ -142,7 +142,7 @@ HWTEST_F(ManageFreezeExemptedAppsPluginTest, TestOnHandlePolicyFailWithOversizeD
             { "5765880207853624761", contactsBundleName, 100, 0 }, { "1230215522310701824", browserBundleName, 100, 0 },
             { "1164531384803416384", appgalleryBundleName, 100, 0 }, { "1062865240531676032", booksBundleName, 100, 0 },
             { "5765880207852919475", settingsBundleName, 100, 0 }, { "5765880207853068793", mmsBundleName, 100, 0 },
-            { "1207824849184017472", photosBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
+            { "5765880207853537763", calcBundleName, 100, 0 }, { "5765880207854258995", cameraBundleName, 100, 0 },
             { "1081898888199154560", himovieBundleName, 100, 0 }, { "976752519134849856", musicBundleName, 100, 0 },
             { "1173750081090759360", thememanagerBundleName, 100, 0 }
         };
