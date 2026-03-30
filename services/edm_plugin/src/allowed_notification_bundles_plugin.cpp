@@ -44,6 +44,7 @@ void AllowedNotificationBundlesPlugin::InitPlugin(
     ptr->SetSerializer(AllowedNotificationBundlesSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&AllowedNotificationBundlesPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&AllowedNotificationBundlesPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
+    ptr->SetOnAdminRemoveListener(&AllowedNotificationBundlesPlugin::OnAdminRemove);
 }
 
 ErrCode AllowedNotificationBundlesPlugin::OnSetPolicy(std::vector<AllowedNotificationBundlesType> &data,

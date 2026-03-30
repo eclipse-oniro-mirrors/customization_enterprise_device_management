@@ -761,6 +761,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
             return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_P2P:
             obj = std::make_shared<DisallowedP2PQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_MULTI_WINDOW:
 #ifdef MULTI_WINDOW_EDM_ENABLE
             obj = std::make_shared<DisallowMultiWindowQuery>();
