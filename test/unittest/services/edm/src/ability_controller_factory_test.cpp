@@ -54,6 +54,7 @@ void AbilityControllerFactoryTest::TearDown()
 {
     bundleMgrMock_.reset();
     factoryMock_.reset();
+    AbilityControllerFactory::factory_.reset();
 }
 
 /**

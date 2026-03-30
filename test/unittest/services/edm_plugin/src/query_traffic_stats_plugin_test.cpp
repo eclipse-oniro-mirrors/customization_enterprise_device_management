@@ -46,6 +46,7 @@ protected:
     {
         bundleMgrMock_.reset();
         Utils::ResetTokenTypeAndUid();
+        QueryTrafficStatsPlugin::bundleMgr_.reset();
     }
 };
 
