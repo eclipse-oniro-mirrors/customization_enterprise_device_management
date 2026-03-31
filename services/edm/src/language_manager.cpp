@@ -186,8 +186,7 @@ bool LanguageManager::InitResourceManager(std::shared_ptr<Global::Resource::Reso
 
 void LanguageManager::AddDataToResourceManager(std::shared_ptr<Global::Resource::ResourceManager>& resMgr)
 {
-    ExtInfoManager extInfoManager;
-    std::string resourcePath = extInfoManager.GetAdminProvisioningInfo();
+    std::string resourcePath = ExtInfoManager::GetInstance()->GetAdminProvisioningInfo();
     if (resourcePath.empty()) {
         EDMLOGE("AddDataToResourceManager resourcePath empty");
         return;
@@ -247,8 +246,7 @@ bool LanguageManager::IsNeedToShowEnterpriseManagedTips()
 
 bool LanguageManager::IsSettingsCalling()
 {
-    ExtInfoManager extInfoManager;
-    auto settingsInfo = extInfoManager.GetWantAgentInfo();
+    auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
     if (settingsInfo.bundleName.empty()) {
         return false;
     }

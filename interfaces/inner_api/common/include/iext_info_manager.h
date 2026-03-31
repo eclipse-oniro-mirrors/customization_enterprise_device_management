@@ -22,7 +22,13 @@ namespace OHOS {
 namespace EDM {
 class IExtInfoManager {
 public:
+    virtual ~IExtInfoManager() = default;
+
+    static IExtInfoManager *GetInstance();
+
     virtual std::string GetSuperHubInfo();
+
+    static IExtInfoManager* instance_;
 };
 
 } // namespace EDM

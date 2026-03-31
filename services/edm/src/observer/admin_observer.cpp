@@ -31,8 +31,8 @@ void AdminObserver::OnAdminAdd(const std::string &bundleName, int32_t userId, bo
     EDMLOGI("OnAdminAdd execute");
     SystemServiceStartHandler::GetInstance()->AddNetworkAccessPolicy({bundleName});
     if (isDebug) {
-        ExtInfoManager extInfoManager;
-        SendAdminNotification(EdmConstants::MANAGEMENT_NOTIFICATION_TIPS, extInfoManager.GetWantAgentInfo());
+        SendAdminNotification(EdmConstants::MANAGEMENT_NOTIFICATION_TIPS,
+            ExtInfoManager::GetInstance()->GetWantAgentInfo());
     }
 }
 
@@ -60,9 +60,8 @@ void AdminObserver::SendByodDisableSelfNotification(const std::string &bundleNam
 void AdminObserver::SendAdminNotification(const std::string &text, const WantAgentInfo &wantAgentInfo)
 {
     NotificationInfo notificationInfo = {.title = EdmConstants::DEVICE_MANAGEMENT_TEXT, .body = text};
-    ExtInfoManager extInfoManager;
     EdmBundleManagerImpl bundleManager;
-    std::string icon = bundleManager.GetIconByBundleName(extInfoManager.GetAdminProvisioningInfo());
+    std::string icon = bundleManager.GetIconByBundleName(ExtInfoManager::GetInstance()->GetAdminProvisioningInfo());
     IconInfo iconInfo = {.icon = icon, .xAxis = ICON_AXIS, .yAxis = ICON_AXIS};
     NotificationManager notificationManager;
     notificationManager.SendSystemNotification(notificationInfo, iconInfo, wantAgentInfo);
