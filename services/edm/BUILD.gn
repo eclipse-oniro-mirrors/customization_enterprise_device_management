@@ -137,6 +137,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disallow_modify_datetime_query.cpp",
       "./src/query_policy/disallow_unmute_device_query.cpp",
       "./src/query_policy/disallow_usb_serial_query.cpp",
+      "./src/query_policy/disallow_uinput_query.cpp",
       "./src/query_policy/disallow_virtual_service_query.cpp",
       "./src/query_policy/disallowed_install_bundles_query.cpp",
       "./src/query_policy/disallowed_tethering_query.cpp",
@@ -290,6 +291,10 @@ ohos_shared_library("edmservice") {
       "FEATURE_PC_ONLY",
       "SUDO_EDM_ENABLE"
     ]
+  }
+
+  if (uinput_manager_edm_enable) {
+    defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
 
   if (log_service_plugin_edm_enable) {

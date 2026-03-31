@@ -432,6 +432,14 @@ ohos_shared_library("communication_plugin") {
         "./src/disallowed_sms_plugin.cpp",
       ]
     }
+
+    if (uinput_manager_edm_enable) {
+      external_deps += [ "input:libmmi-client" ]
+      sources += [
+        "./src/disallow_uinput_plugin.cpp",
+      ]
+      defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
+    }
   }
 
   deps = [

@@ -99,6 +99,7 @@
 #include "disallowed_mms_query.h"
 #include "disallow_modify_wallpaper_query.h"
 #include "disallow_usb_serial_query.h"
+#include "disallow_uinput_query.h"
 #ifndef FEATURE_PC_ONLY
 #include "disallow_power_long_press_query.h"
 #endif
@@ -2610,6 +2611,40 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowMultiWindowQuery002, TestSize.Level1
     ASSERT_TRUE(result);
 }
 #endif
+
+/**
+ * @tc.name: TestDisallowUInputQuery001
+ * @tc.desc: Test DisallowUInputQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestDisallowUInputQuery002
+ * @tc.desc: Test DisallowUInputQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOW_UINPUT);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

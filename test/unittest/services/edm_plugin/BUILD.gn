@@ -383,6 +383,14 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_vpn_plugin_test.cpp"
     ]
   }
+
+  if (uinput_manager_edm_enable) {
+    external_deps += [ "input:libmmi-client" ]
+    sources += [
+      "./src/disallow_uinput_plugin_test.cpp",
+    ]
+    defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
+  }
  
   sanitize = {
     boundary_sanitize = true
@@ -792,6 +800,14 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_running_binary_app_plugin.cpp",
     ]
+  }
+
+  if (uinput_manager_edm_enable) {
+    external_deps += [ "input:libmmi-client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/disallow_uinput_plugin.cpp",
+    ]
+    defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
 
 if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {

@@ -91,6 +91,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLED_HDC_REMOTE,
     EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER,
     EdmInterfaceCode::DISALLOW_USB_SERIAL,
+    EdmInterfaceCode::DISALLOWED_UINPUT,
     EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT,
 };

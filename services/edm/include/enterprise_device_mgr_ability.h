@@ -172,6 +172,9 @@ private:
     void OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data);
     void OnCommonEventOobeFinish(const EventFwk::CommonEventData &data);
     void OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data);
+#ifdef UINPUT_MANAGER_EDM_ENABLE
+    void ResetDisallowUinputStatus();
+#endif
     bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();

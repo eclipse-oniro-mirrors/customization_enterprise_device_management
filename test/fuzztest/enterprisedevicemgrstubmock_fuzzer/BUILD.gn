@@ -531,6 +531,11 @@ ohos_static_library("edmservice_fuzz_static") {
         !enterprise_device_management_feature_pc_only) {
       sources += [ "../../../services/edm_plugin/src/disallow_power_long_press_plugin.cpp" ]
     }
+
+    if (uinput_manager_edm_enable) {
+      defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
+      sources += [ "../../../services/edm/src/query_policy/disallow_uinput_query.cpp" ]
+    }
   }
 
   sanitize = {

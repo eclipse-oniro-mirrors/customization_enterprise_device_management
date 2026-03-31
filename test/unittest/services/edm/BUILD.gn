@@ -97,6 +97,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disallow_modify_datetime_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_unmute_device_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_usb_serial_query.cpp",
+    "../../../../services/edm/src/query_policy/disallow_uinput_query.cpp",
     "../../../../services/edm/src/query_policy/disallow_virtual_service_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
@@ -237,6 +238,10 @@ ohos_static_library("edmservice_static") {
     sources += [
       "../../../../services/edm/src/query_policy/disallowed_notification_query.cpp",
     ]
+  }
+
+  if (uinput_manager_edm_enable) {
+    defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
 
   external_deps = [
