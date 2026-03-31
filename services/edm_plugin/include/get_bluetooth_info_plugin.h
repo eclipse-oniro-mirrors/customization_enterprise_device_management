@@ -17,8 +17,6 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_BLUETOOTH_INFO_PLUGIN_H
 
 #include "plugin_singleton.h"
-#include "bluetooth_def.h"
-#include "bluetooth_host.h"
 
 namespace OHOS {
 namespace EDM {
@@ -31,8 +29,6 @@ public:
     int32_t TransformBluetoothConnectionState(int32_t connectionState);
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-
-    ~GetBluetoothInfoPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

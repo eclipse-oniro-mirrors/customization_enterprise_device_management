@@ -44,6 +44,7 @@
 #include "application_instance.h"
 #include "array_string_serializer.h"
 #include "admin_action.h"
+#include "edm_bluetooth_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_errors.h"
@@ -1086,6 +1087,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
         std::shared_ptr<IAdminObserver> observer = std::make_shared<AdminObserver>();
         AdminManager::GetInstance()->Register(observer);
         ExtInfoManager::GetInstance();
+        EdmBluetoothManagerImpl::GetInstance();
     }
     InitAgTask();
 }
