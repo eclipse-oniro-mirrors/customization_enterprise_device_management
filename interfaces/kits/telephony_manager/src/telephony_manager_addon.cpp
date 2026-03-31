@@ -37,8 +37,8 @@ napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("hangupCalling", HangupCalling),
         DECLARE_NAPI_FUNCTION("activeSim", ActiveSim),
         DECLARE_NAPI_FUNCTION("deactiveSim", DeactiveSim),
-        DECLARE_NAPI_FUNCTION("setDefaultDataSim", SetDefaultDataSim),
-        DECLARE_NAPI_FUNCTION("getDefaultDataSim", GetDefaultDataSim),
+        DECLARE_NAPI_FUNCTION("setDefaultData", SetDefaultDataSim),
+        DECLARE_NAPI_FUNCTION("getDefaultData", GetDefaultDataSim),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
