@@ -121,15 +121,6 @@ ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationInstance
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    bool isConflict = false;
-    if (FAILED(HasConflictPolicy(needAddMergeData, isConflict))) {
-        EDMLOGE("ManageUserNonStopAppsPlugin::OnSetPolicy, HasConflictPolicy failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    if (isConflict) {
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-
     if (!needAddMergeData.empty()) {
         ErrCode ret = SetOtherModulePolicy(afterHandle);
         if (FAILED(ret)) {
@@ -150,16 +141,12 @@ ErrCode ManageUserNonStopAppsPlugin::HasConflictPolicy(std::vector<ApplicationIn
         return ERR_OK;
     }
 
-    // appIdentifier在不同的accountId下都一样，所以直接获取100下的
-    IExtInfoManager extInfoManager;
-    std::string SUPER_HUB_BUNDLE_NAME = extInfoManager.GetSuperHubInfo();
-    std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(SUPER_HUB_BUNDLE_NAME,
-        EdmConstants::DEFAULT_USER_ID);
-    if (appIdentifier.empty()) {
-        EDMLOGE("ManageUserNonStopAppsPlugin GetBundleInfo failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    // appIdentifier在被停用时无法获取，所以直接用包名
+    std::string superhubBundleName = IExtInfoManager::GetInstance()->GetSuperHubInfo();
+    if (superhubBundleName.empty()) {
+        EDMLOGW("ManageUserNonStopAppsPlugin superhubBundleName is empty, some conflict will be shadowed");
     }
-
+    
     std::vector<int32_t> ids;
     ErrCode accountRet = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
     if (FAILED(accountRet) || ids.empty()) {
@@ -174,7 +161,7 @@ ErrCode ManageUserNonStopAppsPlugin::HasConflictPolicy(std::vector<ApplicationIn
             continue;
         }
         if (std::find_if(nonStopApps.begin(), nonStopApps.end(), [&](const ApplicationInstance &nonStopApp) {
-            return nonStopApp.accountId == accountId && nonStopApp.appIdentifier == appIdentifier;
+            return nonStopApp.accountId == accountId && nonStopApp.bundleName == superhubBundleName;
         }) != nonStopApps.end()) {
             hasConflict = true;
             break;

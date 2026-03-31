@@ -176,7 +176,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnHandlePolicySucceedWithConflictD
         std::vector<ApplicationInstance> mergeData;
         ManageUserNonStopAppsPlugin plugin;
         ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        ASSERT_EQ(ret, ERR_OK);
 
         ManageUserNonStopAppsPlugin userNonStopPlugin;
         MessageParcel data;
@@ -287,7 +287,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnGetPolicy2, TestSize.Level1)
             POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
         ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps);
         ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        ASSERT_EQ(ret, ERR_OK);
         ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
         ret = plugin.OnGetPolicy(policyData.policyData, data, reply, DEFAULT_USER_ID);
         ASSERT_TRUE(ret == ERR_OK);
@@ -320,7 +320,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy01, TestSize.Level1)
         std::vector<ApplicationInstance> mergeData;
 
         ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        ASSERT_EQ(ret, ERR_OK);
     }
 }
 
@@ -350,7 +350,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestOnSetPolicy02, TestSize.Level1)
         std::vector<ApplicationInstance> mergeData = { { "1164531384803416384", appgalleryBundleName, 100, 0 } };
 
         ErrCode ret = plugin.OnSetPolicy(userNonStopApps, currentData, mergeData);
-        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        ASSERT_EQ(ret, ERR_OK);
     }
 }
 
@@ -391,7 +391,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestHasConflictPolicyWithEmptyData, Te
     bool hasConflict = true;
     
     ErrCode ret = plugin.HasConflictPolicy(nonStopApps, hasConflict);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_FALSE(hasConflict);
 }
 
@@ -407,7 +407,7 @@ HWTEST_F(ManageUserNonStopAppsPluginTest, TestHasConflictPolicyWithoutDisabledSu
     bool hasConflict = true;
     
     ErrCode ret = plugin.HasConflictPolicy(nonStopApps, hasConflict);
-    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_FALSE(hasConflict);
 }
 } // namespace TEST

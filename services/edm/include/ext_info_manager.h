@@ -26,8 +26,10 @@
 
 namespace OHOS {
 namespace EDM {
-class ExtInfoManager : IExtInfoManager {
+class ExtInfoManager : public IExtInfoManager {
 public:
+    static std::shared_ptr<ExtInfoManager> GetInstance();
+
     std::vector<std::string> GetAgCommonEventName();
 
     std::string GetAdminProvisioningInfo();
@@ -36,7 +38,15 @@ public:
 
     std::string GetSuperHubInfo() override;
 
+    ~ExtInfoManager() override;
+
     ErrCode GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply);
+
+private:
+    ExtInfoManager();
+
+    static std::once_flag flag_;
+    static std::shared_ptr<ExtInfoManager> instance_;
 };
 } // namespace EDM
 } // namespace OHOS
