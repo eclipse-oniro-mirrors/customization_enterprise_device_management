@@ -17,12 +17,14 @@
 
 #define private public
 #include "disable_bluetooth_plugin.h"
+#include "iedm_bluetooth_manager.h"
 #undef private
 
 #include "bluetooth_def.h"
 #include "bluetooth_errorcode.h"
 #include "bluetooth_host.h"
 #include "parameters.h"
+#include "edm_bluetooth_manager_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "plugin_singleton.h"
@@ -36,10 +38,16 @@ namespace EDM {
 namespace TEST {
 const std::string PERSIST_BLUETOOTH_CONTROL = "persist.edm.prohibit_bluetooth";
 class DisableBluetoothPluginTest : public testing::Test {
-protected:
+public:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+    void SetUp() override;
+
+    void TearDown() override;
+
+    std::shared_ptr<EdmBluetoothManagerMock> bluetoothManagerMock_ = std::make_shared<EdmBluetoothManagerMock>();
 };
 
 void DisableBluetoothPluginTest::SetUpTestSuite(void)
@@ -53,8 +61,17 @@ void DisableBluetoothPluginTest::TearDownTestSuite(void)
     Utils::SetEdmServiceDisable();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
-    Bluetooth::BluetoothHost::GetDefaultHost().Close();
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
+
+void DisableBluetoothPluginTest::SetUp()
+{
+    IEdmBluetoothManager::iInstance_ = bluetoothManagerMock_.get();
+}
+
+void DisableBluetoothPluginTest::TearDown()
+{
+    bluetoothManagerMock_.reset();
 }
 
 /**
@@ -73,6 +90,9 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestCloseSetTrue,
     std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
+
+    EXPECT_CALL(*bluetoothManagerMock_, DisableBt).WillOnce(DoAll(Return(true)));
+
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
@@ -118,6 +138,9 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
     Bluetooth::BluetoothHost::GetDefaultHost().EnableBle();
     data.WriteBool(true);
     handlePolicyData.isChanged = false;
+
+    EXPECT_CALL(*bluetoothManagerMock_, DisableBt).WillOnce(DoAll(Return(true)));
+
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);

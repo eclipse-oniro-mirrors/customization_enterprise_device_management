@@ -14,12 +14,17 @@
  */
 
 #include "switch_bluetooth_plugin_test.h"
-#include "bluetooth_host.h"
+
+#define private public
+#include "iedm_bluetooth_manager.h"
+#undef private
+
 #include "edm_ipc_interface_code.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;
+using namespace testing;
 
 namespace OHOS {
 namespace EDM {
@@ -33,8 +38,17 @@ void SwitchBluetoothTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
-    Bluetooth::BluetoothHost::GetDefaultHost().Close();
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
+
+void SwitchBluetoothTest::SetUp()
+{
+    IEdmBluetoothManager::iInstance_ = bluetoothManagerMock_.get();
+}
+
+void SwitchBluetoothTest::TearDown()
+{
+    bluetoothManagerMock_.reset();
 }
 
 /**
@@ -52,6 +66,7 @@ HWTEST_F(SwitchBluetoothTest, TestOpenBluetoothSuccess, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
+    EXPECT_CALL(*bluetoothManagerMock_, EnableBle).WillOnce(DoAll(Return(true)));
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     SetSelfTokenID(selfTokenId);
@@ -72,6 +87,28 @@ HWTEST_F(SwitchBluetoothTest, TestCloseBluetoothSuccess, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
+    EXPECT_CALL(*bluetoothManagerMock_, DisableBt).WillOnce(DoAll(Return(true)));
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    SetSelfTokenID(selfTokenId);
+}
+
+/**
+* @tc.name: TestCloseBluetoothFailed
+* @tc.desc: Test SwitchBluetoothPlugin::OnSetPolicy function sucess.
+* @tc.type: FUNC
+*/
+HWTEST_F(SwitchBluetoothTest, TestCloseBluetoothFailed, TestSize.Level1)
+{
+    uint64_t selfTokenId = GetSelfTokenID();
+    SetSelfTokenID(0);
+    std::shared_ptr<IPlugin> plugin = SwitchBluetoothPlugin::GetPlugin();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_BLUETOOTH);
+    HandlePolicyData handlePolicyData{"false", "", false};
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    EXPECT_CALL(*bluetoothManagerMock_, DisableBt).WillOnce(DoAll(Return(false)));
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     SetSelfTokenID(selfTokenId);

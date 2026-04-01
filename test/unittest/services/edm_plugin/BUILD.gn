@@ -35,6 +35,7 @@ ohos_unittest("EdmPluginTest") {
     "../../../../services/edm_plugin/include/network/executer",
     "../../../../services/edm_plugin/include/network/rule",
     "./include",
+    "./include/mock",
     "./include/network",
     "./include/network/executer",
     "./include/utils",
@@ -734,7 +735,6 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (bluetooth_edm_enable) {
-    external_deps += [ "bluetooth:btframework" ]
     sources += [
       "../../../../services/edm_plugin/src/allowed_bluetooth_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_bluetooth_plugin.cpp",

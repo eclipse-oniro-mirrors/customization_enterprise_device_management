@@ -15,12 +15,10 @@
 
 #include "disable_bluetooth_plugin.h"
 
-#include "bluetooth_def.h"
-#include "bluetooth_errorcode.h"
-#include "bluetooth_host.h"
 #include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "iedm_bluetooth_manager.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
@@ -52,17 +50,11 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
 
 ErrCode DisableBluetoothPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-    if (data && Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled() &&
-        Bluetooth::BluetoothHost::GetDefaultHost().DisableBt() != Bluetooth::BT_NO_ERROR) {
+    if (data && !IEdmBluetoothManager::GetInstance()->DisableBt()) {
         EDMLOGW("DisableBluetoothPlugin close bluetooth failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
-}
-
-DisableBluetoothPlugin::~DisableBluetoothPlugin()
-{
-    Bluetooth::BluetoothHost::GetDefaultHost().Close();
 }
 } // namespace EDM
 } // namespace OHOS

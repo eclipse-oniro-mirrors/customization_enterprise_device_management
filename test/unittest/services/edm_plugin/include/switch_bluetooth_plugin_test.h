@@ -17,6 +17,8 @@
 #define EDM_UNIT_TEST_SWITCH_BLUETOOTH_TEST_H
 
 #include <gtest/gtest.h>
+
+#include "edm_bluetooth_manager_mock.h"
 #include "iplugin_manager.h"
 #include "switch_bluetooth_plugin.h"
 
@@ -24,10 +26,16 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 class SwitchBluetoothTest : public testing::Test {
-protected:
+public:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+    void SetUp() override;
+
+    void TearDown() override;
+
+    std::shared_ptr<EdmBluetoothManagerMock> bluetoothManagerMock_ = std::make_shared<EdmBluetoothManagerMock>();
 };
 } // namespace TEST
 } // namespace EDM

@@ -12,23 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_SWITCH_STATUS_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_SET_SWITCH_STATUS_PLUGIN_H
- 
-#include "plugin_singleton.h"
-#include "switch_param_serializer.h"
- 
+
+#ifndef TEST_SERVICES_EDM_PLUGIN_EDM_BLUETOOTH_MANAGER_MOCK_H
+#define TEST_SERVICES_EDM_PLUGIN_EDM_BLUETOOTH_MANAGER_MOCK_H
+
+#include <gmock/gmock.h>
+
+#include "iedm_bluetooth_manager.h"
+
 namespace OHOS {
 namespace EDM {
-class SetSwitchStatusPlugin : public PluginSingleton<SetSwitchStatusPlugin, SwitchParam> {
+class EdmBluetoothManagerMock : public IEdmBluetoothManager {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, SwitchParam>> ptr) override;
-    ErrCode OnSetPolicy(SwitchParam &param,  MessageParcel &reply);
-    ErrCode OnSetBluetoothStatus(SwitchStatus status);
-    ErrCode OnSetWifiStatus(SwitchStatus status);
+    ~EdmBluetoothManagerMock() override = default;
+    MOCK_METHOD(bool, DisableBt, (), (override));
+    MOCK_METHOD(bool, EnableBle, (), (override));
+    MOCK_METHOD(std::string, GetLocalName, (), (override));
+    MOCK_METHOD(int32_t, GetBtState, (), (override));
+    MOCK_METHOD(int32_t, GetBtConnectionState, (), (override));
 };
 } // namespace EDM
 } // namespace OHOS
- 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_SWITCH_STATUS_PLUGIN_H
+
+#endif // TEST_SERVICES_EDM_PLUGIN_EDM_BLUETOOTH_MANAGER_MOCK_H
