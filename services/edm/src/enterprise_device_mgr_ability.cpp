@@ -1086,7 +1086,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
         CheckAndUpdateByodSettingsData();
         std::shared_ptr<IAdminObserver> observer = std::make_shared<AdminObserver>();
         AdminManager::GetInstance()->Register(observer);
-        ExtInfoManager::GetInstance();
+        ExtInfoManager::GetInstance()->GetSuperHubInfo();
         EdmBluetoothManagerImpl::GetInstance();
     }
     InitAgTask();

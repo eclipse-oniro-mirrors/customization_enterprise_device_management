@@ -18,6 +18,7 @@
 namespace OHOS {
 namespace EDM {
 IExtInfoManager* IExtInfoManager::instance_ = nullptr;
+std::string IExtInfoManager::superhubBundleName = "";
 
 IExtInfoManager *IExtInfoManager::GetInstance()
 {
