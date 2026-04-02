@@ -88,11 +88,9 @@ ErrCode DisallowedTetheringPlugin::SetOtherModulePolicy(bool data, int32_t userI
         EDMLOGE("DisallowedTetheringPlugin SetOtherModulePolicy WifiHotspot nullptr");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    auto ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    int32_t ret = ERR_OK;
     if (data) {
         ret = hotspot->DisableHotspot();
-    } else {
-        ret = hotspot->EnableHotspot();
     }
     if (ret != ERR_OK) {
         EDMLOGE("DisallowedTetheringPlugin SetOtherModulePolicy DisableHotspot error.%{public}d", ret);

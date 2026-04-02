@@ -64,12 +64,16 @@ private:
     static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);
     static OHOS::ErrCode NativeGetDisallowedPolicyForAccount(bool hasAdmin, AppExecFwk::ElementName &elementName,
         std::uint32_t ipcCode, int32_t accountId, bool &disallow);
+    static OHOS::ErrCode GetInterfaceCodeAndFeature(napi_env env, napi_value value,
+        std::string &feature, uint32_t &ipcCode);
+    static void CreateFeatureForDeviceObject(napi_env env, napi_value value);
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::unordered_map<std::string, uint32_t> itemCodeMap;
     static std::unordered_map<std::string, uint32_t> itemQueryCodeMap;
     static std::vector<uint32_t> multiPermCodes;
     static std::unordered_map<std::string, uint32_t> labelCodeMapForAccount;
+    static std::unordered_map<int32_t, uint32_t> featureEnum2InterfaceCodeMap;
 };
 } // namespace EDM
 } // namespace OHOS
