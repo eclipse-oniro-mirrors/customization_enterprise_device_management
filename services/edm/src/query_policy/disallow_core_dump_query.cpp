@@ -13,16 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
-#define COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#include "disallow_core_dump_query.h"
+
+#include "bool_serializer.h"
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-enum class RestrictionsFeature : int32_t {
-    WIFI_P2P = 0,
-    CORE_DUMP = 6,
-};
+std::string DisallowCoreDumpQuery::GetPolicyName()
+{
+    return PolicyName::POLICY_DISALLOW_CORE_DUMP;
+}
+
+std::string DisallowCoreDumpQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+{
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+}
+
+ErrCode DisallowCoreDumpQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    return GetBoolPolicy(policyData, reply);
+}
 } // namespace EDM
 } // namespace OHOS
-
-#endif // COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H

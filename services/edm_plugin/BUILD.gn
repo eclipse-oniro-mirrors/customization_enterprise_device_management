@@ -117,6 +117,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/install_local_enterprise_app_enabled_for_account_plugin.cpp",
       "./src/utils/nearlink_config_utils.cpp",
       "./src/utils/nearlink_protocol_utils.cpp",
+      "./src/disallow_core_dump_plugin.cpp",
       ]
     }
     

@@ -321,6 +321,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_hdc_remote_plugin_test.cpp",
       "./src/disable_running_binary_app_plugin_test.cpp",
       "./src/install_local_enterprise_app_enabled_for_account_plugin_test.cpp",
+      "./src/disallow_core_dump_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -791,6 +792,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/disallowed_usb_storage_device_write_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_hdc_remote_plugin.cpp",
       "../../../../services/edm_plugin/src/disable_running_binary_app_plugin.cpp",
+      "../../../../services/edm_plugin/src/disallow_core_dump_plugin.cpp",
     ]
   }
 
