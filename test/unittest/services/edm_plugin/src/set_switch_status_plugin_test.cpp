@@ -16,21 +16,34 @@
 #include <gtest/gtest.h>
 
 #include "os_account_manager.h"
+
+#define private public
+#include "iedm_bluetooth_manager.h"
+#undef private
+
+#include "edm_bluetooth_manager_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "set_switch_status_plugin.h"
 #include "utils.h"
 #include "edm_log.h"
 
 using namespace testing::ext;
+using namespace testing;
 
 namespace OHOS {
 namespace EDM {
 namespace TEST {
 class SetSwitchStatusPluginTest : public testing::Test {
-protected:
+public:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+    void SetUp() override;
+
+    void TearDown() override;
+
+    std::shared_ptr<EdmBluetoothManagerMock> bluetoothManagerMock_ = std::make_shared<EdmBluetoothManagerMock>();
 };
 
 void SetSwitchStatusPluginTest::SetUpTestSuite(void)
@@ -45,6 +58,16 @@ void SetSwitchStatusPluginTest::TearDownTestSuite(void)
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
+void SetSwitchStatusPluginTest::SetUp()
+{
+    IEdmBluetoothManager::iInstance_ = bluetoothManagerMock_.get();
+}
+
+void SetSwitchStatusPluginTest::TearDown()
+{
+    bluetoothManagerMock_.reset();
+}
+
 /**
  * @tc.name: TestOnSetBluetoothStatusSuccess
  * @tc.desc: Test SetSwitchStatusPluginTest::OnSetPolicy function success.
@@ -55,9 +78,11 @@ HWTEST_F(SetSwitchStatusPluginTest, TestOnSetBluetoothStatusSuccess, TestSize.Le
     SetSwitchStatusPlugin plugin;
     SwitchParam param{SwitchKey::BLUETOOTH, SwitchStatus::OFF};
     MessageParcel reply;
+    EXPECT_CALL(*bluetoothManagerMock_, DisableBt).WillOnce(DoAll(Return(true)));
     ErrCode ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
     param.status = SwitchStatus::ON;
+    EXPECT_CALL(*bluetoothManagerMock_, EnableBle).WillOnce(DoAll(Return(true)));
     ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
 }

@@ -44,6 +44,7 @@
 #include "application_instance.h"
 #include "array_string_serializer.h"
 #include "admin_action.h"
+#include "edm_bluetooth_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_errors.h"
@@ -209,8 +210,7 @@ void EnterpriseDeviceMgrAbility::InitAgTask()
 std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::CreateAGEventSubscriber(
     EnterpriseDeviceMgrAbility &listener)
 {
-    ExtInfoManager extInfoManager;
-    std::vector<std::string> agCommonEventList = extInfoManager.GetAgCommonEventName();
+    std::vector<std::string> agCommonEventList = ExtInfoManager::GetInstance()->GetAgCommonEventName();
     if (agCommonEventList.size() != AG_COMMON_EVENT_SIZE) {
         EDMLOGE("ag common event size is abnormally");
         return nullptr;
@@ -1110,6 +1110,8 @@ void EnterpriseDeviceMgrAbility::OnStart()
         CheckAndUpdateByodSettingsData();
         std::shared_ptr<IAdminObserver> observer = std::make_shared<AdminObserver>();
         AdminManager::GetInstance()->Register(observer);
+        ExtInfoManager::GetInstance();
+        EdmBluetoothManagerImpl::GetInstance();
     }
     InitAgTask();
 }
@@ -2259,8 +2261,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code,
         EDMLOGE("CheckAndGetAdminProvisionInfo::device exist admin.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    ExtInfoManager extInfoManager;
-    ErrCode getRet = extInfoManager.GetExtInfo(ExtInfoType::ADMIN_PROVISIONING_INFO, reply);
+    ErrCode getRet = ExtInfoManager::GetInstance()->GetExtInfo(ExtInfoType::ADMIN_PROVISIONING_INFO, reply);
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(admin->GetBundleName(), admin->GetAbilityName(), info, false);
     return getRet;

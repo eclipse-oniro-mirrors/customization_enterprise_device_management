@@ -17,6 +17,16 @@
 
 namespace OHOS {
 namespace EDM {
+IExtInfoManager* IExtInfoManager::instance_ = nullptr;
+
+IExtInfoManager *IExtInfoManager::GetInstance()
+{
+    if (instance_ == nullptr) {
+        instance_ = new (std::nothrow) IExtInfoManager();
+    }
+    return instance_;
+}
+
 std::string IExtInfoManager::GetSuperHubInfo()
 {
     return "";

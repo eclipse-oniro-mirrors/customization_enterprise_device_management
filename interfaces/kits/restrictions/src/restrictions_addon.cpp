@@ -21,6 +21,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "restrictions_feature.h"
 
 using namespace OHOS::EDM;
 
@@ -70,8 +71,6 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE, EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE, EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_SERIAL, EdmInterfaceCode::DISALLOW_USB_SERIAL},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_UINPUT, EdmInterfaceCode::DISALLOWED_UINPUT},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_P2P, EdmInterfaceCode::DISALLOWED_P2P},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
@@ -123,8 +122,15 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MULTI_WINDOW, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW},
 };
 
+std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
+    {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
+};
+
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nFeatureForDevice = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nFeatureForDevice));
+    CreateFeatureForDeviceObject(env, nFeatureForDevice);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setPrinterDisabled", SetPrinterDisabled),
         DECLARE_NAPI_FUNCTION("isPrinterDisabled", IsPrinterDisabled),
@@ -145,6 +151,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserRestricted", GetUserRestricted),
         DECLARE_NAPI_FUNCTION("setUserRestrictionForAccount", SetUserRestrictionForAccount),
         DECLARE_NAPI_FUNCTION("getUserRestrictedForAccount", GetUserRestrictedForAccount),
+        DECLARE_NAPI_PROPERTY("FeatureForDevice", nFeatureForDevice),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -408,7 +415,6 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
         "parameter disallow error");
     OHOS::AppExecFwk::ElementName elementName;
@@ -416,8 +422,13 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         "element name param error");
     EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::uint32_t ipcCode = 0;
     std::string feature;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
     bool disallow = false;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
 
@@ -427,16 +438,9 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
-    ErrCode ret = ERR_OK;
     if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
         ret = proxy->SetFingerprintAuthDisabled(elementName, disallow);
     } else {
-        auto labelCode = labelCodeMap.find(feature);
-        if (labelCode == labelCodeMap.end()) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-            return nullptr;
-        }
-        std::uint32_t ipcCode = labelCode->second;
         std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
             ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
         ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
@@ -445,6 +449,34 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
+}
+
+OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_value value,
+    std::string &feature, uint32_t &ipcCode)
+{
+    if (MatchValueType(env, value, napi_string)) {
+        if (!ParseString(env, feature, value)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        auto labelCode = labelCodeMap.find(feature);
+        if (labelCode == labelCodeMap.end()) {
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+        ipcCode = labelCode->second;
+    } else if (MatchValueType(env, value, napi_number)) {
+        int32_t featureNumber = -1;
+        if (!ParseInt(env, featureNumber, value)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        auto it = featureEnum2InterfaceCodeMap.find(featureNumber);
+        if (it == featureEnum2InterfaceCodeMap.end()) {
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+        ipcCode = it->second;
+    } else {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    return ERR_OK;
 }
 
 napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_info info)
@@ -459,9 +491,13 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
+    std::uint32_t ipcCode = 0;
     std::string feature;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
     if (hasAdmin) {
         EDMLOGD("GetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
             elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
@@ -476,16 +512,9 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
-    ErrCode ret = ERR_OK;
     if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
         ret = proxy->IsFingerprintAuthDisabled(hasAdmin ? &elementName : nullptr, disallow);
     } else {
-        auto labelCode = labelCodeMap.find(feature);
-        if (labelCode == labelCodeMap.end()) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-            return nullptr;
-        }
-        std::uint32_t ipcCode = labelCode->second;
         std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
             ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
         ret = proxy->GetDisallowedPolicy(hasAdmin ? &elementName : nullptr, ipcCode, disallow, permissionTag);
@@ -885,6 +914,14 @@ napi_value RestrictionsAddon::GetUserRestrictedForAccount(napi_env env, napi_cal
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, restricted, &result));
     return result;
+}
+
+void RestrictionsAddon::CreateFeatureForDeviceObject(napi_env env, napi_value value)
+{
+    napi_value nWifiP2P;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P), &nWifiP2P));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI_P2P", nWifiP2P));
 }
 
 static napi_module g_restrictionsModule = {

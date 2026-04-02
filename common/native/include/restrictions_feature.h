@@ -12,23 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_SWITCH_STATUS_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_SET_SWITCH_STATUS_PLUGIN_H
- 
-#include "plugin_singleton.h"
-#include "switch_param_serializer.h"
- 
+
+#ifndef COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#define COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+
 namespace OHOS {
 namespace EDM {
-class SetSwitchStatusPlugin : public PluginSingleton<SetSwitchStatusPlugin, SwitchParam> {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, SwitchParam>> ptr) override;
-    ErrCode OnSetPolicy(SwitchParam &param,  MessageParcel &reply);
-    ErrCode OnSetBluetoothStatus(SwitchStatus status);
-    ErrCode OnSetWifiStatus(SwitchStatus status);
+enum class RestrictionsFeature : int32_t {
+    WIFI_P2P = 0
 };
 } // namespace EDM
 } // namespace OHOS
- 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_SWITCH_STATUS_PLUGIN_H
+
+#endif // COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H

@@ -14,13 +14,10 @@
  */
 #include "switch_bluetooth_plugin.h"
 
-#include "bluetooth_def.h"
-#include "bluetooth_errorcode.h"
-#include "bluetooth_host.h"
-
 #include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "iedm_bluetooth_manager.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 
@@ -45,21 +42,16 @@ ErrCode SwitchBluetoothPlugin::OnSetPolicy(bool &isOpen)
         EDMLOGE("SwitchBluetoothPlugin OnSetPolicy failed, because bluetooth disabled.");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
     }
-    int32_t ret = Bluetooth::BT_NO_ERROR;
+    bool ret = false;
     if (isOpen) {
-        ret = Bluetooth::BluetoothHost::GetDefaultHost().EnableBle();
+        ret = IEdmBluetoothManager::GetInstance()->EnableBle();
     } else {
-        ret = Bluetooth::BluetoothHost::GetDefaultHost().DisableBt();
+        ret = IEdmBluetoothManager::GetInstance()->DisableBt();
     }
-    if (ret != Bluetooth::BT_NO_ERROR) {
+    if (!ret) {
         EDMLOGE("SwitchBluetoothPlugin:OnSetPolicy send request fail. %{public}d", ret);
     }
     return ERR_OK;
-}
-
-SwitchBluetoothPlugin::~SwitchBluetoothPlugin()
-{
-    Bluetooth::BluetoothHost::GetDefaultHost().Close();
 }
 } // namespace EDM
 } // namespace OHOS

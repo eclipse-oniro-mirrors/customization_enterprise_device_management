@@ -21,6 +21,30 @@
 
 namespace OHOS {
 namespace EDM {
+std::shared_ptr<ExtInfoManager> ExtInfoManager::instance_;
+std::once_flag ExtInfoManager::flag_;
+
+std::shared_ptr<ExtInfoManager> ExtInfoManager::GetInstance()
+{
+    std::call_once(flag_, []() {
+        if (instance_ == nullptr) {
+            instance_.reset(new (std::nothrow) ExtInfoManager());
+        }
+    });
+    IExtInfoManager::instance_ = instance_.get();
+    return instance_;
+}
+
+ExtInfoManager::ExtInfoManager()
+{
+    EDMLOGI("ExtInfoManager::ExtInfoManager");
+}
+
+ExtInfoManager::~ExtInfoManager()
+{
+    EDMLOGI("ExtInfoManager::~ExtInfoManager");
+}
+
 std::vector<std::string> ExtInfoManager::GetAgCommonEventName()
 {
     std::vector<std::string> agCommonEventName;
