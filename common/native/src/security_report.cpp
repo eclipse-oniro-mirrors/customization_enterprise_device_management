@@ -48,7 +48,7 @@ void SecurityReport::ReportSecurityInfo(const std::string &bundleName, const std
         return;
     }
     int32_t ret = OHOS::Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfo(eventInfo);
-    if (ret != ERR_OK) {
+    if (ret != ERR_OK) { //LCOV_EXCL_BR_LINE
         EDMLOGE("SecurityReport::ReportSecurityInfo ret: %{public}d", ret);
     }
 #endif

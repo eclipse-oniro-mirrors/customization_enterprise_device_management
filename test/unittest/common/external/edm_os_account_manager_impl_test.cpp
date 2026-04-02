@@ -155,6 +155,18 @@ HWTEST_F(EdmOsAccountManagerImplTest, TestCreateOsAccount, TestSize.Level1)
     ASSERT_TRUE(ret != ERR_OK);
 }
 #endif
+
+/**
+ * @tc.name: TestGetCurrentUserId
+ * @tc.desc: Test GetCurrentUserId function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmOsAccountManagerImplTest, TestGetCurrentUserId, TestSize.Level1)
+{
+    EdmOsAccountManagerImpl edmOsAccountManagerImpl;
+    int32_t userId = edmOsAccountManagerImpl.GetCurrentUserId();
+    ASSERT_TRUE(userId >= 0);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

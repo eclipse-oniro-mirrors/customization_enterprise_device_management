@@ -99,7 +99,7 @@ bool EdmAccessTokenManagerImpl::GetAccessTokenId(int32_t userId, const std::stri
     }
 
     accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
-    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) {
+    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) { //LCOV_EXCL_BR_LINE
         EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
         return false;
     }

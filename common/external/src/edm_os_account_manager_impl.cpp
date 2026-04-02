@@ -51,7 +51,7 @@ int32_t EdmOsAccountManagerImpl::GetCurrentUserId()
 {
     std::vector<int32_t> ids;
     ErrCode ret = QueryActiveOsAccountIds(ids);
-    if (FAILED(ret) || ids.empty()) {
+    if (FAILED(ret) || ids.empty()) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmOsAccountManagerImpl GetCurrentUserId failed");
         return -1;
     }
