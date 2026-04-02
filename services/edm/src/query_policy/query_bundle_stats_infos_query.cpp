@@ -37,11 +37,6 @@ ErrCode QueryBundleStatsInfosQuery::QueryPolicy(std::string &policyData, Message
     int32_t userId)
 {
     EDMLOGI("QueryBundleStatsInfosQuery::QueryPolicy");
-    int32_t intervalType = 0;
-    if (!data.ReadInt32(intervalType)) {
-        EDMLOGE("QueryBundleStatsInfo QueryPolicy Read intervalType failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
     int64_t startTime = 0;
     if (!data.ReadInt64(startTime)) {
         EDMLOGE("QueryBundleStatsInfo QueryPolicy Read startTime failed.");
@@ -57,6 +52,7 @@ ErrCode QueryBundleStatsInfosQuery::QueryPolicy(std::string &policyData, Message
         EDMLOGE("QueryBundleStatsInfo QueryPolicy Read accountId failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    int32_t intervalType = 0;
     std::vector<BundleActivePackageStats> bundleActivePackageStats;
     ErrCode ret = DeviceUsageStats::BundleActiveClient::GetInstance().QueryBundleStatsInfoByInterval(
         bundleActivePackageStats, intervalType, startTime, endTime, accountId);
