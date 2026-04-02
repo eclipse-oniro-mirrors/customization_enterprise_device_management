@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -61,7 +61,7 @@ HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginOnSetPolicy, TestSize.Lev
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_UINPUT);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
@@ -73,9 +73,9 @@ HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginSetOtherModulePolicy, Tes
 {
     DisallowUInputPlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
     ret = plugin.SetOtherModulePolicy(false, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
@@ -87,7 +87,7 @@ HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginRemoveOtherModulePolicy, 
 {
     DisallowUInputPlugin plugin;
     ErrCode ret = plugin.RemoveOtherModulePolicy(DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

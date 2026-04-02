@@ -2624,9 +2624,10 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery001, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    EXPECT_EQ(ret, ERR_OK);
     int32_t flag = ERR_INVALID_VALUE;
-    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    reply.ReadInt32(flag);
+    EXPECT_EQ(flag, ERR_OK);
     bool result = false;
     reply.ReadBool(result);
     ASSERT_TRUE(result);
@@ -2641,9 +2642,9 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery002, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_12;
-    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
-        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOW_UINPUT);
+    EXPECT_EQ(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag),
+        TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    EXPECT_EQ(queryObj->GetPolicyName(), PolicyName::POLICY_DISALLOW_UINPUT);
 }
 } // namespace TEST
 } // namespace EDM
