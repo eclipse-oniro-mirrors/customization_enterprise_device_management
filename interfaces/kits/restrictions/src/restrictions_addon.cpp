@@ -124,6 +124,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
+    {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)

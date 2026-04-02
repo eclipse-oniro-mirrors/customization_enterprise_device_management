@@ -780,12 +780,8 @@ ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery>
 {
     switch (code) {
         case EdmInterfaceCode::DISALLOWED_UINPUT:
-#ifdef UINPUT_MANAGER_EDM_ENABLE
             obj = std::make_shared<DisallowUInputQuery>();
             return ERR_OK;
-#else
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
         case EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS:
             obj = std::make_shared<QueryBundleStatsInfosQuery>();
             return ERR_OK;

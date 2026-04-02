@@ -19,7 +19,8 @@
 namespace OHOS {
 namespace EDM {
 enum class RestrictionsFeature : int32_t {
-    WIFI_P2P = 0
+    WIFI_P2P = 0,
+    LOCAL_INPUT = 2,
 };
 } // namespace EDM
 } // namespace OHOS

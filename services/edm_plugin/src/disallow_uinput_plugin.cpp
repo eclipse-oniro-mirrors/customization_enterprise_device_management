@@ -47,13 +47,13 @@ ErrCode DisallowUInputPlugin::RemoveOtherModulePolicy(int32_t userId)
 ErrCode DisallowUInputPlugin::SetUInputDeviceEnabled(bool isDisAllow)
 {
     auto inputManager = OHOS::MMI::InputManager::GetInstance();
-    if (inputManager == nullptr) {
-        EDMLOGI("DisallowUInputPlugin: inputManager is nullptr");
+    if (inputManager == nullptr) { //LCOV_EXCL_BR_LINE
+        EDMLOGE("DisallowUInputPlugin: inputManager is nullptr");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = inputManager->SetEduInputDeviceEnabled(!isDisAllow);
-    if (ret != ERR_OK) {
-        EDMLOGI("DisallowUInputPlugin: SetEduInputDeviceEnabled failed ret: %{public}d", ret);
+    int32_t ret = inputManager->DisableInputEventDispatch(isDisAllow);
+    if (ret != ERR_OK) { //LCOV_EXCL_BR_LINE
+        EDMLOGE("DisallowUInputPlugin: DisableInputEventDispatch failed ret: %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

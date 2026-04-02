@@ -15,7 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#define private public
 #include "disallow_uinput_plugin.h"
+#undef private
 #include "edm_ipc_interface_code.h"
 #include "utils.h"
 
@@ -45,11 +47,11 @@ void DisallowUInputPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnSetPolicy
- * @tc.desc: Test DisallowUInputPluginTest::OnSetPolicy function.
+ * @tc.name: DisallowUInputPluginOnSetPolicy
+ * @tc.desc: Test DisallowUInputPlugin::OnSetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(DisallowUInputPluginTest, TestOnSetPolicy, TestSize.Level1)
+HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginOnSetPolicy, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -59,6 +61,32 @@ HWTEST_F(DisallowUInputPluginTest, TestOnSetPolicy, TestSize.Level1)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_UINPUT);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: DisallowUInputPluginSetOtherModulePolicy
+ * @tc.desc: Test DisallowUInputPlugin::SetOtherModulePolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginSetOtherModulePolicy, TestSize.Level1)
+{
+    DisallowUInputPlugin plugin;
+    ErrCode ret = plugin.SetOtherModulePolicy(true, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ret = plugin.SetOtherModulePolicy(false, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: DisallowUInputPluginRemoveOtherModulePolicy
+ * @tc.desc: Test DisallowUInputPlugin::RemoveOtherModulePolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginRemoveOtherModulePolicy, TestSize.Level1)
+{
+    DisallowUInputPlugin plugin;
+    ErrCode ret = plugin.RemoveOtherModulePolicy(DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
 } // namespace TEST
