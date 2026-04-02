@@ -85,6 +85,10 @@ HWTEST_F(SetSwitchStatusPluginTest, TestOnSetBluetoothStatusSuccess, TestSize.Le
     EXPECT_CALL(*bluetoothManagerMock_, EnableBle).WillOnce(DoAll(Return(true)));
     ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
+    param.status = SwitchStatus::FORCE_ON;
+    EXPECT_CALL(*bluetoothManagerMock_, EnableBle).WillOnce(DoAll(Return(true)));
+    ret = plugin.OnSetPolicy(param, reply);
+    ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**

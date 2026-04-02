@@ -24,6 +24,9 @@
 
 namespace OHOS {
 namespace EDM {
+
+const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluetooth";
+
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
 
 void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr)
@@ -50,6 +53,9 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
 
 ErrCode DisableBluetoothPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
+    if (data) {
+        system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+    }
     if (data && !IEdmBluetoothManager::GetInstance()->DisableBt()) {
         EDMLOGW("DisableBluetoothPlugin close bluetooth failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
