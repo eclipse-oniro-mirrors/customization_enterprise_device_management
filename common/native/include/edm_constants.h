@@ -201,7 +201,6 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE = "virtualService";
         const char* const LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER = "modifyWallpaper";
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
-        const char* const LABEL_DISALLOWED_POLICY_P2P = "wifiP2P";
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
     } // namespace Restrictions
