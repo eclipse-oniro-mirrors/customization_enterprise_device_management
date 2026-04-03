@@ -13,17 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
-#define COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#include "disallow_uinput_query.h"
+
+#include "bool_serializer.h"
+#include "edm_constants.h"
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
-enum class RestrictionsFeature : int32_t {
-    WIFI_P2P = 0,
-    LOCAL_INPUT = 2,
-    CORE_DUMP = 6,
-};
+std::string DisallowUInputQuery::GetPolicyName()
+{
+    return PolicyName::POLICY_DISALLOW_UINPUT;
+}
+
+std::string DisallowUInputQuery::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+{
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+}
+
+ErrCode DisallowUInputQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    return GetBoolPolicy(policyData, reply);
+}
 } // namespace EDM
 } // namespace OHOS
-
-#endif // COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H

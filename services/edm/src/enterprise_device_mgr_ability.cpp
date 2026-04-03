@@ -335,6 +335,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonE
 
 void EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data)
 {
+#ifdef UINPUT_MANAGER_EDM_ENABLE
+    ResetDisallowUinputStatus();
+#endif
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
     AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::BOOT_COMPLETED, subAdmins);
     if (subAdmins.empty()) {
@@ -355,6 +358,27 @@ void EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn(const EventFwk::Comm
         }
     }
 }
+
+#ifdef UINPUT_MANAGER_EDM_ENABLE
+void EnterpriseDeviceMgrAbility::ResetDisallowUinputStatus()
+{
+    // uinput power on to reset status
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode =
+            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_UINPUT);
+        MessageParcel messageData;
+        messageData.WriteString(WITHOUT_PERMISSION_TAG);
+        messageData.WriteBool(false);
+        MessageParcel reply;
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
+    }
+}
+#endif
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo)
 {

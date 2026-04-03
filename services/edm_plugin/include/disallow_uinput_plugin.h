@@ -13,17 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
-#define COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_UINPUT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_UINPUT_PLUGIN_H
+
+#include "basic_bool_plugin.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-enum class RestrictionsFeature : int32_t {
-    WIFI_P2P = 0,
-    LOCAL_INPUT = 2,
-    CORE_DUMP = 6,
+class DisallowUInputPlugin : public PluginSingleton<DisallowUInputPlugin, bool>,
+    public BasicBoolPlugin {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUInputPlugin, bool>> ptr) override;
+private:
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
+    int32_t SetUInputDeviceEnabled(bool enabled);
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_UINPUT_PLUGIN_H

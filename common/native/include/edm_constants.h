@@ -433,6 +433,7 @@ namespace PolicyName {
         "install_enterprise_re_signature_certificate";
     const char* const POLICY_SET_KEY_CODE = "set_key_code";
     const char* const POLICY_DISALLOW_USB_SERIAL = "disallow_usb_serial";
+    const char* const POLICY_DISALLOW_UINPUT = "disallow_uinput";
     const char* const POLICY_DISABLED_ACTIVATION_LOCK = "disable_activation_lock";
     const char* const POLICY_ACTIVE_SIM = "active_sim";
     const char* const POLICY_DEACTIVE_SIM = "deactive_sim";

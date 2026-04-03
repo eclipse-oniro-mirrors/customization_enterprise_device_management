@@ -170,6 +170,7 @@
 #include "disallow_modify_datetime_query.h"
 #include "disallow_unmute_device_query.h"
 #include "disallow_usb_serial_query.h"
+#include "disallow_uinput_query.h"
 #include "disallow_virtual_service_query.h"
 #include "disallowed_install_bundles_query.h"
 #include "disallowed_tethering_query.h"
@@ -779,6 +780,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISALLOWED_UINPUT:
+            obj = std::make_shared<DisallowUInputQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS:
             obj = std::make_shared<QueryBundleStatsInfosQuery>();
             return ERR_OK;
