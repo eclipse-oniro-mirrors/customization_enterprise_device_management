@@ -121,6 +121,15 @@ ErrCode ManageUserNonStopAppsPlugin::OnSetPolicy(std::vector<ApplicationInstance
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
+    bool isConflict = false;
+    if (FAILED(HasConflictPolicy(needAddMergeData, isConflict))) {
+        EDMLOGE("ManageUserNonStopAppsPlugin::OnSetPolicy, HasConflictPolicy failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (isConflict) {
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+
     if (!needAddMergeData.empty()) {
         ErrCode ret = SetOtherModulePolicy(afterHandle);
         if (FAILED(ret)) {
@@ -142,7 +151,7 @@ ErrCode ManageUserNonStopAppsPlugin::HasConflictPolicy(std::vector<ApplicationIn
     }
 
     // appIdentifier在被停用时无法获取，所以直接用包名
-    std::string superhubBundleName = IExtInfoManager::GetInstance()->GetSuperHubInfo();
+    std::string superhubBundleName = IExtInfoManager::superhubBundleName;
     if (superhubBundleName.empty()) {
         EDMLOGW("ManageUserNonStopAppsPlugin superhubBundleName is empty, some conflict will be shadowed");
     }

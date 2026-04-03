@@ -29,6 +29,8 @@ public:
     virtual std::string GetSuperHubInfo();
 
     static IExtInfoManager* instance_;
+
+    static std::string superhubBundleName;
 };
 
 } // namespace EDM

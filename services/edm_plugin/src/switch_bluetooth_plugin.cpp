@@ -26,6 +26,7 @@ namespace EDM {
 
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SwitchBluetoothPlugin::GetPlugin());
 const std::string MDM_BLUETOOTH_PROP = "persist.edm.prohibit_bluetooth";
+const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluetooth";
 
 void SwitchBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SwitchBluetoothPlugin, bool>> ptr)
 {
@@ -44,8 +45,10 @@ ErrCode SwitchBluetoothPlugin::OnSetPolicy(bool &isOpen)
     }
     bool ret = false;
     if (isOpen) {
+        system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
         ret = IEdmBluetoothManager::GetInstance()->EnableBle();
     } else {
+        system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
         ret = IEdmBluetoothManager::GetInstance()->DisableBt();
     }
     if (!ret) {

@@ -104,7 +104,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/uninstall_plugin.cpp",
       "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
-      "./src/utils/bluetooth_config_utils.cpp",
       "./src/set_allowed_kiosk_apps_plugin.cpp",
       "./src/install_enterprise_re_signature_certificate_plugin.cpp",
     ]
@@ -178,7 +177,6 @@ ohos_shared_library("device_core_plugin") {
         "./src/disallowed_bluetooth_protocols_plugin.cpp",
         "./src/get_bluetooth_info_plugin.cpp",
         "./src/switch_bluetooth_plugin.cpp",
-        "./src/utils/bt_protocol_utils.cpp",
       ]
     }
 
