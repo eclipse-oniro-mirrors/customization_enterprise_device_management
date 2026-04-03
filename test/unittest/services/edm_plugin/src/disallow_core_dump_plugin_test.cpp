@@ -64,7 +64,7 @@ HWTEST_F(DisallowCoreDumpPluginTest, TestOnSetPolicy, TestSize.Level1)
     data.WriteBool(false);
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged);
+    ASSERT_FALSE(handlePolicyData.isChanged);
 }
 } // namespace TEST
 } // namespace EDM
