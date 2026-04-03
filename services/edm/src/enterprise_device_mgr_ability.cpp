@@ -1462,6 +1462,11 @@ ErrCode EnterpriseDeviceMgrAbility::DelDisallowUninstallApp(const std::string &b
     if (!GetBundleMgr()->SetDisallowedUninstall(bundleName, false)) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    std::vector<int32_t> ids;
+    GetOsAccountMgr()->QueryActiveOsAccountIds(ids);
+    for (auto id : ids) {
+        DelDisallowUninstallAppForAccount(bundleName, id);
+    }
     return ERR_OK;
 }
 
