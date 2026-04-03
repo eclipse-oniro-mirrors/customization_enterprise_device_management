@@ -97,6 +97,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES,
     EdmInterfaceCode::DISALLOW_CORE_DUMP,
     EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

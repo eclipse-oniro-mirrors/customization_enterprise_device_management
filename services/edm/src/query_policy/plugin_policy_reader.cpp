@@ -154,6 +154,10 @@
 #include "disallow_multi_window_query.h"
 #endif
 
+#ifndef FEATURE_PC_ONLY
+#include "hide_launcher_icon_query.h"
+#endif
+
 #include "allowed_app_distribution_types_query.h"
 #include "allowed_install_bundles_query.h"
 #include "allowed_notification_bundles_query.h"
@@ -796,6 +800,13 @@ ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery>
         case EdmInterfaceCode::DISALLOW_CORE_DUMP:
             obj = std::make_shared<DisallowCoreDumpQuery>();
             return ERR_OK;
+        case EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON:
+#ifndef FEATURE_PC_ONLY
+            obj = std::make_shared<HideLauncherIconQuery>();
+            return ERR_OK;
+#else
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
         default:
             break;
     }

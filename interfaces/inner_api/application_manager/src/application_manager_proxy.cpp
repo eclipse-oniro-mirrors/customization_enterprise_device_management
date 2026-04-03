@@ -731,5 +731,32 @@ bool ApplicationManagerProxy::ParseBundleStatsInfos(MessageParcel &reply,
     }
     return true;
 }
+
+#ifndef FEATURE_PC_ONLY
+int32_t ApplicationManagerProxy::AddOrRemoveHideLauncherIcon(MessageParcel &data, bool isAdd)
+{
+    EDMLOGD("ApplicationManagerProxy::AddOrRemoveHideLauncherIcon");
+    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType,
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetHideLauncherIcon(MessageParcel &data, std::vector<std::string> &bundleNames)
+{
+    EDMLOGD("ApplicationManagerProxy::GetHideLauncherIcon");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&bundleNames);
+    return ERR_OK;
+}
+#endif
 } // namespace EDM
 } // namespace OHOS
