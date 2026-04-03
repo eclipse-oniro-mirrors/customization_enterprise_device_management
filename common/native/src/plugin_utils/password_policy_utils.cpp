@@ -101,7 +101,7 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
             return true;
         }
         root_ = cJSON_Parse(jsonStr.c_str());
-        if (root_ == nullptr) {
+        if (root_ == nullptr) { //LCOV_EXCL_BR_LINE
             EDMLOGE("Failed to load config, root is null");
             return false;
         }

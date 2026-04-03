@@ -15,6 +15,8 @@
 
 #include <gtest/gtest.h>
 
+#include "securec.h"
+
 #include "edm_utils.h"
 
 using namespace testing::ext;
@@ -96,6 +98,97 @@ HWTEST_F(EdmUtilsTest, Test_Utf16ToUtf8_FAIL, TestSize.Level1)
 {
     std::string ret = EdmUtils::Utf16ToUtf8(u"error");
     ASSERT_EQ(ret, "error");
+}
+
+/**
+ * @tc.name: Test_ClearString
+ * @tc.desc: Test ClearString function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_ClearString, TestSize.Level1)
+{
+    std::string testStr = "test_string";
+    EdmUtils::ClearString(testStr);
+    ASSERT_TRUE(testStr.empty());
+}
+
+/**
+ * @tc.name: Test_ClearString_Empty
+ * @tc.desc: Test ClearString function with empty string.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_ClearString_Empty, TestSize.Level1)
+{
+    std::string testStr;
+    EdmUtils::ClearString(testStr);
+    ASSERT_TRUE(testStr.empty());
+}
+
+/**
+ * @tc.name: Test_ClearCharArray
+ * @tc.desc: Test ClearCharArray function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_ClearCharArray, TestSize.Level1)
+{
+    size_t len = 10;
+    std::string testStr = "test";
+    char* testArray = static_cast<char*>(malloc(len));
+    strncpy_s(testArray, len, testStr.c_str(), testStr.size());
+    EdmUtils::ClearCharArray(testArray, len);
+    ASSERT_EQ(testArray, nullptr);
+}
+
+/**
+ * @tc.name: Test_ClearCharArray_Nullptr
+ * @tc.desc: Test ClearCharArray function with nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_ClearCharArray_Nullptr, TestSize.Level1)
+{
+    char* testArray = nullptr;
+    size_t len = 10;
+    EdmUtils::ClearCharArray(testArray, len);
+    ASSERT_EQ(testArray, nullptr);
+}
+
+/**
+ * @tc.name: Test_CheckRealPath
+ * @tc.desc: Test CheckRealPath function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_CheckRealPath, TestSize.Level1)
+{
+    std::string path = "/data/test";
+    std::string expectPath = "/data";
+    bool result = EdmUtils::CheckRealPath(path, expectPath);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: Test_CheckRealPath_Empty
+ * @tc.desc: Test CheckRealPath function with empty path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_CheckRealPath_Empty, TestSize.Level1)
+{
+    std::string path = "";
+    std::string expectPath = "/data";
+    bool result = EdmUtils::CheckRealPath(path, expectPath);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_CheckRealPath_TooLong
+ * @tc.desc: Test CheckRealPath function with path too long.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_CheckRealPath_TooLong, TestSize.Level1)
+{
+    std::string path(PATH_MAX + 10, 'a');
+    std::string expectPath = "/data";
+    bool result = EdmUtils::CheckRealPath(path, expectPath);
+    ASSERT_FALSE(result);
 }
 } // namespace TEST
 } // namespace EDM
