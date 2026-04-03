@@ -27,6 +27,9 @@ public:
     ErrCode OnSetPolicy(SwitchParam &param,  MessageParcel &reply);
     ErrCode OnSetBluetoothStatus(SwitchStatus status);
     ErrCode OnSetWifiStatus(SwitchStatus status);
+
+private:
+    ErrCode ForceEnableBluetooth();
 };
 } // namespace EDM
 } // namespace OHOS
