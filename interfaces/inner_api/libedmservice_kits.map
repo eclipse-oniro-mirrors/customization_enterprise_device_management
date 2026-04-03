@@ -113,6 +113,8 @@
             vtable?for?OHOS::EDM::IExtInfoManager;
             OHOS::EDM::NetStatsNetwork::*;
             OHOS::EDM::NetStatsInfo::*;
+            OHOS::EDM::BluetoothProtocolPolicySerializer::*;
+            vtable?for?OHOS::EDM::BluetoothProtocolPolicySerializer;
         };
     local:
         *;

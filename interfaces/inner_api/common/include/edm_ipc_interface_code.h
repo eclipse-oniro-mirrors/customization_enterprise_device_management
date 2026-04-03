@@ -200,6 +200,7 @@ enum EdmInterfaceCode : uint32_t {
     GET_BUNDLE_STORAGE_STATS = 1151,
     QUERY_BUNDLE_STATS_INFOS = 1152,
     DISALLOWED_UINPUT = 1153,
+    DISALLOW_CORE_DUMP = 1154,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

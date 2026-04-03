@@ -87,6 +87,75 @@ HWTEST_F(EdmAccessTokenManagerImplTest, TestVerifyCallingPermission03, TestSize.
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     ASSERT_FALSE(edmAccessTokenManagerImpl.VerifyCallingPermission(tokenId, EDM_TEST_PERMISSION));
 }
+
+/**
+ * @tc.name: TestIsNativeCall
+ * @tc.desc: Test IsNativeCall function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmAccessTokenManagerImplTest, TestIsNativeCall, TestSize.Level1)
+{
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    bool result = edmAccessTokenManagerImpl.IsNativeCall();
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestIsSystemAppCall
+ * @tc.desc: Test IsSystemAppCall function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmAccessTokenManagerImplTest, TestIsSystemAppCall, TestSize.Level1)
+{
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    bool result = edmAccessTokenManagerImpl.IsSystemAppCall();
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestGetAccessTokenId01
+ * @tc.desc: Test GetAccessTokenId function with invalid parameters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmAccessTokenManagerImplTest, TestGetAccessTokenId01, TestSize.Level1)
+{
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    int32_t userId = 100;
+    std::string appId = "";
+    int32_t appIndex = 0;
+    Security::AccessToken::AccessTokenID accessTokenId;
+    bool result = edmAccessTokenManagerImpl.GetAccessTokenId(userId, appId, appIndex, accessTokenId);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestGetAccessTokenId02
+ * @tc.desc: Test GetAccessTokenId function with valid parameters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmAccessTokenManagerImplTest, TestGetAccessTokenId02, TestSize.Level1)
+{
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    int32_t userId = 100;
+    std::string appId = "test.app.id";
+    int32_t appIndex = 0;
+    Security::AccessToken::AccessTokenID accessTokenId;
+    bool result = edmAccessTokenManagerImpl.GetAccessTokenId(userId, appId, appIndex, accessTokenId);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestGetHapTokenBundleName
+ * @tc.desc: Test GetHapTokenBundleName function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmAccessTokenManagerImplTest, TestGetHapTokenBundleName, TestSize.Level1)
+{
+    EdmAccessTokenManagerImpl edmAccessTokenManagerImpl;
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string bundleName = edmAccessTokenManagerImpl.GetHapTokenBundleName(tokenId);
+    ASSERT_TRUE(bundleName.empty());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

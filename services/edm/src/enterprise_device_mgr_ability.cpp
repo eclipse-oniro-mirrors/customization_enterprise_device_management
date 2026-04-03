@@ -1110,7 +1110,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
         CheckAndUpdateByodSettingsData();
         std::shared_ptr<IAdminObserver> observer = std::make_shared<AdminObserver>();
         AdminManager::GetInstance()->Register(observer);
-        ExtInfoManager::GetInstance();
+        ExtInfoManager::GetInstance()->GetSuperHubInfo();
         EdmBluetoothManagerImpl::GetInstance();
     }
     InitAgTask();
@@ -2211,7 +2211,10 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
     } else {
         std::string getPermission = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
             IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag);
-        if (!PermissionChecker::GetInstance()->CheckElementNullPermission(code, getPermission)) {
+        std::string getPermissionByod = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
+            IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag);
+        if (!(PermissionChecker::GetInstance()->CheckElementNullPermission(code, getPermission) ||
+            PermissionChecker::GetInstance()->CheckElementNullPermission(code, getPermissionByod))) {
             EDMLOGE("GetDevicePolicy: permission check failed");
             return EdmReturnErrCode::PERMISSION_DENIED;
         }

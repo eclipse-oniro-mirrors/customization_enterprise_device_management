@@ -22,17 +22,12 @@
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "bluetooth_manager_proxy.h"
+#include "bluetooth_protocol_models.h"
 #include "func_code.h"
 #include "want.h"
 
 namespace OHOS {
 namespace EDM {
-
-enum class BtProtocol : uint32_t {
-    GATT = 0,
-    SPP = 1,
-    OPP = 2,
-};
 
 class BluetoothManagerAddon {
 public:
@@ -61,6 +56,7 @@ private:
     static napi_value AddOrRemoveDisallowedBluetoothProtocols(napi_env env, napi_callback_info info,
         std::string function);
     static void CreateProtocolObject(napi_env env, napi_value value);
+    static void CreateTransferPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

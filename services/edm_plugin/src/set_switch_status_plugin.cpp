@@ -16,7 +16,10 @@
 #include "set_switch_status_plugin.h"
 
 #include "edm_ipc_interface_code.h"
+#include "external_manager_factory.h"
+#include "iadmin_manager.h"
 #include "iedm_bluetooth_manager.h"
+#include "ipc_skeleton.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 #include "wifi_device.h"
@@ -27,6 +30,7 @@ namespace EDM {
 const std::string MDM_BLUETOOTH_PROP = "persist.edm.prohibit_bluetooth";
 const std::string MDM_WIFI_PROP = "persist.edm.wifi_enable";
 const std::string PARAM_FORCE_OPEN_WIFI = "persist.edm.force_open_wifi";
+const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluetooth";
  
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetSwitchStatusPlugin::GetPlugin());
  
@@ -74,9 +78,13 @@ ErrCode SetSwitchStatusPlugin::OnSetBluetoothStatus(SwitchStatus status)
     }
     bool ret = false;
     if (status == SwitchStatus::ON) {
+        system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
         ret = IEdmBluetoothManager::GetInstance()->EnableBle();
     } else if (status == SwitchStatus::OFF) {
+        system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
         ret = IEdmBluetoothManager::GetInstance()->DisableBt();
+    } else if (status == SwitchStatus::FORCE_ON) {
+        return ForceEnableBluetooth();
     } else {
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
@@ -111,6 +119,37 @@ ErrCode SetSwitchStatusPlugin::OnSetWifiStatus(SwitchStatus status)
     }
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetWifiStatus send request fail. %{public}d", ret);
+    }
+    return ERR_OK;
+}
+
+ErrCode SetSwitchStatusPlugin::ForceEnableBluetooth()
+{
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string bundleName =
+        std::make_shared<ExternalManagerFactory>()->CreateAccessTokenManager()->GetHapTokenBundleName(tokenId);
+    std::vector<int32_t> ids;
+    std::int32_t currentId;
+    ErrCode code = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
+    if (SUCCEEDED(code) && !ids.empty()) {
+        currentId = ids.at(0);
+    } else {
+        EDMLOGE("SetSwitchStatusPlugin::ForceEnableBluetooth get currentId failed : %{public}d.", code);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    auto adminType = IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, currentId);
+    if (adminType == AdminType::BYOD) { //LCOV_EXCL_BR_LINE
+        EDMLOGE("SetSwitchStatusPlugin::ForceEnableBluetooth failed, because is ByodAdmin");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    if (system::GetBoolParameter(PARAM_FORCE_ENABLE_BLUETOOTH, false)) {
+        return ERR_OK;
+    }
+    bool ret = false;
+    ret = IEdmBluetoothManager::GetInstance()->EnableBle();
+    if (!ret || !system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "true")) {
+        EDMLOGE("SetSwitchStatusPlugin:ForceEnableBluetooth send request fail or SetParameter fail.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     return ERR_OK;
 }

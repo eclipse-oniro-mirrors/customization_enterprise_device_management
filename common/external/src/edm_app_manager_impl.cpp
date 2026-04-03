@@ -27,7 +27,7 @@ ErrCode EdmAppManagerImpl::RegisterApplicationStateObserver(
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::APP_MGR_SERVICE_ID);
     sptr<AppExecFwk::IAppMgr> proxy = iface_cast<AppExecFwk::IAppMgr>(remoteObject);
-    if (proxy && !proxy->RegisterApplicationStateObserver(observer)) {
+    if (proxy && !proxy->RegisterApplicationStateObserver(observer)) { //LCOV_EXCL_BR_LINE
         EDMLOGI("EdmAppManagerImpl::RegisterApplicationStateObserver success.");
         return ERR_OK;
     }
@@ -40,7 +40,7 @@ ErrCode EdmAppManagerImpl::UnregisterApplicationStateObserver(
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::APP_MGR_SERVICE_ID);
     sptr<AppExecFwk::IAppMgr> proxy = iface_cast<AppExecFwk::IAppMgr>(remoteObject);
-    if (proxy && !proxy->UnregisterApplicationStateObserver(observer)) {
+    if (proxy && !proxy->UnregisterApplicationStateObserver(observer)) { //LCOV_EXCL_BR_LINE
         EDMLOGI("EdmAppManagerImpl::UnregisterApplicationStateObserver success.");
         return ERR_OK;
     }

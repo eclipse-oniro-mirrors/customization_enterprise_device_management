@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,24 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#ifndef EDM_UNIT_TEST_UTILS_BT_PROTOCOL_UTILS_TEST_H
-#define EDM_UNIT_TEST_UTILS_BT_PROTOCOL_UTILS_TEST_H
- 
-#include <gtest/gtest.h>
-#include "bt_protocol_utils.h"
- 
+
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_CORE_DUMP_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_CORE_DUMP_PLUGIN_H
+
+#include "basic_bool_plugin.h"
+#include "plugin_singleton.h"
+
 namespace OHOS {
 namespace EDM {
-namespace TEST {
-    class BtProtocolUtilsTest : public testing::Test {
-    protected:
-        static void SetUpTestSuite(void);
- 
-        static void TearDownTestSuite(void);
-    };
-} // namespace TEST
+class DisallowCoreDumpPlugin : public PluginSingleton<DisallowCoreDumpPlugin, bool>, public BasicBoolPlugin {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowCoreDumpPlugin, bool>> ptr) override;
+};
 } // namespace EDM
 } // namespace OHOS
- 
-#endif //EDM_UNIT_TEST_UTILS_BT_PROTOCOL_UTILS_TEST_H
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_CORE_DUMP_PLUGIN_H

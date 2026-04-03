@@ -135,6 +135,165 @@ HWTEST_F(EdmBundleManagerImplTest, TestGetApplicationUid02, TestSize.Level1)
     int32_t uid = edmBundleManagerImpl.GetApplicationUid(CONTACTS, 100, appIndex);
     ASSERT_FALSE(uid == INVALID_UID);
 }
+
+/**
+ * @tc.name: TestGetBundleInfoV9
+ * @tc.desc: Test GetBundleInfoV9 function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetBundleInfoV9, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = edmBundleManagerImpl.GetBundleInfoV9(
+        BUNDLE_NAME, FLAGS, bundleInfo, USER_ID);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestIsBundleInstalled
+ * @tc.desc: Test IsBundleInstalled function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestIsBundleInstalled, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    int32_t appIndex = 0;
+    bool ret = edmBundleManagerImpl.IsBundleInstalled(BUNDLE_NAME, USER_ID, appIndex);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestGetApplicationInfo
+ * @tc.desc: Test GetApplicationInfo function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetApplicationInfo, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    std::string result = edmBundleManagerImpl.GetApplicationInfo(BUNDLE_NAME, USER_ID);
+    EXPECT_EQ(result, "");
+}
+
+/**
+ * @tc.name: TestGetTokenId
+ * @tc.desc: Test GetTokenId function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetTokenId, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    int32_t tokenId = edmBundleManagerImpl.GetTokenId(BUNDLE_NAME, USER_ID);
+    EXPECT_EQ(tokenId, 0);
+}
+
+/**
+ * @tc.name: TestAddAppInstallControlRule
+ * @tc.desc: Test AddAppInstallControlRule function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestAddAppInstallControlRule, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    std::vector<std::string> data;
+    data.push_back(BUNDLE_NAME);
+    ErrCode ret = edmBundleManagerImpl.AddAppInstallControlRule(
+        data, AppExecFwk::AppInstallControlRuleType::DISALLOWED_INSTALL, USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestDeleteAppInstallControlRule
+ * @tc.desc: Test DeleteAppInstallControlRule function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestDeleteAppInstallControlRule, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    std::vector<std::string> data;
+    data.push_back(BUNDLE_NAME);
+    ErrCode ret = edmBundleManagerImpl.DeleteAppInstallControlRule(
+        AppExecFwk::AppInstallControlRuleType::DISALLOWED_INSTALL, data, USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestSetDisallowedUninstall
+ * @tc.desc: Test SetDisallowedUninstall function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestSetDisallowedUninstall, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    bool ret = edmBundleManagerImpl.SetDisallowedUninstall(BUNDLE_NAME, true);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestQueryAbilityInfo
+ * @tc.desc: Test QueryAbilityInfo function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestQueryAbilityInfo, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AAFwk::Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    bool ret = edmBundleManagerImpl.QueryAbilityInfo(want, FLAGS, USER_ID, abilityInfo);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestQueryExtensionAbilityInfos02
+ * @tc.desc: Test QueryExtensionAbilityInfos function (4 parameters).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestQueryExtensionAbilityInfos02, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AAFwk::Want want;
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    bool ret = edmBundleManagerImpl.QueryExtensionAbilityInfos(want, FLAGS, USER_ID, extensionInfos);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestIsSystemApp
+ * @tc.desc: Test IsSystemApp function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestIsSystemApp, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    bool isSystemApp;
+    ErrCode ret = edmBundleManagerImpl.IsSystemApp(BUNDLE_NAME, USER_ID, isSystemApp);
+    EXPECT_EQ(ret, EdmReturnErrCode::ABILITY_NOT_EXIST);
+}
+
+/**
+ * @tc.name: TestSetApplicationDisableForbidden
+ * @tc.desc: Test SetApplicationDisableForbidden function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestSetApplicationDisableForbidden, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    int32_t appIndex = 0;
+    bool ret = edmBundleManagerImpl.SetApplicationDisableForbidden(BUNDLE_NAME, USER_ID, appIndex, true);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TestGetIconByBundleName
+ * @tc.desc: Test GetIconByBundleName function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetIconByBundleName, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    std::string icon = edmBundleManagerImpl.GetIconByBundleName(BUNDLE_NAME);
+    EXPECT_EQ(icon, "");
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

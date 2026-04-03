@@ -108,6 +108,49 @@ HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShare, TestSize.Leve
 }
 
 /**
+ * @tc.name: TestGetIntFromSettingsDataShareWithEdmServiceDisable
+ * @tc.desc: Test GetIntFromSettingsDataShare function with EDM service disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShareWithEdmServiceDisable, TestSize.Level1)
+{
+    Utils::ResetTokenTypeAndUid();
+    Utils::SetEdmServiceDisable();
+
+    int32_t result = 0;
+    ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(KEY_SCREEN_OFF_TIME, result);
+    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+
+    Utils::SetEdmInitialEnv();
+    Utils::SetEdmServiceEnable();
+}
+
+/**
+ * @tc.name: TestGetIntFromSettingsDataShare_EmptyResult
+ * @tc.desc: Test GetIntFromSettingsDataShare function with empty result.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShare_EmptyResult, TestSize.Level1)
+{
+    int32_t result = 0;
+    ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(INVAILD_STRING, result);
+    ASSERT_TRUE(code == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestGetIntFromSettingsDataShare_ValidKey
+ * @tc.desc: Test GetIntFromSettingsDataShare function with valid key.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmDataAbilityUtilsTest, TestGetIntFromSettingsDataShare_ValidKey, TestSize.Level1)
+{
+    int32_t result = 0;
+    ErrCode code = EdmDataAbilityUtils::GetIntFromSettingsDataShare(KEY_SCREEN_OFF_TIME, result);
+    ASSERT_TRUE(code == ERR_OK);
+    ASSERT_TRUE(result > 0);
+}
+
+/**
  * @tc.name: TestUpdateSettingsData
  * @tc.desc: Test UpdateSettingsData function.
  * @tc.type: FUNC

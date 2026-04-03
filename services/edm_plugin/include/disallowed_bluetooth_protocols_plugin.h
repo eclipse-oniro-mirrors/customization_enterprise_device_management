@@ -16,26 +16,43 @@
 #ifndef ENTERPRISE_DEVICE_MANAGEMENT_DISALLOWED_BLUETOOTH_PROTOCOLS_PLUGIN_H
 #define ENTERPRISE_DEVICE_MANAGEMENT_DISALLOWED_BLUETOOTH_PROTOCOLS_PLUGIN_H
 
+#include "bluetooth_protocol_models.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
 class DisallowedBluetoothProtocolsPlugin : public PluginSingleton<DisallowedBluetoothProtocolsPlugin,
-    std::vector<int32_t>> {
+    BluetoothProtocolPolicy> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedBluetoothProtocolsPlugin,
-        std::vector<int32_t>>> ptr) override;
-    ErrCode OnSetPolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData, std::vector<int32_t> &mergeData,
-        int32_t userId);
-    ErrCode OnRemovePolicy(std::vector<int32_t> &data, std::vector<int32_t> &currentData,
-        std::vector<int32_t> &mergeData, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, std::vector<int32_t> &policyData,
-        std::vector<int32_t> &mergeData, int32_t userId);
+        BluetoothProtocolPolicy>> ptr) override;
+    ErrCode OnSetPolicy(BluetoothProtocolPolicy &data, BluetoothProtocolPolicy &currentData,
+        BluetoothProtocolPolicy &mergeData, int32_t userId);
+    ErrCode OnRemovePolicy(BluetoothProtocolPolicy &data, BluetoothProtocolPolicy &currentData,
+        BluetoothProtocolPolicy &mergeData, int32_t userId);
+    ErrCode OnAdminRemove(const std::string &adminName, BluetoothProtocolPolicy &policyData,
+        BluetoothProtocolPolicy &mergeData, int32_t userId);
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     void OnChangedPolicyDone(bool isGlobalChanged);
 
 private:
     void NotifyBluetoothProtocolsChanged();
+    bool ReadMergeDataFromFile(BluetoothProtocolPolicy &mergeData);
+    bool WriteMergeDataToFile(const BluetoothProtocolPolicy &mergeData);
+    void ConvertProtocolListToInt(const std::vector<std::string> &protocolList, std::vector<int32_t> &protocols);
+    void GetSendOnlyProtocols(const BluetoothProtocolPolicy &mergeDataFromFile, int32_t accountId,
+        std::vector<int32_t> &protocols);
+    void GetReceiveOnlyProtocols(const BluetoothProtocolPolicy &mergeDataFromFile, int32_t accountId,
+        std::vector<int32_t> &protocols);
+    void GetReceiveSendProtocols(const BluetoothProtocolPolicy &mergeDataFromFile, int32_t accountId,
+        std::vector<int32_t> &protocols);
+    bool CreateBluetoothConfigDir(const std::string dir);
+    void RemoveProtocolsFromPolicy(const std::map<int32_t, std::vector<std::string>> &source,
+        std::map<int32_t, std::vector<std::string>> &target);
+    void RemoveUnusedProtocolsFromFile(const std::map<int32_t, std::vector<std::string>> &data,
+        const std::map<int32_t, std::vector<std::string>> &mergeData,
+        std::map<int32_t, std::vector<std::string>> &mergeDataFromFile);
+    bool ValidateBluetoothProtocolPolicy(const BluetoothProtocolPolicy &policy);
 };
 } // namespace EDM
 } // namespace OHOS

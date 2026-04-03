@@ -85,6 +85,7 @@ std::string ExtInfoManager::GetSuperHubInfo()
 {
     MessageParcel reply;
     if (FAILED(GetExtInfo(ExtInfoType::SUPERHUB_INFO, reply))) {
+        EDMLOGE("ExtInfoManager::GetSuperHubInfo GetExtInfo failed");
         return "";
     }
     int32_t res = ERR_INVALID_VALUE;
@@ -92,7 +93,9 @@ std::string ExtInfoManager::GetSuperHubInfo()
         EDMLOGE("ExtInfoManager::GetSuperHubInfo failed, %{public}d", res);
         return "";
     }
-    return reply.ReadString();
+    std::string bundleName = reply.ReadString();
+    IExtInfoManager::superhubBundleName = bundleName;
+    return bundleName;
 }
 
 ErrCode ExtInfoManager::GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply)

@@ -125,6 +125,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
+    {static_cast<int32_t>(RestrictionsFeature::CORE_DUMP), EdmInterfaceCode::DISALLOW_CORE_DUMP},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
@@ -923,6 +924,14 @@ void RestrictionsAddon::CreateFeatureForDeviceObject(napi_env env, napi_value va
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P), &nWifiP2P));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI_P2P", nWifiP2P));
+    napi_value nLocalInput;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(RestrictionsFeature::LOCAL_INPUT), &nLocalInput));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LOCAL_INPUT", nLocalInput));
+    napi_value nCoreDump;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(RestrictionsFeature::CORE_DUMP), &nCoreDump));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CORE_DUMP", nCoreDump));
 }
 
 static napi_module g_restrictionsModule = {

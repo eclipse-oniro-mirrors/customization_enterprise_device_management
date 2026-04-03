@@ -103,8 +103,10 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
         elementName.SetAbilityName(admin->GetAbilityName());
     } else {
         isAdminNull = true;
-        if (!PermissionChecker::GetInstance()->CheckElementNullPermission(code,
-            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag))) {
+        if (!(PermissionChecker::GetInstance()->CheckElementNullPermission(code,
+            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)) ||
+            PermissionChecker::GetInstance()->CheckElementNullPermission(code,
+            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)))) {
             EDMLOGE("IPolicyQuery: permission check failed");
             return EdmReturnErrCode::PERMISSION_DENIED;
         }

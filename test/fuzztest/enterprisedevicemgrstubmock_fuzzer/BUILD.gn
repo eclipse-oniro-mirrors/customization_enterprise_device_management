@@ -128,6 +128,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/ntp_server_query.cpp",
     "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
     "../../../services/edm/src/query_policy/query_bundle_stats_infos_query.cpp",
+    "../../../services/edm/src/query_policy/disallow_core_dump_query.cpp",
     "../../../services/edm/src/query_policy/snapshot_skip_query.cpp",
     "../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../services/edm/src/strategy/replace_execute_strategy.cpp",
@@ -139,8 +140,6 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
-    "../../../services/edm_plugin/src/utils/bt_protocol_utils.cpp",
-    "../../../services/edm_plugin/src/utils/bluetooth_config_utils.cpp",
   ]
 
   sources += [

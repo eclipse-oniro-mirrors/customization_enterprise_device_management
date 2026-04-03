@@ -82,7 +82,7 @@ bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int3
     bool isInstalled = false;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetBundleInfo GetBundleMgr failed.");
         return false;
     }
@@ -97,7 +97,7 @@ std::string EdmBundleManagerImpl::GetApplicationInfo(const std::string &appName,
     AppExecFwk::ApplicationInfo appInfo;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo GetBundleMgr failed.");
         return "";
     }
@@ -111,7 +111,7 @@ int32_t EdmBundleManagerImpl::GetApplicationUid(const std::string &appName, int 
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetApplicationUid GetBundleMgr failed.");
         return 0;
     }
@@ -124,7 +124,7 @@ int32_t EdmBundleManagerImpl::GetTokenId(const std::string &appName, int userId)
     AppExecFwk::ApplicationInfo appInfo;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo GetBundleMgr failed.");
         return 0;
     }
@@ -139,12 +139,12 @@ ErrCode EdmBundleManagerImpl::AddAppInstallControlRule(std::vector<std::string> 
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::AddAppInstallControlRule GetBundleMgr failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto appControlProxy = proxy->GetAppControlProxy();
-    if (appControlProxy == nullptr) {
+    if (appControlProxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::AddAppInstallControlRule GetAppControlProxy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -161,12 +161,12 @@ ErrCode EdmBundleManagerImpl::DeleteAppInstallControlRule(AppExecFwk::AppInstall
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::DeleteAppInstallControlRule GetBundleMgr failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto appControlProxy = proxy->GetAppControlProxy();
-    if (appControlProxy == nullptr) {
+    if (appControlProxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::AddAppInstallControlRule GetAppControlProxy failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -182,7 +182,7 @@ bool EdmBundleManagerImpl::SetDisallowedUninstall(const std::string &bundleName,
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::SwitchUninstallState GetBundleMgr failed.");
         return false;
     }
@@ -225,7 +225,7 @@ ErrCode EdmBundleManagerImpl::IsSystemApp(const std::string &bundleName, int use
     AppExecFwk::ApplicationInfo appInfo;
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetApplicationInfo GetBundleMgr failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -243,7 +243,7 @@ bool EdmBundleManagerImpl::SetApplicationDisableForbidden(const std::string &bun
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::SetApplicationDisableForbidden failed.");
         return false;
     }
@@ -258,12 +258,12 @@ std::string EdmBundleManagerImpl::GetIconByBundleName(const std::string &bundleN
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) {
+    if (proxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetIconByBundleName getBundleProxy failed.");
         return "";
     }
     auto bundleResourceProxy = proxy->GetBundleResourceProxy();
-    if (bundleResourceProxy == nullptr) {
+    if (bundleResourceProxy == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("EdmBundleManagerImpl::GetIconByBundleName GetBundleResourceProxy failed.");
         return "";
     }

@@ -190,6 +190,7 @@
 #include "disallow_modify_wallpaper_query.h"
 #include "get_installed_bundle_storage_stats_query.h"
 #include "query_bundle_stats_infos_query.h"
+#include "disallow_core_dump_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -792,6 +793,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery>
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::DISALLOW_CORE_DUMP:
+            obj = std::make_shared<DisallowCoreDumpQuery>();
+            return ERR_OK;
         default:
             break;
     }
