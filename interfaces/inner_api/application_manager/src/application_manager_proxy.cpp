@@ -721,7 +721,7 @@ bool ApplicationManagerProxy::ParseBundleStatsInfos(MessageParcel &reply,
         if (!reply.ReadString(bundleStatsInfo.bundleName)) {
             return false;
         }
-        if (!reply.ReadInt32(bundleStatsInfo.abilityInFgTotalTime)) {
+        if (!reply.ReadInt64(bundleStatsInfo.abilityInFgTotalTime)) {
             return false;
         }
         if (!reply.ReadInt32(bundleStatsInfo.appIndex)) {

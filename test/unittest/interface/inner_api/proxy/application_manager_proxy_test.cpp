@@ -1063,13 +1063,11 @@ HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosSuc, TestSize.Lev
     
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
-    int32_t intervalType = 0;
     int64_t startTime = 0;
     int64_t endTime = 10000000;
     int32_t accountId = 100;
     
     data.WriteParcelable(&admin);
-    data.WriteInt32(intervalType);
     data.WriteInt64(startTime);
     data.WriteInt64(endTime);
     data.WriteInt32(accountId);
@@ -1093,13 +1091,11 @@ HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosFail, TestSize.Le
     
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
-    int32_t intervalType = 0;
     int64_t startTime = 0;
     int64_t endTime = 10000000;
     int32_t accountId = 100;
     
     data.WriteParcelable(&admin);
-    data.WriteInt32(intervalType);
     data.WriteInt64(startTime);
     data.WriteInt64(endTime);
     data.WriteInt32(accountId);
@@ -1122,13 +1118,11 @@ HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosReplyFail, TestSi
     
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
-    int32_t intervalType = 0;
     int64_t startTime = 0;
     int64_t endTime = 10000000;
     int32_t accountId = 100;
     
     data.WriteParcelable(&admin);
-    data.WriteInt32(intervalType);
     data.WriteInt64(startTime);
     data.WriteInt64(endTime);
     data.WriteInt32(accountId);
@@ -1151,13 +1145,11 @@ HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosSizeOverLimit, Te
     
     MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
-    int32_t intervalType = 0;
     int64_t startTime = 0;
     int64_t endTime = 10000000;
     int32_t accountId = 100;
     
     data.WriteParcelable(&admin);
-    data.WriteInt32(intervalType);
     data.WriteInt64(startTime);
     data.WriteInt64(endTime);
     data.WriteInt32(accountId);

@@ -22,7 +22,7 @@ namespace OHOS {
 namespace EDM {
 struct BundleStatsInfo {
     std::string bundleName;
-    int32_t abilityInFgTotalTime;
+    int64_t abilityInFgTotalTime;
     int32_t appIndex;
 };
 } // namespace EDM
