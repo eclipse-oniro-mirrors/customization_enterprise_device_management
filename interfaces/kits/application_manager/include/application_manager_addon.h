@@ -86,6 +86,9 @@ public:
     static napi_value GetAllowedNotificationBundles(napi_env env, napi_callback_info info);
     static napi_value QueryTrafficStats(napi_env env, napi_callback_info info);
     static napi_value QueryBundleStatsInfos(napi_env env, napi_callback_info info);
+    static napi_value AddHideLauncherIcon(napi_env env, napi_callback_info info);
+    static napi_value RemoveHideLauncherIcon(napi_env env, napi_callback_info info);
+    static napi_value GetHideLauncherIcon(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
@@ -97,6 +100,7 @@ private:
     static napi_value AddOrRemoveFreezeExemptedApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveUserNonStopApps(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveDockApp(napi_env env, napi_callback_info info, std::string function);
+    static napi_value AddOrRemoveHideLauncherIcon(napi_env env, napi_callback_info info, bool isAdd);
     static bool EdmParseElementName(napi_env env, OHOS::EDM::EdmElementName &elementName, napi_value args);
     static napi_value EdmParseElementArray(napi_env env, std::vector<OHOS::EDM::EdmElementName> &elementArray,
         napi_value args);
@@ -104,6 +108,7 @@ private:
         std::vector<EdmElementName> autoStartApps);
 
     static void CreateKioskFeatureObject(napi_env env, napi_value value);
+    static std::vector<napi_property_descriptor> InitOne();
     static void NativeAddDisallowedRunningBundles(napi_env env, void *data);
     static void NativeRemoveDisallowedRunningBundles(napi_env env, void *data);
     static void NativeGetDisallowedRunningBundles(napi_env env, void *data);

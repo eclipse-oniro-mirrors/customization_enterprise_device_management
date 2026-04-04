@@ -92,6 +92,7 @@ namespace EdmConstants {
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL = "persist.edm.kiosk.allow_gesture_control";
         const char* const PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK = "persist.edm.kiosk.allow_side_dock";
+        const char* const ENTERPRISE_CUSTOM_HIDE_APP_LIST = "com.enterprise.custom_hide_app_list";
     }
 
     namespace Browser {
@@ -134,6 +135,7 @@ namespace EdmConstants {
         constexpr uint32_t START_COLLECT_LOG = 30;
         constexpr uint32_t SET_KEY_EVENTS = 31;
         constexpr uint32_t DISABLE_SUPERHUB = 36;
+        constexpr uint32_t HIDE_LAUNCHER_ICON = 37;
     }
 
     namespace KeepAlive {
@@ -465,6 +467,7 @@ namespace PolicyName {
     const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
     const char* const POLICY_DISABLED_SUPERHUB = "disabled_superhub";
     const char* const POLICY_QUERY_BUNDLE_STATS_INFOS = "query_bundle_stats_infos";
+    const char* const POLICY_HIDE_LAUNCHER_ICON = "hide_launcher_icon";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

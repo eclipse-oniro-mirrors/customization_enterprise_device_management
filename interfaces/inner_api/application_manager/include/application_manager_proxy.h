@@ -86,6 +86,10 @@ public:
     int32_t QueryTrafficStats(const AppExecFwk::ElementName &admin, const NetStatsNetwork &networkInfo,
         NetStatsInfo &netStatsInfo);
     int32_t QueryBundleStatsInfos(MessageParcel &data, std::vector<BundleStatsInfo> &bundleStatsInfos);
+#ifndef FEATURE_PC_ONLY
+    int32_t AddOrRemoveHideLauncherIcon(MessageParcel &data, bool isAdd);
+    int32_t GetHideLauncherIcon(MessageParcel &data, std::vector<std::string> &bundleNames);
+#endif
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;
