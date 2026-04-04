@@ -60,6 +60,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
         DECLARE_NAPI_FUNCTION("installEnterpriseReSignatureCertificate", InstallEnterpriseReSignatureCertificate),
         DECLARE_NAPI_FUNCTION("uninstallEnterpriseReSignatureCertificate", UninstallEnterpriseReSignatureCertificate),
+        DECLARE_NAPI_FUNCTION("setScreenLockDisabledForAccount", SetScreenLockDisabledForAccount),
+        DECLARE_NAPI_FUNCTION("isScreenLockDisabledForAccount", IsScreenLockDisabledForAccount),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -410,6 +412,63 @@ bool SecurityManagerAddon::ParseCertBlob(napi_env env, napi_value object, AsyncC
         return false;
     }
     return JsObjectToString(env, object, "alias", true, asyncCertCallbackInfo->certblobCA.alias);
+}
+
+napi_value SecurityManagerAddon::SetScreenLockDisabledForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetScreenLockDisabledForAccount called");
+    auto convertBool2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+            bool disabled = false;
+            if (!ParseBool(env, disabled, argv)) {
+                EDMLOGE("Parameter disabled error");
+                return false;
+            }
+            data.WriteBool(disabled);
+            return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetScreenLockDisabledForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertBool2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->SetScreenLockDisabledForAccount(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::IsScreenLockDisabledForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsScreenLockDisabledForAccount called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = { nullptr };
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    OHOS::AppExecFwk::ElementName elementName;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+
+    bool disabled = false;
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->IsScreenLockDisabledForAccount(elementName, disabled);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value result;
+    NAPI_CALL(env, napi_get_boolean(env, disabled, &result));
+    return result;
 }
 
 napi_value SecurityManagerAddon::SetAppClipboardPolicy(napi_env env, napi_callback_info info)

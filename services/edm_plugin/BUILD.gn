@@ -192,6 +192,10 @@ ohos_shared_library("device_core_plugin") {
       external_deps += [ "screenlock_mgr:screenlock_client" ]
       sources += [ "./src/lock_screen_plugin.cpp" ]
     }
+    
+    if (screenlock_mgr_edm_enable && !enterprise_device_management_feature_pc_only) {
+      sources += [ "./src/disable_screen_lock_plugin.cpp" ]
+    }
 
     if (!enterprise_device_management_feature_pc_only) {
       sources += [

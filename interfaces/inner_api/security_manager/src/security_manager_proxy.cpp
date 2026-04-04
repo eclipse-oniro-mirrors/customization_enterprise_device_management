@@ -346,5 +346,34 @@ int32_t SecurityManagerProxy::UninstallEnterpriseReSignatureCertificate(MessageP
     }
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::SetScreenLockDisabledForAccount(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::SetScreenLockDisabledForAccount");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_SCREEN_LOCK);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::IsScreenLockDisabledForAccount(const AppExecFwk::ElementName &admin, bool &disabled)
+{
+    EDMLOGD("SecurityManagerProxy::IsScreenLockDisabledForAccount");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISABLE_SCREEN_LOCK, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGW("SecurityManagerProxy:IsScreenLockDisabledForAccount fail. %{public}d", ret);
+        return ret;
+    }
+    disabled = reply.ReadBool();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

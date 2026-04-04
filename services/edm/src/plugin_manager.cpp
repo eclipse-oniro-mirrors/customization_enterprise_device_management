@@ -47,7 +47,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::UNINSTALL, EdmInterfaceCode::DISABLED_PRINTER,
     EdmInterfaceCode::DISABLED_HDC, EdmInterfaceCode::INSTALL,
     EdmInterfaceCode::POWER_POLICY, EdmInterfaceCode::NTP_SERVER,
-    EdmInterfaceCode::LOCK_SCREEN, EdmInterfaceCode::SHUTDOWN,
+    EdmInterfaceCode::LOCK_SCREEN, EdmInterfaceCode::SHUTDOWN, EdmInterfaceCode::DISABLE_SCREEN_LOCK,
     EdmInterfaceCode::REBOOT, EdmInterfaceCode::DISALLOW_ADD_OS_ACCOUNT_BY_USER,
     EdmInterfaceCode::ADD_OS_ACCOUNT, EdmInterfaceCode::GET_BLUETOOTH_INFO,
     EdmInterfaceCode::DISABLE_MICROPHONE, EdmInterfaceCode::DISABLE_BLUETOOTH,

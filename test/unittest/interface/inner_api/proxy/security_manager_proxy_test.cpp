@@ -558,6 +558,74 @@ HWTEST_F(SecurityManagerProxyTest, TestInstallEnterpriseReSignatureCertificateFa
 }
 
 /**
+ * @tc.name: TestSetScreenLockDisabledForAccountSuc
+ * @tc.desc: Test SetScreenLockDisabledForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetScreenLockDisabledForAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    int32_t ret = proxy_->SetScreenLockDisabledForAccount(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetScreenLockDisabledForAccountFail
+ * @tc.desc: Test SetScreenLockDisabledForAccount fail func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetScreenLockDisabledForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    int32_t ret = proxy_->SetScreenLockDisabledForAccount(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsScreenLockDisabledForAccountSuc
+ * @tc.desc: Test IsScreenLockDisabledForAccount success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestIsScreenLockDisabledForAccountSuc, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisabled = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    int32_t ret = proxy_->IsScreenLockDisabledForAccount(admin, isDisabled);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isDisabled);
+}
+
+/**
+ * @tc.name: TestIsScreenLockDisabledForAccountFail
+ * @tc.desc: Test IsScreenLockDisabledForAccount without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestIsScreenLockDisabledForAccountFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisabled = false;
+    int32_t ret = proxy_->IsScreenLockDisabledForAccount(admin, isDisabled);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(isDisabled);
+}
+
+/**
  * @tc.name: TestUninstallEnterpriseReSignatureCertificateSuc
  * @tc.desc: Test UninstallEnterpriseReSignatureCertificate success func.
  * @tc.type: FUNC

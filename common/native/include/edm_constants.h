@@ -425,6 +425,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     const char* const POLICY_HANG_UP_CALLING = "hang_up_calling";
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";
+    const char* const POLICY_DISABLE_SCREEN_LOCK = "disable_screen_lock";
     const char* const POLICY_MANAGE_FREEZE_EXEMPTED_APPS = "manage_freeze_exempted_apps";
     const char* const POLICY_DISABLED_HDC_REMOTE = "disabled_hdc_remote";
     const char* const POLICY_MANAGE_USER_NON_STOP_APPS = "manage_user_non_stop_apps";
