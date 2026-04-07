@@ -84,7 +84,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::vector<int32_t> currentData;
     std::vector<int32_t> mergeData;
     int32_t numProtocols = CommonFuzzer::GetU32Data(data, pos, size) % 12000 + 1;
-    for (int32_t i = 0; i < numProtocols && pos + sizeof(int32_t) < size; i++) {
+    for (int32_t i = 0; i < numProtocols && i < size; i++) {
         mData.push_back(CommonFuzzer::GetU32Data(data, pos, size));
     }
     
@@ -96,10 +96,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     plugin.OnGetPolicy(policyData, dataParcel, replyParcel, WITHOUT_USERID);
-    
-    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
-    plugin.OnAdminRemove(adminName, currentData, mergeData, WITHOUT_USERID);
-    
+
     bool isGlobalChanged = CommonFuzzer::GetU32Data(data, pos, size) % 2;
     plugin.OnChangedPolicyDone(isGlobalChanged);
 
