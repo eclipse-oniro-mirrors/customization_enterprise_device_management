@@ -32,6 +32,8 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+constexpr int32_t INDEX_TWO = 2;
+
 class QueryTrafficStatsPluginTest : public testing::Test {
 protected:
     std::shared_ptr<EdmBundleManagerImplMock> bundleMgrMock_ = nullptr;
@@ -87,6 +89,9 @@ HWTEST_F(QueryTrafficStatsPluginTest, TestQueryTrafficStatsPluginOnGetPolicyInva
 
     std::string policyData;
     EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(-1)));
+    AppExecFwk::BundleInfo bundleInfo;
+    EXPECT_CALL(*bundleMgrMock_, GetBundleInfoV9)
+        .WillRepeatedly(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(false)));
     QueryTrafficStatsPlugin plugin;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
