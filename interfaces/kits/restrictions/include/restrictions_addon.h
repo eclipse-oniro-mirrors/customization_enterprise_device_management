@@ -66,7 +66,10 @@ private:
         std::uint32_t ipcCode, int32_t accountId, bool &disallow);
     static OHOS::ErrCode GetInterfaceCodeAndFeature(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode);
+    static OHOS::ErrCode GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
+        std::string &feature, uint32_t &ipcCode);
     static void CreateFeatureForDeviceObject(napi_env env, napi_value value);
+    static void CreateFeatureForAccountObject(napi_env env, napi_value value);
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::unordered_map<std::string, uint32_t> itemCodeMap;
@@ -74,6 +77,7 @@ private:
     static std::vector<uint32_t> multiPermCodes;
     static std::unordered_map<std::string, uint32_t> labelCodeMapForAccount;
     static std::unordered_map<int32_t, uint32_t> featureEnum2InterfaceCodeMap;
+    static std::unordered_map<int32_t, uint32_t> featureForAccountEnum2InterfaceCodeMap;
 };
 } // namespace EDM
 } // namespace OHOS

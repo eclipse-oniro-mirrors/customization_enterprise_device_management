@@ -117,8 +117,6 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST, EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SUPERHUB,
-        POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPERHUB},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MULTI_WINDOW, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW},
 };
 
@@ -128,11 +126,19 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::CORE_DUMP), EdmInterfaceCode::DISALLOW_CORE_DUMP},
 };
 
+std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::SUPER_HUB),
+        POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPERHUB},
+};
+
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nFeatureForDevice = nullptr;
+    napi_value nFeatureForAccount = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nFeatureForDevice));
+    NAPI_CALL(env, napi_create_object(env, &nFeatureForAccount));
     CreateFeatureForDeviceObject(env, nFeatureForDevice);
+    CreateFeatureForAccountObject(env, nFeatureForAccount);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setPrinterDisabled", SetPrinterDisabled),
         DECLARE_NAPI_FUNCTION("isPrinterDisabled", IsPrinterDisabled),
@@ -154,6 +160,7 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setUserRestrictionForAccount", SetUserRestrictionForAccount),
         DECLARE_NAPI_FUNCTION("getUserRestrictedForAccount", GetUserRestrictedForAccount),
         DECLARE_NAPI_PROPERTY("FeatureForDevice", nFeatureForDevice),
+        DECLARE_NAPI_PROPERTY("FeatureForAccount", nFeatureForAccount),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -541,7 +548,6 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
         "parameter disallow error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_THREE], napi_number),
@@ -549,10 +555,15 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
-    EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+    EDMLOGD("SetDisallowedPolicyForAccount: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::uint32_t ipcCode = 0;
     std::string feature;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    auto ret = GetInterfaceCodeAndFeatureForAccount(env, argv[ARR_INDEX_ONE], feature, ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
     bool disallow = false;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
     int32_t accountId = -1;
@@ -565,14 +576,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
-    auto labelCode = labelCodeMapForAccount.find(feature);
-    if (labelCode == labelCodeMapForAccount.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = labelCode->second;
     std::string permissionTag = WITHOUT_PERMISSION_TAG;
-    ErrCode ret;
     if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
         ret = proxy->SetFingerprintAuthDisallowedPolicyForAccount(elementName, disallow,
             ipcCode, permissionTag, accountId);
@@ -585,6 +589,34 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     return nullptr;
 }
 
+OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
+    std::string &feature, uint32_t &ipcCode)
+{
+    if (MatchValueType(env, value, napi_string)) {
+        if (!ParseString(env, feature, value)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        auto labelCode = labelCodeMapForAccount.find(feature);
+        if (labelCode == labelCodeMapForAccount.end()) {
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+        ipcCode = labelCode->second;
+    } else if (MatchValueType(env, value, napi_number)) {
+        int32_t featureNumber = -1;
+        if (!ParseInt(env, featureNumber, value)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        auto it = featureForAccountEnum2InterfaceCodeMap.find(featureNumber);
+        if (it == featureForAccountEnum2InterfaceCodeMap.end()) {
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+        ipcCode = it->second;
+    } else {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    return ERR_OK;
+}
+
 napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetDisallowedPolicyForAccount called");
@@ -594,28 +626,26 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "parameter feature error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
         "parameter accountId error");
     bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
-    EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+    EDMLOGD("GetDisallowedPolicyForAccount: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
+    std::uint32_t ipcCode = 0;
     std::string feature;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, feature, argv[ARR_INDEX_ONE]), "parameter feature parse error");
+    auto ret = GetInterfaceCodeAndFeatureForAccount(env, argv[ARR_INDEX_ONE], feature, ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
     int32_t accountId = -1;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]), "parameter accountId parse error");
 
-    auto labelCode = labelCodeMapForAccount.find(feature);
-    if (labelCode == labelCodeMapForAccount.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = labelCode->second;
     bool disallow = false;
-    ErrCode ret = NativeGetDisallowedPolicyForAccount(hasAdmin, elementName, ipcCode, accountId, disallow);
+    ret = NativeGetDisallowedPolicyForAccount(hasAdmin, elementName, ipcCode, accountId, disallow);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -932,6 +962,14 @@ void RestrictionsAddon::CreateFeatureForDeviceObject(napi_env env, napi_value va
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(RestrictionsFeature::CORE_DUMP), &nCoreDump));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CORE_DUMP", nCoreDump));
+}
+
+void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value value)
+{
+    napi_value nSuperHub;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(RestrictionsFeatureForAccount::SUPER_HUB), &nSuperHub));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUPER_HUB", nSuperHub));
 }
 
 static napi_module g_restrictionsModule = {
