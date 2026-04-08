@@ -392,11 +392,6 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseManagedTips(std::string &tips)
         tips = "";
         return ERR_OK;
     }
-    bool disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED, false);
-    if (disableTips) {
-        tips = "";
-        return ERR_OK;
-    }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

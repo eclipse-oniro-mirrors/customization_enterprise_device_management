@@ -73,6 +73,8 @@ namespace EdmConstants {
     const char* const ENTERPRISE_DEVICE_TEXT = "EnterpriseDeviceText";
     const char* const ENTERPRISE_MANAGED_TIPS = "enterpriseManagedTips";
     const char* const MANAGED_TIPS_DISABLED = "persist.edm.show_managed_tips_disabled";
+    const char* const ENTERPRISE_MANAGED_TIPS_ON_SETTINGS = "enterpriseManagedTipsOnSettings";
+    const char* const MANAGED_TIPS_DISABLED_ON_SETTINGS = "persist.edm.show_settings_managed_tips_disabled";
 
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";

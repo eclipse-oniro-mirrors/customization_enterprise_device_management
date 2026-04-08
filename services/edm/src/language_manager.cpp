@@ -58,7 +58,11 @@ std::string LanguageManager::GetEnterpriseManagedTips()
 bool LanguageManager::GetValueFromCloudSettings(std::string& result)
 {
     std::string jsonStr;
-    EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmConstants::ENTERPRISE_MANAGED_TIPS, jsonStr);
+    if (IsSettingsCalling()) {
+        EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmConstants::ENTERPRISE_MANAGED_TIPS_ON_SETTINGS, jsonStr);
+    } else {
+        EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmConstants::ENTERPRISE_MANAGED_TIPS, jsonStr);
+    }
     if (!jsonStr.empty()) {
         std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
         std::string valueFromSettingsData = GetTargetLanguageValue(jsonStr, language);
@@ -216,6 +220,15 @@ std::string LanguageManager::GetEnterpriseName()
 
 bool LanguageManager::IsNeedToShowEnterpriseManagedTips()
 {
+    bool disableTips = false;
+    if (IsSettingsCalling()) {
+        disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, false);
+    } else {
+        disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED, false);
+    }
+    if (disableTips) {
+        return false;
+    }
     EdmOsAccountManagerImpl osAccountMgr;
     int32_t userId = osAccountMgr.GetCurrentUserId();
     if (userId != EdmConstants::DEFAULT_USER_ID) {
