@@ -220,9 +220,10 @@ napi_value ApplicationManagerAddon::QueryBundleStatsInfos(napi_env env, napi_cal
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "QueryBundleStatsInfos";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT64,
-        EdmAddonCommonType::INT64, EdmAddonCommonType::INT32};
+        EdmAddonCommonType::INT64, EdmAddonCommonType::USERID};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
