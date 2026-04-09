@@ -75,7 +75,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_ABILITY_ENABLED,
     EdmInterfaceCode::SET_DEVICE_NAME, EdmInterfaceCode::SET_FLOATING_NAVIGATION,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
-    EdmInterfaceCode::DISALLOW_CORE_DUMP
+    EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

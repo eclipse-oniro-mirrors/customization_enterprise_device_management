@@ -73,6 +73,8 @@ namespace EdmConstants {
     const char* const ENTERPRISE_DEVICE_TEXT = "EnterpriseDeviceText";
     const char* const ENTERPRISE_MANAGED_TIPS = "enterpriseManagedTips";
     const char* const MANAGED_TIPS_DISABLED = "persist.edm.show_managed_tips_disabled";
+    const char* const ENTERPRISE_MANAGED_TIPS_ON_SETTINGS = "enterpriseManagedTipsOnSettings";
+    const char* const MANAGED_TIPS_DISABLED_ON_SETTINGS = "persist.edm.show_settings_managed_tips_disabled";
 
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
@@ -92,6 +94,7 @@ namespace EdmConstants {
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_GESTURE_CONTROL = "persist.edm.kiosk.allow_gesture_control";
         const char* const PARAM_EDM_KIOSK_ALLOW_SIDE_DOCK = "persist.edm.kiosk.allow_side_dock";
+        const char* const ENTERPRISE_CUSTOM_HIDE_APP_LIST = "com.enterprise.custom_hide_app_list";
     }
 
     namespace Browser {
@@ -134,6 +137,7 @@ namespace EdmConstants {
         constexpr uint32_t START_COLLECT_LOG = 30;
         constexpr uint32_t SET_KEY_EVENTS = 31;
         constexpr uint32_t DISABLE_SUPERHUB = 36;
+        constexpr uint32_t HIDE_LAUNCHER_ICON = 37;
     }
 
     namespace KeepAlive {
@@ -402,6 +406,7 @@ namespace PolicyName {
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
+    const char* const POLICY_SCREEN_WATERMARK_IMAGE = "screen_watermark_image";
     const char* const POLICY_ALLOWED_NOTIFICATION_BUNDLES = "allowed_notification_bundles";
     const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
     const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
@@ -466,6 +471,7 @@ namespace PolicyName {
     const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
     const char* const POLICY_DISABLED_SUPERHUB = "disabled_superhub";
     const char* const POLICY_QUERY_BUNDLE_STATS_INFOS = "query_bundle_stats_infos";
+    const char* const POLICY_HIDE_LAUNCHER_ICON = "hide_launcher_icon";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

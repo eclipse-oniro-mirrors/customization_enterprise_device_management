@@ -18,17 +18,25 @@
 #include <string>
 #include <vector>
 
+#include "parameters.h"
+
 #define private public
 #include "language_manager.h"
+#include "permission_checker.h"
 #undef private
 #include "admin_manager.h"
 #include "cJSON.h"
+#include "edm_bundle_manager_impl_mock.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
+#include "external_manager_factory_mock.h"
+#include "ext_info_manager.h"
 #include "locale_config.h"
+#include "permission_checker_mock.h"
 #include "utils.h"
 
 using namespace testing::ext;
+using namespace testing;
 
 namespace OHOS {
 namespace EDM {
@@ -37,14 +45,29 @@ constexpr int32_t DEFAULT_USERID = 100;
 
 class LanguageManagerTest : public testing::TestWithParam<std::pair<std::pair<std::string, std::string>, std::string>> {
 public:
-    void SetUp() override { Utils::SetEdmInitialEnv(); }
+    void SetUp() override
+    {
+        Utils::SetEdmInitialEnv();
+        bundleMgrMock_ = std::make_shared<EdmBundleManagerImplMock>();
+        factoryMock_ = std::make_shared<ExternalManagerFactoryMock>();
+        permissionCheckerMock_ = std::make_shared<PermissionCheckerMock>();
+        PermissionChecker::instance_ = permissionCheckerMock_;
+        EXPECT_CALL(*permissionCheckerMock_, GetExternalManagerFactory).WillRepeatedly(DoAll(Return(factoryMock_)));
+        EXPECT_CALL(*factoryMock_, CreateBundleManager).WillRepeatedly(DoAll(Return(bundleMgrMock_)));
+    }
 
     void TearDown() override
     {
         Utils::ResetTokenTypeAndUid();
         ASSERT_TRUE(Utils::IsOriginalUTEnv());
+        PermissionChecker::instance_.reset();
         std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
     }
+
+protected:
+    std::shared_ptr<EdmBundleManagerImplMock> bundleMgrMock_ = nullptr;
+    std::shared_ptr<ExternalManagerFactoryMock> factoryMock_ = nullptr;
+    std::shared_ptr<PermissionCheckerMock> permissionCheckerMock_ = nullptr;
 };
 
 /**
@@ -223,63 +246,163 @@ HWTEST_F(LanguageManagerTest, TestGetEnterpriseManagedTips, TestSize.Level1)
     EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS, "");
     free(enterpriseInfo);
     cJSON_Delete(root);
-#ifdef FEATURE_PC_ONLY
     EXPECT_EQ(result, "lockInfo");
-#else
-    EXPECT_TRUE(result.empty());
-#endif
 }
 
 /**
- * @tc.name: TestIsNeedToShowEnterpriseManagedTips_ReturnsFalse
- * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
+ * @tc.name: IsNeedToShowEnterpriseManagedTips_DisabledOnSettingsWithSettingsCall_False
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func with managed tips disabled on settings.
  * @tc.type: FUNC
  */
-HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ReturnsFalse, TestSize.Level1)
+HWTEST_F(LanguageManagerTest, IsNeedToShowEnterpriseManagedTips_DisabledOnSettingsWithSettingsCall_False,
+    TestSize.Level1)
 {
-    std::string bundleName = "test";
-    AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
-    AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo);
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, "true");
+    auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+        Return(ERR_OK)));
+
     bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
-#ifdef FEATURE_PC_ONLY
-    EXPECT_EQ(ret, true);
-#else
     EXPECT_EQ(ret, false);
-#endif
-    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::NORMAL);
-    EXPECT_EQ(res, ERR_OK);
+
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, "false");
 }
 
 /**
- * @tc.name: TestIsNeedToShowEnterpriseManagedTips_ReturnsTrue
+ * @tc.name: IsNeedToShowEnterpriseManagedTips_DisabledOnSettingsWithNotSettingsCall_True
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func with managed tips disabled on settings.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, IsNeedToShowEnterpriseManagedTips_DisabledOnSettingsWithNotSettingsCall_True,
+    TestSize.Level1)
+{
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, "true");
+
+    bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
+    EXPECT_EQ(ret, true);
+
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, "false");
+}
+
+/**
+ * @tc.name: IsNeedToShowEnterpriseManagedTips_DisabledWithSettingsCall_True
  * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
  * @tc.type: FUNC
  */
-HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ReturnsTrue, TestSize.Level1)
+HWTEST_F(LanguageManagerTest, IsNeedToShowEnterpriseManagedTips_DisabledWithSettingsCall_True, TestSize.Level1)
+{
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "true");
+    auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+        Return(ERR_OK)));
+
+    bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
+    EXPECT_EQ(ret, true);
+
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "false");
+}
+
+/**
+ * @tc.name: IsNeedToShowEnterpriseManagedTips_DisabledWithNotSettingsCall_False
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, IsNeedToShowEnterpriseManagedTips_DisabledWithNotSettingsCall_False, TestSize.Level1)
+{
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "true");
+
+    bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
+    EXPECT_EQ(ret, false);
+
+    system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "false");
+}
+
+/**
+ * @tc.name: TestIsNeedToShowEnterpriseManagedTips_HasDebugAdmin_True
+ * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_HasDebugAdmin_True, TestSize.Level1)
 {
     std::string bundleName = "test";
-    AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::ENT, .isDebug_ = true};
+    AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::BYOD, .isDebug_ = true};
     AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo);
     bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
     EXPECT_EQ(ret, true);
-    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
+    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::BYOD);
     EXPECT_EQ(res, ERR_OK);
 }
 
 /**
- * @tc.name: TestIsNeedToShowEnterpriseManagedTips_ByodReturnsFalse
+ * @tc.name: TestIsNeedToShowEnterpriseManagedTips_HasByodAdmin_False
  * @tc.desc: Test LanguageManager IsNeedToShowEnterpriseManagedTips func.
  * @tc.type: FUNC
  */
-HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_ByodReturnsFalse, TestSize.Level1)
+HWTEST_F(LanguageManagerTest, TestIsNeedToShowEnterpriseManagedTips_HasByodAdmin_False, TestSize.Level1)
 {
     std::string bundleName = "test";
     AdminInfo adminInfo = {.packageName_ = bundleName, .adminType_ = AdminType::BYOD, .isDebug_ = false};
     AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo);
     bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
     EXPECT_EQ(ret, false);
-    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
+    auto res = AdminManager::GetInstance()->DeleteAdmin(bundleName, EdmConstants::DEFAULT_USER_ID, AdminType::BYOD);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: IsSettingsCalling_NotSettingsCalling_False
+ * @tc.desc: Test LanguageManager IsSettingsCalling when not settings calling.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, IsSettingsCalling_NotSettingsCalling_False, TestSize.Level1)
+{
+    bool ret = LanguageManager::IsSettingsCalling();
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IsSettingsCalling_SettingsCalling_True
+ * @tc.desc: Test LanguageManager IsSettingsCalling when settings calling.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, IsSettingsCalling_SettingsCalling_True, TestSize.Level1)
+{
+    auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+        Return(ERR_OK)));
+
+    bool ret = LanguageManager::IsSettingsCalling();
+
+    EXPECT_EQ(ret, true);
+}
+
+/**
+ * @tc.name: GetValueFromCloudSettings_SettingsEnterpriseManagedTips_Success
+ * @tc.desc: Test LanguageManager GetValueFromCloudSettings uses correct config key for Settings.
+ * @tc.type: FUNC
+ */
+HWTEST_F(LanguageManagerTest, GetValueFromCloudSettings_SettingsEnterpriseManagedTips_Success, TestSize.Level1)
+{
+    auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+        Return(ERR_OK)));
+
+    std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
+    cJSON* root = cJSON_CreateObject();
+    ASSERT_TRUE(root != nullptr);
+    cJSON_AddStringToObject(root, language.c_str(), "settingsManagedTips");
+    char* enterpriseInfo = cJSON_Print(root);
+    EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS_ON_SETTINGS, enterpriseInfo);
+
+    std::string result;
+    bool ret = LanguageManager::GetValueFromCloudSettings(result);
+    
+    EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS_ON_SETTINGS, "");
+    free(enterpriseInfo);
+    cJSON_Delete(root);
+
+    EXPECT_EQ(ret, true);
+    EXPECT_EQ(result, "settingsManagedTips");
 }
 } // namespace TEST
 } // namespace EDM

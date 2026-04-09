@@ -336,6 +336,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/disable_backup_and_restore_query.cpp",
       "./src/query_policy/disable_private_space_query.cpp",
       "./src/query_policy/disallow_multi_window_query.cpp",
+      "./src/query_policy/hide_launcher_icon_query.cpp",
     ]
     defines += [
       "BACKUP_AND_RESTORE_EDM_ENABLE",

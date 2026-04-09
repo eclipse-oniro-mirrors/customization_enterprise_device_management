@@ -32,13 +32,14 @@
 using namespace OHOS::EDM;
 
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
+
 napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nKioskFeature = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nKioskFeature));
     CreateKioskFeatureObject(env, nKioskFeature);
-
-    napi_property_descriptor property[] = {
+    
+    std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundles", AddDisallowedRunningBundles),
         DECLARE_NAPI_FUNCTION("removeDisallowedRunningBundles", RemoveDisallowedRunningBundles),
         DECLARE_NAPI_FUNCTION("getDisallowedRunningBundles", GetDisallowedRunningBundles),
@@ -79,8 +80,21 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("queryTrafficStats", QueryTrafficStats),
         DECLARE_NAPI_FUNCTION("queryBundleStatsInfos", QueryBundleStatsInfos),
     };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
+    std::vector<napi_property_descriptor> propertyOne = InitOne();
+    property.insert(property.end(), propertyOne.begin(), propertyOne.end());
+    
+    NAPI_CALL(env, napi_define_properties(env, exports, property.size(), property.data()));
     return exports;
+}
+
+std::vector<napi_property_descriptor> ApplicationManagerAddon::InitOne()
+{
+    std::vector<napi_property_descriptor> property = {
+        DECLARE_NAPI_FUNCTION("addHideLauncherIcon", AddHideLauncherIcon),
+        DECLARE_NAPI_FUNCTION("removeHideLauncherIcon", RemoveHideLauncherIcon),
+        DECLARE_NAPI_FUNCTION("getHideLauncherIcon", GetHideLauncherIcon),
+    };
+    return property;
 }
 
 napi_value ApplicationManagerAddon::IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info)
@@ -1599,6 +1613,81 @@ void ApplicationManagerAddon::NativeQueryTrafficStatsComplete(napi_env env, napi
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
+}
+
+napi_value ApplicationManagerAddon::AddHideLauncherIcon(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddHideLauncherIcon called");
+    return AddOrRemoveHideLauncherIcon(env, info, true);
+}
+
+napi_value ApplicationManagerAddon::RemoveHideLauncherIcon(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveHideLauncherIcon called");
+    return AddOrRemoveHideLauncherIcon(env, info, false);
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveHideLauncherIcon(napi_env env, napi_callback_info info, bool isAdd)
+{
+#ifndef FEATURE_PC_ONLY
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddOrRemoveHideLauncherIcon";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING,
+        EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        AddOrRemoveHideLauncherIcon(adapterAddonData.data, isAdd);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+#else
+    EDMLOGW("ApplicationManagerAddon::AddOrRemoveDockApp Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+
+napi_value ApplicationManagerAddon::GetHideLauncherIcon(napi_env env, napi_callback_info info)
+{
+#ifndef FEATURE_PC_ONLY
+    EDMLOGI("NAPI_GetHideLauncherIcon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetHideLauncherIcon";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    std::vector<std::string> bundleNames;
+    int32_t retCode = ApplicationManagerProxy::GetApplicationManagerProxy()->GetHideLauncherIcon(adapterAddonData.data,
+        bundleNames);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    for (size_t i = 0; i < bundleNames.size(); i++) {
+        napi_value bundleName = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, bundleNames[i].c_str(), NAPI_AUTO_LENGTH, &bundleName));
+        NAPI_CALL(env, napi_set_element(env, result, i, bundleName));
+    }
+    return result;
+#else
+    EDMLOGW("ApplicationManagerAddon::AddOrRemoveDockApp Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
 }
 
 static napi_module g_applicationManagerModule = {

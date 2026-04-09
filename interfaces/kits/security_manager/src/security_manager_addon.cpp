@@ -52,6 +52,8 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAppClipboardPolicy", GetAppClipboardPolicy),
         DECLARE_NAPI_FUNCTION("setWatermarkImage", SetWatermarkImage),
         DECLARE_NAPI_FUNCTION("cancelWatermarkImage", CancelWatermarkImage),
+        DECLARE_NAPI_FUNCTION("setScreenWatermarkImage", SetScreenWatermarkImage),
+        DECLARE_NAPI_FUNCTION("cancelScreenWatermarkImage", CancelScreenWatermarkImage),
         DECLARE_NAPI_FUNCTION("setPermissionManagedState", SetPermissionManagedState),
         DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
@@ -1024,6 +1026,86 @@ napi_value SecurityManagerAddon::UninstallEnterpriseReSignatureCertificate(napi_
         UninstallEnterpriseReSignatureCertificate(adapterAddonData.data);
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
+        return nullptr;
+    }
+    napi_value ret;
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
+    return ret;
+}
+
+napi_value SecurityManagerAddon::SetScreenWatermarkImage(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetScreenWatermarkImage called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter admin error");
+
+    // Only PixelMap type is supported, string type is not supported
+    napi_valuetype imageValueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_ONE], &imageValueType));
+    ASSERT_AND_THROW_PARAM_ERROR(env, imageValueType == napi_object, "image type error, only PixelMap supported");
+
+    std::shared_ptr<WatermarkParam> paramPtr = nullptr;
+    napi_value ret = CheckBuildScreenWatermarkParam(env, argv, paramPtr);
+    if (ret == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = -1;
+    NAPI_CALL(env, napi_get_value_int32(env, ret, &retCode));
+    if (FAILED(retCode)) {
+        return nullptr;
+    }
+    retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetScreenWatermarkImage(elementName, paramPtr);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::CancelScreenWatermarkImage(napi_env env, napi_callback_info info)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "CancelScreenWatermarkImage";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->CancelScreenWatermarkImage(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::CheckBuildScreenWatermarkParam(napi_env env, napi_value* argv,
+    std::shared_ptr<WatermarkParam> &paramPtr)
+{
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "source type error");
+    auto param = new (std::nothrow) WatermarkParam();
+    if (param == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    paramPtr = std::shared_ptr<WatermarkParam>(param, [](WatermarkParam *param) {
+        param->CheckAndFreePixels();
+        delete param;
+    });
+    std::shared_ptr<Media::PixelMap> pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_ONE]);
+    ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr, "Parameter pixelMap error");
+    if (!GetPixelMapData(pixelMap, paramPtr)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
     napi_value ret;

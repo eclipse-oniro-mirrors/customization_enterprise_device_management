@@ -63,9 +63,13 @@ private:
     static void CreateClipboardPolicyObject(napi_env env, napi_value value);
     static napi_value SetWatermarkImage(napi_env env, napi_callback_info info);
     static napi_value CancelWatermarkImage(napi_env env, napi_callback_info info);
+    static napi_value SetScreenWatermarkImage(napi_env env, napi_callback_info info);
+    static napi_value CancelScreenWatermarkImage(napi_env env, napi_callback_info info);
     static std::shared_ptr<Media::PixelMap> Decode(const std::string url);
     static bool GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, std::shared_ptr<WatermarkParam> param);
     static napi_value CheckBuildWatermarkParam(napi_env env, napi_value* argv,
+        std::shared_ptr<WatermarkParam> &paramPtr);
+    static napi_value CheckBuildScreenWatermarkParam(napi_env env, napi_value* argv,
         std::shared_ptr<WatermarkParam> &paramPtr);
     static void SetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);
     static void GetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);

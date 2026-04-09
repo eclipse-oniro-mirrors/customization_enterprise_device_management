@@ -235,6 +235,36 @@ int32_t SecurityManagerProxy::CancelWatermarkImage(MessageParcel &data)
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
+int32_t SecurityManagerProxy::SetScreenWatermarkImage(const AppExecFwk::ElementName &admin,
+    std::shared_ptr<WatermarkParam> param)
+{
+    EDMLOGD("SecurityManagerProxy::SetScreenWatermarkImage");
+    if (param == nullptr || param->pixels == nullptr) {
+        EDMLOGE("SecurityManagerProxy::SetScreenWatermarkImage param or pixels is null");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    MessageParcel data;
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(param->width);
+    data.WriteInt32(param->height);
+    data.WriteInt32(param->size);
+    data.WriteRawData(reinterpret_cast<const void*>(param->pixels), param->size);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::CancelScreenWatermarkImage(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::CancelScreenWatermarkImage");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
 int32_t SecurityManagerProxy::InstallUserCertificate(const AppExecFwk::ElementName &admin,
     const CertBlobCA &certblobCA, std::string &result, std::string &innerCodeMsg)
 {
