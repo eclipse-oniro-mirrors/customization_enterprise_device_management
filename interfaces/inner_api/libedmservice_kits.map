@@ -115,6 +115,8 @@
             OHOS::EDM::NetStatsInfo::*;
             OHOS::EDM::BluetoothProtocolPolicySerializer::*;
             vtable?for?OHOS::EDM::BluetoothProtocolPolicySerializer;
+            OHOS::EDM::ScreenWatermarkImageSerializer::*;
+            vtable?for?OHOS::EDM::ScreenWatermarkImageSerializer;
         };
     local:
         *;
