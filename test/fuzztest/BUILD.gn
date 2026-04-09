@@ -80,6 +80,12 @@ group("fuzztest") {
     ]
   }
 
+  if (screenlock_mgr_edm_enable && !enterprise_device_management_feature_pc_only) {
+    deps += [
+      "disable_screen_lock_plugin_fuzzer:DisableScreenLockPluginFuzzTest",
+    ]
+  }
+
   if (enterprise_device_management_feature_pc_only) {
     deps += [
       "disallowedusbstoragedevicewriteplugin_fuzzer:DisallowedUsbStorageDeviceWritePluginFuzzTest",

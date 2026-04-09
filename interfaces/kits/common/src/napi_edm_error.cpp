@@ -68,6 +68,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::DOCK_APP_INDEX_NOT_SUPPORT, "The location is inoperable"},
     {EdmReturnErrCode::SET_DEFAULT_DATA_SIM_FAILED,
         "Failed to set default data sim, please turn off airplane mode or insert sim card."},
+    {EdmReturnErrCode::SCREEN_LOCK_PWD_HAS_BEEN_SET,
+        "A lock screen password has been set for the device."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode)

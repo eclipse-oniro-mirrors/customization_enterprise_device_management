@@ -202,6 +202,7 @@ enum EdmInterfaceCode : uint32_t {
     DISALLOWED_UINPUT = 1153,
     DISALLOW_CORE_DUMP = 1154,
     SCREEN_WATERMARK_IMAGE = 1155,
+    DISABLE_SCREEN_LOCK = 1157,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
