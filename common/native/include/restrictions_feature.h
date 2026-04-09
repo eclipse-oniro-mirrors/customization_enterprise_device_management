@@ -23,6 +23,10 @@ enum class RestrictionsFeature : int32_t {
     LOCAL_INPUT = 2,
     CORE_DUMP = 6,
 };
+
+enum class RestrictionsFeatureForAccount : int32_t {
+    SUPER_HUB = 2,
+};
 } // namespace EDM
 } // namespace OHOS
 
