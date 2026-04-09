@@ -72,10 +72,14 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "A lock screen password has been set for the device."},
 };
 
-napi_value CreateError(napi_env env, ErrCode errorCode)
+napi_value CreateError(napi_env env, ErrCode errorCode, int32_t isAfterApi24)
 {
     auto pair = GetMessageFromReturncode(errorCode);
-    return CreateError(env, pair.first, pair.second);
+    if (isAfterApi24 == BEFORE_API24_FLAG) {
+        return CreateError(env, pair.first, pair.second);
+    } else {
+        return CreateErrorAfterApi24(env, pair.first, pair.second);
+    }
 }
 
 napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode)
@@ -103,6 +107,18 @@ napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMe
         std::to_string(errorCode).size(), &errorCodeStr);
     napi_create_string_utf8(env, errMessage.c_str(), errMessage.size(), &message);
     napi_create_error(env, errorCodeStr, message, &result);
+    return result;
+}
+
+napi_value CreateErrorAfterApi24(napi_env env, int32_t errorCode, const std::string &errMessage)
+{
+    napi_value result = nullptr;
+    napi_value message = nullptr;
+    napi_value errorCodeNum = nullptr;
+    napi_create_int32(env, errorCode, &errorCodeNum);
+    napi_create_string_utf8(env, errMessage.c_str(), errMessage.size(), &message);
+    napi_create_error(env, nullptr, message, &result);
+    napi_set_named_property(env, result, "code", errorCodeNum);
     return result;
 }
 
