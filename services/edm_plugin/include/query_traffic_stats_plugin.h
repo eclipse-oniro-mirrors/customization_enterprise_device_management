@@ -49,6 +49,7 @@ public:
 private:
     ErrCode QueryTrafficStatsByUidNetwork(int32_t uid, const NetStatsNetwork &networkInfo,
         NetStatsInfo &netStatsInfo);
+    bool GetAppUid(const NetStatsNetwork &networkInfo, int32_t &uid);
     static std::shared_ptr<IEdmBundleManager> bundleMgr_;
 };
 } // namespace EDM

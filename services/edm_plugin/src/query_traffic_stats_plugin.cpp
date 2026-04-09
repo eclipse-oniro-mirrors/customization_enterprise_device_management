@@ -62,8 +62,8 @@ ErrCode QueryTrafficStatsPlugin::OnGetPolicy(std::string &policyData, MessagePar
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    int32_t uid = bundleMgr_->GetApplicationUid(networkInfo.bundleName, networkInfo.accountId, networkInfo.appIndex);
-    if (uid <= 0) {
+    int32_t uid = -1;
+    if (!GetAppUid(networkInfo, uid)) {
         EDMLOGE("QueryTrafficStatsPlugin::OnGetPolicy getUid failed");
         reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
@@ -79,6 +79,27 @@ ErrCode QueryTrafficStatsPlugin::OnGetPolicy(std::string &policyData, MessagePar
     reply.WriteInt32(ERR_OK);
     netStatsInfo.Marshalling(reply);
     return ERR_OK;
+}
+
+bool QueryTrafficStatsPlugin::GetAppUid(const NetStatsNetwork &networkInfo, int32_t &uid)
+{
+    uid = bundleMgr_->GetApplicationUid(networkInfo.bundleName, networkInfo.accountId, networkInfo.appIndex);
+    if (uid > 0) {
+        return true;
+    }
+    if (networkInfo.appIndex == 0) {
+        AppExecFwk::BundleInfo bundleInfo;
+        bool bundleRet = bundleMgr_->GetBundleInfoV9(networkInfo.bundleName,
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_DEFAULT), bundleInfo,
+            networkInfo.accountId);
+        if (!bundleRet) {
+            EDMLOGE("QueryTrafficStatsPlugin GetBundleInfo false");
+            return false;
+        }
+        uid = bundleInfo.uid;
+        return true;
+    }
+    return false;
 }
 
 ErrCode QueryTrafficStatsPlugin::QueryTrafficStatsByUidNetwork(int32_t uid,
