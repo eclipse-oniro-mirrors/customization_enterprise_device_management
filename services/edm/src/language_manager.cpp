@@ -231,13 +231,13 @@ bool LanguageManager::IsNeedToShowEnterpriseManagedTips()
     }
     EdmOsAccountManagerImpl osAccountMgr;
     int32_t userId = osAccountMgr.GetCurrentUserId();
-    if (userId != EdmConstants::DEFAULT_USER_ID) {
-        EDMLOGW("IsNeedToShowEnterpriseManagedTips not default account, does not show.");
-        return false;
-    }
     if (AdminManager::GetInstance()->IsExistTargetAdmin(true, userId)) {
         EDMLOGW("IsNeedToShowEnterpriseManagedTips has debug admin, need to show.");
         return true;
+    }
+    if (userId != EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGW("IsNeedToShowEnterpriseManagedTips not default account, does not show.");
+        return false;
     }
     if (AdminManager::GetInstance()->IsByodAdminExist()) {
         EDMLOGW("IsNeedToShowEnterpriseManagedTips exist byod admin, does not show.");
