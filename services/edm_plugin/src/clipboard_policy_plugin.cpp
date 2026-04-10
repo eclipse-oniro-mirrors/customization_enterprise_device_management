@@ -25,7 +25,7 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ClipboardPolicyPlugin::GetPlugin());
-const int32_t MAX_PASTEBOARD_POLICY_NUM = 500;
+const int32_t MAX_PASTEBOARD_POLICY_NUM = 10000;
 
 void ClipboardPolicyPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<ClipboardPolicyPlugin, std::map<int32_t, ClipboardInfo>>> ptr)
