@@ -23,9 +23,12 @@
 
 namespace OHOS {
 namespace EDM {
-    napi_value CreateError(napi_env env, ErrCode errorCode);
-    napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode);
+    constexpr uint32_t BEFORE_API24_FLAG = 0;
+    constexpr uint32_t AFTER_API24_FLAG = 1;
+    napi_value CreateError(napi_env env, ErrCode errorCode, int32_t isAfterApi24 = BEFORE_API24_FLAG);
     napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMessage);
+    napi_value CreateErrorAfterApi24(napi_env env, int32_t errorCode, const std::string &errMessage);
+    napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode);
     napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage);
     std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode);
     std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode returnCode);

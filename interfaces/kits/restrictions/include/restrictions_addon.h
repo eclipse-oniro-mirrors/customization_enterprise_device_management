@@ -65,7 +65,7 @@ private:
     static OHOS::ErrCode NativeGetDisallowedPolicyForAccount(bool hasAdmin, AppExecFwk::ElementName &elementName,
         std::uint32_t ipcCode, int32_t accountId, bool &disallow);
     static OHOS::ErrCode GetInterfaceCodeAndFeature(napi_env env, napi_value value,
-        std::string &feature, uint32_t &ipcCode);
+        std::string &feature, uint32_t &ipcCode, int32_t &isAfterApi24);
     static OHOS::ErrCode GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode);
     static void CreateFeatureForDeviceObject(napi_env env, napi_value value);

@@ -433,9 +433,10 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     std::uint32_t ipcCode = 0;
     std::string feature;
-    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode);
+    int32_t isAfterApi24 = BEFORE_API24_FLAG;
+    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode, isAfterApi24);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, isAfterApi24));
         return nullptr;
     }
     bool disallow = false;
@@ -444,7 +445,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, isAfterApi24));
         return nullptr;
     }
     if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
@@ -455,15 +456,16 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
     }
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, isAfterApi24));
     }
     return nullptr;
 }
 
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_value value,
-    std::string &feature, uint32_t &ipcCode)
+    std::string &feature, uint32_t &ipcCode, int32_t &isAfterApi24)
 {
     if (MatchValueType(env, value, napi_string)) {
+        isAfterApi24 = BEFORE_API24_FLAG;
         if (!ParseString(env, feature, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
@@ -473,6 +475,7 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_v
         }
         ipcCode = labelCode->second;
     } else if (MatchValueType(env, value, napi_number)) {
+        isAfterApi24 = AFTER_API24_FLAG;
         int32_t featureNumber = -1;
         if (!ParseInt(env, featureNumber, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
@@ -483,6 +486,7 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_v
         }
         ipcCode = it->second;
     } else {
+        isAfterApi24 = BEFORE_API24_FLAG;
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
@@ -502,9 +506,10 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
         "param admin need be null or want");
     std::uint32_t ipcCode = 0;
     std::string feature;
-    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode);
+    int32_t isAfterApi24 = BEFORE_API24_FLAG;
+    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode, isAfterApi24);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, isAfterApi24));
         return nullptr;
     }
     if (hasAdmin) {
@@ -518,7 +523,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, isAfterApi24));
         return nullptr;
     }
     if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
@@ -530,7 +535,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     }
 
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, isAfterApi24));
         return nullptr;
     }
     napi_value result = nullptr;
