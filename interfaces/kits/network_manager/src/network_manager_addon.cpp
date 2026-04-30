@@ -299,7 +299,7 @@ void NetworkManagerAddon::IsNetworkInterfaceDisabledCommon(AddonMethodSign &addo
     const std::string &apiVersionTag)
 {
     addonMethodSign.name = "IsNetworkInterfaceDisabled";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.apiVersionTag = apiVersionTag;
 }

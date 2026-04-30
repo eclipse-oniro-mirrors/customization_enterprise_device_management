@@ -104,6 +104,28 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPERHUB,
     EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL,
     EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES,
+    EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES,
+    EdmInterfaceCode::ALLOW_RUNNING_BUNDLES,
+    EdmInterfaceCode::MANAGE_AUTO_START_APPS,
+    EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS,
+    EdmInterfaceCode::ALLOWED_KIOSK_APPS,
+    EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS,
+    EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS,
+    EdmInterfaceCode::SET_ABILITY_ENABLED,
+    EdmInterfaceCode::ALLOWED_INSTALL_BUNDLES,
+    EdmInterfaceCode::DISALLOWED_INSTALL_BUNDLES,
+    EdmInterfaceCode::DISALLOWED_UNINSTALL_BUNDLES,
+    EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE,
+    EdmInterfaceCode::DISABLED_NETWORK_INTERFACE,
+    EdmInterfaceCode::CLIPBOARD_POLICY,
+    EdmInterfaceCode::PERMISSION_MANAGED_STATE,
+    EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
+    EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
+    EdmInterfaceCode::SET_KEY_CODE_POLICYS,
+    EdmInterfaceCode::DISALLOWED_SIM,
+    EdmInterfaceCode::TELEPHONY_CALL_POLICY,
+    EdmInterfaceCode::ALLOWED_WIFI_LIST,
+    EdmInterfaceCode::DISALLOWED_WIFI_LIST
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

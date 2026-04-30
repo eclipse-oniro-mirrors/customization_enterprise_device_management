@@ -730,6 +730,161 @@ HWTEST_F(BundleManagerProxyTest, TestGetInstalledBundleStorageStatsListReplyOver
     ErrCode ret = bundleManagerProxy->GetInstalledBundleStorageStatsList(admin, bundles, 100, result);
     ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
+
+/**
+ * @tc.name: GetData_NullData_ReturnFalse
+ * @tc.desc: Test GetData when data is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetData_NullData_ReturnFalse, TestSize.Level1)
+{
+    void *buffer = nullptr;
+    size_t size = 100;
+    const void *data = nullptr;
+    bool ret = bundleManagerProxy->GetData(buffer, size, data);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: GetData_ZeroSize_ReturnFalse
+ * @tc.desc: Test GetData when size is zero.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetData_ZeroSize_ReturnFalse, TestSize.Level1)
+{
+    void *buffer = nullptr;
+    size_t size = 0;
+    char testData[100] = "test";
+    const void *data = testData;
+    bool ret = bundleManagerProxy->GetData(buffer, size, data);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: GetData_SizeOverMax_ReturnFalse
+ * @tc.desc: Test GetData when size exceeds max capacity.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetData_SizeOverMax_ReturnFalse, TestSize.Level1)
+{
+    void *buffer = nullptr;
+    size_t size = EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM + 1;
+    char testData[100] = "test";
+    const void *data = testData;
+    bool ret = bundleManagerProxy->GetData(buffer, size, data);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: GetBundlesByPolicyType_NullAdmin_Success
+ * @tc.desc: Test GetBundlesByPolicyType when admin is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetBundlesByPolicyType_NullAdmin_Success, TestSize.Level1)
+{
+    int32_t userId = DEFAULT_USER_ID;
+    std::vector<std::string> bundles;
+    int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(nullptr, userId, bundles, policyType);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(bundles.size(), 1);
+}
+
+/**
+ * @tc.name: GetBundlesByPolicyType_NullAdmin_Fail
+ * @tc.desc: Test GetBundlesByPolicyType when admin is nullptr without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, GetBundlesByPolicyType_NullAdmin_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    int32_t userId = DEFAULT_USER_ID;
+    std::vector<std::string> bundles;
+    int32_t policyType = static_cast<int32_t>(PolicyType::ALLOW_INSTALL);
+    ErrCode ret = bundleManagerProxy->GetBundlesByPolicyType(nullptr, userId, bundles, policyType);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: InnerGetVectorFromParcelIntelligent_ZeroSize_ReturnOk
+ * @tc.desc: Test InnerGetVectorFromParcelIntelligent when dataSize is zero.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, InnerGetVectorFromParcelIntelligent_ZeroSize_ReturnOk, TestSize.Level1)
+{
+    MessageParcel reply;
+    reply.WriteInt32(0);
+    std::vector<EdmBundleInfo> parcelableInfos;
+    ErrCode ret = bundleManagerProxy->InnerGetVectorFromParcelIntelligent(reply, parcelableInfos);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(parcelableInfos.size(), 0);
+}
+
+/**
+ * @tc.name: InnerGetVectorFromParcelIntelligent_ParseFromFail_ReturnSystemAbnormally
+ * @tc.desc: Test InnerGetVectorFromParcelIntelligent when ParseFrom fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, InnerGetVectorFromParcelIntelligent_ParseFromFail_ReturnSystemAbnormally,
+    TestSize.Level1)
+{
+    MessageParcel reply;
+    reply.WriteInt32(100);
+    reply.WriteRawData(nullptr, 100);
+    std::vector<EdmBundleInfo> parcelableInfos;
+    ErrCode ret = bundleManagerProxy->InnerGetVectorFromParcelIntelligent(reply, parcelableInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: ContainerSecurityVerify_ReadSizeOverReadable_ReturnFalse
+ * @tc.desc: Test ContainerSecurityVerify when readSize exceeds readable bytes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, ContainerSecurityVerify_ReadSizeOverReadable_ReturnFalse, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteInt32(1);
+    int32_t infoSize = 1000;
+    std::vector<EdmBundleInfo> parcelables;
+    bool ret = bundleManagerProxy->ContainerSecurityVerify(parcel, infoSize, parcelables);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: checkHapFilePath_PathNotFound_ReturnApplicationInstallFailed
+ * @tc.desc: Test checkHapFilePath when PathToRealPath fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, checkHapFilePath_PathNotFound_ReturnApplicationInstallFailed, TestSize.Level1)
+{
+    std::string hapFilePath = "/invalid/path/that/does/not/exist.hap";
+    std::string fileName;
+    std::string realPath;
+    std::string errMessage;
+    ErrCode ret = bundleManagerProxy->checkHapFilePath(hapFilePath, fileName, realPath, errMessage);
+    ASSERT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_EQ(errMessage, "install failed due to invalid hapFilePaths");
+}
+
+/**
+ * @tc.name: checkHapFilePath_EmptyFileName_ReturnApplicationInstallFailed
+ * @tc.desc: Test checkHapFilePath when resulting fileName is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, checkHapFilePath_EmptyFileName_ReturnApplicationInstallFailed, TestSize.Level1)
+{
+    std::string hapFilePath = "/data/test/";
+    std::string fileName;
+    std::string realPath;
+    std::string errMessage;
+    ErrCode ret = bundleManagerProxy->checkHapFilePath(hapFilePath, fileName, realPath, errMessage);
+    ASSERT_EQ(ret, ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

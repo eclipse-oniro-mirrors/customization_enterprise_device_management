@@ -19,6 +19,7 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
+#include "napi_edm_common.h"
 #include "override_interface_name.h"
 
 using namespace OHOS::EDM;
@@ -472,7 +473,7 @@ napi_value SystemManagerAddon::GetAutoUnlockAfterReboot(napi_env env, napi_callb
     EDMLOGI("SystemManagerAddon::GetAutoUnlockAfterReboot called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetAutoUnlockAfterReboot";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -1020,26 +1021,18 @@ napi_value SystemManagerAddon::RemoveKeyEventPolicies(napi_env env, napi_callbac
 napi_value SystemManagerAddon::GetKeyEventPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetKeyEventPolicies called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter elementName error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetKeyEventPolicies";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto systemManagerProxy = SystemManagerProxy::GetSystemManagerProxy();
     std::vector<KeyCustomization> KeyCustomizations;
-    int32_t ret = systemManagerProxy->GetKeyEventPolicys(elementName, KeyCustomizations);
+    int32_t ret = systemManagerProxy->GetKeyEventPolicies(adapterAddonData.data, KeyCustomizations);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

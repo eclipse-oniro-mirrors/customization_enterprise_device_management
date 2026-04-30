@@ -18,6 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iptables_utils.h"
+#include "napi_edm_common.h"
 
 using namespace OHOS::EDM;
 constexpr int32_t STRING_MAX_LEN = 100;
@@ -216,46 +217,53 @@ napi_value TelephonyManagerAddon::RemoveOutgoingCallPolicyNumbers(napi_env env, 
 #endif
 }
 
-napi_value TelephonyManagerAddon::GetOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info)
+napi_value TelephonyManagerAddon::GetCallPolicyNumbersCommon(napi_env env, napi_callback_info info,
+    const std::string &callPolicyType, const std::string &methodName)
 {
-    EDMLOGI("NAPI_GetOutgoingCallPolicyNumbers called");
+    EDMLOGI("NAPI_%{public}s called", methodName.c_str());
 #if defined(TELEPHONY_EDM_ENABLE)
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be Policy.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    int32_t policy = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ONE]),
-        "element name param error");
-
+    auto convertPolicy2Data = [callPolicyType](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) {
+        int32_t policy = -1;
+        bool isNumber = ParseInt(env, policy, argv);
+        if (!isNumber) {
+            return false;
+        }
+        data.WriteString(callPolicyType);
+        data.WriteInt32(policy);
+        return true;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = methodName;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertPolicy2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     std::vector<std::string> numbers;
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetCallPolicyNumbers(
-        elementName, EdmConstants::CallPolicy::OUTGOING, policy, numbers);
+        adapterAddonData.data, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-
     napi_value jsList = nullptr;
     NAPI_CALL(env, napi_create_array_with_length(env, numbers.size(), &jsList));
     ConvertStringVectorToJS(env, numbers, jsList);
-
     return jsList;
 #else
-    EDMLOGW("TelephonyManagerAddon::GetOutgoingCallPolicyNumbers Unsupported Capabilities.");
+    EDMLOGW("TelephonyManagerAddon::%{public}s Unsupported Capabilities.", methodName.c_str());
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
+}
+
+napi_value TelephonyManagerAddon::GetOutgoingCallPolicyNumbers(napi_env env, napi_callback_info info)
+{
+    return GetCallPolicyNumbersCommon(env, info, EdmConstants::CallPolicy::OUTGOING, "GetOutgoingCallPolicyNumbers");
 }
 
 napi_value TelephonyManagerAddon::AddIncomingCallPolicyNumbers(napi_env env, napi_callback_info info)
@@ -342,44 +350,7 @@ napi_value TelephonyManagerAddon::RemoveIncomingCallPolicyNumbers(napi_env env, 
 
 napi_value TelephonyManagerAddon::GetIncomingCallPolicyNumbers(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetIncomingCallPolicyNumbers called");
-#if defined(TELEPHONY_EDM_ENABLE)
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be Policy.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    int32_t policy = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ONE]),
-        "element name param error");
-
-    std::vector<std::string> numbers;
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetCallPolicyNumbers(
-        elementName, EdmConstants::CallPolicy::INCOMING, policy, numbers);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
-        return nullptr;
-    }
-
-    napi_value jsList = nullptr;
-    NAPI_CALL(env, napi_create_array_with_length(env, numbers.size(), &jsList));
-    ConvertStringVectorToJS(env, numbers, jsList);
-
-    return jsList;
-#else
-    EDMLOGW("TelephonyManagerAddon::GetIncomingCallPolicyNumbers Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-    return nullptr;
-#endif
+    return GetCallPolicyNumbersCommon(env, info, EdmConstants::CallPolicy::INCOMING, "GetIncomingCallPolicyNumbers");
 }
 
 napi_value TelephonyManagerAddon::HangupCalling(napi_env env, napi_callback_info info)

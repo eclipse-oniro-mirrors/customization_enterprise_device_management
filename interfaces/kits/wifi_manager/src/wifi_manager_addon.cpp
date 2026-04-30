@@ -360,7 +360,7 @@ napi_value WifiManagerAddon::GetWifiList(napi_env env, napi_callback_info info, 
     if (policyCode == EdmInterfaceCode::ALLOWED_WIFI_LIST) {
         addonMethodSign.name = "getAllowedWifiList";
     }
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);

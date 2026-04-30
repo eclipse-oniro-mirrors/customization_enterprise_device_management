@@ -613,34 +613,32 @@ HWTEST_F(SystemManagerProxyTest, TestRemoveKeyEventPolicysFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestGetKeyEventPolicysSuc
- * @tc.desc: Test GetKeyEventPolicys func.
+ * @tc.name: TestGetKeyEventPoliciesSuc
+ * @tc.desc: Test GetKeyEventPolicies func.
  * @tc.type: FUNC
  */
-HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysSuc, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPoliciesSuc, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::vector<OHOS::EDM::KeyCustomization> keyCusts;
-    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicies(data, keyCusts);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
 /**
- * @tc.name: TestGetKeyEventPolicysFail
- * @tc.desc: Test GetKeyEventPolicys func.
+ * @tc.name: TestGetKeyEventPoliciesFail
+ * @tc.desc: Test GetKeyEventPolicies func.
  * @tc.type: FUNC
  */
-HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPolicysFail, TestSize.Level1)
+HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPoliciesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
     std::vector<OHOS::EDM::KeyCustomization> keyCusts;
-    int32_t ret = systemmanagerProxy->GetKeyEventPolicys(admin, keyCusts);
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicies(data, keyCusts);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -778,7 +776,329 @@ HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledForAccou
     ErrCode ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabledForAccount(data, isAllowedInstall);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: GetInstallLocalEnterpriseAppEnabledForAccount_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetInstallLocalEnterpriseAppEnabledForAccount when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetInstallLocalEnterpriseAppEnabledForAccount_ReplyFail_ReturnSystemAbnormally,
+    TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    bool isAllowedInstall = false;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    ErrCode ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabledForAccount(data, isAllowedInstall);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: IsActivationLockDisabled_ReplyFail_ReturnError
+ * @tc.desc: Test IsActivationLockDisabled when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, IsActivationLockDisabled_ReplyFail_ReturnError, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    bool isDisabled = false;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
 #endif
+
+/**
+ * @tc.name: GetNTPServer_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetNTPServer when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetNTPServer_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::string server = "";
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetNTPServer(data, server);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetAutoUnlockAfterReboot_Suc
+ * @tc.desc: Test GetAutoUnlockAfterReboot success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetAutoUnlockAfterReboot_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    bool authData = false;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    int32_t ret = systemmanagerProxy->GetAutoUnlockAfterReboot(data, authData);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(authData);
+}
+
+/**
+ * @tc.name: GetAutoUnlockAfterReboot_Fail
+ * @tc.desc: Test GetAutoUnlockAfterReboot without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetAutoUnlockAfterReboot_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    bool authData = false;
+
+    int32_t ret = systemmanagerProxy->GetAutoUnlockAfterReboot(data, authData);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetAutoUnlockAfterReboot_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetAutoUnlockAfterReboot when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetAutoUnlockAfterReboot_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    bool authData = false;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetAutoUnlockAfterReboot(data, authData);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetDisallowedNearlinkProtocols_Suc
+ * @tc.desc: Test GetDisallowedNearlinkProtocols success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetDisallowedNearlinkProtocols_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<int32_t> protocols;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy));
+    int32_t ret = systemmanagerProxy->GetDisallowedNearlinkProtocols(data, protocols);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(protocols.size(), 2);
+}
+
+/**
+ * @tc.name: GetDisallowedNearlinkProtocols_Fail
+ * @tc.desc: Test GetDisallowedNearlinkProtocols without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetDisallowedNearlinkProtocols_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<int32_t> protocols;
+
+    int32_t ret = systemmanagerProxy->GetDisallowedNearlinkProtocols(data, protocols);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetDisallowedNearlinkProtocols_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetDisallowedNearlinkProtocols when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetDisallowedNearlinkProtocols_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<int32_t> protocols;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetDisallowedNearlinkProtocols(data, protocols);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetDisallowedNearlinkProtocols_ReadFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetDisallowedNearlinkProtocols when ReadInt32Vector fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetDisallowedNearlinkProtocols_ReadFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<int32_t> protocols;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce([&](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteString("test");
+            return 0;
+        });
+    int32_t ret = systemmanagerProxy->GetDisallowedNearlinkProtocols(data, protocols);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: NotifyUpdatePackages_AnalyzeFailed_ReadErrMsg
+ * @tc.desc: Test NotifyUpdatePackages when returns UPGRADE_PACKAGES_ANALYZE_FAILED.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, NotifyUpdatePackages_AnalyzeFailed_ReadErrMsg, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    UpgradePackageInfo packageInfo;
+    std::string errMsg;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce([&](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED);
+            reply.WriteString(RETURN_STRING);
+            return 0;
+        });
+    int32_t ret = systemmanagerProxy->NotifyUpdatePackages(admin, packageInfo, errMsg);
+    ASSERT_EQ(ret, EdmReturnErrCode::UPGRADE_PACKAGES_ANALYZE_FAILED);
+    ASSERT_EQ(errMsg, RETURN_STRING);
+}
+
+/**
+ * @tc.name: GetOTAUpdatePolicy_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetOTAUpdatePolicy when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetOTAUpdatePolicy_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
+    UpdatePolicy updatePolicy;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(data, updatePolicy);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetUpgradeResult_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetUpgradeResult when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetUpgradeResult_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    UpgradeResult upgradeResult;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetUpgradeResult(admin, UPGRADE_VERSION, upgradeResult);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetUpdateAuthData_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetUpdateAuthData when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetUpdateAuthData_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::string authData;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetUpdateAuthData(data, authData);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetInstallLocalEnterpriseAppEnabled_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetInstallLocalEnterpriseAppEnabled when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetInstallLocalEnterpriseAppEnabled_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    bool isAllowedInstall = false;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabled(data, isAllowedInstall);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetKeyEventPolicies_ReplyFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetKeyEventPolicies when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetKeyEventPolicies_ReplyFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<KeyCustomization> keyCustomizations;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->GetKeyEventPolicies(data, keyCustomizations);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -32,8 +32,7 @@ public:
         const int32_t policyFlag, const std::vector<std::string> &numbers);
     int32_t RemoveCallPolicyNumbers(const AppExecFwk::ElementName &admin,
         const std::string &callType, const int32_t policyFlag, const std::vector<std::string> &numbers);
-    int32_t GetCallPolicyNumbers(const AppExecFwk::ElementName &admin, const std::string &callType,
-        const int32_t policyFlag, std::vector<std::string> &numbers);
+    int32_t GetCallPolicyNumbers(MessageParcel &data, std::vector<std::string> &numbers);
     int32_t HangupCalling(MessageParcel &data);
     int32_t ActiveSim(MessageParcel &data);
     int32_t DeactiveSim(MessageParcel &data);

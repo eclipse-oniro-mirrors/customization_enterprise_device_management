@@ -30,6 +30,7 @@ struct AsyncBrowserCallbackInfo : AsyncCallbackInfo {
     std::string appId;
     std::string policies;
     napi_value value;
+    bool hasAdmin = true;
 };
 constexpr int32_t MAX_POLICY_FILE_SIZE = 134217728; // 128*1024*1024
 

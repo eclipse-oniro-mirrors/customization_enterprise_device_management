@@ -578,22 +578,6 @@ void SecurityManagerAddon::GetClipboardPolicyParamHandle(AddonMethodSign &addonM
         };
         addonMethodSign.argsConvert = {nullptr, convertData, nullptr};
     }
-    if (flag == ClipboardFunctionType::GET_NO_TOKEN_ID) {
-        auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
-                              const AddonMethodSign &methodSign) {
-            OHOS::AppExecFwk::ElementName elementName;
-            if (!ParseElementName(env, elementName, argv)) {
-                EDMLOGE("Parameter admin error");
-                return false;
-            }
-            data.WriteString(methodSign.apiVersionTag);
-            data.WriteInt32(HAS_ADMIN);
-            data.WriteParcelable(&elementName);
-            data.WriteInt32(ClipboardFunctionType::GET_NO_TOKEN_ID);
-            return true;
-        };
-        addonMethodSign.argsConvert = {convertData};
-    }
 }
 
 napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callback_info info)
@@ -606,15 +590,15 @@ napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callba
     AddonMethodSign addonMethodSign;
     if (argc == ARGS_SIZE_ONE) {
         EDMLOGI(" GetAppClipboardPolicy argc == ARGS_SIZE_ONE");
-        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
-        GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_NO_TOKEN_ID);
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     } else if (argc == ARGS_SIZE_TWO) {
         EDMLOGI(" GetAppClipboardPolicy argc == ARGS_SIZE_TWO");
-        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::INT32};
         GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_HAS_TOKEN_ID);
     } else if (argc >= ARGS_SIZE_THREE) {
         EDMLOGI(" GetAppClipboardPolicy argc >= ARGS_SIZE_THREE");
-        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+        addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::STRING,
+            EdmAddonCommonType::INT32};
         GetClipboardPolicyParamHandle(addonMethodSign, ClipboardFunctionType::GET_HAS_BUNDLE_NAME);
     } else {
         EDMLOGI(" argc < ARGS_SIZE_ONE Parameter error");
@@ -627,6 +611,9 @@ napi_value SecurityManagerAddon::GetAppClipboardPolicy(napi_env env, napi_callba
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
+    }
+    if (argc == ARGS_SIZE_ONE) {
+        adapterAddonData.data.WriteInt32(ClipboardFunctionType::GET_NO_TOKEN_ID);
     }
     std::string policy;
     int32_t retCode =
@@ -911,7 +898,8 @@ napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_ca
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     AddonMethodSign addonMethodSign;
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::STRING};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
+        EdmAddonCommonType::STRING};
     addonMethodSign.argsConvert = {nullptr, convertApplicationInstance, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
@@ -957,7 +945,7 @@ napi_value SecurityManagerAddon::GetExternalSourceExtensionsPolicy(napi_env env,
 {
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsConvert = {nullptr};
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.name = "GetExternalSourceExtensionsPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};

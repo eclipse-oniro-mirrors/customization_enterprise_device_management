@@ -264,15 +264,12 @@ HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersFail, TestSize.Le
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetCallPolicyNumbersSuc, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string callType = "incoming";
-    int32_t policyFlag = 0;
+    MessageParcel data;
     std::vector<std::string> numbers;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
     .Times(1)
     .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(data, numbers);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -284,12 +281,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallPolicyNumbersSuc, TestSize.Level1
 HWTEST_F(TelephonyManagerProxyTest, TestGetCallPolicyNumbersFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    std::string callType = "incoming";
-    int32_t policyFlag = 0;
+    MessageParcel data;
     std::vector<std::string> numbers;
-    int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(data, numbers);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 

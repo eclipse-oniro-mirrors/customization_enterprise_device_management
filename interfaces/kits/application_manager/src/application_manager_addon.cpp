@@ -323,28 +323,20 @@ napi_value ApplicationManagerAddon::AddOrRemoveKeepAliveApps(napi_env env, napi_
 napi_value ApplicationManagerAddon::GetKeepAliveApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetKeepAliveApps called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter elementName error");
-    int32_t userId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, userId, argv[ARR_INDEX_ONE]), "Parameter userId error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetKeepAliveApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    adapterAddonData.data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME);
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     std::vector<std::string> keepAliveApps;
-    int32_t ret = applicationManagerProxy->GetKeepAliveApps(elementName, keepAliveApps, userId);
+    int32_t ret = applicationManagerProxy->GetKeepAliveApps(adapterAddonData.data, keepAliveApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -401,21 +393,18 @@ napi_value ApplicationManagerAddon::AddOrRemoveFreezeExemptedApps(napi_env env, 
 napi_value ApplicationManagerAddon::GetFreezeExemptedApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetFreezeExemptedApps called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter elementName error");
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetFreezeExemptedApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     std::vector<ApplicationInstance> freezeExemptedApps;
-    int32_t ret = applicationManagerProxy->GetFreezeExemptedApps(elementName, freezeExemptedApps);
+    int32_t ret = applicationManagerProxy->GetFreezeExemptedApps(adapterAddonData.data, freezeExemptedApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -476,26 +465,18 @@ napi_value ApplicationManagerAddon::AddOrRemoveUserNonStopApps(napi_env env, nap
 napi_value ApplicationManagerAddon::GetUserNonStopApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetUserNonStopApps called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter elementName error");
-    EDMLOGD(
-        "EnableAdmin: elementName.bundlename %{public}s, "
-        "elementName.abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetUserNonStopApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     std::vector<ApplicationInstance> userNonStopApps;
-    int32_t ret = applicationManagerProxy->GetUserNonStopApps(elementName, userNonStopApps);
+    int32_t ret = applicationManagerProxy->GetUserNonStopApps(adapterAddonData.data, userNonStopApps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -686,11 +667,10 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter elementName error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     if (argc >= ARGS_SIZE_TWO) {
@@ -698,8 +678,12 @@ napi_value ApplicationManagerAddon::GetAutoStartApps(napi_env env, napi_callback
     }
     MessageParcel parcelData;
     SetBaseDataForGetPolicy(userId, parcelData);
-    parcelData.WriteInt32(HAS_ADMIN);
-    parcelData.WriteParcelable(&elementName);
+    if (hasAdmin) {
+        parcelData.WriteInt32(HAS_ADMIN);
+        parcelData.WriteParcelable(&elementName);
+    } else {
+        parcelData.WriteInt32(WITHOUT_ADMIN);
+    }
     parcelData.WriteString(OHOS::EDM::EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO);
     std::vector<OHOS::EDM::EdmElementName> autoStartApps;
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->GetAutoStartApps(
@@ -1032,10 +1016,10 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     bool hasAccountId = (argc == ARGS_SIZE_TWO);
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     EDMLOGD("GetDisallowedRunningBundlesSync: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     int32_t accountId = 0;
@@ -1056,7 +1040,8 @@ napi_value ApplicationManagerAddon::GetDisallowedRunningBundlesSync(napi_env env
         return nullptr;
     }
     std::vector<std::string> appIds;
-    int32_t ret = applicationManagerProxy->GetDisallowedRunningBundles(elementName, accountId, appIds, true);
+    int32_t ret = applicationManagerProxy->GetDisallowedRunningBundles(
+        hasAdmin ? &elementName : nullptr, accountId, appIds, true);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1122,24 +1107,17 @@ napi_value ApplicationManagerAddon::AddOrRemoveAllowedRunningBundles(napi_env en
 napi_value ApplicationManagerAddon::GetAllowedRunningBundles(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedRunningBundles called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    EDMLOGD("GetAllowedRunningBundles: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    int32_t accountId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
-        "parameter accountId error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
-        "parameter accountId parse error");
-
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllowedRunningBundles";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::USERID};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_NORMAL;
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     if (applicationManagerProxy == nullptr) {
         EDMLOGE("can not get applicationManagerProxy");
@@ -1147,12 +1125,12 @@ napi_value ApplicationManagerAddon::GetAllowedRunningBundles(napi_env env, napi_
         return nullptr;
     }
     std::vector<std::string> appIdentifies;
-    int32_t ret = applicationManagerProxy->GetAllowedRunningBundles(elementName, accountId, appIdentifies);
+    int32_t ret = applicationManagerProxy->GetAllowedRunningBundles(adapterAddonData.data, appIdentifies);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
     }
-    napi_value result = nullptr;
+    result = nullptr;
     NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, appIdentifies, result);
     return result;
@@ -1277,20 +1255,18 @@ napi_value ApplicationManagerAddon::SetAllowedKioskApps(napi_env env, napi_callb
 napi_value ApplicationManagerAddon::GetAllowedKioskApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetAllowedKioskApps called");
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "The first parameter must be want.");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "Parameter elementName error");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllowedKioskApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     std::vector<std::string> appIdentifiers;
-    int32_t ret = applicationManagerProxy->GetAllowedKioskApps(elementName, appIdentifiers);
+    int32_t ret = applicationManagerProxy->GetAllowedKioskApps(adapterAddonData.data, appIdentifiers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;
@@ -1398,8 +1374,8 @@ napi_value ApplicationManagerAddon::IsAbilityDisabled(napi_env env, napi_callbac
     EDMLOGI("NAPI_IsAbilityDisabled called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "IsAbilityDisabled";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::USERID,
-        EdmAddonCommonType::STRING};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::STRING,
+        EdmAddonCommonType::USERID, EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
