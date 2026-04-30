@@ -354,6 +354,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_ADD_LOCAL_ACCOUNT = "disallow_add_local_account";
     const char* const POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER = "disallow_add_os_account_by_user";
     const char* const POLICY_DISALLOW_CORE_DUMP = "disallow_core_dump";
+    const char* const POLICY_DISALLOW_RS232 = "disallow_rs232";
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOW_UNMUTE_DEVICE = "disallow_unmute_device";
     const char* const POLICY_DISALLOW_VIRTUAL_SERVICE = "disallow_virtual_service";

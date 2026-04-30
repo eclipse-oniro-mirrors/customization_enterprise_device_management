@@ -126,6 +126,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::SECURE_ERASE),
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SECURE_ERASE},
     {static_cast<int32_t>(RestrictionsFeature::SUDO), EdmInterfaceCode::DISALLOWED_DEVICE_SUDO},
+    {static_cast<int32_t>(RestrictionsFeature::RS232), EdmInterfaceCode::DISALLOW_RS232},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -982,6 +983,10 @@ void RestrictionsAddon::CreateFeatureForDeviceObject(napi_env env, napi_value va
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(RestrictionsFeature::SECURE_ERASE), &nSecureErase));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SECURE_ERASE", nSecureErase));
+    napi_value nRs232;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(RestrictionsFeature::RS232), &nRs232));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RS232", nRs232));
 }
 
 void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value value)

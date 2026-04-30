@@ -139,6 +139,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/utils/nearlink_config_utils.cpp",
       "./src/utils/nearlink_protocol_utils.cpp",
       "./src/restrictions/disallow_core_dump_plugin.cpp",
+      "./src/restrictions/disallow_rs232_plugin.cpp",
       ]
     }
 

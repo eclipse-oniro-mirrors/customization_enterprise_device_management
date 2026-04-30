@@ -198,6 +198,7 @@
 #include "get_installed_bundle_storage_stats_query.h"
 #include "query_bundle_stats_infos_query.h"
 #include "disallow_core_dump_query.h"
+#include "disallow_rs232_query.h"
 
 namespace OHOS {
 namespace EDM {
@@ -808,6 +809,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery>
 #endif
         case EdmInterfaceCode::DISALLOW_CORE_DUMP:
             obj = std::make_shared<DisallowCoreDumpQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISALLOW_RS232:
+            obj = std::make_shared<DisallowRs232Query>();
             return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_DEVICE_SUDO:
             obj = std::make_shared<DisallowedDeviceSudoQuery>();
