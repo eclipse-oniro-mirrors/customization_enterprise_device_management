@@ -13,26 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
-#define COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#include "disallow_rs232_query.h"
+
+#include "bool_serializer.h"
+#include "edm_constants.h"
+#include "edm_log.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-enum class RestrictionsFeature : int32_t {
-    WIFI_P2P = 0,
-    LOCAL_INPUT = 2,
-    SUDO = 4,
-    CORE_DUMP = 6,
-    RS232 = 7,
-    SECURE_ERASE = 8,
-};
+std::string DisallowRs232Query::GetPolicyName()
+{
+    return PolicyName::POLICY_DISALLOW_RS232;
+}
 
-enum class RestrictionsFeatureForAccount : int32_t {
-    MULTI_WINDOW = 0,
-    DISTRIBUTED_TRANSMISSION = 1,
-    SUPER_HUB = 2,
-};
+std::string DisallowRs232Query::GetPermission(IPlugin::PermissionType, const std::string &permissionTag)
+{
+    return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+}
+
+ErrCode DisallowRs232Query::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    return GetBoolPolicy(policyData, reply);
+}
 } // namespace EDM
 } // namespace OHOS
-
-#endif // COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
