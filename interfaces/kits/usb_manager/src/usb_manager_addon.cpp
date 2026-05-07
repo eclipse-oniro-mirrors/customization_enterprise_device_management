@@ -45,6 +45,9 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedUsbDevices", AddDisallowedUsbDevices),
         DECLARE_NAPI_FUNCTION("removeDisallowedUsbDevices", RemoveDisallowedUsbDevices),
         DECLARE_NAPI_FUNCTION("getDisallowedUsbDevices", GetDisallowedUsbDevices),
+        DECLARE_NAPI_FUNCTION("addDisallowedPermissiveUsbDevices", AddDisallowedPermissiveUsbDevices),
+        DECLARE_NAPI_FUNCTION("removeDisallowedPermissiveUsbDevices", RemoveDisallowedPermissiveUsbDevices),
+        DECLARE_NAPI_FUNCTION("getDisallowedPermissiveUsbDevices", GetDisallowedPermissiveUsbDevices),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -382,21 +385,34 @@ napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
 napi_value UsbManagerAddon::AddDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::AddDisallowedUsbDevices called");
-    return AddOrRemoveDisallowedUsbDevices(env, info, true);
+    return AddOrRemoveDisallowedUsbDevices(env, info, true, true);
 }
 
 napi_value UsbManagerAddon::RemoveDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::RemoveDisallowedUsbDevices called");
-    return AddOrRemoveDisallowedUsbDevices(env, info, false);
+    return AddOrRemoveDisallowedUsbDevices(env, info, false, true);
 }
 
-napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd)
+napi_value UsbManagerAddon::AddDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info)
 {
-    auto convertUsbDeviceType2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+    EDMLOGI("UsbManagerAddon::AddDisallowedPermissiveUsbDevices called");
+    return AddOrRemoveDisallowedUsbDevices(env, info, true, false);
+}
+
+napi_value UsbManagerAddon::RemoveDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::RemoveDisallowedPermissiveUsbDevices called");
+    return AddOrRemoveDisallowedUsbDevices(env, info, false, false);
+}
+
+napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd,
+    bool notPermissive)
+{
+    auto convertUsbDeviceType2Data = [notPermissive](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
             std::vector<USB::UsbDeviceType> usbDeviceTypes;
-            if (!ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv)) {
+            if (!ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv, notPermissive)) { // LCOV_EXCL_BR_LINE
                 EDMLOGE("parameter type parse error");
                 return EdmReturnErrCode::PARAM_ERROR;
             }
@@ -419,6 +435,7 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
     addonMethodSign.argsConvert = {nullptr, convertUsbDeviceType2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = notPermissive ? ErrcodeType::STRING : ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -430,7 +447,7 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
         EDMLOGE("can not get usbManagerProxy");
         return nullptr;
     }
-    int32_t ret = usbManagerProxy->AddOrRemoveDisallowedUsbDevices(adapterAddonData.data, isAdd);
+    int32_t ret = usbManagerProxy->AddOrRemoveDisallowedUsbDevices(adapterAddonData.data, isAdd, notPermissive);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -440,10 +457,23 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
 napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_info info)
 {
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices called");
+    return GetDisallowedUsbDevicesCore(env, info, true);
+}
+
+napi_value UsbManagerAddon::GetDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::GetDisallowedPermissiveUsbDevices called");
+    return GetDisallowedUsbDevicesCore(env, info, false);
+}
+
+napi_value UsbManagerAddon::GetDisallowedUsbDevicesCore(napi_env env, napi_callback_info info, bool notPermissive)
+{
+    EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevicesCore called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getDisallowedUsbDevices";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = notPermissive ? ErrcodeType::STRING : ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -456,7 +486,7 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_
         return nullptr;
     }
     std::vector<USB::UsbDeviceType> usbDeviceTypes;
-    int32_t ret = usbManagerProxy->GetDisallowedUsbDevices(adapterAddonData.data, usbDeviceTypes);
+    int32_t ret = usbManagerProxy->GetDisallowedUsbDevices(adapterAddonData.data, usbDeviceTypes, notPermissive);
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices usbDeviceTypes return size: %{public}zu", usbDeviceTypes.size());
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
@@ -473,7 +503,7 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_
 
 #ifdef USB_EDM_ENABLE
 bool UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
-    napi_value object)
+    napi_value object, bool notPermissive)
 {
     bool isArray = false;
     napi_is_array(env, object, &isArray);
@@ -496,7 +526,7 @@ bool UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::Us
             return false;
         }
         USB::UsbDeviceType usbDeviceType;
-        if (!GetUsbDeviceTypeFromNAPI(env, value, usbDeviceType)) {
+        if (!GetUsbDeviceTypeFromNAPI(env, value, usbDeviceType, notPermissive)) { // LCOV_EXCL_BR_LINE
             usbDeviceTypes.clear();
             return false;
         }
@@ -505,38 +535,44 @@ bool UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::Us
     return true;
 }
 
-bool UsbManagerAddon::GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType)
+bool UsbManagerAddon::GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType,
+    bool notPermissive)
 {
     int32_t baseClass = 0;
     if (!JsObjectToInt(env, value, "baseClass", true, baseClass)) {
         EDMLOGE("GetUsbDeviceTypeFromNAPI baseClass parse error!");
         return false;
     }
-    int32_t subClass = 0;
-    if (!JsObjectToInt(env, value, "subClass", true, subClass)) {
+    int32_t subClass = -1;
+    if (!JsObjectToInt(env, value, "subClass", notPermissive, subClass)) { // LCOV_EXCL_BR_LINE
         EDMLOGE("GetUsbDeviceTypeFromNAPI subClass parse error!");
         return false;
     }
-    int32_t protocol = 0;
-    if (!JsObjectToInt(env, value, "protocol", true, protocol)) {
+    int32_t protocol = -1;
+    if (!JsObjectToInt(env, value, "protocol", notPermissive, protocol)) { // LCOV_EXCL_BR_LINE
         EDMLOGE("GetUsbDeviceTypeFromNAPI protocol parse error!");
         return false;
     }
     int32_t descriptor = -1;
-    if (!JsObjectToInt(env, value, "descriptor", true, descriptor)) {
+    if (!JsObjectToInt(env, value, "descriptor", notPermissive, descriptor)) { // LCOV_EXCL_BR_LINE
         EDMLOGE("GetUsbDeviceTypeFromNAPI descriptor parse error!");
         return false;
     }
-    if (!std::any_of(std::begin(DESCRIPTOR), std::end(DESCRIPTOR), [&](int item) { return item == descriptor; })) {
-        EDMLOGE("GetUsbDeviceTypeFromNAPI descriptor value error!");
-        return false;
+    if (descriptor != -1) { // LCOV_EXCL_BR_LINE
+        if (!std::any_of(std::begin(DESCRIPTOR), std::end(DESCRIPTOR),
+            [&](int item) { return item == descriptor; })) { // LCOV_EXCL_BR_LINE
+            EDMLOGE("GetUsbDeviceTypeFromNAPI descriptor value error!");
+            return false;
+        }
     }
     usbDeviceType.baseClass = baseClass;
     usbDeviceType.subClass = subClass;
     usbDeviceType.protocol = protocol;
-    usbDeviceType.isDeviceType = descriptor;
+    usbDeviceType.isDeviceType = (descriptor == -1) ? false : descriptor;
+    usbDeviceType.isDeviceTypeAllMatch = (descriptor == -1) ? true : false;
     EDMLOGD("GetUsbDeviceTypeFromNAPI baseClass: %{public}d, subClass: %{public}d, protocol: %{public}d, "
-        "isDeviceType: %{public}d", baseClass, subClass, protocol, descriptor);
+        "isDeviceType: %{public}d, isDeviceTypeAllMatch: %{public}d",
+        baseClass, subClass, protocol, usbDeviceType.isDeviceType, usbDeviceType.isDeviceTypeAllMatch);
     return true;
 }
 
@@ -549,17 +585,23 @@ napi_value UsbManagerAddon::UsbDeviceTypeToJsObj(napi_env env, const USB::UsbDev
     NAPI_CALL(env, napi_create_int32(env, usbDeviceType.baseClass, &baseClass));
     NAPI_CALL(env, napi_set_named_property(env, value, "baseClass", baseClass));
 
-    napi_value subClass = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, usbDeviceType.subClass, &subClass));
-    NAPI_CALL(env, napi_set_named_property(env, value, "subClass", subClass));
+    if (usbDeviceType.subClass != -1) { // LCOV_EXCL_BR_LINE
+        napi_value subClass = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, usbDeviceType.subClass, &subClass));
+        NAPI_CALL(env, napi_set_named_property(env, value, "subClass", subClass));
+    }
 
-    napi_value protocol = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, usbDeviceType.protocol, &protocol));
-    NAPI_CALL(env, napi_set_named_property(env, value, "protocol", protocol));
+    if (usbDeviceType.protocol != -1) { // LCOV_EXCL_BR_LINE
+        napi_value protocol = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, usbDeviceType.protocol, &protocol));
+        NAPI_CALL(env, napi_set_named_property(env, value, "protocol", protocol));
+    }
 
-    napi_value descriptor = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, usbDeviceType.isDeviceType, &descriptor));
-    NAPI_CALL(env, napi_set_named_property(env, value, "descriptor", descriptor));
+    if (!usbDeviceType.isDeviceTypeAllMatch) { // LCOV_EXCL_BR_LINE
+        napi_value descriptor = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, usbDeviceType.isDeviceType, &descriptor));
+        NAPI_CALL(env, napi_set_named_property(env, value, "descriptor", descriptor));
+    }
     return value;
 }
 #endif
