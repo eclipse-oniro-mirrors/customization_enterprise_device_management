@@ -74,13 +74,7 @@ INSTANTIATE_TEST_CASE_P(TestWithParam, HapCallPluginGetPolicyPermissionDeniedTes
     TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
         AdminType::ENT, false, "", ""),
     TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
-        AdminType::UNKNOWN, true, "", ""),
-    TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
         AdminType::UNKNOWN, false, "", ""),
-    TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
-        AdminType::UNKNOWN, true, "", EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY),
-    TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
-        AdminType::UNKNOWN, false, "", EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY),
 
     TestParam(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, AllowedBluetoothDevicesPlugin::GetPlugin(),
         AdminType::ENT, true, "", ""),

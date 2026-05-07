@@ -35,6 +35,8 @@ public:
         int32_t policyType);
     int32_t GetBundlesByPolicyType(AppExecFwk::ElementName &admin, int32_t userId, std::vector<std::string> &bundles,
         int32_t policyType);
+    int32_t GetBundlesByPolicyType(const AppExecFwk::ElementName *admin, int32_t userId,
+        std::vector<std::string> &bundles, int32_t policyType);
     int32_t Uninstall(AppExecFwk::ElementName &admin, std::string bundleName, int32_t userId, bool isKeepData,
         std::string &retMessage);
     int32_t Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,

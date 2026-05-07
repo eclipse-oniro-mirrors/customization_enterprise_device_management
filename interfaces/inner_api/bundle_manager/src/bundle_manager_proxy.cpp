@@ -158,6 +158,12 @@ int32_t BundleManagerProxy::RemoveBundlesByPolicyType(AppExecFwk::ElementName &a
 int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admin, int32_t userId,
     std::vector<std::string> &bundles, int32_t policyType)
 {
+    return GetBundlesByPolicyType(&admin, userId, bundles, policyType);
+}
+
+int32_t BundleManagerProxy::GetBundlesByPolicyType(const AppExecFwk::ElementName *admin, int32_t userId,
+    std::vector<std::string> &bundles, int32_t policyType)
+{
     EDMLOGD("BundleManagerProxy::GetAllowedOrDisallowedInstallBundles policyType =%{public}d", policyType);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
@@ -166,8 +172,12 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(AppExecFwk::ElementName &admi
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
     if (policyTypeMap_.find(policyType) != policyTypeMap_.end()) {
         proxy->GetPolicy(policyTypeMap_[policyType], data, reply);
     } else {

@@ -45,8 +45,7 @@ public:
     int32_t SetKeyEventPolicys(const AppExecFwk::ElementName &admin,
         const std::vector<KeyCustomization> &KeyCustomizations, std::string &retMessage);
     int32_t RemoveKeyEventPolicys(const AppExecFwk::ElementName &admin, const std::vector<int32_t> &KeyCodes);
-    int32_t GetKeyEventPolicys(const AppExecFwk::ElementName &admin,
-        std::vector<KeyCustomization> &KeyCustomizations);
+    int32_t GetKeyEventPolicies(MessageParcel &data, std::vector<KeyCustomization> &KeyCustomizations);
     int32_t SetActivationLockDisabled(const AppExecFwk::ElementName &admin, bool &isDisabled,
         const std::string &credential = "");
     int32_t IsActivationLockDisabled(AppExecFwk::ElementName &admin, bool &result);

@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "application_manager_proxy.h"
+#include "edm_constants.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "utils.h"
@@ -158,6 +159,23 @@ HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundlesFail, TestSize.
 }
 
 /**
+ * @tc.name: GetDisallowedRunningBundles_NullAdmin_Success
+ * @tc.desc: Test GetDisallowedRunningBundles when admin is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetDisallowedRunningBundles_NullAdmin_Success, TestSize.Level1)
+{
+    std::vector<std::string> bundles;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetDisallowedRunningBundles(nullptr, DEFAULT_USER_ID, bundles, false);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(bundles.size() == 1);
+    ASSERT_TRUE(bundles[0] == RETURN_STRING);
+}
+
+/**
  * @tc.name: TestAddAllowedRunningBundlesSuc
  * @tc.desc: Test DealAllowedRunningBundles success func.
  * @tc.type: FUNC
@@ -224,12 +242,13 @@ HWTEST_F(ApplicationManagerProxyTest, DealRemoveAllowedRunningBundlesFail, TestS
  */
 HWTEST_F(ApplicationManagerProxyTest, GetAllowedRunningBundlesSuc, TestSize.Level1)
 {
+    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
-    ErrCode ret = applicationManagerProxy_->GetAllowedRunningBundles(admin, DEFAULT_USER_ID, bundles);
+    ErrCode ret = applicationManagerProxy_->GetAllowedRunningBundles(data, bundles);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(bundles.size() == 1);
     ASSERT_TRUE(bundles[0] == RETURN_STRING);
@@ -243,9 +262,9 @@ HWTEST_F(ApplicationManagerProxyTest, GetAllowedRunningBundlesSuc, TestSize.Leve
 HWTEST_F(ApplicationManagerProxyTest, GetAllowedRunningBundlesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
     std::vector<std::string> bundles = {ADMIN_PACKAGENAME};
-    ErrCode ret = applicationManagerProxy_->GetAllowedRunningBundles(admin, DEFAULT_USER_ID, bundles);
+    ErrCode ret = applicationManagerProxy_->GetAllowedRunningBundles(data, bundles);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -429,13 +448,13 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveFreezeExemptedAppsSuc, TestSize.
  */
 HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsSuc, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
     std::vector<ApplicationInstance> freezeExemptedApps;
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
-    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(admin, freezeExemptedApps);
+    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(data, freezeExemptedApps);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(freezeExemptedApps.size() == 0);
 }
@@ -448,9 +467,9 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsSuc, TestSize.Lev
 HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
     std::vector<ApplicationInstance> freezeExemptedApps;
-    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(admin, freezeExemptedApps);
+    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(data, freezeExemptedApps);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -528,9 +547,9 @@ HWTEST_F(ApplicationManagerProxyTest, TestRemoveKeepAliveAppsSuc, TestSize.Level
 HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppsFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
     std::vector<std::string> keepAliveApps;
-    ErrCode ret = applicationManagerProxy_->GetKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID);
+    ErrCode ret = applicationManagerProxy_->GetKeepAliveApps(data, keepAliveApps);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -541,12 +560,12 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppsFail, TestSize.Level1)
  */
 HWTEST_F(ApplicationManagerProxyTest, TestGetKeepAliveAppsSuc, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
+    MessageParcel data;
     std::vector<std::string> keepAliveApps;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
-    ErrCode ret = applicationManagerProxy_->GetKeepAliveApps(admin, keepAliveApps, DEFAULT_USER_ID);
+    ErrCode ret = applicationManagerProxy_->GetKeepAliveApps(data, keepAliveApps);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(keepAliveApps.size() == 1);
 }
@@ -629,10 +648,9 @@ HWTEST_F(ApplicationManagerProxyTest, TestSetAllowedKioskAppsSuc, TestSize.Level
 HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
     std::vector<std::string> bundleNames;
-    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(admin, bundleNames);
+    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(data, bundleNames);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
@@ -643,13 +661,12 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsFail, TestSize.Leve
  */
 HWTEST_F(ApplicationManagerProxyTest, TestGetAllowedKioskAppsSuc, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
+    MessageParcel data;
     std::vector<std::string> bundleNames;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
-    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(admin, bundleNames);
+    int32_t ret = applicationManagerProxy_->GetAllowedKioskApps(data, bundleNames);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -1510,6 +1527,318 @@ HWTEST_F(ApplicationManagerProxyTest, TestAddHideLauncherIconReplyFail, TestSize
 }
 #endif
 
+/**
+ * @tc.name: GetUserNonStopApps_MessageParcel_Suc
+ * @tc.desc: Test GetUserNonStopApps with MessageParcel success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetUserNonStopApps_MessageParcel_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<ApplicationInstance> userNonStopApps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+    int32_t ret = applicationManagerProxy_->GetUserNonStopApps(data, userNonStopApps);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: GetUserNonStopApps_MessageParcel_Fail
+ * @tc.desc: Test GetUserNonStopApps with MessageParcel without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetUserNonStopApps_MessageParcel_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    std::vector<ApplicationInstance> userNonStopApps;
+    int32_t ret = applicationManagerProxy_->GetUserNonStopApps(data, userNonStopApps);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetUserNonStopApps_MessageParcel_ReplyFail
+ * @tc.desc: Test GetUserNonStopApps with MessageParcel when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetUserNonStopApps_MessageParcel_ReplyFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<ApplicationInstance> userNonStopApps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = applicationManagerProxy_->GetUserNonStopApps(data, userNonStopApps);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: AddAllowedNotificationBundles_Suc
+ * @tc.desc: Test AddAllowedNotificationBundles success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddAllowedNotificationBundles_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames = {"com.test.app"};
+    data.WriteStringVector(bundleNames);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->AddAllowedNotificationBundles(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: AddAllowedNotificationBundles_Fail
+ * @tc.desc: Test AddAllowedNotificationBundles without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddAllowedNotificationBundles_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames = {"com.test.app"};
+    data.WriteStringVector(bundleNames);
+
+    int32_t ret = applicationManagerProxy_->AddAllowedNotificationBundles(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: RemoveAllowedNotificationBundles_Suc
+ * @tc.desc: Test RemoveAllowedNotificationBundles success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, RemoveAllowedNotificationBundles_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames = {"com.test.app"};
+    data.WriteStringVector(bundleNames);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->RemoveAllowedNotificationBundles(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: RemoveAllowedNotificationBundles_Fail
+ * @tc.desc: Test RemoveAllowedNotificationBundles without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, RemoveAllowedNotificationBundles_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames = {"com.test.app"};
+    data.WriteStringVector(bundleNames);
+
+    int32_t ret = applicationManagerProxy_->RemoveAllowedNotificationBundles(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetAllowedNotificationBundles_Suc
+ * @tc.desc: Test GetAllowedNotificationBundles success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetAllowedNotificationBundles_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    int32_t ret = applicationManagerProxy_->GetAllowedNotificationBundles(data, bundleNames);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(bundleNames.size(), 1);
+}
+
+/**
+ * @tc.name: GetAllowedNotificationBundles_Fail
+ * @tc.desc: Test GetAllowedNotificationBundles without edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetAllowedNotificationBundles_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames;
+
+    int32_t ret = applicationManagerProxy_->GetAllowedNotificationBundles(data, bundleNames);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetAllowedNotificationBundles_ReplyFail
+ * @tc.desc: Test GetAllowedNotificationBundles when reply returns error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetAllowedNotificationBundles_ReplyFail, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<std::string> bundleNames;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = applicationManagerProxy_->GetAllowedNotificationBundles(data, bundleNames);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: AddOrRemoveAutoStartApps_ErrorCode_ReadErrMessage
+ * @tc.desc: Test AddOrRemoveAutoStartApps when return error code, should read errMessage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddOrRemoveAutoStartApps_ErrorCode_ReadErrMessage, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> apps;
+    data.WriteParcelable(&admin);
+    data.WriteStringVector(apps);
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
+    std::string errMessage;
+    ErrCode ret = applicationManagerProxy_->AddOrRemoveAutoStartApps(data, true, errMessage);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(errMessage, RETURN_STRING);
+}
+
+/**
+ * @tc.name: GetAutoStartApps_ParseFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetAutoStartApps when parse fails (string without slash).
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetAutoStartApps_ParseFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<OHOS::EDM::EdmElementName> apps;
+    
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce([&](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteStringVector(std::vector<std::string>{"invalid_string_without_slash"});
+            return 0;
+        });
+    ErrCode ret = applicationManagerProxy_->GetAutoStartApps(data, apps);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+#ifdef FEATURE_PC_ONLY
+/**
+ * @tc.name: AddDockApp_HasIndexFalse_Success
+ * @tc.desc: Test AddDockApp when hasIndex is false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddDockApp_HasIndexFalse_Success, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string bundleName = "com.test.app";
+    std::string abilityName = "MainAbility";
+    bool hasIndex = false;
+    int32_t index = -1;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = applicationManagerProxy_->AddDockApp(admin, bundleName, abilityName, hasIndex, index);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: GetDockApps_ParseFail_ReturnSystemAbnormally
+ * @tc.desc: Test GetDockApps when ParseDockInfos returns false (invalid size).
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetDockApps_ParseFail_ReturnSystemAbnormally, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<DockInfo> dockInfos;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce([&](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(-1);
+            return 0;
+        });
+    ErrCode ret = applicationManagerProxy_->GetDockApps(admin, dockInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetDockApps_SizeOverMax_ReturnSystemAbnormally
+ * @tc.desc: Test GetDockApps when size exceeds max limit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetDockApps_SizeOverMax_ReturnSystemAbnormally, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<DockInfo> dockInfos;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce([&](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(EdmConstants::POLICIES_MAX_SIZE + 1);
+            return 0;
+        });
+    ErrCode ret = applicationManagerProxy_->GetDockApps(admin, dockInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+#endif
+
+/**
+ * @tc.name: AddKeepAliveApps_ErrorCode_ReadRetMessage
+ * @tc.desc: Test AddKeepAliveApps when return error code, should read retMessage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, AddKeepAliveApps_ErrorCode_ReadRetMessage, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> keepAliveApps;
+    bool disallowModify = true;
+    std::string retMessage;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
+    ErrCode ret = applicationManagerProxy_->AddKeepAliveApps(admin, keepAliveApps, disallowModify,
+        DEFAULT_USER_ID, retMessage);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(retMessage, RETURN_STRING);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

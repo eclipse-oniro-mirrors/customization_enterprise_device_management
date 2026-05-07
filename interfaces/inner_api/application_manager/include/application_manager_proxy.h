@@ -39,19 +39,19 @@ public:
         int32_t userId, bool isSync = false);
     int32_t GetDisallowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
         std::vector<std::string> &bundles, bool isSync = false);
+    int32_t GetDisallowedRunningBundles(const AppExecFwk::ElementName *admin, int32_t userId,
+        std::vector<std::string> &bundles, bool isSync = false);
     int32_t DealAllowedRunningBundles(AppExecFwk::ElementName &admin, std::vector<std::string> &bundles,
         int32_t userId, bool isAdd);
-    int32_t GetAllowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
-        std::vector<std::string> &bundles);
+    int32_t GetAllowedRunningBundles(MessageParcel &data, std::vector<std::string> &bundles);
     int32_t AddOrRemoveAutoStartApps(MessageParcel &data, bool isAdd, std::string &retMessage);
     int32_t GetAutoStartApps(MessageParcel &data, std::vector<OHOS::EDM::EdmElementName> &autoStartApps);
     int32_t RemoveKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
         int32_t userId);
-    int32_t GetKeepAliveApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &keepAliveApps,
-        int32_t userId);
+    int32_t GetKeepAliveApps(MessageParcel &data, std::vector<std::string> &keepAliveApps);
     int32_t SetKioskFeatures(MessageParcel &data);
     int32_t SetAllowedKioskApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &appIdentifiers);
-    int32_t GetAllowedKioskApps(const AppExecFwk::ElementName &admin, std::vector<std::string> &appIdentifiers);
+    int32_t GetAllowedKioskApps(MessageParcel &data, std::vector<std::string> &appIdentifiers);
     int32_t IsAppKioskAllowed(const std::string &appIdentifier, bool &isAllowed);
     int32_t ClearUpApplicationData(const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param);
     int32_t AddKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
@@ -63,13 +63,12 @@ public:
         const std::vector<ApplicationInstance> &freezeExemptedApps);
     int32_t RemoveFreezeExemptedApps(const AppExecFwk::ElementName &admin,
         const std::vector<ApplicationInstance> &freezeExemptedApps);
-    int32_t GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
-        std::vector<ApplicationInstance> &freezeExemptedApps);
+    int32_t GetFreezeExemptedApps(MessageParcel &data, std::vector<ApplicationInstance> &freezeExemptedApps);
     int32_t AddUserNonStopApps(const AppExecFwk::ElementName &admin,
         const std::vector<ApplicationInstance> &userNonStopApps);
     int32_t RemoveUserNonStopApps(const AppExecFwk::ElementName &admin,
         const std::vector<ApplicationInstance> &userNonStopApps);
-    int32_t GetUserNonStopApps(const AppExecFwk::ElementName &admin, std::vector<ApplicationInstance> &userNonStopApps);
+    int32_t GetUserNonStopApps(MessageParcel &data, std::vector<ApplicationInstance> &userNonStopApps);
     int32_t SetAbilityDisabled(MessageParcel &data);
     int32_t IsAbilityDisabled(MessageParcel &data, bool &isDisabled);
 

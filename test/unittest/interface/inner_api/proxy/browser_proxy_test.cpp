@@ -181,6 +181,35 @@ HWTEST_F(BrowserProxyTest, TestGetPoliciesWithTwoParamsFail, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestGetPoliciesWithPointerAdminSuc
+ * @tc.desc: Test GetPolicies with pointer admin (nullptr) success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetPoliciesWithPointerAdminSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    std::string policies;
+    ErrCode ret = browserProxy_->GetPolicies(nullptr, TEST_APP_ID, policies);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policies == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetPoliciesWithPointerAdminFail
+ * @tc.desc: Test GetPolicies with pointer admin (nullptr) without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestGetPoliciesWithPointerAdminFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    std::string policies;
+    ErrCode ret = browserProxy_->GetPolicies(nullptr, TEST_APP_ID, policies);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestSetManagedBrowserPolicy
  * @tc.desc: Test SetManagedBrowserPolicy success func.
  * @tc.type: FUNC

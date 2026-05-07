@@ -73,6 +73,12 @@ int32_t ApplicationManagerProxy::RemoveDisallowedRunningBundles(AppExecFwk::Elem
 int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
     std::vector<std::string> &bundles, bool isSync)
 {
+    return GetDisallowedRunningBundles(&admin, userId, bundles, isSync);
+}
+
+int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(const AppExecFwk::ElementName *admin, int32_t userId,
+    std::vector<std::string> &bundles, bool isSync)
+{
     EDMLOGD("ApplicationManagerProxy::GetDisallowedRunningBundles");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
@@ -81,8 +87,12 @@ int32_t ApplicationManagerProxy::GetDisallowedRunningBundles(AppExecFwk::Element
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(userId);
     data.WriteString(isSync ? EdmConstants::PERMISSION_TAG_VERSION_12 : EdmConstants::PERMISSION_TAG_VERSION_11);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
     proxy->GetPolicy(EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -112,19 +122,11 @@ int32_t ApplicationManagerProxy::DealAllowedRunningBundles(AppExecFwk::ElementNa
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::GetAllowedRunningBundles(AppExecFwk::ElementName &admin, int32_t userId,
-    std::vector<std::string> &bundles)
+int32_t ApplicationManagerProxy::GetAllowedRunningBundles(MessageParcel &data, std::vector<std::string> &bundles)
 {
-    EDMLOGD("ApplicationManagerProxy::GetAllowedRunningBundles");
+    EDMLOGD("ApplicationManagerProxy::GetAllowedRunningBundles with MessageParcel");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(HAS_USERID);
-    data.WriteInt32(userId);
-    data.WriteString(EdmConstants::PERMISSION_TAG_NORMAL);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::ALLOW_RUNNING_BUNDLES, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -246,22 +248,12 @@ int32_t ApplicationManagerProxy::RemoveKeepAliveApps(const AppExecFwk::ElementNa
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::GetKeepAliveApps(const AppExecFwk::ElementName &admin,
-    std::vector<std::string> &keepAliveApps, int32_t userId)
+int32_t ApplicationManagerProxy::GetKeepAliveApps(MessageParcel &data, std::vector<std::string> &keepAliveApps)
 {
-    EDMLOGD("ApplicationManagerProxy::GetKeepAliveApps");
+    EDMLOGD("ApplicationManagerProxy::GetKeepAliveApps with MessageParcel");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(HAS_USERID);
-    data.WriteInt32(userId);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(EdmConstants::KeepAlive::GET_MANAGE_KEEP_ALIVE_APPS_BUNDLE_NAME);
     proxy->GetPolicy(EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, data, reply);
-    
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -296,20 +288,12 @@ int32_t ApplicationManagerProxy::SetAllowedKioskApps(
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::GetAllowedKioskApps(
-    const AppExecFwk::ElementName &admin, std::vector<std::string> &appIdentifiers)
+int32_t ApplicationManagerProxy::GetAllowedKioskApps(MessageParcel &data, std::vector<std::string> &appIdentifiers)
 {
-    EDMLOGI("ApplicationManagerProxy::GetAllowedKioskApps");
+    EDMLOGI("ApplicationManagerProxy::GetAllowedKioskApps with MessageParcel");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
     proxy->GetPolicy(EdmInterfaceCode::ALLOWED_KIOSK_APPS, data, reply);
-
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -427,20 +411,13 @@ int32_t ApplicationManagerProxy::RemoveFreezeExemptedApps(const AppExecFwk::Elem
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::GetFreezeExemptedApps(const AppExecFwk::ElementName &admin,
+int32_t ApplicationManagerProxy::GetFreezeExemptedApps(MessageParcel &data,
     std::vector<ApplicationInstance> &freezeExemptedApps)
 {
-    EDMLOGI("ApplicationManagerProxy::GetFreezeExemptedApps");
+    EDMLOGI("ApplicationManagerProxy::GetFreezeExemptedApps with MessageParcel");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     proxy->GetPolicy(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, data, reply);
-
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -488,20 +465,13 @@ int32_t ApplicationManagerProxy::RemoveUserNonStopApps(const AppExecFwk::Element
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t ApplicationManagerProxy::GetUserNonStopApps(const AppExecFwk::ElementName &admin,
+int32_t ApplicationManagerProxy::GetUserNonStopApps(MessageParcel &data,
     std::vector<ApplicationInstance> &userNonStopApps)
 {
-    EDMLOGI("ApplicationManagerProxy::GetUserNonStopApps");
+    EDMLOGI("ApplicationManagerProxy::GetUserNonStopApps with MessageParcel");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     proxy->GetPolicy(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, data, reply);
-    
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

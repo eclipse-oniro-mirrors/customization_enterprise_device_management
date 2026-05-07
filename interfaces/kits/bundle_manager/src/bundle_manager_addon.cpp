@@ -881,7 +881,7 @@ napi_value BundleManagerAddon::GetInstallationAllowedAppDistributionTypes(napi_e
 {
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetInstallationAllowedAppDistributionTypes";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
@@ -962,10 +962,10 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     bool hasAccountId = (argc == ARGS_SIZE_TWO);
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
+    bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want");
     EDMLOGD("GetAllowedOrDisallowedInstallBundlesSync: "
         "elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
@@ -989,7 +989,8 @@ napi_value BundleManagerAddon::GetAllowedOrDisallowedInstallBundlesSync(napi_env
         return nullptr;
     }
     std::vector<std::string> appIds;
-    int32_t ret = bundleManagerProxy->GetBundlesByPolicyType(elementName, accountId, appIds, policyType);
+    int32_t ret = bundleManagerProxy->GetBundlesByPolicyType(
+        hasAdmin ? &elementName : nullptr, accountId, appIds, policyType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
         return nullptr;

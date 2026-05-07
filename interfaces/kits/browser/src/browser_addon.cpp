@@ -114,8 +114,13 @@ void BrowserAddon::NativeGetPolicies(napi_env env, void *data)
         return;
     }
     AsyncBrowserCallbackInfo *asyncCallbackInfo = static_cast<AsyncBrowserCallbackInfo *>(data);
-    asyncCallbackInfo->ret = BrowserProxy::GetBrowserProxy()->GetPolicies(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->appId, asyncCallbackInfo->stringRet);
+    if (asyncCallbackInfo->hasAdmin) {
+        asyncCallbackInfo->ret = BrowserProxy::GetBrowserProxy()->GetPolicies(
+            asyncCallbackInfo->elementName, asyncCallbackInfo->appId, asyncCallbackInfo->stringRet);
+    } else {
+        asyncCallbackInfo->ret = BrowserProxy::GetBrowserProxy()->GetPolicies(
+            nullptr, asyncCallbackInfo->appId, asyncCallbackInfo->stringRet);
+    }
 }
 
 napi_value BrowserAddon::SetPolicy(napi_env env, napi_callback_info info)
@@ -159,8 +164,14 @@ napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::string policies;
-    int32_t retCode = BrowserProxy::GetBrowserProxy()->GetPolicies(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->appId, policies);
+    int32_t retCode;
+    if (asyncCallbackInfo->hasAdmin) {
+        retCode = BrowserProxy::GetBrowserProxy()->GetPolicies(asyncCallbackInfo->elementName,
+            asyncCallbackInfo->appId, policies);
+    } else {
+        retCode = BrowserProxy::GetBrowserProxy()->GetPolicies(
+            nullptr, asyncCallbackInfo->appId, policies);
+    }
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode));
         return nullptr;
@@ -314,11 +325,11 @@ napi_value BrowserAddon::GetPoliciesCommon(napi_env env, napi_callback_info info
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR(env,
+        CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo->hasAdmin,
+        asyncCallbackInfo->elementName), "param admin need be null or want");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string), "appId type error");
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter want error");
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->appId, argv[ARR_INDEX_ONE]),
         "Parameter appId error");
     EDMLOGD(

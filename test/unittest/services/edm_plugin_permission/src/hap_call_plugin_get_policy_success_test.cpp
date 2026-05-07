@@ -79,6 +79,13 @@ INSTANTIATE_TEST_CASE_P(TestWithParam, HapCallPluginGetPolicySuccessTest, testin
         AdminType::BYOD, false, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
     TestParam(EdmInterfaceCode::DISABLE_MTP_SERVER, DisableMtpServerPlugin::GetPlugin(),
         AdminType::BYOD, true, "", EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS),
+
+    TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
+        AdminType::UNKNOWN, true, "", ""),
+    TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
+        AdminType::UNKNOWN, true, "", EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY),
+    TestParam(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, AllowedAppDistributionTypesPlugin::GetPlugin(),
+        AdminType::UNKNOWN, false, "", EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY),
 })));
 
 /**

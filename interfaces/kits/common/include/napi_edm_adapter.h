@@ -16,6 +16,7 @@
 #ifndef INTERFACES_KITS_COMMON_INCLUDE_NAPI_EDM_ADAPTER_H
 #define INTERFACES_KITS_COMMON_INCLUDE_NAPI_EDM_ADAPTER_H
 
+#include <functional>
 #include <string>
 #include <vector>
 #include "napi/native_api.h"
@@ -53,7 +54,7 @@ struct BusinessError {
 
 struct AddonMethodSign;
 
-typedef bool (*JsArgToData)(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign);
+using JsArgToData = std::function<bool(napi_env, napi_value, MessageParcel &, const AddonMethodSign &)>;
 
 struct AddonMethodSign {
     std::string name;

@@ -281,7 +281,7 @@ napi_value UsbManagerAddon::GetAllowedUsbDevices(napi_env env, napi_callback_inf
 {
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getAllowedUsbDevices";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -354,7 +354,7 @@ napi_value UsbManagerAddon::GetUsbStorageDeviceAccessPolicy(napi_env env, napi_c
 {
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getUsbStorageDeviceAccessPolicy";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
@@ -442,7 +442,7 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevices(napi_env env, napi_callback_
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getDisallowedUsbDevices";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);

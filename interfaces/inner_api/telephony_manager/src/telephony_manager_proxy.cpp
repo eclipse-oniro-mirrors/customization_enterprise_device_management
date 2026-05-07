@@ -109,20 +109,10 @@ int32_t TelephonyManagerProxy::RemoveCallPolicyNumbers(const AppExecFwk::Element
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t TelephonyManagerProxy::GetCallPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const std::string &callType, const int32_t policyFlag, std::vector<std::string> &numbers)
+int32_t TelephonyManagerProxy::GetCallPolicyNumbers(MessageParcel &data, std::vector<std::string> &numbers)
 {
-    EDMLOGD("TelephonyManagerProxy::GetCallPolicyNumbers.");
-    MessageParcel data;
+    EDMLOGD("TelephonyManagerProxy::GetCallPolicyNumbers with MessageParcel.");
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(callType);
-    data.WriteInt32(policyFlag);
-
     EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::TELEPHONY_CALL_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);

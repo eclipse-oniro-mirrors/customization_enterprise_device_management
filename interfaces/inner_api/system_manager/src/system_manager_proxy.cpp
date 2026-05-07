@@ -308,20 +308,12 @@ int32_t SystemManagerProxy::RemoveKeyEventPolicys(const AppExecFwk::ElementName 
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t SystemManagerProxy::GetKeyEventPolicys(const AppExecFwk::ElementName &admin,
-    std::vector<KeyCustomization> &KeyCustomizations)
+int32_t SystemManagerProxy::GetKeyEventPolicies(MessageParcel &data, std::vector<KeyCustomization> &KeyCustomizations)
 {
-    EDMLOGI("SystemManagerProxy::GetKeyEventPolicys");
+    EDMLOGI("SystemManagerProxy::GetKeyEventPolicies with MessageParcel");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
     MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
     proxy->GetPolicy(EdmInterfaceCode::SET_KEY_CODE_POLICYS, data, reply);
-    
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

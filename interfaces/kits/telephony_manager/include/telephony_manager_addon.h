@@ -41,6 +41,8 @@ private:
     static napi_value AddIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
     static napi_value RemoveIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
     static napi_value GetIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value GetCallPolicyNumbersCommon(napi_env env, napi_callback_info info,
+        const std::string &callPolicyType, const std::string &methodName);
     static napi_value HangupCalling(napi_env env, napi_callback_info info);
     static napi_value ActiveSim(napi_env env, napi_callback_info info);
     static napi_value DeactiveSim(napi_env env, napi_callback_info info);
