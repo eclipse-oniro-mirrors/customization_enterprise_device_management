@@ -63,6 +63,10 @@ ErrCode ActiveSimPlugin::OnRemovePolicy(int32_t &slotId)
 ErrCode ActiveSimPlugin::ManageSim(int32_t slotId, int32_t status)
 {
     int32_t maxSlotId = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
+    if (maxSlotId <= 0) {
+        EDMLOGE("max slotId is abnormally.");
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
     if (slotId < 0 || slotId >= maxSlotId) {
         EDMLOGE("ManageSim slotId is abnormally.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
