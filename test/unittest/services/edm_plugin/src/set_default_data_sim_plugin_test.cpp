@@ -56,7 +56,8 @@ HWTEST_F(SetDefaultDataSimPluginTest, TestSetDefaultDataSimAbnormal, TestSize.Le
     SetDefaultDataSimPlugin plugin;
     int32_t simId = -1;
     ErrCode ret = plugin.OnSetPolicy(simId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED ||
+        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
 /**
@@ -69,7 +70,8 @@ HWTEST_F(SetDefaultDataSimPluginTest, TestSetDefaultDataSimFail, TestSize.Level1
     SetDefaultDataSimPlugin plugin;
     int32_t simId = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
     ErrCode ret = plugin.OnSetPolicy(simId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED ||
+        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
 /**
@@ -82,7 +84,8 @@ HWTEST_F(SetDefaultDataSimPluginTest, TestSetDefaultDataSimSuc, TestSize.Level1)
     SetDefaultDataSimPlugin plugin;
     int32_t simId = 0;
     ErrCode ret = plugin.OnSetPolicy(simId);
-    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SET_DEFAULT_DATA_SIM_FAILED);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SET_DEFAULT_DATA_SIM_FAILED ||
+        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
 /**

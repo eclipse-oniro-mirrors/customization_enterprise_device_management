@@ -47,8 +47,11 @@ void SetDefaultDataSimPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDefa
 ErrCode SetDefaultDataSimPlugin::OnSetPolicy(int32_t &slotId)
 {
     EDMLOGI("SetDefaultDataSimPlugin OnSetPolicy slotId: %{public}d", slotId);
-    
     int32_t maxSlotId = Telephony::CoreServiceClient::GetInstance().GetMaxSimCount();
+    if (maxSlotId <= 0) {
+        EDMLOGE("max slotId is abnormally.");
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
     if (slotId < 0 || slotId >= maxSlotId) {
         EDMLOGE("SetDefaultDataSimPlugin::OnSetPolicy slotId is invalid: %{public}d", slotId);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
