@@ -42,6 +42,11 @@ public:
     {
         return "";
     }
+
+    virtual ErrCode GetUpdatePolicy(UpdatePolicy &updatePolicy)
+    {
+        return ERR_OK;
+    }
 };
 } // namespace EDM
 } // namespace OHOS
