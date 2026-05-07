@@ -18,10 +18,17 @@
 
 namespace OHOS {
 namespace EDM {
+enum class PasswordAlgs : int32_t {
+    NONE = -1,
+    SCRYPT_HKDF_AES = 0,
+    SCRYPT_HKDF_SM4 = 1,
+};
+
 struct PasswordPolicy {
     std::string complexityReg;
     int64_t validityPeriod = 0;
     std::string additionalDescription;
+    int32_t passwordAlgs = static_cast<int32_t>(PasswordAlgs::NONE);
 };
 }
 }

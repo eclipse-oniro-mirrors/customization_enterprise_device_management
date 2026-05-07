@@ -23,6 +23,7 @@ namespace EDM {
 const std::string COMPLEXITY_REG = "complexityReg";
 const std::string VALIDITY_PERIOD = "validityPeriod";
 const std::string ADDITIONAL_DESCRIPTION = "additionalDescription";
+const std::string PASSWORD_ALGS = "passwordAlgs";
 
 bool PasswordSerializer::Deserialize(const std::string &jsonString, PasswordPolicy &policy)
 {
@@ -45,6 +46,10 @@ bool PasswordSerializer::Deserialize(const std::string &jsonString, PasswordPoli
     policy.complexityReg = cJSON_GetStringValue(complexityReg);
     policy.validityPeriod = cJSON_GetNumberValue(validityPeriod);
     policy.additionalDescription = cJSON_GetStringValue(additionalDescription);
+    cJSON* passwordAlgs = cJSON_GetObjectItem(root, PASSWORD_ALGS.c_str());
+    if (passwordAlgs != nullptr && cJSON_IsNumber(passwordAlgs)) {
+        policy.passwordAlgs = static_cast<int32_t>(cJSON_GetNumberValue(passwordAlgs));
+    }
     cJSON_Delete(root);
     EDMLOGI("PasswordSerializer::Deserialize %{public}s", jsonString.c_str());
     return true;
@@ -57,6 +62,9 @@ bool PasswordSerializer::Serialize(const PasswordPolicy &policy, std::string &js
     cJSON_AddStringToObject(root, COMPLEXITY_REG.c_str(), policy.complexityReg.c_str());
     cJSON_AddNumberToObject(root, VALIDITY_PERIOD.c_str(), policy.validityPeriod);
     cJSON_AddStringToObject(root, ADDITIONAL_DESCRIPTION.c_str(), policy.additionalDescription.c_str());
+    if (policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::NONE)) {
+        cJSON_AddNumberToObject(root, PASSWORD_ALGS.c_str(), policy.passwordAlgs);
+    }
     char *cJsonStr = cJSON_Print(root);
     if (cJsonStr != nullptr) {
         jsonString = std::string(cJsonStr);
@@ -72,6 +80,7 @@ bool PasswordSerializer::GetPolicy(MessageParcel &data, PasswordPolicy &result)
     result.complexityReg = data.ReadString();
     result.validityPeriod = data.ReadInt64();
     result.additionalDescription = data.ReadString();
+    result.passwordAlgs = data.ReadInt32();
     return true;
 }
 
@@ -91,6 +100,9 @@ bool PasswordSerializer::MergePolicy(std::vector<PasswordPolicy> &data, Password
         }
         if (!policy.additionalDescription.empty()) {
             result.additionalDescription = policy.additionalDescription;
+        }
+        if (policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::NONE)) {
+            result.passwordAlgs = policy.passwordAlgs;
         }
     }
     return true;

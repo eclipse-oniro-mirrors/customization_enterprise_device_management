@@ -25,6 +25,7 @@
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
 #include "override_interface_name.h"
+#include "password_policy_serializer.h"
 #include "password_policy_utils.h"
 
 namespace OHOS {
@@ -48,19 +49,23 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
     PasswordPolicy &mergeData, int32_t userId)
 {
     EDMLOGI("PasswordPolicyPlugin OnSetPolicy...");
-    if (!mergeData.complexityReg.empty() || mergeData.validityPeriod != 0 || !mergeData.additionalDescription.empty()) {
-        EDMLOGE("PasswordPolicyPlugin set param failed. Empty param.");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
     try {
         std::regex re(policy.complexityReg);
     } catch (const std::regex_error& e) {
         EDMLOGE("PasswordPolicyPlugin setComplexityReg failed. Invalid regular expression input.");
         return EdmReturnErrCode::PARAM_ERROR;
     }
+    if (policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::NONE) &&
+        policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_AES) &&
+        policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_SM4)) {
+        EDMLOGE("PasswordPolicyPlugin setPasswordAlgs failed. Invalid passwordAlgs value.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
     SetGlobalConfigParam(policy);
     currentData = policy;
-    mergeData = policy;
+    std::vector<PasswordPolicy> policies;
+    policies.push_back(policy);
+    PasswordSerializer::GetInstance()->MergePolicy(policies, mergeData);
     PasswordPolicyUtils passwordPolicyUtils;
     if (!passwordPolicyUtils.UpdatePasswordPolicy(mergeData)) {
         EDMLOGE("PasswordPolicyPlugin set policy failed. UpdatePasswordPolicy error.");
@@ -70,6 +75,7 @@ ErrCode PasswordPolicyPlugin::OnSetPolicy(PasswordPolicy &policy, PasswordPolicy
         .Add("complexityRegex", policy.complexityReg)
         .Add("validityPeriod", policy.validityPeriod)
         .Add("additionalDescription", policy.additionalDescription)
+        .Add("passwordAlgs", static_cast<int32_t>(policy.passwordAlgs))
         .Build();
     std::string params = EdmJsonBuilder()
         .AddRawJson("policy", passwordPolicyJson)
@@ -93,7 +99,7 @@ ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, Passwo
     }
     PasswordPolicyUtils passwordPolicyUtils;
     if (!passwordPolicyUtils.UpdatePasswordPolicy(mergeData)) {
-        EDMLOGE("LocationPolicyPlugin set location failed. UpdatePasswordPolicy error.");
+        EDMLOGE("PasswordPolicyPlugin set password policy failed. UpdatePasswordPolicy error.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
@@ -104,7 +110,7 @@ void PasswordPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
     PasswordPolicy policy;
     PasswordPolicyUtils passwordPolicyUtils;
     if (!passwordPolicyUtils.GetPasswordPolicy(policy)) {
-        EDMLOGE("LocationPolicyPlugin set location failed. GetPasswordPolicy error.");
+        EDMLOGE("PasswordPolicyPlugin set password policy failed. GetPasswordPolicy error.");
         return;
     }
     SetGlobalConfigParam(policy);
@@ -119,6 +125,21 @@ void PasswordPolicyPlugin::SetGlobalConfigParam(const PasswordPolicy &policy)
     int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
     if (ret != 0) {
         EDMLOGW("SetGlobalConfigParam SetPasswordPolicy Error");
+    }
+    if (policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::NONE)) {
+        SetAlgoType(policy.passwordAlgs);
+    }
+}
+
+void PasswordPolicyPlugin::SetAlgoType(int32_t passwordAlgs)
+{
+    UserIam::UserAuth::GlobalConfigParam param;
+    param.type = UserIam::UserAuth::GlobalConfigType::PIN_ALGO_TYPE;
+    param.authTypes.push_back(UserIam::UserAuth::AuthType::PIN);
+    param.value.pinAlgoType = passwordAlgs;
+    int32_t ret = UserIam::UserAuth::UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    if (ret != 0) {
+        EDMLOGW("SetGlobalConfigParam SetAlgoType Error.ret: %{public}d", ret);
     }
 }
 } // namespace EDM
