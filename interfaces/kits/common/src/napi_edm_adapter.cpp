@@ -31,7 +31,7 @@ constexpr int32_t HAS_USERID = 1;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 }
 
-static bool ElementNullArgToData(napi_env env, napi_value argv, MessageParcel &data,
+static ErrCode ElementNullArgToData(napi_env env, napi_value argv, MessageParcel &data,
     const AddonMethodSign &methodSign)
 {
     if (methodSign.methodAttribute == MethodAttribute::GET) {
@@ -41,7 +41,7 @@ static bool ElementNullArgToData(napi_env env, napi_value argv, MessageParcel &d
     bool isElement = ParseElementName(env, elementName, argv);
     bool isNull = MatchValueType(env, argv, napi_null);
     if (!isElement && !isNull) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (isNull) {
         data.WriteInt32(WITHOUT_ADMIN);
@@ -52,10 +52,11 @@ static bool ElementNullArgToData(napi_env env, napi_value argv, MessageParcel &d
     if (methodSign.methodAttribute == MethodAttribute::HANDLE) {
         data.WriteString(methodSign.apiVersionTag);
     }
-    return true;
+    return ERR_OK;
 }
 
-static bool ElementArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode ElementArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     if (methodSign.methodAttribute == MethodAttribute::GET) {
         data.WriteString(methodSign.apiVersionTag);
@@ -63,7 +64,7 @@ static bool ElementArgToData(napi_env env, napi_value argv, MessageParcel &data,
     OHOS::AppExecFwk::ElementName elementName;
     bool isElement = ParseElementName(env, elementName, argv);
     if (!isElement) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (methodSign.methodAttribute == MethodAttribute::GET) {
         data.WriteInt32(HAS_ADMIN);
@@ -72,85 +73,91 @@ static bool ElementArgToData(napi_env env, napi_value argv, MessageParcel &data,
     if (methodSign.methodAttribute == MethodAttribute::HANDLE) {
         data.WriteString(methodSign.apiVersionTag);
     }
-    return true;
+    return ERR_OK;
 }
 
-static bool Uint32ArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode Uint32ArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     uint32_t uintValue = 0;
     bool isUint = ParseUint(env, uintValue, argv);
     if (!isUint) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteUint32(uintValue);
-    return true;
+    return ERR_OK;
 }
 
-static bool StringArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode StringArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     std::string strValue;
     bool isString = ParseString(env, strValue, argv);
     if (!isString) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteString(strValue);
-    return true;
+    return ERR_OK;
 }
 
-static bool ArrayStringArgToData(napi_env env, napi_value argv, MessageParcel &data,
+static ErrCode ArrayStringArgToData(napi_env env, napi_value argv, MessageParcel &data,
     const AddonMethodSign &methodSign)
 {
     std::vector<std::string> strArrValue;
     bool isStringArr = ParseStringArray(env, strArrValue, argv);
     if (!isStringArr) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteStringVector(strArrValue);
-    return true;
+    return ERR_OK;
 }
 
-static bool ArrayIntArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode ArrayIntArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     std::vector<int32_t> intArrValue;
     bool isIntArr = ParseIntArray(env, intArrValue, argv);
     if (!isIntArr) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInt32Vector(intArrValue);
-    return true;
+    return ERR_OK;
 }
 
-static bool BooleanArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode BooleanArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     bool blValue = false;
     bool isBool = ParseBool(env, blValue, argv);
     if (!isBool) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteBool(blValue);
-    return true;
+    return ERR_OK;
 }
 
-static bool Int32ArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode Int32ArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     int32_t int32Value = 0;
     bool isUint = ParseInt(env, int32Value, argv);
     if (!isUint) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInt32(int32Value);
-    return true;
+    return ERR_OK;
 }
 
-static bool Int64ArgToData(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+static ErrCode Int64ArgToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &methodSign)
 {
     int64_t int64Value = 0;
     bool isUint = ParseLong(env, int64Value, argv);
     if (!isUint) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInt64(int64Value);
-    return true;
+    return ERR_OK;
 }
 
 static bool UserIdArgToData(napi_env env, napi_value *argv, const AddonMethodSign &methodSign,
@@ -172,8 +179,8 @@ static bool UserIdArgToData(napi_env env, napi_value *argv, const AddonMethodSig
             data.WriteUint32(HAS_USERID);
             data.WriteUint32(userIdValue);
         } else {
-            bool convertResult = argConvert(env, argv[index], data, methodSign);
-            if (!convertResult) {
+            ErrCode convertResult = argConvert(env, argv[index], data, methodSign);
+            if (convertResult != ERR_OK) {
                 errorStr = errorMsg.str();
                 return false;
             }
@@ -246,14 +253,14 @@ static napi_value JsParamsToData(napi_env env, napi_value *argv, size_t argc,
             if (it == funcMap.end()) {
                 continue;
             }
-            bool res = it->second(env, argv[i], data, methodSign);
-            if (!res) {
-                return CreateError(env, EdmReturnErrCode::PARAM_ERROR, errorMsg.str());
+            ErrCode res = it->second(env, argv[i], data, methodSign);
+            if (res != ERR_OK) {
+                return CreateErrorByType(env, res, errorMsg.str(), methodSign.errcodeType);
             }
         } else {
-            bool result = argConvert(env, argv[i], data, methodSign);
-            if (!result) {
-                return CreateError(env, EdmReturnErrCode::PARAM_ERROR, errorMsg.str());
+            ErrCode result = argConvert(env, argv[i], data, methodSign);
+            if (result != ERR_OK) {
+                return CreateErrorByType(env, result, errorMsg.str(), methodSign.errcodeType);
             }
         }
     }
@@ -269,7 +276,7 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     // The size can meet the minimum length
     size_t minSize = methodSign.argsType.size() - methodSign.defaultArgSize;
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= minSize, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= minSize, "parameter count error", methodSign.errcodeType);
     EDMLOGI("AddonMethodAdapter JsObjectToData argc:%{public}zu.", argc);
     if (isAsync && argc > methodSign.argsType.size()) {
         bool isCallBack = MatchValueType(env, argv[methodSign.argsType.size()], napi_function);
@@ -277,11 +284,11 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
         /* If a callback exists, there must be no default parameter.
 		overloading of callback and default parameter types cannot be supported. */
         errorMsg << "The " << methodSign.argsType.size() << "th parameter must be callback";
-        ASSERT_AND_THROW_PARAM_ERROR(env, isCallBack, errorMsg.str());
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, isCallBack, errorMsg.str(), methodSign.errcodeType);
     }
     if (!methodSign.argsType.empty() && !methodSign.argsConvert.empty() &&
         methodSign.argsType.size() != methodSign.argsConvert.size()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, methodSign.errcodeType));
         return nullptr;
     }
     addonData->data.WriteInterfaceToken(DESCRIPTOR);
@@ -289,7 +296,7 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
     std::string errorStr;
     bool convertUserIdRes = UserIdArgToData(env, argv, methodSign, addonData->data, errorStr);
     if (!convertUserIdRes) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, errorStr));
+        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, errorStr, methodSign.errcodeType));
         return nullptr;
     }
 
@@ -304,7 +311,7 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
         status = napi_create_reference(env, argv[methodSign.argsType.size()], NAPI_RETURN_ONE, &addonData->callback);
         std::ostringstream errorMsg;
         errorMsg << "The " << methodSign.argsType.size() << "th parameter must be callback.";
-        ASSERT_AND_THROW_PARAM_ERROR(env, status == napi_ok, errorMsg.str());
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, status == napi_ok, errorMsg.str(), methodSign.errcodeType);
     }
     napi_value result = nullptr;
     napi_get_undefined(env, &result);

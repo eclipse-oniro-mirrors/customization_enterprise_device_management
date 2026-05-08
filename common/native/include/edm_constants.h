@@ -39,6 +39,7 @@ namespace EdmConstants {
     constexpr int32_t USB_INTERFACE_DESCRIPTOR = 0;
     constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
+    constexpr int32_t DISTRIBUTE_SERVICE_TYPE_COLLABORATION = 0;
     constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
     constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
     constexpr uint32_t BLUETOOTH_LIST_MAX_SIZE = 1000;

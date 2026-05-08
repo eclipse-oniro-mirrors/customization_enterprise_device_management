@@ -79,16 +79,16 @@ void UsbManagerAddon::CreateDescriptorEnum(napi_env env, napi_value value)
 napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)
 {
     auto convertpolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) -> bool {
+        const AddonMethodSign &methodSign) -> ErrCode {
         bool usbPolicy = MatchValueType(env, argv, napi_number);
         if (!usbPolicy) {
             EDMLOGE("type usbPolicy error");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         int32_t policy = EdmConstants::STORAGE_USB_POLICY_DISABLED;
         if (!ParseInt(env, policy, argv)) {
             EDMLOGE("policy param error");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         const int32_t readOnly = 1;
         const int32_t readWrite = 0;
@@ -100,9 +100,9 @@ napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)
                 data.WriteInt32(readOnly);
                 break;
             default:
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
         }
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setUsbPolicy";
@@ -189,20 +189,20 @@ napi_value UsbManagerAddon::RemoveAllowedUsbDevices(napi_env env, napi_callback_
 napi_value UsbManagerAddon::AddOrRemoveAllowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd)
 {
     auto convertUsbDeviceIds2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
             std::vector<UsbDeviceId> usbDeviceIds;
             if (!ParseUsbDevicesArray(env, usbDeviceIds, argv)) {
                 EDMLOGE("parameter type parse error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteUint32(usbDeviceIds.size());
             for (const auto &usbDeviceId : usbDeviceIds) {
                 if (!usbDeviceId.Marshalling(data)) {
                     EDMLOGE("UsbManagerProxy AddAllowedUsbDevices: write parcel failed!");
-                    return false;
+                    return EdmReturnErrCode::PARAM_ERROR;
                 }
             }
-            return true;
+            return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
@@ -394,25 +394,25 @@ napi_value UsbManagerAddon::RemoveDisallowedUsbDevices(napi_env env, napi_callba
 napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd)
 {
     auto convertUsbDeviceType2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
             std::vector<USB::UsbDeviceType> usbDeviceTypes;
             if (!ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv)) {
                 EDMLOGE("parameter type parse error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             auto size = usbDeviceTypes.size();
             if (size > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
                 EDMLOGE("UsbManagerProxy:AddOrRemoveDisallowedUsbDevices size=[%{public}zu] is too large", size);
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteUint32(size);
             for (const auto &usbDeviceType : usbDeviceTypes) {
                 if (!usbDeviceType.Marshalling(data)) {
                     EDMLOGE("UsbManagerProxy AddOrRemoveDisallowedUsbDevices: write parcel failed!");
-                    return false;
+                    return EdmReturnErrCode::PARAM_ERROR;
                 }
             }
-            return true;
+            return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = (isAdd ? "addDisallowedUsbDevices" : "removeDisallowedUsbDevices");

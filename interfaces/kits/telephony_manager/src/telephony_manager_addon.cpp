@@ -223,15 +223,15 @@ napi_value TelephonyManagerAddon::GetCallPolicyNumbersCommon(napi_env env, napi_
     EDMLOGI("NAPI_%{public}s called", methodName.c_str());
 #if defined(TELEPHONY_EDM_ENABLE)
     auto convertPolicy2Data = [callPolicyType](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         int32_t policy = -1;
         bool isNumber = ParseInt(env, policy, argv);
         if (!isNumber) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteString(callPolicyType);
         data.WriteInt32(policy);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = methodName;

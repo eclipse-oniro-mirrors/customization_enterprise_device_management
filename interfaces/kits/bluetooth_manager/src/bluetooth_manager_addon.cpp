@@ -16,6 +16,7 @@
 #include "bluetooth_manager_addon.h"
 
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_log.h"
 #include "edm_utils.h"
 #include "errors.h"
@@ -26,27 +27,27 @@
 using namespace OHOS::EDM;
 
 auto convertAccountIdForBluetoothProtocol = [](napi_env env, napi_value argv, OHOS::MessageParcel &data,
-    const AddonMethodSign &methodSign) {
+    const AddonMethodSign &methodSign) -> OHOS::ErrCode {
     int32_t accountId;
     if (!ParseInt(env, accountId, argv)) {
         EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseInt fail");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInt32(BluetoothPolicyType::SET_DISALLOWED_PROTOCOLS);
     data.WriteInt32(accountId);
-    return true;
+    return OHOS::ERR_OK;
 };
 
 auto convertAccountIdWithPolicyForBluetoothProtocol = [](napi_env env, napi_value argv, OHOS::MessageParcel &data,
-    const AddonMethodSign &methodSign) {
+    const AddonMethodSign &methodSign) -> OHOS::ErrCode {
     int32_t accountId;
     if (!ParseInt(env, accountId, argv)) {
         EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseInt fail");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     data.WriteInt32(BluetoothPolicyType::SET_DISALLOWED_PROTOCOLS_WITH_POLICY);
     data.WriteInt32(accountId);
-    return true;
+    return OHOS::ERR_OK;
 };
 
 napi_value BluetoothManagerAddon::Init(napi_env env, napi_value exports)
@@ -303,14 +304,14 @@ napi_value BluetoothManagerAddon::GetDisallowedBluetoothProtocols(napi_env env, 
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDisallowedBluetoothProtocols";
     addonMethodSign.methodAttribute = MethodAttribute::GET;
-    bool isAfterApi24 = BEFORE_API24_FLAG;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
     if (argc == ARGS_SIZE_TWO) {
         EDMLOGI("NAPI_GetDisallowedBluetoothProtocols argc == ARGS_SIZE_TWO");
         addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
         addonMethodSign.argsConvert = {nullptr, convertAccountIdForBluetoothProtocol};
     } else if (argc == ARGS_SIZE_THREE) {
         EDMLOGI("NAPI_GetDisallowedBluetoothProtocols argc == ARGS_SIZE_THREE");
-        isAfterApi24 = AFTER_API24_FLAG;
+        errcodeType = ErrcodeType::NUMBER;
         addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL,
             EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
         addonMethodSign.argsConvert = {nullptr, convertAccountIdWithPolicyForBluetoothProtocol, nullptr};
@@ -328,7 +329,7 @@ napi_value BluetoothManagerAddon::GetDisallowedBluetoothProtocols(napi_env env, 
     int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->
         GetDisallowedBluetoothProtocols(adapterAddonData.data, protocols);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode, isAfterApi24));
+        napi_throw(env, CreateError(env, retCode, errcodeType));
         return nullptr;
     }
     napi_value jsList = nullptr;
@@ -358,26 +359,26 @@ napi_value BluetoothManagerAddon::AddOrRemoveDisallowedBluetoothProtocols(napi_e
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
     auto convertBtProtocol2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::vector<int32_t> bluetoothProtocols;
         if (!ParseIntArray(env, bluetoothProtocols, argv)) {
             EDMLOGE("NAPI_AddOrRemoveDisallowedBluetoothProtocols ParseIntArray fail");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteInt32Vector(bluetoothProtocols);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddOrRemoveDisallowedBluetoothProtocols";
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    bool isAfterApi24 = BEFORE_API24_FLAG;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
     if (argc == ARGS_SIZE_THREE) {
         EDMLOGI("NAPI_AddOrRemoveDisallowedBluetoothProtocols argc == ARGS_SIZE_THREE");
         addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
             EdmAddonCommonType::CUSTOM};
         addonMethodSign.argsConvert = {nullptr, convertAccountIdForBluetoothProtocol, convertBtProtocol2Data};
     } else if (argc == ARGS_SIZE_FOUR) {
-        isAfterApi24 = AFTER_API24_FLAG;
+        errcodeType = ErrcodeType::NUMBER;
         EDMLOGI("NAPI_AddOrRemoveDisallowedBluetoothProtocols argc == ARGS_SIZE_FOUR");
         addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM,
             EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
@@ -396,7 +397,7 @@ napi_value BluetoothManagerAddon::AddOrRemoveDisallowedBluetoothProtocols(napi_e
     int32_t retCode = BluetoothManagerProxy::GetBluetoothManagerProxy()->
         AddOrRemoveDisallowedBluetoothProtocols(adapterAddonData.data, function == "AddDisallowedBluetoothProtocols");
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode, isAfterApi24));
+        napi_throw(env, CreateError(env, retCode, errcodeType));
     }
     return nullptr;
 }
