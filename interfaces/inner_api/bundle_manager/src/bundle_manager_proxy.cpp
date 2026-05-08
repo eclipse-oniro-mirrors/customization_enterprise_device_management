@@ -194,14 +194,18 @@ int32_t BundleManagerProxy::GetBundlesByPolicyType(const AppExecFwk::ElementName
     return ERR_OK;
 }
 
-int32_t BundleManagerProxy::InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps)
+int32_t BundleManagerProxy::InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps, std::string &errMsg)
 {
     EDMLOGD("BundleManagerProxy::InstallMarketApps");
     data.WriteInt32(SET_MARKET_APPS);
     MessageParcel reply;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::INSTALL_MARKET_APPS);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    auto ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    if (ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED) {
+        errMsg = reply.ReadString();
+    }
+    return ret;
 }
 
 int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,

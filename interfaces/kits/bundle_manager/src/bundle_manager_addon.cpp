@@ -925,10 +925,15 @@ napi_value BundleManagerAddon::InstallMarketApps(napi_env env, napi_callback_inf
         return nullptr;
     }
     std::vector<std::string> installMarketApps;
+    std::string errMsg;
     int32_t retCode = bundleManagerProxy->InstallMarketApps(adapterAddonData.data,
-        installMarketApps);
+        installMarketApps, errMsg);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        if (retCode == EdmReturnErrCode::APPLICATION_INSTALL_FAILED) {
+            napi_throw(env, CreateError(env, retCode, errMsg));
+        } else {
+            napi_throw(env, CreateError(env, retCode));
+        }
     }
     return nullptr;
 }

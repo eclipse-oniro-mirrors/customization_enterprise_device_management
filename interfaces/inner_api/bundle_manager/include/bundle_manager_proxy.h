@@ -46,7 +46,7 @@ public:
     int32_t AddOrRemoveInstallationAllowedAppDistributionTypes(MessageParcel &data, FuncOperateType operateType);
     int32_t GetInstallationAllowedAppDistributionTypes(MessageParcel &data,
         std::vector<int32_t> &installationAllowedAppDistributionTypes);
-    int32_t InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps);
+    int32_t InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps, std::string &errMsg);
     int32_t GetInstalledBundleStorageStatsList(AppExecFwk::ElementName &admin, const std::vector<std::string> &bundles,
         int32_t userId, std::vector<BundleStorageInfo> &result);
 private:
