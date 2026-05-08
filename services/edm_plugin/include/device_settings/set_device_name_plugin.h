@@ -19,6 +19,11 @@
 #include "external_manager_factory.h"
 #include "plugin_singleton.h"
 
+#ifdef WIFI_EDM_ENABLE
+#include "inner_api/wifi_hotspot.h"
+#include "wifi_device.h"
+#endif
+
 namespace OHOS {
 namespace EDM {
 class SetDeviceNamePlugin : public PluginSingleton<SetDeviceNamePlugin, std::string> {
@@ -28,6 +33,13 @@ public:
     ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 private:
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
+#if defined(TELEPHONY_EDM_ENABLE) && defined(WIFI_EDM_ENABLE)
+    ErrCode UpdateHotspotNameIfNeed(const std::string &value, int32_t userId);
+    ErrCode PrepareHotspotConfig(const std::string &value, Wifi::HotspotConfig &hotspotConfig, bool &needUpdate);
+    ErrCode ApplyHotspotConfig(Wifi::WifiHotspot *hotspot, const Wifi::HotspotConfig &hotspotConfig);
+    ErrCode UpdateHotspotName(const std::string &value);
+    std::string GetSubstringByBytes(const std::string &value, size_t size);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS
