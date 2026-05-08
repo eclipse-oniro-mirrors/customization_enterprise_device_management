@@ -394,6 +394,7 @@ namespace PolicyName {
     const char* const POLICY_MANAGED_BROWSER_POLICY = "managed_browser_policy";
     const char* const POLICY_NOTIFY_UPGRADE_PACKAGES = "notify_upgrade_packages";
     const char* const POLICY_NTP_SERVER = "ntp_server";
+    const char* const POLICY_OTA_UPDATE_NONCE = "ota_update_nonce";
     const char* const POLICY_OPERATE_DEVICE = "operate_device";
     const char* const POLICY_PASSWORD_POLICY = "password_policy";
     const char* const POLICY_POWER_POLICY = "power_policy";

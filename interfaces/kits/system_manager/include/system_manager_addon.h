@@ -117,6 +117,8 @@ private:
     static napi_value FinishLogCollected(napi_env env, napi_callback_info info);
     static napi_value SetInstallLocalEnterpriseAppEnabledForAccount(napi_env env, napi_callback_info info);
     static napi_value GetInstallLocalEnterpriseAppEnabledForAccount(napi_env env, napi_callback_info info);
+    static napi_value SetOtaUpdateNonceEnable(napi_env env, napi_callback_info info);
+    static napi_value IsOtaUpdateNonceEnable(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

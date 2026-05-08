@@ -58,6 +58,31 @@ int32_t SystemManagerProxy::GetNTPServer(MessageParcel &data, std::string &value
     return ERR_OK;
 }
 
+#if defined(FEATURE_PC_ONLY)
+int32_t SystemManagerProxy::SetOtaUpdateNonceEnable(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetOtaUpdateNonceEnable");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::OTA_UPDATE_NONCE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+ 
+int32_t SystemManagerProxy::IsOtaUpdateNonceEnable(MessageParcel &data, bool &isOtaNonceEnable)
+{
+    EDMLOGD("SystemManagerProxy::IsOtaUpdateNonceEnable");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::OTA_UPDATE_NONCE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(isOtaNonceEnable);
+    return ERR_OK;
+}
+#endif
+
 int32_t SystemManagerProxy::SetOTAUpdatePolicy(MessageParcel &data, std::string &errorMsg)
 {
     EDMLOGD("SystemManagerProxy::SetOTAUpdatePolicy");
