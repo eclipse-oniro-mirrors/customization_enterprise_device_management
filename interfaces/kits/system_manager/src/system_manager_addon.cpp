@@ -250,15 +250,15 @@ napi_value SystemManagerAddon::GetNTPServer(napi_env env, napi_callback_info inf
 napi_value SystemManagerAddon::SetOTAUpdatePolicy(napi_env env, napi_callback_info info)
 {
     auto convertupdatePolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
             UpdatePolicy updatePolicy;
             std::string errorMsg;
             if (!JsObjToUpdatePolicy(env, argv, updatePolicy, errorMsg)) {
                 EDMLOGE("%{public}s", errorMsg.c_str());
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
-            return true;
+            return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetOTAUpdatePolicy";
@@ -841,14 +841,14 @@ napi_value SystemManagerAddon::AddOrRemoveDisallowedNearlinkProtocols(napi_env e
 #if defined(FEATURE_PC_ONLY)
     EDMLOGI("NAPI_AddOrRemoveDisallowedNearlinkProtocols called");
     auto convertNearlinkProtocol2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::vector<int32_t> nearlinkProtocols;
         if (!ParseIntArray(env, nearlinkProtocols, argv)) {
             EDMLOGE("NAPI_AddOrRemoveDisallowedNearlinkProtocols ParseIntArray fail");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteInt32Vector(nearlinkProtocols);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddOrRemoveDisallowedNearlinkProtocols";

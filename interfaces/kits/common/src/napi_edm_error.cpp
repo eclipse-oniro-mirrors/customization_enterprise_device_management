@@ -110,10 +110,10 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "is not disallowed before adding the distributed bidirectional collaboration trustlist."},
 };
 
-napi_value CreateError(napi_env env, ErrCode errorCode, int32_t isAfterApi24)
+napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
 {
     auto pair = GetMessageFromReturncode(errorCode);
-    if (isAfterApi24 == BEFORE_API24_FLAG) {
+    if (errcodeType == ErrcodeType::STRING) {
         return CreateError(env, pair.first, pair.second);
     } else {
         return CreateErrorAfterApi24(env, pair.first, pair.second);
@@ -158,6 +158,16 @@ napi_value CreateErrorAfterApi24(napi_env env, int32_t errorCode, const std::str
     napi_create_error(env, nullptr, message, &result);
     napi_set_named_property(env, result, "code", errorCodeNum);
     return result;
+}
+
+napi_value CreateErrorByType(napi_env env, int32_t errorCode, const std::string &errMessage,
+    ErrcodeType errcodeType)
+{
+    if (errcodeType == ErrcodeType::STRING) {
+        return CreateError(env, errorCode, errMessage);
+    } else {
+        return CreateErrorAfterApi24(env, errorCode, errMessage);
+    }
 }
 
 std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode)

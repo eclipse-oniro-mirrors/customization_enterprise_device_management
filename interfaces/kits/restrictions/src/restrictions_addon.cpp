@@ -440,10 +440,10 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     std::uint32_t ipcCode = 0;
     std::string feature;
-    int32_t isAfterApi24 = BEFORE_API24_FLAG;
-    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode, isAfterApi24);
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode, errcodeType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     bool disallow = false;
@@ -452,7 +452,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, isAfterApi24));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
     if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
@@ -463,16 +463,16 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
     }
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
     }
     return nullptr;
 }
 
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_value value,
-    std::string &feature, uint32_t &ipcCode, int32_t &isAfterApi24)
+    std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType)
 {
     if (MatchValueType(env, value, napi_string)) {
-        isAfterApi24 = BEFORE_API24_FLAG;
+        errcodeType = ErrcodeType::STRING;
         if (!ParseString(env, feature, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
@@ -482,7 +482,7 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_v
         }
         ipcCode = labelCode->second;
     } else if (MatchValueType(env, value, napi_number)) {
-        isAfterApi24 = AFTER_API24_FLAG;
+        errcodeType = ErrcodeType::NUMBER;
         int32_t featureNumber = -1;
         if (!ParseInt(env, featureNumber, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
@@ -493,7 +493,7 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_v
         }
         ipcCode = it->second;
     } else {
-        isAfterApi24 = BEFORE_API24_FLAG;
+        errcodeType = ErrcodeType::STRING;
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
@@ -513,10 +513,10 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
         "param admin need be null or want");
     std::uint32_t ipcCode = 0;
     std::string feature;
-    int32_t isAfterApi24 = BEFORE_API24_FLAG;
-    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode, isAfterApi24);
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndFeature(env, argv[ARR_INDEX_ONE], feature, ipcCode, errcodeType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     if (hasAdmin) {
@@ -530,7 +530,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, isAfterApi24));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
     if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
@@ -542,7 +542,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     }
 
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     napi_value result = nullptr;
@@ -571,10 +571,10 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     std::uint32_t ipcCode = 0;
     std::string feature;
-    int32_t isAfterApi24 = BEFORE_API24_FLAG;
-    auto ret = GetInterfaceCodeAndFeatureForAccount(env, argv[ARR_INDEX_ONE], feature, ipcCode, isAfterApi24);
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndFeatureForAccount(env, argv[ARR_INDEX_ONE], feature, ipcCode, errcodeType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     bool disallow = false;
@@ -586,7 +586,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, isAfterApi24));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
     std::string permissionTag = WITHOUT_PERMISSION_TAG;
@@ -597,16 +597,16 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
         ret = proxy->SetDisallowedPolicyForAccount(elementName, disallow, ipcCode, permissionTag, accountId);
     }
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
     }
     return nullptr;
 }
 
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
-    std::string &feature, uint32_t &ipcCode, int32_t &isAfterApi24)
+    std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType)
 {
     if (MatchValueType(env, value, napi_string)) {
-        isAfterApi24 = BEFORE_API24_FLAG;
+        errcodeType = ErrcodeType::STRING;
         if (!ParseString(env, feature, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
@@ -616,7 +616,7 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env e
         }
         ipcCode = labelCode->second;
     } else if (MatchValueType(env, value, napi_number)) {
-        isAfterApi24 = AFTER_API24_FLAG;
+        errcodeType = ErrcodeType::NUMBER;
         int32_t featureNumber = -1;
         if (!ParseInt(env, featureNumber, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
@@ -627,7 +627,7 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env e
         }
         ipcCode = it->second;
     } else {
-        isAfterApi24 = BEFORE_API24_FLAG;
+        errcodeType = ErrcodeType::STRING;
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
@@ -652,10 +652,10 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     std::uint32_t ipcCode = 0;
     std::string feature;
-    int32_t isAfterApi24 = BEFORE_API24_FLAG;
-    auto ret = GetInterfaceCodeAndFeatureForAccount(env, argv[ARR_INDEX_ONE], feature, ipcCode, isAfterApi24);
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndFeatureForAccount(env, argv[ARR_INDEX_ONE], feature, ipcCode, errcodeType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     int32_t accountId = -1;
@@ -663,9 +663,9 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
 
     bool disallow = false;
     ret = NativeGetDisallowedPolicyForAccount(hasAdmin ? &elementName : nullptr,
-        ipcCode, accountId, disallow, isAfterApi24);
+        ipcCode, accountId, disallow, errcodeType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, isAfterApi24));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     napi_value result = nullptr;
@@ -674,7 +674,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
 }
 
 OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk::ElementName *elementName,
-    std::uint32_t ipcCode, int32_t accountId, bool &disallow, int32_t isAfterApi24)
+    std::uint32_t ipcCode, int32_t accountId, bool &disallow, ErrcodeType errcodeType)
 {
     std::string permissionTag = WITHOUT_PERMISSION_TAG;
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
@@ -686,7 +686,7 @@ OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk:
         return proxy->GetFingerprintAuthDisallowedPolicyForAccount(elementName, ipcCode,
             disallow, permissionTag, accountId);
     } else {
-        if (elementName == nullptr && isAfterApi24 == BEFORE_API24_FLAG) {
+        if (elementName == nullptr && errcodeType == ErrcodeType::STRING) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
         return proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);

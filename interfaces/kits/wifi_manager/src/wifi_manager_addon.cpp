@@ -249,20 +249,20 @@ napi_value WifiManagerAddon::AddOrRemoveAllowedWifiList(napi_env env, napi_callb
 {
 #ifdef WIFI_EDM_ENABLE
     auto convertWifiList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::vector<WifiId> wifiIds;
         if (!ParseWifiInfoArray(env, wifiIds, argv, true)) {
             EDMLOGE("parameter type parse error");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteUint32(wifiIds.size());
         for (const auto &wifiId : wifiIds) {
             if (!wifiId.Marshalling(data)) {
                 EDMLOGE("wifiManagerProxy AddOrRemoveAllowedWifiList: write parcel failed!");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
         }
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
@@ -414,20 +414,20 @@ napi_value WifiManagerAddon::AddOrRemoveDisallowedWifiList(napi_env env, napi_ca
 {
 #ifdef WIFI_EDM_ENABLE
     auto convertWifiList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::vector<WifiId> wifiIds;
         if (!ParseWifiInfoArray(env, wifiIds, argv, false)) {
             EDMLOGE("parameter type parse error");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteUint32(wifiIds.size());
         for (const auto &wifiId : wifiIds) {
             if (!wifiId.Marshalling(data)) {
                 EDMLOGE("wifiManagerProxy AddOrRemoveDisallowedWifiList: write parcel failed!");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
         }
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
@@ -768,16 +768,16 @@ napi_value WifiManagerAddon::SetWifiProfileHandler(napi_env env,
 {
 #ifdef WIFI_EDM_ENABLE
     auto convertWifiDeviceConfigAndPwd2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         Wifi::WifiDeviceConfig config;
         WifiPassword pwd;
         bool parseRet = JsObjToDeviceConfig(env, argv, config, pwd);
         if (!parseRet) {
             napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "parameter profile parse error"));
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setWifiProfile";

@@ -330,27 +330,27 @@ napi_value DeviceSettingsAddon::SetPowerPolicy(napi_env env, napi_callback_info 
 {
     EDMLOGI("NAPI_SetPowerPolicy called");
     auto convertPowerScene2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         PowerScene powerScene;
         bool isUint = JsObjToPowerScene(env, argv, powerScene);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteUint32(static_cast<uint32_t>(powerScene));
-        return true;
+        return ERR_OK;
     };
     auto convertPowerPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         PowerPolicy powerPolicy;
         bool isUint = JsObjToPowerPolicy(env, argv, powerPolicy);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         if (!powerPolicy.Marshalling(data)) {
             EDMLOGE("DeviceSettingsProxy::SetPowerPolicy Marshalling proxy fail.");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetPowerPolicy";
@@ -374,14 +374,14 @@ napi_value DeviceSettingsAddon::GetPowerPolicy(napi_env env, napi_callback_info 
 {
     EDMLOGI("NAPI_GetPowerPolicy called");
     auto convertPowerScene2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         PowerScene powerScene;
         bool isUint = JsObjToPowerScene(env, argv, powerScene);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteUint32(static_cast<uint32_t>(powerScene));
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetPowerPolicy";
@@ -493,15 +493,15 @@ napi_value DeviceSettingsAddon::InstallUserCertificate(napi_env env, napi_callba
 {
     EDMLOGI("NAPI_InstallUserCertificate called");
     auto convertCertBlob2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         CertBlob certBlob;
         bool retCertBlob = ParseCertBlob(env, argv, certBlob);
         if (!retCertBlob) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteUInt8Vector(certBlob.certArray);
         data.WriteString(certBlob.alias);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "InstallUserCertificate";
@@ -820,13 +820,13 @@ napi_value DeviceSettingsAddon::SetUnlockWallPaper(napi_env env, napi_callback_i
 napi_value DeviceSettingsAddon::SetWallPaper(napi_env env, napi_callback_info info, bool isHomeWallPaper)
 {
     auto convertFd2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         int32_t fd = -1;
         if (!ParseInt(env, fd, argv)) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteFileDescriptor(fd);
-        return true;
+        return ERR_OK;
     };
 
     AddonMethodSign addonMethodSign;

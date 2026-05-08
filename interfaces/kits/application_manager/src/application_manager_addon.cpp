@@ -36,6 +36,24 @@ using namespace OHOS::EDM;
 
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
+auto convertServiceType2Data = [](napi_env env, napi_value argv, OHOS::MessageParcel &data,
+    const AddonMethodSign &methodSign) -> OHOS::ErrCode {
+    if (!MatchValueType(env, argv, napi_number)) {
+        EDMLOGE("NAPI_AllowedDistributeAbilityConnBundles serviceType type error");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    int32_t serviceType = EdmConstants::DISTRIBUTE_SERVICE_TYPE_COLLABORATION;
+    if (!ParseInt(env, serviceType, argv)) {
+        EDMLOGE("NAPI_AllowedDistributeAbilityConnBundles serviceType ParseInt fail");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    if (serviceType != EdmConstants::DISTRIBUTE_SERVICE_TYPE_COLLABORATION) {
+        EDMLOGE("NAPI_AllowedDistributeAbilityConnBundles serviceType param error");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return OHOS::ERR_OK;
+};
+
 napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nKioskFeature = nullptr;
@@ -1198,15 +1216,15 @@ napi_value ApplicationManagerAddon::SetKioskFeatures(napi_env env, napi_callback
 {
     EDMLOGI("NAPI_SetKioskFeatures called");
     auto convertKioskFeature2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::vector<int32_t> kioskFeatures;
         bool parseRet = ParseIntArray(env, kioskFeatures, argv);
         if (!parseRet) {
             EDMLOGE("NAPI_SetKioskFeatures ParseIntArray fail");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteInt32Vector(kioskFeatures);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetKioskFeatures";
@@ -1549,7 +1567,7 @@ napi_value ApplicationManagerAddon::GetApplicationWindowStates(napi_env env, nap
     std::vector<WindowStateInfo> windowStateInfos;
     ret = applicationManagerProxy->GetApplicationWindowStates(elementName, bundleName, appIndex, windowStateInfos);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, AFTER_API24_FLAG));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value nWindowStateInfos;
@@ -1735,18 +1753,18 @@ napi_value ApplicationManagerAddon::AddOrRemoveHideLauncherIcon(napi_env env, na
         "bundleNames param error");
     int32_t userId = 0;
     if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId))) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, AFTER_API24_FLAG));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, ErrcodeType::NUMBER));
         return nullptr;
     }
     int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->AddOrRemoveHideLauncherIcon(
         elementName, userId, bundleNames, isAdd);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, AFTER_API24_FLAG));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 #else
     EDMLOGW("ApplicationManagerAddon::AddOrRemoveHideLauncherIcon Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, AFTER_API24_FLAG));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -1767,14 +1785,14 @@ napi_value ApplicationManagerAddon::GetHideLauncherIcon(napi_env env, napi_callb
         elementName), "param admin need be null or want");
     int32_t userId = 0;
     if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId))) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, AFTER_API24_FLAG));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, ErrcodeType::NUMBER));
         return nullptr;
     }
     std::vector<std::string> bundleNames;
     int32_t retCode = ApplicationManagerProxy::GetApplicationManagerProxy()->GetHideLauncherIcon(
         hasAdmin ? &elementName : nullptr, userId, bundleNames);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode, AFTER_API24_FLAG));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value result = nullptr;
@@ -1787,7 +1805,7 @@ napi_value ApplicationManagerAddon::GetHideLauncherIcon(napi_env env, napi_callb
     return result;
 #else
     EDMLOGW("ApplicationManagerAddon::GetHideLauncherIcon Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, AFTER_API24_FLAG));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -1813,8 +1831,9 @@ napi_value ApplicationManagerAddon::AddOrRemoveAllowedDistributeAbilityConnBundl
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING,
         EdmAddonCommonType::INT32, EdmAddonCommonType::USERID};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
+    addonMethodSign.argsConvert = {nullptr, nullptr, convertServiceType2Data, nullptr};
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
@@ -1822,7 +1841,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveAllowedDistributeAbilityConnBundl
     int32_t retCode = ApplicationManagerProxy::GetApplicationManagerProxy()->
         AddOrRemoveAllowedDistributeAbilityConnBundles(adapterAddonData.data, isAdd);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
         EDMLOGE("NAPI_AddOrRemoveAllowedDistributeAbilityConnBundles failed!");
     }
     return nullptr;
@@ -1836,8 +1855,9 @@ napi_value ApplicationManagerAddon::GetAllowedDistributeAbilityConnBundles(napi_
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::INT32,
         EdmAddonCommonType::USERID};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
-    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    addonMethodSign.argsConvert = {nullptr, convertServiceType2Data, nullptr};
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
@@ -1846,7 +1866,7 @@ napi_value ApplicationManagerAddon::GetAllowedDistributeAbilityConnBundles(napi_
     int32_t retCode = ApplicationManagerProxy::GetApplicationManagerProxy()->GetAllowedDistributeAbilityConnBundles(
         adapterAddonData.data, appIdentifiers);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
         EDMLOGE("NAPI_GetAllowedDistributeAbilityConnBundles failed!");
         return nullptr;
     }

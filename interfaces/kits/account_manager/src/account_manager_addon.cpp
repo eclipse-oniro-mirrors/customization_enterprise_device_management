@@ -54,26 +54,26 @@ napi_value AccountManagerAddon::DisallowAddLocalAccount(napi_env env, napi_callb
 napi_value AccountManagerAddon::DisallowAddOsAccountByUser(napi_env env, napi_callback_info info)
 {
     auto convertUserId2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         int32_t userId = 0;
         bool isUint = ParseInt(env, userId, argv);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         std::vector<std::string> key {std::to_string(userId)};
         data.WriteStringVector(key);
-        return true;
+        return ERR_OK;
     };
     auto convertBool2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         bool isDisallow = false;
         bool isBool = ParseBool(env, isDisallow, argv);
         if (!isBool) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         std::vector<std::string> value {isDisallow ? "true" : "false"};
         data.WriteStringVector(value);
-        return true;
+        return ERR_OK;
     };
 
     AddonMethodSign addonMethodSign;
@@ -487,24 +487,24 @@ napi_value AccountManagerAddon::SetDomainAccountPolicy(napi_env env, napi_callba
 #if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
     EDMLOGI("NAPI_SetDomainAccountPolicy called");
     auto convertDomainAccountInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
         bool isDomainAccountInfo = ParseDomainAccountInfo(env, domainAccountInfo, argv);
         if (!isDomainAccountInfo) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         domainAccountInfo.Marshalling(data);
-        return true;
+        return ERR_OK;
     };
     auto convertDomainAccountPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         DomainAccountPolicy domainAccountPolicy;
         bool isDomainAccountPolicy = ParseDomainAccountPolicy(env, domainAccountPolicy, argv);
         if (!isDomainAccountPolicy) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         domainAccountPolicy.Marshalling(data);
-        return true;
+        return ERR_OK;
     };
 
     AddonMethodSign addonMethodSign;
@@ -536,14 +536,14 @@ napi_value AccountManagerAddon::GetDomainAccountPolicy(napi_env env, napi_callba
 #if defined(FEATURE_PC_ONLY) && defined(OS_ACCOUNT_EDM_ENABLE)
     EDMLOGI("NAPI_GetDomainAccountPolicy called");
     auto convertDomainAccountInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
         bool isDomainAccountInfo = ParseDomainAccountInfo(env, domainAccountInfo, argv);
         if (!isDomainAccountInfo) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         domainAccountInfo.Marshalling(data);
-        return true;
+        return ERR_OK;
     };
 
     AddonMethodSign addonMethodSign;

@@ -22,6 +22,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi_edm_common.h"
+#include "napi_edm_error.h"
 
 namespace OHOS {
 namespace EDM {
@@ -54,7 +55,7 @@ struct BusinessError {
 
 struct AddonMethodSign;
 
-using JsArgToData = std::function<bool(napi_env, napi_value, MessageParcel &, const AddonMethodSign &)>;
+using JsArgToData = std::function<ErrCode(napi_env, napi_value, MessageParcel &, const AddonMethodSign &)>;
 
 struct AddonMethodSign {
     std::string name;
@@ -66,6 +67,7 @@ struct AddonMethodSign {
     MethodAttribute methodAttribute = MethodAttribute::GET;
     int32_t defaultArgSize = 0;
     int32_t policyCode = 0;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
 };
 
 struct AsyncAddonData {

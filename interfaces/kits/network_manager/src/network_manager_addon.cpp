@@ -308,26 +308,26 @@ void NetworkManagerAddon::SetNetworkInterfaceDisabledCommon(AddonMethodSign &add
     const std::string &apiVersionTag)
 {
     auto convertNetworkInterface2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::string networkInterface;
         bool isUint = ParseString(env, networkInterface, argv);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         std::vector<std::string> key{networkInterface};
         data.WriteStringVector(key);
-        return true;
+        return ERR_OK;
     };
     auto convertBoolean2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         bool isDisabled;
         bool isUint = ParseBool(env, isDisabled, argv);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         std::vector<std::string> value{isDisabled ? "true" : "false"};
         data.WriteStringVector(value);
-        return true;
+        return ERR_OK;
     };
     addonMethodSign.name = "SetNetworkInterfaceDisabled";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::BOOLEAN};
@@ -389,14 +389,14 @@ napi_value NetworkManagerAddon::AddIptablesFilterRule(napi_env env, napi_callbac
 {
     EDMLOGI("NetworkManagerAddon::AddIptablesFilterRule called");
     auto convertAddFilter2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         IPTABLES::AddFilter filter;
         bool isUint = JsObjToAddFirewallObject(env, argv, filter);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         IPTABLES::IptablesUtils::WriteAddFilterConfig(filter, data);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddIptablesFilterRule";
@@ -455,14 +455,14 @@ napi_value NetworkManagerAddon::RemoveIptablesFilterRule(napi_env env, napi_call
 {
     EDMLOGI("NetworkManagerAddon::RemoveIptablesFilterRule called");
     auto convertRemoveFilter2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         IPTABLES::RemoveFilter filter;
         bool isUint = JsObjToRemoveFirewallObject(env, argv, filter);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         IPTABLES::IptablesUtils::WriteRemoveFilterConfig(filter, data);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "RemoveIptablesFilterRule";
@@ -534,18 +534,18 @@ napi_value NetworkManagerAddon::AddFirewallRule(napi_env env, napi_callback_info
 {
     EDMLOGI("AddFirewallRule start");
     auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         IPTABLES::FirewallRule rule;
         bool isUint = JsObjToFirewallRule(env, argv, rule);
         if (!isUint) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         IPTABLES::FirewallRuleParcel firewallRuleParcel{rule};
         if (!firewallRuleParcel.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::AddOrRemoveFirewallRuleCommon Marshalling rule fail.");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddFirewallRule";
@@ -720,19 +720,19 @@ napi_value NetworkManagerAddon::FirewallRuleToJsObj(napi_env env, const IPTABLES
 napi_value NetworkManagerAddon::AddDomainFilterRule(napi_env env, napi_callback_info info)
 {
     auto convertFirewallRule2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         IPTABLES::DomainFilterRule rule = {IPTABLES::Action::INVALID, "", "", IPTABLES::Direction::INVALID,
             IPTABLES::Family::IPV4, IPTABLES::LogType::INVALID};
         bool isParseOk = JsObjToDomainFilterRule(env, argv, rule);
         if (!isParseOk) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         IPTABLES::DomainFilterRuleParcel domainFilterRuleParcel{rule};
         if (!domainFilterRuleParcel.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::AddOrRemoveDomainFilterRuleCommon Marshalling rule fail.");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddDomainFilterRule";
@@ -1240,19 +1240,19 @@ void NetworkManagerAddon::SetGlobalHttpProxyCommon(AddonMethodSign &addonMethodS
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         NetManagerStandard::HttpProxy httpProxy;
         bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
         if (!isParseOk) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         if (!httpProxy.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyCommon Marshalling proxy fail.");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         int32_t accountId = -1;
         data.WriteInt32(accountId);
-        return true;
+        return ERR_OK;
     };
     addonMethodSign.name = "SetGlobalHttpProxy";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
@@ -1265,17 +1265,17 @@ void NetworkManagerAddon::SetGlobalHttpProxyCommonForAccount(AddonMethodSign &ad
 {
 #ifdef NETMANAGER_BASE_EDM_ENABLE
     auto convertHttpProxy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         NetManagerStandard::HttpProxy httpProxy;
         bool isParseOk = ParseHttpProxyParam(env, argv, httpProxy);
         if (!isParseOk) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         if (!httpProxy.Marshalling(data)) {
             EDMLOGE("NetworkManagerAddon::SetGlobalHttpProxyCommonForAccount Marshalling proxy fail.");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
-        return true;
+        return ERR_OK;
     };
     addonMethodSign.name = "SetGlobalHttpProxyForAccountSync";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
@@ -1681,12 +1681,16 @@ napi_value NetworkManagerAddon::DeleteApn(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_DeleteApn called");
 #if defined(CELLULAR_DATA_EDM_ENABLE)
-    auto checkStringIsNull = [](napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign) {
+    auto checkStringIsNull = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::string apnId;
         if (!ParseString(env, apnId, argv) || apnId.empty()) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
-        return data.WriteString(apnId);
+        if (!data.WriteString(apnId)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "DeleteApn";

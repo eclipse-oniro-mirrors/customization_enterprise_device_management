@@ -132,28 +132,28 @@ napi_value SecurityManagerAddon::ConvertDeviceEncryptionStatus(napi_env env,
 napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_info info)
 {
     auto convertpasswordPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
             PasswordPolicy policy;
             if (!JsObjectToString(env, argv, "complexityRegex", false, policy.complexityReg)) {
                 EDMLOGE("Parameter passwordPolicy error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             if (!JsObjectToLong(env, argv, "validityPeriod", false, policy.validityPeriod)) {
                 EDMLOGE("Parameter passwordPolicy error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             if (policy.validityPeriod > MAX_VALIDITY_PERIOD || policy.validityPeriod < 0) {
                 napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, VALIDITY_PERIOD_OUT_OF_RANGE_ERROR));
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             if (!JsObjectToString(env, argv, "additionalDescription", false, policy.additionalDescription)) {
                 EDMLOGE("Parameter passwordPolicy error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteString(policy.complexityReg);
             data.WriteInt64(policy.validityPeriod);
             data.WriteString(policy.additionalDescription);
-            return true;
+            return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetPasswordPolicy";
@@ -352,14 +352,14 @@ void SecurityManagerAddon::NativeInstallUserCertificate(napi_env env, void *data
 napi_value SecurityManagerAddon::UninstallUserCertificate(napi_env env, napi_callback_info info)
 {
     auto convertCertBlob2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
             std::string alias;
             if (!ParseString(env, alias, argv)) {
                 EDMLOGE("element alias error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteString(alias);
-            return true;
+            return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "UninstallUserCertificate";
@@ -425,14 +425,14 @@ napi_value SecurityManagerAddon::SetScreenLockDisabledForAccount(napi_env env, n
 {
     EDMLOGI("NAPI_SetScreenLockDisabledForAccount called");
     auto convertBool2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
             bool disabled = false;
             if (!ParseBool(env, disabled, argv)) {
                 EDMLOGE("Parameter disabled error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteBool(disabled);
-            return true;
+            return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetScreenLockDisabledForAccount";
@@ -520,29 +520,29 @@ void SecurityManagerAddon::SetClipboardPolicyParamHandle(AddonMethodSign &addonM
 {
     if (flag == ClipboardFunctionType::SET_HAS_TOKEN_ID) {
         auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
-                              const AddonMethodSign &methodSign) {
+                              const AddonMethodSign &methodSign) -> ErrCode {
             int32_t tokenId;
             if (!ParseInt(env, tokenId, argv)) {
                 EDMLOGE("element tokenId error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteInt32(ClipboardFunctionType::SET_HAS_TOKEN_ID);
             data.WriteInt32(tokenId);
-            return true;
+            return ERR_OK;
         };
         addonMethodSign.argsConvert = {nullptr, convertData, nullptr};
     }
     if (flag == ClipboardFunctionType::SET_HAS_BUNDLE_NAME) {
         auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
-                              const AddonMethodSign &methodSign) {
+                              const AddonMethodSign &methodSign) -> ErrCode {
             std::string bundleName;
             if (!ParseString(env, bundleName, argv)) {
                 EDMLOGE("Parameter bundleName error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteInt32(ClipboardFunctionType::SET_HAS_BUNDLE_NAME);
             data.WriteString(bundleName);
-            return true;
+            return ERR_OK;
         };
         addonMethodSign.argsConvert = {nullptr, convertData, nullptr, nullptr};
     }
@@ -552,29 +552,29 @@ void SecurityManagerAddon::GetClipboardPolicyParamHandle(AddonMethodSign &addonM
 {
     if (flag == ClipboardFunctionType::GET_HAS_TOKEN_ID) {
         auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
-                              const AddonMethodSign &methodSign) {
+                              const AddonMethodSign &methodSign) -> ErrCode {
             int32_t tokenId;
             if (!ParseInt(env, tokenId, argv)) {
                 EDMLOGE("element tokenId error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteInt32(ClipboardFunctionType::GET_HAS_TOKEN_ID);
             data.WriteInt32(tokenId);
-            return true;
+            return ERR_OK;
         };
         addonMethodSign.argsConvert = {nullptr, convertData};
     }
     if (flag == ClipboardFunctionType::GET_HAS_BUNDLE_NAME) {
         auto convertData = [](napi_env env, napi_value argv, MessageParcel &data,
-                              const AddonMethodSign &methodSign) {
+                              const AddonMethodSign &methodSign) -> ErrCode {
             std::string bundleName;
             if (!ParseString(env, bundleName, argv)) {
                 EDMLOGE("Parameter bundleName error");
-                return false;
+                return EdmReturnErrCode::PARAM_ERROR;
             }
             data.WriteInt32(ClipboardFunctionType::GET_HAS_BUNDLE_NAME);
             data.WriteString(bundleName);
-            return true;
+            return ERR_OK;
         };
         addonMethodSign.argsConvert = {nullptr, convertData, nullptr};
     }
@@ -853,19 +853,19 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
 {
     EDMLOGI("NAPI_SetPermissionManagedState called");
     auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
-                                        const AddonMethodSign &methodSign) {
-        return JsObjToApplicationInstance(env, argv, data);
+                                        const AddonMethodSign &methodSign) -> ErrCode {
+        return JsObjToApplicationInstance(env, argv, data) ? ERR_OK : EdmReturnErrCode::PARAM_ERROR;
     };
     auto convertManagedStateData = [](napi_env env, napi_value argv, MessageParcel &data,
-                                    const AddonMethodSign &methodSign) {
+                                    const AddonMethodSign &methodSign) -> ErrCode {
         ManagedState managedState;
         bool isUint = JsObjToManagedState(env, argv, managedState);
         if (!isUint) {
             EDMLOGE("SecurityManagerAddon SetPermissionManagedState JsObjToManagedState fail.");
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteInt32(static_cast<int32_t>(managedState));
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetPermissionManagedState";
@@ -889,8 +889,8 @@ napi_value SecurityManagerAddon::SetPermissionManagedState(napi_env env, napi_ca
 napi_value SecurityManagerAddon::GetPermissionManagedState(napi_env env, napi_callback_info info)
 {
     auto convertApplicationInstance = [](napi_env env, napi_value argv, MessageParcel &data,
-                                        const AddonMethodSign &methodSign) {
-        return JsObjToApplicationInstance(env, argv, data);
+                                        const AddonMethodSign &methodSign) -> ErrCode {
+        return JsObjToApplicationInstance(env, argv, data) ? ERR_OK : EdmReturnErrCode::PARAM_ERROR;
     };
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
@@ -969,13 +969,13 @@ napi_value SecurityManagerAddon::InstallEnterpriseReSignatureCertificate(napi_en
 {
     EDMLOGI("NAPI_InstallEnterpriseReSignatureCertificate called");
     auto convertFd2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         int32_t fd = -1;
         if (!ParseInt(env, fd, argv)) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteFileDescriptor(fd);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsConvert = {nullptr, nullptr, convertFd2Data, nullptr};

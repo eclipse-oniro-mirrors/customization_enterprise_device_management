@@ -39,18 +39,18 @@ napi_value LocationManagerAddon::SetLocationPolicy(napi_env env, napi_callback_i
 {
     EDMLOGI("NAPI_SetLocationPolicy called");
     auto convertLocationPolicy2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         int32_t policyInt;
         bool isUnit = ParseInt(env, policyInt, argv);
         if (!isUnit) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         if (policyInt >= static_cast<int32_t>(LocationPolicy::DEFAULT_LOCATION_SERVICE) &&
             policyInt <= static_cast<int32_t>(LocationPolicy::FORCE_OPEN_LOCATION_SERVICE)) {
             data.WriteInt32(policyInt);
-            return true;
+            return ERR_OK;
         }
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetLocationPolicy";

@@ -185,21 +185,21 @@ napi_value BrowserAddon::SetManagedBrowserPolicy(napi_env env, napi_callback_inf
 {
     EDMLOGI("BrowserAddon::SetManagedBrowserPolicy start");
     auto convertPolicyValue = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::string policyValue;
         if (!ParseString(env, policyValue, argv)) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         if (policyValue.empty()) {
-            return true;
+            return ERR_OK;
         }
         cJSON* root = cJSON_Parse(policyValue.c_str());
         if (root == nullptr) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         cJSON_Delete(root);
         data.WriteString(policyValue);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
@@ -222,14 +222,14 @@ napi_value BrowserAddon::GetManagedBrowserPolicy(napi_env env, napi_callback_inf
 {
     EDMLOGI("BrowserAddon::GetManagedBrowserPolicy start");
     auto convertBundleNameWithType = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) {
+        const AddonMethodSign &methodSign) -> ErrCode {
         std::string bundleName;
         if (!ParseString(env, bundleName, argv)) {
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         data.WriteString(EdmConstants::Browser::GET_MANAGED_BROWSER_FILE_DATA);
         data.WriteString(bundleName);
-        return true;
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.apiVersionTag = WITHOUT_PERMISSION_TAG;

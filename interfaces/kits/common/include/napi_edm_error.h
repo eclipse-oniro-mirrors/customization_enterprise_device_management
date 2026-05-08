@@ -23,11 +23,16 @@
 
 namespace OHOS {
 namespace EDM {
-    constexpr uint32_t BEFORE_API24_FLAG = 0;
-    constexpr uint32_t AFTER_API24_FLAG = 1;
-    napi_value CreateError(napi_env env, ErrCode errorCode, int32_t isAfterApi24 = BEFORE_API24_FLAG);
+    enum class ErrcodeType {
+        STRING = 0,
+        NUMBER = 1,
+    };
+
+    napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType = ErrcodeType::STRING);
     napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMessage);
     napi_value CreateErrorAfterApi24(napi_env env, int32_t errorCode, const std::string &errMessage);
+    napi_value CreateErrorByType(napi_env env, int32_t errorCode, const std::string &errMessage,
+        ErrcodeType errcodeType);
     napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode);
     napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage);
     std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode);
@@ -48,6 +53,14 @@ namespace EDM {
             napi_value ret = nullptr;                                      \
             return ret;                                                    \
         }                                                                    \
+    } while (0)
+    #define ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, assertion, message, errcodeType)     \
+    do {                                                                                       \
+        if ((errcodeType) == ErrcodeType::STRING) {                                       \
+            ASSERT_AND_THROW_PARAM_ERROR(env, assertion, message);                            \
+        } else {                                                                              \
+            ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, assertion, message);                \
+        }                                                                                     \
     } while (0)
 } // namespace EDM
 } // namespace OHOS
