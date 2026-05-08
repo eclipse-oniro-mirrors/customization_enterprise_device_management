@@ -63,12 +63,15 @@ ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(
     auto resultset = dataShareHelper->Query(uri, predicates, columns);
     if (resultset == nullptr) {
         EDMLOGE("EdmDataAbilityUtils::GetStringFromDataAbility query fail.");
+        dataShareHelper->Release();
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t numRows = 0;
     resultset->GetRowCount(numRows);
     if (numRows <= 0) {
         EDMLOGD("EdmDataAbilityUtils::GetStringFromDataAbility row zero.");
+        resultset->Close();
+        dataShareHelper->Release();
         return ERR_OK;
     }
     int columnIndex = 0;
