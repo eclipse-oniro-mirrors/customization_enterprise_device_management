@@ -75,7 +75,9 @@ HWTEST_F(OtaUpdateNoncePluginTest, TestOnGetPolicy, TestSize.Level1)
     std::string policyData = "";
     OtaUpdateNoncePlugin plugin;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), ERR_OK);
+    EXPECT_EQ(reply.ReadBool(), false);
 }
 } // namespace TEST
 } // namespace EDM

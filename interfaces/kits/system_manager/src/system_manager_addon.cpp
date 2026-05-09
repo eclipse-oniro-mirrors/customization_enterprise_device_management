@@ -299,9 +299,10 @@ napi_value SystemManagerAddon::IsOtaUpdateNonceEnable(napi_env env, napi_callbac
     napi_get_boolean(env, isOtaNonceEnable, &napiIsEnable);
     return napiIsEnable;
 #else
-    EDMLOGW("SystemManagerAddon::IsOtaUpdateNonceEnable Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-    return nullptr;
+    bool isOtaNonceEnable = false;
+    napi_value napiIsEnable = nullptr;
+    napi_get_boolean(env, isOtaNonceEnable, &napiIsEnable);
+    return napiIsEnable;
 #endif
 }
 

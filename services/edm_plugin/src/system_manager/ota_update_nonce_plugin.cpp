@@ -41,7 +41,9 @@ ErrCode OtaUpdateNoncePlugin::SetOtherModulePolicy(bool data, int32_t userId)
 ErrCode OtaUpdateNoncePlugin::OnGetPolicy(
     std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(false);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
