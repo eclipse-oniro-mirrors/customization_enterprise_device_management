@@ -293,7 +293,7 @@ HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFailWithPathNull, TestSize
     std::vector<std::string> realPaths;
     string errMessage;
     ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
-    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
     ASSERT_TRUE(errMessage == "install failed due to invalid hapFilePaths");
 }
 
@@ -869,7 +869,7 @@ HWTEST_F(BundleManagerProxyTest, checkHapFilePath_PathNotFound_ReturnApplication
     std::string realPath;
     std::string errMessage;
     ErrCode ret = bundleManagerProxy->checkHapFilePath(hapFilePath, fileName, realPath, errMessage);
-    ASSERT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
     ASSERT_EQ(errMessage, "install failed due to invalid hapFilePaths");
 }
 
