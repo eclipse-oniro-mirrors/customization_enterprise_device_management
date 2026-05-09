@@ -604,7 +604,8 @@ HWTEST_F(BundleManagerProxyTest, TestInstallMarketAppsSuc, TestSize.Level1)
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     std::vector<std::string> allowedAppDistributionTypes;
-    int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes);
+    std::string msg;
+    int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes, msg);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -621,7 +622,8 @@ HWTEST_F(BundleManagerProxyTest, TestInstallMarketAppsFail, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     data.WriteParcelable(&admin);
     std::vector<std::string> allowedAppDistributionTypes;
-    int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes);
+    std::string msg;
+    int32_t ret = bundleManagerProxy->InstallMarketApps(data, allowedAppDistributionTypes, msg);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
