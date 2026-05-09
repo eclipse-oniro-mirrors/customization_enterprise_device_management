@@ -353,6 +353,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/install_local_enterprise_app_enabled_for_account_plugin_test.cpp",
       "./src/disallow_core_dump_plugin_test.cpp",
       "./src/disallow_rs232_plugin_test.cpp",
+      "./src/ota_update_nonce_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -863,6 +864,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disable_running_binary_app_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_core_dump_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_rs232_plugin.cpp",
+      "../../../../services/edm_plugin/src/system_manager/ota_update_nonce_plugin.cpp",
     ]
   }
 

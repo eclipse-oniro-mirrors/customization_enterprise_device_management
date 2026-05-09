@@ -57,6 +57,8 @@ public:
 #if defined(FEATURE_PC_ONLY)
     int32_t SetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data);
     int32_t GetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data, bool &isAllowedInstall);
+    int32_t SetOtaUpdateNonceEnable(MessageParcel &data);
+    int32_t IsOtaUpdateNonceEnable(MessageParcel &data, bool &isOtaNonceEnable);
 #endif
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;

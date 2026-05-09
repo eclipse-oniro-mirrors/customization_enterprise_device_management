@@ -53,6 +53,8 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
             SetInstallLocalEnterpriseAppEnabledForAccount),
         DECLARE_NAPI_FUNCTION("getInstallLocalEnterpriseAppEnabledForAccount",
             GetInstallLocalEnterpriseAppEnabledForAccount),
+        DECLARE_NAPI_FUNCTION("setOtaUpdateNonceEnable", SetOtaUpdateNonceEnable),
+        DECLARE_NAPI_FUNCTION("isOtaUpdateNonceEnable", IsOtaUpdateNonceEnable),
     };
     NAPI_CALL_RETURN_VOID(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
@@ -245,6 +247,63 @@ napi_value SystemManagerAddon::GetNTPServer(napi_env env, napi_callback_info inf
     napi_value ntpServerString = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, ntpParm.c_str(), ntpParm.size(), &ntpServerString));
     return ntpServerString;
+}
+
+napi_value SystemManagerAddon::SetOtaUpdateNonceEnable(napi_env env, napi_callback_info info)
+{
+#ifdef FEATURE_PC_ONLY
+    EDMLOGI("SetOtaUpdateNonceEnable Addon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetOtaUpdateNonceEnable";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetOtaUpdateNonceEnable(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetOtaUpdateNonceEnable failed!");
+    }
+    return nullptr;
+#else
+    EDMLOGW("SystemManagerAddon::SetOtaUpdateNonceEnable Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    return nullptr;
+#endif
+}
+ 
+napi_value SystemManagerAddon::IsOtaUpdateNonceEnable(napi_env env, napi_callback_info info)
+{
+#ifdef FEATURE_PC_ONLY
+    EDMLOGI("IsOtaUpdateNonceEnable Addon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "IsOtaUpdateNonceEnable";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    bool isOtaNonceEnable = false;
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->IsOtaUpdateNonceEnable(
+        adapterAddonData.data, isOtaNonceEnable);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("IsOtaUpdateNonceEnable failed!");
+    }
+    napi_value napiIsEnable = nullptr;
+    napi_get_boolean(env, isOtaNonceEnable, &napiIsEnable);
+    return napiIsEnable;
+#else
+    bool isOtaNonceEnable = false;
+    napi_value napiIsEnable = nullptr;
+    napi_get_boolean(env, isOtaNonceEnable, &napiIsEnable);
+    return napiIsEnable;
+#endif
 }
 
 napi_value SystemManagerAddon::SetOTAUpdatePolicy(napi_env env, napi_callback_info info)

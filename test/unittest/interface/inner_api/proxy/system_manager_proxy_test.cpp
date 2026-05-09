@@ -814,6 +814,76 @@ HWTEST_F(SystemManagerProxyTest, IsActivationLockDisabled_ReplyFail_ReturnError,
     int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
+
+/**
+ * @tc.name: TestSetOtaUpdateNonceEnableFail
+ * @tc.desc: Test SetOtaUpdateNonceEnable func fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetOtaUpdateNonceEnableFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString(RETURN_STRING);
+    int32_t ret = systemmanagerProxy->SetOtaUpdateNonceEnable(data);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+ 
+/**
+ * @tc.name: TestSetOtaUpdateNonceEnableSuc
+ * @tc.desc: Test SetOtaUpdateNonceEnable func suc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestSetOtaUpdateNonceEnableSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    data.WriteString(RETURN_STRING);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = systemmanagerProxy->SetOtaUpdateNonceEnable(data);
+    EXPECT_EQ(ret, ERR_OK);
+}
+ 
+/**
+ * @tc.name: TestIsOtaUpdateNonceEnableFail
+ * @tc.desc: Test IsOtaUpdateNonceEnable func fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestIsOtaUpdateNonceEnableFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    bool isOtaNonceEnable = false;
+    int32_t ret = systemmanagerProxy->IsOtaUpdateNonceEnable(data, isOtaNonceEnable);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_EQ(isOtaNonceEnable, false);
+}
+ 
+/**
+ * @tc.name: TestIsOtaUpdateNonceEnableSuc
+ * @tc.desc: Test IsOtaUpdateNonceEnable func suc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, TestIsOtaUpdateNonceEnableSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    data.WriteParcelable(&admin);
+    bool isOtaNonceEnable = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    int32_t ret = systemmanagerProxy->IsOtaUpdateNonceEnable(data, isOtaNonceEnable);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(isOtaNonceEnable, true);
+}
 #endif
 
 /**

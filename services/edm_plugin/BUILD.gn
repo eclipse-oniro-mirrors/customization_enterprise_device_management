@@ -696,6 +696,7 @@ ohos_shared_library("need_extra_plugin") {
       sources += [
         "./src/restrictions/disable_activation_lock_plugin.cpp",
         "./src/application_manager/add_dock_app_plugin.cpp",
+        "./src/system_manager/ota_update_nonce_plugin.cpp",
       ]
     }
 
