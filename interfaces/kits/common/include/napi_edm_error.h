@@ -34,7 +34,8 @@ namespace EDM {
     napi_value CreateErrorByType(napi_env env, int32_t errorCode, const std::string &errMessage,
         ErrcodeType errcodeType);
     napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode);
-    napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage);
+    napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage,
+        ErrcodeType errcodeType = ErrcodeType::STRING);
     std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode);
     std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode returnCode);
     bool IsEDMErrCode(ErrCode returnCode);

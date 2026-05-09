@@ -402,6 +402,8 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
       "./src/hidden_settings_menu_plugin_test.cpp",
       "../../../../services/edm_plugin/src/device_settings/hidden_settings_menu_plugin.cpp",
+      "./src/manage_normal_os_account_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/account_manager/manage_normal_os_account_plugin.cpp",
     ]
   }
 

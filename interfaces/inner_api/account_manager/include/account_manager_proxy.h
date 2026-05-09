@@ -42,6 +42,10 @@ public:
     int32_t AddOsAccount(AppExecFwk::ElementName &admin, std::string name, int32_t type,
         OHOS::AccountSA::OsAccountInfo &accountInfo);
 #endif
+    int32_t CreateNormalOsAccount(AppExecFwk::ElementName &admin, std::string name,
+        OHOS::AccountSA::OsAccountInfo &accountInfo);
+    int32_t RemoveOsAccount(MessageParcel &data);
+    int32_t ActivateOsAccount(MessageParcel &data);
 
 private:
     static std::shared_ptr<AccountManagerProxy> instance_;

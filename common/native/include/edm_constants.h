@@ -90,6 +90,9 @@ namespace EdmConstants {
     constexpr const char* CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE =
         "const.enterprise.external_storage_device.manage.enable";
 
+    constexpr const char* CREATE_NORMAL_OS_ACCOUNT = "create_normal_os_account";
+    constexpr const char* ACTIVATE_OS_ACCOUNT = "activate_os_account";
+
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
@@ -486,6 +489,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_MULTI_WINDOW = "disallowed_multi_window";
     const char* const POLICY_HIDE_LAUNCHER_ICON = "hide_launcher_icon";
     const char* const POLICY_DISALLOWED_DEVICE_SUDO = "disallowed_device_sudo";
+    const char* const POLICY_MANAGE_NORMAL_OS_ACCOUNT = "manage_normal_os_account";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

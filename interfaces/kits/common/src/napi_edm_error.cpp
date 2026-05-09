@@ -108,6 +108,10 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::PREREQUISITES_NOT_SATISFIED_FAILED,
         "Prerequisites for the API call have not been satisfied. For example, distributed outgoing transmission " \
         "is not disallowed before adding the distributed bidirectional collaboration trustlist."},
+    {EdmReturnErrCode::ACCOUNT_NUMBER_UPPER_LIMIT,
+        "Failed to create normal Osaccount, The number of accounts reaches the upper limit."},
+    {EdmReturnErrCode::ACCOUNT_RESTRICTED,
+        "Failed to manage normal Osaccount, Restricted account."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
@@ -126,14 +130,14 @@ napi_value CreateErrorWithUnknownCode(napi_env env, ErrCode errorCode)
     return CreateError(env, pair.first, pair.second);
 }
 
-napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage)
+napi_value CreateErrorWithInnerCode(napi_env env, ErrCode errorCode, std::string &errMessage, ErrcodeType errcodeType)
 {
     auto pair = GetMessageFromReturncode(errorCode);
     auto iter = pair.second.find("$");
     if (iter != std::string::npos) {
         pair.second = pair.second.replace(iter, 1, errMessage);
     }
-    return CreateError(env, pair.first, pair.second);
+    return CreateErrorByType(env, pair.first, pair.second, errcodeType);
 }
 
 napi_value CreateError(napi_env env, int32_t errorCode, const std::string &errMessage)
