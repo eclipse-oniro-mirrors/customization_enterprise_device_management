@@ -72,7 +72,7 @@ HWTEST_F(OtaUpdateNoncePluginTest, TestOnGetPolicy, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
-    std::string policyData = "";
+    std::string policyData;
     OtaUpdateNoncePlugin plugin;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
