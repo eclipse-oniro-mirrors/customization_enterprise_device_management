@@ -78,6 +78,14 @@ private:
     static bool ParseDomainAccountInfo(napi_env env, OHOS::AccountSA::DomainAccountInfo &domainAccountInfo,
         napi_value args);
 #endif
+    static napi_value CreateNormalOsAccount(napi_env env, napi_callback_info info);
+    static void NativeCreateNormalOsAccount(napi_env env, void *data);
+    static napi_value RemoveOsAccount(napi_env env, napi_callback_info info);
+    static void NativeRemoveOsAccount(napi_env env, void *data);
+    static napi_value ActivateOsAccount(napi_env env, napi_callback_info info);
+    static void NativeActivateOsAccount(napi_env env, void *data);
+    static napi_value CreateNormalOsAccountCommon(napi_env env, napi_callback_info info,
+        AsyncAddOsAccountCallbackInfo* callbackInfo);
 };
 } // namespace EDM
 } // namespace OHOS

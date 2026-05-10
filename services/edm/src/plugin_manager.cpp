@@ -79,7 +79,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
     EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DISALLOW_RS232,
-    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
+    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO, EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

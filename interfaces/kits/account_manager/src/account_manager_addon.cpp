@@ -20,6 +20,7 @@
 #include "ohos_account_kits.h"
 #endif
 #include "edm_log.h"
+#include "edm_constants.h"
 #include "napi_edm_adapter.h"
 #include "override_interface_name.h"
 
@@ -37,6 +38,9 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addOsAccountAsync", AddOsAccountAsync),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::AccountManager::SET_DOMAIN_ACCOUNT_POLICY, SetDomainAccountPolicy),
         DECLARE_NAPI_FUNCTION("getDomainAccountPolicy", GetDomainAccountPolicy),
+        DECLARE_NAPI_FUNCTION("createNormalOsAccount", CreateNormalOsAccount),
+        DECLARE_NAPI_FUNCTION("removeOsAccount", RemoveOsAccount),
+        DECLARE_NAPI_FUNCTION("activateOsAccount", ActivateOsAccount),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -474,7 +478,8 @@ void AccountManagerAddon::NativeAddOsAccountCallbackComplete(napi_env env, napi_
             napi_value accountValue = ConvertOsAccountInfoToJs(env, asyncCallbackInfo->accountInfo);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, accountValue);
         } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateError(env, asyncCallbackInfo->ret, asyncCallbackInfo->errcodeType));
         }
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
@@ -640,6 +645,131 @@ bool AccountManagerAddon::ParseDomainAccountInfo(napi_env env, OHOS::AccountSA::
     return true;
 }
 #endif
+
+napi_value AccountManagerAddon::CreateNormalOsAccountCommon(napi_env env, napi_callback_info info,
+    AsyncAddOsAccountCallbackInfo* callbackInfo)
+{
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env,
+        ParseElementName(env, callbackInfo->elementName, argv[ARR_INDEX_ZERO]), "parameter admin parse error");
+    EDMLOGD("AddOsAccountCommon: callbackInfo->elementName.bundleName %{public}s, callbackInfo->abilityName:%{public}s",
+        callbackInfo->elementName.GetBundleName().c_str(), callbackInfo->elementName.GetAbilityName().c_str());
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, callbackInfo->name, argv[ARR_INDEX_ONE]),
+        "parameter name parse error");
+
+    napi_value ret;
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
+    return ret;
+}
+
+napi_value AccountManagerAddon::CreateNormalOsAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_createNormalOsAccount called");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncAddOsAccountCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncAddOsAccountCallbackInfo> callbackPtr{asyncCallbackInfo};
+    napi_value checkRet = CreateNormalOsAccountCommon(env, info, asyncCallbackInfo);
+    int32_t errCode = -1;
+    NAPI_CALL(env, napi_get_value_int32(env, checkRet, &errCode));
+    if (checkRet == nullptr || errCode != ERR_OK) {
+        return nullptr;
+    }
+    asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "CreateNormalOsAccount",
+        NativeCreateNormalOsAccount, NativeAddOsAccountCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void AccountManagerAddon::NativeCreateNormalOsAccount(napi_env env, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncAddOsAccountCallbackInfo *asyncCallbackInfo =
+        static_cast<AsyncAddOsAccountCallbackInfo *>(data);
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        EDMLOGE("can not get AccountManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = accountManagerProxy->CreateNormalOsAccount(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->name, asyncCallbackInfo->accountInfo);
+}
+
+napi_value AccountManagerAddon::RemoveOsAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveOsAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "RemoveOsAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeRemoveOsAccount, NativeVoidCallbackComplete);
+}
+
+void AccountManagerAddon::NativeRemoveOsAccount(napi_env env, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo =
+        static_cast<AdapterAddonData *>(data);
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        EDMLOGE("can not get AccountManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = accountManagerProxy->RemoveOsAccount(asyncCallbackInfo->data);
+}
+
+napi_value AccountManagerAddon::ActivateOsAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_ActivateOsAccount called");
+    auto convertAccountId2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        int32_t accountId;
+        bool ret = ParseInt(env, accountId, argv);
+        if (!ret) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        data.WriteString(EdmConstants::ACTIVATE_OS_ACCOUNT);
+        data.WriteInt32(accountId);
+        return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "ActivateOsAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertAccountId2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeActivateOsAccount, NativeVoidCallbackComplete);
+}
+
+void AccountManagerAddon::NativeActivateOsAccount(napi_env env, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo =
+        static_cast<AdapterAddonData *>(data);
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        EDMLOGE("can not get AccountManagerProxy");
+        return;
+    }
+    asyncCallbackInfo->ret = accountManagerProxy->ActivateOsAccount(asyncCallbackInfo->data);
+}
 
 static napi_module g_accountManagerModule = {
     .nm_version = 1,

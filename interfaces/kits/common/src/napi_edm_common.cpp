@@ -39,10 +39,12 @@ static void NativeCallbackComplete(napi_env env, napi_status status, AsyncCallba
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
         } else {
             if (asyncCallbackInfo->innerCodeMsg.empty()) {
-                napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateError(env, asyncCallbackInfo->ret, asyncCallbackInfo->errcodeType));
             } else {
                 napi_reject_deferred(env, asyncCallbackInfo->deferred,
-                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg));
+                    CreateErrorWithInnerCode(env, asyncCallbackInfo->ret, asyncCallbackInfo->innerCodeMsg,
+                        asyncCallbackInfo->errcodeType));
             }
         }
     } else {

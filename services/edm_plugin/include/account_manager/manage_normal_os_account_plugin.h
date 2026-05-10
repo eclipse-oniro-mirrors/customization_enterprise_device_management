@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_NORMAL_OS_ACCOUNT_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_NORMAL_OS_ACCOUNT_PLUGIN_H
+
+#include <message_parcel.h>
+#include "iplugin.h"
+#include "os_account_info.h"
+
+namespace OHOS {
+namespace EDM {
+constexpr int32_t MAX_NORMAL_OS_ACCOUNT_COUNT = 2;
+constexpr int32_t DEFAULT_USER_ID = 100;
+
+class ManageNormalOsAccountPlugin : public IPlugin {
+public:
+    ManageNormalOsAccountPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override {};
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeData, int32_t userId) override
+    {
+        return ERR_OK;
+    }
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override
+    {
+        return ERR_OK;
+    };
+
+private:
+    ErrCode HandleCreate(MessageParcel &data, MessageParcel &reply, std::vector<int32_t> &accountIds);
+    ErrCode HandleRemove(MessageParcel &data, std::vector<int32_t> &accountIds);
+    ErrCode HandleActivate(MessageParcel &data, const std::vector<int32_t> &accountIds);
+    bool DeserializeAccountIds(const std::string &policyData, std::vector<int32_t> &accountIds);
+    bool SerializeAccountIds(const std::vector<int32_t> &accountIds, std::string &policyData);
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_NORMAL_OS_ACCOUNT_PLUGIN_H
