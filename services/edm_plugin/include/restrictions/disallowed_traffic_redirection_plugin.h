@@ -13,27 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
-#define COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TRAFFIC_REDIRECTION_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TRAFFIC_REDIRECTION_PLUGIN_H
+
+#include "basic_bool_plugin.h"
+#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-enum class RestrictionsFeature : int32_t {
-    WIFI_P2P = 0,
-    LOCAL_INPUT = 2,
-    SUDO = 4,
-    TRAFFIC_REDIRECTION = 5,
-    CORE_DUMP = 6,
-    RS232 = 7,
-    SECURE_ERASE = 8,
-};
+class DisallowedTrafficRedirectionPlugin : public PluginSingleton<DisallowedTrafficRedirectionPlugin, bool>,
+    public BasicBoolPlugin {
+public:
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTrafficRedirectionPlugin, bool>> ptr) override;
 
-enum class RestrictionsFeatureForAccount : int32_t {
-    MULTI_WINDOW = 0,
-    DISTRIBUTED_TRANSMISSION = 1,
-    SUPER_HUB = 2,
+private:
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // COMMON_NATIVE_INCLUDE_RESTRICTION_FEATURE_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TRAFFIC_REDIRECTION_PLUGIN_H

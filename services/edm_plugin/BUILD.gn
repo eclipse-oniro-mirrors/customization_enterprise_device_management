@@ -304,7 +304,8 @@ ohos_shared_library("communication_plugin") {
   ]
 
   if (enterprise_device_management_support_all) {
-    sources += [ "./src/restrictions/disallowed_tethering_plugin.cpp" ]
+    sources += [ "./src/restrictions/disallowed_tethering_plugin.cpp",
+     "./src/restrictions/disallowed_traffic_redirection_plugin.cpp" ]
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     if (wifi_edm_enable) {
       external_deps += [ "wifi:wifi_sdk" ]

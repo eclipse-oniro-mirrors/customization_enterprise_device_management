@@ -164,6 +164,7 @@
 #include "allowed_notification_bundles_query.h"
 #include "disable_app_clone_query.h"
 #include "disallowed_p2p_query.h"
+#include "disallowed_traffic_redirection_query.h"
 #include "disable_maintenance_mode_query.h"
 #include "disable_mtp_client_query.h"
 #include "disable_mtp_server_query.h"
@@ -815,6 +816,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery>
             return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_DEVICE_SUDO:
             obj = std::make_shared<DisallowedDeviceSudoQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION:
+            obj = std::make_shared<DisallowedTrafficRedirectionQuery>();
             return ERR_OK;
         case EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON:
 #ifndef FEATURE_PC_ONLY
