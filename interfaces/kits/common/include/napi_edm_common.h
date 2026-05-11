@@ -20,6 +20,7 @@
 
 #include "bundle_stats_info.h"
 #include "napi/native_api.h"
+#include "napi_edm_error.h"
 #include "want.h"
 #include "application_instance.h"
 #include "key_code.h"
@@ -41,6 +42,7 @@ struct AsyncCallbackInfo {
     int policyCode = 0;
     std::string errMessage;
     std::string innerCodeMsg;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
 
     virtual ~AsyncCallbackInfo() {};
 };

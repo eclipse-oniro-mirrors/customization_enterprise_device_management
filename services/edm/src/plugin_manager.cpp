@@ -79,7 +79,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
     EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DISALLOW_RS232,
-    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
+    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO, EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -105,7 +105,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::SET_NETWORK_INTERFACE_CONFIG, EdmInterfaceCode::DISALLOW_USB_SERIAL,
     EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM,
     EdmInterfaceCode::DISALLOWED_P2P, EdmInterfaceCode::QUERY_TRAFFIC_STATS,
-    EdmInterfaceCode::DISALLOWED_UINPUT
+    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

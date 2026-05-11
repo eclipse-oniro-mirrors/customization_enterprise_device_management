@@ -59,11 +59,11 @@ HWTEST_F(DisallowedTrafficRedirectionPluginTest, TestOnSetPolicy, TestSize.Level
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
     data.WriteBool(false);
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_FALSE(handlePolicyData.isChanged);
 }
 } // namespace TEST

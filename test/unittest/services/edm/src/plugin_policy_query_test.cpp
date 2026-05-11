@@ -2810,7 +2810,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery001, TestSi
     ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
     bool result = false;
     reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_TRUE(result);
 }
 
@@ -2830,7 +2830,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery002, TestSi
     ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
     bool result = false;
     reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_FALSE(result);
 }
 
@@ -2850,7 +2850,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery003, TestSi
     ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
     bool result = false;
     reply.ReadBool(result);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(ret, ERR_OK);
     ASSERT_FALSE(result);
 }
 
@@ -2865,8 +2865,6 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery004, TestSi
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, permissionTag)
-        == TEST_PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOWED_TRAFFIC_REDIRECTION);
 }
 } // namespace TEST

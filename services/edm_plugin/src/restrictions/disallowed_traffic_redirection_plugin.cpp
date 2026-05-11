@@ -17,15 +17,16 @@
 
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
-#include "parameters.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
+// LCOV_EXCL_START
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedTrafficRedirectionPlugin::GetPlugin());
 
-void DisallowedTrafficRedirectionPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTrafficRedirectionPlugin, bool>>
-    ptr)
+void DisallowedTrafficRedirectionPlugin::InitPlugin(
+    std::shared_ptr<IPluginTemplate<DisallowedTrafficRedirectionPlugin, bool>> ptr)
 {
     EDMLOGI("DisallowedTrafficRedirectionPlugin InitPlugin...");
     ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
@@ -41,5 +42,12 @@ ErrCode DisallowedTrafficRedirectionPlugin::SetOtherModulePolicy(bool data, int3
     EDMLOGI("DisallowedTrafficRedirectionPlugin SetOtherModulePolicy");
     return ERR_OK;
 }
+
+ErrCode DisallowedTrafficRedirectionPlugin::RemoveOtherModulePolicy(int32_t userId)
+{
+    EDMLOGI("DisallowedTrafficRedirectionPlugin RemoveOtherModulePolicy");
+    return ERR_OK;
+}
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

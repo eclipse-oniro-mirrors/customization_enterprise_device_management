@@ -107,7 +107,6 @@ ohos_unittest("EdmPluginTest") {
     "./src/set_floating_navigation_plugin_test.cpp",
     "./src/install_enterprise_re_signature_certificate_plugin_test.cpp",
     "./src/get_application_window_states_plugin_test.cpp",
-    "./src/disallowed_traffic_redirection_plugin_test.cpp",
   ]
 
   configs = [
@@ -355,6 +354,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_core_dump_plugin_test.cpp",
       "./src/disallow_rs232_plugin_test.cpp",
       "./src/ota_update_nonce_plugin_test.cpp",
+      "./src/disallowed_traffic_redirection_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -403,6 +403,8 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
       "./src/hidden_settings_menu_plugin_test.cpp",
       "../../../../services/edm_plugin/src/device_settings/hidden_settings_menu_plugin.cpp",
+      "./src/manage_normal_os_account_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/account_manager/manage_normal_os_account_plugin.cpp",
     ]
   }
 
@@ -563,7 +565,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/device_settings/set_floating_navigation_plugin.cpp",
     "../../../../services/edm_plugin/src/application_manager/get_application_window_states_plugin.cpp",
     "../../../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
-    "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
@@ -867,6 +868,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disallow_core_dump_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_rs232_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/ota_update_nonce_plugin.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
     ]
   }
 

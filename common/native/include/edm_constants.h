@@ -90,6 +90,9 @@ namespace EdmConstants {
     constexpr const char* CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE =
         "const.enterprise.external_storage_device.manage.enable";
 
+    constexpr const char* CREATE_NORMAL_OS_ACCOUNT = "create_normal_os_account";
+    constexpr const char* ACTIVATE_OS_ACCOUNT = "activate_os_account";
+
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
@@ -211,7 +214,6 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
         const char* const LABEL_DISALLOWED_POLICY_DEVICE_SUDO = "sudo";
-    const char* const LABEL_DISALLOWED_POLICY_TRAFFIC_REDIRECTION = "trafficRedirection";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -464,6 +466,7 @@ namespace PolicyName {
     const char* const POLICY_SET_SWITCH_STATUS = "set_switch_status";
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
+    const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";
@@ -480,7 +483,6 @@ namespace PolicyName {
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
     const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
     const char* const POLICY_DISALLOWED_P2P = "disallowed_p2p";
-    const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
     const char* const POLICY_ADD_DOCK_APP = "dock_info";
     const char* const POLICY_DISABLED_SUPERHUB = "disabled_superhub";
@@ -488,6 +490,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_MULTI_WINDOW = "disallowed_multi_window";
     const char* const POLICY_HIDE_LAUNCHER_ICON = "hide_launcher_icon";
     const char* const POLICY_DISALLOWED_DEVICE_SUDO = "disallowed_device_sudo";
+    const char* const POLICY_MANAGE_NORMAL_OS_ACCOUNT = "manage_normal_os_account";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

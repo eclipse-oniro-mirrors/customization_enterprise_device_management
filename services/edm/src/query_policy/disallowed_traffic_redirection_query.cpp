@@ -28,9 +28,6 @@ std::string DisallowedTrafficRedirectionQuery::GetPolicyName()
 std::string DisallowedTrafficRedirectionQuery::GetPermission(IPlugin::PermissionType permissionType,
     const std::string &permissionTag)
 {
-    if (permissionType == IPlugin::PermissionType::BYOD_DEVICE_ADMIN) {
-        return EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS;
-    }
     return EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 }
 
