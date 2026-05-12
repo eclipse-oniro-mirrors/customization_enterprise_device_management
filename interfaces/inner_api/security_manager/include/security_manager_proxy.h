@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_SECURITY_MANAGER_INCLUDE_SECURITY_MANAGER_PROXY_H
 
+#include "application_instance.h"
 #include "clipboard_info.h"
 #include "clipboard_policy.h"
 #include "enterprise_device_mgr_proxy.h"
@@ -63,6 +64,14 @@ public:
     int32_t UninstallEnterpriseReSignatureCertificate(MessageParcel &data);
     int32_t SetScreenLockDisabledForAccount(MessageParcel &data);
     int32_t IsScreenLockDisabledForAccount(const AppExecFwk::ElementName &admin, bool &disabled);
+    int32_t AddOrRemoveDisallowedPermission(const AppExecFwk::ElementName &admin,
+        std::vector<std::string> &permissionNames, int32_t userId, bool isAdd);
+    int32_t GetDisallowedPermissions(const AppExecFwk::ElementName *admin, int32_t userId,
+        std::vector<std::string> &result);
+    int32_t AddOrRemoveAllowedPermissionBundle(const AppExecFwk::ElementName &admin,
+        std::string permissionName, ApplicationInstance &applicationInstance, bool isAdd);
+    int32_t GetAllowedPermissionBundles(const AppExecFwk::ElementName *admin, std::string permissionName,
+        int32_t userId, std::vector<ApplicationInstance> &result);
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     static std::shared_ptr<SecurityManagerProxy> instance_;

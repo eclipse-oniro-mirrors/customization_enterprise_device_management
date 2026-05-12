@@ -24,6 +24,13 @@ enum class PolicyType {
     DISALLOW_INSTALL,
     DISALLOW_UNINSTALL,
 };
+
+enum class PolicyScene {
+    POLICY_ADD = 0,
+    POLICY_REMOVE,
+    ADMIN_REMOVE,
+    APP_UNINSTALL,
+};
 } // namespace EDM
 } // namespace OHOS
 

@@ -88,19 +88,19 @@ bool EdmAccessTokenManagerImpl::GetAccessTokenId(int32_t userId, const std::stri
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (proxy == nullptr) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: appControlProxy failed.");
+        EDMLOGE("EdmAccessTokenManagerImpl GetAccessTokenId: appControlProxy failed.");
         return false;
     }
 
     ErrCode res = proxy->GetBundleNameByAppId(appId, bundleName);
     if (res != ERR_OK) {
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: GetBundleNameByAppId failed.");
+        EDMLOGE("EdmAccessTokenManagerImpl GetAccessTokenId: GetBundleNameByAppId failed.");
         return false;
     }
 
     accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
-    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) { //LCOV_EXCL_BR_LINE
-        EDMLOGE("PermissionManagedStateQuery GetAccessTokenId: accessTokenId failed.");
+    if (accessTokenId == Security::AccessToken::INVALID_TOKENID) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("EdmAccessTokenManagerImpl GetAccessTokenId: accessTokenId failed.");
         return false;
     }
 

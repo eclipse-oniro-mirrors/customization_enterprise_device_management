@@ -65,6 +65,7 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_VERSION_23 = "version_23";
     const char* const PERMISSION_TAG_SYSTEM_API = "system";
     const char* const PERMISSION_TAG_NORMAL = "normal";
+    const char* const SCENE_APP_UNINSTALL = "app_uninstall";
     const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
@@ -80,6 +81,7 @@ namespace EdmConstants {
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
     const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";
+    const char* const APP_IDENTIFIER = "appIdentifier";
 
     // app-distribution-type
     constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
@@ -354,6 +356,8 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_SUDO = "disabled_sudo";
     const char* const POLICY_DISABLED_PRINTER = "disabled_printer";
     const char* const POLICY_DISABLE_USB = "disable_usb";
+    const char* const POLICY_DISALLOWED_PERMISSION = "disallowed_permission";
+    const char* const POLICY_ALLOWED_PERMISSION_BUNDLE = "allowed_permission_bundle";
     const char* const POLICY_DISABLED_NETWORK_INTERFACE = "disabled_network_interface";
     const char* const POLICY_DISALLOW_ADD_LOCAL_ACCOUNT = "disallow_add_local_account";
     const char* const POLICY_DISALLOW_ADD_OS_ACCOUNT_BY_USER = "disallow_add_os_account_by_user";

@@ -22,7 +22,9 @@
 #include <string>
 
 #include "admin_manager.h"
+#include "allowed_permission_bundle_serializer.h"
 #include "app_control_interface.h"
+#include "application_instance.h"
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
@@ -154,6 +156,24 @@ private:
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
+    void UpdateAllowedPermissionBundleInfo(const std::string &appIdentifier, const std::string &bundleName,
+        int32_t userId, int32_t appIndex);
+
+private:
+    struct MatchingAppInfo {
+        std::string permissionName;
+        ApplicationInstance app;
+    };
+    std::vector<MatchingAppInfo> FindMatchingAppsFromPolicy(
+        const std::map<std::string, std::vector<ApplicationInstance>> &policyMap,
+        const std::string &bundleName, int32_t appIndex);
+    void RemoveMatchingAppsFromPolicy(const std::vector<MatchingAppInfo> &matchingApps,
+        const std::vector<std::shared_ptr<Admin>> &admins, int32_t userId,
+        const std::string &appIdentifier, int32_t appIndex);
+    void ExecutePolicyRemoveForApp(const std::shared_ptr<Admin> &admin, const MatchingAppInfo &matchInfo,
+        int32_t userId, const std::string &appIdentifier, int32_t appIndex);
+
+public:
     ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
         const std::string &bundleName);
     ErrCode SetAbilityDisabled(const std::string &bundleName, int32_t userId, const std::string &abilityName);

@@ -35,6 +35,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./common/json_builder_test.cpp",
     "./common/policy_changed_event_test.cpp",
     "./proxy/bundle_storage_info_test.cpp",
+    "./security_manager/allowed_permission_bundle_serializer_test.cpp",
   ]
 
   configs = [

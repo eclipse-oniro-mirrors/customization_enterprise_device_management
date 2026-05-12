@@ -83,6 +83,12 @@ private:
     static napi_value UninstallEnterpriseReSignatureCertificate(napi_env env, napi_callback_info info);
     static napi_value SetScreenLockDisabledForAccount(napi_env env, napi_callback_info info);
     static napi_value IsScreenLockDisabledForAccount(napi_env env, napi_callback_info info);
+    static napi_value SetDisallowedPermission(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPermissions(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedPermissionBundle(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedPermissionBundle(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedPermissionBundle(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value GetAllowedPermissionBundles(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

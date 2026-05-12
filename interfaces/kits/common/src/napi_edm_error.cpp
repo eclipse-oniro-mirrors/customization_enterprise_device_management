@@ -112,6 +112,10 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "Failed to create normal Osaccount, The number of accounts reaches the upper limit."},
     {EdmReturnErrCode::ACCOUNT_RESTRICTED,
         "Failed to manage normal Osaccount, Restricted account."},
+    {EdmReturnErrCode::CANNOT_SET_ALLOWED_PERMISSION_BUNDLE,
+        "Prerequisites for the API call have not been satisfied. The permission has not be disallowed."},
+    {EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION,
+        "The permission apl level is system core, can not disallow it"},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)

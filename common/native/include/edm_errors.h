@@ -102,6 +102,8 @@ namespace EdmReturnErrCode {
     constexpr uint32_t ACCOUNT_RESTRICTED = 9201041;
     constexpr uint32_t SWITCH_STATUS_FAILED = 9201042;
     constexpr uint32_t PREREQUISITES_NOT_SATISFIED_FAILED = 9201043;
+    constexpr uint32_t CANNOT_SET_ALLOWED_PERMISSION_BUNDLE = 9201044;
+    constexpr uint32_t CANNOT_DISALLOW_PERMISSION = 9201045;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

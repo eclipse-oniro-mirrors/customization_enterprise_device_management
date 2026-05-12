@@ -107,6 +107,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/set_floating_navigation_plugin_test.cpp",
     "./src/install_enterprise_re_signature_certificate_plugin_test.cpp",
     "./src/get_application_window_states_plugin_test.cpp",
+    "./src/security_manager/allowed_permission_bundle_plugin_test.cpp",
+    "./src/security_manager/disallowed_permission_plugin_test.cpp",
   ]
 
   configs = [
@@ -739,6 +741,8 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/utils/firewall_rule_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/permission_managed_state_serializer.cpp",
+      "../../../../services/edm_plugin/src/security_manager/allowed_permission_bundle_plugin.cpp",
+      "../../../../services/edm_plugin/src/security_manager/disallowed_permission_plugin.cpp",
       "../../../../services/edm_plugin/src/security_manager/set_permission_managed_state_plugin.cpp",
       "../../../../services/edm_plugin/src/device_settings/set_network_interface_config_plugin.cpp",
       "../../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",

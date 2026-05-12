@@ -117,6 +117,8 @@
             vtable?for?OHOS::EDM::IExtInfoManager;
             OHOS::EDM::ScreenWatermarkImageSerializer::*;
             vtable?for?OHOS::EDM::ScreenWatermarkImageSerializer;
+            OHOS::EDM::AllowedPermissionBundleSerializer::*;
+            vtable?for?OHOS::EDM::AllowedPermissionBundleSerializer;
             OHOS::EDM::EnableSelfDeviceAdminParamSerializer::*;
             vtable?for?OHOS::EDM::EnableSelfDeviceAdminParamSerializer;
             OHOS::EDM::PolicyChangedEvent::*;
