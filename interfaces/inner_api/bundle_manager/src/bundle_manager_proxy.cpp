@@ -201,7 +201,7 @@ int32_t BundleManagerProxy::InstallMarketApps(MessageParcel &data, std::vector<s
     MessageParcel reply;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::INSTALL_MARKET_APPS);
-    auto ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    auto ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
     if (ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED) {
         errMsg = reply.ReadString();
     }
