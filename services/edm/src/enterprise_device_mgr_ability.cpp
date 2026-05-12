@@ -51,8 +51,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
-#include "enterprise_admin_connection.h"
-#include "enterprise_bundle_connection.h"
+#include "callback_strategies.h"
 #include "enterprise_conn_manager.h"
 #include "ext_info_manager.h"
 #include "func_code_utils.h"
@@ -325,16 +324,14 @@ void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonE
         EDMLOGW("Get subscriber by common event failed.");
         return;
     }
-    AAFwk::Want want;
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     for (const auto& subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            bool ret = manager->CreateOobeConnection(want,
-                static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_STARTUP_GUIDE_COMPLETED),
-                subAdmin.first, type);
+            auto strategy = std::make_shared<StartupGuideCompletedStrategy>(type);
+            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, subAdmin.first,
+                strategy);
             if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish CreateOobeConnection failed.");
+                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish ExecuteCallback failed.");
             }
         }
     }
@@ -353,16 +350,14 @@ void EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn(const EventFwk::Comm
         EDMLOGW("Get subscriber by common event failed.");
         return;
     }
-    AAFwk::Want want;
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     for (const auto& subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            bool ret = manager->CreateOobeConnection(want,
-                static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_DEVICE_BOOT_COMPLETED),
-                subAdmin.first, -1);
+            auto strategy = std::make_shared<DeviceBootCompletedStrategy>();
+            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, subAdmin.first,
+                strategy);
             if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn CreateOobeConnection failed.");
+                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn ExecuteCallback failed.");
             }
         }
     }
@@ -400,7 +395,6 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
         EDMLOGW("Get subscriber by common event failed.");
         return;
     }
-    AAFwk::Want want;
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     if (manager == nullptr) {
         EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate EnterpriseConnManager null");
@@ -408,10 +402,11 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &
     }
     for (const auto &subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            bool ret = manager->CreateUpdateConnection(want, subAdmin.first, updateInfo);
+            auto strategy = std::make_shared<SystemUpdateStrategy>(updateInfo);
+            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, subAdmin.first,
+                strategy);
             if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate CreateUpdateConnection failed.");
+                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate ExecuteCallback failed.");
             }
         }
     }
@@ -637,8 +632,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
                 CreateLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(userIdToSwitch) + "/" + packageName);
             }
 #endif
-            OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
-                IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userIdToSwitch, false);
+            ConnectAbility(userIdToSwitch, admin);
         }
     }
     ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
@@ -861,8 +855,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::Com
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
     if (admin != nullptr) {
         if (admin->IsEnterpriseAdminKeepAlive()) {
-            OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
-                IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
+            ConnectAbility(userId, admin);
         }
         std::vector<std::string> permissionList;
         if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(bundleName, userId, permissionList))) {
@@ -895,14 +888,14 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
         return;
     }
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     for (const auto& admin : admins) {
         EDMLOGI("OnCommonEventKioskMode packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        bool ret = manager->CreateKioskConnection(connectWant, code, currentUserId, bundleName, paramUserId);
+        auto strategy = std::make_shared<KioskModeStrategy>(code, bundleName, paramUserId);
+        bool ret = manager->ExecuteCallback(admin->adminInfo_.packageName_, admin->adminInfo_.className_, currentUserId,
+            strategy);
         if (!ret) {
-            EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventKioskMode CreateKioskConnection failed.");
+            EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventKioskMode ExecuteCallback failed.");
         }
     }
 }
@@ -928,16 +921,15 @@ void EnterpriseDeviceMgrAbility::OnCommonEventSimStateChanged(const EventFwk::Co
 }
 
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(const std::string &bundleName, const std::string &abilityName,
-    uint32_t code, int32_t userId, bool isAdminEnabled)
+    uint32_t code, int32_t userId)
 {
     if (abilityName.empty() || userId < 0) {
         EDMLOGW("EnterpriseDeviceMgrAbility::OnAdminEnabled ignore bundlename is %{public}s", bundleName.c_str());
         return false;
     }
-    AAFwk::Want connectWant;
-    connectWant.SetElementName(bundleName, abilityName);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    return manager->CreateAdminConnection(connectWant, code, userId, isAdminEnabled);
+    std::shared_ptr<ICallbackStrategy> strategy = std::make_shared<AdminStrategy>(code);
+    return manager->ExecuteCallback(bundleName, abilityName, userId, strategy);
 }
 
 bool EnterpriseDeviceMgrAbility::OnAdminEnabled(AdminInfo adminInfo, uint32_t code, int32_t userId,
@@ -948,11 +940,9 @@ bool EnterpriseDeviceMgrAbility::OnAdminEnabled(AdminInfo adminInfo, uint32_t co
             adminInfo.packageName_.c_str());
         return false;
     }
-    AAFwk::Want connectWant;
-    connectWant.SetElementName(adminInfo.packageName_, adminInfo.className_);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    return manager->CreateAdminConnection(
-        connectWant, code, userId, true, enabledBundleName);
+    std::shared_ptr<ICallbackStrategy> strategy = std::make_shared<DeviceAdminStrategy>(code, enabledBundleName);
+    return manager->ExecuteCallback(adminInfo.packageName_, adminInfo.className_, userId, strategy);
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
@@ -963,11 +953,13 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
         EDMLOGW("SystemEventSubscriber Get subscriber by common event failed.");
         return;
     }
-    AAFwk::Want want;
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+    if (manager == nullptr) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("ConnectAbilityOnSystemAccountEvent get EnterpriseConnManager failed.");
+        return;
+    }
     for (const auto &subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
             int32_t userId = subAdmin.first;
             int32_t currentUserId = GetCurrentUserId();
             if (currentUserId < 0) {
@@ -976,23 +968,34 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_
             if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
                 userId = currentUserId;
             }
-            bool ret = manager->CreateAccountConnection(want, static_cast<uint32_t>(event), userId, accountId);
+            std::shared_ptr<ICallbackStrategy> strategy;
+            if (event == ManagedEvent::USER_ADDED) {
+                strategy = std::make_shared<AccountStrategy>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED, accountId);
+            } else if (event == ManagedEvent::USER_SWITCHED) {
+                strategy = std::make_shared<AccountStrategy>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED, accountId);
+            } else {
+                strategy = std::make_shared<AccountStrategy>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED, accountId);
+            }
+            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, userId,
+                strategy);
             if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility CreateAccountConnection failed.");
+                EDMLOGW("EnterpriseDeviceMgrAbility ExecuteCallback failed.");
             }
         }
     }
 }
 
-void EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin)
+bool EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin)
 {
-    AAFwk::Want want;
-    want.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    bool ret = manager->CreateAdminConnection(want, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, accountId, false);
+    auto strategy = std::make_shared<StartStrategy>();
+    bool ret = manager->ExecuteCallback(admin->adminInfo_.packageName_, admin->adminInfo_.className_, accountId,
+        strategy);
     if (!ret) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbility CreateAdminConnection failed.");
+        EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbility ExecuteCallback failed.");
+        return false;
     }
+    return true;
 }
 
 void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
@@ -1004,20 +1007,36 @@ void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &
         EDMLOGW("Get subscriber by common event failed.");
         return;
     }
-    AAFwk::Want want;
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     for (const auto &subAdmin : subAdmins) {
         for (const auto &it : subAdmin.second) {
-            want.SetElementName(it->adminInfo_.packageName_, it->adminInfo_.className_);
-            std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
             int32_t currentUserId = subAdmin.first;
             int32_t tmpUserId = GetCurrentUserId();
             if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER && tmpUserId >= 0) {
                 currentUserId = tmpUserId;
             }
-            bool ret = manager->CreateBundleConnection(
-                want, static_cast<uint32_t>(event), currentUserId, bundleName, userId);
+            std::shared_ptr<ICallbackStrategy> strategy;
+            if (event == ManagedEvent::BUNDLE_ADDED) {
+                strategy = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED, bundleName,
+                    userId);
+            } else if (event == ManagedEvent::BUNDLE_REMOVED) {
+                strategy = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED, bundleName,
+                    userId);
+            } else if (event == ManagedEvent::BUNDLE_UPDATED) {
+                strategy = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED, bundleName,
+                    userId);
+            } else if (event == ManagedEvent::APP_START) {
+                strategy = std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_START, bundleName);
+            } else if (event == ManagedEvent::APP_STOP) {
+                strategy = std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_STOP, bundleName);
+            } else {
+                EDMLOGW("ConnectAbilityOnSystemEvent: unknown event %{public}d", static_cast<int32_t>(event));
+                continue;
+            }
+            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, currentUserId,
+                strategy);
             if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent CreateBundleConnection failed.");
+                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent ExecuteCallback failed.");
             }
         }
     }
@@ -1250,8 +1269,7 @@ void EnterpriseDeviceMgrAbility::ConnectEnterpriseAbility()
         std::string bundleName = admin->adminInfo_.packageName_;
         if (admin->IsEnterpriseAdminKeepAlive() && (adminConnectMap_.find(bundleName) == adminConnectMap_.end() ||
             !adminConnectMap_[bundleName])) {
-            adminConnectMap_[bundleName] = OnAdminEnabled(admin->adminInfo_.packageName_,
-                admin->adminInfo_.className_, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId, false);
+            adminConnectMap_[bundleName] = ConnectAbility(userId, admin);
         }
     }
 }
@@ -1599,7 +1617,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
     OnAdminEnabled(newAdmin.GetBundleName(), newAdmin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
-        EdmConstants::DEFAULT_USER_ID, true);
+        EdmConstants::DEFAULT_USER_ID);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
     AfterEnableAdminReportEdmEvent(newAdmin, oldAdmin);
     return ERR_OK;
@@ -1786,8 +1804,7 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
     system::SetParameter(PARAM_EDM_ENABLE, "true");
     NotifyAdminEnabled(true);
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
-    OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId,
-        true);
+    OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
     // 如果是激活DA需要上报给SDA
     std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     if (superAdmin != nullptr && type == AdminType::NORMAL) {
@@ -2005,7 +2022,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
     OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId, true);
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
     auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     if (superAdmin != nullptr && adminType == AdminType::NORMAL) {
         OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED,
@@ -2371,19 +2388,17 @@ ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bun
         return ERR_OK;
     }
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
+    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     for (const auto& admin : admins) {
         if (admin->adminInfo_.packageName_ != mediaBundleName) {
             continue;
         }
         EDMLOGI("ReportAgInstallStatus packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(admin->adminInfo_.packageName_, admin->adminInfo_.className_);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        bool ret = manager->CreateMarketConnection(connectWant,
-            static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED),
-            currentUserId, bundleName, status);
+        auto strategy = std::make_shared<MarketAppsInstallStatusChangedStrategy>(bundleName, status);
+        bool ret = manager->ExecuteCallback(admin->adminInfo_.packageName_, admin->adminInfo_.className_, currentUserId,
+            strategy);
         if (!ret) {
-            EDMLOGW("EnterpriseDeviceMgrAbility::ReportAgInstallStatus CreateMarketConnection failed.");
+            EDMLOGW("EnterpriseDeviceMgrAbility::ReportAgInstallStatus ExecuteCallback failed.");
         }
     }
     return ERR_OK;
@@ -2606,7 +2621,7 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
         return ret;
     }
     OnAdminEnabled(bundleName, abilityName, IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
-        EdmConstants::DEFAULT_USER_ID, true);
+        EdmConstants::DEFAULT_USER_ID);
     EDMLOGD("ReportEdmEventManagerAdmin AuthorizeAdmin");
     HiSysEventAdapter::ReportEdmEventManagerAdmin(bundleName, static_cast<int32_t>(AdminAction::ENABLE),
         static_cast<int32_t>(AdminType::SUB_SUPER_ADMIN), admin.GetBundleName().c_str());

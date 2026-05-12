@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,48 +16,45 @@
 #ifndef SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONN_MANAGER_H
 #define SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONN_MANAGER_H
 
-#include <map>
-#include <string>
 #include <memory>
+#include <mutex>
+#include <string>
+#include <vector>
 
 #include "ability_manager_interface.h"
-#include "enterprise_account_connection.h"
-#include "enterprise_admin_connection.h"
-#include "enterprise_bundle_connection.h"
-#include "enterprise_collect_log_connection.h"
-#include "enterprise_kiosk_connection.h"
-#include "enterprise_key_event_connection.h"
-#include "enterprise_market_connection.h"
-#include "enterprise_update_connection.h"
-#include "enterprise_oobe_connection.h"
-#include "ienterprise_connection.h"
-#include "policy_changed_event.h"
+#include "icallback_strategy.h"
+#include "enterprise_admin_proxy.h"
 #include "singleton.h"
 
 namespace OHOS {
 namespace EDM {
+
 class EnterpriseConnManager : public DelayedSingleton<EnterpriseConnManager> {
 public:
-    bool CreateAdminConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        bool isOnAdminEnabled = true, const std::string &bundleName = "");
-    bool CreateBundleConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const std::string &bundleName, int32_t accountId);
-    bool CreateUpdateConnection(const AAFwk::Want &want, uint32_t userId,
-        const UpdateInfo &updateInfo);
-    bool CreateAccountConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const int32_t accountId);
-    bool CreateKioskConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const std::string &bundleName, int32_t accountId);
-    bool CreateMarketConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const std::string &bundleName, int32_t status);
-    bool CreateCollectLogConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, bool isSuccess);
-    bool CreateKeyEventConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-        const std::string &keyEvent);
-    bool CreateOobeConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId, int32_t type);
-    bool CreatePolicyChangedConnection(const AAFwk::Want &want, const PolicyChangedEvent &policyChangedEvent,
-        int32_t userId);
+    bool ExecuteCallback(const std::string& bundleName, const std::string& abilityName, int32_t userId,
+        std::shared_ptr<ICallbackStrategy> strategy);
+    void SaveProxy(const std::string& bundleName, int32_t userId, const sptr<EnterpriseAdminProxy>& proxy);
+    void RemoveRemoteObject(const std::string& bundleName, int32_t userId);
+    void ClearConnections();
+
 private:
-    bool ConnectAbility(const sptr<IEnterpriseConnection>& connection);
+    struct ConnectionInfo {
+        sptr<EnterpriseAdminProxy> proxy;
+        std::vector<std::shared_ptr<ICallbackStrategy>> pendingCallbacks;
+        bool isPending = false;
+        int64_t createTime = 0;
+    };
+
+    std::string GenerateConnectionKey(const std::string& bundleName, int32_t userId);
+    bool IsConnectionTimeout(const ConnectionInfo& info);
+    int64_t GetCurrentTimeMs();
+    bool CheckConnectionState(const std::string& key, std::shared_ptr<ICallbackStrategy> strategy,
+        sptr<EnterpriseAdminProxy>& existingProxy, bool& needCreateConnection);
+    bool PrepareNewConnection(const std::string& key, std::shared_ptr<ICallbackStrategy> strategy);
+    bool EstablishConnection(const std::string& bundleName, const std::string& abilityName, int32_t userId);
+
+    std::mutex connectionMutex_;
+    std::unordered_map<std::string, ConnectionInfo> connectionMap_;
 };
 } // namespace EDM
 } // namespace OHOS

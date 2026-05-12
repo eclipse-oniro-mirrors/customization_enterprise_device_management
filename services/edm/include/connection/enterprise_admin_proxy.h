@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,49 +30,35 @@ public:
 
     virtual ~EnterpriseAdminProxy() {}
 
-    void OnAdminEnabled() override;
+    bool OnAdmin(uint32_t code) override;
 
-    void OnAdminDisabled() override;
+    bool OnBundle(uint32_t code, const std::string &bundleName, int32_t accountId) override;
 
-    void OnBundleAdded(const std::string &bundleName, int32_t accountId) override;
+    bool OnApp(uint32_t code, const std::string &bundleName) override;
 
-    void OnBundleRemoved(const std::string &bundleName, int32_t accountId) override;
+    bool OnSystemUpdate(const UpdateInfo &updateInfo) override;
 
-    void OnBundleUpdated(const std::string &bundleName, int32_t accountId) override;
+    bool OnAccount(uint32_t code, const int32_t accountId) override;
 
-    void OnAppStart(const std::string &bundleName) override;
+    bool OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId) override;
 
-    void OnAppStop(const std::string &bundleName) override;
+    bool OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override;
 
-    void OnSystemUpdate(const UpdateInfo &updateInfo) override;
+    bool OnDeviceAdmin(uint32_t code, const std::string &bundleName) override;
 
-    void OnAccountAdded(const int32_t accountId) override;
+    bool OnLogCollected(bool isSuccess) override;
 
-    void OnAccountSwitched(const int32_t accountId) override;
+    bool OnKeyEvent(const std::string &keyEvent) override;
 
-    void OnAccountRemoved(const int32_t accountId) override;
+    bool OnStartupGuideCompleted(int32_t type) override;
 
-    void OnKioskModeEntering(const std::string &bundleName, int32_t accountId) override;
+    bool OnDeviceBootCompleted() override;
 
-    void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override;
+    bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
 
-    void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override;
-
-    void OnDeviceAdminEnabled(const std::string &bundleName) override;
-
-    void OnDeviceAdminDisabled(const std::string &bundleName) override;
-
-    void OnLogCollected(bool isSuccess) override;
-
-    void OnKeyEvent(const std::string &keyEvent) override;
-
-    void OnStartupGuideCompleted(int32_t type) override;
-
-    void OnDeviceBootCompleted() override;
-
-    void OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
+    bool IsValid();
 private:
-    void SendRequest(uint32_t code, MessageParcel &data);
+    bool SendRequest(uint32_t code, MessageParcel &data);
 };
 } // namespace EDM
 } // namespace OHOS

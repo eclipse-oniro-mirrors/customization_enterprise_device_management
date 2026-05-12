@@ -30,6 +30,7 @@ enum {
     EDM_MODULE_EXTERNAL = 0x05,
     EDM_MODULE_TOOLS = 0x06,
     EDM_MODULE_PLUGIN = 0x07,
+    EDM_MODULE_ADMIN_EXTENSION = 0x08,
     // Reserved 0x04 ~ 0x0f for new modules, Event related modules start from 0x10
 };
 
@@ -193,6 +194,16 @@ constexpr ErrCode EDM_PLUGIN_ERR_OFFSET = ErrCodeOffset(SUBSYS_CUSTOMIZATION, ED
 
 enum {
     EDM_ADD_AUTO_START_APP_FAILED = EDM_PLUGIN_ERR_OFFSET + 1,
+};
+
+// Error code for ADD_AUTO_START_APP: 0x2070000,value:33882112
+constexpr ErrCode EDM_ADMIN_EXTENSION_ERR_OFFSET = ErrCodeOffset(SUBSYS_CUSTOMIZATION, EDM_MODULE_ADMIN_EXTENSION);
+
+enum {
+    DESCRIPTOR_NOT_MATCHED = EDM_ADMIN_EXTENSION_ERR_OFFSET + 1,
+    CALLER_TOKEN_TYPE_ERR,
+    CALLER_UID_ERR,
+    CALL_FUN_FAILED,
 };
 
 #define RETURN_IF_FAILED(errcode) if (FAILED(errcode)) { return errcode; }

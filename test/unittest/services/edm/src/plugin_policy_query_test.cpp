@@ -283,7 +283,7 @@ HWTEST_F(PluginPolicyQueryTest, TestAllowedAppDistributionTypesQuery002, TestSiz
 
 /**
  * @tc.name: TestAllowedUsbDevicesQuery
- * @tc.desc: Test EnterpriseAdminConnection::OnAbilityConnectDone func.
+ * @tc.desc: Test AllowedUsbDevicesQuery::QueryPolicy func.
  * @tc.type: FUNC
  */
 HWTEST_F(PluginPolicyQueryTest, TestAllowedUsbDevicesQuery, TestSize.Level1)
@@ -512,7 +512,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableBluetoothQuery003, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH);
-    
+
     permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
@@ -552,7 +552,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisablePrinterQuery002, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_RESTRICT_POLICY);
-    
+
     permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
@@ -816,7 +816,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisableUsbQuery001, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_USB);
-    
+
     permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
@@ -892,7 +892,7 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowModifyDateTimeQuery001, TestSize.Lev
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_SET_DATETIME);
-    
+
     permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
@@ -1107,7 +1107,7 @@ HWTEST_F(PluginPolicyQueryTest, TestSetWifiDisabledQuery001, TestSize.Level1)
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_WIFI);
-    
+
     permissionTag = TEST_PERMISSION_TAG_VERSION_12;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
