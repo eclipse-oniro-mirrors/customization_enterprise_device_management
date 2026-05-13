@@ -24,6 +24,7 @@ enum class ExtInfoType {
     ADMIN_PROVISIONING_INFO = 1,
     SETTINGS_DEVICE_MANAGEMENT = 2,
     SUPERHUB_INFO = 3,
+    GET_APP_UID = 4,
 };
 } // namespace EDM
 } // namespace OHOS
