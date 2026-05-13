@@ -29,6 +29,7 @@
 #include "iextra_policy_notification.h"
 #include "ipc_skeleton.h"
 #include "iplugin_manager.h"
+#include "os_account_manager.h"
 #include "override_interface_name.h"
 
 namespace OHOS {
@@ -58,12 +59,30 @@ void SetSwitchStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitch
     ptr->SetSerializer(SwitchParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetSwitchStatusPlugin::OnSetPolicy, FuncOperateType::SET);
 }
+
+bool SetSwitchStatusPlugin::IsByodAdmin()
+{
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string bundleName =
+        std::make_shared<ExternalManagerFactory>()->CreateAccessTokenManager()->GetHapTokenBundleName(tokenId);
+    int32_t currentId = 0;
+    if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(IPCSkeleton::GetCallingUid(), currentId))) {
+        EDMLOGE("SetSwitchStatusPlugin::IsByodAdmin get userId failed.");
+        return false;
+    }
+    auto adminType = IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, currentId);
+    return adminType == AdminType::BYOD;
+}
  
 ErrCode SetSwitchStatusPlugin::OnSetPolicy(SwitchParam &param, MessageParcel &reply)
 {
     int32_t ret = ERR_OK;
     EDMLOGI("SetSwitchStatusPlugin OnSetPolicy %{public}d, %{public}d",
         static_cast<int32_t>(param.key), static_cast<int32_t>(param.status));
+    if (param.status == SwitchStatus::FORCE_ON && IsByodAdmin()) {
+        EDMLOGE("SetSwitchStatusPlugin::OnSetPolicy failed, because is ByodAdmin and force on");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
     switch (param.key) {
         case SwitchKey::BLUETOOTH:
             ret = OnSetBluetoothStatus(param.status);
@@ -98,8 +117,12 @@ ErrCode SetSwitchStatusPlugin::OnSetPolicy(SwitchParam &param, MessageParcel &re
 ErrCode SetSwitchStatusPlugin::OnSetNFCStatus(SwitchStatus status)
 {
 #ifdef NFC_EDM_ENABLE
-    EDMLOGE("SetSwitchStatusPlugin OnSetNFCStatus in");
+    EDMLOGI("SetSwitchStatusPlugin OnSetNFCStatus in");
     ErrCode ret = ERR_OK;
+    if (IsByodAdmin()) {
+        EDMLOGE("SetSwitchStatusPlugin::OnSetNFCStatus failed, because is ByodAdmin");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
     if (system::GetBoolParameter(PARAM_EDM_NFC_DISABLE, false)) {
         EDMLOGE("SetSwitchStatusPlugin OnSetNFCStatus on failed, because nfc has disabled");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;
@@ -191,23 +214,6 @@ ErrCode SetSwitchStatusPlugin::OnSetWifiStatus(SwitchStatus status)
 // LCOV_EXCL_START
 ErrCode SetSwitchStatusPlugin::ForceEnableBluetooth()
 {
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    std::string bundleName =
-        std::make_shared<ExternalManagerFactory>()->CreateAccessTokenManager()->GetHapTokenBundleName(tokenId);
-    std::vector<int32_t> ids;
-    std::int32_t currentId;
-    ErrCode code = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
-    if (SUCCEEDED(code) && !ids.empty()) {
-        currentId = ids.at(0);
-    } else {
-        EDMLOGE("SetSwitchStatusPlugin::ForceEnableBluetooth get currentId failed : %{public}d.", code);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    auto adminType = IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, currentId);
-    if (adminType == AdminType::BYOD) { //LCOV_EXCL_BR_LINE
-        EDMLOGE("SetSwitchStatusPlugin::ForceEnableBluetooth failed, because is ByodAdmin");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-    }
     if (system::GetBoolParameter(PARAM_FORCE_ENABLE_BLUETOOTH, false)) {
         return ERR_OK;
     }
