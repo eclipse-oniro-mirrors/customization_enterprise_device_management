@@ -130,7 +130,12 @@ void UpdatePolicyUtils::ReadUpgradePackageInfo(MessageParcel &data, UpgradePacka
         EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo auth info too long.");
         return;
     }
-    errno_t err = memcpy_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), data.ReadCString(),
+    const char *authInfo = data.ReadCString();
+    if (authInfo == nullptr) {
+        EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo authInfo is null.");
+        return;
+    }
+    errno_t err = memcpy_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), authInfo,
         packageInfo.authInfoSize);
     if (err != EOK) {
         EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo memset_s failed: %{public}d.", err);
