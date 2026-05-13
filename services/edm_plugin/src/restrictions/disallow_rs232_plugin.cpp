@@ -33,7 +33,25 @@ void DisallowRs232Plugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowRs2
     ptr->SetSerializer(BoolSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowRs232Plugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnAdminRemoveListener(&DisallowRs232Plugin::OnAdminRemove);
-    persistParam_ = "persist.edm.rs232_serial_disable";
+}
+
+ErrCode DisallowRs232Plugin::SetOtherModulePolicy(bool data, int32_t userId)
+{
+    const char* value = data ? "1" : "0";
+    if (!system::SetParameter("persist.edm.rs232_serial_disable", value)) {
+        EDMLOGE("set disallow rs232 serial: %{public}s failed.", value);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode DisallowRs232Plugin::RemoveOtherModulePolicy(int32_t userId)
+{
+    if (!system::SetParameter("persist.edm.rs232_serial_disable", "0")) {
+        EDMLOGE("set disallow rs232 serial false failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
