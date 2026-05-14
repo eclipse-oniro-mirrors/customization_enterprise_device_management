@@ -155,6 +155,7 @@ int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *a
     policy.complexityReg = reply.ReadString();
     reply.ReadInt64(policy.validityPeriod);
     policy.additionalDescription = reply.ReadString();
+    policy.passwordAlgs = reply.ReadInt32();
     return ERR_OK;
 }
 

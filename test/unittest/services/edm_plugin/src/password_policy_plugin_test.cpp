@@ -53,6 +53,46 @@ HWTEST_F(PasswordPolicyPluginTest, TestOnSetPolicy, TestSize.Level1)
     ErrCode ret = plugin.OnSetPolicy(policy, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestOnSetPolicyWithPasswordAlgs
+ * @tc.desc: Test PasswordPolicyPlugin::OnSetPolicy with passwordAlgs parameter
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasswordPolicyPluginTest, TestOnSetPolicyWithPasswordAlgs, TestSize.Level1)
+{
+    PasswordPolicyPlugin plugin;
+    PasswordPolicy policy;
+    policy.complexityReg = "^(?=.*[a-zA-Z]).{1,9}$";
+    policy.validityPeriod = 200000;
+    policy.additionalDescription = "testDescription";
+    policy.passwordAlgs = static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_SM4);
+    PasswordPolicy currentData;
+    PasswordPolicy mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policy, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(mergeData.passwordAlgs == static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_SM4));
+}
+
+/**
+ * @tc.name: TestOnSetPolicyWithDefaultPasswordAlgs
+ * @tc.desc: Test PasswordPolicyPlugin::OnSetPolicy with default passwordAlgs value
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasswordPolicyPluginTest, TestOnSetPolicyWithDefaultPasswordAlgs, TestSize.Level1)
+{
+    PasswordPolicyPlugin plugin;
+    PasswordPolicy policy;
+    policy.complexityReg = "^(?=.*[a-zA-Z]).{1,9}$";
+    policy.validityPeriod = 2;
+    policy.additionalDescription = "testDescription";
+    policy.passwordAlgs = static_cast<int32_t>(PasswordAlgs::NONE);
+    PasswordPolicy currentData;
+    PasswordPolicy mergeData;
+    ErrCode ret = plugin.OnSetPolicy(policy, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(mergeData.passwordAlgs == static_cast<int32_t>(PasswordAlgs::NONE));
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
