@@ -37,8 +37,11 @@ ErrCode BundleManagerUtils::GetAppIdByCallingUid(std::string &appId)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     std::string callingBundleName;
+    if (!bundleManager->GetNameForUid(IPCSkeleton::GetCallingUid(), callingBundleName)) {
+        EDMLOGE("BundleManagerUtils::GetAppIdByCallingUid get callingBundleName failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     int32_t userId = 0;
-    bundleManager->GetNameForUid(IPCSkeleton::GetCallingUid(), callingBundleName);
     if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(IPCSkeleton::GetCallingUid(), userId))) {
         EDMLOGE("BundleManagerUtils::GetAppIdByCallingUid get userId failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

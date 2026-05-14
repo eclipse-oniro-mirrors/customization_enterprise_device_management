@@ -16,6 +16,7 @@
 #ifndef NETWORKMANAGER_ANI_H
 #define NETWORKMANAGER_ANI_H
 
+#include <string>
 #include <ani.h>
 #include "domain_filter_rule.h"
 #include "firewall_rule.h"
@@ -35,6 +36,8 @@ private:
     static void RemoveDomainFilterRule(ani_env* env, ani_object admin, ani_object domainFilterRule);
     static void JsObjToFirewallRule(ani_env* env, ani_object firewallRule, IPTABLES::FirewallRule &rule);
     static void JsObjToDomainFilterRule(ani_env* env, ani_object domainFilterRule, IPTABLES::DomainFilterRule &rule);
+    static bool ParseFirewallStringProperties(ani_env* env, ani_object firewallRule, IPTABLES::FirewallRule &rule);
+    static void ParseFirewallEnumProperties(ani_env* env, ani_object firewallRule, IPTABLES::FirewallRule &rule);
 };
 } // namespace EDM
 } // namespace OHOS
