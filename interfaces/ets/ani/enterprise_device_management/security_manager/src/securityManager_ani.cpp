@@ -85,6 +85,11 @@ ani_object SecurityManagerAni::GetPasswordPolicy(ani_env* env)
     EdmAniUtils::StringToAniStr(env, policy.additionalDescription))) {
         EDMLOGW("Set property 'additionalDescription' failed");
     }
+
+    int32_t passwordAlgsValue = (policy.passwordAlgs == -1) ? 0 : policy.passwordAlgs;
+    if (!EdmAniUtils::SetNumberMember(env, aniPasswordPolicy, "passwordAlgs", passwordAlgsValue)) {
+        EDMLOGW("Set property 'passwordAlgs' failed");
+    }
     return aniPasswordPolicy;
 }
 } // namespace EDM

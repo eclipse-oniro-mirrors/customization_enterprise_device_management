@@ -23,7 +23,7 @@ namespace EDM {
 const std::string COMPLEXITY_REG = "complexityReg";
 const std::string VALIDITY_PERIOD = "validityPeriod";
 const std::string ADDITIONAL_DESCRIPTION = "additionalDescription";
-const std::string PASSWORD_ALGS = "passwordAlgs";
+const std::string PASSWORD_ALGS = "pinAlgoType";
 
 bool PasswordSerializer::Deserialize(const std::string &jsonString, PasswordPolicy &policy)
 {

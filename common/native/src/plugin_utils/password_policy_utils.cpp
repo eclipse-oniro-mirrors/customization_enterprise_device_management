@@ -32,7 +32,7 @@ constexpr int32_t EDM_GID = 3057;
 const std::string COMPLEXITY_REG = "complexityReg";
 const std::string VALIDITY_PERIOD = "validityPeriod";
 const std::string ADDITIONAL_DESCRIPTION = "additionalDescription";
-const std::string PASSWORD_ALGS = "passwordAlgs";
+const std::string PASSWORD_ALGS = "pinAlgoType";
  
 PasswordPolicyUtils::PasswordPolicyUtils()
 {
