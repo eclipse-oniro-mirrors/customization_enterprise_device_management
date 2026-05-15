@@ -661,10 +661,11 @@ ohos_shared_library("need_extra_plugin") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
     "window_manager:libwm",
     "window_manager:sms",
-    "wifi:wifi_sdk"
+    "wifi:wifi_sdk",
   ]
 
   if (enterprise_device_management_support_all) {
