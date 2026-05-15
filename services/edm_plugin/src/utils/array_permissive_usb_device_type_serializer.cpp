@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_UTILS_ARRAY_USB_DEVICE_TYPE_SERIALIZER_H
-#define SERVICES_EDM_INCLUDE_UTILS_ARRAY_USB_DEVICE_TYPE_SERIALIZER_H
-
-#include "array_usb_device_type_serializer_base.h"
-#include "singleton.h"
+#include "array_permissive_usb_device_type_serializer.h"
+#include "edm_constants.h"
 
 namespace OHOS {
 namespace EDM {
-class ArrayUsbDeviceTypeSerializer : public ArrayUsbDeviceTypeSerializerBase,
-    public DelayedSingleton<ArrayUsbDeviceTypeSerializer> {
-public:
-    ArrayUsbDeviceTypeSerializer();
-};
+ArrayPermissiveUsbDeviceTypeSerializer::ArrayPermissiveUsbDeviceTypeSerializer()
+    : ArrayUsbDeviceTypeSerializerBase(-1, EdmConstants::DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE)
+{
+}
 } // namespace EDM
 } // namespace OHOS
-
-#endif // SERVICES_EDM_INCLUDE_UTILS_ARRAY_USB_DEVICE_TYPE_SERIALIZER_H

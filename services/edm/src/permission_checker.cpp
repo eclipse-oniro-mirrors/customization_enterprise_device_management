@@ -45,6 +45,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLED_HDC,
     EdmInterfaceCode::DISABLE_USB,
     EdmInterfaceCode::DISALLOWED_USB_DEVICES,
+    EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES,
     EdmInterfaceCode::USB_READ_ONLY,
     EdmInterfaceCode::ALLOWED_USB_DEVICES,
     EdmInterfaceCode::DISABLE_WIFI,

@@ -134,7 +134,7 @@ int32_t UsbManagerProxy::GetUsbStorageDeviceAccessPolicy(MessageParcel &data, in
     return ERR_OK;
 }
 #ifdef USB_EDM_ENABLE
-int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd)
+int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive)
 {
     EDMLOGD("UsbManagerProxy::AddOrRemoveDisallowedUsbDevices");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -145,12 +145,14 @@ int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bo
     std::uint32_t funcCode = 0;
     std::uint32_t funcOperateType = static_cast<std::uint32_t>(isAdd ?
         FuncOperateType::SET : FuncOperateType::REMOVE);
-    funcCode = POLICY_FUNC_CODE(funcOperateType, EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+    EdmInterfaceCode edmInterfaceCode =
+        notPermissive ? EdmInterfaceCode::DISALLOWED_USB_DEVICES : EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES;
+    funcCode = POLICY_FUNC_CODE(funcOperateType, edmInterfaceCode);
     return proxy->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t UsbManagerProxy::GetDisallowedUsbDevices(MessageParcel &data,
-    std::vector<OHOS::USB::UsbDeviceType> &result)
+    std::vector<OHOS::USB::UsbDeviceType> &result, bool notPermissive)
 {
     EDMLOGD("UsbManagerProxy::GetDisallowedUsbDevices");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -159,7 +161,9 @@ int32_t UsbManagerProxy::GetDisallowedUsbDevices(MessageParcel &data,
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     MessageParcel reply;
-    proxy->GetPolicy(EdmInterfaceCode::DISALLOWED_USB_DEVICES, data, reply);
+    EdmInterfaceCode edmInterfaceCode =
+        notPermissive ? EdmInterfaceCode::DISALLOWED_USB_DEVICES : EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES;
+    proxy->GetPolicy(edmInterfaceCode, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -167,7 +171,9 @@ int32_t UsbManagerProxy::GetDisallowedUsbDevices(MessageParcel &data,
         return ret;
     }
     uint32_t size = reply.ReadUint32();
-    if (size > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+    uint32_t usbDevicesTypeMaxSize = notPermissive ? EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE :
+        EdmConstants::DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE;
+    if (size > usbDevicesTypeMaxSize) {
         EDMLOGE("UsbManagerProxy:GetDisallowedUsbDevices size=[%{public}u] is too large", size);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

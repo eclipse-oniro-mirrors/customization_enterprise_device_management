@@ -13,10 +13,14 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
+#define private public
 #include "allowed_usb_devices_plugin.h"
+#undef private
+
+#include <gtest/gtest.h>
 #include "edm_ipc_interface_code.h"
-#include "iplugin_manager.h"
+#include "ipolicy_manager.h"
+#include "policy_manager.h"
 #include "plugin_singleton.h"
 #include "utils.h"
 
@@ -139,6 +143,34 @@ HWTEST_F(AllowedUsbDevicesPluginTest, TestOnAdminRemoveHasPolicy, TestSize.Level
     std::vector<UsbDeviceId> mergeData;
     ErrCode ret = plugin.OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: HasConflictPolicy_DisallowPermissiveUsbDevicePolicyNotEmpty_ReturnTrue
+ * @tc.desc: Test AllowUsbDevicesPlugin::HasConflictPolicy when disallowed permissive USB device policy is not empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AllowedUsbDevicesPluginTest, HasConflictPolicy_DisallowPermissiveUsbDevicePolicyNotEmpty_ReturnTrue,
+    TestSize.Level1)
+{
+    const std::string testAdminName = "com.edm.test.demo";
+    const std::string policyValue = "[{\"baseClass\":8,\"subClass\":6,\"protocol\":50}]";
+
+    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
+    IPolicyManager::policyManagerInstance_ = policyManager.get();
+
+    ErrCode res = policyManager->SetPolicy(testAdminName,
+        PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES, policyValue, policyValue, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+
+    AllowUsbDevicesPlugin plugin;
+    bool hasConflict = plugin.HasConflictPolicy();
+    ASSERT_TRUE(hasConflict);
+
+    ErrCode clearRes = policyManager->SetPolicy(testAdminName,
+        PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES, "", "", DEFAULT_USER_ID);
+    ASSERT_TRUE(clearRes == ERR_OK);
+    IPolicyManager::policyManagerInstance_ = nullptr;
 }
 } // namespace TEST
 } // namespace EDM

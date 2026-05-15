@@ -78,6 +78,21 @@ ErrCode UsbPolicyUtils::SetDisallowedUsbDevices(std::vector<USB::UsbDeviceType> 
     return ERR_OK;
 }
 
+ErrCode UsbPolicyUtils::SetDisallowedPermissiveUsbDevices(std::vector<USB::UsbDeviceType> data)
+{
+    EDMLOGI("UsbPolicyUtils SetDisallowedPermissiveUsbDevices...data size = %{public}zu", data.size());
+    auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
+    int32_t usbRet = srvClient.ManageUsbType(data, true);
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("UsbPolicyUtils ManageUsbType failed! USB interface not init!");
+    }
+    if (usbRet != ERR_OK && usbRet != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGE("UsbPolicyUtils ManageUsbType failed! ret:%{public}d", usbRet);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
 ErrCode UsbPolicyUtils::QueryAllCreatedOsAccountIds(std::vector<int32_t> &userIds)
 {
     EDMLOGI("UsbPolicyUtils QueryAllCreatedOsAccountIds enter");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_DEVICES_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_DEVICES_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_PERMISSIVE_USB_DEVICES_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_PERMISSIVE_USB_DEVICES_PLUGIN_H
 
-#include "array_usb_device_type_serializer.h"
+#include "array_permissive_usb_device_type_serializer.h"
 #include "disallowed_usb_devices_plugin_base.h"
 #include "plugin_singleton.h"
 #include "usb_interface_type.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedUsbDevicesPlugin : public PluginSingleton<DisallowedUsbDevicesPlugin, std::vector<USB::UsbDeviceType>>,
-    public DisallowedUsbDevicesPluginBase {
+class DisallowedPermissiveUsbDevicesPlugin : public PluginSingleton<DisallowedPermissiveUsbDevicesPlugin,
+    std::vector<USB::UsbDeviceType>>, public DisallowedUsbDevicesPluginBase {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUsbDevicesPlugin,
+    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedPermissiveUsbDevicesPlugin,
         std::vector<USB::UsbDeviceType>>> ptr) override;
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
@@ -41,4 +41,4 @@ protected:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_DEVICES_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_PERMISSIVE_USB_DEVICES_PLUGIN_H

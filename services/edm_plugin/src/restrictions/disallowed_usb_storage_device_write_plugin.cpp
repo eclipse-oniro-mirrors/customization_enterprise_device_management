@@ -148,6 +148,15 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy(bool &isConflic
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::Deserialize failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    std::string disallowPermissiveUsbDevicePolicy;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
+        disallowPermissiveUsbDevicePolicy);
+    if (!disallowPermissiveUsbDevicePolicy.empty()) {
+        EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
+            "disallowPermissiveUsbDevicePolicy: %{public}s", disallowPermissiveUsbDevicePolicy.c_str());
+        isConflict = true;
+        return ERR_OK;
+    }
     bool isStorageUsbDisallowed = std::find_if(usbDeviceTypes.begin(), usbDeviceTypes.end(),
         [&](USB::UsbDeviceType disallowedType) {
             return disallowedType.baseClass == USB_DEVICE_TYPE_BASE_CLASS_STORAGE;
