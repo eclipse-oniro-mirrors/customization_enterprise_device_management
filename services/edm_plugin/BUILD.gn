@@ -247,6 +247,16 @@ ohos_shared_library("device_core_plugin") {
       external_deps += [ "imf:inputmethod_client" ]
       sources += [ "./src/device_settings/set_default_input_method_plugin.cpp" ]
     }
+
+    if (wifi_edm_enable) {
+      external_deps += [ "wifi:wifi_sdk" ]
+      defines += [ "WIFI_EDM_ENABLE" ]
+    }
+
+    if (telephony_core_edm_enable) {
+      external_deps += [ "call_manager:tel_call_manager_api" ]
+      defines += [ "TELEPHONY_EDM_ENABLE" ]
+    }
   }
 
   deps = [

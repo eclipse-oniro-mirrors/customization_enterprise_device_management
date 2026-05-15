@@ -229,6 +229,258 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnGetPolicy_GetStringFromSettingsData
     ErrCode code = plugin.OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(code, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
+
+#if defined(TELEPHONY_EDM_ENABLE) && defined(WIFI_EDM_ENABLE)
+/**
+ * @tc.name: TestUpdateHotspotNameIfNeed_NonMainUser
+ * @tc.desc: Test UpdateHotspotNameIfNeed when userId is not MAIN_USER_ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestUpdateHotspotNameIfNeed_NonMainUser, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "testDeviceName";
+    int32_t userId = 101;
+    ErrCode code = plugin.UpdateHotspotNameIfNeed(value, userId);
+    EXPECT_EQ(code, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_EmptyString
+ * @tc.desc: Test GetSubstringByBytes with empty string.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_EmptyString, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "";
+    size_t size = 10;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_ShortString
+ * @tc.desc: Test GetSubstringByBytes when string length <= size.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_ShortString, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "test";
+    size_t size = 10;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "test");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_ASCIIString
+ * @tc.desc: Test GetSubstringByBytes with ASCII string.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_ASCIIString, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "abcdefghij";
+    size_t size = 5;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "abcde");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_ChineseString
+ * @tc.desc: Test GetSubstringByBytes with Chinese UTF-8 string (3 bytes per char).
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_ChineseString, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "测试中文截取";
+    size_t size = 6;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "测试");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_MixedString
+ * @tc.desc: Test GetSubstringByBytes with mixed ASCII and Chinese characters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_MixedString, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "abc测试def";
+    size_t size = 6;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "abc测");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_OverBoundary
+ * @tc.desc: Test GetSubstringByBytes when next char exceeds boundary.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_OverBoundary, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "测试测试";
+    size_t size = 5;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "测");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_TwoByteChar
+ * @tc.desc: Test GetSubstringByBytes with 2-byte UTF-8 characters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_TwoByteChar, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "éééééé";
+    size_t size = 4;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "éé");
+}
+
+/**
+ * @tc.name: TestGetSubstringByBytes_FourByteChar
+ * @tc.desc: Test GetSubstringByBytes with 4-byte UTF-8 characters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestGetSubstringByBytes_FourByteChar, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "𠮷𠮷𠮷";
+    size_t size = 4;
+    std::string result = plugin.GetSubstringByBytes(value, size);
+    EXPECT_EQ(result, "𠮷");
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_NormalCase
+ * @tc.desc: Test PrepareHotspotConfig with normal device name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_NormalCase, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "NewDeviceName";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("OldDeviceName");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_TRUE(needUpdate);
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_CloningCase
+ * @tc.desc: Test PrepareHotspotConfig when hotspot is cloning.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_CloningCase, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "NewDeviceName";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("OldCloudClone");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_FALSE(needUpdate);
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_SameName
+ * @tc.desc: Test PrepareHotspotConfig when name unchanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_SameName, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "SameDeviceName";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("SameDeviceName");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_FALSE(needUpdate);
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_LongName
+ * @tc.desc: Test PrepareHotspotConfig with name exceeding 30 bytes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_LongName, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "ThisIsAVeryLongDeviceNameThatExceedsThirtyBytes";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("OldName");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_TRUE(needUpdate);
+    std::string newSsid = hotspotConfig.GetSsid();
+    EXPECT_TRUE(newSsid.length() <= 30);
+    EXPECT_EQ(newSsid.substr(newSsid.length() - 3), "...");
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_SpaceClone
+ * @tc.desc: Test PrepareHotspotConfig with SpaceClone suffix.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_SpaceClone, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "NewDeviceName";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("DeviceSpaceClone");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_FALSE(needUpdate);
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_SubClone
+ * @tc.desc: Test PrepareHotspotConfig with SubClone suffix.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_SubClone, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "NewDeviceName";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("DeviceSubClone");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_FALSE(needUpdate);
+}
+
+/**
+ * @tc.name: TestPrepareHotspotConfig_LongChineseName
+ * @tc.desc: Test PrepareHotspotConfig with long Chinese name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestPrepareHotspotConfig_LongChineseName, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    std::string value = "测试设备名称超过三十字节限制测试测试测试";
+    Wifi::HotspotConfig hotspotConfig;
+    hotspotConfig.SetSsid("OldName");
+    bool needUpdate = false;
+    ErrCode code = plugin.PrepareHotspotConfig(value, hotspotConfig, needUpdate);
+    EXPECT_EQ(code, ERR_OK);
+    EXPECT_TRUE(needUpdate);
+    std::string newSsid = hotspotConfig.GetSsid();
+    EXPECT_TRUE(newSsid.length() <= 30);
+}
+#endif
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
