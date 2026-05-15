@@ -107,6 +107,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPERHUB,
     EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL,
     EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES,
+    EdmInterfaceCode::DISALLOWED_PERMISSION, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE,
     EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES,
     EdmInterfaceCode::ALLOW_RUNNING_BUNDLES,
     EdmInterfaceCode::MANAGE_AUTO_START_APPS,

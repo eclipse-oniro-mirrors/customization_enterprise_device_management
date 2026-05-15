@@ -162,7 +162,9 @@
 #include "allowed_collaboration_service_bundles_query.h"
 #include "allowed_install_bundles_query.h"
 #include "allowed_notification_bundles_query.h"
+#include "allowed_permission_bundle_query.h"
 #include "disable_app_clone_query.h"
+#include "disallowed_permission_query.h"
 #include "disallowed_p2p_query.h"
 #include "disallowed_traffic_redirection_query.h"
 #include "disable_maintenance_mode_query.h"
@@ -795,6 +797,12 @@ ErrCode PluginPolicyReader::GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &o
 ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)
 {
     switch (code) {
+        case EdmInterfaceCode::DISALLOWED_PERMISSION:
+            obj = std::make_shared<DisallowedPermissionQuery>();
+            return ERR_OK;
+        case EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE:
+            obj = std::make_shared<AllowedPermissionBundleQuery>();
+            return ERR_OK;
         case EdmInterfaceCode::DISALLOWED_UINPUT:
             obj = std::make_shared<DisallowUInputQuery>();
             return ERR_OK;

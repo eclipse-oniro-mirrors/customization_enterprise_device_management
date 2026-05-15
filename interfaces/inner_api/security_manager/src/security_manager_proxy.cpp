@@ -406,5 +406,111 @@ int32_t SecurityManagerProxy::IsScreenLockDisabledForAccount(const AppExecFwk::E
     disabled = reply.ReadBool();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::AddOrRemoveDisallowedPermission(const AppExecFwk::ElementName &admin,
+    std::vector<std::string> &permissionNames, int32_t userId, bool isAdd)
+{
+    EDMLOGD("SecurityManagerProxy::AddOrRemoveDisallowedPermission");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::DISALLOWED_PERMISSION);
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+    data.WriteStringVector(permissionNames);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetDisallowedPermissions(const AppExecFwk::ElementName *admin, int32_t userId,
+    std::vector<std::string> &result)
+{
+    EDMLOGD("SecurityManagerProxy::GetDisallowedPermissions");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DISALLOWED_PERMISSION, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("EnterpriseDeviceMgrProxy::GetDisallowedPermissions fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&result);
+    return ERR_OK;
+}
+
+int32_t SecurityManagerProxy::AddOrRemoveAllowedPermissionBundle(const AppExecFwk::ElementName &admin,
+    std::string permissionName, ApplicationInstance &applicationInstance, bool isAdd)
+{
+    EDMLOGD("SecurityManagerProxy::AddOrRemoveAllowedPermissionBundle");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(applicationInstance.accountId);
+    data.WriteParcelable(&admin);
+    data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+    data.WriteString("");
+    data.WriteString(permissionName);
+    ApplicationInstanceHandle::WriteApplicationInstance(data, applicationInstance);
+    EDMLOGI("SecurityManagerProxy::AddOrRemoveAllowedPermissionBundle %{public}s", permissionName.c_str());
+    FuncOperateType operateType = isAdd ? FuncOperateType::SET : FuncOperateType::REMOVE;
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetAllowedPermissionBundles(const AppExecFwk::ElementName *admin,
+    std::string permissionName, int32_t userId, std::vector<ApplicationInstance> &result)
+{
+    EDMLOGD("SecurityManagerProxy::GetAllowedPermissionBundles");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(userId);
+    data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_23);
+    if (admin != nullptr) {
+        data.WriteInt32(HAS_ADMIN);
+        data.WriteParcelable(admin);
+    } else {
+        data.WriteInt32(WITHOUT_ADMIN);
+    }
+    data.WriteString(permissionName);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetAllowedPermissionBundles fail. %{public}d", ret);
+        return ret;
+    }
+    uint32_t listSize = reply.ReadUint32();
+    for (uint32_t i = 0; i < listSize; i++) {
+        ApplicationInstance appInstance;
+        if (!reply.ReadString(appInstance.appIdentifier)) {
+            return ERR_INVALID_VALUE;
+        }
+        if (!reply.ReadInt32(appInstance.accountId)) {
+            return ERR_INVALID_VALUE;
+        }
+        if (!reply.ReadInt32(appInstance.appIndex)) {
+            return ERR_INVALID_VALUE;
+        }
+        appInstance.bundleName = "";
+        result.emplace_back(appInstance);
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

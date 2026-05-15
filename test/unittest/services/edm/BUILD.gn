@@ -105,6 +105,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/allowed_collaboration_service_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/allowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/allowed_notification_bundles_query.cpp",
+    "../../../../services/edm/src/query_policy/allowed_permission_bundle_query.cpp",
     "../../../../services/edm/src/query_policy/disable_app_clone_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_p2p_query.cpp",
     "../../../../services/edm/src/query_policy/disable_backup_and_restore_query.cpp",
@@ -124,6 +125,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/disallowed_device_sudo_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_install_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_tethering_query.cpp",
+    "../../../../services/edm/src/query_policy/disallowed_permission_query.cpp",
     "../../../../services/edm/src/query_policy/disallowed_uninstall_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/get_installed_bundle_storage_stats_query.cpp",
     "../../../../services/edm/src/query_policy/get_auto_unlock_after_reboot_query.cpp",
@@ -572,6 +574,8 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/system_service_start_handler_test.cpp",
     "./src/update_policy_conflict_test.cpp",
     "./src/user_policy_manager_test.cpp",
+    "./src/query_policy/allowed_permission_bundle_query_test.cpp",
+    "./src/query_policy/disallowed_permission_query_test.cpp",
   ]
 
   defines = []

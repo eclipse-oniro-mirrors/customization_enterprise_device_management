@@ -599,6 +599,8 @@ ohos_shared_library("sys_service_plugin") {
 
     sources += [
       "./src/security_manager/set_permission_managed_state_plugin.cpp",
+      "./src/security_manager/disallowed_permission_plugin.cpp",
+      "./src/security_manager/allowed_permission_bundle_plugin.cpp",
       "./src/utils/permission_managed_state_serializer.cpp"
     ]
 

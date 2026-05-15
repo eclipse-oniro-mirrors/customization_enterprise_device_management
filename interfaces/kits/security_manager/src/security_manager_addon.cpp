@@ -73,6 +73,11 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
             UninstallEnterpriseReSignatureCertificate),
         DECLARE_NAPI_FUNCTION("setScreenLockDisabledForAccount", SetScreenLockDisabledForAccount),
         DECLARE_NAPI_FUNCTION("isScreenLockDisabledForAccount", IsScreenLockDisabledForAccount),
+        DECLARE_NAPI_FUNCTION("setDisallowedPermission", SetDisallowedPermission),
+        DECLARE_NAPI_FUNCTION("getDisallowedPermissions", GetDisallowedPermissions),
+        DECLARE_NAPI_FUNCTION("addAllowedPermissionBundle", AddAllowedPermissionBundle),
+        DECLARE_NAPI_FUNCTION("removeAllowedPermissionBundle", RemoveAllowedPermissionBundle),
+        DECLARE_NAPI_FUNCTION("getAllowedPermissionBundles", GetAllowedPermissionBundles),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1105,6 +1110,182 @@ napi_value SecurityManagerAddon::CancelScreenWatermarkImage(napi_env env, napi_c
         napi_throw(env, CreateError(env, retCode));
     }
     return nullptr;
+}
+
+napi_value SecurityManagerAddon::SetDisallowedPermission(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDisallowedPermission called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::string permissionName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, permissionName, argv[ARR_INDEX_ONE]),
+        "Parameter permissionName error");
+    if (permissionName.empty()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    bool disallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]),
+        "Parameter disallow error");
+
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, accountId, argv[ARR_INDEX_THREE]),
+        "parameter accountId parse error");
+    std::vector<std::string> permissionNames;
+    permissionNames.emplace_back(permissionName);
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->AddOrRemoveDisallowedPermission(
+        elementName, permissionNames, accountId, disallow);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetDisallowedPermissions(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedPermissions called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin,
+        elementName), "param admin need be null or want");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "parameter accountId parse error");
+
+    std::vector<std::string> permissionsResult;
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetDisallowedPermissions(
+        hasAdmin ? &elementName : nullptr, accountId, permissionsResult);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+
+    napi_value arrayResult;
+    NAPI_CALL(env, napi_create_array(env, &arrayResult));
+
+    uint32_t index = 0;
+    for (const auto &permission : permissionsResult) {
+        napi_value permissionValue;
+        NAPI_CALL(env, napi_create_string_utf8(env, permission.c_str(), NAPI_AUTO_LENGTH, &permissionValue));
+        NAPI_CALL(env, napi_set_element(env, arrayResult, index, permissionValue));
+        index++;
+    }
+    return arrayResult;
+}
+
+napi_value SecurityManagerAddon::AddAllowedPermissionBundle(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddAllowedPermissionBundle called");
+    return AddOrRemoveAllowedPermissionBundle(env, info, true);
+}
+
+napi_value SecurityManagerAddon::RemoveAllowedPermissionBundle(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveAllowedPermissionBundle called");
+    return AddOrRemoveAllowedPermissionBundle(env, info, false);
+}
+
+napi_value SecurityManagerAddon::AddOrRemoveAllowedPermissionBundle(napi_env env, napi_callback_info info, bool isAdd)
+{
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter elementName error");
+    std::string permissionName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, permissionName, argv[ARR_INDEX_ONE]),
+        "Parameter permissionName error");
+    if (permissionName.empty()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    ApplicationInstance applicationInstance;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, GetAppInstanceFromNAPI(env, argv[ARR_INDEX_TWO], applicationInstance),
+        "The third parameter must be ApplicationInstance.");
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->AddOrRemoveAllowedPermissionBundle(
+        elementName, permissionName, applicationInstance, isAdd);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetAllowedPermissionBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAllowedPermissionBundles called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin,
+        elementName), "param admin need be null or want");
+    std::string permissionName;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, permissionName, argv[ARR_INDEX_ONE]),
+        "Parameter permissionName error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
+
+    std::vector<ApplicationInstance> bundlesResult;
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetAllowedPermissionBundles(
+        hasAdmin ? &elementName : nullptr, permissionName, accountId, bundlesResult);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+
+    napi_value arrayResult;
+    NAPI_CALL(env, napi_create_array(env, &arrayResult));
+
+    uint32_t index = 0;
+    for (const auto &appInstance : bundlesResult) {
+        napi_value appInstanceObj;
+        NAPI_CALL(env, napi_create_object(env, &appInstanceObj));
+
+        napi_value appIdentifier;
+        NAPI_CALL(env, napi_create_string_utf8(env, appInstance.appIdentifier.c_str(),
+            NAPI_AUTO_LENGTH, &appIdentifier));
+        NAPI_CALL(env, napi_set_named_property(env, appInstanceObj, "appIdentifier", appIdentifier));
+
+        napi_value accountId;
+        NAPI_CALL(env, napi_create_int32(env, appInstance.accountId, &accountId));
+        NAPI_CALL(env, napi_set_named_property(env, appInstanceObj, "accountId", accountId));
+
+        napi_value appIndex;
+        NAPI_CALL(env, napi_create_int32(env, appInstance.appIndex, &appIndex));
+        NAPI_CALL(env, napi_set_named_property(env, appInstanceObj, "appIndex", appIndex));
+
+        NAPI_CALL(env, napi_set_element(env, arrayResult, index, appInstanceObj));
+        index++;
+    }
+    return arrayResult;
 }
 
 napi_value SecurityManagerAddon::CheckBuildScreenWatermarkParam(napi_env env, napi_value* argv,

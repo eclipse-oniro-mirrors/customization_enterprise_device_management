@@ -42,6 +42,7 @@
 #include "system_ability_definition.h"
 #include "system_service_start_handler.h"
 #include "application_instance.h"
+#include "allowed_permission_bundle_serializer.h"
 #include "array_string_serializer.h"
 #include "admin_action.h"
 #include "edm_bluetooth_manager_impl.h"
@@ -597,6 +598,87 @@ void EnterpriseDeviceMgrAbility::UpdateUserNonStopInfo(const std::string &bundle
     }
 }
 
+void EnterpriseDeviceMgrAbility::UpdateAllowedPermissionBundleInfo(const std::string &appIdentifier,
+    const std::string &bundleName, int32_t userId, int32_t appIndex)
+{
+    EDMLOGI("UpdateAllowedPermissionBundleInfo appIdentifier=%{public}s bundleName=%{public}s userId=%{public}d",
+        appIdentifier.c_str(), bundleName.c_str(), userId);
+    std::string policyValue;
+    PolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_PERMISSION_BUNDLE, policyValue,
+        userId);
+    if (policyValue.empty()) {
+        EDMLOGI("UpdateAllowedPermissionBundleInfo policy is empty");
+        return;
+    }
+
+    std::map<std::string, std::vector<ApplicationInstance>> policyMap;
+    AllowedPermissionBundleSerializer::GetInstance()->Deserialize(policyValue, policyMap);
+    if (policyMap.empty()) {
+        return;
+    }
+
+    std::vector<MatchingAppInfo> matchingApps = FindMatchingAppsFromPolicy(policyMap, bundleName, appIndex);
+    if (matchingApps.empty()) {
+        EDMLOGI("UpdateAllowedPermissionBundleInfo no matching apps found");
+        return;
+    }
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    RemoveMatchingAppsFromPolicy(matchingApps, admins, userId, appIdentifier, appIndex);
+}
+
+std::vector<EnterpriseDeviceMgrAbility::MatchingAppInfo> EnterpriseDeviceMgrAbility::FindMatchingAppsFromPolicy(
+    const std::map<std::string, std::vector<ApplicationInstance>> &policyMap,
+    const std::string &bundleName, int32_t appIndex)
+{
+    std::vector<MatchingAppInfo> result;
+    for (const auto& [permissionName, appList] : policyMap) {
+        for (const ApplicationInstance& app : appList) {
+            if (app.bundleName == bundleName && app.appIndex == appIndex) {
+                EDMLOGI("FindMatchingAppsFromPolicy found matching app %{public}s", app.appIdentifier.c_str());
+                result.push_back({permissionName, app});
+            }
+        }
+    }
+    return result;
+}
+
+void EnterpriseDeviceMgrAbility::RemoveMatchingAppsFromPolicy(
+    const std::vector<MatchingAppInfo> &matchingApps,
+    const std::vector<std::shared_ptr<Admin>> &admins, int32_t userId,
+    const std::string &appIdentifier, int32_t appIndex)
+{
+    for (const auto& admin : admins) {
+        for (const auto& matchInfo : matchingApps) {
+            ExecutePolicyRemoveForApp(admin, matchInfo, userId, appIdentifier, appIndex);
+        }
+    }
+}
+
+void EnterpriseDeviceMgrAbility::ExecutePolicyRemoveForApp(
+    const std::shared_ptr<Admin> &admin, const MatchingAppInfo &matchInfo,
+    int32_t userId, const std::string &appIdentifier, int32_t appIndex)
+{
+    EDMLOGI("ExecutePolicyRemoveForApp permission=%{public}s appIdentifier=%{public}s",
+        matchInfo.permissionName.c_str(), appIdentifier.c_str());
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE);
+    MessageParcel reply;
+    MessageParcel data;
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::SCENE_APP_UNINSTALL);
+    data.WriteString(matchInfo.permissionName);
+    data.WriteString(appIdentifier);
+    data.WriteString("");
+    data.WriteInt32(userId);
+    data.WriteInt32(appIndex);
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(admin->adminInfo_.packageName_);
+    elementName.SetAbilityName(admin->adminInfo_.className_);
+    HandleDevicePolicy(funcCode, elementName, data, reply, userId);
+}
+
 void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEventData &data)
 {
     int userIdToAdd = data.GetCode();
@@ -816,6 +898,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
     int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
         AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    std::string appIdentifier = data.GetWant().GetStringParam(EdmConstants::APP_IDENTIFIER);
     if (userId == AppExecFwk::Constants::INVALID_USERID) {
         EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
         return;
@@ -847,6 +930,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     UpdateClipboardInfo(bundleName, userId);
     UpdateFreezeExemptedApps(bundleName, userId, appIndex);
     UpdateUserNonStopInfo(bundleName, userId, appIndex);
+    UpdateAllowedPermissionBundleInfo(appIdentifier, bundleName, userId, appIndex);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)
