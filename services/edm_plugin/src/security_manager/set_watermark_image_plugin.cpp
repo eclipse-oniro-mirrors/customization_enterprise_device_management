@@ -313,7 +313,7 @@ std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::GetImageFromUrlUint8(c
         return nullptr;
     }
     std::streamsize size = infile.tellg();
-    if (size <= 0) {
+    if (size <= 0 || size >= EdmConstants::MAX_WATERMARK_IMAGE_SIZE) {
         EDMLOGE("GetImageFromUrlUint8 size %{public}d", (int32_t)size);
         infile.close();
         return nullptr;

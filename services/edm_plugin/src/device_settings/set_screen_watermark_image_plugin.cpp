@@ -43,6 +43,7 @@ const std::string FILE_PREFIX = "edm_screen_";
 constexpr int32_t RANDOM_NUM_MAX = 9999;
 constexpr int32_t WATERMARK_DISPLAY_MODE = 1;
 constexpr int32_t IMAGE_SIZE_MULTIPLIER = 2;
+constexpr int32_t MAX_IMAGE_SIZE = 128 * 1024 * 1024;
 
 SetScreenWatermarkImagePlugin::SetScreenWatermarkImagePlugin()
 {
@@ -303,7 +304,7 @@ std::shared_ptr<Media::PixelMap> SetScreenWatermarkImagePlugin::GetImageFromUrlU
         return nullptr;
     }
     std::streamsize size = infile.tellg();
-    if (size <= 0) {
+    if (size <= 0 || size > MAX_IMAGE_SIZE) {
         EDMLOGE("GetImageFromUrlUint8 size %{public}d", (int32_t)size);
         infile.close();
         return nullptr;
