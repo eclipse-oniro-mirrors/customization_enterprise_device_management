@@ -33,6 +33,9 @@ public:
     void OnOtherServiceStart(int32_t systemAbilityId);
 
     void SetGlobalConfigParam(const PasswordPolicy &policy);
+
+private:
+    void SetAlgoType(int32_t passwordAlgs);
 };
 } // namespace EDM
 } // namespace OHOS

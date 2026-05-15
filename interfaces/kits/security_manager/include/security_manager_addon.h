@@ -61,6 +61,7 @@ private:
     static napi_value GetAppClipboardPolicy(napi_env env, napi_callback_info info);
     static void CreatePermissionManagedStateObject(napi_env env, napi_value value);
     static void CreateClipboardPolicyObject(napi_env env, napi_value value);
+    static void CreatePasswordAlgsObject(napi_env env, napi_value value);
     static napi_value SetWatermarkImage(napi_env env, napi_callback_info info);
     static napi_value CancelWatermarkImage(napi_env env, napi_callback_info info);
     static napi_value SetScreenWatermarkImage(napi_env env, napi_callback_info info);

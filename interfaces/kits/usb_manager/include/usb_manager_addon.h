@@ -69,12 +69,18 @@ private:
     static void CreateDescriptorEnum(napi_env env, napi_value value);
     static napi_value AddDisallowedUsbDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedUsbDevices(napi_env env, napi_callback_info info);
-    static napi_value AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value AddOrRemoveDisallowedUsbDevices(napi_env env, napi_callback_info info, bool isAdd,
+        bool notPermissive);
     static napi_value GetDisallowedUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value AddDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value RemoveDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedUsbDevicesCore(napi_env env, napi_callback_info info, bool notPermissive);
 #ifdef USB_EDM_ENABLE
     static bool ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
-        napi_value object);
-    static bool GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType);
+        napi_value object, bool notPermissive);
+    static bool GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType,
+        bool notPermissive);
     static napi_value UsbDeviceTypeToJsObj(napi_env env, const USB::UsbDeviceType &usbDeviceType);
 #endif
 };

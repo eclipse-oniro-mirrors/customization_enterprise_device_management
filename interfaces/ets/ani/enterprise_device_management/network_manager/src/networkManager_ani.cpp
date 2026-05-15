@@ -105,47 +105,64 @@ void NetworkManagerAni::RemoveFirewallRule(ani_env* env, ani_object aniAdmin, an
 
 void NetworkManagerAni::JsObjToFirewallRule(ani_env* env, ani_object firewallRule, IPTABLES::FirewallRule &rule)
 {
-    IPTABLES::Direction directionEnum = IPTABLES::Direction::INVALID;
-    IPTABLES::Action actionEnum = IPTABLES::Action::INVALID;
-    IPTABLES::Protocol protocolEnum = IPTABLES::Protocol::INVALID;
-    IPTABLES::Family familyEnum = IPTABLES::Family::IPV4;
-    IPTABLES::LogType logTypeEnum = IPTABLES::LogType::INVALID;
+    if (!ParseFirewallStringProperties(env, firewallRule, rule)) {
+        return;
+    }
+    ParseFirewallEnumProperties(env, firewallRule, rule);
+}
+
+bool NetworkManagerAni::ParseFirewallStringProperties(ani_env* env, ani_object firewallRule,
+    IPTABLES::FirewallRule &rule)
+{
+    if (!EdmAniUtils::GetStringProperty(env, firewallRule, "srcAddr", std::get<IPTABLES::FIREWALL_SRCADDR_IND>(rule))) {
+        EDMLOGE("Get property 'srcAddr' failed");
+        return false;
+    }
+    if (!EdmAniUtils::GetStringProperty(
+        env, firewallRule, "destAddr", std::get<IPTABLES::FIREWALL_DESTADDR_IND>(rule))) {
+        EDMLOGE("Get property 'destAddr' failed");
+        return false;
+    }
+    if (!EdmAniUtils::GetStringProperty(env, firewallRule, "srcPort", std::get<IPTABLES::FIREWALL_SRCPORT_IND>(rule))) {
+        EDMLOGE("Get property 'srcPort' failed");
+        return false;
+    }
+    if (!EdmAniUtils::GetStringProperty(
+        env, firewallRule, "destPort", std::get<IPTABLES::FIREWALL_DESTPORT_IND>(rule))) {
+        EDMLOGE("Get property 'destPort' failed");
+        return false;
+    }
+    if (!EdmAniUtils::GetStringProperty(env, firewallRule, "appUid", std::get<IPTABLES::FIREWALL_APPUID_IND>(rule))) {
+        EDMLOGE("Get property 'appUid' failed");
+        return false;
+    }
+    return true;
+}
+
+void NetworkManagerAni::ParseFirewallEnumProperties(ani_env* env, ani_object firewallRule,
+    IPTABLES::FirewallRule &rule)
+{
     int32_t direction;
     int32_t action;
     int32_t protocol;
     int32_t family;
     int32_t logType;
-    std::string srcAddr;
-    std::string destAddr;
-    std::string srcPort;
-    std::string destPort;
-    std::string appUid;
-
-    EdmAniUtils::GetStringProperty(env, firewallRule, "srcAddr", srcAddr);
-    EdmAniUtils::GetStringProperty(env, firewallRule, "destAddr", destAddr);
-    EdmAniUtils::GetStringProperty(env, firewallRule, "srcPort", srcPort);
-    EdmAniUtils::GetStringProperty(env, firewallRule, "destPort", destPort);
-    EdmAniUtils::GetStringProperty(env, firewallRule, "appUid", appUid);
 
     if (EdmAniUtils::GetEnumMember(env, firewallRule, "direction", direction)) {
-        IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, directionEnum);
+        IPTABLES::IptablesUtils::ProcessFirewallDirection(direction, std::get<IPTABLES::FIREWALL_DICECTION_IND>(rule));
     }
     if (EdmAniUtils::GetEnumMember(env, firewallRule, "action", action)) {
-        IPTABLES::IptablesUtils::ProcessFirewallAction(action, actionEnum);
+        IPTABLES::IptablesUtils::ProcessFirewallAction(action, std::get<IPTABLES::FIREWALL_ACTION_IND>(rule));
     }
     if (EdmAniUtils::GetEnumMember(env, firewallRule, "protocol", protocol)) {
-        IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, protocolEnum);
+        IPTABLES::IptablesUtils::ProcessFirewallProtocol(protocol, std::get<IPTABLES::FIREWALL_PROT_IND>(rule));
     }
     if (EdmAniUtils::GetOptionalIntProperty(env, firewallRule, "family", family)) {
-        IPTABLES::IptablesUtils::ProcessFirewallFamily(family, familyEnum);
+        IPTABLES::IptablesUtils::ProcessFirewallFamily(family, std::get<IPTABLES::FIREWALL_FAMILY_IND>(rule));
     }
     if (EdmAniUtils::GetEnumMember(env, firewallRule, "logType", logType)) {
-        IPTABLES::IptablesUtils::ProcessFirewallLogType(logType, logTypeEnum);
+        IPTABLES::IptablesUtils::ProcessFirewallLogType(logType, std::get<IPTABLES::FIREWALL_LOGTYPE_IND>(rule));
     }
-
-    rule = {directionEnum, actionEnum, protocolEnum, srcAddr, destAddr, srcPort, destPort, appUid,
-        familyEnum, logTypeEnum};
-    return;
 }
 
 void NetworkManagerAni::AddDomainFilterRule(ani_env* env, ani_object aniAdmin, ani_object domainFilterRule)
@@ -219,8 +236,14 @@ void NetworkManagerAni::JsObjToDomainFilterRule(ani_env* env, ani_object domainF
     std::string appUid;
     std::string domainName;
 
-    EdmAniUtils::GetStringProperty(env, domainFilterRule, "appUid", appUid);
-    EdmAniUtils::GetStringProperty(env, domainFilterRule, "domainName", domainName);
+    if (!EdmAniUtils::GetStringProperty(env, domainFilterRule, "appUid", appUid)) {
+        EDMLOGE("Get property 'appUid' failed");
+        return;
+    }
+    if (!EdmAniUtils::GetStringProperty(env, domainFilterRule, "domainName", domainName)) {
+        EDMLOGE("Get property 'domainName' failed");
+        return;
+    }
 
     if (EdmAniUtils::GetEnumMember(env, domainFilterRule, "action", action)) {
         IPTABLES::IptablesUtils::ProcessFirewallAction(action, actionEnum);

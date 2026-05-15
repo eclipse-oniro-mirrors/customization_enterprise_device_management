@@ -201,7 +201,7 @@ int32_t BundleManagerProxy::InstallMarketApps(MessageParcel &data, std::vector<s
     MessageParcel reply;
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::INSTALL_MARKET_APPS);
-    auto ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    auto ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
     if (ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED) {
         errMsg = reply.ReadString();
     }
@@ -328,7 +328,7 @@ ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std
     if (!PathToRealPath(hapFilePath, realPath)) {
         EDMLOGE("install failed due to invalid hapFilePaths");
         errMessage = "install failed due to invalid hapFilePaths";
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
 
     // find hap file name
@@ -336,18 +336,18 @@ ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std
     if (pos == std::string::npos || pos == realPath.size() - 1) {
         EDMLOGE("write file to stream failed due to invalid file path");
         errMessage = "write file to stream failed due to invalid file path";
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
     fileName = realPath.substr(pos + 1);
     if (fileName.empty()) {
         EDMLOGE("write file to stream failed due to invalid file path");
         errMessage = "write file to stream failed due to invalid file path";
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
     std::string innerFilePath = HAP_DIRECTORY + SEPARATOR + fileName;
     if ((innerFilePath.length() > PATH_MAX)) {
         errMessage = "invalid hap file path";
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
     return ERR_OK;
 }

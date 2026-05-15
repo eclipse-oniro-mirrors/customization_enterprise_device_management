@@ -16,6 +16,7 @@
 #include "edm_utils.h"
 
 #include <codecvt>
+#include <string_ex.h>
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "securec.h"
@@ -27,10 +28,11 @@ const std::u16string ERROR_USTRING = u"error";
 
 ErrCode EdmUtils::ParseStringToInt(const std::string &str, int32_t &result)
 {
-    int64_t tmp;
-    int32_t ret = EdmUtils::ParseStringToLong(str, tmp);
-    result = tmp;
-    return ret;
+    if (!OHOS::StrToInt(str, result)) {
+        EDMLOGE("EdmUtils ParseStringToInt: parse str failed: %{public}s", str.c_str());
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 
 ErrCode EdmUtils::ParseStringToLong(const std::string &str, int64_t &result)

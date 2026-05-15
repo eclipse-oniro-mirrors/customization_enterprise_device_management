@@ -173,6 +173,8 @@ ohos_shared_library("device_core_plugin") {
         "./src/restrictions/disallowed_device_sudo_plugin.cpp",
         "./src/restrictions/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
+        "./src/utils/array_usb_device_type_serializer_base.cpp",
+        "./src/utils/array_permissive_usb_device_type_serializer.cpp",
       ]
       defines += [
         "SUDO_EDM_ENABLE",
@@ -357,6 +359,7 @@ ohos_shared_library("communication_plugin") {
         "./src/restrictions/disable_samba_client_plugin.cpp",
         "./src/restrictions/disable_samba_server_plugin.cpp",
         "./src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
+        "./src/restrictions/disallowed_traffic_redirection_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
@@ -416,8 +419,12 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/allowed_usb_devices_plugin.cpp",
         "./src/restrictions/disable_usb_plugin.cpp",
         "./src/usb_manager/disallowed_usb_devices_plugin.cpp",
+        "./src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
+        "./src/usb_manager/disallowed_permissive_usb_devices_plugin.cpp",
         "./src/restrictions/disallow_usb_serial_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
+        "./src/utils/array_usb_device_type_serializer_base.cpp",
+        "./src/utils/array_permissive_usb_device_type_serializer.cpp",
         "./src/utils/usb_policy_utils.cpp",
       ]
     }
@@ -663,10 +670,11 @@ ohos_shared_library("need_extra_plugin") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
     "window_manager:libwm",
     "window_manager:sms",
-    "wifi:wifi_sdk"
+    "wifi:wifi_sdk",
   ]
 
   if (enterprise_device_management_support_all) {

@@ -39,6 +39,7 @@ namespace EdmConstants {
     constexpr int32_t USB_INTERFACE_DESCRIPTOR = 0;
     constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
+    constexpr uint32_t DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE = 1000;
     constexpr int32_t DISTRIBUTE_SERVICE_TYPE_COLLABORATION = 0;
     constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
     constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 5;
@@ -376,6 +377,7 @@ namespace PolicyName {
     const char* const POLICY_ENABLE_SELF_DEVICE_ADMIN = "enable_self_device_admin";
     const char* const POLICY_DISALLOWED_UNINSTALL_BUNDLES = "disallowed_uninstall_bundles";
     const char* const POLICY_DISALLOWED_USB_DEVICES = "disallowed_usb_devices";
+    const char* const POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES = "disallowed_permissive_usb_devices";
     const char* const POLICY_DISALLOWED_EXPORT_RECOVERY_KEY = "disallowed_export_recovery_key";
     const char* const POLICY_DISALLOWED_OPEN_FILE_BOOST = "disallowed_open_file_boost";
     const char* const POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE = "disallowed_usb_storage_device_write";
@@ -470,6 +472,7 @@ namespace PolicyName {
     const char* const POLICY_SET_SWITCH_STATUS = "set_switch_status";
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
+    const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

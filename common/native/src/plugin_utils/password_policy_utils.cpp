@@ -32,6 +32,7 @@ constexpr int32_t EDM_GID = 3057;
 const std::string COMPLEXITY_REG = "complexityReg";
 const std::string VALIDITY_PERIOD = "validityPeriod";
 const std::string ADDITIONAL_DESCRIPTION = "additionalDescription";
+const std::string PASSWORD_ALGS = "passwordAlgs";
  
 PasswordPolicyUtils::PasswordPolicyUtils()
 {
@@ -84,9 +85,13 @@ bool PasswordPolicyUtils::UpdatePasswordPolicy(PasswordPolicy &policy)
     cJSON_DeleteItemFromObject(root_, COMPLEXITY_REG.c_str());
     cJSON_DeleteItemFromObject(root_, VALIDITY_PERIOD.c_str());
     cJSON_DeleteItemFromObject(root_, ADDITIONAL_DESCRIPTION.c_str());
+    cJSON_DeleteItemFromObject(root_, PASSWORD_ALGS.c_str());
     cJSON_AddStringToObject(root_, COMPLEXITY_REG.c_str(), policy.complexityReg.c_str());
     cJSON_AddNumberToObject(root_, VALIDITY_PERIOD.c_str(), policy.validityPeriod);
     cJSON_AddStringToObject(root_, ADDITIONAL_DESCRIPTION.c_str(), policy.additionalDescription.c_str());
+    if (policy.passwordAlgs != static_cast<int32_t>(PasswordAlgs::NONE)) {
+        cJSON_AddNumberToObject(root_, PASSWORD_ALGS.c_str(), policy.passwordAlgs);
+    }
     return SaveConfig();
 }
  
@@ -109,6 +114,7 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
     cJSON *complexityReg = cJSON_GetObjectItem(root_, COMPLEXITY_REG.c_str());
     cJSON *validityPeriod = cJSON_GetObjectItem(root_, VALIDITY_PERIOD.c_str());
     cJSON *additionalDescription = cJSON_GetObjectItem(root_, ADDITIONAL_DESCRIPTION.c_str());
+    cJSON *passwordAlgs = cJSON_GetObjectItem(root_, PASSWORD_ALGS.c_str());
     if (!cJSON_IsString(complexityReg) || !cJSON_IsNumber(validityPeriod)) {
         EDMLOGE("complexityReg or validityPeriod is incorrect format");
         return false;
@@ -123,6 +129,11 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
         policy.additionalDescription = "";
     } else {
         policy.additionalDescription = cJSON_GetStringValue(additionalDescription);
+    }
+    if (passwordAlgs != nullptr && cJSON_IsNumber(passwordAlgs)) {
+        policy.passwordAlgs = static_cast<int32_t>(cJSON_GetNumberValue(passwordAlgs));
+    } else {
+        policy.passwordAlgs = static_cast<int32_t>(PasswordAlgs::NONE);
     }
     return true;
 }

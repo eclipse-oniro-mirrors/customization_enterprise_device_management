@@ -58,6 +58,7 @@ ErrCode PasswordPolicyQuery::QueryPolicy(std::string &policyData, MessageParcel 
     reply.WriteString(policy.complexityReg);
     reply.WriteInt64(policy.validityPeriod);
     reply.WriteString(policy.additionalDescription);
+    reply.WriteInt32(policy.passwordAlgs);
     return ERR_OK;
 }
 } // namespace EDM

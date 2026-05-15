@@ -153,6 +153,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
     "../../../services/edm/src/query_policy/query_bundle_stats_infos_query.cpp",
     "../../../services/edm/src/query_policy/disallow_core_dump_query.cpp",
+    "../../../services/edm/src/query_policy/disallowed_traffic_redirection_query.cpp",
     "../../../services/edm/src/query_policy/disallow_rs232_query.cpp",
     "../../../services/edm/src/query_policy/snapshot_skip_query.cpp",
     "../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
@@ -173,6 +174,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
     "../../../services/edm_plugin/src/browser/managed_browser_policy_plugin.cpp",
     "../../../services/edm_plugin/src/security_manager/set_watermark_image_plugin.cpp",
+    "../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
     "../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin.cpp",
     "../../../services/edm_plugin/src/bluetooth_manager/disallowed_bluetooth_protocols_plugin.cpp",
   ]
@@ -433,6 +435,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/usb_manager/allowed_usb_devices_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_usb_plugin.cpp",
         "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
+        "../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
       ]
     }

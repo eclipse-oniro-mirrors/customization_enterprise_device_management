@@ -31,6 +31,7 @@ public:
 
 private:
     ErrCode ForceEnableBluetooth();
+    bool IsByodAdmin();
 };
 } // namespace EDM
 } // namespace OHOS

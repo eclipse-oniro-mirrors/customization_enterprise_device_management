@@ -16,29 +16,15 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_ARRAY_USB_DEVICE_TYPE_SERIALIZER_H
 #define SERVICES_EDM_INCLUDE_UTILS_ARRAY_USB_DEVICE_TYPE_SERIALIZER_H
 
-#include "ipolicy_serializer.h"
+#include "array_usb_device_type_serializer_base.h"
 #include "singleton.h"
-#include "usb_interface_type.h"
 
 namespace OHOS {
 namespace EDM {
-/*
- * Policy data serializer of type std::vector<USB::UsbDeviceType>.
- */
-class ArrayUsbDeviceTypeSerializer : public IPolicySerializer<std::vector<USB::UsbDeviceType>>,
+class ArrayUsbDeviceTypeSerializer : public ArrayUsbDeviceTypeSerializerBase,
     public DelayedSingleton<ArrayUsbDeviceTypeSerializer> {
 public:
-    std::vector<USB::UsbDeviceType> SetUnionPolicyData(std::vector<USB::UsbDeviceType> &data,
-        std::vector<USB::UsbDeviceType> &currentData);
-    std::vector<USB::UsbDeviceType> SetDifferencePolicyData(std::vector<USB::UsbDeviceType> &data,
-        std::vector<USB::UsbDeviceType> &currentData);
-
-    bool Deserialize(const std::string &jsonString, std::vector<USB::UsbDeviceType> &dataObj) override;
-    bool Serialize(const std::vector<USB::UsbDeviceType> &dataObj, std::string &jsonString) override;
-    bool GetPolicy(MessageParcel &data, std::vector<USB::UsbDeviceType> &result) override;
-    bool WritePolicy(MessageParcel &reply, std::vector<USB::UsbDeviceType> &result) override;
-    bool MergePolicy(std::vector<std::vector<USB::UsbDeviceType>> &data,
-        std::vector<USB::UsbDeviceType> &result) override;
+    ArrayUsbDeviceTypeSerializer();
 };
 } // namespace EDM
 } // namespace OHOS

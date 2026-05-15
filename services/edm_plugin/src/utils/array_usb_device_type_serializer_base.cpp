@@ -1,0 +1,172 @@
+/*
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "array_usb_device_type_serializer_base.h"
+#include "cJSON.h"
+#include "cjson_check.h"
+#include "edm_log.h"
+
+namespace OHOS {
+namespace EDM {
+const std::string BASE_CLASS = "baseClass";
+const std::string SUB_CLASS = "subClass";
+const std::string PROTOCOL = "protocol";
+const std::string IS_DEVICE_TYPE = "isDeviceType";
+const std::string IS_DEVICE_TYPE_ALL_MATCH = "isDeviceTypeAllMatch";
+constexpr int32_t DEVICE_TYPE_MAX_VALUE = 255;
+
+ArrayUsbDeviceTypeSerializerBase::ArrayUsbDeviceTypeSerializerBase(int32_t deviceTypeMinValue,
+    uint32_t disallowedUsbDevicesTypesMaxSize) : deviceTypeMinValue_(deviceTypeMinValue),
+    disallowedUsbDevicesTypesMaxSize_(disallowedUsbDevicesTypesMaxSize)
+{
+}
+
+std::vector<USB::UsbDeviceType> ArrayUsbDeviceTypeSerializerBase::SetUnionPolicyData(
+    std::vector<USB::UsbDeviceType> &data, std::vector<USB::UsbDeviceType> &currentData)
+{
+    std::vector<USB::UsbDeviceType> mergeData;
+    std::sort(data.begin(), data.end());
+    std::sort(currentData.begin(), currentData.end());
+    std::set_union(data.begin(), data.end(), currentData.begin(), currentData.end(), back_inserter(mergeData));
+    return mergeData;
+}
+
+std::vector<USB::UsbDeviceType> ArrayUsbDeviceTypeSerializerBase::SetDifferencePolicyData(
+    std::vector<USB::UsbDeviceType> &data, std::vector<USB::UsbDeviceType> &currentData)
+{
+    std::vector<USB::UsbDeviceType> mergeData;
+    std::sort(data.begin(), data.end());
+    std::sort(currentData.begin(), currentData.end());
+    std::set_difference(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
+    return mergeData;
+}
+
+bool ArrayUsbDeviceTypeSerializerBase::Deserialize(const std::string &jsonString,
+    std::vector<USB::UsbDeviceType> &dataObj)
+{
+    if (jsonString.empty()) {
+        return true;
+    }
+    cJSON* root = cJSON_Parse(jsonString.c_str());
+    if (root == nullptr) {
+        EDMLOGE("ArrayUsbDeviceTypeSerializerBase Deserialize: root is null!");
+        return false;
+    }
+    cJSON* item;
+    cJSON_ArrayForEach(item, root) {
+        cJSON* baseClass = cJSON_GetObjectItem(item, BASE_CLASS.c_str());
+        cJSON* subClass = cJSON_GetObjectItem(item, SUB_CLASS.c_str());
+        cJSON* protocol = cJSON_GetObjectItem(item, PROTOCOL.c_str());
+        cJSON* isDeviceType = cJSON_GetObjectItem(item, IS_DEVICE_TYPE.c_str());
+        cJSON* isDeviceTypeAllMatch = cJSON_GetObjectItem(item, IS_DEVICE_TYPE_ALL_MATCH.c_str());
+        if (baseClass == nullptr || subClass == nullptr || protocol == nullptr || isDeviceType == nullptr ||
+            isDeviceTypeAllMatch == nullptr) {
+            EDMLOGI("ArrayUsbDeviceTypeSerializerBase::cJSON_GetObjectItem get null.");
+            cJSON_Delete(root);
+            return false;
+        }
+        if (!cJSON_IsNumber(baseClass) || !cJSON_IsNumber(subClass) || !cJSON_IsNumber(protocol) ||
+            !cJSON_IsBool(isDeviceType) || !cJSON_IsBool(isDeviceTypeAllMatch)) {
+            EDMLOGI("ArrayUsbDeviceTypeSerializerBase::cJSON_GetObjectItem get error type.");
+            cJSON_Delete(root);
+            return false;
+        }
+        USB::UsbDeviceType usbDeviceType;
+        usbDeviceType.baseClass = cJSON_GetNumberValue(baseClass);
+        usbDeviceType.subClass = cJSON_GetNumberValue(subClass);
+        usbDeviceType.protocol = cJSON_GetNumberValue(protocol);
+        usbDeviceType.isDeviceType = cJSON_IsTrue(isDeviceType);
+        usbDeviceType.isDeviceTypeAllMatch = cJSON_IsTrue(isDeviceTypeAllMatch);
+        dataObj.emplace_back(usbDeviceType);
+    }
+
+    cJSON_Delete(root);
+    return true;
+}
+
+bool ArrayUsbDeviceTypeSerializerBase::Serialize(const std::vector<USB::UsbDeviceType> &dataObj,
+    std::string &jsonString)
+{
+    if (dataObj.empty()) {
+        return true;
+    }
+    if (dataObj.size() > disallowedUsbDevicesTypesMaxSize_) {
+        EDMLOGE("ArrayUsbDeviceTypeSerializerBase:Serialize size=[%{public}zu] is too large", dataObj.size());
+        return false;
+    }
+    cJSON* root = nullptr;
+    CJSON_CREATE_ARRAY_AND_CHECK(root, false);
+    for (auto& it : dataObj) {
+        cJSON* item = nullptr;
+        CJSON_CREATE_OBJECT_AND_CHECK_AND_CLEAR(item, false, root);
+        cJSON_AddNumberToObject(item, BASE_CLASS.c_str(), it.baseClass);
+        cJSON_AddNumberToObject(item, SUB_CLASS.c_str(), it.subClass);
+        cJSON_AddNumberToObject(item, PROTOCOL.c_str(), it.protocol);
+        cJSON_AddBoolToObject(item, IS_DEVICE_TYPE.c_str(), it.isDeviceType);
+        cJSON_AddBoolToObject(item, IS_DEVICE_TYPE_ALL_MATCH.c_str(), it.isDeviceTypeAllMatch);
+        cJSON_AddItemToArray(root, item);
+    }
+    char *cJsonStr = cJSON_Print(root);
+    if (cJsonStr != nullptr) {
+        jsonString = std::string(cJsonStr);
+        cJSON_free(cJsonStr);
+    }
+    cJSON_Delete(root);
+    return true;
+}
+
+bool ArrayUsbDeviceTypeSerializerBase::GetPolicy(MessageParcel &data, std::vector<USB::UsbDeviceType> &result)
+{
+    uint32_t size = data.ReadUint32();
+    if (size > disallowedUsbDevicesTypesMaxSize_) {
+        EDMLOGE("ArrayUsbDeviceTypeSerializerBase:GetPolicy size=[%{public}u] is too large", size);
+        return false;
+    }
+    for (uint32_t i = 0; i < size; i++) {
+        USB::UsbDeviceType usbDeviceType;
+        if (!USB::UsbDeviceType::Unmarshalling(data, usbDeviceType)) {
+            EDMLOGE("ArrayUsbDeviceTypeSerializerBase GetDataByParcel::read parcel fail");
+            return false;
+        }
+        if (usbDeviceType.baseClass < deviceTypeMinValue_ || usbDeviceType.baseClass > DEVICE_TYPE_MAX_VALUE ||
+            usbDeviceType.subClass < deviceTypeMinValue_ || usbDeviceType.subClass > DEVICE_TYPE_MAX_VALUE ||
+            usbDeviceType.protocol < deviceTypeMinValue_ || usbDeviceType.protocol > DEVICE_TYPE_MAX_VALUE) {
+            EDMLOGE("ArrayUsbDeviceTypeSerializerBase GetDataByParcel: baseClass or subClass or protocol is invalid");
+            return false;
+        }
+        result.emplace_back(usbDeviceType);
+    }
+    return true;
+}
+
+bool ArrayUsbDeviceTypeSerializerBase::WritePolicy(MessageParcel &reply, std::vector<USB::UsbDeviceType> &result)
+{
+    return true;
+}
+
+bool ArrayUsbDeviceTypeSerializerBase::MergePolicy(std::vector<std::vector<USB::UsbDeviceType>> &data,
+    std::vector<USB::UsbDeviceType> &result)
+{
+    std::set<USB::UsbDeviceType> stData;
+    for (const auto &dataItem : data) {
+        for (const auto &item : dataItem) {
+            stData.insert(item);
+        }
+    }
+    result.assign(stData.begin(), stData.end());
+    return true;
+}
+} // namespace EDM
+} // namespace OHOS

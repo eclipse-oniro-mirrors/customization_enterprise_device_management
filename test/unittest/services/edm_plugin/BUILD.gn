@@ -278,7 +278,12 @@ ohos_unittest("EdmPluginTest") {
       "./src/allowed_usb_devices_plugin_test.cpp",
       "./src/disable_usb_plugin_test.cpp",
       "./src/disallowed_usb_devices_plugin_test.cpp",
+      "./src/disallowed_permissive_usb_devices_plugin_test.cpp",
+      "./src/disallowed_usb_devices_plugin_base_test.cpp",
+      "./src/usb_policy_utils_test.cpp",
       "./src/utils/array_usb_device_id_serializer_test.cpp",
+      "./src/utils/array_usb_device_type_serializer_base_test.cpp",
+      "./src/utils/array_permissive_usb_device_type_serializer_test.cpp",
     ]
   }
 
@@ -356,6 +361,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_core_dump_plugin_test.cpp",
       "./src/disallow_rs232_plugin_test.cpp",
       "./src/ota_update_nonce_plugin_test.cpp",
+      "./src/disallowed_traffic_redirection_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -779,8 +785,12 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../services/edm_plugin/src/usb_manager/allowed_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disable_usb_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
       "../../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/disallowed_permissive_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
+      "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
+      "../../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
     ]
   }
@@ -871,6 +881,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disallow_core_dump_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_rs232_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/ota_update_nonce_plugin.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
     ]
   }
 

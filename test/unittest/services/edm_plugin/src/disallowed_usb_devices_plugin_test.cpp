@@ -13,8 +13,13 @@
  * limitations under the License.
  */
 
+#define protected public
+#include "disallowed_usb_devices_plugin.h"
+#undef protected
+
 #include <gtest/gtest.h>
 #include "disallowed_usb_devices_plugin.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "utils.h"
 
@@ -391,6 +396,18 @@ HWTEST_F(DisallowedUsbDevicesPluginTest, TestOnAdminRemoveHasPolicy, TestSize.Le
     std::string mergeData;
     ErrCode ret = plugin->OnAdminRemove(adminName, policyData, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: GetPolicyName_ReturnCorrectPolicyName
+ * @tc.desc: Test DisallowedUsbDevicesPlugin::GetPolicyName returns correct policy name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedUsbDevicesPluginTest, GetPolicyName_ReturnCorrectPolicyName, TestSize.Level1)
+{
+    DisallowedUsbDevicesPlugin plugin;
+    const char* policyName = plugin.GetPolicyName();
+    EXPECT_STREQ(policyName, PolicyName::POLICY_DISALLOWED_USB_DEVICES);
 }
 } // namespace TEST
 } // namespace EDM

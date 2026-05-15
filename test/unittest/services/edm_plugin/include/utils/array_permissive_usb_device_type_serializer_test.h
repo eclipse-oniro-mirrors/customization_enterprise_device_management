@@ -13,22 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_RS232_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_RS232_PLUGIN_H
+#ifndef EDM_UNIT_TEST_ARRAY_PERMISSIVE_USB_DEVICE_TYPE_SERIALIZER_TEST_H
+#define EDM_UNIT_TEST_ARRAY_PERMISSIVE_USB_DEVICE_TYPE_SERIALIZER_TEST_H
 
-#include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace EDM {
-class DisallowRs232Plugin : public PluginSingleton<DisallowRs232Plugin, bool>, public BasicBoolPlugin {
-public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowRs232Plugin, bool>> ptr) override;
-private:
-    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
+namespace TEST {
+class ArrayPermissiveUsbDeviceTypeSerializerTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+    static void TearDownTestSuite(void);
 };
+} // namespace TEST
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_RS232_PLUGIN_H
+#endif // EDM_UNIT_TEST_ARRAY_PERMISSIVE_USB_DEVICE_TYPE_SERIALIZER_TEST_H

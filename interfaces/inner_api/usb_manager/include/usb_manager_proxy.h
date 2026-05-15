@@ -36,9 +36,9 @@ public:
     int32_t SetUsbStorageDeviceAccessPolicy(MessageParcel &data);
     int32_t GetUsbStorageDeviceAccessPolicy(MessageParcel &data, int32_t &result);
 #ifdef USB_EDM_ENABLE
-    int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd);
+    int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive = true);
     int32_t GetDisallowedUsbDevices(MessageParcel &data,
-        std::vector<OHOS::USB::UsbDeviceType> &result);
+        std::vector<OHOS::USB::UsbDeviceType> &result, bool notPermissive = true);
 #endif
 
 private:

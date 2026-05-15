@@ -42,6 +42,9 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nPermissionManagedState = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nPermissionManagedState));
     CreatePermissionManagedStateObject(env, nPermissionManagedState);
+    napi_value nPasswordAlgs = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nPasswordAlgs));
+    CreatePasswordAlgsObject(env, nPasswordAlgs);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
@@ -61,6 +64,7 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getPermissionManagedState", GetPermissionManagedState),
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
+        DECLARE_NAPI_PROPERTY("PasswordAlgs", nPasswordAlgs),
         DECLARE_NAPI_FUNCTION("setExternalSourceExtensionsPolicy", SetExternalSourceExtensionsPolicy),
         DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
@@ -155,9 +159,14 @@ napi_value SecurityManagerAddon::SetPasswordPolicy(napi_env env, napi_callback_i
                 EDMLOGE("Parameter passwordPolicy error");
                 return EdmReturnErrCode::PARAM_ERROR;
             }
+            if (!JsObjectToInt(env, argv, "passwordAlgs", false, policy.passwordAlgs)) {
+                EDMLOGE("Parameter passwordPolicy error");
+                return EdmReturnErrCode::PARAM_ERROR;
+            }
             data.WriteString(policy.complexityReg);
             data.WriteInt64(policy.validityPeriod);
             data.WriteString(policy.additionalDescription);
+            data.WriteInt32(policy.passwordAlgs);
             return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
@@ -206,14 +215,18 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
     napi_value complexityReg;
     napi_value validityPeriod;
     napi_value additionalDescription;
+    napi_value passwordAlgs;
     NAPI_CALL(env, napi_create_object(env, &ret));
     NAPI_CALL(env, napi_create_string_utf8(env, policy.complexityReg.c_str(), NAPI_AUTO_LENGTH, &complexityReg));
     NAPI_CALL(env, napi_create_int64(env, policy.validityPeriod, &validityPeriod));
     NAPI_CALL(env,
         napi_create_string_utf8(env, policy.additionalDescription.c_str(), NAPI_AUTO_LENGTH, &additionalDescription));
+    int32_t passwordAlgsValue = (policy.passwordAlgs == -1) ? 0 : policy.passwordAlgs;
+    NAPI_CALL(env, napi_create_int32(env, passwordAlgsValue, &passwordAlgs));
     NAPI_CALL(env, napi_set_named_property(env, ret, "complexityRegex", complexityReg));
     NAPI_CALL(env, napi_set_named_property(env, ret, "validityPeriod", validityPeriod));
     NAPI_CALL(env, napi_set_named_property(env, ret, "additionalDescription", additionalDescription));
+    NAPI_CALL(env, napi_set_named_property(env, ret, "passwordAlgs", passwordAlgs));
     return ret;
 }
 
@@ -661,6 +674,18 @@ void SecurityManagerAddon::CreateClipboardPolicyObject(napi_env env, napi_value 
     NAPI_CALL_RETURN_VOID(env,
         napi_create_int32(env, static_cast<int32_t>(ClipboardPolicy::CROSS_DEVICE), &nCrossDevice));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CROSS_DEVICE", nCrossDevice));
+}
+
+void SecurityManagerAddon::CreatePasswordAlgsObject(napi_env env, napi_value value)
+{
+    napi_value nScryptHkdfAes;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_AES), &nScryptHkdfAes));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SCRYPT_HKDF_AES", nScryptHkdfAes));
+    napi_value nScryptHkdfSm4;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_SM4), &nScryptHkdfSm4));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SCRYPT_HKDF_SM4", nScryptHkdfSm4));
 }
 
 napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_info info)

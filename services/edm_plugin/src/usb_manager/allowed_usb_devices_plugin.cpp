@@ -105,6 +105,15 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
         return true;
     }
 
+    std::string disallowPermissiveUsbDevicePolicy;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
+        disallowPermissiveUsbDevicePolicy);
+    if (!disallowPermissiveUsbDevicePolicy.empty()) {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! disallowedUsbDevice: %{public}s",
+            disallowPermissiveUsbDevicePolicy.c_str());
+        return true;
+    }
+
     std::string disableUsbSerial;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
     if (disableUsbSerial == "true") {

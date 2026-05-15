@@ -103,6 +103,7 @@
 #include "disallow_core_dump_query.h"
 #include "disallow_rs232_query.h"
 #include "disallow_distributed_transmission_full_query.h"
+#include "disallowed_traffic_redirection_query.h"
 #ifndef FEATURE_PC_ONLY
 #include "disallow_power_long_press_query.h"
 #endif
@@ -2791,6 +2792,80 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowDistributedTransmissionFullQuery004,
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL);
+}
+
+/**
+ * @tc.name: TestDisallowedTrafficRedirectionQuery001
+ * @tc.desc: Test DisallowedTrafficRedirectionQuery QueryPolicy function with policy set to true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedTrafficRedirectionQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestDisallowedTrafficRedirectionQuery002
+ * @tc.desc: Test DisallowedTrafficRedirectionQuery QueryPolicy function with policy set to false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedTrafficRedirectionQuery>();
+    std::string policyData{"false"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisallowedTrafficRedirectionQuery003
+ * @tc.desc: Test DisallowedTrafficRedirectionQuery QueryPolicy function with empty policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery003, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedTrafficRedirectionQuery>();
+    std::string policyData{""};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    int32_t flag = ERR_INVALID_VALUE;
+    ASSERT_TRUE(reply.ReadInt32(flag) && (flag == ERR_OK));
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestDisallowedTrafficRedirectionQuery004
+ * @tc.desc: Test DisallowedTrafficRedirectionQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowedTrafficRedirectionQuery004, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowedTrafficRedirectionQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
+    ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
+        == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOWED_TRAFFIC_REDIRECTION);
 }
 } // namespace TEST
 } // namespace EDM

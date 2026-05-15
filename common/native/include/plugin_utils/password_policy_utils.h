@@ -33,7 +33,7 @@ public:
     bool GetPasswordPolicy(PasswordPolicy &policy);
  
 private:
-    cJSON *root_;
+    cJSON *root_ = nullptr;
     bool CreateConfigDir(const std::string &dir);
     bool LoadConfig(std::string &jsonStr);
     bool SaveConfig();

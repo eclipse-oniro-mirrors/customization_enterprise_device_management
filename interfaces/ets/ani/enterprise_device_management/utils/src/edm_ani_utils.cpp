@@ -124,6 +124,10 @@ bool EdmAniUtils::AniStringToString(ani_env *env, const ani_string aniStr, std::
 
 std::string EdmAniUtils::AniStrToString(ani_env *env, ani_ref aniStr)
 {
+    if (aniStr == nullptr) {
+        EDMLOGE("AniStrToString received nullptr ani_ref.");
+        return "";
+    }
     ani_string str = static_cast<ani_string>(aniStr);
     ani_size size = 0;
     if (env->String_GetUTF8Size(str, &size) != ANI_OK) {
@@ -244,7 +248,10 @@ bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::Ele
 bool EdmAniUtils::UnWrapAdmin(ani_env *env, ani_object aniAdmin, AppExecFwk::ElementName &admin)
 {
     ani_boolean isUndefined;
-    env->Reference_IsUndefined(aniAdmin, &isUndefined);
+    if (env->Reference_IsUndefined(aniAdmin, &isUndefined) != ANI_OK) {
+        EDMLOGE("Reference_IsUndefined error");
+        return false;
+    }
     if (isUndefined) {
         EDMLOGE("admin is undefined");
         return false;

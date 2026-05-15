@@ -83,6 +83,14 @@ ErrCode DisableUsbPlugin::HasConflictPolicy(bool &hasConflict)
         hasConflict = true;
         return ERR_OK;
     }
+    std::string disallowPermissiveUsbDevice;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES, disallowPermissiveUsbDevice);
+    if (!disallowPermissiveUsbDevice.empty()) {
+        EDMLOGE("DisableUsbPlugin POLICY CONFLICT! disallowPermissiveUsbDevice: %{public}s",
+            disallowPermissiveUsbDevice.c_str());
+        hasConflict = true;
+        return ERR_OK;
+    }
     std::string usbStoragePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
