@@ -38,9 +38,13 @@ public:
 
     std::string GetSuperHubInfo() override;
 
+    void GetAppUidMap() override;
+
     ~ExtInfoManager() override;
 
     ErrCode GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply);
+
+    ErrCode GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply, const std::string &bundleName);
 
 private:
     ExtInfoManager();
