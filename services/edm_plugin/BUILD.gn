@@ -357,6 +357,7 @@ ohos_shared_library("communication_plugin") {
         "./src/restrictions/disable_samba_client_plugin.cpp",
         "./src/restrictions/disable_samba_server_plugin.cpp",
         "./src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
+        "./src/restrictions/disallowed_traffic_redirection_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }

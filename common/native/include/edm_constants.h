@@ -466,6 +466,7 @@ namespace PolicyName {
     const char* const POLICY_SET_SWITCH_STATUS = "set_switch_status";
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
+    const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

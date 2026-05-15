@@ -99,6 +99,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_BLUETOOTH_PROTOCOLS,
     EdmInterfaceCode::DISALLOW_CORE_DUMP,
     EdmInterfaceCode::DISALLOW_RS232,
+    EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
     EdmInterfaceCode::DISALLOWED_P2P,
     EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
