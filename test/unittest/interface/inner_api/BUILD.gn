@@ -27,6 +27,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
 
   sources = [
     "../../../../interfaces/inner_api/application_manager/src/net_stats_utils.cpp",
+    "../../../../interfaces/inner_api/common/src/histograms_report.cpp",
     "../../common/mock/src/edm_sys_manager_mock.cpp",
     "./application_manager/src/net_stats_utils_test.cpp",
     "./common/domain_account_policy_test.cpp",
@@ -35,6 +36,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./common/json_builder_test.cpp",
     "./common/policy_changed_event_test.cpp",
     "./proxy/bundle_storage_info_test.cpp",
+    "./proxy/histograms_report_test.cpp",
     "./security_manager/allowed_permission_bundle_serializer_test.cpp",
   ]
 

@@ -69,6 +69,7 @@ ohos_shared_library("edmservice_kits") {
     "./common/src/enable_self_device_admin_param_serializer.cpp",
     "./common/src/ent_info.cpp",
     "./common/src/enterprise_device_mgr_proxy.cpp",
+    "./common/src/histograms_report.cpp",
     "./common/src/iadmin_manager.cpp",
     "./common/src/iext_info_manager.cpp",
     "./common/src/policy_changed_event.cpp",
@@ -166,6 +167,11 @@ ohos_shared_library("edmservice_kits") {
 
   if (log_service_plugin_edm_enable) {
     defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
+  }
+
+  if (api_metrics_edm_enable) {
+    external_deps += [ "api_metrics:histogrammanager" ]
+    defines += [ "API_METRICS_EDM_ENABLE" ]
   }
 
   sanitize = {

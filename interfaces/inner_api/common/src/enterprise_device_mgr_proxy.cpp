@@ -25,6 +25,7 @@
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "func_code.h"
+#include "histograms_report.h"
 #include "parameters.h"
 #include "system_ability_definition.h"
 
@@ -92,6 +93,7 @@ ErrCode EnterpriseDeviceMgrProxy::EnableDeviceAdmin(AppExecFwk::ElementName &adm
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    HistogramsReport::ReportBoolean("MdmKit.adminManager.enableDeviceAdmin.ApiCall");
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->EnableDeviceAdmin(admin);
 #else
@@ -125,6 +127,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableAdmin(AppExecFwk::ElementName &admin, i
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    HistogramsReport::ReportBoolean("MdmKit.adminManager.disableAdmin.ApiCall");
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->DisableAdmin(admin, userId);
 }
@@ -140,6 +143,7 @@ ErrCode EnterpriseDeviceMgrProxy::DisableDeviceAdmin(AppExecFwk::ElementName &ad
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    HistogramsReport::ReportBoolean("MdmKit.adminManager.disableDeviceAdmin.ApiCall");
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->DisableDeviceAdmin(admin);
 #else
@@ -360,6 +364,7 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    HistogramsReport::ReportBoolean(policyCode);
     MessageOption option;
     EDMLOGD("EnterpriseDeviceMgrProxy::handleDevicePolicy::sendRequest %{public}d", policyCode);
     ErrCode res = remote->SendRequest(policyCode, data, reply, option);
@@ -426,6 +431,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    HistogramsReport::ReportBoolean("MdmKit.adminManager.setDelegatedPolicies.ApiCall");
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->SetDelegatedPolicies(parentAdmin, bundleName, policies);
 }
@@ -438,6 +444,7 @@ ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(std::string &bundleName,
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    HistogramsReport::ReportBoolean("MdmKit.adminManager.setDelegatedPolicies.ApiCall");
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->SetDelegatedPolicies(bundleName, policies, userId);
 }
