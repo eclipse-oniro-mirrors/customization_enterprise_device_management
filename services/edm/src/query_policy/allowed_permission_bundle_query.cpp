@@ -56,13 +56,7 @@ ErrCode AllowedPermissionBundleQuery::QueryPolicy(std::string &policyData, Messa
     }
 
     reply.WriteInt32(ERR_OK);
-    reply.WriteUint32(appList.size());
-    for (const ApplicationInstance &app : appList) {
-        reply.WriteString(app.appIdentifier);
-        reply.WriteInt32(userId);
-        reply.WriteInt32(app.appIndex);
-    }
-
+    ApplicationInstanceHandle::WriteApplicationInstanceVector(reply, appList);
     EDMLOGI("AllowedPermissionBundleQuery::QueryPolicy permission=%{public}s count=%{public}zu",
         permissionName.c_str(), appList.size());
     return ERR_OK;
