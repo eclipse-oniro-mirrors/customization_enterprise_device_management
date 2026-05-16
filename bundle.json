@@ -58,6 +58,7 @@
         "ability_base",
         "ability_runtime",
         "access_token",
+        "api_metrics",
         "audio_framework",
         "bluetooth",
         "bounds_checking_function",
