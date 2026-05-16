@@ -495,20 +495,18 @@ int32_t SecurityManagerProxy::GetAllowedPermissionBundles(const AppExecFwk::Elem
         EDMLOGE("SecurityManagerProxy:GetAllowedPermissionBundles fail. %{public}d", ret);
         return ret;
     }
-    uint32_t listSize = reply.ReadUint32();
-    for (uint32_t i = 0; i < listSize; i++) {
-        ApplicationInstance appInstance;
-        if (!reply.ReadString(appInstance.appIdentifier)) {
-            return ERR_INVALID_VALUE;
+    uint32_t size = reply.ReadUint32();
+    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    result.clear();
+    result.reserve(size);
+    for (uint32_t i = 0; i < size; i++) {
+        ApplicationInstance instance;
+        if (!ApplicationInstanceHandle::ReadApplicationInstance(reply, instance)) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
-        if (!reply.ReadInt32(appInstance.accountId)) {
-            return ERR_INVALID_VALUE;
-        }
-        if (!reply.ReadInt32(appInstance.appIndex)) {
-            return ERR_INVALID_VALUE;
-        }
-        appInstance.bundleName = "";
-        result.emplace_back(appInstance);
+        result.emplace_back(std::move(instance));
     }
     return ERR_OK;
 }

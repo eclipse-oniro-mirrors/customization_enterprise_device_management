@@ -71,6 +71,7 @@ const std::string PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POL
 const std::string PERMISSION_GET_TELEPHONY_STATE = "ohos.permission.GET_TELEPHONY_STATE";
 const std::string PERMISSION_SET_TELEPHONY_STATE = "ohos.permission.SET_TELEPHONY_STATE";
 const std::string PERMISSION_GET_NETWORK_STATE = "ohos.permission.GET_NETWORK_STATE";
+const std::string PERMISSION_MANAGE_USER_POLICY = "ohos.permission.MANAGE_USER_POLICY";
 const std::string PERMISSION_MANAGE_APN_SETTING = "ohos.permission.MANAGE_APN_SETTING";
 const std::string PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
 const std::string PERMISSION_GET_BUNDLE_INFO_PRIVILEGED = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
@@ -174,6 +175,7 @@ void Utils::SetEdmPermissions()
         PERMISSION_ACCESS_SYSTEM_SETTINGS.c_str(),
         PERMISSION_GET_NETWORK_STATS.c_str(),
         PERMISSION_MANAGE_WIFI_HOTSPOT.c_str(),
+        PERMISSION_MANAGE_USER_POLICY.c_str(),
         PERMISSION_ACCESS_SCREEN_LOCK.c_str(),
         PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION.c_str()
     };

@@ -48,7 +48,7 @@ protected:
     static void TearDownTestSuite(void)
     {
         Utils::ResetTokenTypeAndUid();
-        ASSERT_TRUE(Utils::IsOriginalUTEnv());
+        EXPECT_EQ(Utils::IsOriginalUTEnv(), true);
         std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
     }
 };

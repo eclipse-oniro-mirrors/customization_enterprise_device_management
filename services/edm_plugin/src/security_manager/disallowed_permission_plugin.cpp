@@ -104,6 +104,7 @@ ErrCode DisallowedPermissionPlugin::AddOrRemoveAccessTokenPolicy(const std::vect
 
     Security::AccessToken::UserPermissionPolicy userPermissionPolicy;
     userPermissionPolicy.permissionName = permission;
+    userPermissionPolicy.isPersist = true;
     userPermissionPolicy.userPolicyList.emplace_back(userPolicy);
 
     std::vector<Security::AccessToken::UserPermissionPolicy> userPermissionPolicys;
