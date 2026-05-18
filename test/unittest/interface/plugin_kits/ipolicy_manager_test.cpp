@@ -51,6 +51,126 @@ HWTEST_F(IPolicyManagerTest, TestGetPolicy, TestSize.Level1)
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(policyValue.empty());
 }
+
+/**
+ * @tc.name: SetPolicy_NormalParams_Suc
+ * @tc.desc: Test SetPolicy function with normal parameters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_NormalParams_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
+        "adminPolicyValue", "mergedPolicyValue");
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_EmptyAdminName_Suc
+ * @tc.desc: Test SetPolicy function with empty adminName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_EmptyAdminName_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy("", TEST_STRING_POLICY_NAME,
+        "adminPolicyValue", "mergedPolicyValue");
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_EmptyPolicyName_Suc
+ * @tc.desc: Test SetPolicy function with empty policyName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_EmptyPolicyName_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, "",
+        "adminPolicyValue", "mergedPolicyValue");
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_EmptyAdminPolicyValue_Suc
+ * @tc.desc: Test SetPolicy function with empty adminPolicyValue.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_EmptyAdminPolicyValue_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
+        "", "mergedPolicyValue");
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_EmptyMergedPolicyValue_Suc
+ * @tc.desc: Test SetPolicy function with empty mergedPolicyValue.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_EmptyMergedPolicyValue_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
+        "adminPolicyValue", "");
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_WithDefaultUserId_Suc
+ * @tc.desc: Test SetPolicy function with default userId parameter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_WithDefaultUserId_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
+        "adminPolicyValue", "mergedPolicyValue", EdmConstants::DEFAULT_USER_ID);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_WithCustomUserId_Suc
+ * @tc.desc: Test SetPolicy function with custom userId parameter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_WithCustomUserId_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    constexpr int32_t customUserId = 100;
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, TEST_STRING_POLICY_NAME,
+        "adminPolicyValue", "mergedPolicyValue", customUserId);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPolicy_AllEmptyParams_Suc
+ * @tc.desc: Test SetPolicy function with all empty parameters.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPolicyManagerTest, SetPolicy_AllEmptyParams_Suc, TestSize.Level1)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    ASSERT_NE(policyManager, nullptr);
+
+    ErrCode res = policyManager->SetPolicy("", "", "", "");
+    EXPECT_EQ(res, ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
