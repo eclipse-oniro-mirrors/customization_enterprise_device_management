@@ -23,6 +23,8 @@ struct WatermarkImageType {
     std::string fileName;
     int32_t width;
     int32_t height;
+    int32_t intervalsRow = 0;
+    int32_t intervalsCol = 0;
 };
 } // namespace EDM
 } // namespace OHOS

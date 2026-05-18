@@ -225,6 +225,9 @@ int32_t SecurityManagerProxy::SetWatermarkImage(const AppExecFwk::ElementName &a
     data.WriteInt32(param->height);
     data.WriteInt32(param->size);
     data.WriteRawData(reinterpret_cast<const void*>(param->pixels), param->size);
+    data.WriteInt32(param->intervalsRow);
+    data.WriteInt32(param->intervalsCol);
+    data.WriteBool(param->hasPropertyParam);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 

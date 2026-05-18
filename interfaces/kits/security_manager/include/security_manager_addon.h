@@ -70,6 +70,8 @@ private:
     static bool GetPixelMapData(std::shared_ptr<Media::PixelMap> pixelMap, std::shared_ptr<WatermarkParam> param);
     static napi_value CheckBuildWatermarkParam(napi_env env, napi_value* argv,
         std::shared_ptr<WatermarkParam> &paramPtr);
+    static napi_value CheckBuildWatermarkHasPropertyParam(napi_env env, napi_value* argv,
+        std::shared_ptr<WatermarkParam> &paramPtr);
     static napi_value CheckBuildScreenWatermarkParam(napi_env env, napi_value* argv,
         std::shared_ptr<WatermarkParam> &paramPtr);
     static void SetClipboardPolicyParamHandle(AddonMethodSign &addonMethodSign, int flag);
