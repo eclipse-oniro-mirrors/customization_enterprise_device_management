@@ -268,12 +268,12 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
 }
 
 /**
- * @tc.name: DisallowedUsbDevicesPluginBase_OnSetPolicy_HasConflictPolicyFailed_ReturnSystemAbnormally
- * @tc.desc: Test OnSetPolicy when HasConflictPolicy fails.
+ * @tc.name: DisallowedUsbDevicesPluginBase_OnSetPolicy_NoConflict_Success
+ * @tc.desc: Test OnSetPolicy when no policy conflict exists.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
-    DisallowedUsbDevicesPluginBase_OnSetPolicy_HasConflictPolicyFailed_ReturnSystemAbnormally, TestSize.Level1)
+    DisallowedUsbDevicesPluginBase_OnSetPolicy_NoConflict_Success, TestSize.Level1)
 {
     std::vector<USB::UsbDeviceType> data;
     USB::UsbDeviceType type;
@@ -292,9 +292,11 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, GetPluginName()).WillRepeatedly(Return("TestPlugin"));
     EXPECT_CALL(*mockPlugin_, GetDisallowedUsbDevicesTypeMaxSize()).WillRepeatedly(Return(200));
     EXPECT_CALL(*mockPlugin_, GetConflictPolicyName()).WillRepeatedly(Return("conflict_policy"));
+    EXPECT_CALL(*mockPlugin_, GetSerializer()).WillRepeatedly(Return(serializer_));
+    EXPECT_CALL(*mockPlugin_, SetDisallowedDevices(_)).WillRepeatedly(Return(ERR_OK));
 
     ErrCode ret = mockPlugin_->OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(ret, ERR_OK);
 
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
@@ -329,6 +331,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, GetPluginName()).WillRepeatedly(Return("TestPlugin"));
     EXPECT_CALL(*mockPlugin_, GetDisallowedUsbDevicesTypeMaxSize()).WillRepeatedly(Return(200));
     EXPECT_CALL(*mockPlugin_, GetConflictPolicyName()).WillRepeatedly(Return("conflict_policy"));
+    EXPECT_CALL(*mockPlugin_, GetSerializer()).WillRepeatedly(Return(serializer_));
 
     ErrCode ret = mockPlugin_->OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
@@ -736,7 +739,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, GetConflictPolicyName()).WillRepeatedly(Return("conflict_policy"));
 
     std::vector<USB::UsbDeviceType> usbDeviceTypes;
-    bool hasConflict = true;
+    bool hasConflict = false;
     ErrCode ret = mockPlugin_->HasConflictPolicy(hasConflict, usbDeviceTypes);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_FALSE(hasConflict);

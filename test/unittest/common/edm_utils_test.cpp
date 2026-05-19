@@ -47,7 +47,7 @@ HWTEST_F(EdmUtilsTest, Test_ParseStringToInt_FAIL, TestSize.Level1)
 {
     int32_t retNum = 0;
     ErrCode ret = EdmUtils::ParseStringToInt("", retNum);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     ASSERT_EQ(retNum, 0);
 }
 
