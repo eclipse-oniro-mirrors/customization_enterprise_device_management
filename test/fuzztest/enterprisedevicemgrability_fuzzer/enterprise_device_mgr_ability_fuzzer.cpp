@@ -135,7 +135,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string abilityName = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string newAdminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     uint32_t code = CommonFuzzer::GetU32Data(data);
-    bool isAdminEnabled = CommonFuzzer::GetU32Data(data) % 2;
     bool isModeOn = CommonFuzzer::GetU32Data(data) % 2;
     bool isByod = CommonFuzzer::GetU32Data(data) % 2;
     std::vector<std::u16string> args;
@@ -152,7 +151,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnCommonEventPackageChanged(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventBmsReady(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventKioskMode(eventData, isModeOn);
-    enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId, isAdminEnabled);
+    enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId);
     enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->AddDisallowUninstallAppForAccount(bundleName, userId);
     enterpriseDeviceMgrAbility->UpdateClipboardInfo(bundleName, userId);

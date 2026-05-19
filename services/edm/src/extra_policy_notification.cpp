@@ -17,6 +17,7 @@
 
 #include "admin.h"
 #include "admin_manager.h"
+#include "callback_strategies.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -40,11 +41,9 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
         if (abilityName.empty()) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(bundleName, abilityName);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        bool ret = manager->CreateCollectLogConnection(connectWant, IEnterpriseAdmin::COMMAND_ON_LOG_COLLECTED,
-            userId, isSuccess);
+        auto manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        auto strategy = std::make_shared<LogCollectedStrategy>(isSuccess);
+        bool ret = manager->ExecuteCallback(bundleName, abilityName, userId, strategy);
         if (!ret) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
@@ -64,12 +63,9 @@ ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &adminName, co
         if (abilityName.empty()) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        AAFwk::Want connectWant;
-        connectWant.SetElementName(bundleName, abilityName);
-        std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-        bool ret = manager->CreateKeyEventConnection(connectWant,
-            static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_KEY_EVENT),
-            userId, keyEvent);
+        auto manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
+        auto strategy = std::make_shared<KeyEventStrategy>(keyEvent);
+        bool ret = manager->ExecuteCallback(bundleName, abilityName, userId, strategy);
         if (!ret) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
@@ -117,12 +113,11 @@ void ExtraPolicyNotification::NotifySubscriber(const std::string &bundleName, co
     const PolicyChangedEvent &changedEvent, int32_t userId)
 {
     EDMLOGI("ExtraPolicyNotification::NotifySubscriber admin: %{public}s", bundleName.c_str());
-    AAFwk::Want want;
-    want.SetElementName(bundleName, abilityName);
     auto manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    bool ret = manager->CreatePolicyChangedConnection(want, changedEvent, userId);
+    auto strategy = std::make_shared<AdminPolicyChangedStrategy>(changedEvent);
+    bool ret = manager->ExecuteCallback(bundleName, abilityName, userId, strategy);
     if (!ret) {
-        EDMLOGE("ExtraPolicyNotification::NotifySubscriber CreatePolicyChangedConnection failed.");
+        EDMLOGE("ExtraPolicyNotification::NotifySubscriber ExecuteCallback failed.");
     }
 }
 } // namespace EDM

@@ -56,37 +56,21 @@ public:
 
     void OnStop() override;
 
-    void OnAdminEnabled();
+    void OnAdmin(uint32_t code);
 
-    void OnAdminDisabled();
+    void OnBundle(uint32_t code, const std::string &bundleName, int32_t accountId);
 
-    void OnBundleAdded(const std::string &bundleName, int32_t accountId);
-
-    void OnBundleRemoved(const std::string &bundleName, int32_t accountId);
-
-    void OnBundleUpdated(const std::string &bundleName, int32_t accountId);
-
-    void OnAppStart(const std::string &bundleName);
-
-    void OnAppStop(const std::string &bundleName);
+    void OnApp(uint32_t code, const std::string &bundleName);
 
     void OnSystemUpdate(const UpdateInfo &updateInfo);
 
-    void OnAccountAdded(const int32_t accountId);
+    void OnAccount(uint32_t code, const int32_t accountId);
 
-    void OnAccountSwitched(const int32_t accountId);
-
-    void OnAccountRemoved(const int32_t accountId);
-
-    void OnKioskModeEntering(const std::string &bundleName, int32_t accountId);
-
-    void OnKioskModeExiting(const std::string &bundleName, int32_t accountId);
+    void OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId);
 
     void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status);
 
-    void OnDeviceAdminEnabled(const std::string &bundleName);
-
-    void OnDeviceAdminDisabled(const std::string &bundleName);
+    void OnDeviceAdmin(uint32_t code, const std::string &bundleName);
 
     void OnLogCollected(bool isSuccess);
 

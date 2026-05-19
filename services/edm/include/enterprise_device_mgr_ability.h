@@ -94,7 +94,7 @@ public:
         const std::string &mediaBundleName, int32_t status) override;
     ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want) override;
     void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
-    void ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
+    bool ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<std::string,
         std::function<void(EnterpriseDeviceMgrAbility *that, const EventFwk::CommonEventData &data)>>
         commonEventFuncMap_;
@@ -211,8 +211,7 @@ public:
     void ConnectEnterpriseAbility();
     void CallOnOtherServiceStart(uint32_t interfaceCode);
     void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
-    bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId,
-        bool isAdminEnabled);
+    bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId);
     bool OnAdminEnabled(AdminInfo adminInfo, uint32_t code, int32_t userId, const std::string &enabledBundleName);
     ErrCode CheckDisableAdmin(std::shared_ptr<Admin> admin, AdminType adminType);
     bool CheckDelegatedBundle(const std::string &bundleName, int32_t userId);

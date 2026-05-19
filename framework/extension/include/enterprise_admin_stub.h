@@ -18,6 +18,8 @@
 
 #include <iremote_stub.h>
 #include <map>
+#include <functional>
+#include <unordered_map>
 
 #include "ienterprise_admin.h"
 
@@ -29,62 +31,36 @@ public:
 
     virtual ~EnterpriseAdminStub();
 
-    /**
-     * @brief The OnRemoteRequest callback.
-     *
-     * @param code The code.
-     * @param data The data.
-     * @param reply The reply.
-     * @param option The option.
-     * @return ERR_OK on success, others on failure.
-     */
     int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+
 private:
+    using HandleFunc = std::function<bool(uint32_t code, MessageParcel& data, MessageParcel& reply)>;
+
     int32_t CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption &option);
 
-    int32_t CallFuncByCodeFirst(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption &option);
+    void InitHandleFuncMap();
+    void InitAdminHandleFuncs();
+    void InitBundleHandleFuncs();
+    void InitAppHandleFuncs();
+    void InitAccountHandleFuncs();
+    void InitKioskHandleFuncs();
+    void InitOtherHandleFuncs();
 
-    void OnAdminEnabledInner(MessageParcel& data, MessageParcel& reply);
+    bool OnAdminInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnBundleInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnAppInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnSystemUpdateInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnAccountInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnKioskModeInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnMarketAppsInstallStatusChangedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnDeviceAdminInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnLogCollectedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnKeyEventInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnStartupGuideCompletedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnDeviceBootCompletedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnAdminPolicyChangedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
 
-    void OnAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnBundleAddedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnBundleRemovedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnBundleUpdatedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnAppStartInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnAppStopInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnSystemUpdateInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnAccountAddedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnAccountSwitchedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnAccountRemovedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnKioskModeEnteringInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnKioskModeExitingInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnMarketAppsInstallStatusChangedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnDeviceAdminEnabledInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnDeviceAdminDisabledInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnLogCollectedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnKeyEventInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnStartupGuideCompletedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnDeviceBootCompletedInner(MessageParcel& data, MessageParcel& reply);
-
-    void OnAdminPolicyChangedInner(MessageParcel& data, MessageParcel& reply);
+    std::unordered_map<uint32_t, HandleFunc> handleFuncMap_;
 };
 } // namespace EDM
 } // namespace OHOS

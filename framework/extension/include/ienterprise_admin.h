@@ -18,144 +18,166 @@
 
 #include <iremote_broker.h>
 #include <string_ex.h>
+
 #include "policy_struct.h"
 #include "policy_changed_event.h"
 
 namespace OHOS {
 namespace EDM {
+
+/**
+ * @brief 企业管理员IPC接口，定义了EDM系统与企业管理应用之间的通信协议。
+ * 
+ * 该接口通过IRemoteBroker实现跨进程通信，企业管理应用需实现此接口以接收
+ * EDM系统的各类事件通知，包括管理员启用/禁用、应用安装/卸载、账号变更等。
+ */
 class IEnterpriseAdmin : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.EDM.IEnterpriseAdmin");
 
-    virtual void OnAdminEnabled() = 0;
-
-    virtual void OnAdminDisabled() = 0;
+    /**
+     * @brief 处理管理员启用/禁用事件。
+     * @param code 事件码，取值为COMMAND_ON_ADMIN_ENABLED或COMMAND_ON_ADMIN_DISABLED。
+     * @return 处理成功返回true，失败返回false。
+     */
+    virtual bool OnAdmin(uint32_t code) = 0;
 
     /**
-     * Called when a new application package has been installed on the device.
-     * @param bundleName Indicates the name of the bundle whose state has been installed.
+     * @brief 处理应用包安装/卸载/更新事件。
+     * @param code 事件码，取值为COMMAND_ON_BUNDLE_ADDED、COMMAND_ON_BUNDLE_REMOVED或COMMAND_ON_BUNDLE_UPDATED。
+     * @param bundleName 应用包名。
+     * @param accountId 账户ID。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnBundleAdded(const std::string &bundleName, int32_t accountId) = 0;
+    virtual bool OnBundle(uint32_t code, const std::string &bundleName, int32_t accountId) = 0;
 
     /**
-     * Called when a new application package has been Removed on the device.
-     * @param bundleName Indicates the name of the bundle whose state has been Removed.
+     * @brief 处理应用启动/停止事件。
+     * @param code 事件码，取值为COMMAND_ON_APP_START或COMMAND_ON_APP_STOP。
+     * @param bundleName 应用包名。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnBundleRemoved(const std::string &bundleName, int32_t accountId) = 0;
+    virtual bool OnApp(uint32_t code, const std::string &bundleName) = 0;
 
     /**
-     * Called when an application package has been updated on the device.
-     * @param bundleName Indicates the name of the bundle whose state has been updated.
+     * @brief 处理系统更新事件。
+     * @param updateInfo 系统更新信息，包含版本号、接收时间、包类型等。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnBundleUpdated(const std::string &bundleName, int32_t accountId) = 0;
+    virtual bool OnSystemUpdate(const UpdateInfo &updateInfo) = 0;
 
     /**
-     * Called when an application start on the device.
-     * @param bundleName Indicates the bundle name of application that has been started.
+     * @brief 处理账号添加/切换/移除事件。
+     * @param code 事件码，取值为COMMAND_ON_ACCOUNT_ADDED、COMMAND_ON_ACCOUNT_SWITCHED或COMMAND_ON_ACCOUNT_REMOVED。
+     * @param accountId 账号ID。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnAppStart(const std::string &bundleName) = 0;
+    virtual bool OnAccount(uint32_t code, const int32_t accountId) = 0;
 
     /**
-     * Called when an application stop on the device.
-     * @param bundleName Indicates the bundle name of application that has been stopped.
+     * @brief 处理Kiosk模式进入/退出事件。
+     * @param code 事件码，取值为COMMAND_ON_KIOSK_MODE_ENTERING或COMMAND_ON_KIOSK_MODE_EXITING。
+     * @param bundleName 当前运行的应用包名。
+     * @param accountId 账户ID。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnAppStop(const std::string &bundleName) = 0;
+    virtual bool OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId) = 0;
 
     /**
-     * Called when a version need to update on the device.
-     * @param updateInfo Indicates the information of the version.
+     * @brief 处理市场应用安装状态变更事件。
+     * @param bundleName 应用包名。
+     * @param status 安装状态。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnSystemUpdate(const UpdateInfo &updateInfo) = 0;
+    virtual bool OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) = 0;
 
     /**
-     * Called when an account added on the device.
-     * @param accountId Indicates the accountId that has been added.
+     * @brief 处理设备管理员启用/禁用事件。
+     * @param code 事件码，取值为COMMAND_ON_DEVICE_ADMIN_ENABLED或COMMAND_ON_DEVICE_ADMIN_DISABLED。
+     * @param bundleName 设备管理员应用包名。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnAccountAdded(const int32_t accountId) = 0;
+    virtual bool OnDeviceAdmin(uint32_t code, const std::string &bundleName) = 0;
 
     /**
-     * Called when an account switched on the device.
-     * @param accountId Indicates the accountId that has been switched.
+     * @brief 处理日志收集完成事件。
+     * @param isSuccess 日志收集是否成功。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnAccountSwitched(const int32_t accountId) = 0;
+    virtual bool OnLogCollected(bool isSuccess) = 0;
 
     /**
-     * Called when an account removed on the device.
-     * @param accountId Indicates the accountId that has been removed.
+     * @brief 处理按键事件。
+     * @param event 按键事件信息，JSON格式字符串。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnAccountRemoved(const int32_t accountId) = 0;
+    virtual bool OnKeyEvent(const std::string &event) = 0;
 
     /**
-     * Called when a device is entering kiosk mode.
-     * @param bundleName  The authorized bundleName using kiosk mode.
+     * @brief 处理开机引导完成事件。
+     * @param type 事件类型。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnKioskModeEntering(const std::string &bundleName, int32_t accountId) = 0;
+    virtual bool OnStartupGuideCompleted(int32_t type) = 0;
 
     /**
-     * Called when a device is exiting kiosk mode.
+     * @brief 处理设备启动完成事件。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) = 0;
+    virtual bool OnDeviceBootCompleted() = 0;
 
     /**
-     * Called when a Market hap installation succeeds or fails.
+     * @brief 处理管理员策略变更事件。
+     * @param policyChangedEvent 策略变更事件，包含策略名称、管理员包名、策略内容等。
+     * @return 处理成功返回true，失败返回false。
      */
-    virtual void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) = 0;
+    virtual bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) = 0;
 
     /**
-     * Called back when an application is enabled as a device administrator.
-     * @param bundleName Indicates the name of the enabled admin.
+     * @brief IPC命令码枚举，定义了所有事件通知的命令码。
      */
-    virtual void OnDeviceAdminEnabled(const std::string &bundleName) = 0;
-
-    /**
-     * Called back when a device administrator is disabled.
-     * @param bundleName Indicates the name of the disabled admin.
-     */
-    virtual void OnDeviceAdminDisabled(const std::string &bundleName) = 0;
-
-    /**
-     * Called back when a faultlog is collected.
-     */
-    virtual void OnLogCollected(bool isSuccess) = 0;
-
-    /**
-     * Called when a key event happened.
-     */
-    virtual void OnKeyEvent(const std::string &event) = 0;
-
-    /**
-     * Called back when oobe is finished.
-     */
-    virtual void OnStartupGuideCompleted(int32_t type) = 0;
-
-    /**
-     * Called back when teh device is power on.
-     */
-    virtual void OnDeviceBootCompleted() = 0;
-
-    virtual void OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) = 0;
-
     enum {
+        /** 管理员启用事件 */
         COMMAND_ON_ADMIN_ENABLED = 1,
+        /** 管理员禁用事件 */
         COMMAND_ON_ADMIN_DISABLED = 2,
+        /** 应用包安装事件 */
         COMMAND_ON_BUNDLE_ADDED = 3,
+        /** 应用包卸载事件 */
         COMMAND_ON_BUNDLE_REMOVED = 4,
+        /** 应用启动事件 */
         COMMAND_ON_APP_START = 5,
+        /** 应用停止事件 */
         COMMAND_ON_APP_STOP = 6,
+        /** 系统更新事件 */
         COMMAND_ON_SYSTEM_UPDATE = 7,
+        /** 账号添加事件 */
         COMMAND_ON_ACCOUNT_ADDED = 8,
+        /** 账号切换事件 */
         COMMAND_ON_ACCOUNT_SWITCHED = 9,
+        /** 账号移除事件 */
         COMMAND_ON_ACCOUNT_REMOVED = 10,
+        /** Kiosk模式进入事件 */
         COMMAND_ON_KIOSK_MODE_ENTERING = 11,
+        /** Kiosk模式退出事件 */
         COMMAND_ON_KIOSK_MODE_EXITING = 12,
+        /** 市场应用安装状态变更事件 */
         COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13,
+        /** 设备管理员启用事件 */
         COMMAND_ON_DEVICE_ADMIN_ENABLED = 14,
+        /** 设备管理员禁用事件 */
         COMMAND_ON_DEVICE_ADMIN_DISABLED = 15,
+        /** 日志收集完成事件 */
         COMMAND_ON_LOG_COLLECTED = 16,
+        /** 按键事件 */
         COMMAND_ON_KEY_EVENT = 17,
+        /** 开机引导完成事件 */
         COMMAND_ON_STARTUP_GUIDE_COMPLETED = 18,
+        /** 设备启动完成事件 */
         COMMAND_ON_DEVICE_BOOT_COMPLETED = 19,
+        /** 应用包更新事件 */
         COMMAND_ON_BUNDLE_UPDATED = 20,
+        /** 管理员策略变更事件 */
         COMMAND_ON_POLICIES_CHANGED = 21
     };
 };

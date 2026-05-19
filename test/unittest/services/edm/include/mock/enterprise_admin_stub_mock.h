@@ -38,47 +38,31 @@ public:
         return 0;
     }
 
-    void OnAdminEnabled() override {}
+    bool OnAdmin(uint32_t code) override { return true; }
 
-    void OnAdminDisabled() override {}
+    bool OnBundle(uint32_t code, const std::string &bundleName, int32_t accountId) override { return true; }
 
-    void OnBundleAdded(const std::string &bundleName, int32_t accountId) override {}
+    bool OnApp(uint32_t code, const std::string &bundleName) override { return true; }
 
-    void OnBundleRemoved(const std::string &bundleName, int32_t accountId) override {}
+    bool OnSystemUpdate(const UpdateInfo &updateInfo) override { return true; }
 
-    void OnAppStart(const std::string &bundleName) override {}
+    bool OnAccount(uint32_t code, const int32_t accountId) override { return true; }
 
-    void OnAppStop(const std::string &bundleName) override {}
+    bool OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId) override { return true; }
 
-    void OnSystemUpdate(const UpdateInfo &updateInfo) override {}
+    bool OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override { return true; }
 
-    void OnAccountAdded(const int32_t accountId) override {}
+    bool OnDeviceAdmin(uint32_t code, const std::string &bundleName) override { return true; }
 
-    void OnAccountSwitched(const int32_t accountId) override {}
+    bool OnLogCollected(bool isSuccess) override { return true; }
 
-    void OnAccountRemoved(const int32_t accountId) override {}
+    bool OnKeyEvent(const std::string &event) override { return true; }
 
-    void OnKioskModeEntering(const std::string &bundleName, int32_t accountId) override {}
+    bool OnStartupGuideCompleted(int32_t type) override { return true; }
 
-    void OnKioskModeExiting(const std::string &bundleName, int32_t accountId) override {}
+    bool OnDeviceBootCompleted() override { return true; }
 
-    void OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) override {}
-
-    void OnDeviceAdminEnabled(const std::string &bundleName) override {}
-
-    void OnDeviceAdminDisabled(const std::string &bundleName) override {}
-
-    void OnLogCollected(bool isSuccess) override {}
-
-    void OnKeyEvent(const std::string &event) override {}
-
-    void OnStartupGuideCompleted(int32_t type) override {}
-
-    void OnDeviceBootCompleted() override {}
-
-    void OnBundleUpdated(const std::string &bundleName, int32_t accountId) override {}
-
-    void OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override {}
+    bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override { return true; }
 
     uint32_t code_ = 0;
 };

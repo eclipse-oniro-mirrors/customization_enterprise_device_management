@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,116 +15,218 @@
 
 #include "enterprise_conn_manager.h"
 
-#include <if_system_ability_manager.h>
-#include <ipc_skeleton.h>
-#include <iservice_registry.h>
-#include <string_ex.h>
-#include <system_ability_definition.h>
+#include <chrono>
 
 #include "edm_log.h"
+#include "enterprise_connection_callback.h"
 #include "extension_manager_client.h"
-#include "extension_manager_proxy.h"
-#include "managed_event.h"
-#include "enterprise_policy_changed_connection.h"
+#include "parameters.h"
 
 using namespace OHOS::AAFwk;
 
 namespace OHOS {
 namespace EDM {
-// LCOV_EXCL_START
-bool EnterpriseConnManager::CreateAdminConnection(const AAFwk::Want &want,
-    uint32_t code, uint32_t userId, bool isOnAdminEnabled, const std::string &bundleName)
-{
-    sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseAdminConnection(want, code, userId,
-        isOnAdminEnabled, bundleName));
-    return ConnectAbility(connection);
-}
+constexpr int64_t DEFAULT_TIMEOUT_MS = 10000;
+constexpr const char* TIMEOUT_PARAM_NAME = "persist.sys.abilityms.timeout_unit_time_ratio";
 
-bool EnterpriseConnManager::CreateBundleConnection(const AAFwk::Want &want,
-    uint32_t code, uint32_t userId, const std::string &bundleName, const int32_t accountId)
+bool EnterpriseConnManager::ExecuteCallback(const std::string& bundleName,
+    const std::string& abilityName, int32_t userId, std::shared_ptr<ICallbackStrategy> strategy)
 {
-    sptr<IEnterpriseConnection> connection(new (std::nothrow) EnterpriseBundleConnection(want,
-        code, userId, bundleName, accountId));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateUpdateConnection(const AAFwk::Want &want,
-    uint32_t userId, const UpdateInfo &updateInfo)
-{
-    sptr<IEnterpriseConnection> connection(new (std::nothrow)EnterpriseUpdateConnection(want,
-        static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE), userId, updateInfo));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateAccountConnection(const AAFwk::Want &want,
-    uint32_t code, uint32_t userId, const int32_t accountId)
-{
-    sptr<IEnterpriseConnection> connection(new (std::nothrow)EnterpriseAccountConnection(want, code, userId,
-        accountId));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateKioskConnection(
-    const AAFwk::Want &want, uint32_t code, uint32_t userId, const std::string &bundleName, int32_t accountId)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterpriseKioskConnection(want, code, userId, bundleName, accountId));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateMarketConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-    const std::string &bundleName, int32_t status)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterpriseMarketConnection(want, code, userId, bundleName, status));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateCollectLogConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-    bool isSuccess)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterpriseCollectLogConnection(want, code, userId, isSuccess));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateKeyEventConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-    const std::string &keyEvent)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterpriseKeyEventConnection(want, code, userId, keyEvent));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreateOobeConnection(const AAFwk::Want &want, uint32_t code, uint32_t userId,
-    int32_t type)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterpriseOobeConnection(want, code, userId, type));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::CreatePolicyChangedConnection(const AAFwk::Want &want,
-    const PolicyChangedEvent &policyChangedEvent, int32_t userId)
-{
-    sptr<IEnterpriseConnection> connection(
-        new (std::nothrow)EnterprisePolicyChangedConnection(want, policyChangedEvent, userId));
-    return ConnectAbility(connection);
-}
-
-bool EnterpriseConnManager::ConnectAbility(const sptr<IEnterpriseConnection>& connection)
-{
-    if (connection == nullptr) {
+    if (strategy == nullptr) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("ExecuteCallback: strategy is nullptr");
         return false;
     }
-    int32_t ret = ExtensionManagerClient::GetInstance().ConnectEnterpriseAdminExtensionAbility(connection->GetWant(),
-        connection, nullptr, connection->GetUserId());
+    std::string key = GenerateConnectionKey(bundleName, userId);
+    sptr<EnterpriseAdminProxy> existingProxy = nullptr;
+    bool needCreateConnection = false;
+    if (!CheckConnectionState(key, strategy, existingProxy, needCreateConnection)) {
+        EDMLOGE("ExecuteCallback: check connection state failed");
+        return false;
+    }
+    if (existingProxy != nullptr) {
+        if (!existingProxy->IsValid()) { // LCOV_EXCL_BR_LINE
+            EDMLOGW("ExecuteCallback: proxy is invalid for %{public}s, remove and reconnect",
+                bundleName.c_str());
+            {
+                std::lock_guard<std::mutex> lock(connectionMutex_);
+                auto it = connectionMap_.find(key);
+                if (it != connectionMap_.end()) { // LCOV_EXCL_BR_LINE
+                    auto& info = it->second;
+                    info.proxy = nullptr;
+                    info.isPending = true;
+                    info.createTime = GetCurrentTimeMs();
+
+                    info.pendingCallbacks.push_back(strategy);
+                    EDMLOGI("ExecuteCallback: cleared invalid proxy for %{public}s, pendingCallbacks=%{public}zu",
+                        bundleName.c_str(), info.pendingCallbacks.size());
+                }
+            }
+            return EstablishConnection(bundleName, abilityName, userId);
+        }
+        strategy->Execute(existingProxy);
+        return true;
+    }
+    if (!needCreateConnection) {
+        return true;
+    }
+    return EstablishConnection(bundleName, abilityName, userId);
+}
+
+void EnterpriseConnManager::SaveProxy(const std::string& bundleName, int32_t userId,
+    const sptr<EnterpriseAdminProxy>& proxy)
+{
+    if (proxy == nullptr) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("EnterpriseConnManager::SaveProxy proxy is nullptr");
+        return;
+    }
+    std::string key = GenerateConnectionKey(bundleName, userId);
+    std::vector<std::shared_ptr<ICallbackStrategy>> callbacks;
+    {
+        std::lock_guard<std::mutex> lock(connectionMutex_);
+        auto it = connectionMap_.find(key);
+        if (it == connectionMap_.end()) {
+            EDMLOGE("EnterpriseConnManager::SaveProxy connection not found for %{public}s", bundleName.c_str());
+            return;
+        }
+        auto& info = it->second;
+        info.proxy = proxy;
+        info.isPending = false;
+        EDMLOGD("EnterpriseConnManager::SaveProxy saved proxy for %{public}s, queue size=%{public}zu",
+            bundleName.c_str(), info.pendingCallbacks.size());
+        callbacks = info.pendingCallbacks;
+        info.pendingCallbacks.clear();
+    }
+    for (auto& cb : callbacks) {
+        if (cb != nullptr) {
+            EDMLOGI("EnterpriseConnManager::SaveProxy execute pending callback: code=%{public}u", cb->GetCode());
+            cb->Execute(proxy);
+        }
+    }
+}
+
+int64_t EnterpriseConnManager::GetCurrentTimeMs()
+{
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+}
+
+bool EnterpriseConnManager::IsConnectionTimeout(const ConnectionInfo& info)
+{
+    if (!info.isPending) {
+        return false;
+    }
+    int64_t currentTime = GetCurrentTimeMs();
+    int64_t elapsed = currentTime - info.createTime;
+    int32_t ratio = system::GetIntParameter<int32_t>(TIMEOUT_PARAM_NAME, 1);
+    int64_t timeoutMs = static_cast<int64_t>(DEFAULT_TIMEOUT_MS * ratio);
+    return elapsed > timeoutMs;
+}
+
+bool EnterpriseConnManager::CheckConnectionState(const std::string& key,
+    std::shared_ptr<ICallbackStrategy> strategy, sptr<EnterpriseAdminProxy>& existingProxy,
+    bool& needCreateConnection)
+{
+    std::lock_guard<std::mutex> lock(connectionMutex_);
+    auto it = connectionMap_.find(key);
+
+    if (it != connectionMap_.end() && IsConnectionTimeout(it->second)) {
+        EDMLOGW("CheckConnectionState: connection timeout for %{public}s,  pending callbacks=%{public}zu",
+            key.c_str(), it->second.pendingCallbacks.size());
+        connectionMap_.erase(it);
+        it = connectionMap_.end();
+    }
+
+    if (it != connectionMap_.end() && it->second.proxy != nullptr) {
+        EDMLOGI("CheckConnectionState: proxy exists for %{public}s, code=%{public}u", key.c_str(), strategy->GetCode());
+        existingProxy = it->second.proxy;
+        return true;
+    }
+
+    if (it != connectionMap_.end() && it->second.isPending) {
+        EDMLOGI("CheckConnectionState: connection is pending for %{public}s, code=%{public}u",
+            key.c_str(), strategy->GetCode());
+        it->second.pendingCallbacks.push_back(strategy);
+        return true;
+    }
+
+    needCreateConnection = PrepareNewConnection(key, strategy);
+    return true;
+}
+
+bool EnterpriseConnManager::PrepareNewConnection(const std::string& key,
+    std::shared_ptr<ICallbackStrategy> strategy)
+{
+    auto it = connectionMap_.find(key);
+    if (it != connectionMap_.end()) {
+        auto& info = it->second;
+        info.isPending = true;
+        info.createTime = GetCurrentTimeMs();
+        info.pendingCallbacks.push_back(strategy);
+        EDMLOGI("PrepareNewConnection: updated pending connection for %{public}s, pendingCallbacks=%{public}zu",
+            key.c_str(), info.pendingCallbacks.size());
+    } else {
+        ConnectionInfo info;
+        info.isPending = true;
+        info.createTime = GetCurrentTimeMs();
+        info.pendingCallbacks.push_back(strategy);
+        connectionMap_[key] = info;
+        EDMLOGI("PrepareNewConnection: created pending connection for %{public}s", key.c_str());
+    }
+    return true;
+}
+
+bool EnterpriseConnManager::EstablishConnection(const std::string& bundleName,
+    const std::string& abilityName, int32_t userId)
+{
+    EDMLOGI("EstablishConnection: create new connection for %{public}s", bundleName.c_str());
+    AAFwk::Want want;
+    want.SetElementName(bundleName, abilityName);
+    sptr<EnterpriseConnectionCallback> connection = new (std::nothrow) EnterpriseConnectionCallback(bundleName, userId);
+    if (connection == nullptr) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("EstablishConnection: create connection callback failed");
+        return false;
+    }
+
+    std::string key = GenerateConnectionKey(bundleName, userId);
+    int32_t ret = ExtensionManagerClient::GetInstance().ConnectEnterpriseAdminExtensionAbility(
+        want, connection, nullptr, userId);
     if (ret != ERR_OK) {
-        EDMLOGE("EnterpriseConnManager::ConnectAbility connect extenison ability failed:%{public}d.", ret);
+        EDMLOGE("EstablishConnection: connect failed: %{public}d", ret);
+        std::lock_guard<std::mutex> lock(connectionMutex_);
+        auto it = connectionMap_.find(key);
+        if (it != connectionMap_.end()) {
+            EDMLOGW("EstablishConnection: connection request failed, lost %{public}zu pending callbacks",
+                it->second.pendingCallbacks.size());
+            connectionMap_.erase(it);
+        }
         return false;
     }
     return true;
 }
-// LCOV_EXCL_STOP
+
+std::string EnterpriseConnManager::GenerateConnectionKey(const std::string& bundleName, int32_t userId)
+{
+    return bundleName + "_" + std::to_string(userId);
+}
+
+void EnterpriseConnManager::RemoveRemoteObject(const std::string& bundleName, int32_t userId)
+{
+    std::string key = GenerateConnectionKey(bundleName, userId);
+    std::lock_guard<std::mutex> lock(connectionMutex_);
+    auto it = connectionMap_.find(key);
+    if (it != connectionMap_.end()) {
+        connectionMap_.erase(it);
+        EDMLOGI("EnterpriseConnManager::RemoveRemoteObject removed connection for %{public}s, userId=%{public}d",
+            bundleName.c_str(), userId);
+    }
+}
+
+void EnterpriseConnManager::ClearConnections()
+{
+    std::lock_guard<std::mutex> lock(connectionMutex_);
+    connectionMap_.clear();
+    EDMLOGI("EnterpriseConnManager::ClearConnections cleared all connections");
+}
 } // namespace EDM
 } // namespace OHOS

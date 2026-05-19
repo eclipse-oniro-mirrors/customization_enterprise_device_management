@@ -14,218 +14,138 @@
  */
 
 #include "enterprise_admin_stub_impl.h"
-#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
-void EnterpriseAdminStubImpl::OnAdminEnabled()
+bool EnterpriseAdminStubImpl::OnAdmin(uint32_t code)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAdminEnabled();
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnAdmin(code);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnAdminDisabled()
+bool EnterpriseAdminStubImpl::OnDeviceAdmin(uint32_t code, const std::string &bundleName)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAdminDisabled();
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnDeviceAdmin(code, bundleName);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnDeviceAdminEnabled(const std::string &bundleName)
+
+bool EnterpriseAdminStubImpl::OnBundle(uint32_t code, const std::string &bundleName, int32_t accountId)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnDeviceAdminEnabled(bundleName);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnBundle(code, bundleName, accountId);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnDeviceAdminDisabled(const std::string &bundleName)
+bool EnterpriseAdminStubImpl::OnApp(uint32_t code, const std::string &bundleName)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnDeviceAdminDisabled(bundleName);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnApp(code, bundleName);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnBundleAdded(const std::string &bundleName, int32_t accountId)
+bool EnterpriseAdminStubImpl::OnSystemUpdate(const UpdateInfo &updateInfo)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnBundleAdded(bundleName, accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnSystemUpdate(updateInfo);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnBundleRemoved(const std::string &bundleName, int32_t accountId)
+bool EnterpriseAdminStubImpl::OnAccount(uint32_t code, const int32_t accountId)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnBundleRemoved(bundleName, accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnAccount(code, accountId);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnBundleUpdated(const std::string &bundleName, int32_t accountId)
+bool EnterpriseAdminStubImpl::OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnBundleUpdated(bundleName, accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnKioskMode(code, bundleName, accountId);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnAppStart(const std::string &bundleName)
+bool EnterpriseAdminStubImpl::OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAppStart(bundleName);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnMarketAppsInstallStatusChanged(bundleName, status);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnAppStop(const std::string &bundleName)
+bool EnterpriseAdminStubImpl::OnLogCollected(bool isSuccess)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAppStop(bundleName);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnLogCollected(isSuccess);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnSystemUpdate(const UpdateInfo &updateInfo)
+bool EnterpriseAdminStubImpl::OnKeyEvent(const std::string &event)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnSystemUpdate(updateInfo);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnKeyEvent(event);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnAccountAdded(const int32_t accountId)
+bool EnterpriseAdminStubImpl::OnStartupGuideCompleted(int32_t type)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAccountAdded(accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnStartupGuideCompleted(type);
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnAccountSwitched(const int32_t accountId)
+bool EnterpriseAdminStubImpl::OnDeviceBootCompleted()
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAccountSwitched(accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
+    extension->OnDeviceBootCompleted();
+    return true;
 }
 
-void EnterpriseAdminStubImpl::OnAccountRemoved(const int32_t accountId)
+bool EnterpriseAdminStubImpl::OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent)
 {
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
     auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAccountRemoved(accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
+    if (extension == nullptr) {
+        return false;
     }
-}
-
-void EnterpriseAdminStubImpl::OnKioskModeEntering(const std::string &bundleName, int32_t accountId)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnKioskModeEntering(bundleName, accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnKioskModeExiting(const std::string &bundleName, int32_t accountId)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnKioskModeExiting(bundleName, accountId);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnMarketAppsInstallStatusChanged(bundleName, status);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnLogCollected(bool isSuccess)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnLogCollected(isSuccess);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnKeyEvent(const std::string &event)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnKeyEvent(event);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnStartupGuideCompleted(int32_t type)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnStartupGuideCompleted(type);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnDeviceBootCompleted()
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnDeviceBootCompleted();
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
-}
-
-void EnterpriseAdminStubImpl::OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent)
-{
-    EDMLOGI("EnterpriseAdminStubImpl %{public}s begin.", __func__);
-    auto extension = extension_.lock();
-    if (extension != nullptr) {
-        extension->OnAdminPolicyChanged(policyChangedEvent);
-        EDMLOGD("EnterpriseAdminStubImpl %{public}s end successfully.", __func__);
-    }
+    extension->OnAdminPolicyChanged(policyChangedEvent);
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS
