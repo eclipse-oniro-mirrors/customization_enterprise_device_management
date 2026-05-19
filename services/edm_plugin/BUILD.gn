@@ -266,6 +266,14 @@ ohos_shared_library("device_core_plugin") {
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
   ]
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -496,6 +504,14 @@ ohos_shared_library("communication_plugin") {
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
   ]
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -634,6 +650,14 @@ ohos_shared_library("sys_service_plugin") {
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
   ]
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -741,6 +765,14 @@ ohos_shared_library("need_extra_plugin") {
     "../../common/native:edm_commom",
     "../../interfaces/inner_api:edmservice_kits",
     "../../interfaces/inner_api/plugin_kits:plugin_kits",
+  ]
+
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
   ]
 
   sanitize = {

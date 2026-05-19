@@ -58,6 +58,14 @@ ohos_shared_library("edm_external_adapters") {
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

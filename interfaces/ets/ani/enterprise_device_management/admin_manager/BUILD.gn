@@ -38,6 +38,14 @@ ohos_shared_library("adminManager_ani") {
     "runtime_core:ani",
   ]
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

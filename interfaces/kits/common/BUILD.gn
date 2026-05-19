@@ -43,6 +43,14 @@ ohos_shared_library("napi_edm_common") {
     "napi:ace_napi",
   ]
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
