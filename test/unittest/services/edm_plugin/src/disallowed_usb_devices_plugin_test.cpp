@@ -32,8 +32,10 @@ namespace TEST {
 const int32_t BASE_CLASS = 3;
 const int32_t SUB_CLASS = 1;
 const int32_t PROTOCOL = 2;
-const std::string TEST_POLICY_DATA = "[{\"baseClass\":3,\"subClass\":1,\"protocol\":2,\"isDeviceType\":false}]";
-const std::string TEST_CURRENT_DATA = "[{\"baseClass\":8,\"subClass\":3,\"protocol\":2,\"isDeviceType\":false}]";
+const std::string TEST_POLICY_DATA =
+    "[{\"baseClass\":3,\"subClass\":1,\"protocol\":2,\"isDeviceType\":false,\"isDeviceTypeAllMatch\":false}]";
+const std::string TEST_CURRENT_DATA =
+    "[{\"baseClass\":8,\"subClass\":3,\"protocol\":2,\"isDeviceType\":false,\"isDeviceTypeAllMatch\":false}]";
 
 class DisallowedUsbDevicesPluginTest : public testing::Test {
 protected:
