@@ -26,6 +26,8 @@ const char* const ACCOUNT_ID = "accountId";
 const char* const FILE_NAME = "fileName";
 const char* const WIDTH = "width";
 const char* const HEIGHT = "height";
+const char* const INTERVALS_ROW = "intervalsRow";
+const char* const INTERVALS_COL = "intervalsCol";
 
 bool WatermarkImageSerializer::Deserialize(const std::string &policy,
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> &dataObj)
@@ -44,6 +46,8 @@ bool WatermarkImageSerializer::Deserialize(const std::string &policy,
         cJSON* fileName = cJSON_GetObjectItem(item, FILE_NAME);
         cJSON* width = cJSON_GetObjectItem(item, WIDTH);
         cJSON* height = cJSON_GetObjectItem(item, HEIGHT);
+        cJSON* intervalsRow = cJSON_GetObjectItem(item, INTERVALS_ROW);
+        cJSON* intervalsCol = cJSON_GetObjectItem(item, INTERVALS_COL);
         if (bundleName == nullptr || accountId == nullptr || fileName == nullptr ||
             width == nullptr || height == nullptr || !cJSON_IsString(bundleName)
             || !cJSON_IsString(fileName) || !cJSON_IsNumber(width) ||
@@ -53,7 +57,9 @@ bool WatermarkImageSerializer::Deserialize(const std::string &policy,
         }
         std::pair<std::string, int32_t> key{cJSON_GetStringValue(bundleName), accountId->valueint};
         std::string fileNameStr = cJSON_GetStringValue(fileName);
-        WatermarkImageType imageType{fileNameStr, width->valueint, height->valueint};
+        int32_t rowValue = (intervalsRow != nullptr && cJSON_IsNumber(intervalsRow)) ? intervalsRow->valueint : 0;
+        int32_t colValue = (intervalsCol != nullptr && cJSON_IsNumber(intervalsCol)) ? intervalsCol->valueint : 0;
+        WatermarkImageType imageType{fileNameStr, width->valueint, height->valueint, rowValue, colValue};
         dataObj.insert(std::make_pair(key, imageType));
     }
     cJSON_Delete(root);
@@ -76,6 +82,8 @@ bool WatermarkImageSerializer::Serialize(const std::map<std::pair<std::string, i
         cJSON_AddStringToObject(item, FILE_NAME, it.second.fileName.c_str());
         cJSON_AddNumberToObject(item, WIDTH, it.second.width);
         cJSON_AddNumberToObject(item, HEIGHT, it.second.height);
+        cJSON_AddNumberToObject(item, INTERVALS_ROW, it.second.intervalsRow);
+        cJSON_AddNumberToObject(item, INTERVALS_COL, it.second.intervalsCol);
         cJSON_AddItemToArray(root, item);
     }
     char* jsonStr = cJSON_Print(root);

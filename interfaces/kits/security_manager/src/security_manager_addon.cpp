@@ -691,19 +691,28 @@ void SecurityManagerAddon::CreatePasswordAlgsObject(napi_env env, napi_value val
 napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetWatermarkImage called");
-    size_t argc = ARGS_SIZE_FOUR;
-    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    size_t argc = ARGS_SIZE_FIVE;
+    napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-
+    bool hasPropertyParam = argc >= ARGS_SIZE_FIVE;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    if (hasPropertyParam) {
+        ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+            "Parameter admin error");
+    } else {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+            "Parameter admin error");
+    }
     std::shared_ptr<WatermarkParam> paramPtr = nullptr;
-    napi_value ret = CheckBuildWatermarkParam(env, argv, paramPtr);
+    napi_value ret = nullptr;
+    if (hasPropertyParam) {
+        ret = CheckBuildWatermarkHasPropertyParam(env, argv, paramPtr);
+    } else {
+        ret = CheckBuildWatermarkParam(env, argv, paramPtr);
+    }
     if (ret == nullptr) {
         return nullptr;
     }
@@ -714,7 +723,14 @@ napi_value SecurityManagerAddon::SetWatermarkImage(napi_env env, napi_callback_i
     }
     retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetWatermarkImage(elementName, paramPtr);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        if (hasPropertyParam) {
+            if (retCode == EdmReturnErrCode::PARAM_ERROR) {
+                retCode = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+            }
+            napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+        } else {
+            napi_throw(env, CreateError(env, retCode));
+        }
     }
     return nullptr;
 }
@@ -834,6 +850,60 @@ napi_value SecurityManagerAddon::CheckBuildWatermarkParam(napi_env env, napi_val
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
         return nullptr;
     }
+
+    napi_value ret;
+    NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
+    return ret;
+}
+
+napi_value SecurityManagerAddon::CheckBuildWatermarkHasPropertyParam(napi_env env, napi_value* argv,
+    std::shared_ptr<WatermarkParam> &paramPtr)
+{
+    napi_valuetype imageValueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_TWO], &imageValueType));
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, imageValueType == napi_object || imageValueType == napi_string,
+        "image type error");
+    auto param = new (std::nothrow) WatermarkParam();
+    if (param == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    paramPtr = std::shared_ptr<WatermarkParam>(param, [](WatermarkParam *param) {
+        param->CheckAndFreePixels();
+        delete param;
+    });
+    std::shared_ptr<Media::PixelMap> pixelMap;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, paramPtr->bundleName, argv[ARR_INDEX_ONE]),
+        "Parameter bundleName error");
+    if (imageValueType == napi_object) {
+        pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_TWO]);
+    } else {
+        std::string url;
+        ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, url, argv[ARR_INDEX_TWO]),
+            "Parameter pixelMap error");
+        pixelMap = Decode(url);
+    }
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, pixelMap != nullptr &&
+        pixelMap->GetByteCount() <= EdmConstants::MAX_WATERMARK_IMAGE_SIZE, "Parameter pixelMap error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, paramPtr->accountId, argv[ARR_INDEX_THREE]),
+        "Parameter accountId error");
+    if (!GetPixelMapData(pixelMap, paramPtr)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_FOUR], napi_object),
+        "property type error");
+    if (!JsObjectToInt(env, argv[ARR_INDEX_FOUR], "intervalsRow", true, paramPtr->intervalsRow)) {
+        EDMLOGE("Parameter intervalsRow error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    if (!JsObjectToInt(env, argv[ARR_INDEX_FOUR], "intervalsCol", true, paramPtr->intervalsCol)) {
+        EDMLOGE("Parameter intervalsCol error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    paramPtr->hasPropertyParam = true;
     napi_value ret;
     NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
     return ret;

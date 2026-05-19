@@ -25,6 +25,9 @@ struct WatermarkParam {
     int32_t height = 0;
     int32_t size = 0;
     void* pixels = nullptr;
+    int32_t intervalsRow = 0;
+    int32_t intervalsCol = 0;
+    bool hasPropertyParam = false;
 
     void SetPixels(void* data)
     {

@@ -41,6 +41,10 @@ const std::string WATERMARK_IMAGE_DIR_PATH = "/data/service/el1/public/edm/water
 const std::string FILE_PREFIX = "edm_";
 const std::string DATA_LEVEL_S4 = "s4";
 constexpr int32_t MAX_POLICY_NUM = 100;
+constexpr int32_t MIX_ROW_NUM = 1;
+constexpr int32_t MIX_COL_NUM = 1;
+constexpr int32_t MAX_ROW_NUM = 255;
+constexpr int32_t MAX_COL_NUM = 255;
 SetWatermarkImagePlugin::SetWatermarkImagePlugin()
 {
     EDMLOGI("SetWatermarkImagePlugin InitPlugin...");
@@ -162,7 +166,9 @@ void SetWatermarkImagePlugin::SetAllWatermarkImage()
             EDMLOGE("SetAllWatermarkImage GetImageFromUrlUint8 null");
             continue;
         }
-        if (!SetWatermarkToRS(it->second.fileName, pixelMap)) {
+        int32_t intervalsRow = it->second.intervalsRow;
+        int32_t intervalsCol = it->second.intervalsCol;
+        if (!SetWatermarkToRS(it->second.fileName, pixelMap, intervalsRow, intervalsCol)) {
             EDMLOGE("SetWatermarkToRS fail");
             return;
         }
@@ -189,7 +195,7 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
     }
     std::string fileName = FILE_PREFIX + std::to_string(time(nullptr));
     std::string filePath = WATERMARK_IMAGE_DIR_PATH + fileName;
-    currentData[key] = WatermarkImageType{fileName, param.width, param.height};
+    currentData[key] = WatermarkImageType{fileName, param.width, param.height, param.intervalsRow, param.intervalsCol};
     for (auto item : currentData) {
         mergeData[item.first] = item.second;
     }
@@ -197,8 +203,9 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
         EDMLOGE("SetWatermarkImagePlugin policy max");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-
-    if (!SetWatermarkToRS(fileName, pixelMap)) {
+    int32_t intervalsRow = param.hasPropertyParam ? param.intervalsRow : 0;
+    int32_t intervalsCol = param.hasPropertyParam ? param.intervalsCol : 0;
+    if (!SetWatermarkToRS(fileName, pixelMap, intervalsRow, intervalsCol)) {
         EDMLOGE("SetWatermarkToRS fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -238,17 +245,28 @@ bool SetWatermarkImagePlugin::GetWatermarkParam(WatermarkParam &param, MessagePa
         EDMLOGE("GetWatermarkParam pixels error");
         return false;
     }
+    param.intervalsRow = data.ReadInt32();
+    param.intervalsCol = data.ReadInt32();
+    param.hasPropertyParam = data.ReadBool();
     if (param.bundleName.empty() || param.width <= 0 || param.height <= 0 || param.accountId <= 0) {
         EDMLOGE("GetWatermarkParam param error");
+        return false;
+    }
+    if (param.hasPropertyParam && !IsRowColParamValid(param.intervalsRow, param.intervalsCol)) {
         return false;
     }
     return true;
 }
 
-bool SetWatermarkImagePlugin::SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg)
+bool SetWatermarkImagePlugin::SetWatermarkToRS(const std::string &name, std::shared_ptr<Media::PixelMap> watermarkImg,
+    int32_t intervalsRow, int32_t intervalsCol)
 {
-    EDMLOGI("SetWatermarkToRS %{public}s", name.c_str());
-    return Rosen::RSInterfaces::GetInstance().SetWatermark(name, watermarkImg);
+    EDMLOGI("SetWatermarkToRS %{public}s, intervalsRow=%{public}d, intervalsCol=%{public}d", name.c_str(),
+        intervalsRow, intervalsCol);
+    uint32_t rowCount = static_cast<uint32_t>(intervalsRow);
+    uint32_t colCount = static_cast<uint32_t>(intervalsCol);
+    return Rosen::RSInterfaces::GetInstance().SetWatermark(name, watermarkImg,
+        Rosen::SaSurfaceWatermarkMaxSize::SA_WATER_MARK_DEFAULT_SIZE, rowCount, colCount);
 }
 
 void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName, const std::string &fileName,
@@ -435,6 +453,15 @@ ErrCode SetWatermarkImagePlugin::GetOthersMergePolicyData(const std::string &adm
 void SetWatermarkImagePlugin::OnOtherServiceStart(int32_t systemAbilityId)
 {
     SetAllWatermarkImage();
+}
+
+bool SetWatermarkImagePlugin::IsRowColParamValid(int32_t row, int32_t col)
+{
+    if (row < MIX_ROW_NUM || row > MAX_ROW_NUM || col < MIX_COL_NUM || col > MAX_COL_NUM) {
+        EDMLOGE("SetWatermarkImagePlugin row or col param invalid");
+        return false;
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS
