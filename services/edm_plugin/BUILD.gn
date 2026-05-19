@@ -232,6 +232,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/restrictions/disallow_multi_window_plugin.cpp",
         "./src/device_settings/set_floating_navigation_plugin.cpp",
         "./src/account_manager/manage_normal_os_account_plugin.cpp",
+        "./src/account_manager/activate_normal_os_account_plugin.cpp",
       ]
     }
 

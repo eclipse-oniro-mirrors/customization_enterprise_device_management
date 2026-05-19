@@ -60,8 +60,7 @@ HWTEST_F(ManageNormalOsAccountPluginTest, TestOnHandlePolicyCreateAccount, TestS
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT);
     HandlePolicyData handlePolicyData{"", "", true};
     MessageParcel data;
-    std::string name = "testName1";
-    data.WriteString(EdmConstants::CREATE_NORMAL_OS_ACCOUNT);
+    std::string name = "testName";
     data.WriteString(name);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -72,21 +71,24 @@ HWTEST_F(ManageNormalOsAccountPluginTest, TestOnHandlePolicyCreateAccount, TestS
 }
 
 /**
- * @tc.name: TestOnHandlePolicyActivateAccount
- * @tc.desc: Test ManageNormalOsAccountPlugin::OnHandlePolicy function activate normalOsAccount success.
+ * @tc.name: TestOnHandlePolicyCreateAccountFail
+ * @tc.desc: Test ManageNormalOsAccountPlugin::OnHandlePolicy function create normalOsAccount Fail.
  * @tc.type: FUNC
  */
-HWTEST_F(ManageNormalOsAccountPluginTest, TestOnHandlePolicyActivateAccount, TestSize.Level1)
+HWTEST_F(ManageNormalOsAccountPluginTest, TestOnHandlePolicyCreateAccountFail, TestSize.Level1)
 {
     std::shared_ptr<ManageNormalOsAccountPlugin> plugin = std::make_shared<ManageNormalOsAccountPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT);
     HandlePolicyData handlePolicyData{"", "", true};
     MessageParcel data;
-    data.WriteString(EdmConstants::ACTIVATE_OS_ACCOUNT);
-    data.WriteInt32(100);
+    std::string name;
+    data.WriteString(name);
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    name = "testName";
+    ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -105,6 +107,24 @@ HWTEST_F(ManageNormalOsAccountPluginTest, TestOnHandlePolicyRemoveAccount, TestS
     MessageParcel reply;
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyRemoveAccountFail
+ * @tc.desc: Test ManageNormalOsAccountPlugin::OnHandlePolicy function remove normalOsAccount Fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageNormalOsAccountPluginTest, TestOnHandlePolicyRemoveAccountFail, TestSize.Level1)
+{
+    std::shared_ptr<ManageNormalOsAccountPlugin> plugin = std::make_shared<ManageNormalOsAccountPlugin>();
+    uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT);
+    HandlePolicyData handlePolicyData{"", "", true};
+    MessageParcel data;
+    data.WriteInt32(DEFAULT_USER_ID);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::ACCOUNT_RESTRICTED);
 }
 } // namespace TEST
 } // namespace EDM
