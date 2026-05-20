@@ -33,6 +33,7 @@ bool InstallMarketAppsSerializer::GetPolicy(MessageParcel &data, InstallMarketAp
     result.installFlag = data.ReadInt32();
     result.eventCode = data.ReadInt32();
     result.singleBundleName = data.ReadString();
+    result.reason = data.ReadInt32();
     return true;
 }
 

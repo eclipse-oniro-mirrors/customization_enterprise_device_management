@@ -27,8 +27,12 @@ struct InstallMarketAppsInfo {
     std::vector<std::string> bundleNames;
     // 区分安装AG、更新状态机、
     int32_t installFlag = 0;
+    // 公共事件code
     int32_t eventCode = 0;
+    // 公共事件中对应的单个包名
     std::string singleBundleName;
+    // AG回调方法的失败原因
+    int32_t reason = 0;
 };
 
 /*

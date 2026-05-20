@@ -105,6 +105,7 @@ const int32_t INIT_AG_TASK = 3;
 const int32_t INSTALL_MARKET_APPS_PLUGIN_CODE = 3028;
 const int32_t AG_COMMON_EVENT_SIZE = 3;
 const int32_t AG_PERMISSION_INDEX = 2;
+const char* const REASON = "reason";
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
 constexpr int32_t BUNDLE_UPDATE_EVENT = 2;
 constexpr int32_t BUNDLE_INVALID_EVENT = -1;
@@ -255,6 +256,7 @@ void EnterpriseDeviceMgrAbility::UpdateMarketAppsState(const EventFwk::CommonEve
     // data.GetCode()用于状态机更新状态
     messageData.WriteInt32(data.GetCode());
     messageData.WriteString(data.GetWant().GetStringParam(WANT_BUNDLE_NAME));
+    messageData.WriteInt32(data.GetWant().GetIntParam(REASON, -1));
 
     OHOS::AppExecFwk::ElementName elementName;
     elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
