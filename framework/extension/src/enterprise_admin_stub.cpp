@@ -50,15 +50,15 @@ void EnterpriseAdminStub::InitHandleFuncMap()
 
 void EnterpriseAdminStub::InitAdminHandleFuncs()
 {
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAdminInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAdminInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnDeviceAdminInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnDeviceAdminInner(code, data, reply);
         };
@@ -66,39 +66,39 @@ void EnterpriseAdminStub::InitAdminHandleFuncs()
 
 void EnterpriseAdminStub::InitBundleHandleFuncs()
 {
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnBundleInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnBundleInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnBundleInner(code, data, reply); };
 }
 
 void EnterpriseAdminStub::InitAppHandleFuncs()
 {
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_APP_START] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_APP_START] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAppInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_APP_STOP] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_APP_STOP] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAppInner(code, data, reply); };
 }
 
 void EnterpriseAdminStub::InitAccountHandleFuncs()
 {
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAccountInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAccountInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnAccountInner(code, data, reply); };
 }
 
 void EnterpriseAdminStub::InitKioskHandleFuncs()
 {
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_ENTERING] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnKioskModeInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_KIOSK_MODE_EXITING] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnKioskModeInner(code, data, reply);
         };
@@ -106,29 +106,29 @@ void EnterpriseAdminStub::InitKioskHandleFuncs()
 
 void EnterpriseAdminStub::InitOtherHandleFuncs()
 {
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_SYSTEM_UPDATE] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_SYSTEM_UPDATE] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnSystemUpdateInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnMarketAppsInstallStatusChangedInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_LOG_COLLECTED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_LOG_COLLECTED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnLogCollectedInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_KEY_EVENT] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_KEY_EVENT] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) { return OnKeyEventInner(code, data, reply); };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_STARTUP_GUIDE_COMPLETED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_STARTUP_GUIDE_COMPLETED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnStartupGuideCompletedInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_DEVICE_BOOT_COMPLETED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_DEVICE_BOOT_COMPLETED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnDeviceBootCompletedInner(code, data, reply);
         };
-    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_POLICIES_CHANGED] = 
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_POLICIES_CHANGED] =
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnAdminPolicyChangedInner(code, data, reply);
         };

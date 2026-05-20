@@ -27,16 +27,16 @@ namespace EDM {
 
 /**
  * @brief 企业管理员IPC接口，定义了EDM系统与企业管理应用之间的通信协议。
- * 
+ *
  * 该接口通过IRemoteBroker实现跨进程通信，企业管理应用需实现此接口以接收
- * EDM系统的各类事件通知，包括管理员启用/禁用、应用安装/卸载、账号变更等。
+ * EDM系统的各类事件通知，包括管理员激活/去激活、应用安装/卸载、账号变更等。
  */
 class IEnterpriseAdmin : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.EDM.IEnterpriseAdmin");
 
     /**
-     * @brief 处理管理员启用/禁用事件。
+     * @brief 处理管理员激活/去激活事件。
      * @param code 事件码，取值为COMMAND_ON_ADMIN_ENABLED或COMMAND_ON_ADMIN_DISABLED。
      * @return 处理成功返回true，失败返回false。
      */
@@ -92,7 +92,7 @@ public:
     virtual bool OnMarketAppsInstallStatusChanged(const std::string &bundleName, int32_t status) = 0;
 
     /**
-     * @brief 处理设备管理员启用/禁用事件。
+     * @brief 处理普通设备管理员激活/去激活事件。
      * @param code 事件码，取值为COMMAND_ON_DEVICE_ADMIN_ENABLED或COMMAND_ON_DEVICE_ADMIN_DISABLED。
      * @param bundleName 设备管理员应用包名。
      * @return 处理成功返回true，失败返回false。
@@ -137,9 +137,9 @@ public:
      * @brief IPC命令码枚举，定义了所有事件通知的命令码。
      */
     enum {
-        /** 管理员启用事件 */
+        /** 管理员激活事件 */
         COMMAND_ON_ADMIN_ENABLED = 1,
-        /** 管理员禁用事件 */
+        /** 管理员去激活事件 */
         COMMAND_ON_ADMIN_DISABLED = 2,
         /** 应用包安装事件 */
         COMMAND_ON_BUNDLE_ADDED = 3,
@@ -163,9 +163,9 @@ public:
         COMMAND_ON_KIOSK_MODE_EXITING = 12,
         /** 市场应用安装状态变更事件 */
         COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED = 13,
-        /** 设备管理员启用事件 */
+        /** 普通设备管理员激活事件 */
         COMMAND_ON_DEVICE_ADMIN_ENABLED = 14,
-        /** 设备管理员禁用事件 */
+        /** 普通设备管理员去激活事件 */
         COMMAND_ON_DEVICE_ADMIN_DISABLED = 15,
         /** 日志收集完成事件 */
         COMMAND_ON_LOG_COLLECTED = 16,
