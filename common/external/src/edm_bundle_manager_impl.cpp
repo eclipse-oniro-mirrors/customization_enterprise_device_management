@@ -276,5 +276,21 @@ std::string EdmBundleManagerImpl::GetIconByBundleName(const std::string &bundleN
     }
     return bundleResourceInfo.icon;
 }
+
+bool EdmBundleManagerImpl::GetBundleArchiveInfoV9(const std::string &hapFilePath, int32_t flags,
+    AppExecFwk::BundleInfo &bundleInfo)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetBundleArchiveInfoV9 GetBundleMgr failed.");
+        return false;
+    }
+    if (proxy->GetBundleArchiveInfoV9(hapFilePath, flags, bundleInfo) != ERR_OK) {
+        EDMLOGE("EdmBundleManagerImpl::GetBundleArchiveInfoV9 failed.");
+        return false;
+    }
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -383,6 +383,195 @@ HWTEST_F(InstallPluginTest, TestHandleInstallResultSuccess, TestSize.Level1)
     ErrCode ret = plugin.HandleInstallResult(ERR_OK, "success", reply);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestGetCallingBundleNameFail
+ * @tc.desc: Test InstallPlugin::GetCallingBundleName when bundle service is unavailable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, GetCallingBundleName_BundleServiceUnavailable_ReturnFalse, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string bundleName;
+    bool ret = plugin.GetCallingBundleName(bundleName);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestGetBundleInfoAndTypeFail
+ * @tc.desc: Test InstallPlugin::GetBundleInfoAndType when bundle service is unavailable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, GetBundleInfoAndType_BundleServiceUnavailable_ReturnFalse, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string bundleName;
+    InstalledBundleType bundleType = InstalledBundleType::NORMAL;
+    bool ret = plugin.GetBundleInfoAndType("/data/test/test.hap", bundleName, bundleType);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestHandleInstallResultSuccessWithEmptyRealPaths
+ * @tc.desc: Test InstallPlugin::HandleInstallResult success with empty realPaths, no report event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_SuccessWithEmptyRealPaths_NoReport, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    std::vector<std::string> realPaths;
+    ErrCode ret = plugin.HandleInstallResult(ERR_OK, "success", reply, realPaths);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestHandleInstallResultSuccessWithRealPathsButNoBundleInfo
+ * @tc.desc: Test InstallPlugin::HandleInstallResult success with realPaths but GetBundleInfoAndType fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_SuccessWithRealPathsButNoBundleInfo_NoReport, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    std::vector<std::string> realPaths = { "/data/test/test.hap" };
+    ErrCode ret = plugin.HandleInstallResult(ERR_OK, "success", reply, realPaths);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestHandleInstallResultFailWithRealPaths
+ * @tc.desc: Test InstallPlugin::HandleInstallResult fail with realPaths, error handling path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_FailWithRealPaths_ReturnError, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    std::vector<std::string> realPaths = { "/data/test/test.hap" };
+    constexpr int32_t ERR_INSTALL_PARSE_FAILED = 9568262;
+    ErrCode ret = plugin.HandleInstallResult(ERR_INSTALL_PARSE_FAILED, "parse failed", reply, realPaths);
+    ASSERT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PARSE_FAILED);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_PARSE_FAILED);
+}
+
+/**
+ * @tc.name: TestHandleInstallResultUnknownErrorWithRealPaths
+ * @tc.desc: Test InstallPlugin::HandleInstallResult unknown error with realPaths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_UnknownErrorWithRealPaths_ReturnApplicationInstallFailed,
+    TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    std::vector<std::string> realPaths = { "/data/test/test.hap" };
+    constexpr int32_t UNKNOWN_ERROR_CODE = 99999999;
+    ErrCode ret = plugin.HandleInstallResult(UNKNOWN_ERROR_CODE, "unknown error", reply, realPaths);
+    ASSERT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+}
+
+/**
+ * @tc.name: TestInstalledBundleTypeEnumValues
+ * @tc.desc: Test InstalledBundleType enum values are correct.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, InstalledBundleType_EnumValues_Correct, TestSize.Level1)
+{
+    EXPECT_EQ(static_cast<int32_t>(InstalledBundleType::AG), 0);
+    EXPECT_EQ(static_cast<int32_t>(InstalledBundleType::NORMAL), 1);
+    EXPECT_EQ(static_cast<int32_t>(InstalledBundleType::MDM), 2);
+}
+
+/**
+ * @tc.name: GetBundleInfoAndType_EmptyHapFilePath_ReturnFalse
+ * @tc.desc: Test InstallPlugin::GetBundleInfoAndType with empty hapFilePath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, GetBundleInfoAndType_EmptyHapFilePath_ReturnFalse, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string bundleName;
+    InstalledBundleType bundleType = InstalledBundleType::NORMAL;
+    bool ret = plugin.GetBundleInfoAndType("", bundleName, bundleType);
+    EXPECT_FALSE(ret);
+    EXPECT_EQ(bundleName, "");
+    EXPECT_EQ(bundleType, InstalledBundleType::NORMAL);
+}
+
+/**
+ * @tc.name: GetBundleInfoAndType_InvalidHapFilePath_ReturnFalse
+ * @tc.desc: Test InstallPlugin::GetBundleInfoAndType with invalid hapFilePath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, GetBundleInfoAndType_InvalidHapFilePath_ReturnFalse, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string bundleName;
+    InstalledBundleType bundleType = InstalledBundleType::NORMAL;
+    bool ret = plugin.GetBundleInfoAndType("/nonexistent/path/test.hap", bundleName, bundleType);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: HandleInstallResult_SuccessWithMultipleRealPaths_NoReport
+ * @tc.desc: Test InstallPlugin::HandleInstallResult success with multiple realPaths but GetBundleInfoAndType fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_SuccessWithMultipleRealPaths_NoReport, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    std::vector<std::string> realPaths = { "/data/test/test1.hap", "/data/test/test2.hap" };
+    ErrCode ret = plugin.HandleInstallResult(ERR_OK, "success", reply, realPaths);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: HandleInstallResult_FailWithEmptyRealPaths_ReturnError
+ * @tc.desc: Test InstallPlugin::HandleInstallResult fail with empty realPaths (default parameter).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_FailWithEmptyRealPaths_ReturnError, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    constexpr int32_t ERR_INSTALL_PARSE_FAILED = 9568262;
+    ErrCode ret = plugin.HandleInstallResult(ERR_INSTALL_PARSE_FAILED, "parse failed", reply);
+    ASSERT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PARSE_FAILED);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_PARSE_FAILED);
+}
+
+/**
+ * @tc.name: HandleInstallResult_SuccessWithEmptyRealPathsAndDefaultParam_NoReport
+ * @tc.desc: Test InstallPlugin::HandleInstallResult success with default realPaths parameter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_SuccessWithDefaultRealPaths_NoReport, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    ErrCode ret = plugin.HandleInstallResult(ERR_OK, "success", reply);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: HandleInstallResult_FailWithMultipleRealPaths_ReturnError
+ * @tc.desc: Test InstallPlugin::HandleInstallResult fail with multiple realPaths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, HandleInstallResult_FailWithMultipleRealPaths_ReturnError, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    std::vector<std::string> realPaths = { "/data/test/test1.hap", "/data/test/test2.hap" };
+    constexpr int32_t ERR_INSTALL_VERIFICATION_FAILED = 9568264;
+    ErrCode ret = plugin.HandleInstallResult(ERR_INSTALL_VERIFICATION_FAILED, "signature verify failed", reply,
+        realPaths);
+    ASSERT_EQ(ret, EdmReturnErrCode::INSTALL_APP_SIGNATURE_VERIFY_FAILED);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_SIGNATURE_VERIFY_FAILED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -294,6 +294,58 @@ HWTEST_F(EdmBundleManagerImplTest, TestGetIconByBundleName, TestSize.Level1)
     std::string icon = edmBundleManagerImpl.GetIconByBundleName(BUNDLE_NAME);
     EXPECT_EQ(icon, "");
 }
+
+/**
+ * @tc.name: TestGetBundleArchiveInfoV9
+ * @tc.desc: Test GetBundleArchiveInfoV9 function when bundle service is unavailable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, TestGetBundleArchiveInfoV9, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = edmBundleManagerImpl.GetBundleArchiveInfoV9("/data/test/test.hap", FLAGS, bundleInfo);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: GetBundleArchiveInfoV9_EmptyFilePath_ReturnFalse
+ * @tc.desc: Test GetBundleArchiveInfoV9 function with empty hapFilePath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, GetBundleArchiveInfoV9_EmptyFilePath_ReturnFalse, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = edmBundleManagerImpl.GetBundleArchiveInfoV9("", FLAGS, bundleInfo);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: GetBundleArchiveInfoV9_InvalidFilePath_ReturnFalse
+ * @tc.desc: Test GetBundleArchiveInfoV9 function with invalid hapFilePath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, GetBundleArchiveInfoV9_InvalidFilePath_ReturnFalse, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = edmBundleManagerImpl.GetBundleArchiveInfoV9("/nonexistent/path/test.hap", FLAGS, bundleInfo);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: GetBundleArchiveInfoV9_ZeroFlags_ReturnFalse
+ * @tc.desc: Test GetBundleArchiveInfoV9 function with zero flags.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmBundleManagerImplTest, GetBundleArchiveInfoV9_ZeroFlags_ReturnFalse, TestSize.Level1)
+{
+    EdmBundleManagerImpl edmBundleManagerImpl;
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = edmBundleManagerImpl.GetBundleArchiveInfoV9("/data/test/test.hap", 0, bundleInfo);
+    EXPECT_EQ(ret, false);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

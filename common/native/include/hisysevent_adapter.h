@@ -24,11 +24,20 @@ enum class ReportType {
     EDM_FUNC_FAILED = 0,
     EDM_FUNC_EVENT,
 };
+
+enum class InstalledBundleType : int32_t {
+    AG = 0,
+    NORMAL = 1,
+    MDM = 2
+};
+
 class HiSysEventAdapter {
 public:
     static void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo = "");
     static void ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
         const int32_t &adminType, const std::string &extraInfo = "");
+    static void ReportInstalledBundleInfo(const std::string &apiName, const std::string &adminName,
+        const std::string &installedBundleName, InstalledBundleType installedBundleType);
 };
 } // namespace EDM
 } // namespace OHOS
