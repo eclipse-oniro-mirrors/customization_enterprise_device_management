@@ -45,7 +45,7 @@ bool WindowStateInfoHandle::ReadWindowStateInfo(MessageParcel &data, WindowState
         return false;
     }
     uint32_t state = data.ReadUint32();
-    if (!state || state > static_cast<uint32_t>(WindowState::BACKGROUND)) {
+    if (state > static_cast<uint32_t>(WindowState::BACKGROUND)) {
         return false;
     }
     windowStateInfo.state = WindowState(state);
