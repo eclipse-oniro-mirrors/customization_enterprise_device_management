@@ -2485,6 +2485,10 @@ ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bun
         if (!ret) {
             EDMLOGW("EnterpriseDeviceMgrAbility::ReportAgInstallStatus ExecuteCallback failed.");
         }
+        if (status == 0) {
+            HiSysEventAdapter::ReportInstalledBundleInfo(std::to_string(EdmInterfaceCode::INSTALL_MARKET_APPS),
+                mediaBundleName, bundleName, InstalledBundleType::AG);
+        }
     }
     return ERR_OK;
 }

@@ -18,6 +18,7 @@
 
 #include "install_param.h"
 #include "install_param_serializer.h"
+#include "hisysevent_adapter.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
@@ -37,7 +38,11 @@ private:
 
     ErrCode InstallParamInit(InstallParam &param, MessageParcel &reply, AppExecFwk::InstallParam &installParam,
         std::vector<std::string> &realPaths);
-    ErrCode HandleInstallResult(int32_t resultCode, std::string errorMessage, MessageParcel &reply);
+    ErrCode HandleInstallResult(int32_t resultCode, const std::string &errorMessage, MessageParcel &reply,
+        std::vector<std::string> realPaths = {});
+    bool GetCallingBundleName(std::string &bundleName);
+    bool GetBundleInfoAndType(const std::string &hapFilePath, std::string &bundleName,
+        InstalledBundleType &installedBundleType);
 };
 } // namespace EDM
 } // namespace OHOS

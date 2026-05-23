@@ -51,6 +51,8 @@ public:
         AppExecFwk::AbilityInfo &abilityInfo), (override));
     MOCK_METHOD(ErrCode, IsSystemApp, (const std::string &bundleName, int userId, bool &isSystemApp), (override));
     MOCK_METHOD(std::string, GetIconByBundleName, (const std::string &bundleName), (override));
+    MOCK_METHOD(bool, GetBundleArchiveInfoV9, (const std::string &hapFilePath, int32_t flags,
+        AppExecFwk::BundleInfo &bundleInfo), (override));
 };
 } // namespace EDM
 } // namespace OHOS

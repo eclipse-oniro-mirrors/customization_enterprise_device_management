@@ -24,10 +24,13 @@
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "directory_ex.h"
+#include "edm_bundle_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
+#include "hisysevent_adapter.h"
 #include "installer_callback.h"
+#include "ipc_skeleton.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
@@ -366,7 +369,7 @@ ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    int32_t fd = open(bundlePath.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    int32_t fd = open(bundlePath.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IROTH);
     if (fd < 0) {
         EDMLOGE("open bundlePath %{public}s failed", bundlePath.c_str());
         DeleteFiles();
@@ -392,7 +395,7 @@ bool InstallPlugin::CreateDirectory()
         EDMLOGE("fail to change %{public}s ownership", HAP_DIRECTORY.c_str());
         return false;
     }
-    mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP;
+    mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
     if (!OHOS::ChangeModeFile(HAP_DIRECTORY, mode)) {
         EDMLOGE("change mode failed, temp install dir : %{public}s", HAP_DIRECTORY.c_str());
         return false;
@@ -456,12 +459,32 @@ ErrCode InstallPlugin::OnSetPolicy(InstallParam &param, MessageParcel &reply)
     }
     ret = callback->GetResultCode();
     std::string errorMessage = callback->GetResultMsg();
-    return HandleInstallResult(ret, errorMessage, reply);
+    return HandleInstallResult(ret, errorMessage, reply, realPaths);
 }
 
-ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, std::string errorMessage, MessageParcel &reply)
+ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string &errorMessage, MessageParcel &reply,
+    std::vector<std::string> realPaths)
 {
-    EDMLOGE("StreamInstall resultCode %{public}d resultMsg %{public}s.", resultCode, errorMessage.c_str());
+    EDMLOGI("StreamInstall resultCode %{public}d resultMsg %{public}s.", resultCode, errorMessage.c_str());
+
+    std::string adminName;
+    if (!GetCallingBundleName(adminName)) {
+        EDMLOGW("InstallPlugin::HandleInstallResult failed: get admin bundleName fail.");
+    }
+    
+    std::vector<std::string> bundleNames;
+    std::vector<InstalledBundleType> bundleTypes;
+    for (const auto &realPath : realPaths) {
+        std::string bundleName;
+        InstalledBundleType bundleType = InstalledBundleType::NORMAL;
+        if (GetBundleInfoAndType(realPath, bundleName, bundleType)) {
+            bundleNames.emplace_back(bundleName);
+            bundleTypes.emplace_back(bundleType);
+            EDMLOGI("InstallPlugin parsed bundle %{public}s with type %{public}d",
+                bundleName.c_str(), static_cast<int32_t>(bundleType));
+        }
+    }
+
     if (!DeleteFiles()) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -481,6 +504,14 @@ ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, std::string error
         return convertedResultCode;
     }
     EDMLOGI("InstallPlugin OnSetPolicy end");
+
+    if (!adminName.empty() && !bundleNames.empty()) {
+        for (size_t i = 0; i < bundleNames.size(); ++i) {
+            HiSysEventAdapter::ReportInstalledBundleInfo(std::to_string(EdmInterfaceCode::INSTALL), adminName,
+                bundleNames[i], bundleTypes[i]);
+        }
+    }
+
     return ERR_OK;
 }
 
@@ -506,5 +537,45 @@ ErrCode InstallPlugin::InstallParamInit(InstallParam &param, MessageParcel &repl
     installParam.parameters = param.parameters;
     return ERR_OK;
 }
+
+bool InstallPlugin::GetCallingBundleName(std::string &bundleName)
+{
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    int uid = IPCSkeleton::GetCallingUid();
+    if (bundleMgr->GetNameForUid(uid, bundleName) != ERR_OK || bundleName.empty()) {
+        EDMLOGW("InstallPlugin::GetCallingBundleName fail.");
+        return false;
+    }
+    return true;
+}
+
+bool InstallPlugin::GetBundleInfoAndType(const std::string &hapFilePath, std::string &bundleName,
+    InstalledBundleType &installedBundleType)
+{
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    AppExecFwk::BundleInfo bundleInfo;
+    int32_t flags = static_cast<int32_t>(
+        static_cast<uint32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) |
+        static_cast<uint32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO));
+    if (!bundleMgr->GetBundleArchiveInfoV9(hapFilePath, flags, bundleInfo)) {
+        EDMLOGW("InstallPlugin::GetBundleInfoAndType failed: get bundleInfo fail.");
+        return false;
+    }
+    bundleName = bundleInfo.name;
+    std::string appDistributionType = bundleInfo.applicationInfo.appDistributionType;
+    if (appDistributionType == "app_gallery") {
+        installedBundleType = InstalledBundleType::AG;
+    } else if (appDistributionType == "enterprise_normal") {
+        installedBundleType = InstalledBundleType::NORMAL;
+    } else if (appDistributionType == "enterprise_mdm") {
+        installedBundleType = InstalledBundleType::MDM;
+    } else {
+        EDMLOGW("InstallPlugin::GetBundleInfoAndType unknown appDistributionType %{public}s",
+            appDistributionType.c_str());
+        return false;
+    }
+    return true;
+}
+
 } // namespace EDM
 } // namespace OHOS

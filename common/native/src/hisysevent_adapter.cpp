@@ -16,10 +16,12 @@
 
 #include "hisysevent.h"
 #include "edm_log.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
 using namespace OHOS::HiviewDFX;
+const std::string EDM_ENTERPRISE_ID = "persist.edm.enterprise_id";
 void HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
 {
     EDMLOGI("hisysevent ReportEdmEvent");
@@ -42,10 +44,24 @@ void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName
     const int32_t & adminType, const std::string &extraInfo)
 {
     EDMLOGI("hisysevent ReportEdmEventManagerAdmin");
+    std::string enterpriseId = system::GetParameter(EDM_ENTERPRISE_ID, "");
     int ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
-        "BUNDLENAME", bundleName, "ACTION", action, "ADMINTYPE", adminType, "EXTRAINFO", extraInfo);
+        "BUNDLENAME", bundleName, "ACTION", action, "ADMINTYPE", adminType, "EXTRAINFO", extraInfo,
+        "ENTERPRISE_ID", enterpriseId);
     if (ret != 0) {
         EDMLOGE("hisysevent write manager admin failed! ret %{public}d", ret);
+    }
+}
+
+void HiSysEventAdapter::ReportInstalledBundleInfo(const std::string &apiName, const std::string &adminName,
+    const std::string &installedBundleName, InstalledBundleType installedBundleType)
+{
+    EDMLOGI("hisysevent ReportInstalledBundleInfo");
+    int ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
+        "APINAME", apiName, "MDM_BUNDLE_NAME", adminName, "INSTALLED_BUNDLE_NAME", installedBundleName,
+        "INSTALLED_BUNDLE_TYPE", static_cast<int32_t>(installedBundleType));
+    if (ret != 0) {
+        EDMLOGE("hisysevent write installed bundle info failed! ret %{public}d", ret);
     }
 }
 } // namespace EDM
