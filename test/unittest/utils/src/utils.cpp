@@ -83,6 +83,7 @@ const std::string PERMISSION_MANAGE_WIFI_HOTSPOT = "ohos.permission.MANAGE_WIFI_
 const std::string PERMISSION_ACCESS_SCREEN_LOCK = "ohos.permission.ACCESS_SCREEN_LOCK";
 const std::string PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION =
     "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION";
+const std::string PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS = "ohos.permission.GET_LOCAL_ACCOUNT_IDENTIFIERS";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -177,7 +178,8 @@ void Utils::SetEdmPermissions()
         PERMISSION_MANAGE_WIFI_HOTSPOT.c_str(),
         PERMISSION_MANAGE_USER_POLICY.c_str(),
         PERMISSION_ACCESS_SCREEN_LOCK.c_str(),
-        PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION.c_str()
+        PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION.c_str(),
+        PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 }

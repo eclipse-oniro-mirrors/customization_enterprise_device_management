@@ -39,6 +39,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t PERMISSION_DENIED = 201;
     constexpr uint32_t SYSTEM_API_DENIED = 202;
     constexpr uint32_t ENTERPRISE_POLICES_DENIED = 203;
+    constexpr uint32_t USER_ACCESS_POLICY_PROHIBITED = 204;
     constexpr uint32_t INTERFACE_UNSUPPORTED = 801;
 
     constexpr uint32_t ADMIN_INACTIVE = 9200001;
@@ -105,6 +106,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t PREREQUISITES_NOT_SATISFIED_FAILED = 9201043;
     constexpr uint32_t CANNOT_SET_ALLOWED_PERMISSION_BUNDLE = 9201044;
     constexpr uint32_t CANNOT_DISALLOW_PERMISSION = 9201045;
+    constexpr uint32_t LOGIN_USER_NUMBER_UPPER_LIMIT = 9201046;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

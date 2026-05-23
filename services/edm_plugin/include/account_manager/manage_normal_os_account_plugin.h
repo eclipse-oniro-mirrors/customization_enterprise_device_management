@@ -22,9 +22,6 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr int32_t MAX_NORMAL_OS_ACCOUNT_COUNT = 2;
-constexpr int32_t DEFAULT_USER_ID = 100;
-
 class ManageNormalOsAccountPlugin : public IPlugin {
 public:
     ManageNormalOsAccountPlugin();
@@ -46,9 +43,6 @@ public:
 private:
     ErrCode HandleCreate(MessageParcel &data, MessageParcel &reply, std::vector<int32_t> &accountIds);
     ErrCode HandleRemove(MessageParcel &data, std::vector<int32_t> &accountIds);
-    ErrCode HandleActivate(MessageParcel &data, const std::vector<int32_t> &accountIds);
-    bool DeserializeAccountIds(const std::string &policyData, std::vector<int32_t> &accountIds);
-    bool SerializeAccountIds(const std::vector<int32_t> &accountIds, std::string &policyData);
 };
 } // namespace EDM
 } // namespace OHOS

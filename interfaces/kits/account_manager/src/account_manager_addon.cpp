@@ -735,21 +735,9 @@ void AccountManagerAddon::NativeRemoveOsAccount(napi_env env, void *data)
 napi_value AccountManagerAddon::ActivateOsAccount(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_ActivateOsAccount called");
-    auto convertAccountId2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) -> ErrCode {
-        int32_t accountId;
-        bool ret = ParseInt(env, accountId, argv);
-        if (!ret) {
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        data.WriteString(EdmConstants::ACTIVATE_OS_ACCOUNT);
-        data.WriteInt32(accountId);
-        return ERR_OK;
-    };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "ActivateOsAccount";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.argsConvert = {nullptr, convertAccountId2Data};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     return AddonMethodAdapter(env, info, addonMethodSign, NativeActivateOsAccount, NativeVoidCallbackComplete);

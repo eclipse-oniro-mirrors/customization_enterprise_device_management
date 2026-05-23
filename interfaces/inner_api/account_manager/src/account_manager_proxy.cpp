@@ -16,7 +16,6 @@
 #include "account_manager_proxy.h"
 
 #include "edm_log.h"
-#include "edm_constants.h"
 #include "func_code.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_info.h"
@@ -246,7 +245,6 @@ int32_t AccountManagerProxy::CreateNormalOsAccount(AppExecFwk::ElementName &admi
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(EdmConstants::CREATE_NORMAL_OS_ACCOUNT);
     data.WriteString(name);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
@@ -275,7 +273,7 @@ int32_t AccountManagerProxy::RemoveOsAccount(MessageParcel &data)
         EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 #else
-    EDMLOGW("AccountManagerProxy::CreateNormalOsAccount Unsupported Capabilities.");
+    EDMLOGW("AccountManagerProxy::RemoveOsAccount Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }
@@ -285,10 +283,10 @@ int32_t AccountManagerProxy::ActivateOsAccount(MessageParcel &data)
 #ifndef FEATURE_PC_ONLY
     EDMLOGD("AccountManagerProxy::ActivateOsAccount");
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT);
+        EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 #else
-    EDMLOGW("AccountManagerProxy::CreateNormalOsAccount Unsupported Capabilities.");
+    EDMLOGW("AccountManagerProxy::ActivateOsAccount Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }
