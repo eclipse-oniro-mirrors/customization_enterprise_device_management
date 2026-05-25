@@ -47,6 +47,9 @@ public:
 
     virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId);
 
+    virtual ErrCode OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId);
+
     static void DestroyPlugin();
 
 protected:
@@ -80,6 +83,14 @@ ErrCode PluginSingleton<CT, DT>::OnGetPolicy(std::string &policyData, MessagePar
     int32_t userId)
 {
     EDMLOGI("PluginSingleton::OnGetPolicy");
+    return ERR_OK;
+}
+
+template <typename CT, typename DT>
+ErrCode PluginSingleton<CT, DT>::OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data,
+    MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
+{
+    EDMLOGI("PluginSingleton::OnHandlePolicyPrepare");
     return ERR_OK;
 }
 

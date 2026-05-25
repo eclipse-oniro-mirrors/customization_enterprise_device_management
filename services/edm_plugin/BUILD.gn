@@ -661,6 +661,10 @@ ohos_shared_library("need_extra_plugin") {
 
   defines = []
 
+  if (enterprise_device_management_feature_pc_only) {
+    defines += ["FEATURE_PC_ONLY"]
+  }
+
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
     print("defines _ARM64_")

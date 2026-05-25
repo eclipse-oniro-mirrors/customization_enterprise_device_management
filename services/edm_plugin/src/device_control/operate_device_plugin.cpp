@@ -22,10 +22,14 @@
 #include "edm_ipc_interface_code.h"
 #include "operate_device_param_serializer.h"
 #include "iplugin_manager.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-
+#ifdef FEATURE_PC_ONLY
+const std::string DISALLOWED_RESET_FACTORY_PARAM = "persist.edm.reset_factory_disallowed";
+const std::string DISABLE_SECURE_ERASE_PARAM = "persist.edm.secure_erase_disable";
+#endif
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
 
 void OperateDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<OperateDevicePlugin, OperateDeviceParam>> ptr)
@@ -35,6 +39,41 @@ void OperateDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<OperateDevi
         EdmPermission::PERMISSION_ENTERPRISE_OPERATE_DEVICE, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(OperateDeviceParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&OperateDevicePlugin::OnSetPolicy, FuncOperateType::SET);
+}
+
+ErrCode OperateDevicePlugin::OnDiskErase()
+{
+#ifdef FEATURE_PC_ONLY
+    if (system::GetParameter(DISALLOWED_RESET_FACTORY_PARAM, "") == "true" ||
+        system::GetParameter(DISABLE_SECURE_ERASE_PARAM, "") == "true") {
+        EDMLOGE("disk erase policy conflict");
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+    OHOS::UpdateService::FactoryResetStrategy strategy;
+    strategy.scope = OHOS::UpdateService::FactoryResetScope::DATA_AND_OS;
+    UpdateService::BusinessError businessError;
+    int32_t ret = UpdateService::UpdateServiceKits::GetInstance().DeepFactoryReset(strategy, businessError);
+    if (FAILED(ret)) {
+        EDMLOGE("diskErase deepFactoryReset failed");
+        return EdmReturnErrCode::DISK_ERASE_FAILED;
+    }
+    EDMLOGI("diskErase success");
+    return ERR_OK;
+#endif
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
+
+ErrCode OperateDevicePlugin::OnFactoryReset(MessageParcel &reply)
+{
+    UpdateService::BusinessError businessError;
+    int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
+    if (FAILED(ret)) {
+        EDMLOGE("OperateDevicePlugin:OnSetPolicy send request fail. %{public}d", ret);
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    reply.WriteInt32(ERR_OK);
+    return ERR_OK;
 }
 
 ErrCode OperateDevicePlugin::OnSetPolicy(OperateDeviceParam &param, MessageParcel &reply)
@@ -68,15 +107,14 @@ ErrCode OperateDevicePlugin::OnSetPolicy(OperateDeviceParam &param, MessageParce
         return ERR_OK;
     }
     if (param.operate == EdmConstants::DeviceControl::RESET_FACTORY) {
-        UpdateService::BusinessError businessError;
-        int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
-        if (FAILED(ret)) {
-            EDMLOGE("OperateDevicePlugin:OnSetPolicy send request fail. %{public}d", ret);
-            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        reply.WriteInt32(ERR_OK);
-        return ERR_OK;
+        return OnFactoryReset(reply);
+    }
+    if (param.operate == EdmConstants::DeviceControl::DISK_ERASE) {
+#ifdef FEATURE_PC_ONLY
+        return OnDiskErase();
+#else
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
     }
     reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
     OperateDeviceParamSerializer::GetInstance()->WritePolicy(reply, param);

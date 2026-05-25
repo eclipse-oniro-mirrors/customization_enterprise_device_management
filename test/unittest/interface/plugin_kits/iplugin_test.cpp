@@ -341,6 +341,22 @@ HWTEST_F(IPluginTest, TestSetPluginUnloadFlag, TestSize.Level1)
     iplugin->SetPluginUnloadFlag(true);
     EXPECT_TRUE(iplugin->GetPluginUnloadFlag());
 }
+
+/**
+ * @tc.name: TestOnHandlePolicyPrepare
+ * @tc.desc: Test OnHandlePolicyPrepare func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestOnHandlePolicyPrepare, TestSize.Level1)
+{
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    uint32_t funcCode = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    int32_t userId = 100;
+    EXPECT_TRUE(iplugin->OnHandlePolicyPrepare(funcCode, data, reply, policyData, userId) == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

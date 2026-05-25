@@ -101,6 +101,12 @@ IPlugin::ApiType IPlugin::GetApiType(FuncOperateType operaType)
     return permissionConfig_.apiType;
 }
 
+OHOS::ErrCode IPlugin::OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
+{
+    return ERR_OK;
+}
+
 std::uint32_t IPlugin::GetCode()
 {
     return policyCode_;

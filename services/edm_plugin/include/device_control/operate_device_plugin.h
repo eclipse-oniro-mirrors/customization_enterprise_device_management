@@ -26,6 +26,9 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<OperateDevicePlugin, OperateDeviceParam>> ptr) override;
 
     ErrCode OnSetPolicy(OperateDeviceParam &param, MessageParcel &reply);
+private:
+    ErrCode OnDiskErase();
+    ErrCode OnFactoryReset(MessageParcel &reply);
 };
 } // namespace EDM
 } // namespace OHOS

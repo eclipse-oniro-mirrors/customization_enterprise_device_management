@@ -34,6 +34,14 @@ ErrCode IPluginTemplate<CT, DT>::OnHandlePolicy(std::uint32_t funcCode, MessageP
 }
 
 template <class CT, class DT>
+ErrCode IPluginTemplate<CT, DT>::OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data,
+    MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
+{
+    EDMLOGI("IPluginTemplate::OnHandlePolicyPrepare");
+    return instance_->OnHandlePolicyPrepare(funcCode, data, reply, policyData, userId);
+}
+
+template <class CT, class DT>
 ErrCode IPluginTemplate<CT, DT>::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {

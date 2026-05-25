@@ -48,11 +48,26 @@ ErrCode EnhanceExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParc
     auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     if (plugin != nullptr) {
         EDMLOGD("EnhanceExecuteStrategy::OnSetExecute plugin %{public}d execute enhance strategy.", plugin->GetCode());
-        ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, userId);
+        ErrCode ret = plugin->OnHandlePolicyPrepare(funcCode, data, reply, policyData, userId);
         if (FAILED(ret) && ret != EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+            EDMLOGE("edm OnHandlePolicyPrepare failed.");
             return ret;
         }
         auto extensionPlugin = plugin->GetExtensionPlugin();
+        if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
+            EDMLOGD("EnhanceExecuteStrategy::OnSetExecute extensionPlugin %{public}d start prepare.",
+                extensionPlugin->GetCode());
+            ret = extensionPlugin->OnHandlePolicyPrepare(funcCode, data, reply, policyData, userId);
+            if (FAILED(ret) && ret != EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+                EDMLOGE("edm extra OnHandlePolicyPrepare failed.");
+                return ret;
+            }
+        }
+
+        ret = plugin->OnHandlePolicy(funcCode, data, reply, policyData, userId);
+        if (FAILED(ret) && ret != EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+            return ret;
+        }
         if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
             EDMLOGD("EnhanceExecuteStrategy::OnSetExecute extensionPlugin %{public}d start execute.",
                 extensionPlugin->GetCode());
