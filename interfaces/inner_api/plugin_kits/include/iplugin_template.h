@@ -56,6 +56,9 @@ public:
 
     void OnOtherServiceStart(int32_t systemAbilityId) override;
 
+    ErrCode OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+
     /*
      * Sets the handle of the policy processing object.
      *

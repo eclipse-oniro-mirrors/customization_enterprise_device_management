@@ -104,6 +104,8 @@ public:
         int32_t userId) = 0;
     virtual void OnOtherServiceStart(int32_t systemAbilityId) {};
     virtual void OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId) {};
+    virtual ErrCode OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId);
 
     std::uint32_t GetCode();
     std::string GetPolicyName();

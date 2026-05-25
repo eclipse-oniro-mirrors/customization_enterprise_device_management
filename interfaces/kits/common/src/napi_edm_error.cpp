@@ -120,6 +120,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "Prerequisites for the API call have not been satisfied. The permission has not be disallowed."},
     {EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION,
         "The permission apl level is system core, can not disallow it"},
+    {EdmReturnErrCode::DISK_ERASE_FAILED, "Failed to disk erase"},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)

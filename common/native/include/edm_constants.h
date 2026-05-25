@@ -240,6 +240,7 @@ namespace EdmConstants {
         const char* const REBOOT = "reboot";
         const char* const SHUT_DOWN = "shutDown";
         const char* const LOCK_SCREEN = "lockScreen";
+        const char* const DISK_ERASE = "diskErase";
     } // namespace DeviceControl
 
     namespace SetApn {
