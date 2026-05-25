@@ -52,7 +52,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::ADD_OS_ACCOUNT, EdmInterfaceCode::GET_BLUETOOTH_INFO,
     EdmInterfaceCode::DISABLE_MICROPHONE, EdmInterfaceCode::DISABLE_BLUETOOTH,
     EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, EdmInterfaceCode::INACTIVE_USER_FREEZE,
-    EdmInterfaceCode::SNAPSHOT_SKIP, EdmInterfaceCode::WATERMARK_IMAGE,
+    EdmInterfaceCode::SNAPSHOT_SKIP,
     EdmInterfaceCode::DISABLE_CAMERA, EdmInterfaceCode::DOMAIN_ACCOUNT_POLICY,
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE, EdmInterfaceCode::SWITCH_BLUETOOTH,
     EdmInterfaceCode::GET_BUNDLE_INFO_LIST, EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
@@ -77,7 +77,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_ABILITY_ENABLED,
     EdmInterfaceCode::SET_DEVICE_NAME, EdmInterfaceCode::SET_FLOATING_NAVIGATION,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
-    EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE,
+    EdmInterfaceCode::DISALLOW_CORE_DUMP,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO, EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
@@ -132,6 +132,10 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::SET_SWITCH_STATUS,
     EdmInterfaceCode::HIDDEN_SETTINGS_MENU, EdmInterfaceCode::ADD_DOCK_APP,
     EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE
+};
+
+std::vector<uint32_t> PluginManager::watermarkSoCodes_ = {
+    EdmInterfaceCode::WATERMARK_IMAGE, EdmInterfaceCode::SCREEN_WATERMARK_IMAGE,
 };
 
 PluginManager::PluginManager()
@@ -289,6 +293,7 @@ bool PluginManager::IsExtraPlugin(const std::string &soName)
         && soName != SONAME::COMMUNICATION_PLUGIN_SO
         && soName != SONAME::SYS_SERVICE_PLUGIN_SO
         && soName != SONAME::NEED_EXTRA_PLUGIN_SO
+        && soName != SONAME::WATERMARK_PLUGIN_SO
         && soName != SONAME::OLD_EDM_PLUGIN_SO;
 }
 
@@ -397,6 +402,11 @@ bool PluginManager::GetSoNameByCode(std::uint32_t code, std::string &soName)
         soName = SONAME::NEED_EXTRA_PLUGIN_SO;
         return true;
     }
+    auto watermarkIter = std::find(watermarkSoCodes_.begin(), watermarkSoCodes_.end(), code);
+    if (watermarkIter != watermarkSoCodes_.end()) {
+        soName = SONAME::WATERMARK_PLUGIN_SO;
+        return true;
+    }
     return false;
 }
 
@@ -413,6 +423,8 @@ bool PluginManager::UnloadPlugin(const std::string &soName)
         targetVec = &sysServiceSoCodes_;
     } else if (soName == SONAME::NEED_EXTRA_PLUGIN_SO) {
         targetVec = &needExtraSoCodes_;
+    } else if (soName == SONAME::WATERMARK_PLUGIN_SO) {
+        targetVec = &watermarkSoCodes_;
     } else {
         targetVec = &extraPluginCodeList;
         GetExtraPluginCodeList(targetVec);

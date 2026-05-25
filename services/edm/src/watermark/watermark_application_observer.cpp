@@ -15,16 +15,22 @@
 
 #include "watermark_application_observer.h"
 
+#include <chrono>
+#include <condition_variable>
 #include <mutex>
 #include <thread>
+#include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
+#include "func_code.h"
+#include "plugin_manager.h"
+#include "policy_manager.h"
 #include "managed_event.h"
 #include "os_account_manager.h"
-#include "window_manager.h"
-#include "wm_common.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr int32_t RETRY_SECONDS = 5;
+
 void WatermarkApplicationObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
 {
     HandleWatermark(processData, true);
@@ -53,36 +59,99 @@ void WatermarkApplicationObserver::SetProcessWatermarkOnAppStart(const std::stri
         return;
     }
 
-    std::string policyData;
-    auto policyManager = IPolicyManager::GetInstance();
-    policyManager->GetPolicy("", PolicyName::POLICY_WATERMARK_IMAGE_POLICY, policyData, EdmConstants::DEFAULT_USER_ID);
+    std::string fileName = GetWatermarkFileName(bundleName, accountId);
+    if (fileName.empty()) {
+        return;
+    }
 
+    EDMLOGI("SetProcessWatermarkOnAppStart bundleName %{public}s, pid %{public}d, enabled %{public}d",
+        bundleName.c_str(), pid, enabled);
+
+    auto plugin = GetWatermarkPlugin();
+    if (plugin == nullptr) {
+        EDMLOGE("Get watermark plugin failed");
+        return;
+    }
+
+    WatermarkCallParam param;
+    param.plugin = plugin;
+    param.funcCode = GetWatermarkFuncCode();
+    param.pid = pid;
+    param.enabled = enabled;
+    param.fileName = fileName;
+    param.policyData = GetWatermarkPolicyData();
+    param.needRetry = true;
+    CallPluginSetWatermark(param);
+}
+
+std::string WatermarkApplicationObserver::GetWatermarkFileName(const std::string &bundleName, int32_t accountId)
+{
+    std::string policyData = GetWatermarkPolicyData();
     std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
     auto serializer = WatermarkImageSerializer::GetInstance();
     serializer->Deserialize(policyData, currentData);
     auto iter = currentData.find(std::pair<std::string, int32_t>{bundleName, accountId});
     if (iter == currentData.end() || iter->second.fileName.empty()) {
-        return;
+        return "";
     }
-    EDMLOGI("SetProcessWatermarkOnAppStart bundleName %{public}s, pid %{public}d, enabled %{public}d",
-        bundleName.c_str(), pid, enabled);
-    Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, iter->second.fileName, enabled);
-    if (ret != Rosen::WMError::WM_OK) {
-        EDMLOGE("SetProcessWatermarkOnAppStart error");
-        std::string fileName = iter->second.fileName;
-        std::thread retryTask([=]() {
-            auto nextRun = std::chrono::steady_clock::now();
-            std::condition_variable cv;
-            std::mutex mutex_;
-            nextRun += std::chrono::seconds(RETRY_SECONDS);
-            std::unique_lock<std::mutex> lock(mutex_);
-            cv.wait_until(lock, nextRun);
-            EDMLOGI("SetProcessWatermarkOnAppStart retry start, bundleName %{public}s",
-                bundleName.c_str());
-            Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, fileName, enabled);
-        });
-        retryTask.detach();
+    return iter->second.fileName;
+}
+
+std::string WatermarkApplicationObserver::GetWatermarkPolicyData()
+{
+    std::string policyData;
+    auto policyManager = PolicyManager::GetInstance();
+    policyManager->GetPolicy("", PolicyName::POLICY_WATERMARK_IMAGE_POLICY, policyData, EdmConstants::DEFAULT_USER_ID);
+    return policyData;
+}
+
+std::shared_ptr<IPlugin> WatermarkApplicationObserver::GetWatermarkPlugin()
+{
+    auto pluginManager = PluginManager::GetInstance();
+    uint32_t funcCode = GetWatermarkFuncCode();
+    return pluginManager->GetPluginByFuncCode(funcCode);
+}
+
+uint32_t WatermarkApplicationObserver::GetWatermarkFuncCode()
+{
+    return POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET), EdmInterfaceCode::WATERMARK_IMAGE);
+}
+
+void WatermarkApplicationObserver::CallPluginSetWatermark(const WatermarkCallParam &param)
+{
+    MessageParcel data;
+    data.WriteString(EdmConstants::SecurityManager::SET_PROCESS_WATERMARK_BY_PID);
+    data.WriteInt32(param.pid);
+    data.WriteBool(param.enabled);
+    data.WriteString(param.fileName);
+
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    handlePolicyData.policyData = param.policyData;
+    handlePolicyData.mergePolicyData = "";
+
+    ErrCode result = param.plugin->OnHandlePolicy(param.funcCode, data, reply,
+        handlePolicyData, EdmConstants::DEFAULT_USER_ID);
+    if (FAILED(result) && param.needRetry) {
+        ScheduleRetry(param);
     }
+}
+
+void WatermarkApplicationObserver::ScheduleRetry(const WatermarkCallParam &param)
+{
+    EDMLOGE("SetProcessWatermarkOnAppStart via plugin failed, will retry once");
+    WatermarkCallParam retryParam = param;
+    retryParam.needRetry = false;
+    std::thread retryTask([this, retryParam]() {
+        std::condition_variable cv;
+        std::mutex mutex;
+        auto nextRun = std::chrono::steady_clock::now() + std::chrono::seconds(RETRY_SECONDS);
+        std::unique_lock<std::mutex> lock(mutex);
+        cv.wait_until(lock, nextRun);
+        EDMLOGI("SetProcessWatermarkOnAppStart retry start, pid %{public}d", retryParam.pid);
+        CallPluginSetWatermark(retryParam);
+    });
+    retryTask.detach();
 }
 } // namespace EDM
 } // namespace OHOS

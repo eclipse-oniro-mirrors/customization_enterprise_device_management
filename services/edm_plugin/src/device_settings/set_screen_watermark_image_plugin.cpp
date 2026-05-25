@@ -54,6 +54,7 @@ SetScreenWatermarkImagePlugin::SetScreenWatermarkImagePlugin()
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
+    this->SetPluginUnloadFlag(false); // 此处是为了避免dlclose对应so出现的稳定性问题，如果dlclose无问题可以删除。
 }
 
 // LCOV_EXCL_START

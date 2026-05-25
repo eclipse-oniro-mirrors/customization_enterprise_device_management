@@ -294,7 +294,6 @@ ohos_static_library("edmservice_static") {
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
     "window_manager:sms",
     "device_usage_statistics:usagestatsinner",
   ]

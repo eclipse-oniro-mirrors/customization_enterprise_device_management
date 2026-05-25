@@ -54,6 +54,7 @@ SetWatermarkImagePlugin::SetWatermarkImagePlugin()
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY);
     permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
     needSave_ = true;
+    this->SetPluginUnloadFlag(false); // 此处是为了避免dlclose对应so出现的稳定性问题，如果dlclose无问题可以删除。
 }
 
 ErrCode SetWatermarkImagePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -108,6 +109,16 @@ ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data,
             return EdmReturnErrCode::PARAM_ERROR;
         }
         return SetSingleWatermarkImage(param, currentData, mergeData);
+    } else if (type == EdmConstants::SecurityManager::SET_PROCESS_WATERMARK_BY_PID) {
+        int32_t pid = data.ReadInt32();
+        bool enabled = data.ReadBool();
+        std::string fileName = data.ReadString();
+        if (pid <= 0 || fileName.empty()) {
+            EDMLOGE("SetPolicy SET_PROCESS_WATERMARK_BY_PID param error");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        SetProcessWatermarkByPid(pid, fileName, enabled);
+        return ERR_OK;
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -290,13 +301,23 @@ void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName,
     for (const auto& info : infos) {
         if (info.pid_ == 0) {
             EDMLOGD("GetRunning Process Information pid empty");
-            return;
+            continue;
         }
         EDMLOGI("SetProcessWatermark pid %{public}d", info.pid_);
-        Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(info.pid_, fileName, enabled);
-        if (ret != Rosen::WMError::WM_OK) {
-            EDMLOGE("SetProcessWatermark fail!code: %{public}d", ret);
-        }
+        SetProcessWatermarkByPid(info.pid_, fileName, enabled);
+    }
+}
+
+void SetWatermarkImagePlugin::SetProcessWatermarkByPid(int32_t pid, const std::string &fileName, bool enabled)
+{
+    EDMLOGI("SetProcessWatermarkByPid start, pid %{public}d, enabled %{public}d", pid, enabled);
+    if (fileName.empty() || pid <= 0) {
+        EDMLOGE("SetProcessWatermarkByPid param error");
+        return;
+    }
+    Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, fileName, enabled);
+    if (ret != Rosen::WMError::WM_OK) {
+        EDMLOGE("SetProcessWatermarkByPid fail! pid=%{public}d, code: %{public}d", pid, ret);
     }
 }
 

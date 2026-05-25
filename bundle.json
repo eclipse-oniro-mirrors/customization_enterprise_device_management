@@ -157,6 +157,7 @@
           "//base/customization/enterprise_device_management/services/edm_plugin:communication_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:sys_service_plugin",
           "//base/customization/enterprise_device_management/services/edm_plugin:need_extra_plugin",
+          "//base/customization/enterprise_device_management/services/edm_plugin:watermark_plugin",
           "//base/customization/enterprise_device_management/sa_profile:edm_sa_profile",
           "//base/customization/enterprise_device_management/etc/init:edm.cfg",
           "//base/customization/enterprise_device_management/etc/param:edm.para",

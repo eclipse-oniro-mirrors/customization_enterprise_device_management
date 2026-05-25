@@ -211,6 +211,7 @@ public:
     void ConnectEnterpriseAbility();
     void CallOnOtherServiceStart(uint32_t interfaceCode);
     void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
+    void CallOnOtherServiceStartForWatermark(uint32_t interfaceCode);
     bool OnAdminEnabled(const std::string &bundleName, const std::string &abilityName, uint32_t code, int32_t userId);
     bool OnAdminEnabled(AdminInfo adminInfo, uint32_t code, int32_t userId, const std::string &enabledBundleName);
     ErrCode CheckDisableAdmin(std::shared_ptr<Admin> admin, AdminType adminType);
