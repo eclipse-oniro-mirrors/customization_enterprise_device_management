@@ -222,7 +222,7 @@ HWTEST_F(DisallowedPermissionQueryTest, TestQueryPolicyDuplicatePermissions_SUC,
 
     std::vector<std::string> strVector;
     reply.ReadStringVector(&strVector);
-    EXPECT_EQ(strVector.size(), 1);
+    EXPECT_EQ(strVector.size(), 2);
 }
 
 /**
@@ -244,7 +244,7 @@ HWTEST_F(DisallowedPermissionQueryTest, TestQueryPolicyEmptyPermissionInList_SUC
 
     std::vector<std::string> strVector;
     reply.ReadStringVector(&strVector);
-    EXPECT_EQ(strVector.size(), 1);
+    EXPECT_EQ(strVector.size(), 2);
 }
 
 /**

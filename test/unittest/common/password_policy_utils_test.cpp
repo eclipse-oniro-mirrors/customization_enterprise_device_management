@@ -23,6 +23,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 class PasswordPolicyUtilsTest : public testing::Test {
+    
 protected:
     void SetUp() override;
     void TearDown() override;
