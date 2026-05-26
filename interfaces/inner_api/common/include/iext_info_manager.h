@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_COMMON_INCLUDE_IEXT_INFO_MANAGER_H
 #define INTERFACES_INNER_API_COMMON_INCLUDE_IEXT_INFO_MANAGER_H
 
+#include <map>
 #include <string>
 
 namespace OHOS {
@@ -28,9 +29,13 @@ public:
 
     virtual std::string GetSuperHubInfo();
 
+    virtual void GetAppUidMap();
+
     static IExtInfoManager* instance_;
 
     static std::string superhubBundleName;
+
+    static std::map<std::string, uint32_t> appUidMap;
 };
 
 } // namespace EDM

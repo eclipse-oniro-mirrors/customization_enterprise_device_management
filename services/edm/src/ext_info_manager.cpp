@@ -98,6 +98,42 @@ std::string ExtInfoManager::GetSuperHubInfo()
     return bundleName;
 }
 
+void ExtInfoManager::GetAppUidMap()
+{
+    MessageParcel reply;
+    if (FAILED(GetExtInfo(ExtInfoType::GET_APP_UID, reply))) {
+        EDMLOGE("ExtInfoManager::GetAppUidMap GetExtInfo failed");
+        return;
+    }
+    int32_t res = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(res) || FAILED(res)) {
+        EDMLOGE("ExtInfoManager::GetAppUidMap failed, %{public}d", res);
+        return;
+    }
+
+    size_t mapSize = 2;
+    std::map<std::string, uint32_t> result;
+    std::vector<std::string> keys;
+    std::vector<uint32_t> values;
+
+    if (!reply.ReadStringVector(&keys)) {
+        EDMLOGE("ExtInfoManager::GetAppUidMap get key error");
+        return;
+    }
+    if (!reply.ReadUInt32Vector(&values)) {
+        EDMLOGE("ExtInfoManager::GetAppUidMap get value error");
+        return;
+    }
+    if (keys.size() != mapSize || values.size() != mapSize) {
+        EDMLOGE("ExtInfoManager::GetAppUidMap get map error");
+        return;
+    }
+    for (size_t idx = 0; idx < mapSize; ++idx) {
+        result[keys[idx]] = values[idx];
+    }
+    IExtInfoManager::appUidMap = result;
+}
+
 ErrCode ExtInfoManager::GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply)
 {
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);
