@@ -41,7 +41,7 @@ std::unordered_map<uint32_t, std::string> HistogramsReport::setCodeReportNameMap
     {EdmInterfaceCode::INSTALL, "MdmKit.bundleManager.install.ApiCall"},
     {EdmInterfaceCode::UNINSTALL, "MdmKit.bundleManager.uninstall.ApiCall"},
     {EdmInterfaceCode::INSTALL_MARKET_APPS, "MdmKit.bundleManager.installMarketApps.ApiCall"},
-    {EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, "MdmKit.networkManager.setNetworkInterfaceDisabled.ApiCall"},
+    {EdmInterfaceCode::DISABLED_NETWORK_INTERFACE, "MdmKit.networkManager.setNetworkInterfaceDisabledSync.ApiCall"},
     {EdmInterfaceCode::FIREWALL_RULE, "MdmKit.networkManager.addFirewallRule.ApiCall"},
     {EdmInterfaceCode::DOMAIN_FILTER_RULE, "MdmKit.networkManager.addDomainFilterRule.ApiCall"},
     {EdmInterfaceCode::PASSWORD_POLICY, "MdmKit.securityManager.setPasswordPolicy.ApiCall"},
