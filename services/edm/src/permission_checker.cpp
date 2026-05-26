@@ -122,11 +122,9 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE,
     EdmInterfaceCode::DISABLED_NETWORK_INTERFACE,
     EdmInterfaceCode::CLIPBOARD_POLICY,
-    EdmInterfaceCode::PERMISSION_MANAGED_STATE,
     EdmInterfaceCode::DISABLE_RUNNING_BINARY_APP,
     EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
     EdmInterfaceCode::SET_KEY_CODE_POLICYS,
-    EdmInterfaceCode::DISALLOWED_SIM,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY,
     EdmInterfaceCode::ALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_WIFI_LIST

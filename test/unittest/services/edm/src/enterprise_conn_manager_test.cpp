@@ -43,7 +43,7 @@ const std::string TEST_BUNDLE = "com.test.bundle";
 // Mock class for Admin
 class MockAdmin : public Admin {
 public:
-    MockAdmin(const AdminInfo& adminInfo) : Admin(adminInfo) {}
+    explicit MockAdmin(const AdminInfo& adminInfo) : Admin(adminInfo) {}
     MOCK_METHOD(bool, IsEnterpriseAdminKeepAlive, (), (const, override));
 };
 
@@ -638,7 +638,7 @@ HWTEST_F(EnterpriseConnManagerTest, RemoveRemoteObject_ExistingKey_Success, Test
     enterpriseConnManagerTest->connectionMap_[key] = info;
 
     enterpriseConnManagerTest->RemoveRemoteObject(BUNDLE_NAME, DEFAULT_USERID);
-    EXPECT_TRUE(enterpriseConnManagerTest->connectionMap_.find(key) == 
+    EXPECT_TRUE(enterpriseConnManagerTest->connectionMap_.find(key) ==
         enterpriseConnManagerTest->connectionMap_.end());
 }
 
@@ -782,7 +782,7 @@ HWTEST_F(EnterpriseConnManagerTest, ExecuteCallback_ProxyInvalid_Reconnect, Test
     info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs();
 
     auto oldStrategy1 = std::make_shared<AdminStrategy>(TEST_CODE);
-    auto oldStrategy2 = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED, 
+    auto oldStrategy2 = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED,
         TEST_BUNDLE, DEFAULT_USERID);
     info.pendingCallbacks.push_back(oldStrategy1);
     info.pendingCallbacks.push_back(oldStrategy2);
@@ -831,7 +831,7 @@ HWTEST_F(EnterpriseConnManagerTest, PrepareNewConnection_PreserveOldPendingCallb
     oldInfo.createTime = enterpriseConnManagerTest->GetCurrentTimeMs() - 5000;
 
     auto oldStrategy1 = std::make_shared<AdminStrategy>(TEST_CODE);
-    auto oldStrategy2 = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED, 
+    auto oldStrategy2 = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED,
         TEST_BUNDLE, DEFAULT_USERID);
     oldInfo.pendingCallbacks.push_back(oldStrategy1);
     oldInfo.pendingCallbacks.push_back(oldStrategy2);
@@ -886,12 +886,12 @@ HWTEST_F(EnterpriseConnManagerTest, RemoveRemoteObject_ClearConnection_Success, 
     info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs();
     enterpriseConnManagerTest->connectionMap_[key] = info;
 
-    EXPECT_NE(enterpriseConnManagerTest->connectionMap_.find(key), 
+    EXPECT_NE(enterpriseConnManagerTest->connectionMap_.find(key),
         enterpriseConnManagerTest->connectionMap_.end());
 
     enterpriseConnManagerTest->RemoveRemoteObject(BUNDLE_NAME, DEFAULT_USERID);
 
-    EXPECT_EQ(enterpriseConnManagerTest->connectionMap_.find(key), 
+    EXPECT_EQ(enterpriseConnManagerTest->connectionMap_.find(key),
         enterpriseConnManagerTest->connectionMap_.end());
 }
 
