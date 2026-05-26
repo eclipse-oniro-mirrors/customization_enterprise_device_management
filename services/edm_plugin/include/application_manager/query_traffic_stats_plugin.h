@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "external_manager_factory.h"
 #include "iedm_bundle_manager.h"
 #include "iplugin.h"
 #include "net_stats_utils.h"
@@ -47,10 +48,11 @@ public:
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
 private:
-    ErrCode QueryTrafficStatsByUidNetwork(int32_t uid, const NetStatsNetwork &networkInfo,
+    ErrCode QueryTrafficStatsByUidNetwork(uint32_t uid, const NetStatsNetwork &networkInfo,
         NetStatsInfo &netStatsInfo);
-    bool GetAppUid(const NetStatsNetwork &networkInfo, int32_t &uid);
+    bool GetAppUid(const NetStatsNetwork &networkInfo, uint32_t &uid);
     static std::shared_ptr<IEdmBundleManager> bundleMgr_;
+    static std::shared_ptr<IExternalManagerFactory> externalManagerFactory_;
 };
 } // namespace EDM
 } // namespace OHOS

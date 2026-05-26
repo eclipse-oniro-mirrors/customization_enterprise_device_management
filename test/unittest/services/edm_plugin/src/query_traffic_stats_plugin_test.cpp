@@ -23,7 +23,9 @@
 #undef private
 #include "edm_bundle_manager_impl_mock.h"
 #include "edm_ipc_interface_code.h"
-#include "edm_sys_manager_mock.h"
+#include "external_manager_factory_mock.h"
+#include "edm_os_account_manager_impl_mock.h"
+#include "iext_info_manager.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -37,18 +39,30 @@ constexpr int32_t INDEX_TWO = 2;
 class QueryTrafficStatsPluginTest : public testing::Test {
 protected:
     std::shared_ptr<EdmBundleManagerImplMock> bundleMgrMock_ = nullptr;
+    std::shared_ptr<ExternalManagerFactoryMock> externalManagerFactoryMock_ = nullptr;
+    std::shared_ptr<EdmOsAccountManagerImplMock> osAccountManagerMock_ = nullptr;
     void SetUp() override
     {
         Utils::SetEdmInitialEnv();
         bundleMgrMock_ = std::make_shared<EdmBundleManagerImplMock>();
         QueryTrafficStatsPlugin::bundleMgr_ = bundleMgrMock_;
+        
+        externalManagerFactoryMock_ = std::make_shared<ExternalManagerFactoryMock>();
+        osAccountManagerMock_ = std::make_shared<EdmOsAccountManagerImplMock>();
+        QueryTrafficStatsPlugin::externalManagerFactory_ = externalManagerFactoryMock_;
+        
+        IExtInfoManager::appUidMap.clear();
     }
 
     void TearDown() override
     {
         bundleMgrMock_.reset();
+        externalManagerFactoryMock_.reset();
+        osAccountManagerMock_.reset();
         Utils::ResetTokenTypeAndUid();
         QueryTrafficStatsPlugin::bundleMgr_.reset();
+        QueryTrafficStatsPlugin::externalManagerFactory_.reset();
+        IExtInfoManager::appUidMap.clear();
     }
 };
 
@@ -86,8 +100,10 @@ HWTEST_F(QueryTrafficStatsPluginTest, TestQueryTrafficStatsPluginOnGetPolicyInva
     networkInfo.startTime = 1000;
     networkInfo.endTime = 2000;
     networkInfo.Marshalling(data);
-
     std::string policyData;
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
     EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(-1)));
     AppExecFwk::BundleInfo bundleInfo;
     EXPECT_CALL(*bundleMgrMock_, GetBundleInfoV9)
@@ -214,6 +230,9 @@ HWTEST_F(QueryTrafficStatsPluginTest, TestQueryTrafficStatsPluginOnGetPolicySucc
 
     std::string policyData;
     EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(1)));
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
     QueryTrafficStatsPlugin plugin;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
@@ -222,6 +241,359 @@ HWTEST_F(QueryTrafficStatsPluginTest, TestQueryTrafficStatsPluginOnGetPolicySucc
     reply.ReadInt32(replyCode);
     ASSERT_EQ(replyCode, ERR_OK);
 }
+
+/**
+ * @tc.name: OnGetPolicy_GetCurrentUserIdFailed_ReturnSystemAbnormally
+ * @tc.desc: Test QueryTrafficStatsPlugin::OnGetPolicy when GetCurrentUserId returns negative value.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, OnGetPolicy_GetCurrentUserIdFailed_ReturnSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.Marshalling(data);
+
+    std::string policyData;
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(-1));
+    QueryTrafficStatsPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: OnGetPolicy_CrossUserQuery_ReturnParameterVerificationFailed
+ * @tc.desc: Test QueryTrafficStatsPlugin::OnGetPolicy when querying other user's traffic.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, OnGetPolicy_CrossUserQuery_ReturnParameterVerificationFailed, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 101;
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.Marshalling(data);
+
+    std::string policyData;
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
+    QueryTrafficStatsPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: OnGetPolicy_SameUserQuery_Success
+ * @tc.desc: Test QueryTrafficStatsPlugin::OnGetPolicy when querying current user's traffic.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, OnGetPolicy_SameUserQuery_Success, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.simId = 12345;
+    networkInfo.Marshalling(data);
+
+    std::string policyData;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(1)));
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
+    QueryTrafficStatsPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+
+    int32_t replyCode;
+    reply.ReadInt32(replyCode);
+    ASSERT_EQ(replyCode, ERR_OK);
+}
+
+/**
+ * @tc.name: GetAppUid_FromAppUidMapSuccess_ReturnTrue
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when uid found in appUidMap with appIndex == 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_FromAppUidMapSuccess_ReturnTrue, TestSize.Level1)
+{
+    // 设置前置条件：在 appUidMap 中添加应用UID映射
+    IExtInfoManager::appUidMap["com.test.app"] = 12345;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应从 appUidMap 中获取 uid
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(uid, 12345);
+}
+
+/**
+ * @tc.name: GetAppUid_FromAppUidMapButAppIndexNotZero_ReturnFalse
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when uid found in appUidMap but appIndex != 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_FromAppUidMapButAppIndexNotZero_ReturnFalse, TestSize.Level1)
+{
+    // 设置前置条件：在 appUidMap 中添加应用UID映射
+    IExtInfoManager::appUidMap["com.test.app"] = 12345;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 1; // appIndex != 0
+    networkInfo.accountId = 100;
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应返回 false
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: GetAppUid_NotInAppUidMap_GetFromBundleMgrSuccess
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when uid not in appUidMap, get from bundleMgr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_NotInAppUidMap_GetFromBundleMgrSuccess, TestSize.Level1)
+{
+    // 设置前置条件：appUidMap 中没有该应用
+    IExtInfoManager::appUidMap.clear();
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid)
+        .WillOnce(DoAll(Return(12345)));
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应从 bundleMgr 获取 uid
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(uid, 12345);
+}
+
+/**
+ * @tc.name: GetAppUid_NotInAppUidMap_GetFromBundleMgrFailed_ReturnFalse
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when uid not in appUidMap and bundleMgr returns negative.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_NotInAppUidMap_GetFromBundleMgrFailed_ReturnFalse, TestSize.Level1)
+{
+    // 设置前置条件：appUidMap 中没有该应用
+    IExtInfoManager::appUidMap.clear();
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(-1)));
+    AppExecFwk::BundleInfo bundleInfo;
+    EXPECT_CALL(*bundleMgrMock_, GetBundleInfoV9)
+        .WillRepeatedly(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(false)));
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应返回 false
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: GetAppUid_NotInAppUidMap_GetFromBundleInfoSuccess
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when GetApplicationUid returns negative but GetBundleInfoV9 success
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_NotInAppUidMap_GetFromBundleInfoSuccess, TestSize.Level1)
+{
+    // 设置前置条件：appUidMap 中没有该应用
+    IExtInfoManager::appUidMap.clear();
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(-1)));
+    AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.uid = 12345;
+    EXPECT_CALL(*bundleMgrMock_, GetBundleInfoV9)
+        .WillRepeatedly(DoAll(SetArgReferee<INDEX_TWO>(bundleInfo), Return(true)));
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应从 BundleInfo 获取 uid
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(uid, 12345);
+}
+
+/**
+ * @tc.name: GetAppUid_AppIndexNotZero_ReturnFalse
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when appIndex != 0 and not in appUidMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_AppIndexNotZero_ReturnFalse, TestSize.Level1)
+{
+    // 设置前置条件：appUidMap 中没有该应用
+    IExtInfoManager::appUidMap.clear();
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 1; // appIndex != 0
+    networkInfo.accountId = 100;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(-1)));
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应返回 false
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: GetAppUid_AppUidMapEmpty_GetFromBundleMgrSuccess
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when appUidMap is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_AppUidMapEmpty_GetFromBundleMgrSuccess, TestSize.Level1)
+{
+    // 设置前置条件：appUidMap 为空
+    IExtInfoManager::appUidMap.clear();
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(12345)));
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应从 bundleMgr 获取 uid
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(uid, 12345);
+}
+
+/**
+ * @tc.name: GetAppUid_BundleNameNotFoundInAppUidMap_GetFromBundleMgrSuccess
+ * @tc.desc: Test QueryTrafficStatsPlugin::GetAppUid when bundleName not found in appUidMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, GetAppUid_BundleNameNotFoundInAppUidMap_GetFromBundleMgrSuccess, TestSize.Level1)
+{
+    // 设置前置条件：appUidMap 中有其他应用，但没有目标应用
+    IExtInfoManager::appUidMap["com.other.app"] = 12346;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app"; // 不在 appUidMap 中
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    EXPECT_CALL(*bundleMgrMock_, GetApplicationUid).WillOnce(DoAll(Return(12345)));
+    QueryTrafficStatsPlugin plugin;
+    uint32_t uid = 0;
+    bool ret = plugin.GetAppUid(networkInfo, uid);
+    // 验证结果：应从 bundleMgr 获取 uid
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(uid, 12345);
+}
+
+/**
+ * @tc.name: OnGetPolicy_AppUidMapHasUid_Success
+ * @tc.desc: Test QueryTrafficStatsPlugin::OnGetPolicy when uid found in appUidMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, OnGetPolicy_AppUidMapHasUid_Success, TestSize.Level1)
+{
+    // 设置前置条件：在 appUidMap 中添加应用UID映射
+    IExtInfoManager::appUidMap["com.test.app"] = 12345;
+    MessageParcel data;
+    MessageParcel reply;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 100;
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.simId = 12345;
+    networkInfo.Marshalling(data);
+    std::string policyData;
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
+    QueryTrafficStatsPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    int32_t replyCode;
+    reply.ReadInt32(replyCode);
+    ASSERT_EQ(replyCode, ERR_OK);
+}
+
+/**
+ * @tc.name: OnGetPolicy_AppUidMapHasUidButAppIndexNotZero_ReturnFailed
+ * @tc.desc: Test QueryTrafficStatsPlugin::OnGetPolicy when uid found in appUidMap but appIndex != 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, OnGetPolicy_AppUidMapHasUidButAppIndexNotZero_ReturnFailed, TestSize.Level1)
+{
+    // 设置前置条件：在 appUidMap 中添加应用UID映射
+    IExtInfoManager::appUidMap["com.test.app"] = 12345;
+    MessageParcel data;
+    MessageParcel reply;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 1; // appIndex != 0
+    networkInfo.accountId = 100;
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.Marshalling(data);
+    std::string policyData;
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
+    QueryTrafficStatsPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: OnGetPolicy_DifferentAccountId_ReturnParameterVerificationFailed
+ * @tc.desc: Test QueryTrafficStatsPlugin::OnGetPolicy when accountId is different from currentUserId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryTrafficStatsPluginTest, OnGetPolicy_DifferentAccountId_ReturnParameterVerificationFailed, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    NetStatsNetwork networkInfo;
+    networkInfo.bundleName = "com.test.app";
+    networkInfo.appIndex = 0;
+    networkInfo.accountId = 200; // accountId != currentUserId
+    networkInfo.type = 0;
+    networkInfo.startTime = 1000;
+    networkInfo.endTime = 2000;
+    networkInfo.Marshalling(data);
+    std::string policyData;
+    EXPECT_CALL(*externalManagerFactoryMock_, CreateOsAccountManager)
+        .WillOnce(Return(osAccountManagerMock_));
+    EXPECT_CALL(*osAccountManagerMock_, GetCurrentUserId).WillOnce(Return(100));
+    QueryTrafficStatsPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

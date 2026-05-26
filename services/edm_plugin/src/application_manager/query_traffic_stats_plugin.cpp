@@ -22,6 +22,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
+#include "iext_info_manager.h"
 #include "iplugin_manager.h"
 #include "net_all_capabilities.h"
 #include "net_stats_client.h"
@@ -32,6 +33,8 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<QueryTrafficStatsPlugin>());
 
 std::shared_ptr<IEdmBundleManager> QueryTrafficStatsPlugin::bundleMgr_ = std::make_shared<EdmBundleManagerImpl>();
+std::shared_ptr<IExternalManagerFactory> QueryTrafficStatsPlugin::externalManagerFactory_ =
+    std::make_shared<ExternalManagerFactory>();
 
 QueryTrafficStatsPlugin::QueryTrafficStatsPlugin()
 {
@@ -62,7 +65,16 @@ ErrCode QueryTrafficStatsPlugin::OnGetPolicy(std::string &policyData, MessagePar
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    int32_t uid = -1;
+    int32_t currentUserId = externalManagerFactory_->CreateOsAccountManager()->GetCurrentUserId();
+    if (currentUserId < 0) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (networkInfo.accountId != currentUserId) {
+        EDMLOGE("QueryTrafficStatsPlugin::OnGetPolicy accountId isn't current userId.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+
+    uint32_t uid = 0;
     if (!GetAppUid(networkInfo, uid)) {
         EDMLOGE("QueryTrafficStatsPlugin::OnGetPolicy getUid failed");
         reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
@@ -82,10 +94,21 @@ ErrCode QueryTrafficStatsPlugin::OnGetPolicy(std::string &policyData, MessagePar
 }
 
 // LCOV_EXCL_START
-bool QueryTrafficStatsPlugin::GetAppUid(const NetStatsNetwork &networkInfo, int32_t &uid)
+bool QueryTrafficStatsPlugin::GetAppUid(const NetStatsNetwork &networkInfo, uint32_t &uid)
 {
-    uid = bundleMgr_->GetApplicationUid(networkInfo.bundleName, networkInfo.accountId, networkInfo.appIndex);
-    if (uid > 0) {
+    auto it = IExtInfoManager::appUidMap.find(networkInfo.bundleName);
+    if (it != IExtInfoManager::appUidMap.end()) {
+        uid = it->second;
+        if (networkInfo.appIndex != 0) {
+            EDMLOGE("QueryTrafficStatsPlugin::GetAppUid appIndex param error");
+            return false;
+        }
+        return true;
+    }
+    int32_t uidTemp = bundleMgr_->GetApplicationUid(networkInfo.bundleName, networkInfo.accountId,
+        networkInfo.appIndex);
+    if (uidTemp > 0) {
+        uid = static_cast<uint32_t>(uidTemp);
         return true;
     }
     if (networkInfo.appIndex == 0) {
@@ -97,7 +120,7 @@ bool QueryTrafficStatsPlugin::GetAppUid(const NetStatsNetwork &networkInfo, int3
             EDMLOGE("QueryTrafficStatsPlugin GetBundleInfo false");
             return false;
         }
-        uid = bundleInfo.uid;
+        uid = static_cast<uint32_t>(bundleInfo.uid);
         return true;
     }
     return false;
@@ -105,7 +128,7 @@ bool QueryTrafficStatsPlugin::GetAppUid(const NetStatsNetwork &networkInfo, int3
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-ErrCode QueryTrafficStatsPlugin::QueryTrafficStatsByUidNetwork(int32_t uid,
+ErrCode QueryTrafficStatsPlugin::QueryTrafficStatsByUidNetwork(uint32_t uid,
     const NetStatsNetwork &networkInfo, NetStatsInfo &netStatsInfo)
 {
     sptr<NetManagerStandard::NetStatsNetwork> netStatsNetwork =
