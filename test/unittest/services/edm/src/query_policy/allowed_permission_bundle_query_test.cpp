@@ -88,6 +88,9 @@ HWTEST_F(AllowedPermissionBundleQueryTest, TestQueryPolicy_SUC, TestSize.Level1)
     std::string appIdentifier1 = reply.ReadString();
     EXPECT_EQ(appIdentifier1, "com.test.app1");
 
+    std::string bundleName1 = reply.ReadString();
+    EXPECT_EQ(bundleName1, "");
+
     int32_t accountId1 = reply.ReadInt32();
     EXPECT_EQ(accountId1, EdmConstants::DEFAULT_USER_ID);
 
@@ -96,6 +99,9 @@ HWTEST_F(AllowedPermissionBundleQueryTest, TestQueryPolicy_SUC, TestSize.Level1)
 
     std::string appIdentifier2 = reply.ReadString();
     EXPECT_EQ(appIdentifier2, "com.test.app2");
+
+    std::string bundleName2 = reply.ReadString();
+    EXPECT_EQ(bundleName2, "");
 
     int32_t accountId2 = reply.ReadInt32();
     EXPECT_EQ(accountId2, EdmConstants::DEFAULT_USER_ID);
@@ -284,8 +290,11 @@ HWTEST_F(AllowedPermissionBundleQueryTest, TestQueryPolicyDifferentUserId_SUC, T
     std::string appIdentifier = reply.ReadString();
     EXPECT_EQ(appIdentifier, "com.test.app1");
 
+    std::string bundleName = reply.ReadString();
+    EXPECT_EQ(bundleName, "");
+
     int32_t accountId = reply.ReadInt32();
-    EXPECT_EQ(accountId, userId); // Should use the userId parameter
+    EXPECT_EQ(accountId, 100); // Should use the userId parameter
 
     int32_t appIndex = reply.ReadInt32();
     EXPECT_EQ(appIndex, 0);
@@ -314,6 +323,9 @@ HWTEST_F(AllowedPermissionBundleQueryTest, TestQueryPolicyWithAppIndex_SUC, Test
 
     std::string appIdentifier = reply.ReadString();
     EXPECT_EQ(appIdentifier, "com.test.app1");
+    
+    std::string bundleName = reply.ReadString();
+    EXPECT_EQ(bundleName, "");
 
     int32_t accountId = reply.ReadInt32();
     EXPECT_EQ(accountId, EdmConstants::DEFAULT_USER_ID);

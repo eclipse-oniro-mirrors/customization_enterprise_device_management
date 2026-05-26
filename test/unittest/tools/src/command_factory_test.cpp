@@ -40,7 +40,7 @@ HWTEST_F(CommandFactoryTest, CreateHelpCommand, TestSize.Level1)
 }
 
 /**
- * @tc.name: CommandFactoryTest
+ * @tc.name: CreateEnableAdminCommand
  * @tc.desc: Test CommandFactory: create help command.
  * @tc.type: FUNC
  */
@@ -59,7 +59,7 @@ HWTEST_F(CommandFactoryTest, CreateEnableAdminCommand, TestSize.Level1)
 }
 
 /**
- * @tc.name: CommandFactoryTest
+ * @tc.name: CreateDisableAdminCommand
  * @tc.desc: Test CommandFactory: create disable-admin command.
  * @tc.type: FUNC
  */
@@ -77,7 +77,7 @@ HWTEST_F(CommandFactoryTest, CreateDisableAdminCommand, TestSize.Level1)
 }
 
 /**
- * @tc.name: CommandFactoryTest
+ * @tc.name: CreateUnknownCommand
  * @tc.desc: Test CommandFactory: create error command.
  * @tc.type: FUNC
  */
