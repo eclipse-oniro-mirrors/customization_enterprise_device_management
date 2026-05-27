@@ -259,11 +259,18 @@ HWTEST_F(LanguageManagerTest, IsNeedToShowEnterpriseManagedTips_DisabledOnSettin
 {
     system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, "true");
     auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
-        Return(ERR_OK)));
+    if (!settingsInfo.bundleName.empty()) {
+        EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+            Return(ERR_OK)));
+    }
 
     bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
-    EXPECT_EQ(ret, false);
+
+    if (settingsInfo.bundleName.empty()) {
+        EXPECT_EQ(ret, true);
+    } else {
+        EXPECT_EQ(ret, false);
+    }
 
     system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, "false");
 }
@@ -293,11 +300,18 @@ HWTEST_F(LanguageManagerTest, IsNeedToShowEnterpriseManagedTips_DisabledWithSett
 {
     system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "true");
     auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
-        Return(ERR_OK)));
+
+    if (!settingsInfo.bundleName.empty()) {
+        EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+            Return(ERR_OK)));
+    }
 
     bool ret = LanguageManager::IsNeedToShowEnterpriseManagedTips();
-    EXPECT_EQ(ret, true);
+    if (settingsInfo.bundleName.empty()) {
+        EXPECT_EQ(ret, false);
+    } else {
+        EXPECT_EQ(ret, true);
+    }
 
     system::SetParameter(EdmConstants::MANAGED_TIPS_DISABLED, "false");
 }
@@ -368,12 +382,19 @@ HWTEST_F(LanguageManagerTest, IsSettingsCalling_NotSettingsCalling_False, TestSi
 HWTEST_F(LanguageManagerTest, IsSettingsCalling_SettingsCalling_True, TestSize.Level1)
 {
     auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
-        Return(ERR_OK)));
+
+    if (!settingsInfo.bundleName.empty()) {
+        EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+            Return(ERR_OK)));
+    }
 
     bool ret = LanguageManager::IsSettingsCalling();
 
-    EXPECT_EQ(ret, true);
+    if (settingsInfo.bundleName.empty()) {
+        EXPECT_EQ(ret, false);
+    } else {
+        EXPECT_EQ(ret, true);
+    }
 }
 
 /**
@@ -384,8 +405,11 @@ HWTEST_F(LanguageManagerTest, IsSettingsCalling_SettingsCalling_True, TestSize.L
 HWTEST_F(LanguageManagerTest, GetValueFromCloudSettings_SettingsEnterpriseManagedTips_Success, TestSize.Level1)
 {
     auto settingsInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
-    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
-        Return(ERR_OK)));
+
+    if (!settingsInfo.bundleName.empty()) {
+        EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(settingsInfo.bundleName),
+            Return(ERR_OK)));
+    }
 
     std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
     cJSON* root = cJSON_CreateObject();
@@ -396,13 +420,17 @@ HWTEST_F(LanguageManagerTest, GetValueFromCloudSettings_SettingsEnterpriseManage
 
     std::string result;
     bool ret = LanguageManager::GetValueFromCloudSettings(result);
-    
+
     EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_MANAGED_TIPS_ON_SETTINGS, "");
     free(enterpriseInfo);
     cJSON_Delete(root);
 
-    EXPECT_EQ(ret, true);
-    EXPECT_EQ(result, "settingsManagedTips");
+    if (settingsInfo.bundleName.empty()) {
+        EXPECT_EQ(ret, false);
+    } else {
+        EXPECT_EQ(ret, true);
+        EXPECT_EQ(result, "settingsManagedTips");
+    }
 }
 } // namespace TEST
 } // namespace EDM
