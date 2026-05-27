@@ -97,6 +97,10 @@ ErrCode PasswordPolicyPlugin::OnAdminRemove(const std::string &adminName, Passwo
         EDMLOGW("PasswordPolicyPlugin SetGlobalConfigParam failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    if (data.passwordAlgs != static_cast<int32_t>(PasswordAlgs::NONE) &&
+        data.passwordAlgs != static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_AES)) {
+        SetAlgoType(static_cast<int32_t>(PasswordAlgs::SCRYPT_HKDF_AES));
+    }
     PasswordPolicyUtils passwordPolicyUtils;
     if (!passwordPolicyUtils.UpdatePasswordPolicy(mergeData)) {
         EDMLOGE("PasswordPolicyPlugin set password policy failed. UpdatePasswordPolicy error.");
