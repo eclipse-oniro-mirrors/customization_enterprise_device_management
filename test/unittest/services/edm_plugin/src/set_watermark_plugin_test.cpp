@@ -125,7 +125,7 @@ HWTEST_F(SetWatermarkImagePluginTest, TestSetSingleWatermarkImage, TestSize.Leve
     MessageParcel reply;
     HandlePolicyData policyData;
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
-    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
 }
 
 /**
@@ -165,13 +165,8 @@ HWTEST_F(SetWatermarkImagePluginTest, TestCancelWatermarkImage, TestSize.Level1)
     auto serializer = WatermarkImageSerializer::GetInstance();
     serializer->Serialize(currentData, policyData.policyData);
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
-    std::string deviceType = system::GetParameter("const.product.devicetype", "");
-    if (deviceType != "2in1") {
-        ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
-    } else {
-        ASSERT_TRUE(ret == ERR_OK);
-        ASSERT_TRUE(policyData.policyData.empty());
-    }
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(policyData.policyData.empty());
 }
 
 } // namespace TEST

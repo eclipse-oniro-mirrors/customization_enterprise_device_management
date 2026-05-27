@@ -191,6 +191,7 @@
 #include "get_device_encryption_status_query.h"
 #include "get_display_version_query.h"
 #include "get_security_patch_tag_query.h"
+#include "get_watermark_image_apps_query.h"
 #include "inactive_user_freeze_query.h"
 #include "installed_bundle_info_list_query.h"
 #include "is_app_kiosk_allowed_query.h"
@@ -835,6 +836,9 @@ ErrCode PluginPolicyReader::GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery>
 #else
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+        case EdmInterfaceCode::WATERMARK_IMAGE:
+            obj = std::make_shared<GetWatermarkImageAppsQuery>();
+            return ERR_OK;
         default:
             break;
     }

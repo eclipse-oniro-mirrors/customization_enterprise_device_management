@@ -72,6 +72,7 @@ public:
         std::string permissionName, ApplicationInstance &applicationInstance, bool isAdd);
     int32_t GetAllowedPermissionBundles(const AppExecFwk::ElementName *admin, std::string permissionName,
         int32_t userId, std::vector<ApplicationInstance> &result);
+    int32_t GetWatermarkImageApps(MessageParcel &data, std::vector<std::string> &bundleNames);
 private:
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     static std::shared_ptr<SecurityManagerProxy> instance_;

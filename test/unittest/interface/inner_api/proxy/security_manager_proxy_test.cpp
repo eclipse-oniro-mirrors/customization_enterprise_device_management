@@ -664,6 +664,46 @@ HWTEST_F(SecurityManagerProxyTest, TestUninstallEnterpriseReSignatureCertificate
     int32_t ret = proxy_->UninstallEnterpriseReSignatureCertificate(data);
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetWatermarkImageAppsSuc
+ * @tc.desc: Test GetWatermarkImageApps func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetWatermarkImageAppsSuc, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    std::vector<std::string> bundleNames;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->GetWatermarkImageApps(data, bundleNames);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetWatermarkImageAppsFail
+ * @tc.desc: Test GetWatermarkImageApps func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetWatermarkImageAppsFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    int32_t accountId = ACCOUTID_VALID_VALUE;
+    std::vector<std::string> bundleNames;
+    MessageParcel data;
+    data.WriteParcelable(&admin);
+    data.WriteInt32(accountId);
+    int32_t ret = proxy_->GetWatermarkImageApps(data, bundleNames);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

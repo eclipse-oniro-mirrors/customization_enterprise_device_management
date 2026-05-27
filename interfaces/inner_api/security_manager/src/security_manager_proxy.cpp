@@ -513,5 +513,22 @@ int32_t SecurityManagerProxy::GetAllowedPermissionBundles(const AppExecFwk::Elem
     }
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::GetWatermarkImageApps(MessageParcel &data, std::vector<std::string> &bundleNames)
+{
+    EDMLOGD("SecurityManagerProxy::GetWatermarkImageApps");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::WATERMARK_IMAGE, data, reply);
+    int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("SecurityManagerProxy:GetWatermarkImageApps fail. %{public}d", ret);
+        return ret;
+    }
+    if (!reply.ReadStringVector(&bundleNames)) {
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

@@ -78,6 +78,7 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addAllowedPermissionBundle", AddAllowedPermissionBundle),
         DECLARE_NAPI_FUNCTION("removeAllowedPermissionBundle", RemoveAllowedPermissionBundle),
         DECLARE_NAPI_FUNCTION("getAllowedPermissionBundles", GetAllowedPermissionBundles),
+        DECLARE_NAPI_FUNCTION("getWatermarkImageApps", GetWatermarkImageApps),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1380,6 +1381,31 @@ napi_value SecurityManagerAddon::CheckBuildScreenWatermarkParam(napi_env env, na
     napi_value ret;
     NAPI_CALL(env, napi_create_int32(env, ERR_OK, &ret));
     return ret;
+}
+
+napi_value SecurityManagerAddon::GetWatermarkImageApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetWatermarkImageApps called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetWatermarkImageApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    std::vector<std::string> bundleNames;
+    int32_t ret = SecurityManagerProxy::GetSecurityManagerProxy()->GetWatermarkImageApps(
+        adapterAddonData.data, bundleNames);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    ConvertStringVectorToJS(env, bundleNames, result);
+    return result;
 }
 
 static napi_module g_securityModule = {
