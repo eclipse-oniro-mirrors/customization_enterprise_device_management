@@ -38,6 +38,7 @@ protected:
 
     static void TearDownTestSuite(void);
 };
+
 void AllowedAppDistributionTypesPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
