@@ -257,6 +257,7 @@ napi_value SystemManagerAddon::SetOtaUpdateNonceEnable(napi_env env, napi_callba
     addonMethodSign.name = "SetOtaUpdateNonceEnable";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -264,13 +265,13 @@ napi_value SystemManagerAddon::SetOtaUpdateNonceEnable(napi_env env, napi_callba
     }
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetOtaUpdateNonceEnable(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("SetOtaUpdateNonceEnable failed!");
     }
     return nullptr;
 #else
     EDMLOGW("SystemManagerAddon::SetOtaUpdateNonceEnable Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -283,6 +284,7 @@ napi_value SystemManagerAddon::IsOtaUpdateNonceEnable(napi_env env, napi_callbac
     addonMethodSign.name = "IsOtaUpdateNonceEnable";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -292,7 +294,7 @@ napi_value SystemManagerAddon::IsOtaUpdateNonceEnable(napi_env env, napi_callbac
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->IsOtaUpdateNonceEnable(
         adapterAddonData.data, isOtaNonceEnable);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("IsOtaUpdateNonceEnable failed!");
     }
     napi_value napiIsEnable = nullptr;
