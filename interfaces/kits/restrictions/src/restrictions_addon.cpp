@@ -982,7 +982,7 @@ void RestrictionsAddon::CreateFeatureForDeviceObject(napi_env env, napi_value va
     napi_value nSecureErase;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(RestrictionsFeature::SECURE_ERASE), &nSecureErase));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SECURE_ERASE", nSecureErase));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISK_ERASURE", nSecureErase));
     napi_value nRs232;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(RestrictionsFeature::RS232), &nRs232));
