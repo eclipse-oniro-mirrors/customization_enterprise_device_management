@@ -45,6 +45,7 @@ const char* const DEVICE_CORE_PLUGIN_SO = "libdevice_core_plugin.z.so";
 const char* const COMMUNICATION_PLUGIN_SO = "libcommunication_plugin.z.so";
 const char* const SYS_SERVICE_PLUGIN_SO = "libsys_service_plugin.z.so";
 const char* const NEED_EXTRA_PLUGIN_SO = "libneed_extra_plugin.z.so";
+const char* const WATERMARK_PLUGIN_SO = "libwatermark_plugin.z.so";
 const char* const OLD_EDM_PLUGIN_SO = "libedmplugin.z.so";
 }
 
@@ -86,6 +87,7 @@ private:
     static std::vector<uint32_t> communicationSoCodes_;
     static std::vector<uint32_t> sysServiceSoCodes_;
     static std::vector<uint32_t> needExtraSoCodes_;
+    static std::vector<uint32_t> watermarkSoCodes_;
 
     static std::shared_timed_mutex mutexLock_;
     static std::shared_ptr<PluginManager> instance_;

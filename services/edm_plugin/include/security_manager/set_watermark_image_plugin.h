@@ -51,6 +51,7 @@ public:
 
     void SetAllWatermarkImage();
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);
+    void SetProcessWatermarkByPid(int32_t pid, const std::string &fileName, bool enabled);
 
 private:
     ErrCode SetPolicy(MessageParcel &data, std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,

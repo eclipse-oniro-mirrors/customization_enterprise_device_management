@@ -431,7 +431,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::SNAPSHOT_SKIP);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, WINDOW_MANAGER_SERVICE_ID);
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, WINDOW_MANAGER_SERVICE_ID);
-            that->CallOnOtherServiceStart(EdmInterfaceCode::SCREEN_WATERMARK_IMAGE);
+            that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::SCREEN_WATERMARK_IMAGE);
         };
     addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
@@ -511,7 +511,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 #endif
     addSystemAbilityFuncMap_[RENDER_SERVICE] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::WATERMARK_IMAGE);
+            that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::WATERMARK_IMAGE);
         };
     addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
@@ -1369,6 +1369,26 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode)
 void EnterpriseDeviceMgrAbility::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
 {
     PluginManager::GetInstance()->CallOnOtherServiceStart(interfaceCode, systemAbilityId);
+}
+
+void EnterpriseDeviceMgrAbility::CallOnOtherServiceStartForWatermark(uint32_t interfaceCode)
+{
+    auto policyManager = IPolicyManager::GetInstance();
+    std::string policyName;
+    if (interfaceCode == EdmInterfaceCode::SCREEN_WATERMARK_IMAGE) {
+        policyName = PolicyName::POLICY_SCREEN_WATERMARK_IMAGE;
+    } else if (interfaceCode == EdmInterfaceCode::WATERMARK_IMAGE) {
+        policyName = PolicyName::POLICY_WATERMARK_IMAGE_POLICY;
+    }
+    if (policyName.empty()) {
+        return;
+    }
+    std::string policyValue;
+    policyManager->GetPolicy("", policyName, policyValue, EdmConstants::DEFAULT_USER_ID);
+    if (policyValue.empty()) {
+        return;
+    }
+    CallOnOtherServiceStart(interfaceCode, INVALID_SYSTEM_ABILITY_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()

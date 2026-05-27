@@ -83,7 +83,6 @@ ohos_shared_library("device_core_plugin") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
     "window_manager:session_manager_lite",
     "window_manager:sms",
   ]
@@ -145,11 +144,8 @@ ohos_shared_library("device_core_plugin") {
 
     if (os_account_edm_enable) {
       external_deps += [
-        "graphic_2d:librender_service_base",
-        "graphic_2d:librender_service_client",
         "os_account:libaccountkits",
-        "os_account:os_account_innerkits",
-        "window_manager:libdm"
+        "os_account:os_account_innerkits"
       ]
       sources += [
         "./src/account_manager/add_os_account_plugin.cpp",
@@ -158,8 +154,6 @@ ohos_shared_library("device_core_plugin") {
         "./src/restrictions/disable_user_mtp_client_plugin.cpp",
         "./src/account_manager/disallow_add_local_account_plugin.cpp",
         "./src/account_manager/disallow_add_os_account_by_user_plugin.cpp",
-        "./src/security_manager/set_watermark_image_plugin.cpp",
-        "./src/device_settings/set_screen_watermark_image_plugin.cpp",
         "./src/restrictions/disallow_modify_wallpaper_plugin.cpp",
       ]
       defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
@@ -313,7 +307,6 @@ ohos_shared_library("communication_plugin") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
     "window_manager:sms",
   ]
 
@@ -547,7 +540,6 @@ ohos_shared_library("sys_service_plugin") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
     "telephony_data:tel_telephony_data",
-    "window_manager:libwm",
     "window_manager:sms",
     "window_manager:session_manager_lite",
   ]
@@ -687,7 +679,6 @@ ohos_shared_library("need_extra_plugin") {
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
     "window_manager:sms",
     "wifi:wifi_sdk",
   ]
@@ -739,6 +730,76 @@ ohos_shared_library("need_extra_plugin") {
   if (telephony_core_edm_enable) {
     external_deps += [ "core_service:tel_core_service_api" ]
     defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
+  }
+
+  deps = [
+    "../../common/external:edm_external_adapters",
+    "../../common/native:edm_commom",
+    "../../interfaces/inner_api:edmservice_kits",
+    "../../interfaces/inner_api/plugin_kits:plugin_kits",
+  ]
+
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+  }
+  relative_install_dir = "edm_plugin"
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_shared_library("watermark_plugin") {
+  sources = [
+    "./src/device_settings/set_screen_watermark_image_plugin.cpp",
+  ]
+
+  public_configs = [
+    ":edm_plugin_config",
+    "../../common/config:coverage_flags",
+  ]
+
+  defines = []
+
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+    print("defines _ARM64_")
+  }
+
+  if (target_cpu == "x86_64") {
+    defines += [ "_X86_64_" ]
+    print("defines _X86_64_")
+  }
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "file_api:securitylabel",
+    "graphic_2d:librender_service_base",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "os_account:libaccountkits",
+    "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
+    "window_manager:libdm",
+    "window_manager:libwm",
+  ]
+
+  if (enterprise_device_management_support_all) {
+    defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
+    if (os_account_edm_enable) {
+      defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+      sources += [ "./src/security_manager/set_watermark_image_plugin.cpp" ]
+    }
   }
 
   deps = [

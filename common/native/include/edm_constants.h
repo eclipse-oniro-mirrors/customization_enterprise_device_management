@@ -222,6 +222,7 @@ namespace EdmConstants {
         const char* const ROOT = "root";
         const char* const SET_SINGLE_WATERMARK_TYPE = "single";
         const char* const SET_ALL_WATERMARK_TYPE = "all";
+        const char* const SET_PROCESS_WATERMARK_BY_PID = "set_process_watermark_by_pid";
         const char* const FASTBOOT  = "fastboot";
     } // namespace SecurityManager
 

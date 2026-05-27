@@ -76,7 +76,6 @@ ohos_shared_library("edmservice") {
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
     "device_usage_statistics:usagestatsinner",
   ]
 

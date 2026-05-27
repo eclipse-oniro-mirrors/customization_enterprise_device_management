@@ -34,6 +34,7 @@ void EnableSelfDeviceAdminPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Ena
         EdmPermission::PERMISSION_ENTERPRISE_ACTIVATE_DEVICE_ADMIN, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(EnableSelfDeviceAdminParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&EnableSelfDeviceAdminPlugin::OnSetPolicy, FuncOperateType::SET);
+    this->pluginInstance_->SetPluginUnloadFlag(false); // 此处是为了避免dlclose对应so出现的稳定性问题，如果dlclose无问题可以删除。
 }
 
 ErrCode EnableSelfDeviceAdminPlugin::OnSetPolicy()

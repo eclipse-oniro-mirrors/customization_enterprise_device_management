@@ -21,10 +21,20 @@
 #include "edm_log.h"
 #include "watermark_image_type.h"
 #include "watermark_image_serializer.h"
-#include "ipolicy_manager.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
+struct WatermarkCallParam {
+    std::shared_ptr<IPlugin> plugin;
+    uint32_t funcCode;
+    int32_t pid;
+    bool enabled;
+    std::string fileName;
+    std::string policyData;
+    bool needRetry;
+};
+
 class WatermarkApplicationObserver : public AppExecFwk::ApplicationStateObserverStub {
 public:
     void OnProcessCreated(const AppExecFwk::ProcessData &processData) override;
@@ -32,6 +42,14 @@ public:
     void HandleWatermark(const AppExecFwk::ProcessData &processData, bool enabled);
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId,
         int32_t pid, bool enabled);
+
+private:
+    std::string GetWatermarkFileName(const std::string &bundleName, int32_t accountId);
+    std::string GetWatermarkPolicyData();
+    std::shared_ptr<IPlugin> GetWatermarkPlugin();
+    uint32_t GetWatermarkFuncCode();
+    void CallPluginSetWatermark(const WatermarkCallParam &param);
+    void ScheduleRetry(const WatermarkCallParam &param);
 };
 } // namespace EDM
 } // namespace OHOS
