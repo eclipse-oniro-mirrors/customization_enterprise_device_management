@@ -140,7 +140,7 @@ bool ArrayUsbDeviceTypeSerializerBase::GetPolicy(MessageParcel &data, std::vecto
             EDMLOGE("ArrayUsbDeviceTypeSerializerBase GetDataByParcel::read parcel fail");
             return false;
         }
-        if (usbDeviceType.baseClass < deviceTypeMinValue_ || usbDeviceType.baseClass > DEVICE_TYPE_MAX_VALUE ||
+        if (usbDeviceType.baseClass < 0 || usbDeviceType.baseClass > DEVICE_TYPE_MAX_VALUE ||
             usbDeviceType.subClass < deviceTypeMinValue_ || usbDeviceType.subClass > DEVICE_TYPE_MAX_VALUE ||
             usbDeviceType.protocol < deviceTypeMinValue_ || usbDeviceType.protocol > DEVICE_TYPE_MAX_VALUE) {
             EDMLOGE("ArrayUsbDeviceTypeSerializerBase GetDataByParcel: baseClass or subClass or protocol is invalid");
