@@ -507,8 +507,7 @@ ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string
 
     if (!adminName.empty() && !bundleNames.empty()) {
         for (size_t i = 0; i < bundleNames.size(); ++i) {
-            HiSysEventAdapter::ReportInstalledBundleInfo(std::to_string(EdmInterfaceCode::INSTALL), adminName,
-                bundleNames[i], bundleTypes[i]);
+            HiSysEventAdapter::ReportInstalledBundleInfo(adminName, bundleNames[i], bundleTypes[i]);
         }
     }
 
