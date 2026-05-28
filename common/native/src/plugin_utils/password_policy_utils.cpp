@@ -115,25 +115,17 @@ bool PasswordPolicyUtils::GetPasswordPolicy(PasswordPolicy &policy)
     cJSON *validityPeriod = cJSON_GetObjectItem(root_, VALIDITY_PERIOD.c_str());
     cJSON *additionalDescription = cJSON_GetObjectItem(root_, ADDITIONAL_DESCRIPTION.c_str());
     cJSON *passwordAlgs = cJSON_GetObjectItem(root_, PASSWORD_ALGS.c_str());
-    if (!cJSON_IsString(complexityReg) || !cJSON_IsNumber(validityPeriod)) {
-        EDMLOGE("complexityReg or validityPeriod is incorrect format");
-        return false;
+    if (cJSON_IsString(complexityReg)) {
+        policy.complexityReg = cJSON_GetStringValue(complexityReg);
     }
-    if (additionalDescription != nullptr && !cJSON_IsString(additionalDescription)) {
-        EDMLOGE("additionalDescription is incorrect format");
-        return false;
+    if (cJSON_IsNumber(validityPeriod)) {
+        policy.validityPeriod = cJSON_GetNumberValue(validityPeriod);
     }
-    policy.complexityReg = cJSON_GetStringValue(complexityReg);
-    policy.validityPeriod = cJSON_GetNumberValue(validityPeriod);
-    if (additionalDescription == nullptr) {
-        policy.additionalDescription = "";
-    } else {
+    if (cJSON_IsString(additionalDescription)) {
         policy.additionalDescription = cJSON_GetStringValue(additionalDescription);
     }
-    if (passwordAlgs != nullptr && cJSON_IsNumber(passwordAlgs)) {
+    if (cJSON_IsNumber(passwordAlgs)) {
         policy.passwordAlgs = static_cast<int32_t>(cJSON_GetNumberValue(passwordAlgs));
-    } else {
-        policy.passwordAlgs = static_cast<int32_t>(PasswordAlgs::NONE);
     }
     return true;
 }
