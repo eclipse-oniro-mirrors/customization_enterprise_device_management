@@ -420,7 +420,7 @@ HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase2, TestSize.Level1)
 HWTEST_F(PluginManagerTest, TestUnloadPlugin_NormalCase3, TestSize.Level1)
 {
     // Load a plugin first
-    std::string soName = SONAME::SYS_SERVICE_PLUGIN_SO;
+    std::string soName = SONAME::NEED_EXTRA_PLUGIN_SO;
     PluginManager::GetInstance()->LoadPlugin(soName);
     
     // Verify plugin is loaded
