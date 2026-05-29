@@ -18,6 +18,7 @@
 #include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "netfirewall_client.h"
 #include "parameters.h"
 
 namespace OHOS {
@@ -40,12 +41,27 @@ void DisallowedTrafficRedirectionPlugin::InitPlugin(
 ErrCode DisallowedTrafficRedirectionPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowedTrafficRedirectionPlugin SetOtherModulePolicy");
+    int32_t ret = ERR_OK;
+    if (data) {
+        ret = OHOS::NetManagerStandard::NetFirewallClient::GetInstance().GlobalDisableTrafficFilter();
+    } else {
+        ret = OHOS::NetManagerStandard::NetFirewallClient::GetInstance().GlobalEnableTrafficFilter();
+    }
+    if (ret != ERR_OK) {
+        EDMLOGE("DisallowedTrafficRedirectionPlugin SetOtherModulePolicy traffic filter error.%{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 
 ErrCode DisallowedTrafficRedirectionPlugin::RemoveOtherModulePolicy(int32_t userId)
 {
     EDMLOGI("DisallowedTrafficRedirectionPlugin RemoveOtherModulePolicy");
+    int32_t ret = OHOS::NetManagerStandard::NetFirewallClient::GetInstance().GlobalEnableTrafficFilter();
+    if (ret != ERR_OK) {
+        EDMLOGE("DisallowedTrafficRedirectionPlugin RemoveOtherModulePolicy traffic filter error.%{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 // LCOV_EXCL_STOP

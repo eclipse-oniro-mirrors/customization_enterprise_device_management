@@ -361,9 +361,20 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_core_dump_plugin_test.cpp",
       "./src/disallow_rs232_plugin_test.cpp",
       "./src/ota_update_nonce_plugin_test.cpp",
-      "./src/disallowed_traffic_redirection_plugin_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (netmanager_ext_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [
+      "netmanager_base:net_manager_common",
+      "netmanager_base:net_native_manager_if",
+      "netmanager_ext:netfirewall_manager_if",
+    ]
+    sources += [
+      "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
+      "./src/disallowed_traffic_redirection_plugin_test.cpp",
+    ]
   }
 
   if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -883,7 +894,6 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disallow_core_dump_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_rs232_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/ota_update_nonce_plugin.cpp",
-      "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
     ]
   }
 
