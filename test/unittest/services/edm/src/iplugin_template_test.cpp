@@ -383,6 +383,28 @@ HWTEST_F(PluginTemplateTest, TestOtherServiceStart, TestSize.Level1)
     ASSERT_TRUE(g_visit);
 }
 
+/**
+ * @tc.name: TestOnHandlePolicyPrepare
+ * @tc.desc: Test PluginTemplate OnHandlePolicyPrepare func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestOnHandlePolicyPrepare, TestSize.Level1)
+{
+    int policyCode = 33;
+    uint32_t funcCode;
+    std::shared_ptr<IPlugin> plugin;
+    PluginManager::GetInstance()->AddPlugin(PLUGIN::OtherServiceStartRunnerPlg::GetPlugin());
+
+    funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
+    plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode eRet = plugin->OnHandlePolicyPrepare(funcCode, data, reply, handlePolicyData, 100);
+    ASSERT_TRUE(eRet == ERR_OK);
+}
+
 void PluginTemplateTest::SetUp()
 {
     if (policyManager_ == nullptr) {
