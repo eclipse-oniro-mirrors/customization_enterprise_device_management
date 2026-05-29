@@ -417,9 +417,10 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
                 return EdmReturnErrCode::PARAM_ERROR;
             }
             auto size = usbDeviceTypes.size();
-            if (size > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+            if (size > (notPermissive ? EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE :
+            EdmConstants::DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE)) {
                 EDMLOGE("UsbManagerProxy:AddOrRemoveDisallowedUsbDevices size=[%{public}zu] is too large", size);
-                return EdmReturnErrCode::PARAM_ERROR;
+                return notPermissive ? EdmReturnErrCode::PARAM_ERROR : EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
             }
             data.WriteUint32(size);
             for (const auto &usbDeviceType : usbDeviceTypes) {
@@ -449,6 +450,9 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
     }
     int32_t ret = usbManagerProxy->AddOrRemoveDisallowedUsbDevices(adapterAddonData.data, isAdd, notPermissive);
     if (FAILED(ret)) {
+        if (notPermissive && ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
+            ret = EdmReturnErrCode::PARAM_ERROR;
+        }
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
@@ -512,7 +516,8 @@ bool UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::Us
     }
     uint32_t arrayLength = 0;
     napi_get_array_length(env, object, &arrayLength);
-    if (arrayLength > EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE) {
+    if (arrayLength > (notPermissive ? EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE :
+    EdmConstants::DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE)) {
         EDMLOGE("ParseUsbDeviceTypesArray: arrayLength=[%{public}u] is too large", arrayLength);
         return false;
     }

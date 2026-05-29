@@ -129,7 +129,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, GetDisallowedUsbDevicesTypeMaxSize()).WillRepeatedly(Return(200));
 
     ErrCode ret = mockPlugin_->OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -175,7 +175,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, GetDisallowedUsbDevicesTypeMaxSize()).WillRepeatedly(Return(200));
 
     ErrCode ret = mockPlugin_->OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -380,7 +380,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, GetSerializer()).WillRepeatedly(Return(serializer_));
 
     ErrCode ret = mockPlugin_->OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
@@ -414,7 +414,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, SetDisallowedDevices(_)).WillRepeatedly(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
 
     ErrCode ret = mockPlugin_->OnSetPolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
@@ -517,7 +517,7 @@ HWTEST_F(DisallowedUsbDevicesPluginBaseTest,
     EXPECT_CALL(*mockPlugin_, SetDisallowedDevices(_)).WillRepeatedly(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
 
     ErrCode ret = mockPlugin_->OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**

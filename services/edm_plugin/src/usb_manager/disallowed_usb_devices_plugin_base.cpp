@@ -35,7 +35,7 @@ ErrCode DisallowedUsbDevicesPluginBase::OnSetPolicy(std::vector<USB::UsbDeviceTy
     }
     if (data.size() > GetDisallowedUsbDevicesTypeMaxSize()) {
         EDMLOGE("%{public}s OnSetPolicy data size=[%{public}zu] is too large", GetPluginName().c_str(), data.size());
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     bool hasConflict = false;
 #ifdef FEATURE_PC_ONLY
@@ -44,7 +44,7 @@ ErrCode DisallowedUsbDevicesPluginBase::OnSetPolicy(std::vector<USB::UsbDeviceTy
     std::vector<USB::UsbDeviceType> emptyData;
     if (FAILED(HasConflictPolicy(hasConflict, emptyData))) {
 #endif
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (hasConflict) {
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
@@ -58,14 +58,14 @@ ErrCode DisallowedUsbDevicesPluginBase::OnSetPolicy(std::vector<USB::UsbDeviceTy
     if (afterMerge.size() > GetDisallowedUsbDevicesTypeMaxSize()) {
         EDMLOGE("%{public}s OnSetPolicy union data size=[%{public}zu] is too large",
             GetPluginName().c_str(), mergeData.size());
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     std::vector<USB::UsbDeviceType> disallowedUsbDeviceTypes;
     CombineDataWithStorageAccessPolicy(afterMerge, disallowedUsbDeviceTypes);
     ErrCode ret = SetDisallowedDevices(disallowedUsbDeviceTypes);
     if (ret != ERR_OK) {
-        return ret;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     currentData = afterHandle;
     mergeData = afterMerge;
@@ -82,7 +82,7 @@ ErrCode DisallowedUsbDevicesPluginBase::OnRemovePolicy(std::vector<USB::UsbDevic
     }
     if (data.size() > GetDisallowedUsbDevicesTypeMaxSize()) {
         EDMLOGE("%{public}s OnRemovePolicy input data is too large", GetPluginName().c_str());
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     std::vector<USB::UsbDeviceType> afterHandle =
@@ -96,12 +96,12 @@ ErrCode DisallowedUsbDevicesPluginBase::OnRemovePolicy(std::vector<USB::UsbDevic
     if (disallowedUsbDeviceTypes.empty() && !currentData.empty()) {
         ret = UsbPolicyUtils::SetUsbDisabled(false);
         if (ret != ERR_OK) {
-            return ret;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
     }
     ret = SetDisallowedDevices(disallowedUsbDeviceTypes);
     if (ret != ERR_OK) {
-        return ret;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     currentData = afterHandle;
     mergeData = afterMerge;
@@ -125,7 +125,7 @@ ErrCode DisallowedUsbDevicesPluginBase::OnBaseGetPolicy(std::string &policyData,
     for (const auto &usbDeviceType : disallowedDevices) {
         if (!usbDeviceType.Marshalling(reply)) {
             EDMLOGE("%{public}s OnBaseGetPolicy: write parcel failed!", GetPluginName().c_str());
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
     }
     return ERR_OK;
