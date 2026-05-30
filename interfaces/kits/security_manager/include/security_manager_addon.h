@@ -92,6 +92,7 @@ private:
     static napi_value RemoveAllowedPermissionBundle(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveAllowedPermissionBundle(napi_env env, napi_callback_info info, bool isAdd);
     static napi_value GetAllowedPermissionBundles(napi_env env, napi_callback_info info);
+    static napi_value GetWatermarkImageApps(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

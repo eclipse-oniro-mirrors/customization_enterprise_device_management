@@ -141,7 +141,7 @@ ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data,
         SetProcessWatermark(bundleName, it->second.fileName, accountId, false);
         if (!SetWatermarkToRS(it->second.fileName, nullptr)) {
             EDMLOGE("SetWatermarkToRS fail");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         currentData.erase(key);
         int32_t ret = remove(filePath.c_str());
@@ -218,15 +218,15 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
     int32_t intervalsCol = param.hasPropertyParam ? param.intervalsCol : 0;
     if (!SetWatermarkToRS(fileName, pixelMap, intervalsRow, intervalsCol)) {
         EDMLOGE("SetWatermarkToRS fail");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (!SetImageUint8(param.pixels, param.size, filePath)) {
         EDMLOGE("SetWatermarkImagePlugin SetImageUint8 error.fileName=%{public}s", fileName.c_str());
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (!SubscribeAppState()) {
         EDMLOGE("SetWatermarkImagePlugin SubscribeAppState error");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (!oldFileName.empty()) {
         std::string oldFilePath = WATERMARK_IMAGE_DIR_PATH + oldFileName;
