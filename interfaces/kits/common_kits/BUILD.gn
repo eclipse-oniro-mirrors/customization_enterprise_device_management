@@ -39,6 +39,15 @@ ohos_shared_library("common") {
   ]
 
   relative_install_dir = "module/enterprise"
+
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

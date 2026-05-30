@@ -53,6 +53,15 @@ ohos_shared_library("enterpriseadminextensionability_napi") {
 
   relative_install_dir = "module/enterprise"
   part_name = "enterprise_device_management"
+
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

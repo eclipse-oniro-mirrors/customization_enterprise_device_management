@@ -47,6 +47,14 @@ ohos_shared_library("securityManager_ani") {
     ubsan = true
   }
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   part_name = "enterprise_device_management"
   subsystem_name = "customization"
 }

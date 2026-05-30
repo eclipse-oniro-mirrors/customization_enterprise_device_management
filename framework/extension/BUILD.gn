@@ -68,6 +68,14 @@ ohos_shared_library("enterprise_admin_extension") {
     "cJSON:cjson",
   ]
 
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -107,6 +115,15 @@ ohos_shared_library("enterprise_admin_extension_module") {
   ]
 
   relative_install_dir = "extensionability/"
+
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-Os",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

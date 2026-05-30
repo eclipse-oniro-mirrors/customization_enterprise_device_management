@@ -73,7 +73,22 @@ ohos_shared_library("edm_commom") {
   if (!defined(global_parts_info) ||
       defined(global_parts_info.security_security_guard)) {
     external_deps += [ "security_guard:libsg_collect_sdk" ]
-    cflags_cc = [ "-DSECURITY_GUARDE_ENABLE" ]
+    cflags_cc = [
+      "-DSECURITY_GUARDE_ENABLE",
+      "-fdata-sections",
+      "-ffunction-sections",
+      "-fno-asynchronous-unwind-tables",
+      "-fno-unwind-tables",
+      "-Os",
+    ]
+  } else {
+    cflags_cc = [
+      "-fdata-sections",
+      "-ffunction-sections",
+      "-fno-asynchronous-unwind-tables",
+      "-fno-unwind-tables",
+      "-Os",
+    ]
   }
 
   sanitize = {
