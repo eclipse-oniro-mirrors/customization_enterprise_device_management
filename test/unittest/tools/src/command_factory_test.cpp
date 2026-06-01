@@ -28,7 +28,7 @@ namespace TEST {
 class CommandFactoryTest : public testing::Test {};
 
 /**
- * @tc.name: CommandFactoryTest
+ * @tc.name: CreateHelpCommand
  * @tc.desc: Test CommandFactory: create help command.
  * @tc.type: FUNC
  */

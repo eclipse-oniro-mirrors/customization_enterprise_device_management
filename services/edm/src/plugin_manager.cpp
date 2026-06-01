@@ -194,7 +194,7 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByCode(std::uint32_t code)
     if (it != pluginsCode_.end()) {
         return it->second;
     }
-    EDMLOGI("GetPluginByCode::return nullptr");
+    EDMLOGI("GetPluginByCode::return nullptr.");
     return nullptr;
 }
 
