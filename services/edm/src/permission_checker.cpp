@@ -127,7 +127,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::SET_KEY_CODE_POLICYS,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY,
     EdmInterfaceCode::ALLOWED_WIFI_LIST,
-    EdmInterfaceCode::DISALLOWED_WIFI_LIST
+    EdmInterfaceCode::DISALLOWED_WIFI_LIST,
+    EdmInterfaceCode::PASSWORD_POLICY,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
