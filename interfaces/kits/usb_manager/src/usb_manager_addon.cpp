@@ -412,9 +412,13 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
     auto convertUsbDeviceType2Data = [notPermissive](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
             std::vector<USB::UsbDeviceType> usbDeviceTypes;
-            if (!ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv, notPermissive)) { // LCOV_EXCL_BR_LINE
+            int32_t ans = ParseUsbDeviceTypesArray(env, usbDeviceTypes, argv, notPermissive);
+            if (FAILED(ans)) { // LCOV_EXCL_BR_LINE
                 EDMLOGE("parameter type parse error");
-                return EdmReturnErrCode::PARAM_ERROR;
+                if (notPermissive && ans == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
+                    ans = EdmReturnErrCode::PARAM_ERROR;
+                }
+                return ans;
             }
             auto size = usbDeviceTypes.size();
             if (size > (notPermissive ? EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE :
@@ -506,20 +510,20 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevicesCore(napi_env env, napi_callb
 }
 
 #ifdef USB_EDM_ENABLE
-bool UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
+int32_t UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
     napi_value object, bool notPermissive)
 {
     bool isArray = false;
     napi_is_array(env, object, &isArray);
     if (!isArray) {
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     uint32_t arrayLength = 0;
     napi_get_array_length(env, object, &arrayLength);
     if (arrayLength > (notPermissive ? EdmConstants::DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE :
     EdmConstants::DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE)) {
         EDMLOGE("ParseUsbDeviceTypesArray: arrayLength=[%{public}u] is too large", arrayLength);
-        return false;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     for (uint32_t i = 0; i < arrayLength; i++) {
         napi_value value = nullptr;
@@ -528,16 +532,16 @@ bool UsbManagerAddon::ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::Us
         napi_typeof(env, value, &valueType);
         if (valueType != napi_object) {
             usbDeviceTypes.clear();
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         USB::UsbDeviceType usbDeviceType;
         if (!GetUsbDeviceTypeFromNAPI(env, value, usbDeviceType, notPermissive)) { // LCOV_EXCL_BR_LINE
             usbDeviceTypes.clear();
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         usbDeviceTypes.push_back(usbDeviceType);
     }
-    return true;
+    return ERR_OK;
 }
 
 bool UsbManagerAddon::GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType,

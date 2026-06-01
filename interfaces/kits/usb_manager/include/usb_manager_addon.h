@@ -77,7 +77,7 @@ private:
     static napi_value GetDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedUsbDevicesCore(napi_env env, napi_callback_info info, bool notPermissive);
 #ifdef USB_EDM_ENABLE
-    static bool ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
+    static int32_t ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
         napi_value object, bool notPermissive);
     static bool GetUsbDeviceTypeFromNAPI(napi_env env, napi_value value, USB::UsbDeviceType &usbDeviceType,
         bool notPermissive);
