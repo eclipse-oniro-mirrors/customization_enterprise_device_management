@@ -824,6 +824,8 @@ ohos_shared_library("watermark_plugin") {
     "samgr:samgr_proxy",
     "window_manager:libdm",
     "window_manager:libwm",
+    "window_manager:session_manager_lite",
+    "window_manager:sms",
   ]
 
   if (enterprise_device_management_support_all) {
