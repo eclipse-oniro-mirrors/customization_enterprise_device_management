@@ -36,8 +36,8 @@ public:
     static void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo = "");
     static void ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
         const int32_t &adminType, const std::string &extraInfo = "");
-    static void ReportInstalledBundleInfo(const std::string &apiName, const std::string &adminName,
-        const std::string &installedBundleName, InstalledBundleType installedBundleType);
+    static void ReportInstalledBundleInfo(const std::string &adminName, const std::string &installedBundleName,
+        InstalledBundleType installedBundleType);
 };
 } // namespace EDM
 } // namespace OHOS

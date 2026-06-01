@@ -53,12 +53,12 @@ void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName
     }
 }
 
-void HiSysEventAdapter::ReportInstalledBundleInfo(const std::string &apiName, const std::string &adminName,
-    const std::string &installedBundleName, InstalledBundleType installedBundleType)
+void HiSysEventAdapter::ReportInstalledBundleInfo(const std::string &adminName, const std::string &installedBundleName,
+    InstalledBundleType installedBundleType)
 {
     EDMLOGI("hisysevent ReportInstalledBundleInfo");
     int ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
-        "APINAME", apiName, "MDM_BUNDLE_NAME", adminName, "INSTALLED_BUNDLE_NAME", installedBundleName,
+        "MDM_BUNDLE_NAME", adminName, "INSTALLED_BUNDLE_NAME", installedBundleName,
         "INSTALLED_BUNDLE_TYPE", static_cast<int32_t>(installedBundleType));
     if (ret != 0) {
         EDMLOGE("hisysevent write installed bundle info failed! ret %{public}d", ret);
