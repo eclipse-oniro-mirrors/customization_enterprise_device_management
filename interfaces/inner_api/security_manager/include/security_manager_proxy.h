@@ -46,6 +46,8 @@ public:
     int32_t SetPasswordPolicy(MessageParcel &data);
     int32_t GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy);
     int32_t GetPasswordPolicy(PasswordPolicy &policy);
+    int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy,
+        const std::string &permissionTag);
     int32_t GetRootCheckStatus(const AppExecFwk::ElementName &admin, std::string &info, const std::string &item);
     int32_t SetAppClipboardPolicy(MessageParcel &data);
     int32_t GetAppClipboardPolicy(MessageParcel &data, std::string &policy);
@@ -74,7 +76,6 @@ public:
         int32_t userId, std::vector<ApplicationInstance> &result);
     int32_t GetWatermarkImageApps(MessageParcel &data, std::vector<std::string> &bundleNames);
 private:
-    int32_t GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy);
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::once_flag flag_;
 };
