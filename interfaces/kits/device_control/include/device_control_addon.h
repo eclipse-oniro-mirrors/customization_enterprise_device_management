@@ -22,6 +22,7 @@
 #include "napi_edm_adapter.h"
 #include "napi_edm_error.h"
 #include "napi/native_node_api.h"
+#include "operate_device_param.h"
 #include "want.h"
 
 namespace OHOS {
@@ -40,6 +41,7 @@ private:
     static napi_value OperateDevice(napi_env env, napi_callback_info info);
     static void NativeResetFactory(napi_env env, void *data);
     static void SetPolicyCommon(AddonMethodSign &addonMethodSign, const std::string &workName);
+    static bool ReadFileToBytes(const std::string url, int32_t &fileSize, std::vector<uint8_t> &res);
 };
 } // namespace EDM
 } // namespace OHOS

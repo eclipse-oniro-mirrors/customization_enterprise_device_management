@@ -252,6 +252,10 @@ void MessageParcelUtils::WriteOperateDeviceParam(const OperateDeviceParam &param
     data.WriteString(param.operate);
     data.WriteString(param.addition);
     data.WriteInt32(param.userId);
+    data.WriteInt32(param.size);
+    if (param.size > 0) {
+        data.WriteUInt8Vector(param.file);
+    }
 }
 
 void MessageParcelUtils::ReadOperateDeviceParam(MessageParcel &data, OperateDeviceParam &param)
@@ -259,6 +263,10 @@ void MessageParcelUtils::ReadOperateDeviceParam(MessageParcel &data, OperateDevi
     param.operate = data.ReadString();
     param.addition = data.ReadString();
     param.userId = data.ReadInt32();
+    param.size = data.ReadInt32();
+    if (param.size > 0) {
+        data.ReadUInt8Vector(&(param.file));
+    }
 }
 
 void MessageParcelUtils::WriteClearUpApplicationDataParam(const ClearUpApplicationDataParam &param, MessageParcel &data)
