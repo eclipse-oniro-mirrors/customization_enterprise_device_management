@@ -17,6 +17,7 @@
 #define COMMON_NATIVE_INCLUDE_OPERATE_DEVICE_PARAM_H
 
 #include <string>
+#include <vector>
 
 namespace OHOS {
 namespace EDM {
@@ -24,6 +25,8 @@ struct OperateDeviceParam {
     std::string operate;
     std::string addition;
     int32_t userId = -1;
+    int32_t size = 0;
+    std::vector<uint8_t> file;
 };
 } // namespace EDM
 } // namespace OHOS

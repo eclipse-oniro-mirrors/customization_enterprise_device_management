@@ -13,7 +13,11 @@
  * limitations under the License.
  */
 
+#include <fcntl.h>
+#include <fstream>
+
 #include "device_control_addon.h"
+#include "edm_constants.h"
 #include "operate_device_param.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
@@ -130,6 +134,39 @@ void DeviceControlAddon::NativeResetFactory(napi_env env, void *data)
         DeviceControlProxy::GetDeviceControlProxy()->ResetFactory(asyncCallbackInfo->data);
 }
 
+bool DeviceControlAddon::ReadFileToBytes(const std::string fileName, int32_t &fileSize, std::vector<uint8_t> &res)
+{
+    char canonicalPath[PATH_MAX + 1] = { 0 };
+    if (fileName.size() > PATH_MAX || realpath(fileName.c_str(), canonicalPath) == nullptr) {
+        EDMLOGE("realpath error");
+        return false;
+    }
+    std::string realPath(canonicalPath);
+    std::ifstream file(realPath, std::ios::binary);
+    if (!file) {
+        EDMLOGE("can not open file");
+        return false;
+    }
+ 
+    file.seekg(0, std::ios::end);
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    if (size < 0 || size > EdmConstants::MAX_DISK_ERASE_IMAGE_SIZE) {
+        EDMLOGE("file size is abnormally");
+        return false;
+    }
+ 
+    std::vector<uint8_t> buffer(size);
+    if (file.read(reinterpret_cast<char*>(buffer.data()), size)) {
+        EDMLOGI("success to read file");
+        fileSize = size;
+        res = buffer;
+        return true;
+    }
+    EDMLOGE("failed to read file");
+    return false;
+}
+
 napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_OperateDevice called");
@@ -156,6 +193,13 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     if (argc > ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
             "addition param error");
+        if (param.operate == "diskErase") {
+            if (!ReadFileToBytes(param.addition, param.size, param.file)) {
+                napi_throw(env,
+                    CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+                return nullptr;
+            }
+        }
     }
 #ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(param.userId);
