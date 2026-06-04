@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "bundle_storage_info.h"
+#include "edm_constants.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -75,75 +76,27 @@ HWTEST_F(BundleStorageInfoTest, BundleStorageInfoReadFromParcel001, TestSize.Lev
 }
 
 /**
- * @tc.name: BundleStorageInfoUnmarshalling001
- * @tc.desc: Test BundleStorageInfo Unmarshalling success
- * @tc.type: FUNC
- */
-HWTEST_F(BundleStorageInfoTest, BundleStorageInfoUnmarshalling001, TestSize.Level1)
-{
-    BundleStorageInfo writeInfo;
-    writeInfo.bundleName = "com.test.app";
-    writeInfo.appSize = TEST_APP_SIZE;
-    writeInfo.dataSize = TEST_DATA_SIZE;
-
-    MessageParcel parcel;
-    bool ret = writeInfo.Marshalling(parcel);
-    ASSERT_TRUE(ret);
-
-    BundleStorageInfo *readInfo = BundleStorageInfo::Unmarshalling(parcel);
-    ASSERT_NE(readInfo, nullptr);
-    ASSERT_EQ(readInfo->bundleName, "com.test.app");
-    ASSERT_EQ(readInfo->appSize, TEST_APP_SIZE);
-    ASSERT_EQ(readInfo->dataSize, TEST_DATA_SIZE);
-    delete readInfo;
-}
-
-/**
- * @tc.name: BundleStorageInfoUnmarshalling002
- * @tc.desc: Test BundleStorageInfo Unmarshalling with empty bundleName
- * @tc.type: FUNC
- */
-HWTEST_F(BundleStorageInfoTest, BundleStorageInfoUnmarshalling002, TestSize.Level1)
-{
-    BundleStorageInfo writeInfo;
-    writeInfo.bundleName = "";
-    writeInfo.appSize = 0;
-    writeInfo.dataSize = 0;
-
-    MessageParcel parcel;
-    bool ret = writeInfo.Marshalling(parcel);
-    ASSERT_TRUE(ret);
-
-    BundleStorageInfo *readInfo = BundleStorageInfo::Unmarshalling(parcel);
-    ASSERT_NE(readInfo, nullptr);
-    ASSERT_EQ(readInfo->bundleName, "");
-    ASSERT_EQ(readInfo->appSize, 0);
-    ASSERT_EQ(readInfo->dataSize, 0);
-    delete readInfo;
-}
-
-/**
  * @tc.name: BundleStorageInfoMarshalling002
  * @tc.desc: Test BundleStorageInfo Marshalling with large values
  * @tc.type: FUNC
  */
 HWTEST_F(BundleStorageInfoTest, BundleStorageInfoMarshalling002, TestSize.Level1)
 {
-    BundleStorageInfo info;
-    info.bundleName = "com.test.large.app";
-    info.appSize = INT64_MAX;
-    info.dataSize = INT64_MAX;
+    BundleStorageInfo writeInfo;
+    writeInfo.bundleName = "com.test.large.app";
+    writeInfo.appSize = INT64_MAX;
+    writeInfo.dataSize = INT64_MAX;
 
     MessageParcel parcel;
-    bool ret = info.Marshalling(parcel);
+    bool ret = writeInfo.Marshalling(parcel);
     ASSERT_TRUE(ret);
 
-    BundleStorageInfo *readInfo = BundleStorageInfo::Unmarshalling(parcel);
-    ASSERT_NE(readInfo, nullptr);
-    ASSERT_EQ(readInfo->bundleName, "com.test.large.app");
-    ASSERT_EQ(readInfo->appSize, INT64_MAX);
-    ASSERT_EQ(readInfo->dataSize, INT64_MAX);
-    delete readInfo;
+    BundleStorageInfo readInfo;
+    ret = readInfo.ReadFromParcel(parcel);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(readInfo.bundleName, "com.test.large.app");
+    ASSERT_EQ(readInfo.appSize, INT64_MAX);
+    ASSERT_EQ(readInfo.dataSize, INT64_MAX);
 }
 
 /**
@@ -153,29 +106,29 @@ HWTEST_F(BundleStorageInfoTest, BundleStorageInfoMarshalling002, TestSize.Level1
  */
 HWTEST_F(BundleStorageInfoTest, BundleStorageInfoMarshalling003, TestSize.Level1)
 {
-    BundleStorageInfo info;
-    info.bundleName = "com.test.negative.app";
-    info.appSize = -1;
-    info.dataSize = -1;
+    BundleStorageInfo writeInfo;
+    writeInfo.bundleName = "com.test.negative.app";
+    writeInfo.appSize = -1;
+    writeInfo.dataSize = -1;
 
     MessageParcel parcel;
-    bool ret = info.Marshalling(parcel);
+    bool ret = writeInfo.Marshalling(parcel);
     ASSERT_TRUE(ret);
 
-    BundleStorageInfo *readInfo = BundleStorageInfo::Unmarshalling(parcel);
-    ASSERT_NE(readInfo, nullptr);
-    ASSERT_EQ(readInfo->bundleName, "com.test.negative.app");
-    ASSERT_EQ(readInfo->appSize, -1);
-    ASSERT_EQ(readInfo->dataSize, -1);
-    delete readInfo;
+    BundleStorageInfo readInfo;
+    ret = readInfo.ReadFromParcel(parcel);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(readInfo.bundleName, "com.test.negative.app");
+    ASSERT_EQ(readInfo.appSize, -1);
+    ASSERT_EQ(readInfo.dataSize, -1);
 }
 
 /**
- * @tc.name: BundleStorageInfoUnmarshalling003
- * @tc.desc: Test BundleStorageInfo Unmarshalling with unicode bundleName
+ * @tc.name: BundleStorageInfoMarshalling004
+ * @tc.desc: Test BundleStorageInfo Marshalling with unicode bundleName
  * @tc.type: FUNC
  */
-HWTEST_F(BundleStorageInfoTest, BundleStorageInfoUnmarshalling003, TestSize.Level1)
+HWTEST_F(BundleStorageInfoTest, BundleStorageInfoMarshalling004, TestSize.Level1)
 {
     BundleStorageInfo writeInfo;
     writeInfo.bundleName = "com.test.app";
@@ -186,12 +139,94 @@ HWTEST_F(BundleStorageInfoTest, BundleStorageInfoUnmarshalling003, TestSize.Leve
     bool ret = writeInfo.Marshalling(parcel);
     ASSERT_TRUE(ret);
 
-    BundleStorageInfo *readInfo = BundleStorageInfo::Unmarshalling(parcel);
-    ASSERT_NE(readInfo, nullptr);
-    ASSERT_EQ(readInfo->bundleName, "com.test.app");
-    ASSERT_EQ(readInfo->appSize, TEST_APP_SIZE);
-    ASSERT_EQ(readInfo->dataSize, TEST_DATA_SIZE);
-    delete readInfo;
+    BundleStorageInfo readInfo;
+    ret = readInfo.ReadFromParcel(parcel);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(readInfo.bundleName, "com.test.app");
+    ASSERT_EQ(readInfo.appSize, TEST_APP_SIZE);
+    ASSERT_EQ(readInfo.dataSize, TEST_DATA_SIZE);
+}
+
+/**
+ * @tc.name: BundleStorageInfoReadVectorSuccess001
+ * @tc.desc: Test BundleStorageInfo::ReadBundleStorageInfoVector success
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleStorageInfoTest, BundleStorageInfoReadVectorSuccess001, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteUint32(1);
+    
+    BundleStorageInfo writeInfo;
+    writeInfo.bundleName = "com.test.app";
+    writeInfo.appSize = TEST_APP_SIZE;
+    writeInfo.dataSize = TEST_DATA_SIZE;
+    writeInfo.Marshalling(parcel);
+    
+    std::vector<BundleStorageInfo> result;
+    bool ret = BundleStorageInfo::ReadBundleStorageInfoVector(parcel, result);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(result.size(), 1);
+    ASSERT_EQ(result[0].bundleName, "com.test.app");
+    ASSERT_EQ(result[0].appSize, TEST_APP_SIZE);
+    ASSERT_EQ(result[0].dataSize, TEST_DATA_SIZE);
+}
+
+/**
+ * @tc.name: BundleStorageInfoReadVectorMultiple001
+ * @tc.desc: Test BundleStorageInfo::ReadBundleStorageInfoVector with multiple items
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleStorageInfoTest, BundleStorageInfoReadVectorMultiple001, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteUint32(3);
+    
+    for (int i = 1; i <= 3; i++) {
+        BundleStorageInfo info;
+        info.bundleName = "com.test.app" + std::to_string(i);
+        info.appSize = TEST_APP_SIZE * i;
+        info.dataSize = TEST_DATA_SIZE * i;
+        info.Marshalling(parcel);
+    }
+    
+    std::vector<BundleStorageInfo> result;
+    bool ret = BundleStorageInfo::ReadBundleStorageInfoVector(parcel, result);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(result.size(), 3);
+    ASSERT_EQ(result[1].bundleName, "com.test.app2");
+    ASSERT_EQ(result[1].appSize, TEST_APP_SIZE * 2);
+}
+
+/**
+ * @tc.name: BundleStorageInfoReadVectorEmpty001
+ * @tc.desc: Test BundleStorageInfo::ReadBundleStorageInfoVector with empty vector
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleStorageInfoTest, BundleStorageInfoReadVectorEmpty001, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteUint32(0);
+    
+    std::vector<BundleStorageInfo> result;
+    bool ret = BundleStorageInfo::ReadBundleStorageInfoVector(parcel, result);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(result.size(), 0);
+}
+
+/**
+ * @tc.name: BundleStorageInfoReadVectorOverMax001
+ * @tc.desc: Test BundleStorageInfo::ReadBundleStorageInfoVector with over max size
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleStorageInfoTest, BundleStorageInfoReadVectorOverMax001, TestSize.Level1)
+{
+    MessageParcel parcel;
+    parcel.WriteUint32(EdmConstants::POLICIES_MAX_SIZE + 1);
+    
+    std::vector<BundleStorageInfo> result;
+    bool ret = BundleStorageInfo::ReadBundleStorageInfoVector(parcel, result);
+    ASSERT_FALSE(ret);
 }
 } // namespace TEST
 } // namespace EDM

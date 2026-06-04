@@ -17,6 +17,7 @@
 
 #include <cstring>
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "parcel.h"
 #include "parcel_macro.h"
@@ -40,15 +41,26 @@ bool BundleStorageInfo::Marshalling(Parcel &parcel) const
     return true;
 }
 
-BundleStorageInfo *BundleStorageInfo::Unmarshalling(Parcel &parcel)
+bool BundleStorageInfo::ReadBundleStorageInfoVector(MessageParcel &reply, std::vector<BundleStorageInfo> &result)
 {
-    BundleStorageInfo *info = new (std::nothrow) BundleStorageInfo();
-    if (info && !info->ReadFromParcel(parcel)) {
-        EDMLOGE("read from parcel failed");
-        delete info;
-        info = nullptr;
+    uint32_t size = reply.ReadUint32();
+    if (size > EdmConstants::POLICIES_MAX_SIZE) {
+        EDMLOGE("ReadBundleStorageInfoVector size is over max");
+        return false;
     }
-    return info;
+    
+    result.clear();
+    result.reserve(size);
+    
+    for (uint32_t i = 0; i < size; i++) {
+        BundleStorageInfo info;
+        if (!info.ReadFromParcel(reply)) {
+            EDMLOGE("ReadBundleStorageInfoVector ReadFromParcel failed");
+            return false;
+        }
+        result.emplace_back(std::move(info));
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

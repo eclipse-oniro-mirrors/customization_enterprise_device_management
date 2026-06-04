@@ -394,18 +394,9 @@ int32_t BundleManagerProxy::GetInstalledBundleStorageStatsList(AppExecFwk::Eleme
         EDMLOGE("BundleManagerProxy:GetInstalledBundleStorageStatsList fail. %{public}d", ret);
         return ret;
     }
-    uint32_t size = reply.ReadUint32();
-    if (size > EdmConstants::POLICIES_MAX_SIZE) {
-        EDMLOGE("BundleManagerProxy:GetInstalledBundleStorageStatsList reply size is over max");
+    if (!BundleStorageInfo::ReadBundleStorageInfoVector(reply, result)) {
+        EDMLOGE("BundleManagerProxy:GetInstalledBundleStorageStatsList ReadBundleStorageInfoVector failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    for (uint32_t i = 0; i < size; i++) {
-        BundleStorageInfo *bundleStorageInfo = BundleStorageInfo::Unmarshalling(reply);
-        if (bundleStorageInfo == nullptr) {
-            EDMLOGE("BundleManagerProxy:GetInstalledBundleStorageStatsList Unmarshalling null");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        result.emplace_back(*bundleStorageInfo);
     }
     return ERR_OK;
 }
