@@ -33,7 +33,8 @@ struct BundleStorageInfo : public Parcelable {
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
-    static BundleStorageInfo *Unmarshalling(Parcel &parcel);
+
+    static bool ReadBundleStorageInfoVector(MessageParcel &reply, std::vector<BundleStorageInfo> &result);
 };
 } // namespace EDM
 } // namespace OHOS

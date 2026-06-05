@@ -554,7 +554,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStats(uint32_t
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetBundleStorageStats code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(1);
+    reply.WriteUint32(1);
     BundleStorageInfo info;
     info.bundleName = "com.edm.test.demo";
     info.appSize = TEST_APP_SIZE;
@@ -569,7 +569,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsMultiple(
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock GetBundleStorageStatsMultiple code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(TEST_BUNDLE_SIZE);
+    reply.WriteUint32(TEST_BUNDLE_SIZE);
     for (int i = 1; i <= TEST_BUNDLE_SIZE; i++) {
         BundleStorageInfo info;
         info.bundleName = "com.test.app" + std::to_string(i);
@@ -586,7 +586,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStorageStatsEmpty(uin
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock GetBundleStorageStatsEmpty code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(0);
+    reply.WriteUint32(0);
     return 0;
 }
 
