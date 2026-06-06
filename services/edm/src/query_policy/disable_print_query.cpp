@@ -14,7 +14,6 @@
  */
 #include "disable_print_query.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 

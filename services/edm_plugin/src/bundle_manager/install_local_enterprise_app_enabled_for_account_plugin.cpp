@@ -15,7 +15,6 @@
 
 #include "install_local_enterprise_app_enabled_for_account_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_utils.h"
@@ -25,47 +24,25 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
-    IPluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledForAccountPlugin::GetPlugin());
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<InstallLocalEnterpriseAppEnabledForAccountPlugin>());
 const std::string CONSTRAINT_LOCAL_INSTALL = "constraint.enterprise.bundles.local.install.disallow";
 
-void InstallLocalEnterpriseAppEnabledForAccountPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<InstallLocalEnterpriseAppEnabledForAccountPlugin, bool>> ptr)
+InstallLocalEnterpriseAppEnabledForAccountPlugin::InstallLocalEnterpriseAppEnabledForAccountPlugin()
 {
     EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT,
-        PolicyName::POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&InstallLocalEnterpriseAppEnabledForAccountPlugin::OnSetPolicy,
-        FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT;
+    policyName_ = PolicyName::POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
 }
 
 ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin SetOtherModulePolicy data = %{public}d", data);
-    ErrCode ret = SetSpecificOsAccountConstraints(data, userId);
-    if (FAILED(ret)) {
-        return ret;
-    }
-    return ERR_OK;
-}
-
-ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin RemoveOtherModulePolicy");
-    ErrCode ret = SetSpecificOsAccountConstraints(false, userId);
-    if (FAILED(ret)) {
-        return ret;
-    }
-    return ERR_OK;
-}
-
-ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::SetSpecificOsAccountConstraints(bool policy, int32_t userId)
-{
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_LOCAL_INSTALL);
-    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,
+    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
         EdmConstants::DEFAULT_USER_ID, true);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledForAccountPlugin SetSpecificOsAccountConstraints failed");

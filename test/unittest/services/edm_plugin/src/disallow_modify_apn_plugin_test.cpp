@@ -49,7 +49,7 @@ void DisallowModifyAPNPluginTest::TearDownTestSuite(void)
 
 INSTANTIATE_TEST_SUITE_P(TestOnSetPolicy, DisallowModifyAPNPluginTest,
     testing::ValuesIn(std::vector<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>>({
-        {DisallowModifyAPNPlugin::GetPlugin(), EdmInterfaceCode::DISALLOW_MODIFY_APN}
+        {std::make_shared<DisallowModifyAPNPlugin>(), EdmInterfaceCode::DISALLOW_MODIFY_APN}
     })));
 
 /**

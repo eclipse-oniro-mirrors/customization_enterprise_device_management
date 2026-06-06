@@ -36,7 +36,7 @@ HWTEST_F(DisallowedNotificationPluginTest, TestDisallowedNotificationPlugin001, 
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowedNotificationPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallowedNotificationPlugin>();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_NOTIFICATION);
     HandlePolicyData handlePolicyData{"", "", false};

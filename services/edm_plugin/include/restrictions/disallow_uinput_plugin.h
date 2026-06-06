@@ -17,18 +17,14 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_UINPUT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowUInputPlugin : public PluginSingleton<DisallowUInputPlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowUInputPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUInputPlugin, bool>> ptr) override;
+    DisallowUInputPlugin();
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
-    int32_t SetUInputDeviceEnabled(bool enabled);
 };
 } // namespace EDM
 } // namespace OHOS

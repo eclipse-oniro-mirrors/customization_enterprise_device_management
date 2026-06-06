@@ -15,16 +15,15 @@
 
 #include "disable_mtp_server_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMtpServerPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableMtpServerPlugin>());
 
-void DisableMtpServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpServerPlugin, bool>> ptr)
+DisableMtpServerPlugin::DisableMtpServerPlugin()
 {
     EDMLOGI("DisableMtpServerPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
@@ -32,11 +31,9 @@ void DisableMtpServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableM
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MTP_SERVER, PolicyName::POLICY_DISABLED_MTP_SERVER, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableMtpServerPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableMtpServerPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_MTP_SERVER;
+    policyName_ = PolicyName::POLICY_DISABLED_MTP_SERVER;
     persistParam_ = "persist.edm.mtp_server_disable";
 }
 } // namespace EDM

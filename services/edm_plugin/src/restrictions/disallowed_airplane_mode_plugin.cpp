@@ -15,7 +15,7 @@
 
 #include "disallowed_airplane_mode_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "net_conn_client.h"
@@ -23,20 +23,17 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedAirplaneModePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedAirplaneModePlugin>());
 
-void DisallowedAirplaneModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedAirplaneModePlugin, bool>> ptr)
+DisallowedAirplaneModePlugin::DisallowedAirplaneModePlugin()
 {
     EDMLOGI("DisallowedAirplaneModePlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE;
+    policyName_ = PolicyName::POLICY_DISALLOWED_AIRPLANE_MODE;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
-        PolicyName::POLICY_DISALLOWED_AIRPLANE_MODE, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedAirplaneModePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedAirplaneModePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.airplane_mode_disable";
 }
 

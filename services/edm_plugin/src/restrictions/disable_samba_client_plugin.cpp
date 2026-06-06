@@ -15,23 +15,22 @@
 
 #include "disable_samba_client_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableSambaClientPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableSambaClientPlugin>());
 
-void DisableSambaClientPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableSambaClientPlugin, bool>> ptr)
+DisableSambaClientPlugin::DisableSambaClientPlugin()
 {
     EDMLOGI("DisableSambaClientPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_SAMBA_CLIENT, PolicyName::POLICY_DISABLED_SAMBA_CLIENT,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableSambaClientPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableSambaClientPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISABLE_SAMBA_CLIENT;
+    policyName_ = PolicyName::POLICY_DISABLED_SAMBA_CLIENT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.samba_client_disable";
 }
 } // namespace EDM

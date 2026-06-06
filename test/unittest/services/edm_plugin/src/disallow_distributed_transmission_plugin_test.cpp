@@ -26,7 +26,7 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -135,8 +135,8 @@ HWTEST_F(DisallowDistributedTransmissionPluginTest, TestDisallowDistributedTrans
     ASSERT_TRUE(res == ERR_OK);
 
     DisallowDistributedTransmissionPlugin plugin;
-    bool hasConflict = plugin.HasConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_TRUE(hasConflict == true);
+    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 
     ErrCode clearRes = policyManager->SetPolicy(TEST_ADMIN_NAME,
         PolicyName::POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL, "", "", DEFAULT_USER_ID);
@@ -156,8 +156,8 @@ HWTEST_F(DisallowDistributedTransmissionPluginTest, TestDisallowDistributedTrans
     IPolicyManager::policyManagerInstance_ = policyManager.get();
 
     DisallowDistributedTransmissionPlugin plugin;
-    bool hasConflict = plugin.HasConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_TRUE(hasConflict == false);
+    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
 
     IPolicyManager::policyManagerInstance_ = nullptr;
 }

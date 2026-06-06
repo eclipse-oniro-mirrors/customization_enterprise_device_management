@@ -47,7 +47,7 @@ HWTEST_F(DisallowModifyDateTimePluginTest, TestDisallowModifyDateTimePlugin001, 
     MessageParcel reply;
     // want to disallow to modify date time.
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallModifyDateTimePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallModifyDateTimePlugin>();
     // origin policy is allow to modify date time.
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_MODIFY_DATETIME);

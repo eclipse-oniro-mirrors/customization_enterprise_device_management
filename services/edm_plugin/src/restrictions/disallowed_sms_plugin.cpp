@@ -15,26 +15,24 @@
 
 #include "disallowed_sms_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedSMSPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedSMSPlugin>());
 
-void DisallowedSMSPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedSMSPlugin, bool>> ptr)
+DisallowedSMSPlugin::DisallowedSMSPlugin()
 {
     EDMLOGI("DisallowedSMSPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_SMS, PolicyName::POLICY_DISALLOWED_SMS, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedSMSPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedSMSPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_SMS;
+    policyName_ = PolicyName::POLICY_DISALLOWED_SMS;
     persistParam_ = "persist.edm.sms_disable";
 }
 } // namespace EDM

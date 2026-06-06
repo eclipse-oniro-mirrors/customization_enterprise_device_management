@@ -17,19 +17,14 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TETHERING_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedTetheringPlugin : public PluginSingleton<DisallowedTetheringPlugin, bool>, public BasicBoolPlugin {
+class DisallowedTetheringPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTetheringPlugin, bool>> ptr) override;
+    DisallowedTetheringPlugin();
 
 private:
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId) override;
-
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId) override;
-
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM

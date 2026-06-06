@@ -15,26 +15,24 @@
 
 #include "disallow_modify_apn_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowModifyAPNPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowModifyAPNPlugin>());
 
-void DisallowModifyAPNPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowModifyAPNPlugin, bool>> ptr)
+DisallowModifyAPNPlugin::DisallowModifyAPNPlugin()
 {
     EDMLOGI("DisallowModifyAPNPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_APN, PolicyName::POLICY_DISALLOW_MODIFY_APN, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowModifyAPNPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowModifyAPNPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISALLOW_MODIFY_APN;
+    policyName_ = PolicyName::POLICY_DISALLOW_MODIFY_APN;
     persistParam_ = "persist.edm.disallow_modify_apn";
 }
 } // namespace EDM

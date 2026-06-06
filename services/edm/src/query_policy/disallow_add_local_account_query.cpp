@@ -15,7 +15,6 @@
 
 #include "disallow_add_local_account_query.h"
 
-#include "bool_serializer.h"
 #include "edm_log.h"
 #include "parameters.h"
 

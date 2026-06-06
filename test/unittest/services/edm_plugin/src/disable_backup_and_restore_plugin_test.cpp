@@ -54,7 +54,7 @@ HWTEST_F(DisableBackupAndRestorePluginTest, TestOnSetPolicy, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    auto plugin = DisableBackupAndRestorePlugin::GetPlugin();
+    auto plugin = std::make_shared<DisableBackupAndRestorePlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE);

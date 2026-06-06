@@ -16,7 +16,6 @@
 #include "disallow_multi_window_plugin.h"
 
 #include <ipc_skeleton.h>
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -27,62 +26,21 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
-    DisallowMultiWindowPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowMultiWindowPlugin>());
 const std::string CONSTRAINT_MULTI_WINDOW = "constraint.multiWindow";
 
-void DisallowMultiWindowPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowMultiWindowPlugin, bool>> ptr)
+DisallowMultiWindowPlugin::DisallowMultiWindowPlugin()
 {
     EDMLOGI("DisallowMultiWindowPlugin InitPlugin...");
-    ptr->InitAttribute(
-        EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
-        PolicyName::POLICY_DISALLOWED_MULTI_WINDOW,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowMultiWindowPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowMultiWindowPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_MULTI_WINDOW;
+    policyName_ = PolicyName::POLICY_DISALLOWED_MULTI_WINDOW;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = true;
 }
 
-ErrCode DisallowMultiWindowPlugin::OnSetPolicy(
-    bool &data, bool &currentData, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("DisallowMultiWindowPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d", data, currentData, mergeData);
-    if (mergeData) {
-        currentData = data;
-        return ERR_OK;
-    }
-    ErrCode ret = SetMultiWindowPolicy(data, userId);
-    if (FAILED(ret)) {
-        EDMLOGE("DisallowMultiWindowPlugin::OnSetPolicy Failed, ret: %{public}d", ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    currentData = data;
-    mergeData = data;
-    return ERR_OK;
-}
-
-ErrCode DisallowMultiWindowPlugin::OnAdminRemove(
-    const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("DisallowMultiWindowPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
-    if (mergeData) {
-        return ERR_OK;
-    }
-    if (data) {
-        ErrCode ret = SetMultiWindowPolicy(false, userId);
-        if (FAILED(ret)) {
-            EDMLOGE("DisallowMultiWindowPlugin::OnAdminRemove Failed, ret: %{public}d", ret);
-        }
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowMultiWindowPlugin::SetMultiWindowPolicy(bool policy, int32_t userId)
+ErrCode DisallowMultiWindowPlugin::SetOtherModulePolicy(bool policy, int32_t userId)
 {
     EDMLOGI("DisallowMultiWindowPlugin::SetMultiWindowPolicy, "
             "policy: %{public}d", policy);
@@ -90,8 +48,11 @@ ErrCode DisallowMultiWindowPlugin::SetMultiWindowPolicy(bool policy, int32_t use
     constraints.emplace_back(CONSTRAINT_MULTI_WINDOW);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(
         constraints, policy, userId, EdmConstants::DEFAULT_USER_ID, true);
-    EDMLOGI("DisallowMultiWindowPlugin SetSpecificOsAccountConstraints ret: %{public}d", ret);
-    return ret;
+    if (FAILED(ret)) {
+        EDMLOGE("DisallowMultiWindowPlugin::OnSetPolicy Failed, ret: %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

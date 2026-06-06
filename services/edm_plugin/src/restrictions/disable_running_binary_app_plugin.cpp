@@ -15,7 +15,6 @@
 
 #include "disable_running_binary_app_plugin.h"
 
-#include "bool_serializer.h"
 #include "int_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"

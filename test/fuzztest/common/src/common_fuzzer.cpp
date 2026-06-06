@@ -100,22 +100,23 @@ const bool REGISTER_ALLOWED_INSTALL_BUNDLES_PLUGIN =
 const bool REGISTER_ALLOW_USB_DEVICES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(AllowUsbDevicesPlugin::GetPlugin());
 const bool REGISTER_DISABLE_BLUETOOTH_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
-const bool REGISTER_DISABLE_HDC_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisableBluetoothPlugin>());
+const bool REGISTER_DISABLE_HDC_PLUGIN = PluginManager::GetInstance()->AddPlugin(std::make_shared<DisableHdcPlugin>());
 const bool REGISTER_DISABLE_MICROPHONE_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
-const bool REGISTER_DISABLE_PRINTER_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisablePrinterPlugin::GetPlugin());
-const bool REGISTER_DISABLE_USB_PLUGIN = PluginManager::GetInstance()->AddPlugin(DisableUsbPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisableMicrophonePlugin>());
+const bool REGISTER_DISABLE_PRINTER_PLUGIN = PluginManager::GetInstance()->AddPlugin(
+    std::make_shared<DisablePrinterPlugin>());
+const bool REGISTER_DISABLE_USB_PLUGIN = PluginManager::GetInstance()->AddPlugin(std::make_shared<DisableUsbPlugin>());
 const bool REGISTER_DISABLED_NETWORK_INTERFACE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisabledNetworkInterfacePlugin::GetPlugin());
 #ifdef OS_ACCOUNT_EDM_ENABLE
 const bool REGISTER_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowAddLocalAccountPlugin>());
 const bool REGISTER_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 #endif
 const bool REGISTER_DISALL_MODIFY_DATE_TIME_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallModifyDateTimePlugin>());
 const bool REGISTER_DISALLOWED_INSTALL_BUNDLES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowedInstallBundlesPlugin::GetPlugin());
 const bool REGISTER_DISALLOWED_RUNNING_BUNDLES_PLUGIN =
@@ -141,7 +142,8 @@ const bool REGISTER_GLOBAL_PROXY_PLUGIN = PluginManager::GetInstance()->AddPlugi
 const bool REGISTER_INSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
 const bool REGISTER_IPTABLES_RULE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<IptablesRulePlugin>());
-const bool REGISTER_IS_WIFI_ACTIVE_PLUGIN = PluginManager::GetInstance()->AddPlugin(IsWifiActivePlugin::GetPlugin());
+const bool REGISTER_IS_WIFI_ACTIVE_PLUGIN = PluginManager::GetInstance()->AddPlugin(
+    std::make_shared<IsWifiActivePlugin>());
 const bool REGISTER_LOCATION_POLICY_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(LocationPolicyPlugin::GetPlugin());
 const bool REGISTER_LOCK_SCREEN_PLUGIN = PluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
@@ -156,7 +158,7 @@ const bool REGISTER_SCREEN_OFF_TIME_PLUGIN = PluginManager::GetInstance()->AddPl
 const bool REGISTER_SET_BROWSER_POLICIES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<SetBrowserPoliciesPlugin>());
 const bool REGISTER_SET_WIFI_DISABLED_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(SetWifiDisabledPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<SetWifiDisabledPlugin>());
 const bool REGISTER_SET_WIFI_PROFILE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(SetWifiProfilePlugin::GetPlugin());
 const bool REGISTER_UNINSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(UninstallPlugin::GetPlugin());
@@ -169,9 +171,9 @@ const bool REGISTER_MANAGE_FREEZE_EXEMPTED_APPS_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageFreezeExemptedAppsPlugin>());
 #ifdef FEATURE_PC_ONLY
 const bool REGISTER_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(InstallLocalEnterpriseAppEnabledPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<InstallLocalEnterpriseAppEnabledPlugin>());
 const bool REGISTER_DISABLE_HDC_REMOTE_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(DisableHdcRemotePlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisableHdcRemotePlugin>());
 #endif
 
 void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel& parcel)

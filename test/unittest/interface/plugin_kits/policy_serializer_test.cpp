@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 #include "array_string_serializer.h"
-#include "bool_serializer.h"
 #include "cjson_serializer.h"
 #include "func_code_utils.h"
 #include "long_serializer.h"
@@ -30,48 +29,6 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 class PolicySerializerTest : public testing::Test {};
-
-/**
- * @tc.name: BOOL
- * @tc.desc: Test BoolSerializer.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, BOOL, TestSize.Level1)
-{
-    auto serializer = BoolSerializer::GetInstance();
-    string boolJsonString;
-    ASSERT_TRUE(serializer->Serialize(true, boolJsonString));
-    ASSERT_EQ(boolJsonString, "true");
-    ASSERT_NE(boolJsonString, "false");
-
-    bool boolValue = false;
-    ASSERT_TRUE(serializer->Deserialize("", boolValue));
-    ASSERT_TRUE(serializer->Deserialize("true", boolValue));
-    ASSERT_EQ(boolValue, true);
-    ASSERT_FALSE(serializer->Deserialize("truee", boolValue));
-
-    boolValue = true;
-    MessageParcel messageParcel1;
-    messageParcel1.WriteBool(false);
-    ASSERT_TRUE(serializer->GetPolicy(messageParcel1, boolValue));
-    ASSERT_EQ(boolValue, false);
-
-    MessageParcel messageParcel2;
-    boolValue = true;
-    ASSERT_TRUE(serializer->WritePolicy(messageParcel2, boolValue));
-    ASSERT_EQ(messageParcel2.ReadBool(), true);
-
-
-    boolValue = false;
-    vector<bool> policyValues { false, true, false, false, true };
-    serializer->MergePolicy(policyValues, boolValue);
-    ASSERT_EQ(boolValue, true);
-
-    boolValue = true;
-    policyValues = { false, false, false, false, false };
-    serializer->MergePolicy(policyValues, boolValue);
-    ASSERT_EQ(boolValue, false);
-}
 
 /**
  * @tc.name: STRING

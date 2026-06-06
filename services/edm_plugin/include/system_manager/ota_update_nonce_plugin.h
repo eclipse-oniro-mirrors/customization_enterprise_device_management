@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_OTA_UPDATE_NONCE_PLUGIN_H
  
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
- 
+  
 namespace OHOS {
 namespace EDM {
-class OtaUpdateNoncePlugin : public PluginSingleton<OtaUpdateNoncePlugin, bool>, public BasicBoolPlugin {
+class OtaUpdateNoncePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<OtaUpdateNoncePlugin, bool>> ptr) override;
+    OtaUpdateNoncePlugin();
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;

@@ -27,7 +27,7 @@
 #include "edm_bluetooth_manager_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -87,7 +87,7 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestCloseSetTrue,
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableBluetoothPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
 
@@ -109,7 +109,7 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestSetFalse, Tes
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableBluetoothPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -128,7 +128,7 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableBluetoothPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -154,7 +154,7 @@ HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOpenSetTrue, 
  */
 HWTEST_F(DisableBluetoothPluginTest, TestDisableBluetoothPluginTestOnAdminRemove, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisableBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableBluetoothPlugin>();
     std::string currentPolicy = "true";
     std::string mergePolicy = "false";
     ErrCode ret = plugin->OnAdminRemove("test", currentPolicy, mergePolicy, DEFAULT_USER_ID);

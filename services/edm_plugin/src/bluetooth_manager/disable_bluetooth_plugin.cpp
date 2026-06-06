@@ -15,7 +15,6 @@
 
 #include "disable_bluetooth_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iedm_bluetooth_manager.h"
@@ -27,9 +26,9 @@ namespace EDM {
 
 const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluetooth";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableBluetoothPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableBluetoothPlugin>());
 
-void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr)
+DisableBluetoothPlugin::DisableBluetoothPlugin()
 {
     EDMLOGI("DisableBluetoothPlugin InitPlugin...");
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
@@ -43,11 +42,9 @@ void DisableBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableB
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_BLUETOOTH, PolicyName::POLICY_DISABLED_BLUETOOTH, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableBluetoothPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableBluetoothPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_BLUETOOTH;
+    policyName_ = PolicyName::POLICY_DISABLED_BLUETOOTH;
     persistParam_ = "persist.edm.prohibit_bluetooth";
 }
 

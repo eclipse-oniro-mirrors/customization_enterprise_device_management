@@ -16,7 +16,6 @@
 #include "disallow_distributed_transmission_full_plugin.h"
 
 #include <ipc_skeleton.h>
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -28,65 +27,21 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
-    DisallowDistributedTransmissionFullPlugin::GetPlugin());
+    std::make_shared<DisallowDistributedTransmissionFullPlugin>());
 const std::string CONSTRAINT_DISTRIBUTED_TRANSMISSION = "constraint.distributed.transmission";
 
-void DisallowDistributedTransmissionFullPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowDistributedTransmissionFullPlugin, bool>> ptr)
+DisallowDistributedTransmissionFullPlugin::DisallowDistributedTransmissionFullPlugin()
 {
     EDMLOGI("DisallowDistributedTransmissionFullPlugin InitPlugin...");
-    ptr->InitAttribute(
-        EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL,
-        PolicyName::POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowDistributedTransmissionFullPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowDistributedTransmissionFullPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL;
+    policyName_ = PolicyName::POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = true;
 }
 
-ErrCode DisallowDistributedTransmissionFullPlugin::OnSetPolicy(
-    bool &data, bool &currentData, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("DisallowDistributedTransmissionFullPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d", data, currentData, mergeData);
-    if (mergeData) {
-        currentData = data;
-        return ERR_OK;
-    }
-    if (HasConflictPolicy(userId)) {
-        EDMLOGE("DisallowDistributedTransmissionFullPlugin::OnSetPolicy HasConflictPolicy failed");
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-    int32_t ret = SetDistributedTransmissionFullPolicy(data, userId);
-    if (FAILED(ret)) {
-        EDMLOGE("DisallowDistributedTransmissionFullPlugin::OnSetPolicy Failed, ret: %{public}d", ret);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    currentData = data;
-    mergeData = data;
-    return ERR_OK;
-}
-
-ErrCode DisallowDistributedTransmissionFullPlugin::OnAdminRemove(
-    const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("DisallowDistributedTransmissionFullPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
-    if (mergeData) {
-        return ERR_OK;
-    }
-    if (data) {
-        ErrCode ret = SetDistributedTransmissionFullPolicy(false, userId);
-        if (FAILED(ret)) {
-            EDMLOGE("DisallowDistributedTransmissionFullPlugin::OnAdminRemove Failed, ret: %{public}d", ret);
-        }
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowDistributedTransmissionFullPlugin::SetDistributedTransmissionFullPolicy(bool policy, int32_t userId)
+ErrCode DisallowDistributedTransmissionFullPlugin::SetOtherModulePolicy(bool policy, int32_t userId)
 {
     EDMLOGI("DisallowDistributedTransmissionFullPlugin::SetDistributedTransmissionFullPolicy, "
             "policy: %{public}d", policy);
@@ -94,11 +49,14 @@ ErrCode DisallowDistributedTransmissionFullPlugin::SetDistributedTransmissionFul
     constraints.emplace_back(CONSTRAINT_DISTRIBUTED_TRANSMISSION);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(
         constraints, policy, userId, EdmConstants::DEFAULT_USER_ID, true);
-    EDMLOGI("DisallowDistributedTransmissionFullPlugin SetSpecificOsAccountConstraints ret: %{public}d", ret);
-    return ret;
+    if (FAILED(ret)) {
+        EDMLOGE("DisallowDistributedTransmissionFullPlugin::OnSetPolicy Failed, ret: %{public}d", ret);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return ERR_OK;
 }
 
-bool DisallowDistributedTransmissionFullPlugin::HasConflictPolicy(int32_t userId)
+ErrCode DisallowDistributedTransmissionFullPlugin::CheckConflictPolicy(int32_t userId)
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string policyValue;
@@ -106,9 +64,9 @@ bool DisallowDistributedTransmissionFullPlugin::HasConflictPolicy(int32_t userId
     if (!policyValue.empty()) {
         EDMLOGE("DisallowDistributedTransmissionFullPlugin::HasConflictPolicy policy conflict! "
                  "disallow_distributed_transmission is already set");
-        return true;
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    return false;
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

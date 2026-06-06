@@ -61,7 +61,7 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableUsbPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_USB);
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -79,7 +79,7 @@ HWTEST_F(DisableUsbPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisableUsbPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableUsbPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_USB);
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -134,10 +134,8 @@ HWTEST_F(DisableUsbPluginTest, HasConflictPolicy_DisallowedPermissiveUsbDeviceNo
     ASSERT_TRUE(res == ERR_OK);
 
     DisableUsbPlugin plugin;
-    bool hasConflict = false;
-    ErrCode ret = plugin.HasConflictPolicy(hasConflict);
-    ASSERT_EQ(ret, ERR_OK);
-    ASSERT_TRUE(hasConflict);
+    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 
     ErrCode clearRes = policyManager->SetPolicy(testAdminName,
         PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES, "", "", DEFAULT_USER_ID);

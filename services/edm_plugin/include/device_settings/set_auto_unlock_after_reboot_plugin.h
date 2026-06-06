@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_SET_AUTO_UNLOCK_AFTER_REBOOT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class SetAutoUnlockAfterRebootPlugin :
-    public PluginSingleton<SetAutoUnlockAfterRebootPlugin, bool>, public BasicBoolPlugin {
+class SetAutoUnlockAfterRebootPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetAutoUnlockAfterRebootPlugin, bool>> ptr) override;
+    SetAutoUnlockAfterRebootPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

@@ -83,7 +83,7 @@ public:
      * @return If the operation is successful, ERR_OK is returned.
      */
     virtual ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
-        HandlePolicyData &policyData, int32_t userId) = 0;
+        HandlePolicyData &policyData, int32_t userId);
 
     /*
      * Merge policy data
@@ -95,13 +95,13 @@ public:
     virtual ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData);
     virtual void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
-        int32_t userId) = 0;
+        int32_t userId);
     virtual ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
-        const std::string &mergeJsonData, int32_t userId) = 0;
+        const std::string &mergeJsonData, int32_t userId);
     virtual void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
-        int32_t userId) = 0;
+        int32_t userId);
     virtual ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-        int32_t userId) = 0;
+        int32_t userId);
     virtual void OnOtherServiceStart(int32_t systemAbilityId) {};
     virtual void OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId) {};
     virtual ErrCode OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,

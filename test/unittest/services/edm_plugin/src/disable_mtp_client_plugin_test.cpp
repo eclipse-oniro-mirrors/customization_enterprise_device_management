@@ -17,7 +17,7 @@
 #include "disable_mtp_client_plugin.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -55,7 +55,7 @@ HWTEST_F(DisableMtpClientPluginTest, TestDisableMtpClientPluginTestSet, TestSize
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableMtpClientPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableMtpClientPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_MTP_CLIENT);

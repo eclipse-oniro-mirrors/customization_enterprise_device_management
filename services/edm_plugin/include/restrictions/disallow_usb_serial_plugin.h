@@ -17,18 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_USB_SERIAL_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowUsbSerialPlugin : public PluginSingleton<DisallowUsbSerialPlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowUsbSerialPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUsbSerialPlugin, bool>> ptr) override;
+    DisallowUsbSerialPlugin();
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
-    bool HasConflictPolicy();
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

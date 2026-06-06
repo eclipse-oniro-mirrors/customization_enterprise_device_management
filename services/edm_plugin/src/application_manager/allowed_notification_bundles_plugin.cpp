@@ -26,11 +26,9 @@
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
-    AllowedNotificationBundlesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(AllowedNotificationBundlesPlugin::GetPlugin());
 
 const char* const RESTRICTED_MODE_TRUST_LIST = "restricted_mode_trust_list";
-const char* const TRUE_VALUE = "true";
 
 void AllowedNotificationBundlesPlugin::InitPlugin(
     std::shared_ptr<IPluginTemplate<AllowedNotificationBundlesPlugin,
@@ -195,7 +193,7 @@ bool AllowedNotificationBundlesPlugin::CheckConflictPolicy()
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOWED_NOTIFICATION,
         policyData, EdmConstants::DEFAULT_USER_ID);
-    return policyData != TRUE_VALUE;
+    return policyData != EdmConstants::CONST_TRUE;
 }
 
 } // namespace EDM

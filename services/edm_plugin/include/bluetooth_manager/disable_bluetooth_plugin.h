@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_BLUETOOTH_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableBluetoothPlugin : public PluginSingleton<DisableBluetoothPlugin, bool>, public BasicBoolPlugin {
+class DisableBluetoothPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableBluetoothPlugin, bool>> ptr) override;
+    DisableBluetoothPlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;

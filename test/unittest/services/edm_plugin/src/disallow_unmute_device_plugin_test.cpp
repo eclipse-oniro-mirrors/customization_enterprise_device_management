@@ -54,7 +54,7 @@ HWTEST_F(DisallowUnmuteDevicePluginTest, TestOnSetPolicy, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    auto plugin = DisallowUnmuteDevicePlugin::GetPlugin();
+    auto plugin = std::make_shared<DisallowUnmuteDevicePlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE);

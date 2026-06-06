@@ -14,7 +14,6 @@
  */
 #include "switch_bluetooth_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iedm_bluetooth_manager.h"
@@ -24,21 +23,24 @@
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SwitchBluetoothPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SwitchBluetoothPlugin>());
 const std::string MDM_BLUETOOTH_PROP = "persist.edm.prohibit_bluetooth";
 const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluetooth";
 
-void SwitchBluetoothPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SwitchBluetoothPlugin, bool>> ptr)
+SwitchBluetoothPlugin::SwitchBluetoothPlugin()
 {
     EDMLOGI("SwitchBluetoothPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SWITCH_BLUETOOTH, "switch_bluetooth",
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SwitchBluetoothPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::SWITCH_BLUETOOTH;
+    policyName_ = "switch_bluetooth";
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode SwitchBluetoothPlugin::OnSetPolicy(bool &isOpen)
+ErrCode SwitchBluetoothPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
+    bool isOpen = data.ReadBool();
     if (system::GetBoolParameter(MDM_BLUETOOTH_PROP, false)) {
         EDMLOGE("SwitchBluetoothPlugin OnSetPolicy failed, because bluetooth disabled.");
         return EdmReturnErrCode::ENTERPRISE_POLICES_DENIED;

@@ -23,7 +23,7 @@
 #include <vector>
 
 #include "array_string_serializer.h"
-#include "bool_serializer.h"
+#include "basic_bool_plugin.h"
 #include "func_code_utils.h"
 #include "iplugin.h"
 #include "cjson_serializer.h"
@@ -113,15 +113,15 @@ public:
 #ifndef BOOL_TEST_PLUGIN
 #define BOOL_TEST_PLUGIN
 
-class BoolTestPlugin : public PluginSingleton<BoolTestPlugin, bool> {
+class BoolTestPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<BoolTestPlugin, bool>> ptr) override
+    BoolTestPlugin()
     {
         int policyCode = 11;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = policyCode;
+        policyName_ = "BoolTestPlugin";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "BoolTestPlugin", config);
-        ptr->SetSerializer(BoolSerializer::GetInstance());
     }
 };
 

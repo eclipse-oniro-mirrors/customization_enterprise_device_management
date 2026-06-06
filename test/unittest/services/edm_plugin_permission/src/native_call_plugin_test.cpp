@@ -66,7 +66,7 @@ void NativeCallPluginTest::TearDown()
 }
 
 INSTANTIATE_TEST_CASE_P(TestWithParam, NativeCallPluginTest, testing::ValuesIn(std::vector<TestParam>({
-    TestParam(EdmInterfaceCode::DISABLE_USB, DisableUsbPlugin::GetPlugin(), "", "usb_service",
+    TestParam(EdmInterfaceCode::DISABLE_USB, std::make_shared<DisableUsbPlugin>(), "", "usb_service",
         EdmConstants::USB_SERVICE_UID),
     TestParam(EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, AllowedBluetoothDevicesPlugin::GetPlugin(), "",
         "bluetooth_service", EdmConstants::BLUETOOTH_SERVICE_UID),

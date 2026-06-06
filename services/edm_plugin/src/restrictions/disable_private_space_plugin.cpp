@@ -15,28 +15,24 @@
 
 #include "disable_private_space_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisablePrivateSpacePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisablePrivateSpacePlugin>());
 
-void DisablePrivateSpacePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrivateSpacePlugin, bool>>
-    ptr)
+DisablePrivateSpacePlugin::DisablePrivateSpacePlugin()
 {
     EDMLOGI("DisablePrivateSpacePlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISABLE_PRIVATE_SPACE;
+    policyName_ = PolicyName::POLICY_DISABLED_PRIVATE_SPACE;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_PRIVATE_SPACE, PolicyName::POLICY_DISABLED_PRIVATE_SPACE,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisablePrivateSpacePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisablePrivateSpacePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.private_space_disable";
 }
 } // namespace EDM

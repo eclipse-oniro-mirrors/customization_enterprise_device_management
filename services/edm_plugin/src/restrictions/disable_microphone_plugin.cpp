@@ -16,18 +16,18 @@
 #include "disable_microphone_plugin.h"
 
 #include "audio_system_manager.h"
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableMicrophonePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableMicrophonePlugin>());
 const std::string PARAM_EDM_MIC_DISABLE = "persist.edm.mic_disable";
 constexpr int32_t AUDIO_SET_MICROPHONE_MUTE_SUCCESS = 0;
 constexpr int32_t ERR_PRIVACY_POLICY_CHECK_FAILED = 13100019;
-void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr)
+DisableMicrophonePlugin::DisableMicrophonePlugin()
 {
     EDMLOGI("DisableMicrophonePlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
@@ -35,11 +35,9 @@ void DisableMicrophonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disable
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_MICROPHONE, PolicyName::POLICY_DISABLE_MICROPHONE, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableMicrophonePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableMicrophonePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_MICROPHONE;
+    policyName_ = PolicyName::POLICY_DISABLE_MICROPHONE;
     persistParam_ = "persist.edm.mic_disable";
 }
 
@@ -59,24 +57,6 @@ ErrCode DisableMicrophonePlugin::SetOtherModulePolicy(bool isDisallow, int32_t u
         return ERR_OK;
     }
     EDMLOGE("DisableMicrophonePlugin SetOtherModulePolicy SetMicrophoneMutePersistent failed, %{public}d", ret);
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode DisableMicrophonePlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    auto audioGroupManager = OHOS::AudioStandard::AudioSystemManager::GetInstance()
-        ->GetGroupManager(OHOS::AudioStandard::DEFAULT_VOLUME_GROUP_ID);
-    if (audioGroupManager == nullptr) {
-        EDMLOGE("DisableMicrophonePlugin audioGroupManager null");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    ErrCode ret =
-        audioGroupManager->SetMicrophoneMutePersistent(false, OHOS::AudioStandard::PolicyType::EDM_POLICY_TYPE);
-    OHOS::AudioStandard::AudioSystemManager::GetInstance()->CleanUpResource();
-    if (ret == AUDIO_SET_MICROPHONE_MUTE_SUCCESS || ret == ERR_PRIVACY_POLICY_CHECK_FAILED) {
-        return ERR_OK;
-    }
-    EDMLOGE("DisableMicrophonePlugin RemoveOtherModulePolicy SetMicrophoneMutePersistent failed, %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM

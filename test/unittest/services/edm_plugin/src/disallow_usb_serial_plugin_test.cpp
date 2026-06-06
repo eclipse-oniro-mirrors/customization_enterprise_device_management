@@ -54,7 +54,7 @@ HWTEST_F(DisallowUsbSerialPluginTest, TestOnSetPolicy, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    auto plugin = DisallowUsbSerialPlugin::GetPlugin();
+    auto plugin = std::make_shared<DisallowUsbSerialPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOW_USB_SERIAL);

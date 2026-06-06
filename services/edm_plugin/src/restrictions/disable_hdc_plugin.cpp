@@ -15,7 +15,6 @@
 
 #include "disable_hdc_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
@@ -23,12 +22,14 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdcPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableHdcPlugin>());
 const std::string PERSIST_HDC_CONTROL = "persist.hdc.control";
 
-void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlugin, bool>> ptr)
+DisableHdcPlugin::DisableHdcPlugin()
 {
     EDMLOGI("DisableHdcPlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISABLED_HDC;
+    policyName_ = PolicyName::POLICY_DISABLED_HDC;
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
     std::map<IPlugin::PermissionType, std::string> typePermissionsForTag12;
@@ -40,12 +41,7 @@ void DisableHdcPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcPlug
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
-
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC, PolicyName::POLICY_DISABLED_HDC, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableHdcPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableHdcPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
 }
 
 ErrCode DisableHdcPlugin::SetOtherModulePolicy(bool data, int32_t userId)
@@ -53,14 +49,6 @@ ErrCode DisableHdcPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     std::string newPara = data ? "false" : "true";
     if (!system::SetParameter(PERSIST_HDC_CONTROL, newPara)) {
         EDMLOGE("DisableHdcPlugin set param failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
-}
-
-ErrCode DisableHdcPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    if (!system::SetParameter(PERSIST_HDC_CONTROL, "true")) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

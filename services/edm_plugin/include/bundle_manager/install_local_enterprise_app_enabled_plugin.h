@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
  
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
  
 namespace OHOS {
 namespace EDM {
-class InstallLocalEnterpriseAppEnabledPlugin :
-    public PluginSingleton<InstallLocalEnterpriseAppEnabledPlugin, bool>, public BasicBoolPlugin {
+class InstallLocalEnterpriseAppEnabledPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<InstallLocalEnterpriseAppEnabledPlugin, bool>> ptr) override;
+    InstallLocalEnterpriseAppEnabledPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

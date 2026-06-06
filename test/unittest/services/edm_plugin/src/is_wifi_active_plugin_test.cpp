@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include "is_wifi_active_plugin.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -51,7 +51,7 @@ void IsWifiActivePluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(IsWifiActivePluginTest, TestIsWifiActiveSuc, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = IsWifiActivePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<IsWifiActivePlugin>();
     std::string policyData{"TestIsWifiActive"};
     MessageParcel data;
     MessageParcel reply;

@@ -56,7 +56,7 @@ HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginOnSetPolicy, TestSize.Lev
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    auto plugin = DisallowUInputPlugin::GetPlugin();
+    auto plugin = std::make_shared<DisallowUInputPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_UINPUT);
@@ -78,17 +78,6 @@ HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginSetOtherModulePolicy, Tes
     EXPECT_EQ(ret, ERR_OK);
 }
 
-/**
- * @tc.name: DisallowUInputPluginRemoveOtherModulePolicy
- * @tc.desc: Test DisallowUInputPlugin::RemoveOtherModulePolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(DisallowUInputPluginTest, DisallowUInputPluginRemoveOtherModulePolicy, TestSize.Level1)
-{
-    DisallowUInputPlugin plugin;
-    ErrCode ret = plugin.RemoveOtherModulePolicy(DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

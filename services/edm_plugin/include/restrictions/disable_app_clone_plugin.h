@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_APP_CLONE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableAppClonePlugin : public PluginSingleton<DisableAppClonePlugin, bool>,
-    public BasicBoolPlugin {
+class DisableAppClonePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableAppClonePlugin, bool>> ptr) override;
+    DisableAppClonePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

@@ -46,7 +46,7 @@ HWTEST_F(DisallowVPNPluginTest, TestDisallowVPNPluginTest001, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowVPNPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallowVPNPlugin>();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_VPN);
     HandlePolicyData handlePolicyData{"", "", false};

@@ -101,6 +101,28 @@ IPlugin::ApiType IPlugin::GetApiType(FuncOperateType operaType)
     return permissionConfig_.apiType;
 }
 
+ErrCode IPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
+{
+    return ERR_OK;
+}
+
+void IPlugin::OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+    int32_t userId) {}
+
+ErrCode IPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
+    const std::string &mergeJsonData, int32_t userId)
+{
+    return ERR_OK;
+}
+
+void IPlugin::OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) {}
+
+ErrCode IPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
+{
+    return ERR_OK;
+}
+
 OHOS::ErrCode IPlugin::OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
     HandlePolicyData &policyData, int32_t userId)
 {

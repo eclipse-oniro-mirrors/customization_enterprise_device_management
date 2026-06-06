@@ -195,8 +195,8 @@ HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
     ASSERT_TRUE(res == ERR_OK);
 
     DisallowDistributedTransmissionFullPlugin plugin;
-    bool hasConflict = plugin.HasConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_TRUE(hasConflict == true);
+    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 
     ErrCode clearRes = policyManager->SetPolicy(TEST_ADMIN_NAME, PolicyName::POLICY_DISALLOWED_DISTRIBUTED_TRANSMISSION,
         "", "", DEFAULT_USER_ID);
@@ -216,35 +216,35 @@ HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
     IPolicyManager::policyManagerInstance_ = policyManager.get();
 
     DisallowDistributedTransmissionFullPlugin plugin;
-    bool hasConflict = plugin.HasConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_TRUE(hasConflict == false);
+    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
 
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
 
 /**
- * @tc.name: TestDisallowDistributedTransmissionFullSetDistributedTransmissionFullPolicyTrue
- * @tc.desc: Test DisallowDistributedTransmissionFullPlugin::SetDistributedTransmissionFullPolicy with true.
+ * @tc.name: TestDisallowDistributedTransmissionFullSetOtherModulePolicyTrue
+ * @tc.desc: Test DisallowDistributedTransmissionFullPlugin::SetOtherModulePolicy with true.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
-    TestDisallowDistributedTransmissionFullSetDistributedTransmissionFullPolicyTrue, TestSize.Level1)
+    TestDisallowDistributedTransmissionFullSetOtherModulePolicyTrue, TestSize.Level1)
 {
     DisallowDistributedTransmissionFullPlugin plugin;
-    ErrCode ret = plugin.SetDistributedTransmissionFullPolicy(true, DEFAULT_USER_ID);
+    ErrCode ret = plugin.SetOtherModulePolicy(true, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK || ret == 4194327);
 }
 
 /**
- * @tc.name: TestDisallowDistributedTransmissionFullSetDistributedTransmissionFullPolicyFalse
- * @tc.desc: Test DisallowDistributedTransmissionFullPlugin::SetDistributedTransmissionFullPolicy with false.
+ * @tc.name: TestDisallowDistributedTransmissionFullSetOtherModulePolicyFalse
+ * @tc.desc: Test DisallowDistributedTransmissionFullPlugin::SetOtherModulePolicy with false.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
-    TestDisallowDistributedTransmissionFullSetDistributedTransmissionFullPolicyFalse, TestSize.Level1)
+    TestDisallowDistributedTransmissionFullSetOtherModulePolicyFalse, TestSize.Level1)
 {
     DisallowDistributedTransmissionFullPlugin plugin;
-    ErrCode ret = plugin.SetDistributedTransmissionFullPolicy(false, DEFAULT_USER_ID);
+    ErrCode ret = plugin.SetOtherModulePolicy(false, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK || ret == 4194327);
 }
 } // namespace TEST

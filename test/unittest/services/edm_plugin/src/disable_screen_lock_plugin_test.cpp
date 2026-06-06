@@ -23,7 +23,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -96,7 +96,7 @@ HWTEST_F(DisableScreenLockPluginTest, TestOnSetPolicy005, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableScreenLockPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableScreenLockPlugin>();
     HandlePolicyData handlePolicyData{"true", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_SCREEN_LOCK);
@@ -240,7 +240,7 @@ HWTEST_F(DisableScreenLockPluginTest, TestOnGetPolicyInvalidUserId, TestSize.Lev
  */
 HWTEST_F(DisableScreenLockPluginTest, TestPluginIntegration001, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisableScreenLockPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableScreenLockPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_SCREEN_LOCK);
 
@@ -275,7 +275,7 @@ HWTEST_F(DisableScreenLockPluginTest, TestPluginIntegration001, TestSize.Level1)
  */
 HWTEST_F(DisableScreenLockPluginTest, TestPluginIntegration002, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisableScreenLockPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableScreenLockPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_SCREEN_LOCK);
 
@@ -312,7 +312,7 @@ HWTEST_F(DisableScreenLockPluginTest, TestPluginIntegration002, TestSize.Level1)
  */
 HWTEST_F(DisableScreenLockPluginTest, TestOnSetPolicyConcurrent, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = DisableScreenLockPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableScreenLockPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_SCREEN_LOCK);
 

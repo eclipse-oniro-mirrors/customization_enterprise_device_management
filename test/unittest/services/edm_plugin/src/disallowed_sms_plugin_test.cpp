@@ -49,8 +49,8 @@ void DisallowedSMSPluginTest::TearDownTestSuite(void)
 
 INSTANTIATE_TEST_SUITE_P(TestOnSetPolicy, DisallowedSMSPluginTest,
     testing::ValuesIn(std::vector<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>>({
-        {DisallowedSMSPlugin::GetPlugin(), EdmInterfaceCode::DISALLOWED_SMS},
-        {InactiveUserFreezePlugin::GetPlugin(), EdmInterfaceCode::INACTIVE_USER_FREEZE}
+        {std::make_shared<DisallowedSMSPlugin>(), EdmInterfaceCode::DISALLOWED_SMS},
+        {std::make_shared<InactiveUserFreezePlugin>(), EdmInterfaceCode::INACTIVE_USER_FREEZE}
     })));
 
 /**

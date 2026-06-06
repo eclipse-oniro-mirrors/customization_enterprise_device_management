@@ -41,7 +41,7 @@ void PluginTemplateTest::SetUpTestSuite()
 HWTEST_F(PluginTemplateTest, TestTemplate, TestSize.Level1)
 {
     PluginManager::GetInstance()->AddPlugin(PLUGIN::ArrayTestPlugin::GetPlugin());
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::BoolTestPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::BoolTestPlugin>());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::MapTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::JsonTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::StringTestPlugin::GetPlugin());

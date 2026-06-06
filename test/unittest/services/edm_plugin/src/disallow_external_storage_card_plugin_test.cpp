@@ -19,7 +19,7 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
  
 using namespace testing::ext;
@@ -61,7 +61,7 @@ HWTEST_F(DisallowExternalStorageCardPluginTest, DisallowExternalStorageCardPlugi
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowExternalStorageCardPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallowExternalStorageCardPlugin>();
     HandlePolicyData handlePolicyData{"true", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
        EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD);
@@ -79,7 +79,7 @@ HWTEST_F(DisallowExternalStorageCardPluginTest, DisallowExternalStorageCardPlugi
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisallowExternalStorageCardPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallowExternalStorageCardPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
        EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD);

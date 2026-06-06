@@ -54,7 +54,7 @@ HWTEST_F(DisallowedTrafficRedirectionPluginTest, TestOnSetPolicy, TestSize.Level
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    auto plugin = DisallowedTrafficRedirectionPlugin::GetPlugin();
+    auto plugin = std::make_shared<DisallowedTrafficRedirectionPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION);

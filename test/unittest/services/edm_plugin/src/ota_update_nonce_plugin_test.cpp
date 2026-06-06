@@ -55,7 +55,7 @@ HWTEST_F(OtaUpdateNoncePluginTest, TestOnHandlePolicySet, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    auto plugin = OtaUpdateNoncePlugin::GetPlugin();
+    auto plugin = std::make_shared<OtaUpdateNoncePlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::OTA_UPDATE_NONCE);

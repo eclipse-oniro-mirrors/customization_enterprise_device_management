@@ -15,24 +15,23 @@
 
 #include "disallow_rs232_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowRs232Plugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowRs232Plugin>());
 
-void DisallowRs232Plugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowRs232Plugin, bool>>
-    ptr)
+DisallowRs232Plugin::DisallowRs232Plugin()
 {
     EDMLOGI("DisallowRs232Plugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_RS232, PolicyName::POLICY_DISALLOW_RS232,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowRs232Plugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowRs232Plugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOW_RS232;
+    policyName_ = PolicyName::POLICY_DISALLOW_RS232;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
 }
 
 ErrCode DisallowRs232Plugin::SetOtherModulePolicy(bool data, int32_t userId)
@@ -40,15 +39,6 @@ ErrCode DisallowRs232Plugin::SetOtherModulePolicy(bool data, int32_t userId)
     const char* value = data ? "1" : "0";
     if (!system::SetParameter("persist.edm.rs232_serial_disable", value)) {
         EDMLOGE("set disallow rs232 serial: %{public}s failed.", value);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowRs232Plugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    if (!system::SetParameter("persist.edm.rs232_serial_disable", "0")) {
-        EDMLOGE("set disallow rs232 serial false failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

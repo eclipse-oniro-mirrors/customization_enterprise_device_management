@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_SET_BIOMETRICS_AND_SCREENLOCK_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableSetBiometricsAndScreenLockPlugin :
-    public PluginSingleton<DisableSetBiometricsAndScreenLockPlugin, bool>, public BasicBoolPlugin {
+class DisableSetBiometricsAndScreenLockPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableSetBiometricsAndScreenLockPlugin, bool>> ptr) override;
+    DisableSetBiometricsAndScreenLockPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

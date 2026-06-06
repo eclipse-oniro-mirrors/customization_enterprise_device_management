@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_PRIVATE_SPACE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisablePrivateSpacePlugin : public PluginSingleton<DisablePrivateSpacePlugin, bool>,
-    public BasicBoolPlugin {
+class DisablePrivateSpacePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrivateSpacePlugin, bool>> ptr) override;
+    DisablePrivateSpacePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

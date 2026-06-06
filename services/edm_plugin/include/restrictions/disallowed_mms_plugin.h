@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_MMS_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedMMSPlugin : public PluginSingleton<DisallowedMMSPlugin, bool>, public BasicBoolPlugin {
+class DisallowedMMSPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedMMSPlugin, bool>> ptr) override;
+    DisallowedMMSPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

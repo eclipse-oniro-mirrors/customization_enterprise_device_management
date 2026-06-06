@@ -16,12 +16,28 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_BASIC_BOOL_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_BASIC_BOOL_PLUGIN_H
 
-#include "edm_errors.h"
 #include "message_parcel.h"
+
+#include "edm_errors.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class BasicBoolPlugin {
+class BasicBoolPlugin : public IPlugin {
+public:
+    BasicBoolPlugin() = default;
+
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override;
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+        std::string &othersMergePolicyData) override;
+
 protected:
     virtual ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId);
 
@@ -29,9 +45,7 @@ protected:
 
     virtual ErrCode SetOtherModulePolicy(bool data, int32_t userId);
 
-    virtual ErrCode RemoveOtherModulePolicy(int32_t userId);
-
-    virtual ErrCode CheckConflictPolicy(bool data, int32_t userId);
+    virtual ErrCode CheckConflictPolicy(int32_t userId);
 
     std::string persistParam_;
 };

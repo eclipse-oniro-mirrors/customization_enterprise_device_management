@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_BACKUP_AND_RESTORE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableBackupAndRestorePlugin : public PluginSingleton<DisableBackupAndRestorePlugin, bool>,
-    public BasicBoolPlugin {
+class DisableBackupAndRestorePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableBackupAndRestorePlugin, bool>> ptr) override;
+    DisableBackupAndRestorePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

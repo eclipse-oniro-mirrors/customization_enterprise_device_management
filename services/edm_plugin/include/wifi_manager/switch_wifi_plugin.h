@@ -16,16 +16,24 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SWITCH_WIFI_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class SwitchWifiPlugin : public PluginSingleton<SwitchWifiPlugin, bool> {
+class SwitchWifiPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SwitchWifiPlugin, bool>> ptr) override;
-    ErrCode OnTurnOnPolicy(bool &isForce);
+    SwitchWifiPlugin();
+
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override;
+
+private:
+    ErrCode OnTurnOnPolicy(bool isForce);
+
     ErrCode OnTurnOffPolicy();
-    ErrCode OnAdminRemove();
 };
 } // namespace EDM
 } // namespace OHOS

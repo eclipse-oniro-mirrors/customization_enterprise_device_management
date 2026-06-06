@@ -15,31 +15,31 @@
 
 #include "disallowed_device_sudo_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedDeviceSudoPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedDeviceSudoPlugin>());
 
-void DisallowedDeviceSudoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedDeviceSudoPlugin, bool>> ptr)
+DisallowedDeviceSudoPlugin::DisallowedDeviceSudoPlugin()
 {
     EDMLOGI("DisallowedDeviceSudoPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_DEVICE_SUDO, PolicyName::POLICY_DISALLOWED_DEVICE_SUDO,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedDeviceSudoPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedDeviceSudoPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_DEVICE_SUDO;
+    policyName_ = PolicyName::POLICY_DISALLOWED_DEVICE_SUDO;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.sudo_disable";
 }
 
-ErrCode DisallowedDeviceSudoPlugin::CheckConflictPolicy(bool data, int32_t userId)
+ErrCode DisallowedDeviceSudoPlugin::CheckConflictPolicy(int32_t userId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLED_SUDO, policyData, userId);
-    return policyData == TRUE_VALUE ? EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED : ERR_OK;
+    return policyData == EdmConstants::CONST_TRUE ? EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED : ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

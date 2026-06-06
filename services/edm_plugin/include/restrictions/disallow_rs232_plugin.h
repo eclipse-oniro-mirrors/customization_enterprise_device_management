@@ -17,16 +17,14 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_RS232_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowRs232Plugin : public PluginSingleton<DisallowRs232Plugin, bool>, public BasicBoolPlugin {
+class DisallowRs232Plugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowRs232Plugin, bool>> ptr) override;
+    DisallowRs232Plugin();
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

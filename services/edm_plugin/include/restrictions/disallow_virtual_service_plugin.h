@@ -17,17 +17,14 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VIRTUAL_SERVICE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowVirtualServicePlugin : public PluginSingleton<DisallowVirtualServicePlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowVirtualServicePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVirtualServicePlugin, bool>> ptr) override;
+    DisallowVirtualServicePlugin();
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

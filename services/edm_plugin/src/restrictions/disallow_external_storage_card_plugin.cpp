@@ -15,7 +15,6 @@
 
 #include "disallow_external_storage_card_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -28,50 +27,25 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
-    DisallowExternalStorageCardPlugin::GetPlugin());
+    std::make_shared<DisallowExternalStorageCardPlugin>());
 constexpr int32_t STORAGE_MANAGER_MANAGER_ID = 5003;
 
-void DisallowExternalStorageCardPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowExternalStorageCardPlugin, bool>> ptr)
+DisallowExternalStorageCardPlugin::DisallowExternalStorageCardPlugin()
 {
     EDMLOGI("DisallowExternalStorageCardPlugin InitPlugin...");
-    ptr->InitAttribute(
-        EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,
-        PolicyName::POLICY_DISALLOWED_EXTERNAL_STORAGE_CARD,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowExternalStorageCardPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowExternalStorageCardPlugin::OnAdminRemove);
-    persistParam_ = "persist.edm.external_storage_card_disable";
-}
-
-ErrCode DisallowExternalStorageCardPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId)
-{
-    EDMLOGI("DisallowExternalStorageCardPlugin OnSetPolicy");
-    if (mergePolicy) {
-        currentData = data;
-        return ERR_OK;
-    }
-    if (!system::SetParameter(persistParam_, data ? "true" : "false")) {
-        EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    if (data) {
-        ErrCode Ret = SetOtherModulePolicy(data, userId);
-        if (FAILED(Ret)) {
-            return Ret;
-        }
-    }
-    currentData = data;
-    mergePolicy = data;
-    return ERR_OK;
+    policyCode_ = EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD;
+    policyName_ = PolicyName::POLICY_DISALLOWED_EXTERNAL_STORAGE_CARD;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
 }
 
 ErrCode DisallowExternalStorageCardPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowExternalStorageCardPlugin SetOtherModulePolicy");
+    if (!system::SetParameter("persist.edm.external_storage_card_disable", data ? "true" : "false")) {
+        EDMLOGE("DisallowExternalStorageCardPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     if (data) {
         ErrCode Ret = UnmountStorageDevice();
         if (Ret != ERR_OK) {

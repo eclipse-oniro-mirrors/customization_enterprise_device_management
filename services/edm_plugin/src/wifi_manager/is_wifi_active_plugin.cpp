@@ -17,7 +17,6 @@
 
 #include <system_ability_definition.h>
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "wifi_device.h"
@@ -25,9 +24,9 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(IsWifiActivePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<IsWifiActivePlugin>());
 
-void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr)
+IsWifiActivePlugin::IsWifiActivePlugin()
 {
     EDMLOGI("IsWifiActivePlugin InitPlugin...");
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
@@ -39,10 +38,10 @@ void IsWifiActivePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActive
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
-
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::IS_WIFI_ACTIVE, PolicyName::POLICY_IS_WIFI_ACTIVE, config, false);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
+    policyCode_ = EdmInterfaceCode::IS_WIFI_ACTIVE;
+    policyName_ = PolicyName::POLICY_IS_WIFI_ACTIVE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
 ErrCode IsWifiActivePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

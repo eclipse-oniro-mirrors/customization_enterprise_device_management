@@ -14,24 +14,22 @@
  */
 #include "disallow_virtual_service_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowVirtualServicePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowVirtualServicePlugin>());
  
-void DisallowVirtualServicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVirtualServicePlugin, bool>>
-    ptr)
+DisallowVirtualServicePlugin::DisallowVirtualServicePlugin()
 {
     EDMLOGI("DisallowVirtualServicePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE, PolicyName::POLICY_DISALLOW_VIRTUAL_SERVICE,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowVirtualServicePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowVirtualServicePlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE;
+    policyName_ = PolicyName::POLICY_DISALLOW_VIRTUAL_SERVICE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
 }
  
 ErrCode DisallowVirtualServicePlugin::SetOtherModulePolicy(bool data, int32_t userId)
@@ -46,15 +44,6 @@ ErrCode DisallowVirtualServicePlugin::SetOtherModulePolicy(bool data, int32_t us
             EDMLOGE("set disallow virtual service false failed.");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowVirtualServicePlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    if (!system::SetParameter("persist.edm.disallow_virtual_service", "")) {
-        EDMLOGE("set disallow virtual service false failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
 }

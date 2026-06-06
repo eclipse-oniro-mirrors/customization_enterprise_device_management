@@ -54,7 +54,7 @@ HWTEST_F(DisallowRs232PluginTest, TestOnSetPolicy, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    auto plugin = DisallowRs232Plugin::GetPlugin();
+    auto plugin = std::make_shared<DisallowRs232Plugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOW_RS232);

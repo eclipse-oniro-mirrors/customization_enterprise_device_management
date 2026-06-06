@@ -15,7 +15,6 @@
 
 #include "disable_user_mtp_client_query.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "parameters.h"

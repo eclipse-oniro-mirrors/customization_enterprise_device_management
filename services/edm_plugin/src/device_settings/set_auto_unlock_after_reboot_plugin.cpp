@@ -15,24 +15,23 @@
 
 #include "set_auto_unlock_after_reboot_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_constants.h"
 #include "iplugin_manager.h"
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetAutoUnlockAfterRebootPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<SetAutoUnlockAfterRebootPlugin>());
  
-void SetAutoUnlockAfterRebootPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<SetAutoUnlockAfterRebootPlugin, bool>> ptr)
+SetAutoUnlockAfterRebootPlugin::SetAutoUnlockAfterRebootPlugin()
 {
     EDMLOGI("SetAutoUnlockAfterRebootPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT, PolicyName::POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SetAutoUnlockAfterRebootPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&SetAutoUnlockAfterRebootPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT;
+    policyName_ = PolicyName::POLICY_SET_AUTO_UNLOCK_AFTER_REBOOT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.auto_unlock_after_reboot";
 }
 } // namespace EDM

@@ -15,7 +15,7 @@
 
 #include "disallowed_traffic_redirection_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "netfirewall_client.h"
@@ -24,18 +24,16 @@
 namespace OHOS {
 namespace EDM {
 // LCOV_EXCL_START
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedTrafficRedirectionPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<DisallowedTrafficRedirectionPlugin>());
 
-void DisallowedTrafficRedirectionPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowedTrafficRedirectionPlugin, bool>> ptr)
+DisallowedTrafficRedirectionPlugin::DisallowedTrafficRedirectionPlugin()
 {
     EDMLOGI("DisallowedTrafficRedirectionPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
-        PolicyName::POLICY_DISALLOWED_TRAFFIC_REDIRECTION,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedTrafficRedirectionPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedTrafficRedirectionPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION;
+    policyName_ = PolicyName::POLICY_DISALLOWED_TRAFFIC_REDIRECTION;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
 }
 
 ErrCode DisallowedTrafficRedirectionPlugin::SetOtherModulePolicy(bool data, int32_t userId)
@@ -49,17 +47,6 @@ ErrCode DisallowedTrafficRedirectionPlugin::SetOtherModulePolicy(bool data, int3
     }
     if (ret != ERR_OK) {
         EDMLOGE("DisallowedTrafficRedirectionPlugin SetOtherModulePolicy traffic filter error.%{public}d", ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowedTrafficRedirectionPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    EDMLOGI("DisallowedTrafficRedirectionPlugin RemoveOtherModulePolicy");
-    int32_t ret = OHOS::NetManagerStandard::NetFirewallClient::GetInstance().GlobalEnableTrafficFilter();
-    if (ret != ERR_OK) {
-        EDMLOGE("DisallowedTrafficRedirectionPlugin RemoveOtherModulePolicy traffic filter error.%{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;

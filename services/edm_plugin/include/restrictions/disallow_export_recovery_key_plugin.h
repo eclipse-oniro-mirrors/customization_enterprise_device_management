@@ -16,18 +16,16 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXPORT_RECOVERY_KEY_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXPORT_RECOVERY_KEY_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowExportRecoveryKeyPlugin : public PluginSingleton<DisallowExportRecoveryKeyPlugin, bool> {
+class DisallowExportRecoveryKeyPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowExportRecoveryKeyPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+    DisallowExportRecoveryKeyPlugin();
 
 private:
-    ErrCode SetExportRecoveryKeyPolicy(bool policy, int32_t userId);
+    ErrCode SetOtherModulePolicy(bool policy, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

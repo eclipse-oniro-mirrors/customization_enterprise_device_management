@@ -17,18 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_RANDOM_MAC_ADDRESS_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowRandomMacAddressPlugin : public PluginSingleton<DisallowRandomMacAddressPlugin, bool>,
-public BasicBoolPlugin {
+class DisallowRandomMacAddressPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowRandomMacAddressPlugin, bool>> ptr) override;
+    DisallowRandomMacAddressPlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

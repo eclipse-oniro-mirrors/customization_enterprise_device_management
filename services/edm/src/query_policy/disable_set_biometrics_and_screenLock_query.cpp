@@ -14,7 +14,6 @@
  */
 #include "disable_set_biometrics_and_screenLock_query.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 

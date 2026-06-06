@@ -17,17 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_NOTIFICATION_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedNotificationPlugin : public PluginSingleton<DisallowedNotificationPlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowedNotificationPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNotificationPlugin, bool>> ptr) override;
+    DisallowedNotificationPlugin();
 
 private:
-    ErrCode CheckConflictPolicy(bool data, int32_t userId) override;
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

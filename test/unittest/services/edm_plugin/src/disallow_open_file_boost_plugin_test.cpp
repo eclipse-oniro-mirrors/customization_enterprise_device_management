@@ -14,11 +14,14 @@
  */
 
 #include <gtest/gtest.h>
+
+#define protected public
 #include "disallow_open_file_boost_plugin.h"
+#undef protected
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
