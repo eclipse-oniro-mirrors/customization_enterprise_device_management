@@ -83,6 +83,8 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/database/edm_rdb_open_callback.cpp",
     "../../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../../services/edm/src/edm_bluetooth_manager_impl.cpp",
+    "../../../../services/edm/src/edm_timer_manager.cpp",
+    "../../../../services/edm/src/edm_timer_info.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../../services/edm/src/ext_info_manager.cpp",
@@ -295,6 +297,7 @@ ohos_static_library("edmservice_static") {
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "time_service:time_client",
     "window_manager:sms",
     "device_usage_statistics:usagestatsinner",
   ]
@@ -543,6 +546,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/device_policies_storage_rdb_test.cpp",
     "./src/disallow_distributed_transmission_full_query_test.cpp",
     "./src/edm_bluetooth_manager_impl_test.cpp",
+    "./src/edm_timer_manager_test.cpp",
     "./src/enhance_execute_strategy_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",
     "./src/get_installed_bundle_storage_stats_query_test.cpp",
@@ -630,6 +634,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "time_service:time_client",
     "window_manager:sms",
   ]
 

@@ -468,18 +468,13 @@ ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string
     EDMLOGI("StreamInstall resultCode %{public}d resultMsg %{public}s.", resultCode, errorMessage.c_str());
 
     std::string adminName;
-    if (!GetCallingBundleName(adminName)) {
-        EDMLOGW("InstallPlugin::HandleInstallResult failed: get admin bundleName fail.");
-    }
-    
-    std::vector<std::string> bundleNames;
-    std::vector<InstalledBundleType> bundleTypes;
-    for (const auto &realPath : realPaths) {
-        std::string bundleName;
-        InstalledBundleType bundleType = InstalledBundleType::NORMAL;
-        if (GetBundleInfoAndType(realPath, bundleName, bundleType)) {
-            bundleNames.emplace_back(bundleName);
-            bundleTypes.emplace_back(bundleType);
+    std::string bundleName;
+    InstalledBundleType bundleType = InstalledBundleType::NORMAL;
+    if (resultCode == ERR_OK && !realPaths.empty()) {
+        if (!GetCallingBundleName(adminName)) {
+            EDMLOGW("InstallPlugin::HandleInstallResult failed: get admin bundleName fail.");
+        }
+        if (GetBundleInfoAndType(realPaths[0], bundleName, bundleType)) {
             EDMLOGI("InstallPlugin parsed bundle %{public}s with type %{public}d",
                 bundleName.c_str(), static_cast<int32_t>(bundleType));
         }
@@ -505,10 +500,9 @@ ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string
     }
     EDMLOGI("InstallPlugin OnSetPolicy end");
 
-    if (!adminName.empty() && !bundleNames.empty()) {
-        for (size_t i = 0; i < bundleNames.size(); ++i) {
-            HiSysEventAdapter::ReportInstalledBundleInfo(adminName, bundleNames[i], bundleTypes[i]);
-        }
+    if (!adminName.empty() && !bundleName.empty()) {
+        InstalledBundleInfoUtil::GetInstance()->AddInstalledBundleInfo(
+            adminName, bundleName, bundleType);
     }
 
     return ERR_OK;

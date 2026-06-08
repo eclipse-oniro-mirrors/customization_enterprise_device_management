@@ -14,9 +14,10 @@
  */
 #include "hisysevent_adapter.h"
 
-#include "hisysevent.h"
-#include "edm_log.h"
+#include "hisysevent_c.h"
 #include "parameters.h"
+
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
@@ -27,11 +28,21 @@ void HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string 
     EDMLOGI("hisysevent ReportEdmEvent");
     int ret;
     if (reportType == ReportType::EDM_FUNC_FAILED) {
-        ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_FAILED", HiSysEvent::EventType::FAULT,
-            "APINAME", apiName, "MSG", msgInfo);
+        HiSysEventParam params[] = {
+            {.name = "APINAME", .t = HiSysEventParamType::HISYSEVENT_STRING,
+                .v = { .s = const_cast<char*>(apiName.c_str()) }, .arraySize = 0},
+            {.name = "MSG", .t = HiSysEventParamType::HISYSEVENT_STRING,
+                .v = { .s = const_cast<char*>(msgInfo.c_str()) }, .arraySize = 0}
+        };
+        ret = OH_HiSysEvent_Write("CUST_EDM", "EDM_FUNC_FAILED",
+            HiSysEventEventType::HISYSEVENT_FAULT, params, sizeof(params) / sizeof(params[0]));
     } else {
-        ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
-            "APINAME", apiName);
+        HiSysEventParam params[] = {
+            {.name = "APINAME", .t = HiSysEventParamType::HISYSEVENT_STRING,
+                .v = { .s = const_cast<char*>(apiName.c_str()) }, .arraySize = 0}
+        };
+        ret = OH_HiSysEvent_Write("CUST_EDM", "EDM_FUNC_EVENT",
+            HiSysEventEventType::HISYSEVENT_STATISTIC, params, sizeof(params) / sizeof(params[0]));
     }
 
     if (ret != 0) {
@@ -45,24 +56,39 @@ void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName
 {
     EDMLOGI("hisysevent ReportEdmEventManagerAdmin");
     std::string enterpriseId = system::GetParameter(EDM_ENTERPRISE_ID, "");
-    int ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
-        "BUNDLENAME", bundleName, "ACTION", action, "ADMINTYPE", adminType, "EXTRAINFO", extraInfo,
-        "ENTERPRISE_ID", enterpriseId);
+    HiSysEventParam params[] = {
+        {.name = "BUNDLENAME", .t = HiSysEventParamType::HISYSEVENT_STRING,
+            .v = { .s = const_cast<char*>(bundleName.c_str()) }, .arraySize = 0},
+        {.name = "ACTION", .t = HiSysEventParamType::HISYSEVENT_INT32,
+            .v = { .i32 = action }, .arraySize = 0},
+        {.name = "ADMINTYPE", .t = HiSysEventParamType::HISYSEVENT_INT32,
+            .v = { .i32 = adminType }, .arraySize = 0},
+        {.name = "EXTRAINFO", .t = HiSysEventParamType::HISYSEVENT_STRING,
+            .v = { .s = const_cast<char*>(extraInfo.c_str()) }, .arraySize = 0},
+        {.name = "ENTERPRISE_ID", .t = HiSysEventParamType::HISYSEVENT_STRING,
+            .v = { .s = const_cast<char*>(enterpriseId.c_str()) }, .arraySize = 0}
+    };
+    int ret = OH_HiSysEvent_Write("CUST_EDM", "EDM_FUNC_EVENT",
+        HiSysEventEventType::HISYSEVENT_STATISTIC, params, sizeof(params) / sizeof(params[0]));
     if (ret != 0) {
         EDMLOGE("hisysevent write manager admin failed! ret %{public}d", ret);
     }
 }
 
-void HiSysEventAdapter::ReportInstalledBundleInfo(const std::string &adminName, const std::string &installedBundleName,
-    InstalledBundleType installedBundleType)
+bool HiSysEventAdapter::ReportInstalledBundleInfo(const std::string &installedInfo)
 {
     EDMLOGI("hisysevent ReportInstalledBundleInfo");
-    int ret = HiSysEventWrite(HiSysEvent::Domain::CUSTOMIZATION_EDM, "EDM_FUNC_EVENT", HiSysEvent::EventType::STATISTIC,
-        "MDM_BUNDLE_NAME", adminName, "INSTALLED_BUNDLE_NAME", installedBundleName,
-        "INSTALLED_BUNDLE_TYPE", static_cast<int32_t>(installedBundleType));
+    HiSysEventParam params[] = {
+        {.name = "INSTALLED_INFO", .t = HiSysEventParamType::HISYSEVENT_STRING,
+            .v = { .s = const_cast<char*>(installedInfo.c_str()) }, .arraySize = 0}
+    };
+    int ret = OH_HiSysEvent_Write("CUST_EDM", "EDM_INSTALLED_BUNDLE_INFO",
+        HiSysEventEventType::HISYSEVENT_STATISTIC, params, sizeof(params) / sizeof(params[0]));
     if (ret != 0) {
         EDMLOGE("hisysevent write installed bundle info failed! ret %{public}d", ret);
+        return false;
     }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

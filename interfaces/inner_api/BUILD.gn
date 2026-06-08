@@ -71,6 +71,8 @@ ohos_shared_library("edmservice_kits") {
     "./common/src/enterprise_device_mgr_proxy.cpp",
     "./common/src/histograms_report.cpp",
     "./common/src/iadmin_manager.cpp",
+    "./common/src/iedm_timer_manager.cpp",
+    "./common/src/installed_bundle_info_util.cpp",
     "./common/src/iext_info_manager.cpp",
     "./common/src/policy_changed_event.cpp",
     "./datetime_manager/src/datetime_manager_proxy.cpp",
