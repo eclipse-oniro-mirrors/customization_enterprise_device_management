@@ -457,7 +457,7 @@ napi_value UsbManagerAddon::AddOrRemoveDisallowedUsbDevices(napi_env env, napi_c
         if (notPermissive && ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
             ret = EdmReturnErrCode::PARAM_ERROR;
         }
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
     }
     return nullptr;
 }
@@ -497,7 +497,7 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevicesCore(napi_env env, napi_callb
     int32_t ret = usbManagerProxy->GetDisallowedUsbDevices(adapterAddonData.data, usbDeviceTypes, notPermissive);
     EDMLOGI("UsbManagerAddon::GetDisallowedUsbDevices usbDeviceTypes return size: %{public}zu", usbDeviceTypes.size());
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
         return nullptr;
     }
     napi_value jsList = nullptr;
