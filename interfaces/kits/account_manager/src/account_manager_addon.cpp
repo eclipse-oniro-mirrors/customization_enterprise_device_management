@@ -729,6 +729,7 @@ void AccountManagerAddon::NativeRemoveOsAccount(napi_env env, void *data)
         EDMLOGE("can not get AccountManagerProxy");
         return;
     }
+    asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
     asyncCallbackInfo->ret = accountManagerProxy->RemoveOsAccount(asyncCallbackInfo->data);
 }
 
@@ -756,6 +757,7 @@ void AccountManagerAddon::NativeActivateOsAccount(napi_env env, void *data)
         EDMLOGE("can not get AccountManagerProxy");
         return;
     }
+    asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
     asyncCallbackInfo->ret = accountManagerProxy->ActivateOsAccount(asyncCallbackInfo->data);
 }
 
