@@ -14,13 +14,17 @@
  */
 
 #include "reset_factory_plugin.h"
+#include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
+#include "parameters.h"
 #include "update_service_kits.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());
+const std::string DISALLOWED_RESET_FACTORY_PARAM = "persist.edm.reset_factory_disallowed";
 
 void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactoryPlugin, std::string>> ptr)
 {
@@ -33,6 +37,12 @@ void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactory
 
 ErrCode ResetFactoryPlugin::OnSetPolicy()
 {
+    std::string isDisabled = OHOS::system::GetParameter(DISALLOWED_RESET_FACTORY_PARAM, EdmConstants::CONST_FALSE);
+    if (isDisabled == EdmConstants::CONST_TRUE) {
+        EDMLOGE("ResetFactoryPlugin:OnSetPolicy factory reset is disabled by restriction");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
     UpdateService::BusinessError businessError;
     int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
     if (FAILED(ret)) {

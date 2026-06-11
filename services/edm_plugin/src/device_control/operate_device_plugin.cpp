@@ -15,6 +15,7 @@
 
 #include "operate_device_plugin.h"
 
+#include "edm_constants.h"
 #include "power_mgr_client.h"
 #include "screenlock_manager.h"
 #include "update_service_kits.h"
@@ -26,8 +27,8 @@
 
 namespace OHOS {
 namespace EDM {
-#ifdef FEATURE_PC_ONLY
 const std::string DISALLOWED_RESET_FACTORY_PARAM = "persist.edm.reset_factory_disallowed";
+#ifdef FEATURE_PC_ONLY
 const std::string DISABLE_SECURE_ERASE_PARAM = "persist.edm.secure_erase_disable";
 #endif
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
@@ -65,6 +66,11 @@ ErrCode OperateDevicePlugin::OnDiskErase()
 
 ErrCode OperateDevicePlugin::OnFactoryReset(MessageParcel &reply)
 {
+    std::string isDisabled = OHOS::system::GetParameter(DISALLOWED_RESET_FACTORY_PARAM, EdmConstants::CONST_FALSE);
+    if (isDisabled == EdmConstants::CONST_TRUE) {
+        EDMLOGE("OperateDevicePlugin:OnFactoryReset factory reset is disabled by restriction");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     UpdateService::BusinessError businessError;
     int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
     if (FAILED(ret)) {

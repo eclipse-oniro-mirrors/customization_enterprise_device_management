@@ -88,6 +88,9 @@ namespace EdmConstants {
     // app-distribution-type
     constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
 
+    constexpr const char* CONST_TRUE = "true";
+    constexpr const char* CONST_FALSE = "false";
+
     constexpr const char* APP_PROVISION_TYPE_RELEASE = "release";
 
     // 使能外设存储管控，true为使能，2B版本默认为true，2C版本默认为false
@@ -356,6 +359,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLED_MTP_SERVER = "disabled_mtp_server";
     const char* const POLICY_DISABLED_USER_MTP_CLIENT = "disabled_user_mtp_client";
     const char* const POLICY_DISABLED_PRIVATE_SPACE = "disabled_private_space";
+    const char* const POLICY_DISALLOW_RESET_FACTORY = "disallow_reset_factory";
     const char* const POLICY_DISABLED_SAMBA_CLIENT = "disabled_samba_client";
     const char* const POLICY_DISABLED_SAMBA_SERVER = "disabled_samba_server";
     const char* const POLICY_DISABLED_SUDO = "disabled_sudo";
