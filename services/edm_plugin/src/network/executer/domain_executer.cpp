@@ -52,7 +52,7 @@ ErrCode DomainExecuter::Init(NetsysNative::IptablesType ipType)
 
 bool DomainExecuter::SetDefaultOutputDenyChain(Direction direction, Family family)
 {
-    if (direction == Direction::OUTPUT) {
+    if (direction == Direction::OUTPUT || direction == Direction::INPUT || direction == Direction::INVALID) {
         DomainFilterRule domainFilterRule{Action::DENY, "", "", Direction::OUTPUT, family, LogType::INVALID};
         std::shared_ptr<ChainRule> chainRule = std::make_shared<DomainChainRule>(domainFilterRule);
         NetsysNative::IptablesType ipType = static_cast<NetsysNative::IptablesType>(static_cast<int32_t>(family));
