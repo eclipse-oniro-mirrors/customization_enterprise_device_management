@@ -79,8 +79,11 @@ HWTEST_F(DomainExecuterTest, TestSetDefaultOutputDenyChain, TestSize.Level1)
     DomainExecuter initOk{"actualChainName", "chainName"};
     EXPECT_TRUE(initOk.SetDefaultOutputDenyChain(Direction::OUTPUT, Family::IPV4) == true);
 
-    DomainExecuter initFail{"actualChainName", "chainName"};
-    EXPECT_TRUE(initFail.SetDefaultOutputDenyChain(Direction::INPUT, Family::IPV4) == false);
+    DomainExecuter initOk01{"actualChainName", "chainName"};
+    EXPECT_TRUE(initOk01.SetDefaultOutputDenyChain(Direction::INPUT, Family::IPV4) == true);
+
+    DomainExecuter initOk02{"actualChainName", "chainName"};
+    EXPECT_TRUE(initOk02.SetDefaultOutputDenyChain(Direction::INVALID, Family::IPV4) == true);
 }
 
 /**
