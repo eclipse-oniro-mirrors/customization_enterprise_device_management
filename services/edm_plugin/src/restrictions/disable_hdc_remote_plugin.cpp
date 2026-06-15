@@ -15,7 +15,6 @@
  
 #include "disable_hdc_remote_plugin.h"
  
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
@@ -23,16 +22,15 @@
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableHdcRemotePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableHdcRemotePlugin>());
  
-void DisableHdcRemotePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcRemotePlugin, bool>> ptr)
+DisableHdcRemotePlugin::DisableHdcRemotePlugin()
 {
     EDMLOGI("DisableHdcRemotePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_HDC_REMOTE, PolicyName::POLICY_DISABLED_HDC_REMOTE,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableHdcRemotePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableHdcRemotePlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISABLED_HDC_REMOTE;
+    policyName_ = PolicyName::POLICY_DISABLED_HDC_REMOTE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.hdc_remote_disable";
 }
 } // namespace EDM

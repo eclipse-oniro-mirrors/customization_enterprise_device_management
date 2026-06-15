@@ -14,7 +14,6 @@
  */
 #include "disable_set_device_name_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -23,22 +22,17 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
-    IPluginManager::GetInstance()->AddPlugin(DisableSetDeviceNamePlugin::GetPlugin());
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableSetDeviceNamePlugin>());
 
-void DisableSetDeviceNamePlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisableSetDeviceNamePlugin, bool>> ptr)
+DisableSetDeviceNamePlugin::DisableSetDeviceNamePlugin()
 {
     EDMLOGI("DisableSetDeviceNamePlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
-    IPlugin::PolicyPermissionConfig config =
-        IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_SET_DEVICE_NAME,
-        PolicyName::POLICY_SET_DEVICE_NAME, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableSetDeviceNamePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableSetDeviceNamePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_SET_DEVICE_NAME;
+    policyName_ = PolicyName::POLICY_SET_DEVICE_NAME;
     persistParam_ = "persist.edm.set_device_name_disable";
 }
 } // namespace EDM

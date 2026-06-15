@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_INACTIVE_USER_FREEZE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class InactiveUserFreezePlugin : public PluginSingleton<InactiveUserFreezePlugin, bool>, public BasicBoolPlugin {
+class InactiveUserFreezePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<InactiveUserFreezePlugin, bool>> ptr) override;
+    InactiveUserFreezePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

@@ -14,32 +14,27 @@
  */
 #include "disallow_usb_serial_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowUsbSerialPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowUsbSerialPlugin>());
  
-void DisallowUsbSerialPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUsbSerialPlugin, bool>>
-    ptr)
+DisallowUsbSerialPlugin::DisallowUsbSerialPlugin()
 {
     EDMLOGI("DisallowUsbSerialPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_USB_SERIAL, PolicyName::POLICY_DISALLOW_USB_SERIAL,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowUsbSerialPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowUsbSerialPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOW_USB_SERIAL;
+    policyName_ = PolicyName::POLICY_DISALLOW_USB_SERIAL;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
 }
  
 ErrCode DisallowUsbSerialPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-    if (data && HasConflictPolicy()) {
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-
     const char* value = data ? "1" : "0";
     if (!system::SetParameter("persist.edm.usb_serial_disable", value)) {
         EDMLOGE("set disallow usb serial: %{public}s failed.", value);
@@ -48,31 +43,22 @@ ErrCode DisallowUsbSerialPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     return ERR_OK;
 }
 
-ErrCode DisallowUsbSerialPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    if (!system::SetParameter("persist.edm.usb_serial_disable", "0")) {
-        EDMLOGE("set disallow usb serial false failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    return ERR_OK;
-}
-
-bool DisallowUsbSerialPlugin::HasConflictPolicy()
+ErrCode DisallowUsbSerialPlugin::CheckConflictPolicy(int32_t userId)
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
     policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsb);
     if (disableUsb == "true") {
         EDMLOGE("DisallowUsbSerialPlugin policy conflict! Usb is disabled.");
-        return true;
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     std::string allowUsbDevice;
     policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
     if (!allowUsbDevice.empty()) {
         EDMLOGE("DisallowUsbSerialPlugin policy conflict! AllowedUsbDevice: %{public}s", allowUsbDevice.c_str());
-        return true;
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    return false;
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

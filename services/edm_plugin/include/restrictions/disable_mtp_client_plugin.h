@@ -17,14 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_CLIENT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMtpClientPlugin : public PluginSingleton<DisableMtpClientPlugin, bool>, public BasicBoolPlugin {
+class DisableMtpClientPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpClientPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId) override;
+    DisableMtpClientPlugin();
+
+private:
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

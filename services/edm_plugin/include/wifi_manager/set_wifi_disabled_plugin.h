@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_WIFI_DISABLED_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class SetWifiDisabledPlugin : public PluginSingleton<SetWifiDisabledPlugin, bool>, public BasicBoolPlugin {
+class SetWifiDisabledPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetWifiDisabledPlugin, bool>> ptr) override;
+    SetWifiDisabledPlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;

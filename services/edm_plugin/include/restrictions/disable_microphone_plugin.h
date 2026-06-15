@@ -17,18 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MICROPHONE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMicrophonePlugin : public PluginSingleton<DisableMicrophonePlugin, bool>, public BasicBoolPlugin {
+class DisableMicrophonePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMicrophonePlugin, bool>> ptr) override;
+    DisableMicrophonePlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

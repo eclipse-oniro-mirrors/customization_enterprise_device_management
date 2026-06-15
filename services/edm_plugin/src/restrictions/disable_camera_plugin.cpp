@@ -15,7 +15,7 @@
 
 #include "disable_camera_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
@@ -24,9 +24,9 @@
 namespace OHOS {
 namespace EDM {
 const std::string permissionName = "ohos.permission.CAMERA";
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableCameraPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableCameraPlugin>());
 
-void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCameraPlugin, bool>> ptr)
+DisableCameraPlugin::DisableCameraPlugin()
 {
     EDMLOGI("DisableCameraPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
@@ -34,11 +34,9 @@ void DisableCameraPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableCame
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_CAMERA, PolicyName::POLICY_DISABLE_CAMERA, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableCameraPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableCameraPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_CAMERA;
+    policyName_ = PolicyName::POLICY_DISABLE_CAMERA;
     persistParam_ = "persist.edm.camera_disable";
 }
 
@@ -51,17 +49,6 @@ ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data, int32_t userId)
         return ERR_OK;
     }
     EDMLOGE("DisableCameraPlugin SetOtherModulePolicy SetDisablePolicy failed, %{public}d", ret);
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-}
-
-ErrCode DisableCameraPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    int32_t ret = OHOS::Security::AccessToken::PrivacyKit::SetDisablePolicy(permissionName, false);
-    if (ret == ERR_OK) {
-        EDMLOGI("DisableCameraPlugin RemoveOtherModulePolicy SetDisablePolicy success, %{public}d", ret);
-        return ERR_OK;
-    }
-    EDMLOGE("DisableCameraPlugin RemoveOtherModulePolicy SetDisablePolicy failed, %{public}d", ret);
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 } // namespace EDM

@@ -16,90 +16,48 @@
 #include "disable_sudo_plugin.h"
 
 #include <ipc_skeleton.h>
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "os_account_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableSudoPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableSudoPlugin>());
 const std::string CONSTRAINT_SUDO = "constraint.sudo";
 
-void DisableSudoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableSudoPlugin, bool>> ptr)
+DisableSudoPlugin::DisableSudoPlugin()
 {
     EDMLOGI("DisableSudoPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_SUDO, PolicyName::POLICY_DISABLED_SUDO,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableSudoPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableSudoPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_SUDO;
+    policyName_ = PolicyName::POLICY_DISABLED_SUDO;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = true;
 }
 
-ErrCode DisableSudoPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData,
-    int32_t userId)
+ErrCode DisableSudoPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-    EDMLOGI("DisableSudoPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d", data, currentData, mergeData);
-    if (HasConflictPolicy() != ERR_OK) {
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-    if (mergeData) {
-        currentData = data;
-        return ERR_OK;
-    }
-    ErrCode ret = SetSudoPolicy(data, userId);
-    EDMLOGI("DisableSudoPlugin::OnSetPolicy, SetSudoPolicy ret: %{public}d", ret);
-    if (FAILED(ret)) {
-        EDMLOGE("DisableSudoPlugin::OnSetPolicy, SetSudoPolicy failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    currentData = data;
-    mergeData = data;
-    return ERR_OK;
-}
-
-ErrCode DisableSudoPlugin::OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData,
-    int32_t userId)
-{
-    EDMLOGI("DisableSudoPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
-    if (mergeData) {
-        return ERR_OK;
-    }
-    // admin 移除时，综合策略为读写，且移除的策略为只读，则更新策略为读写
-    if (!mergeData && data) {
-        ErrCode ret = SetSudoPolicy(false, userId);
-        EDMLOGI("DisableSudoPlugin::OnAdminRemove, SetSudoPolicy ret: %{public}d", ret);
-        if (FAILED(ret)) {
-            EDMLOGE("DisableSudoPlugin::OnAdminRemove, SetSudoPolicy failed");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-    }
-    return ERR_OK;
-}
-
-ErrCode DisableSudoPlugin::SetSudoPolicy(bool policy, int32_t userId)
-{
-    EDMLOGI("DisableSudoPlugin::SetSudoPolicy, policy: %{public}d", policy);
+    EDMLOGI("DisableSudoPlugin::SetSudoPolicy, policy: %{public}d", data);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_SUDO);
-    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, policy, userId,
+    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
         EdmConstants::DEFAULT_USER_ID, true);
     EDMLOGI("DisableSudoPlugin::SetSudoPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
     return ret;
 }
 
-ErrCode DisableSudoPlugin::HasConflictPolicy()
+ErrCode DisableSudoPlugin::CheckConflictPolicy(int32_t userId)
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string policyValue;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_DEVICE_SUDO, policyValue,
         EdmConstants::DEFAULT_USER_ID);
-    return policyValue == TRUE_VALUE ? EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED : ERR_OK;
+    return policyValue == EdmConstants::CONST_TRUE ? EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED : ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

@@ -54,7 +54,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     plugin.OnSetPolicy(policy, currentData, mergeData, userId);
     plugin.OnAdminRemove(adminName, policy, mergeData, userId);
-    plugin.SetMtpClientPolicy(policy, userId);
+    plugin.SetOtherModulePolicy(policy, userId);
     return 0;
 }
 } // namespace EDM

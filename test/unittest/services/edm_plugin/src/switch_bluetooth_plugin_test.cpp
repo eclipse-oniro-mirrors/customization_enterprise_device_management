@@ -20,7 +20,7 @@
 #undef private
 
 #include "edm_ipc_interface_code.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -60,7 +60,7 @@ HWTEST_F(SwitchBluetoothTest, TestOpenBluetoothSuccess, TestSize.Level1)
 {
     uint64_t selfTokenId = GetSelfTokenID();
     SetSelfTokenID(0);
-    std::shared_ptr<IPlugin> plugin = SwitchBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchBluetoothPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -81,7 +81,7 @@ HWTEST_F(SwitchBluetoothTest, TestCloseBluetoothSuccess, TestSize.Level1)
 {
     uint64_t selfTokenId = GetSelfTokenID();
     SetSelfTokenID(0);
-    std::shared_ptr<IPlugin> plugin = SwitchBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchBluetoothPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -102,7 +102,7 @@ HWTEST_F(SwitchBluetoothTest, TestCloseBluetoothFailed, TestSize.Level1)
 {
     uint64_t selfTokenId = GetSelfTokenID();
     SetSelfTokenID(0);
-    std::shared_ptr<IPlugin> plugin = SwitchBluetoothPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchBluetoothPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_BLUETOOTH);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;

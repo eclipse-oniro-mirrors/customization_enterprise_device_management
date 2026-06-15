@@ -15,38 +15,29 @@
 
 #include "disallow_add_local_account_plugin.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "os_account_manager.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowAddLocalAccountPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<DisallowAddLocalAccountPlugin>());
 
 const std::string ACCOUNT_CREATE_CONSTRAINT = "constraint.os.account.create";
 
-void DisallowAddLocalAccountPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowAddLocalAccountPlugin, bool>> ptr)
+DisallowAddLocalAccountPlugin::DisallowAddLocalAccountPlugin()
 {
     EDMLOGI("DisallowAddLocalAccountPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT,
-        EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowAddLocalAccountPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowAddLocalAccountPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT;
+    policyName_ = PolicyName::POLICY_DISALLOW_ADD_LOCAL_ACCOUNT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
 }
 
 ErrCode DisallowAddLocalAccountPlugin::SetOtherModulePolicy(bool data, int32_t userId)
-{
-    return SetGlobalOsAccountConstraints(data);
-}
-
-ErrCode DisallowAddLocalAccountPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    return SetGlobalOsAccountConstraints(false);
-}
-
-ErrCode DisallowAddLocalAccountPlugin::SetGlobalOsAccountConstraints(bool data)
 {
     std::vector<std::string> constraints = {ACCOUNT_CREATE_CONSTRAINT};
     std::vector<int32_t> ids;

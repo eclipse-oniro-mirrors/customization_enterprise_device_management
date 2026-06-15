@@ -18,9 +18,10 @@
 #include "cJSON.h"
 #include "cjson_check.h"
 
+#include "edm_constants.h"
+
 namespace OHOS {
 namespace EDM {
-const std::string TRUE_VALUE = "true";
 bool FingerprintPolicySerializer::Deserialize(const std::string &data, FingerprintPolicy &result)
 {
     cJSON* root = cJSON_Parse(data.c_str());
@@ -46,7 +47,7 @@ bool FingerprintPolicySerializer::Deserialize(const std::string &data, Fingerpri
 bool FingerprintPolicySerializer::Serialize(const FingerprintPolicy &result, std::string &data)
 {
     if (result.globalDisallow) {
-        data = TRUE_VALUE;
+        data = EdmConstants::CONST_TRUE;
         return true;
     }
     if (result.accountIds.empty()) {

@@ -17,14 +17,13 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_DEVICE_SUDO_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedDeviceSudoPlugin : public PluginSingleton<DisallowedDeviceSudoPlugin, bool>, public BasicBoolPlugin {
+class DisallowedDeviceSudoPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedDeviceSudoPlugin, bool>> ptr) override;
-    ErrCode CheckConflictPolicy(bool data, int32_t userId) override;
+    DisallowedDeviceSudoPlugin();
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

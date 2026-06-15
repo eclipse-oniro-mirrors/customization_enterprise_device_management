@@ -46,7 +46,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     DisallowPowerLongPressPlugin plugin;
     int32_t userId = CommonFuzzer::GetU32Data(data);
     plugin.SetOtherModulePolicy(*reinterpret_cast<const bool *>(data), userId);
-    plugin.RemoveOtherModulePolicy(userId);
     return 0;
 }
 } // namespace EDM

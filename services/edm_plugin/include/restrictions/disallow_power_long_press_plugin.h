@@ -17,17 +17,14 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_POWER_LONG_PRESS_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowPowerLongPressPlugin : public PluginSingleton<DisallowPowerLongPressPlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowPowerLongPressPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowPowerLongPressPlugin, bool>> ptr) override;
+    DisallowPowerLongPressPlugin();
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

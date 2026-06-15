@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_TELEPHONY_CALL_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedTelephonyCallPlugin : public PluginSingleton<DisallowedTelephonyCallPlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowedTelephonyCallPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedTelephonyCallPlugin, bool>> ptr) override;
+    DisallowedTelephonyCallPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

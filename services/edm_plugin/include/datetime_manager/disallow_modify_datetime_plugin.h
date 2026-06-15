@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_MODIFY_DATETIME_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallModifyDateTimePlugin : public PluginSingleton<DisallModifyDateTimePlugin, bool>, public BasicBoolPlugin {
+class DisallModifyDateTimePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr) override;
+    DisallModifyDateTimePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

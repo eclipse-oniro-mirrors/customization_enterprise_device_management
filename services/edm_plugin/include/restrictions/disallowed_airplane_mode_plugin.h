@@ -17,22 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_AIRPLANE_MODE_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedAirplaneModePlugin : public PluginSingleton<DisallowedAirplaneModePlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowedAirplaneModePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedAirplaneModePlugin, bool>> ptr) override;
+    DisallowedAirplaneModePlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override
-    {
-        return ERR_OK;
-    }
 };
 } // namespace EDM
 } // namespace OHOS

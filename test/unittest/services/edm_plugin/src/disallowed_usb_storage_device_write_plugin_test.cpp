@@ -19,7 +19,7 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -57,7 +57,7 @@ HWTEST_F(DisableUsbStorageDeviceWritePluginTest, TestDisableUsbStorageDeviceWrit
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowedUsbStorageDeviceWritePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallowedUsbStorageDeviceWritePlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE);

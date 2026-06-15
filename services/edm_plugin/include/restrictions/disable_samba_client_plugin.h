@@ -17,13 +17,12 @@
 #define CUSTOMIZATION_ENTERPRISE_DEVICE_MANAGEMENT_SAMBA_DISABLE_SAMBA_CLIENT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableSambaClientPlugin : public PluginSingleton<DisableSambaClientPlugin, bool>, public BasicBoolPlugin {
+class DisableSambaClientPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableSambaClientPlugin, bool>> ptr) override;
+    DisableSambaClientPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

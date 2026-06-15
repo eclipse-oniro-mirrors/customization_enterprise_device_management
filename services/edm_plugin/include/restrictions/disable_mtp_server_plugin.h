@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MTP_SERVER_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMtpServerPlugin : public PluginSingleton<DisableMtpServerPlugin, bool>, public BasicBoolPlugin {
+class DisableMtpServerPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMtpServerPlugin, bool>> ptr) override;
+    DisableMtpServerPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

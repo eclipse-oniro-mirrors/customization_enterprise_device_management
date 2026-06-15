@@ -15,16 +15,15 @@
 
 #include "disable_printer_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisablePrinterPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisablePrinterPlugin>());
 
-void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrinterPlugin, bool>> ptr)
+DisablePrinterPlugin::DisablePrinterPlugin()
 {
     EDMLOGI("DisablePrinterPlugin InitPlugin...");
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
@@ -36,12 +35,9 @@ void DisablePrinterPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePri
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
-
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINTER, PolicyName::POLICY_DISABLED_PRINTER, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisablePrinterPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisablePrinterPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLED_PRINTER;
+    policyName_ = PolicyName::POLICY_DISABLED_PRINTER;
 }
 } // namespace EDM
 } // namespace OHOS

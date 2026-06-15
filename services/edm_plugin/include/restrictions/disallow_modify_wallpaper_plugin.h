@@ -16,18 +16,16 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MODIFY_WALLPAPER_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MODIFY_WALLPAPER_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableModifyWallpaperPlugin : public PluginSingleton<DisableModifyWallpaperPlugin, bool> {
+class DisableModifyWallpaperPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableModifyWallpaperPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+    DisableModifyWallpaperPlugin();
 
 private:
-     ErrCode SetModifyWallpaperPolicy(bool policy, int32_t userId);
+    ErrCode SetOtherModulePolicy(bool policy, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

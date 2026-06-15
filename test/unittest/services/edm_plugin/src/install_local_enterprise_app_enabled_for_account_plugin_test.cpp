@@ -50,7 +50,7 @@ void InstallLocalEnterpriseAppEnabledForAccountPluginTest::TearDownTestSuite(voi
  */
 HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestInitPluginSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = InstallLocalEnterpriseAppEnabledForAccountPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<InstallLocalEnterpriseAppEnabledForAccountPlugin>();
     ASSERT_TRUE(plugin->IsGlobalPolicy());
     ASSERT_TRUE(plugin->NeedSavePolicy());
     ASSERT_TRUE(plugin->GetCode() ==

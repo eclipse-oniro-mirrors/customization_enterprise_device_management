@@ -15,28 +15,25 @@
 
 #include "disallowed_telephony_call_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedTelephonyCallPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<DisallowedTelephonyCallPlugin>());
 
-void DisallowedTelephonyCallPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowedTelephonyCallPlugin, bool>> ptr)
+DisallowedTelephonyCallPlugin::DisallowedTelephonyCallPlugin()
 {
     EDMLOGI("DisallowedTelephonyCallPlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL;
+    policyName_ = PolicyName::POLICY_DISALLOWED_TELEPHONY_CALL;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
-        PolicyName::POLICY_DISALLOWED_TELEPHONY_CALL, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedTelephonyCallPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedTelephonyCallPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.telephony_call_disable";
 }
 } // namespace EDM

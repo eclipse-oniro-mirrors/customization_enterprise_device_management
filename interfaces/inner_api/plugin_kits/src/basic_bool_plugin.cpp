@@ -15,13 +15,74 @@
 
 #include "basic_bool_plugin.h"
 
+#include <algorithm>
+
 #include "parameters.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_log.h"
+#include "ipolicy_manager.h"
 
 namespace OHOS {
 namespace EDM {
+ErrCode BasicBoolPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
+{
+    bool handelData = data.ReadBool();
+    bool currentData = policyData.policyData == EdmConstants::CONST_TRUE;
+    bool mergeData = policyData.mergePolicyData == EdmConstants::CONST_TRUE;
+    ErrCode result = OnSetPolicy(handelData, currentData, mergeData, userId);
+    if (result != ERR_OK) {
+        return result;
+    }
+    std::string afterHandle = currentData ? EdmConstants::CONST_TRUE : "";
+    std::string afterMerge = mergeData ? EdmConstants::CONST_TRUE : "";
+    policyData.isChanged = (policyData.policyData != afterHandle);
+    policyData.policyData = afterHandle;
+    policyData.mergePolicyData = afterMerge;
+    return ERR_OK;
+}
+
+ErrCode BasicBoolPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
+    const std::string &mergeData, int32_t userId)
+{
+    bool policy = policyData == EdmConstants::CONST_TRUE;
+    bool merge = mergeData == EdmConstants::CONST_TRUE;
+    return OnAdminRemove(adminName, policy, merge, userId);
+}
+
+ErrCode BasicBoolPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
+{
+    bool ret = policyData == EdmConstants::CONST_TRUE;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(ret);
+    return ERR_OK;
+}
+
+ErrCode BasicBoolPlugin::GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+    std::string &othersMergePolicyData)
+{
+    std::unordered_map<std::string, std::string> adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
+    EDMLOGD("IPluginTemplate::GetOthersMergePolicyData %{public}s value size %{public}d.", GetPolicyName().c_str(),
+        (uint32_t)adminValues.size());
+
+    auto entry = adminValues.find(adminName);
+    if (entry != adminValues.end()) {
+        adminValues.erase(entry);
+    }
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    for (const auto &item : adminValues) {
+        if (item.second == EdmConstants::CONST_TRUE) {
+            othersMergePolicyData = EdmConstants::CONST_TRUE;
+            break;
+        }
+    }
+    return ERR_OK;
+}
+
 ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId)
 {
     EDMLOGE("BasicBoolPlugin %{public}d, %{public}d, %{public}d.", data, currentData, mergePolicy);
@@ -29,15 +90,19 @@ ErrCode BasicBoolPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeP
         currentData = data;
         return ERR_OK;
     }
-    ErrCode ret = CheckConflictPolicy(data, userId);
-    if (FAILED(ret)) {
-        return ret;
+    ErrCode ret = ERR_OK;
+    if (data) {
+        ret = CheckConflictPolicy(userId);
+        if (FAILED(ret)) {
+            return ret;
+        }
     }
     ret = SetOtherModulePolicy(data, userId);
     if (FAILED(ret)) {
         return ret;
     }
-    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? "true" : "false")) {
+    if (!persistParam_.empty() && !system::SetParameter(persistParam_, data ? EdmConstants::CONST_TRUE :
+        EdmConstants::CONST_FALSE)) {
         EDMLOGE("BasicBoolPlugin set param failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -55,23 +120,18 @@ ErrCode BasicBoolPlugin::OnAdminRemove(const std::string &adminName, bool &data,
 {
     EDMLOGI("BasicBoolPlugin OnAdminRemove adminName : %{public}s, data : %{public}d", adminName.c_str(), data);
     if (!mergeData && data) {
-        ErrCode ret = RemoveOtherModulePolicy(userId);
+        ErrCode ret = SetOtherModulePolicy(false, userId);
         if (FAILED(ret)) {
             return ret;
         }
-        if (!persistParam_.empty() && !system::SetParameter(persistParam_, "false")) {
+        if (!persistParam_.empty() && !system::SetParameter(persistParam_, EdmConstants::CONST_FALSE)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
     return ERR_OK;
 }
 
-ErrCode BasicBoolPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    return ERR_OK;
-}
-
-ErrCode BasicBoolPlugin::CheckConflictPolicy(bool data, int32_t userId)
+ErrCode BasicBoolPlugin::CheckConflictPolicy(int32_t userId)
 {
     return ERR_OK;
 }

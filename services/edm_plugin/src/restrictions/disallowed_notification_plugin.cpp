@@ -16,7 +16,6 @@
 #include "disallowed_notification_plugin.h"
 
 #include "allowed_notification_bundles_serializer.h"
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -24,25 +23,22 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedNotificationPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowedNotificationPlugin>());
 
-void DisallowedNotificationPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedNotificationPlugin, bool>> ptr)
+DisallowedNotificationPlugin::DisallowedNotificationPlugin()
 {
     EDMLOGI("DisallowedNotificationPlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISALLOWED_NOTIFICATION;
+    policyName_ = PolicyName::POLICY_DISALLOWED_NOTIFICATION;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions,
         IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_NOTIFICATION, PolicyName::POLICY_DISALLOWED_NOTIFICATION,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowedNotificationPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowedNotificationPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.notification_disable";
 }
 
-ErrCode DisallowedNotificationPlugin::CheckConflictPolicy(bool data, int32_t userId)
+ErrCode DisallowedNotificationPlugin::CheckConflictPolicy(int32_t userId)
 {
     std::string policyData;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_NOTIFICATION_BUNDLES,

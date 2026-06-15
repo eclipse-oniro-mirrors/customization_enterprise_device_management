@@ -16,20 +16,17 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_DISTRIBUTED_TRANSMISSION_FULL_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_DISTRIBUTED_TRANSMISSION_FULL_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowDistributedTransmissionFullPlugin :
-    public PluginSingleton<DisallowDistributedTransmissionFullPlugin, bool> {
+class DisallowDistributedTransmissionFullPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowDistributedTransmissionFullPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+    DisallowDistributedTransmissionFullPlugin();
 
 private:
-    ErrCode SetDistributedTransmissionFullPolicy(bool policy, int32_t userId);
-    bool HasConflictPolicy(int32_t userId);
+    ErrCode SetOtherModulePolicy(bool policy, int32_t userId) override;
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OH

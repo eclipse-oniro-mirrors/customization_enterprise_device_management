@@ -16,19 +16,17 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_SUDO_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_SUDO_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableSudoPlugin : public PluginSingleton<DisableSudoPlugin, bool> {
+class DisableSudoPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableSudoPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+    DisableSudoPlugin();
 
 private:
-    ErrCode SetSudoPolicy(bool policy, int32_t userId);
-    ErrCode HasConflictPolicy();
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

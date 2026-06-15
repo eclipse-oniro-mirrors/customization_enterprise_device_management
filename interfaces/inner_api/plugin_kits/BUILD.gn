@@ -35,7 +35,6 @@ ohos_shared_library("plugin_kits") {
     "./src/iwatermark_observer_manager.cpp",
     "./src/utils/array_int_serializer.cpp",
     "./src/utils/array_string_serializer.cpp",
-    "./src/utils/bool_serializer.cpp",
     "./src/utils/cjson_serializer.cpp",
     "./src/utils/func_code_utils.cpp",
     "./src/utils/int_serializer.cpp",

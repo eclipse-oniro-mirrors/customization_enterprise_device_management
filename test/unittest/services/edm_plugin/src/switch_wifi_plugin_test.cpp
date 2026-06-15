@@ -16,7 +16,7 @@
 #include "switch_wifi_plugin_test.h"
 #include "parameters.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -44,7 +44,7 @@ void SwitchWifiPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(SwitchWifiPluginTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchWifiPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -61,7 +61,7 @@ HWTEST_F(SwitchWifiPluginTest, TestForceTurnOnWifiSuccess, TestSize.Level1)
  */
 HWTEST_F(SwitchWifiPluginTest, TestSwitchWifiPluginOnAdminRemove, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchWifiPlugin>();
     std::string currentPolicy = "true";
     std::string mergePolicy = "false";
     ErrCode ret = plugin->OnAdminRemove("test", currentPolicy, mergePolicy, DEFAULT_USER_ID);
@@ -76,7 +76,7 @@ HWTEST_F(SwitchWifiPluginTest, TestSwitchWifiPluginOnAdminRemove, TestSize.Level
  */
 HWTEST_F(SwitchWifiPluginTest, TestTurnOnWifiSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchWifiPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SWITCH_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -93,7 +93,7 @@ HWTEST_F(SwitchWifiPluginTest, TestTurnOnWifiSuccess, TestSize.Level1)
  */
 HWTEST_F(SwitchWifiPluginTest, TestTurnOffWifiSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SwitchWifiPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SwitchWifiPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SWITCH_WIFI);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;

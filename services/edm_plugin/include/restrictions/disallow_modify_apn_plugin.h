@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_MODIFY_APN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowModifyAPNPlugin : public PluginSingleton<DisallowModifyAPNPlugin, bool>, public BasicBoolPlugin {
+class DisallowModifyAPNPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowModifyAPNPlugin, bool>> ptr) override;
+    DisallowModifyAPNPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

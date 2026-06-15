@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_UNMUTE_DEVICE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowUnmuteDevicePlugin : public PluginSingleton<DisallowUnmuteDevicePlugin, bool>,
-    public BasicBoolPlugin {
+class DisallowUnmuteDevicePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUnmuteDevicePlugin, bool>> ptr) override;
+    DisallowUnmuteDevicePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

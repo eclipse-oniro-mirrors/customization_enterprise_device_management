@@ -16,7 +16,6 @@
 #include "disable_print_plugin.h"
 
 #include <ipc_skeleton.h>
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -26,17 +25,17 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisablePrintPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisablePrintPlugin>());
 const std::string CONSTRAINT_PRINT = "constraint.print";
 
-void DisablePrintPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisablePrintPlugin, bool>> ptr)
+DisablePrintPlugin::DisablePrintPlugin()
 {
     EDMLOGI("DisablePrintPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_PRINT, PolicyName::POLICY_DISABLED_PRINT,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisablePrintPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisablePrintPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISABLED_PRINT;
+    policyName_ = PolicyName::POLICY_DISABLED_PRINT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
 }
 
 
@@ -46,17 +45,6 @@ ErrCode DisablePrintPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_PRINT);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
-        EdmConstants::DEFAULT_USER_ID, true);
-    EDMLOGI("DisablePrintPlugin::SetPrintPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
-    return ret;
-}
-
-ErrCode DisablePrintPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    EDMLOGI("DisablePrintPlugin::RemoveOtherModulePolicy");
-    std::vector<std::string> constraints;
-    constraints.emplace_back(CONSTRAINT_PRINT);
-    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, false, userId,
         EdmConstants::DEFAULT_USER_ID, true);
     EDMLOGI("DisablePrintPlugin::SetPrintPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
     return ret;

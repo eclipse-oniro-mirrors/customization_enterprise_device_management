@@ -17,7 +17,6 @@
 
 #include "admin_manager.h"
 #include "array_string_serializer.h"
-#include "bool_serializer.h"
 #include "int_serializer.h"
 #include "edm_errors.h"
 #include "edm_log.h"
@@ -42,8 +41,7 @@ bool IPolicyQuery::IsPolicySaved()
 
 ErrCode IPolicyQuery::GetBoolPolicy(const std::string &policyData, MessageParcel &reply)
 {
-    bool policy = false;
-    BoolSerializer::GetInstance()->Deserialize(policyData, policy);
+    bool policy = policyData == "true";
     EDMLOGI("IPolicyQuery OnGetPolicy paramKey result %{public}d", policy);
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(policy);

@@ -16,13 +16,13 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_IS_WIFI_ACTIVE_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_IS_WIFI_ACTIVE_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class IsWifiActivePlugin : public PluginSingleton<IsWifiActivePlugin, bool> {
+class IsWifiActivePlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<IsWifiActivePlugin, bool>> ptr) override;
+    IsWifiActivePlugin();
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };

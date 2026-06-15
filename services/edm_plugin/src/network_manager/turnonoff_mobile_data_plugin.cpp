@@ -19,27 +19,43 @@
 #include "cellular_data_client.h"
 #include "telephony_errors.h"
 
-#include "bool_serializer.h"
 #include "edm_ipc_interface_code.h"
+#include "func_code_utils.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(TurnOnOffMobileDataPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<TurnOnOffMobileDataPlugin>());
 const std::string PARAM_FORCE_OPEN_MOBILE_DATA = "persist.edm.mobile_data_policy";
 
-void TurnOnOffMobileDataPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<TurnOnOffMobileDataPlugin, bool>> ptr)
+
+TurnOnOffMobileDataPlugin::TurnOnOffMobileDataPlugin()
 {
-    EDMLOGI("TurnOnMobileDataPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::TURNONOFF_MOBILE_DATA, "turnon_mobile_data",
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&TurnOnOffMobileDataPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
+    policyCode_ = EdmInterfaceCode::TURNONOFF_MOBILE_DATA;
+    policyName_ = "turnon_mobile_data";
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = false;
 }
 
-ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool &isForce)
+ErrCode TurnOnOffMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
+{
+    bool policy = data.ReadBool();
+    uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
+    FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
+    if (type == FuncOperateType::SET) {
+        return OnSetPolicy(policy);
+    }
+    if (type == FuncOperateType::REMOVE) {
+        return OnRemovePolicy();
+    }
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+}
+
+ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool isForce)
 {
     EDMLOGI("TurnOnOffMobileDataPlugin OnSetPolicy isForce %{public}d", isForce);
     std::string dataPolicy = system::GetParameter(PARAM_FORCE_OPEN_MOBILE_DATA, "");
@@ -76,7 +92,6 @@ ErrCode TurnOnOffMobileDataPlugin::OnRemovePolicy()
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-
     return ERR_OK;
 }
 

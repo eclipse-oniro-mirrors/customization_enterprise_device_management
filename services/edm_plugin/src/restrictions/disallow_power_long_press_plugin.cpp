@@ -15,7 +15,6 @@
 
 #include "disallow_power_long_press_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -24,21 +23,18 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowPowerLongPressPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowPowerLongPressPlugin>());
 
-void DisallowPowerLongPressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowPowerLongPressPlugin, bool>> ptr)
+DisallowPowerLongPressPlugin::DisallowPowerLongPressPlugin()
 {
     EDMLOGI("DisallowPowerLongPressPlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS;
+    policyName_ = PolicyName::POLICY_DISALLOW_POWER_LONG_PRESS;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions,
         IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, PolicyName::POLICY_DISALLOW_POWER_LONG_PRESS,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowPowerLongPressPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowPowerLongPressPlugin::OnAdminRemove);
     persistParam_ = "persist.edm.disable_power_key_shutdown";
 }
 
@@ -46,12 +42,6 @@ ErrCode DisallowPowerLongPressPlugin::SetOtherModulePolicy(bool data, int32_t us
 {
     EDMLOGI("DisallowPowerLongPressPlugin SetOtherModulePolicy...");
     return EdmDataAbilityUtils::UpdateSettingsData("settings.power.block_long_press", data ? "1" : "0");
-}
-
-ErrCode DisallowPowerLongPressPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    EDMLOGI("DisallowPowerLongPressPlugin RemoveOtherModulePolicy...");
-    return EdmDataAbilityUtils::UpdateSettingsData("settings.power.block_long_press", "0");
 }
 } // namespace EDM
 } // namespace OHOS

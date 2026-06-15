@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_HDC_REMOTE_PLUGIN_H
  
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
  
 namespace OHOS {
 namespace EDM {
-class DisableHdcRemotePlugin : public PluginSingleton<DisableHdcRemotePlugin, bool>, public BasicBoolPlugin {
+class DisableHdcRemotePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableHdcRemotePlugin, bool>> ptr) override;
+    DisableHdcRemotePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

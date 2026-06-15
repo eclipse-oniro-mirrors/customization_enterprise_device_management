@@ -17,19 +17,14 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_P2P_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedP2PPlugin : public PluginSingleton<DisallowedP2PPlugin, bool>, public BasicBoolPlugin {
+class DisallowedP2PPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedP2PPlugin, bool>> ptr) override;
+    DisallowedP2PPlugin();
 
 private:
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId) override;
-
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId) override;
-
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM

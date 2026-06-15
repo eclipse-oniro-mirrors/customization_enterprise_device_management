@@ -15,16 +15,15 @@
 
 #include "disallow_modify_datetime_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallModifyDateTimePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallModifyDateTimePlugin>());
 
-void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallModifyDateTimePlugin, bool>> ptr)
+DisallModifyDateTimePlugin::DisallModifyDateTimePlugin()
 {
     EDMLOGI("DisallowModifyDateTimePlugin InitPlugin...");
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
@@ -36,13 +35,9 @@ void DisallModifyDateTimePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<Disa
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
-
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_MODIFY_DATETIME, PolicyName::POLICY_DISALLOW_MODIFY_DATETIME,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallModifyDateTimePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallModifyDateTimePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISALLOW_MODIFY_DATETIME;
+    policyName_ = PolicyName::POLICY_DISALLOW_MODIFY_DATETIME;
 }
 } // namespace EDM
 } // namespace OHOS

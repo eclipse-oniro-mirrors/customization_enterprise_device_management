@@ -15,28 +15,25 @@
 
 #include "disable_backup_and_restore_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableBackupAndRestorePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<DisableBackupAndRestorePlugin>());
 
-void DisableBackupAndRestorePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableBackupAndRestorePlugin, bool>>
-    ptr)
+DisableBackupAndRestorePlugin::DisableBackupAndRestorePlugin()
 {
     EDMLOGI("DisableBackupAndRestorePlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE, PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableBackupAndRestorePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableBackupAndRestorePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE;
+    policyName_ = PolicyName::POLICY_DISABLE_BACKUP_AND_RESTORE;
     persistParam_ = "persist.edm.backup_and_restore_disable";
 }
 } // namespace EDM

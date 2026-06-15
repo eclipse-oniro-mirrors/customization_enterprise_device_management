@@ -16,19 +16,17 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_STORAGE_DEVICE_WRITE_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOWED_USB_STORAGE_DEVICE_WRITE_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowedUsbStorageDeviceWritePlugin : public PluginSingleton<DisallowedUsbStorageDeviceWritePlugin, bool> {
+class DisallowedUsbStorageDeviceWritePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowedUsbStorageDeviceWritePlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+    DisallowedUsbStorageDeviceWritePlugin();
 
 private:
-    ErrCode SetUsbStorageDeviceWritePolicy(bool policy, int32_t userId);
-    ErrCode HasConflictPolicy(bool &isConflict);
+    ErrCode SetOtherModulePolicy(bool policy, int32_t userId) override;
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -15,28 +15,24 @@
 
 #include "disable_app_clone_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisableAppClonePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableAppClonePlugin>());
 
-void DisableAppClonePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisableAppClonePlugin, bool>>
-    ptr)
+DisableAppClonePlugin::DisableAppClonePlugin()
 {
     EDMLOGI("DisableAppClonePlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLED_APP_CLONE, PolicyName::POLICY_DISABLED_APP_CLONE,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableAppClonePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableAppClonePlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLED_APP_CLONE;
+    policyName_ = PolicyName::POLICY_DISABLED_APP_CLONE;
     persistParam_ = "persist.edm.app_clone_disable";
 }
 } // namespace EDM

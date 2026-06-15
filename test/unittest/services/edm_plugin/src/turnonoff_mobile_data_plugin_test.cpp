@@ -17,7 +17,7 @@
 #include "turnonoff_mobile_data_plugin_test.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 #include "telephony_types.h"
 
@@ -45,7 +45,7 @@ void TurnOnOffMobileDataTest::TearDownTestSuite(void)
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestForceTurnOnMobileDataSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<TurnOnOffMobileDataPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -62,7 +62,7 @@ HWTEST_F(TurnOnOffMobileDataTest, TestForceTurnOnMobileDataSuccess, TestSize.Lev
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<TurnOnOffMobileDataPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -79,7 +79,7 @@ HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess, TestSize.Level1)
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess_001, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<TurnOnOffMobileDataPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
@@ -98,7 +98,7 @@ HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess_001, TestSize.Leve
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestTurnOffMobileDataSuccess, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<TurnOnOffMobileDataPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
         EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};
@@ -115,7 +115,7 @@ HWTEST_F(TurnOnOffMobileDataTest, TestTurnOffMobileDataSuccess, TestSize.Level1)
  */
 HWTEST_F(TurnOnOffMobileDataTest, TestTurnOffMobileDataSuccess_001, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = TurnOnOffMobileDataPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<TurnOnOffMobileDataPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
         EdmInterfaceCode::TURNONOFF_MOBILE_DATA);
     HandlePolicyData handlePolicyData{"false", "", false};

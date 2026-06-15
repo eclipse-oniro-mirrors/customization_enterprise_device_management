@@ -16,7 +16,6 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_RUNNING_BINARY_APP_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_RUNNING_BINARY_APP_PLUGIN_H
 
-#include "basic_bool_plugin.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {

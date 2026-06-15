@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_VPN_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowVPNPlugin : public PluginSingleton<DisallowVPNPlugin, bool>, public BasicBoolPlugin {
+class DisallowVPNPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPlugin, bool>> ptr) override;
+    DisallowVPNPlugin();
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };

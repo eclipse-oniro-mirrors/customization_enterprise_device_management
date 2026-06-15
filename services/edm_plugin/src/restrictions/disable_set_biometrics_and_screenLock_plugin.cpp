@@ -14,7 +14,6 @@
  */
 #include "disable_set_biometrics_and_screenLock_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -23,22 +22,17 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
-    IPluginManager::GetInstance()->AddPlugin(DisableSetBiometricsAndScreenLockPlugin::GetPlugin());
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableSetBiometricsAndScreenLockPlugin>());
 
-void DisableSetBiometricsAndScreenLockPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisableSetBiometricsAndScreenLockPlugin, bool>> ptr)
+DisableSetBiometricsAndScreenLockPlugin::DisableSetBiometricsAndScreenLockPlugin()
 {
     EDMLOGI("DisableSetBiometricsAndScreenLockPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
-    IPlugin::PolicyPermissionConfig config =
-        IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK,
-        PolicyName::POLICY_SET_BIOMETRICS_AND_SCREENLOCK, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableSetBiometricsAndScreenLockPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisableSetBiometricsAndScreenLockPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    policyCode_ = EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK;
+    policyName_ = PolicyName::POLICY_SET_BIOMETRICS_AND_SCREENLOCK;
     persistParam_ = "persist.edm.set_biometrics_and_screenLock_disable";
 }
 } // namespace EDM

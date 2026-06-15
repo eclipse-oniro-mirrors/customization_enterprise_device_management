@@ -13,17 +13,22 @@
  * limitations under the License.
  */
 
- #ifndef SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
- #define SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
-  
- #include "plugin_singleton.h"
-   
- namespace OHOS {
- namespace EDM {
- class TurnOnOffMobileDataPlugin : public PluginSingleton<TurnOnOffMobileDataPlugin, bool> {
- public:
-     void InitPlugin(std::shared_ptr<IPluginTemplate<TurnOnOffMobileDataPlugin, bool>> ptr) override;
-     ErrCode OnSetPolicy(bool &isForce);
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_TURNONOFF_MOBILE_DATA_PLUGIN_H
+
+#include "iplugin.h"
+
+namespace OHOS {
+namespace EDM {
+class TurnOnOffMobileDataPlugin : public IPlugin {
+public:
+    TurnOnOffMobileDataPlugin();
+
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+
+private:
+     ErrCode OnSetPolicy(bool isForce);
      ErrCode OnRemovePolicy();
  };
  } // namespace EDM

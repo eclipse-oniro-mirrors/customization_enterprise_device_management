@@ -15,7 +15,6 @@
 
 #include "disallow_vpn_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -24,21 +23,18 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowVPNPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowVPNPlugin>());
 
-void DisallowVPNPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowVPNPlugin, bool>> ptr)
+DisallowVPNPlugin::DisallowVPNPlugin()
 {
     EDMLOGI("DisallowVPNPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions,
         IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_VPN, PolicyName::POLICY_DISALLOW_VPN,
-        config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowVPNPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowVPNPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOW_VPN;
+    policyName_ = PolicyName::POLICY_DISALLOW_VPN;
     persistParam_ = "persist.edm.vpn_disable";
 }
 

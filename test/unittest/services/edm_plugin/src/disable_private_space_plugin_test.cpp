@@ -54,7 +54,7 @@ HWTEST_F(DisablePrivateSpacePluginTest, TestOnSetPolicy, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    auto plugin = DisablePrivateSpacePlugin::GetPlugin();
+    auto plugin = std::make_shared<DisablePrivateSpacePlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE);

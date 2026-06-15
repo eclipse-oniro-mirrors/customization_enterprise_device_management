@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_MAINTENANCE_MODE_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableMaintenanceModePlugin : public PluginSingleton<DisableMaintenanceModePlugin, bool>,
-     public BasicBoolPlugin {
+class DisableMaintenanceModePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableMaintenanceModePlugin, bool>> ptr) override;
+    DisableMaintenanceModePlugin();
 };
 } // namespace EDM
 } // namespace OHOS

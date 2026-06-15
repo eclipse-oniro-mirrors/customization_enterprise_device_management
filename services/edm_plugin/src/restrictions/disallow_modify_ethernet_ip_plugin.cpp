@@ -15,28 +15,25 @@
 
 #include "disallow_modify_ethernet_ip_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowModifyEthernetIpPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<DisallowModifyEthernetIpPlugin>());
 
-void DisallowModifyEthernetIpPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowModifyEthernetIpPlugin, bool>> ptr)
+DisallowModifyEthernetIpPlugin::DisallowModifyEthernetIpPlugin()
 {
     EDMLOGI("DisallowModifyEthernetIpPlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP;
+    policyName_ = PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(
-        EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP, PolicyName::POLICY_DISALLOW_MODIFY_ETHERNET_IP, config, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowModifyEthernetIpPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowModifyEthernetIpPlugin::OnAdminRemove);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.set_ethernet_ip_disable";
 }
 } // namespace EDM

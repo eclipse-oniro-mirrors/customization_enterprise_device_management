@@ -15,7 +15,6 @@
 
 #include "disable_screen_lock_plugin.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -27,25 +26,21 @@ namespace OHOS {
 namespace EDM {
 
 const bool REGISTER_RESULT =
-    IPluginManager::GetInstance()->AddPlugin(DisableScreenLockPlugin::GetPlugin());
+    IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisableScreenLockPlugin>());
 
-void DisableScreenLockPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisableScreenLockPlugin, bool>> ptr)
+DisableScreenLockPlugin::DisableScreenLockPlugin()
 {
     EDMLOGI("DisableScreenLockPlugin InitPlugin...");
+    policyCode_ = EdmInterfaceCode::DISABLE_SCREEN_LOCK;
+    policyName_ = PolicyName::POLICY_DISABLE_SCREEN_LOCK;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY);
-    IPlugin::PolicyPermissionConfig config =
-        IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::DISABLE_SCREEN_LOCK,
-        PolicyName::POLICY_DISABLE_SCREEN_LOCK, config, false);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisableScreenLockPlugin::OnSetPolicy, FuncOperateType::SET);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode DisableScreenLockPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData,
-    int32_t userId)
+ErrCode DisableScreenLockPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
 {
     EDMLOGD("DisableScreenLockPlugin::OnSetPolicy, data: %{public}d.", data);
     int32_t curUserId = GetCurrentUserId();

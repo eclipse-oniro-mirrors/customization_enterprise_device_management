@@ -16,18 +16,16 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_OPEN_FILE_BOOST_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_OPEN_FILE_BOOST_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowOpenFileBoostPlugin : public PluginSingleton<DisallowOpenFileBoostPlugin, bool> {
+class DisallowOpenFileBoostPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowOpenFileBoostPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId);
-    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId);
+    DisallowOpenFileBoostPlugin();
 
 private:
-    ErrCode SetOpenFileBoostPolicy(bool policy, int32_t userId);
+    ErrCode SetOtherModulePolicy(bool policy, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -20,7 +20,7 @@
 #undef protected
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -58,7 +58,7 @@ HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyTrue, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisableCameraPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableCameraPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_CAMERA);
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
@@ -75,7 +75,7 @@ HWTEST_F(DisableCameraPluginTest, TestOnSetPolicyFalse, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = DisableCameraPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisableCameraPlugin>();
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISABLE_CAMERA);
     HandlePolicyData handlePolicyData{"false", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);

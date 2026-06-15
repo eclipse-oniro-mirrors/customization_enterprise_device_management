@@ -17,16 +17,13 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXTERNAL_STORAGE_CARD_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 #include "istorage_manager.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowExternalStorageCardPlugin : public PluginSingleton<DisallowExternalStorageCardPlugin, bool>,
-public BasicBoolPlugin {
+class DisallowExternalStorageCardPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowExternalStorageCardPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId) override;
+    DisallowExternalStorageCardPlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;

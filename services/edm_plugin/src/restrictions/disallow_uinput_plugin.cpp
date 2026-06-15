@@ -14,44 +14,33 @@
  */
 #include "disallow_uinput_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "input_manager.h"
  
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowUInputPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowUInputPlugin>());
  
-void DisallowUInputPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUInputPlugin, bool>> ptr)
+DisallowUInputPlugin::DisallowUInputPlugin()
 {
     EDMLOGI("DisallowUInputPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOWED_UINPUT, PolicyName::POLICY_DISALLOW_UINPUT,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowUInputPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowUInputPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_UINPUT;
+    policyName_ = PolicyName::POLICY_DISALLOW_UINPUT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
 }
  
 ErrCode DisallowUInputPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowUInputPlugin SetOtherModulePolicy: %{public}d.", data);
-    return SetUInputDeviceEnabled(data);
-}
-
-ErrCode DisallowUInputPlugin::RemoveOtherModulePolicy(int32_t userId)
-{
-    return SetUInputDeviceEnabled(false);
-}
-
-ErrCode DisallowUInputPlugin::SetUInputDeviceEnabled(bool isDisAllow)
-{
     auto inputManager = OHOS::MMI::InputManager::GetInstance();
     if (inputManager == nullptr) { //LCOV_EXCL_BR_LINE
         EDMLOGE("DisallowUInputPlugin: inputManager is nullptr");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = inputManager->DisableInputEventDispatch(isDisAllow);
+    int32_t ret = inputManager->DisableInputEventDispatch(data);
     if (ret != ERR_OK) { //LCOV_EXCL_BR_LINE
         EDMLOGE("DisallowUInputPlugin: DisableInputEventDispatch failed ret: %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

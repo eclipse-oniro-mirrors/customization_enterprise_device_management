@@ -15,7 +15,6 @@
 
 #include "disable_printer_query.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "parameters.h"

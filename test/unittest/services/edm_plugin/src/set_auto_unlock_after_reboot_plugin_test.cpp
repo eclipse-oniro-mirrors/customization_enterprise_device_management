@@ -18,7 +18,7 @@
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
-#include "plugin_singleton.h"
+#include "basic_bool_plugin.h"
 #include "set_auto_unlock_after_reboot_plugin.h"
 #include "utils.h"
 
@@ -52,7 +52,7 @@ HWTEST_F(SetAutoUnlockAfterRebootPluginTest, TestSetAutoUnlockAfterRebootPluginT
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = SetAutoUnlockAfterRebootPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SetAutoUnlockAfterRebootPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT);
@@ -71,7 +71,7 @@ HWTEST_F(SetAutoUnlockAfterRebootPluginTest, TestSetAutoUnlockAfterRebootPluginT
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = SetAutoUnlockAfterRebootPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SetAutoUnlockAfterRebootPlugin>();
     HandlePolicyData handlePolicyData{"false", "", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT);

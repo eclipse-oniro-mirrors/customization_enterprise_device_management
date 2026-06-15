@@ -15,23 +15,23 @@
 
 #include "inactive_user_freeze_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InactiveUserFreezePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<InactiveUserFreezePlugin>());
 
-void InactiveUserFreezePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InactiveUserFreezePlugin, bool>> ptr)
+InactiveUserFreezePlugin::InactiveUserFreezePlugin()
 {
     EDMLOGI("InactiveUserFreezePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::INACTIVE_USER_FREEZE, PolicyName::POLICY_INACTIVE_USER_FREEZE,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&InactiveUserFreezePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&InactiveUserFreezePlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::INACTIVE_USER_FREEZE;
+    policyName_ = PolicyName::POLICY_INACTIVE_USER_FREEZE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.inactive_user_freeze";
 }
 } // namespace EDM

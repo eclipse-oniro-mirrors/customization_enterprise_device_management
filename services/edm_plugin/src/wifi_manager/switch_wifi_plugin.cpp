@@ -17,29 +17,52 @@
 #include "parameters.h"
 #include "wifi_device.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "func_code_utils.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SwitchWifiPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SwitchWifiPlugin>());
 const std::string MDM_WIFI_PROP = "persist.edm.wifi_enable";
 const std::string PARAM_FORCE_OPEN_WIFI = "persist.edm.force_open_wifi";
 
-void SwitchWifiPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SwitchWifiPlugin, bool>> ptr)
+SwitchWifiPlugin::SwitchWifiPlugin()
 {
     EDMLOGI("SwitchWifiPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SWITCH_WIFI, "switch_wifi",
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SwitchWifiPlugin::OnTurnOnPolicy, FuncOperateType::SET);
-    ptr->SetOnHandlePolicyListener(&SwitchWifiPlugin::OnTurnOffPolicy, FuncOperateType::REMOVE);
-    ptr->SetOnAdminRemoveListener(&SwitchWifiPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::SWITCH_WIFI;
+    policyName_ = "switch_wifi";
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = true;
 }
 
-ErrCode SwitchWifiPlugin::OnTurnOnPolicy(bool &isForce)
+ErrCode SwitchWifiPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
+{
+    bool handelData = data.ReadBool();
+    uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
+    FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
+    ErrCode result = ERR_OK;
+    if (type == FuncOperateType::SET) {
+        result = OnTurnOnPolicy(handelData);
+    } else if (type == FuncOperateType::REMOVE) {
+        result = OnTurnOffPolicy();
+    }
+    if (result != ERR_OK) {
+        return result;
+    }
+    std::string afterHandle = handelData ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE;
+    policyData.isChanged = (policyData.policyData != afterHandle);
+    policyData.policyData = afterHandle;
+    policyData.mergePolicyData = afterHandle;
+    return ERR_OK;
+}
+
+ErrCode SwitchWifiPlugin::OnTurnOnPolicy(bool isForce)
 {
     EDMLOGI("SwitchWifiPlugin OnSetPolicy isForce %{public}d", isForce);
     if (system::GetBoolParameter(MDM_WIFI_PROP.c_str(), false)) {
@@ -85,7 +108,8 @@ ErrCode SwitchWifiPlugin::OnTurnOffPolicy()
     return ERR_OK;
 }
 
-ErrCode SwitchWifiPlugin::OnAdminRemove()
+ErrCode SwitchWifiPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
+    const std::string &mergeData, int32_t userId)
 {
     EDMLOGI("SwitchWifiPlugin OnAdminRemove");
     system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");

@@ -17,13 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_CORE_DUMP_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisallowCoreDumpPlugin : public PluginSingleton<DisallowCoreDumpPlugin, bool>, public BasicBoolPlugin {
+class DisallowCoreDumpPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisallowCoreDumpPlugin, bool>> ptr) override;
+    DisallowCoreDumpPlugin();
 };
 } // namespace EDM
 } // namespace OHOS

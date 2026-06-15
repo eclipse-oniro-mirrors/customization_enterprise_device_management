@@ -175,7 +175,6 @@
               "ipolicy_serializer.h",
               "plugin_singleton.h",
               "utils/array_string_serializer.h",
-              "utils/bool_serializer.h",
               "utils/func_code_utils.h",
               "utils/long_serializer.h",
               "utils/map_string_serializer.h",

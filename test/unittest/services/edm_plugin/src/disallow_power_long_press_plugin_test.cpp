@@ -46,7 +46,7 @@ HWTEST_F(DisallowPowerLongPressPluginTest, TestDisallowPowerLongPressPluginTest0
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = DisallowPowerLongPressPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<DisallowPowerLongPressPlugin>();
     std::uint32_t funcCode =
         POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS);
     HandlePolicyData handlePolicyData{"", "", false};

@@ -47,9 +47,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t userId = CommonFuzzer::GetU32Data(data);
     bool status = CommonFuzzer::GetU32Data(data) % 2;
     plugin.SetOtherModulePolicy(status, userId);
-    bool hasConflict = false;
-    plugin.HasConflictPolicy(hasConflict);
-    plugin.RemoveOtherModulePolicy(userId);
+    plugin.CheckConflictPolicy(userId);
     int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
     plugin.OnOtherServiceStart(systemAbilityId);
     return 0;

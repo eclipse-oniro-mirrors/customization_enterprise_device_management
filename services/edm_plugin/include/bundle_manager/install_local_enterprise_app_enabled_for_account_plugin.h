@@ -17,22 +17,15 @@
 #define SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class InstallLocalEnterpriseAppEnabledForAccountPlugin :
-    public PluginSingleton<InstallLocalEnterpriseAppEnabledForAccountPlugin, bool>, public BasicBoolPlugin {
+class InstallLocalEnterpriseAppEnabledForAccountPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<InstallLocalEnterpriseAppEnabledForAccountPlugin, bool>> ptr)
-        override;
+    InstallLocalEnterpriseAppEnabledForAccountPlugin();
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-
-    ErrCode RemoveOtherModulePolicy(int32_t userId) override;
-
-    ErrCode SetSpecificOsAccountConstraints(bool policy, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS

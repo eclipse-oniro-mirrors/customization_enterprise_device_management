@@ -51,7 +51,7 @@ void DisallowedTelephonyCallPluginTest::TearDownTestSuite(void)
 
 INSTANTIATE_TEST_SUITE_P(TestOnSetPolicy, DisallowedTelephonyCallPluginTest,
     testing::ValuesIn(std::vector<std::pair<std::shared_ptr<IPlugin>, EdmInterfaceCode>>({
-        {DisallowedTelephonyCallPlugin::GetPlugin(), EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
+        {std::make_shared<DisallowedTelephonyCallPlugin>(), EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
     })));
 
 /**

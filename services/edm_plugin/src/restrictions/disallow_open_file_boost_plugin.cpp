@@ -16,7 +16,6 @@
 #include "disallow_open_file_boost_plugin.h"
 
 #include <ipc_skeleton.h>
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -27,69 +26,32 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
-    DisallowOpenFileBoostPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowOpenFileBoostPlugin>());
 const std::string CONSTRAINT_OPENFILEBOOST = "constraint.preview.openFileBoost";
 
-void DisallowOpenFileBoostPlugin::InitPlugin(
-    std::shared_ptr<IPluginTemplate<DisallowOpenFileBoostPlugin, bool>> ptr)
+DisallowOpenFileBoostPlugin::DisallowOpenFileBoostPlugin()
 {
     EDMLOGI("DisallowOpenFileBoostPlugin InitPlugin...");
-    ptr->InitAttribute(
-        EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
-        PolicyName::POLICY_DISALLOWED_OPEN_FILE_BOOST,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        true);
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowOpenFileBoostPlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowOpenFileBoostPlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN;
+    policyName_ = PolicyName::POLICY_DISALLOWED_OPEN_FILE_BOOST;
+    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    needSave_ = true;
 }
 
-ErrCode DisallowOpenFileBoostPlugin::OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId)
+ErrCode DisallowOpenFileBoostPlugin::SetOtherModulePolicy(bool policy, int32_t userId)
 {
-    EDMLOGI("DisallowOpenFileBoostPlugin::OnSetPolicy, data: %{public}d, currentData: %{public}d, "
-            "mergeData: %{public}d", data, currentData, mergeData);
-    if (mergeData) {
-        currentData = data;
-        return ERR_OK;
-    }
-    ErrCode ret = SetOpenFileBoostPolicy(data, userId);
-    if (FAILED(ret)) {
-        EDMLOGE("DisallowOpenFileBoostPlugin::OnSetPolicy Failed, ret: %{public}d", ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    currentData = data;
-    mergeData = data;
-    return ERR_OK;
-}
-
-ErrCode DisallowOpenFileBoostPlugin::OnAdminRemove(
-    const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
-{
-    EDMLOGI("DisallowOpenFileBoostPlugin::OnAdminRemove, adminName: %{public}s, data: %{public}d, "
-            "mergeData: %{public}d", adminName.c_str(), data, mergeData);
-    if (mergeData) {
-        return ERR_OK;
-    }
-    if (data) {
-        ErrCode ret = SetOpenFileBoostPolicy(false, userId);
-        if (FAILED(ret)) {
-            EDMLOGE("DisallowOpenFileBoostPlugin::OnAdminRemove Failed, ret: %{public}d", ret);
-        }
-    }
-    return ERR_OK;
-}
-
-ErrCode DisallowOpenFileBoostPlugin::SetOpenFileBoostPolicy(bool policy, int32_t userId)
-{
-    EDMLOGI("DisallowOpenFileBoostPlugin::SetOpenFileBoostPolicy, policy: %{public}d", policy);
+    EDMLOGI("DisallowOpenFileBoostPlugin::SetOtherModulePolicy, policy: %{public}d", policy);
     std::vector<std::string> constraints;
     constraints.emplace_back(CONSTRAINT_OPENFILEBOOST);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(
         constraints, policy, userId, EdmConstants::DEFAULT_USER_ID, true);
-    EDMLOGI("DisallowOpenFileBoostPlugin SetSpecificOsAccountConstraints ret: %{public}d", ret);
-    return ret;
+    if (FAILED(ret)) {
+        EDMLOGE("DisallowOpenFileBoostPlugin::OnSetPolicy Failed, ret: %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

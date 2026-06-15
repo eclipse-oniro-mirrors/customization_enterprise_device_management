@@ -15,25 +15,22 @@
 
 #include "disallow_unmute_device_plugin.h"
 
-#include "bool_serializer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowUnmuteDevicePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowUnmuteDevicePlugin>());
 
-void DisallowUnmuteDevicePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<DisallowUnmuteDevicePlugin, bool>>
-    ptr)
+DisallowUnmuteDevicePlugin::DisallowUnmuteDevicePlugin()
 {
     EDMLOGI("DisallowUnmuteDevicePlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE, PolicyName::POLICY_DISALLOW_UNMUTE_DEVICE,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
-
-    ptr->SetSerializer(BoolSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&DisallowUnmuteDevicePlugin::OnSetPolicy, FuncOperateType::SET);
-    ptr->SetOnAdminRemoveListener(&DisallowUnmuteDevicePlugin::OnAdminRemove);
+    policyCode_ = EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE;
+    policyName_ = PolicyName::POLICY_DISALLOW_UNMUTE_DEVICE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.unmute_device_disallowed";
 }
 } // namespace EDM

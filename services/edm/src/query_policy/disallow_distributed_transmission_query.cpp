@@ -15,7 +15,6 @@
 
 #include "disallow_distributed_transmission_query.h"
 
-#include "bool_serializer.h"
 #include "edm_constants.h"
 #include "parameters.h"
 

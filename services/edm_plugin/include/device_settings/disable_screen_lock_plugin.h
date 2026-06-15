@@ -17,15 +17,13 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_SCREEN_LOCK_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableScreenLockPlugin :
-    public PluginSingleton<DisableScreenLockPlugin, bool> {
+class DisableScreenLockPlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableScreenLockPlugin, bool>> ptr) override;
-    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId);
+    DisableScreenLockPlugin();
+    ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergeData, int32_t userId) override;
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
 

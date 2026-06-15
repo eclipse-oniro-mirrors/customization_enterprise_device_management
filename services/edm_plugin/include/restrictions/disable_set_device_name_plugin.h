@@ -17,14 +17,12 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISABLE_SET_DEVICE_NAME_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "plugin_singleton.h"
 
 namespace OHOS {
 namespace EDM {
-class DisableSetDeviceNamePlugin :
-    public PluginSingleton<DisableSetDeviceNamePlugin, bool>, public BasicBoolPlugin {
+class DisableSetDeviceNamePlugin : public BasicBoolPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<DisableSetDeviceNamePlugin, bool>> ptr) override;
+    DisableSetDeviceNamePlugin();
 };
 } // namespace EDM
 } // namespace OHOS
