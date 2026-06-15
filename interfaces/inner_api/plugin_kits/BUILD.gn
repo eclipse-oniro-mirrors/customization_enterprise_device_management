@@ -40,7 +40,6 @@ ohos_shared_library("plugin_kits") {
     "./src/utils/int_serializer.cpp",
     "./src/utils/long_serializer.cpp",
     "./src/utils/map_string_serializer.cpp",
-    "./src/utils/string_serializer.cpp",
     "./src/utils/uint_serializer.cpp",
   ]
 

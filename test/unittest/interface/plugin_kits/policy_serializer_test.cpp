@@ -19,7 +19,6 @@
 #include "func_code_utils.h"
 #include "long_serializer.h"
 #include "map_string_serializer.h"
-#include "string_serializer.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -29,42 +28,6 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 class PolicySerializerTest : public testing::Test {};
-
-/**
- * @tc.name: STRING
- * @tc.desc: Test StringSerializer.
- * @tc.type: FUNC
- */
-HWTEST_F(PolicySerializerTest, STRING, TestSize.Level1)
-{
-    auto serializer = StringSerializer::GetInstance();
-    string value = "s1";
-    string jsonString;
-    ASSERT_TRUE(serializer->Serialize(value, jsonString));
-    ASSERT_EQ(jsonString, "s1");
-
-    jsonString = "s2";
-    ASSERT_TRUE(serializer->Deserialize(jsonString, value));
-    ASSERT_TRUE(value.length() == 2);
-
-    MessageParcel messageParcel1;
-    std::string value2 = "s一";
-    messageParcel1.WriteString(value2);
-    value = "";
-    ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
-    ASSERT_TRUE(value == "s一");
-
-    MessageParcel messageParcel2;
-    value = "s二";
-    ASSERT_TRUE(serializer->WritePolicy(messageParcel2, value));
-    value2 = "";
-    ASSERT_TRUE(messageParcel2.ReadString(value2));
-    ASSERT_TRUE(value2 == "s二");
-
-    vector<string> policyValues { "v1", "v2", "v3" };
-    serializer->MergePolicy(policyValues, value);
-    ASSERT_TRUE(value == "v3");
-}
 
 /**
  * @tc.name: ARRAY_STRING
@@ -91,8 +54,6 @@ HWTEST_F(PolicySerializerTest, ARRAY_STRING, TestSize.Level1)
     messageParcel1.WriteStringVector(value2);
     value = {};
     ASSERT_TRUE(serializer->GetPolicy(messageParcel1, value));
-    ASSERT_TRUE(value.size() == 7);
-    serializer->Deduplication(value);
     ASSERT_TRUE(value.size() == 7);
     ArraySerializer<std::string, std::vector<std::string>> testArraySerializer;
     testArraySerializer.Deduplication(value);

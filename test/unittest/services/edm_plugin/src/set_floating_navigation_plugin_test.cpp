@@ -43,18 +43,18 @@ void SetFloatingNavigationPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnSetPolicy_001
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_001
+ * @tc.desc: Test OnHandlePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetFloatingNavigationPluginTest, TestOnSetPolicy_001, TestSize.Level1)
+HWTEST_F(SetFloatingNavigationPluginTest, TestOnHandlePolicy_001, TestSize.Level1)
 {
     SetFloatingNavigationPlugin plugin;
-    std::string data = "0";
-    std::string currentData = "";
-    std::string mergeData = "";
-    int32_t id = 100;
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    MessageParcel data;
+    data.WriteString("0");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 100);
     EXPECT_EQ(code, ERR_OK);
 }
 
@@ -65,7 +65,7 @@ HWTEST_F(SetFloatingNavigationPluginTest, TestOnSetPolicy_001, TestSize.Level1)
  */
 HWTEST_F(SetFloatingNavigationPluginTest, TestOnGetPolicy_001, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SetFloatingNavigationPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SetFloatingNavigationPlugin>();
     std::string policyValue{"TestString"};
     MessageParcel data;
     MessageParcel reply;

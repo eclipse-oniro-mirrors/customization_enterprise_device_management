@@ -545,7 +545,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
 {
     PrepareBeforeHandleDevicePolicy();
 
-    plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::HandlePolicyBiFunctionPlg>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
@@ -583,7 +583,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest006, TestSize
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleDevicePolicyFuncTest007, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::HandlePolicyBiFunctionPlg>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
@@ -995,7 +995,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedSub, Tes
     std::string subSuperAdmin = ADMIN_PACKAGENAME_1;
     AuthorizeAdminSuc(superAdmin, subSuperAdmin);
     // sub-super admin set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
 
@@ -1043,7 +1043,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnCommonEventPackageRemovedEnt, Tes
     std::string subSuperAdmin = ADMIN_PACKAGENAME_1;
     AuthorizeAdminSuc(superAdmin, subSuperAdmin);
     // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
@@ -1168,7 +1168,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestdisableSuperAdminWithPolicy, TestSi
     std::string subSuperAdmin = ADMIN_PACKAGENAME_1;
     AuthorizeAdminSuc(superAdmin, subSuperAdmin);
     // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(superAdmin.GetBundleName(), plugin->GetPolicyName());
     SetPolicy(subSuperAdmin, plugin->GetPolicyName());
@@ -1349,7 +1349,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminPolicy, TestSize.Level1)
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
@@ -1374,7 +1374,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubSuperAdminAndAdminPolicy, 
     string subSuperBundleName = ADMIN_PACKAGENAME_1;
     AuthorizeAdminSuc(admin, subSuperBundleName);
     // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(subSuperBundleName, plugin->GetPolicyName());
 
@@ -1401,7 +1401,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSuperAdminAndAdminPolicy, Tes
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
@@ -1430,7 +1430,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveSubOrSuperAdminAndAdminPolicy
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
     // set policy with userId = 100 and 101
-    auto plugin = PLUGIN::StringTestPlugin::GetPlugin();
+    auto plugin = std::make_shared<PLUGIN::StringTestPlugin>();
     PluginManager::GetInstance()->AddPlugin(plugin);
     SetPolicy(admin.GetBundleName(), plugin->GetPolicyName());
 
@@ -3241,7 +3241,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithJSONErro
 {
     PrepareBeforeHandleDevicePolicy();
 
-    plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::HandlePolicyBiFunctionPlg>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
@@ -3280,7 +3280,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerWithJSONErro
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyInnerSuc02, TestSize.Level1)
 {
     PrepareBeforeHandleDevicePolicy();
-    plugin_ = PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::HandlePolicyBiFunctionPlg>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
         EDM_MANAGE_DATETIME_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
@@ -3753,7 +3753,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithoutPlugin, 
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_ENT_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -3785,7 +3785,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithPluginHasNo
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = "";
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -3819,7 +3819,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermiss
     admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
 
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = NONE_PERMISSION_MATCH;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -3848,7 +3848,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNonePermiss
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBundleNotInstall, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -3882,7 +3882,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithDelegatedBu
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundle, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -3917,7 +3917,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithNormalBundl
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetDelegatedPoliciesWithEnterpriseNormal, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -4007,7 +4007,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithoutVritualA
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmin, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -4055,7 +4055,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedPoliciesWithVritualAdmi
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermission, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -4088,7 +4088,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithoutPermi
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithInvalidPolicy, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();
@@ -4116,7 +4116,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesWithInvalidP
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDelegatedBundleNamesSuc, TestSize.Level1)
 {
-    plugin_ = PLUGIN::StringTestPlugin::GetPlugin();
+    plugin_ = std::make_shared<PLUGIN::StringTestPlugin>();
     plugin_->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
     PluginManager::GetInstance()->pluginsCode_.clear();
     PluginManager::GetInstance()->pluginsName_.clear();

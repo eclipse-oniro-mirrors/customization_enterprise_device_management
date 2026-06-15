@@ -16,13 +16,13 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_APPLICATION_WINDOW_STATES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_APPLICATION_WINDOW_STATES_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class GetApplicationWindowStatesPlugin : public PluginSingleton<GetApplicationWindowStatesPlugin, std::string> {
+class GetApplicationWindowStatesPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetApplicationWindowStatesPlugin, std::string>> ptr) override;
+    GetApplicationWindowStatesPlugin();
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM

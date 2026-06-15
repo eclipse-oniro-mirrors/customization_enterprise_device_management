@@ -50,15 +50,18 @@ void SetDefaultInputMethodPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnSetPolicy_001
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_001
+ * @tc.desc: Test OnHandlePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetDefaultInputMethodPluginTest, TestOnSetPolicy_001, TestSize.Level1)
+HWTEST_F(SetDefaultInputMethodPluginTest, TestOnHandlePolicy_001, TestSize.Level1)
 {
     SetDefaultInputMethodPlugin plugin;
-    std::string data = "112233";
-    ErrCode code = plugin.OnSetPolicy(data);
+    MessageParcel data;
+    data.WriteString("112233");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_EQ(code, EdmReturnErrCode::PARAM_ERROR);
 }
 } // namespace TEST

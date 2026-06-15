@@ -532,7 +532,7 @@ void PluginManager::NotifyUnloadAllPlugin()
     std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
     for (const auto& it : soLoadStateMap_) {
         auto state = it.second;
-        if (state->pluginHasInit) {
+        if (state != nullptr && state->pluginHasInit) {
             state->pluginHasInit = false;
             std::unique_lock<std::mutex> lock(state->waitMutex);
             state->notifySignal = true;

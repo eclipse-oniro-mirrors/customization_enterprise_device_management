@@ -20,31 +20,35 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_json_builder.h"
 #include "iextra_policy_notification.h"
+#include "ipolicy_manager.h"
 #include "iplugin_manager.h"
 #include "override_interface_name.h"
-#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string KEY_NTP_SERVER = "persist.time.ntpserver_specific";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<NTPServerPlugin>());
 
-void NTPServerPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr)
+NTPServerPlugin::NTPServerPlugin()
 {
-    EDMLOGI("NTPServerPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::NTP_SERVER, PolicyName::POLICY_NTP_SERVER,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM, IPlugin::PermissionType::SUPER_DEVICE_ADMIN);
-    ptr->SetSerializer(StringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&NTPServerPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::NTP_SERVER;
+    policyName_ = PolicyName::POLICY_NTP_SERVER;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
+    needSave_ = true;
 }
 
-ErrCode NTPServerPlugin::OnSetPolicy(std::string &value)
+ErrCode NTPServerPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("NTPServerPlugin OnSetPolicy");
-    if (system::SetParameter(KEY_NTP_SERVER, value)) {
+    std::string handleData = data.ReadString();
+    EDMLOGI("NTPServerPlugin OnHandlePolicy");
+    if (system::SetParameter(KEY_NTP_SERVER, handleData)) {
         std::string params = EdmJsonBuilder()
-            .Add("server", value)
+            .Add("server", handleData)
             .Build();
         IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
             OverrideInterfaceName::SystemManager::SET_NTP_SERVER, params);

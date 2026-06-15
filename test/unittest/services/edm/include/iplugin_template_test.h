@@ -34,7 +34,6 @@
 #include "plugin_singleton.h"
 #undef protected
 #undef private
-#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
@@ -164,15 +163,14 @@ public:
 #ifndef STRING_TEST_PLUGIN
 #define STRING_TEST_PLUGIN
 
-class StringTestPlugin : public PluginSingleton<StringTestPlugin, std::string> {
+class StringTestPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<StringTestPlugin, std::string>> ptr) override
+    StringTestPlugin()
     {
-        int policyCode = 15;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = 15;
+        policyName_ = "StringTestPlugin";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "StringTestPlugin", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
     }
 };
 
@@ -215,8 +213,16 @@ public:
     }
 };
 
-class HandlePolicyFunctionPlg : public PluginSingleton<HandlePolicyFunctionPlg, std::string> {
+class HandlePolicyFunctionPlg : public IPlugin {
 public:
+    HandlePolicyFunctionPlg()
+    {
+        policyCode_ = 22;
+        policyName_ = "HandlePolicyFunctionPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    }
+
     ErrCode SetFunction(std::string &policyValue)
     {
         if (policyValue.empty()) {
@@ -233,20 +239,38 @@ public:
         return ERR_OK;
     }
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyFunctionPlg, std::string>> ptr) override
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override
     {
-        int policyCode = 22;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
-            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "HandlePolicyFunctionPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnHandlePolicyListener(&HandlePolicyFunctionPlg::SetFunction, FuncOperateType::SET);
-        ptr->SetOnHandlePolicyListener(&HandlePolicyFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
+        std::string handleData = data.ReadString();
+        uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
+        FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
+        ErrCode ret = ERR_OK;
+        std::string currentData = policyData.policyData;
+        if (type == FuncOperateType::SET) {
+            ret = SetFunction(handleData);
+        } else if (type == FuncOperateType::REMOVE) {
+            ret = RemoveFunction(handleData);
+        }
+        if (FAILED(ret)) {
+            return ret;
+        }
+        policyData.policyData = handleData;
+        policyData.isChanged = policyData.policyData != currentData;
+        return ERR_OK;
     }
 };
 
-class HandlePolicyBiFunctionPlg : public PluginSingleton<HandlePolicyBiFunctionPlg, std::string> {
+class HandlePolicyBiFunctionPlg : public IPlugin {
 public:
+    HandlePolicyBiFunctionPlg()
+    {
+        policyCode_ = 23;
+        policyName_ = "HandlePolicyBiFunctionPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    }
+
     ErrCode SetFunction(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId)
     {
         std::string errStr{"ErrorData"};
@@ -263,119 +287,122 @@ public:
         return ERR_OK;
     }
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyBiFunctionPlg, std::string>> ptr) override
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override
     {
-        int policyCode = 23;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
-            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "HandlePolicyBiFunctionPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionPlg::SetFunction, FuncOperateType::SET);
-        ptr->SetOnHandlePolicyListener(&HandlePolicyBiFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
+        std::string handleData = data.ReadString();
+        uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
+        FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
+        ErrCode ret = ERR_OK;
+        std::string currentData = policyData.policyData;
+        if (type == FuncOperateType::SET) {
+            ret = SetFunction(handleData, policyData.policyData, policyData.mergePolicyData, userId);
+        } else if (type == FuncOperateType::REMOVE) {
+            ret = RemoveFunction(handleData, policyData.policyData, policyData.mergePolicyData, userId);
+        }
+        if (FAILED(ret)) {
+            return ret;
+        }
+        policyData.isChanged = policyData.policyData != currentData;
+        return ERR_OK;
     }
 };
 
-class HandleDoneBoolConsumerPlg : public PluginSingleton<HandleDoneBoolConsumerPlg, std::string> {
+class HandleDoneBoolConsumerPlg : public IPlugin {
 public:
-    void SetDone(bool isGlobalChanged) { g_visit = true; }
-
-    void RemoveDone(bool isGlobalChanged) { g_visit = true; }
-
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandleDoneBoolConsumerPlg, std::string>> ptr) override
+    HandleDoneBoolConsumerPlg()
     {
-        int policyCode = 24;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = 24;
+        policyName_ = "HandleDoneBoolConsumerPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "HandleDoneBoolConsumerPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnHandlePolicyDoneListener(&HandleDoneBoolConsumerPlg::SetDone, FuncOperateType::SET);
-        ptr->SetOnHandlePolicyDoneListener(&HandleDoneBoolConsumerPlg::RemoveDone, FuncOperateType::REMOVE);
+    }
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override
+    {
+        g_visit = true;
     }
 };
 
-class HandleDoneBiBoolConsumerPlg : public PluginSingleton<HandleDoneBiBoolConsumerPlg, std::string> {
+class HandleDoneBiBoolConsumerPlg : public IPlugin {
 public:
-    void SetDone(std::string &data, bool isGlobalChanged, int32_t userId) { g_visit = true; }
-
-    void RemoveDone(std::string &data, bool isGlobalChanged, int32_t userId) { g_visit = true; }
-
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandleDoneBiBoolConsumerPlg, std::string>> ptr) override
+    HandleDoneBiBoolConsumerPlg()
     {
-        int policyCode = 25;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = 25;
+        policyName_ = "HandleDoneBiBoolConsumerPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "HandleDoneBiBoolConsumerPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnHandlePolicyDoneListener(&HandleDoneBiBoolConsumerPlg::SetDone, FuncOperateType::SET);
-        ptr->SetOnHandlePolicyDoneListener(&HandleDoneBiBoolConsumerPlg::RemoveDone, FuncOperateType::REMOVE);
+    }
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override
+    {
+        g_visit = true;
     }
 };
 
-class AdminRemoveSupplierPlg : public PluginSingleton<AdminRemoveSupplierPlg, std::string> {
+class AdminRemoveSupplierPlg : public IPlugin {
 public:
-    ErrCode RemoveAdmin()
+    AdminRemoveSupplierPlg()
+    {
+        policyCode_ = 26;
+        policyName_ = "AdminRemoveSupplierPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    }
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeData, int32_t userId) override
     {
         g_visit = true;
         return ERR_OK;
     }
-
-    void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveSupplierPlg, std::string>> ptr) override
-    {
-        int policyCode = 26;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
-            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "AdminRemoveSupplierPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnAdminRemoveListener(&AdminRemoveSupplierPlg::RemoveAdmin);
-    }
 };
 
-class AdminRemoveBiFunctionPlg : public PluginSingleton<AdminRemoveBiFunctionPlg, std::string> {
+class AdminRemoveBiFunctionPlg : public IPlugin {
 public:
-    ErrCode RemoveAdmin(const std::string &adminName, std::string &data, std::string &mergeData, int32_t userId)
+    AdminRemoveBiFunctionPlg()
+    {
+        policyCode_ = 27;
+        policyName_ = "AdminRemoveBiFunctionPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    }
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeData, int32_t userId) override
     {
         g_visit = true;
         return ERR_OK;
     }
+};
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveBiFunctionPlg, std::string>> ptr) override
+class AdminRemoveDoneRunnerPlg : public IPlugin {
+public:
+    AdminRemoveDoneRunnerPlg()
     {
-        int policyCode = 27;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = 28;
+        policyName_ = "AdminRemoveDoneRunnerPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "AdminRemoveBiFunctionPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnAdminRemoveListener(&AdminRemoveBiFunctionPlg::RemoveAdmin);
+    }
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override
+    {
+        g_visit = true;
     }
 };
 
-class AdminRemoveDoneRunnerPlg : public PluginSingleton<AdminRemoveDoneRunnerPlg, std::string> {
+class AdminRemoveDoneBiBiConsumerPlg : public IPlugin {
 public:
-    void RemoveAdminDone() { g_visit = true; }
-
-    void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveDoneRunnerPlg, std::string>> ptr) override
+    AdminRemoveDoneBiBiConsumerPlg()
     {
-        int policyCode = 28;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = 29;
+        policyName_ = "AdminRemoveDoneBiBiConsumerPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "AdminRemoveDoneRunnerPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnAdminRemoveDoneListener(&AdminRemoveDoneRunnerPlg::RemoveAdminDone);
     }
-};
-
-class AdminRemoveDoneBiBiConsumerPlg : public PluginSingleton<AdminRemoveDoneBiBiConsumerPlg, std::string> {
-public:
-    void RemoveAdminDone(const std::string &adminName, std::string &data, int32_t userId) { g_visit = true; }
-
-    void InitPlugin(std::shared_ptr<IPluginTemplate<AdminRemoveDoneBiBiConsumerPlg, std::string>> ptr) override
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override
     {
-        int policyCode = 29;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
-            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "AdminRemoveDoneBiBiConsumerPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnAdminRemoveDoneListener(&AdminRemoveDoneBiBiConsumerPlg::RemoveAdminDone);
+        g_visit = true;
     }
 };
 
@@ -408,7 +435,6 @@ public:
         
         ptr->SetSerializer(CjsonTestSerializer::GetInstance());
         
-        // 注册回调函数
         ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::SetFunction, FuncOperateType::SET);
         ptr->SetOnHandlePolicyListener(&HandlePolicyJsonBiFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
     }
@@ -447,8 +473,17 @@ public:
     }
 };
 
-class HandlePolicyReplyFunctionPlg : public PluginSingleton<HandlePolicyReplyFunctionPlg, std::string> {
+class HandlePolicyReplyFunctionPlg : public IPlugin {
 public:
+    HandlePolicyReplyFunctionPlg()
+    {
+        policyCode_ = 32;
+        policyName_ = "HandlePolicyReplyFunctionPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+        needSave_ = false;
+    }
+
     ErrCode SetFunction(std::string &data, MessageParcel &reply)
     {
         g_visit = true;
@@ -461,30 +496,40 @@ public:
         return ERR_OK;
     }
 
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HandlePolicyReplyFunctionPlg, std::string>> ptr) override
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override
     {
-        int policyCode = 32;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
-            IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "HandlePolicyReplyFunctionPlg", config, false, true);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOnHandlePolicyListener(&HandlePolicyReplyFunctionPlg::SetFunction, FuncOperateType::SET);
-        ptr->SetOnHandlePolicyListener(&HandlePolicyReplyFunctionPlg::RemoveFunction, FuncOperateType::REMOVE);
+        std::string handleData = data.ReadString();
+        uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
+        FuncOperateType type = FuncCodeUtils::ConvertOperateType(typeCode);
+        ErrCode ret = ERR_OK;
+        std::string currentData = policyData.policyData;
+        if (type == FuncOperateType::SET) {
+            ret = SetFunction(handleData, reply);
+        } else if (type == FuncOperateType::REMOVE) {
+            ret = RemoveFunction(handleData, reply);
+        }
+        if (FAILED(ret)) {
+            return ret;
+        }
+        policyData.policyData = handleData;
+        policyData.isChanged = policyData.policyData != currentData;
+        return ERR_OK;
     }
 };
 
-class OtherServiceStartRunnerPlg : public PluginSingleton<OtherServiceStartRunnerPlg, std::string> {
+class OtherServiceStartRunnerPlg : public IPlugin {
 public:
-    void OtherServiceStart(int32_t systemAbilityId) { g_visit = true; }
-
-    void InitPlugin(std::shared_ptr<IPluginTemplate<OtherServiceStartRunnerPlg, std::string>> ptr) override
+    OtherServiceStartRunnerPlg()
     {
-        int policyCode = 33;
-        IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
+        policyCode_ = 33;
+        policyName_ = "OtherServiceStartRunnerPlg";
+        permissionConfig_ = IPlugin::PolicyPermissionConfig("ohos.permission.EDM_TEST_PERMISSION",
             IPlugin::PermissionType::NORMAL_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
-        ptr->InitAttribute(policyCode, "OtherServiceStartRunnerPlg", config);
-        ptr->SetSerializer(StringSerializer::GetInstance());
-        ptr->SetOtherServiceStartListener(&OtherServiceStartRunnerPlg::OtherServiceStart);
+    }
+    void OnOtherServiceStart(int32_t systemAbilityId) override
+    {
+        g_visit = true;
     }
 };
 } // namespace PLUGIN

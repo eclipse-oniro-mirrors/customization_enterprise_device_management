@@ -24,11 +24,14 @@ namespace EDM {
 /*
  * Policy data serializer of type std::vector<std::string>.
  */
-class ArrayStringSerializer : public ArraySerializer<std::string, std::vector<std::string>>,
+class ArrayStringSerializer : public IPolicySerializer<std::vector<std::string>>,
     public DelayedSingleton<ArrayStringSerializer> {
 public:
-    ArrayStringSerializer();
-    ~ArrayStringSerializer() override;
+    bool Deserialize(const std::string &jsonString, std::vector<std::string> &dataObj) override;
+    bool Serialize(const std::vector<std::string> &dataObj, std::string &jsonString) override;
+    bool GetPolicy(MessageParcel &data, std::vector<std::string> &result) override;
+    bool WritePolicy(MessageParcel &reply, std::vector<std::string> &result) override;
+    bool MergePolicy(std::vector<std::vector<std::string>> &data, std::vector<std::string> &result) override;
     std::vector<std::string> SetUnionPolicyData(std::vector<std::string> &data, std::vector<std::string> &currentData);
     std::vector<std::string> SetDifferencePolicyData(std::vector<std::string> &data,
         std::vector<std::string> &currentData);

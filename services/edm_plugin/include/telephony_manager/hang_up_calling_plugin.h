@@ -16,15 +16,15 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_HANG_UP_CALLING_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_HANG_UP_CALLING_PLUGIN_H
 
-#include "plugin_singleton.h"
-#include "string_serializer.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class HangupCallingPlugin : public PluginSingleton<HangupCallingPlugin, std::string> {
+class HangupCallingPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<HangupCallingPlugin, std::string>> ptr) override;
-    ErrCode OnSetPolicy();
+    HangupCallingPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

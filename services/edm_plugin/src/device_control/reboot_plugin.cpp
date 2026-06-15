@@ -16,24 +16,25 @@
 #include "reboot_plugin.h"
 
 #include "edm_ipc_interface_code.h"
-#include "int_serializer.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(RebootPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<RebootPlugin>());
 
-void RebootPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<RebootPlugin, int32_t>> ptr)
+RebootPlugin::RebootPlugin()
 {
     EDMLOGI("RebootPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::REBOOT, PolicyName::POLICY_REBOOT, EdmPermission::PERMISSION_ENTERPRISE_REBOOT,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(IntSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&RebootPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::REBOOT;
+    policyName_ = PolicyName::POLICY_REBOOT;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_REBOOT,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode RebootPlugin::OnSetPolicy()
+ErrCode RebootPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
     auto& powerMgrClient = PowerMgr::PowerMgrClient::GetInstance();
     PowerMgr::PowerErrors ret = powerMgrClient.RebootDevice("edm_Reboot");

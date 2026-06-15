@@ -16,14 +16,15 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_FLOATING_NAVIGATION_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_FLOATING_NAVIGATION_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class SetFloatingNavigationPlugin : public PluginSingleton<SetFloatingNavigationPlugin, std::string> {
+class SetFloatingNavigationPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetFloatingNavigationPlugin, std::string>> ptr) override;
-    ErrCode OnSetPolicy(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId);
+    SetFloatingNavigationPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
     ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };
 } // namespace EDM

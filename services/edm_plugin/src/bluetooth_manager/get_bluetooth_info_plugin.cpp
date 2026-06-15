@@ -16,22 +16,24 @@
 #include "get_bluetooth_info_plugin.h"
 #include "iedm_bluetooth_manager.h"
 #include "parameters.h"
-#include "string_serializer.h"
 #include "iplugin_manager.h"
 
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetBluetoothInfoPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<GetBluetoothInfoPlugin>());
 
-void GetBluetoothInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetBluetoothInfoPlugin,
-    std::string>> ptr)
+GetBluetoothInfoPlugin::GetBluetoothInfoPlugin()
 {
     EDMLOGI("GetBluetoothInfoPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_BLUETOOTH_INFO, PolicyName::POLICY_GET_BLUETOOTH_INFO,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
+    policyCode_ = EdmInterfaceCode::GET_BLUETOOTH_INFO;
+    policyName_ = PolicyName::POLICY_GET_BLUETOOTH_INFO;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
 ErrCode GetBluetoothInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,

@@ -17,7 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_DEVICE_NAME_PLUGIN_H
 
 #include "external_manager_factory.h"
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 #ifdef WIFI_EDM_ENABLE
 #include "inner_api/wifi_hotspot.h"
@@ -26,10 +26,11 @@
 
 namespace OHOS {
 namespace EDM {
-class SetDeviceNamePlugin : public PluginSingleton<SetDeviceNamePlugin, std::string> {
+class SetDeviceNamePlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDeviceNamePlugin, std::string>> ptr) override;
-    ErrCode OnSetPolicy(std::string &data, std::string &currentData, std::string &mergeData, int32_t userId);
+    SetDeviceNamePlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
     ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 private:
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();

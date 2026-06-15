@@ -55,105 +55,105 @@ void SetValueForAccountPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnSetPolicy_001
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_001
+ * @tc.desc: Test OnHandlePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_001, TestSize.Level1)
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_001, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data = "test";
-    std::string currentData = "";
-    std::string mergeData = "";
-    int32_t id = 100;
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    MessageParcel data;
+    data.WriteString("test");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 100);
     EXPECT_EQ(code, ERR_OK);
 }
 
 /**
- * @tc.name: TestOnSetPolicy_002
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_002
+ * @tc.desc: Test OnHandlePolicy function with empty data.
  * @tc.type: FUNC
  */
-HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_002, TestSize.Level1)
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_002, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data;
-    std::string currentData = "";
-    std::string mergeData = "";
-    int32_t id = 100;
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    MessageParcel data;
+    data.WriteString("");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 100);
     EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
- * @tc.name: TestOnSetPolicy_003
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_003
+ * @tc.desc: Test OnHandlePolicy function with data exceeding max length.
  * @tc.type: FUNC
  */
-HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_003, TestSize.Level1)
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_003, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data =
-        "test1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
-    std::string currentData = "";
-    std::string mergeData = "";
-    int32_t id = 100;
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    MessageParcel data;
+    data.WriteString(
+        "test1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 100);
     EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
- * @tc.name: TestOnSetPolicy_InvalidUserId_FAIL
- * @tc.desc: Test OnSetPolicy function with invalid userId.
+ * @tc.name: TestOnHandlePolicy_InvalidUserId_FAIL
+ * @tc.desc: Test OnHandlePolicy function with invalid userId.
  * @tc.type: FUNC
  */
-HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_InvalidUserId_FAIL, TestSize.Level1)
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_InvalidUserId_FAIL, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data = "test";
-    std::string currentData;
-    std::string mergeData;
-    int32_t id = 101;
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    MessageParcel data;
+    data.WriteString("test");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 101);
     EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
- * @tc.name: TestOnSetPolicy_GetUserIdFail_FAIL
- * @tc.desc: Test OnSetPolicy function when get userId fail.
+ * @tc.name: TestOnHandlePolicy_GetUserIdFail_FAIL
+ * @tc.desc: Test OnHandlePolicy function when get userId fail.
  * @tc.type: FUNC
  */
-HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_GetUserIdFail_FAIL, TestSize.Level1)
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_GetUserIdFail_FAIL, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data = "test";
-    std::string currentData;
-    std::string mergeData;
-    int32_t id = 100;
+    MessageParcel data;
+    data.WriteString("test");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
     auto factory = std::make_shared<ExternalManagerFactoryMock>();
     auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
     plugin.externalManagerFactory_ = factory;
     EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
     EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(-1));
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 100);
     EXPECT_EQ(code, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**
- * @tc.name: TestOnSetPolicy_UpdateSettingsData_FAIL
- * @tc.desc: Test OnSetPolicy function when update settings data fail.
+ * @tc.name: TestOnHandlePolicy_UpdateSettingsData_FAIL
+ * @tc.desc: Test OnHandlePolicy function when update settings data fail.
  * @tc.type: FUNC
  */
-HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_UpdateSettingsData_FAIL, TestSize.Level1)
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_UpdateSettingsData_FAIL, TestSize.Level1)
 {
     SetDeviceNamePlugin plugin;
-    std::string data = "test";
-    std::string currentData;
-    std::string mergeData;
-    int32_t id = 100;
+    MessageParcel data;
+    data.WriteString("test");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
     EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
-    ErrCode code = plugin.OnSetPolicy(data, currentData, mergeData, id);
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 100);
     EXPECT_EQ(code, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
@@ -164,7 +164,7 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnSetPolicy_UpdateSettingsData_FAIL, 
  */
 HWTEST_F(SetValueForAccountPluginTest, TestOnGetPolicy_001, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SetDeviceNamePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SetDeviceNamePlugin>();
     std::string policyValue{"TestString"};
     MessageParcel data;
     MessageParcel reply;

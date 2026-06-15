@@ -16,15 +16,15 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_RESET_FACTORY_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_RESET_FACTORY_PLUGIN_H
 
-#include "plugin_singleton.h"
-#include "string_serializer.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class ResetFactoryPlugin : public PluginSingleton<ResetFactoryPlugin, std::string> {
+class ResetFactoryPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactoryPlugin, std::string>> ptr) override;
-    ErrCode OnSetPolicy();
+    ResetFactoryPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

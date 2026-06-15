@@ -22,18 +22,21 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(HangupCallingPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<HangupCallingPlugin>());
 
-void HangupCallingPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<HangupCallingPlugin, std::string>> ptr)
+HangupCallingPlugin::HangupCallingPlugin()
 {
-    EDMLOGI("HangupCallingPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::HANG_UP_CALLING, PolicyName::POLICY_HANG_UP_CALLING,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&HangupCallingPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::HANG_UP_CALLING;
+    policyName_ = PolicyName::POLICY_HANG_UP_CALLING;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode HangupCallingPlugin::OnSetPolicy()
+ErrCode HangupCallingPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
     auto callManagerClient = DelayedSingleton<Telephony::CallManagerClient>::GetInstance();
     callManagerClient->Init(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);

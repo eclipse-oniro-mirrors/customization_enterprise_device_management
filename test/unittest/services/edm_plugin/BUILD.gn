@@ -558,7 +558,6 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/restrictions/inactive_user_freeze_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_manager/install_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_manager/install_market_apps_plugin.cpp",
-    "../../../../services/edm_plugin/src/bundle_manager/installed_bundle_info_list_plugin.cpp",
     "../../../../services/edm_plugin/src/application_manager/kiosk_feature_plugin.cpp",
     "../../../../services/edm_plugin/src/browser/managed_browser_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/datetime_manager/ntp_server_plugin.cpp",

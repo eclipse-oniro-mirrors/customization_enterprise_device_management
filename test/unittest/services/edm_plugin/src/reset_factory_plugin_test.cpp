@@ -15,7 +15,6 @@
 
 #include "reset_factory_plugin_test.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -37,13 +36,13 @@ void DeviceControlPluginTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestRestFactory
- * @tc.desc: Test RestFactoryPlugin::OnSetPolicy function fail.
+ * @tc.desc: Test ResetFactoryPlugin::OnHandlePolicy function fail.
  * @tc.type: FUNC
  */
 HWTEST_F(DeviceControlPluginTest, TestRestFactory, TestSize.Level1)
 {
     Utils::ResetTokenTypeAndUid();
-    std::shared_ptr<IPlugin> plugin = ResetFactoryPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<ResetFactoryPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::RESET_FACTORY);
     HandlePolicyData handlePolicyData;
     MessageParcel data;

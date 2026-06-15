@@ -19,15 +19,14 @@
 #include "edm_ipc_interface_code.h"
 #include "ethernet_client.h"
 #include "interface_type.h"
-#include "string_serializer.h"
 #include "iplugin_manager.h"
 #include "network_address.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetIpOrMacAddressPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<GetIpOrMacAddressPlugin>());
 
-void GetIpOrMacAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpOrMacAddressPlugin, std::string>> ptr)
+GetIpOrMacAddressPlugin::GetIpOrMacAddressPlugin()
 {
     EDMLOGI("GetIpOrMacAddressPlugin InitPlugin...");
     std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
@@ -39,10 +38,10 @@ void GetIpOrMacAddressPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetIpOr
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag12);
-
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::GET_IP_ADDRESS, PolicyName::POLICY_GET_IP_OR_MAC_ADDRESS, config, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
+    policyCode_ = EdmInterfaceCode::GET_IP_ADDRESS;
+    policyName_ = PolicyName::POLICY_GET_IP_OR_MAC_ADDRESS;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
 ErrCode GetIpOrMacAddressPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,

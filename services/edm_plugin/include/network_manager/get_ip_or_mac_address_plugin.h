@@ -16,13 +16,13 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_IP_OR_MAC_ADDRESS_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_IP_OR_MAC_ADDRESS_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class GetIpOrMacAddressPlugin : public PluginSingleton<GetIpOrMacAddressPlugin, std::string> {
+class GetIpOrMacAddressPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetIpOrMacAddressPlugin, std::string>> ptr) override;
+    GetIpOrMacAddressPlugin();
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };

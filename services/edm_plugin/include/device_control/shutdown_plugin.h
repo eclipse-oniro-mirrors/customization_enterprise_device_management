@@ -16,17 +16,16 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SHUTDOWN_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SHUTDOWN_PLUGIN_H
 
-#include "plugin_singleton.h"
-#include "string_serializer.h"
-#include "iremote_stub.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class ShutdownPlugin : public PluginSingleton<ShutdownPlugin, int32_t> {
+class ShutdownPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<ShutdownPlugin, int32_t>> ptr) override;
+    ShutdownPlugin();
 
-    ErrCode OnSetPolicy();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

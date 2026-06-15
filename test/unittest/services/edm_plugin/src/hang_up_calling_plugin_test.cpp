@@ -16,7 +16,6 @@
 
 #include "hang_up_calling_plugin_test.h"
 #include "edm_ipc_interface_code.h"
-#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -38,13 +37,13 @@ void HangupCallingPluginTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestHangupCalling
- * @tc.desc: Test HangupCallingPlugin::OnSetPolicy function success.
+ * @tc.desc: Test HangupCallingPlugin::OnHandlePolicy function success.
  * @tc.type: FUNC
  */
 HWTEST_F(HangupCallingPluginTest, TestHangupCalling, TestSize.Level1)
 {
     Utils::ResetTokenTypeAndUid();
-    std::shared_ptr<IPlugin> plugin = HangupCallingPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<HangupCallingPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::HANG_UP_CALLING);
     HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;

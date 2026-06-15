@@ -16,7 +16,6 @@
 #include "device_info_plugin_test.h"
 
 #include "edm_data_ability_utils_mock.h"
-#include "plugin_singleton.h"
 #include "utils.h"
 
 using namespace testing;
@@ -151,7 +150,7 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithAccountIdsEmpty, TestSiz
  */
 HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceSerial, TestSize.Level1)
 {
-    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    plugin_ = std::make_shared<GetDeviceInfoPlugin>();
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
@@ -167,7 +166,7 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithDeviceSerial, TestSize.L
  */
 HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithSimInfo, TestSize.Level1)
 {
-    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    plugin_ = std::make_shared<GetDeviceInfoPlugin>();
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;
@@ -187,7 +186,7 @@ HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithSimInfo, TestSize.Level1
  */
 HWTEST_F(DeviceInfoPluginTest, TestGetDeviceInfoSyncWithInvalidLabel, TestSize.Level1)
 {
-    plugin_ = GetDeviceInfoPlugin::GetPlugin();
+    plugin_ = std::make_shared<GetDeviceInfoPlugin>();
     std::string policyData;
     MessageParcel data;
     MessageParcel reply;

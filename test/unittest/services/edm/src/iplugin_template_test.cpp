@@ -44,7 +44,7 @@ HWTEST_F(PluginTemplateTest, TestTemplate, TestSize.Level1)
     PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::BoolTestPlugin>());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::MapTestPlugin::GetPlugin());
     PluginManager::GetInstance()->AddPlugin(PLUGIN::JsonTestPlugin::GetPlugin());
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::StringTestPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::StringTestPlugin>());
 
     std::vector<std::uint32_t> policyCodes = {10, 11, 12, 14, 15};
     for (auto policyCode : policyCodes) {
@@ -128,7 +128,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyFunction, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
     HandlePolicyData handlePolicyData{"", "", false};
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyFunctionPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::HandlePolicyFunctionPlg>());
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -177,7 +177,7 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyBiFunction, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin;
     std::string setPolicyValue;
     HandlePolicyData handlePolicyData{"", "", false};
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyBiFunctionPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::HandlePolicyBiFunctionPlg>());
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -232,8 +232,8 @@ HWTEST_F(PluginTemplateTest, TestHandlePolicyDone, TestSize.Level1)
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
     std::string adminName;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandleDoneBoolConsumerPlg::GetPlugin());
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandleDoneBiBoolConsumerPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::HandleDoneBoolConsumerPlg>());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::HandleDoneBiBoolConsumerPlg>());
 
     for (int policyCode : policyCodes) {
         funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
@@ -265,8 +265,8 @@ HWTEST_F(PluginTemplateTest, TestAdminRemove, TestSize.Level1)
     std::string adminName;
     std::string policyValue;
     std::string mergeValue;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::AdminRemoveSupplierPlg::GetPlugin());
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::AdminRemoveBiFunctionPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::AdminRemoveSupplierPlg>());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::AdminRemoveBiFunctionPlg>());
 
     for (int policyCode : policyCodes) {
         funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
@@ -293,8 +293,8 @@ HWTEST_F(PluginTemplateTest, TestAdminRemoveDone, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin;
     std::string adminName;
     std::string policyValue;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::AdminRemoveDoneRunnerPlg::GetPlugin());
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::AdminRemoveDoneBiBiConsumerPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::AdminRemoveDoneRunnerPlg>());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::AdminRemoveDoneBiBiConsumerPlg>());
 
     for (int policyCode : policyCodes) {
         funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
@@ -334,7 +334,7 @@ HWTEST_F(PluginTemplateTest, TestOnGetPolicy, TestSize.Level1)
 HWTEST_F(PluginTemplateTest, TestHandlePolicyReplyFunctionPlg, TestSize.Level1)
 {
     int policyCode = 32;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::HandlePolicyReplyFunctionPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::HandlePolicyReplyFunctionPlg>());
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     std::shared_ptr<IPlugin> plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
     ASSERT_TRUE(plugin != nullptr);
@@ -373,7 +373,7 @@ HWTEST_F(PluginTemplateTest, TestOtherServiceStart, TestSize.Level1)
     int policyCode = 33;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::OtherServiceStartRunnerPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::OtherServiceStartRunnerPlg>());
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -393,7 +393,7 @@ HWTEST_F(PluginTemplateTest, TestOnHandlePolicyPrepare, TestSize.Level1)
     int policyCode = 33;
     uint32_t funcCode;
     std::shared_ptr<IPlugin> plugin;
-    PluginManager::GetInstance()->AddPlugin(PLUGIN::OtherServiceStartRunnerPlg::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PLUGIN::OtherServiceStartRunnerPlg>());
 
     funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, policyCode);
     plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);

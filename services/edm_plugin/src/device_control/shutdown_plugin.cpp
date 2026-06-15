@@ -15,24 +15,25 @@
 #include <shutdown_plugin.h>
 #include "power_mgr_client.h"
 #include "edm_ipc_interface_code.h"
-#include "int_serializer.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
 namespace EDM {
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ShutdownPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ShutdownPlugin>());
 
-void ShutdownPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ShutdownPlugin, int32_t>> ptr)
+ShutdownPlugin::ShutdownPlugin()
 {
     EDMLOGI("ShutdownPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::SHUTDOWN, PolicyName::POLICY_SHUTDOWN_DEVICE,
-        EdmPermission::PERMISSION_ENTERPRISE_REBOOT, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(IntSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&ShutdownPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::SHUTDOWN;
+    policyName_ = PolicyName::POLICY_SHUTDOWN_DEVICE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(EdmPermission::PERMISSION_ENTERPRISE_REBOOT,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode ShutdownPlugin::OnSetPolicy()
+ErrCode ShutdownPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
     auto& powerMgrClient = PowerMgr::PowerMgrClient::GetInstance();
     PowerMgr::PowerErrors ret = powerMgrClient.ShutDownDevice("edm_Shutdown");

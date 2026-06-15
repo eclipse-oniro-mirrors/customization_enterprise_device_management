@@ -21,51 +21,49 @@
 #include "input_method_controller.h"
 #include "iplugin_manager.h"
 #include "override_interface_name.h"
-#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDefaultInputMethodPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetDefaultInputMethodPlugin>());
 
-void SetDefaultInputMethodPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDefaultInputMethodPlugin,
-    std::string>> ptr)
+SetDefaultInputMethodPlugin::SetDefaultInputMethodPlugin()
 {
     EDMLOGD("SetDefaultInputMethodPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
-        IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD, PolicyName::POLICY_SET_DEFAULT_INPUT_METHOD,
-        config, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SetDefaultInputMethodPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD;
+    policyName_ = PolicyName::POLICY_SET_DEFAULT_INPUT_METHOD;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode SetDefaultInputMethodPlugin::OnSetPolicy(std::string &data)
+ErrCode SetDefaultInputMethodPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGD("SetDefaultInputMethodPlugin OnSetPolicy data %{public}s.", data.c_str());
+    std::string handleData = data.ReadString();
+    EDMLOGD("SetDefaultInputMethodPlugin OnHandlePolicy data %{public}s.", handleData.c_str());
     auto imeController = MiscServices::InputMethodController::GetInstance();
     std::vector<MiscServices::Property> properties;
     imeController->ListInputMethod(properties);
-    auto item = std::find_if(properties.begin(), properties.end(), [data] (MiscServices::Property property) {
-        return property.name == data;
+    auto item = std::find_if(properties.begin(), properties.end(), [handleData] (MiscServices::Property property) {
+        return property.name == handleData;
     });
     if (item == properties.end()) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    int32_t ret = imeController->EnableIme(data);
+    int32_t ret = imeController->EnableIme(handleData);
     if (ret != ERR_OK) {
         EDMLOGE("SetDefaultInputMethodPlugin enable ime failed : %{public}d.", ret);
     }
-    ret = imeController->SwitchInputMethod(MiscServices::SwitchTrigger::NATIVE_SA, data);
+    ret = imeController->SwitchInputMethod(MiscServices::SwitchTrigger::NATIVE_SA, handleData);
     if (ret != ERR_OK) {
         EDMLOGE("SetDefaultInputMethodPlugin set default input failed : %{public}d.", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     std::string params = EdmJsonBuilder()
         .Add("item", "defaultInputMethod")
-        .Add("value", data)
+        .Add("value", handleData)
         .Build();
     IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(OverrideInterfaceName::DeviceSettings::SET_VALUE,
         params);
