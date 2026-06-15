@@ -389,7 +389,7 @@ int32_t NetworkManagerProxy::ForceTurnOnMobileData(const AppExecFwk::ElementName
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(EdmConstants::PERMISSION_TAG_VERSION_11);
     data.WriteString(EdmConstants::MobileData::FORCE_FLAG);
     data.WriteInt32(EdmConstants::MobileData::FORCE_OPEN);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,

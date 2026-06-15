@@ -82,8 +82,6 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER,
-        EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = {
@@ -92,6 +90,9 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemQueryCodeMap = 
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SET_DEVICE_NAME,
         EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_ETHERNET_IP, EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
+};
+
+std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeForAccountMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_MODIFY_WALLPAPER,
         EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER},
 };
@@ -122,12 +123,56 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
+    {static_cast<int32_t>(RestrictionsFeature::SUDO), EdmInterfaceCode::DISALLOWED_DEVICE_SUDO},
     {static_cast<int32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION), EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION},
     {static_cast<int32_t>(RestrictionsFeature::CORE_DUMP), EdmInterfaceCode::DISALLOW_CORE_DUMP},
     {static_cast<int32_t>(RestrictionsFeature::SECURE_ERASE),
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SECURE_ERASE},
-    {static_cast<int32_t>(RestrictionsFeature::SUDO), EdmInterfaceCode::DISALLOWED_DEVICE_SUDO},
     {static_cast<int32_t>(RestrictionsFeature::RS232), EdmInterfaceCode::DISALLOW_RS232},
+    {static_cast<int32_t>(RestrictionsFeature::BLUETOOTH), EdmInterfaceCode::DISABLE_BLUETOOTH},
+    {static_cast<int32_t>(RestrictionsFeature::MODIFY_DATETIME), EdmInterfaceCode::DISALLOW_MODIFY_DATETIME},
+    {static_cast<int32_t>(RestrictionsFeature::PRINTER), EdmInterfaceCode::DISABLED_PRINTER},
+    {static_cast<int32_t>(RestrictionsFeature::HDC), EdmInterfaceCode::DISABLED_HDC},
+    {static_cast<int32_t>(RestrictionsFeature::MICROPHONE), EdmInterfaceCode::DISABLE_MICROPHONE},
+    {static_cast<int32_t>(RestrictionsFeature::FINGERPRINT), EdmInterfaceCode::FINGERPRINT_AUTH},
+    {static_cast<int32_t>(RestrictionsFeature::USB), EdmInterfaceCode::DISABLE_USB},
+    {static_cast<int32_t>(RestrictionsFeature::WIFI), EdmInterfaceCode::DISABLE_WIFI},
+    {static_cast<int32_t>(RestrictionsFeature::TETHERING), EdmInterfaceCode::DISALLOWED_TETHERING},
+    {static_cast<int32_t>(RestrictionsFeature::INACTIVE_USER_FREEZE), EdmInterfaceCode::INACTIVE_USER_FREEZE},
+    {static_cast<int32_t>(RestrictionsFeature::CAMERA), EdmInterfaceCode::DISABLE_CAMERA},
+    {static_cast<int32_t>(RestrictionsFeature::MTP_CLIENT), EdmInterfaceCode::DISABLE_MTP_CLIENT},
+    {static_cast<int32_t>(RestrictionsFeature::MTP_SERVER), EdmInterfaceCode::DISABLE_MTP_SERVER},
+    {static_cast<int32_t>(RestrictionsFeature::SAMBA_CLIENT), EdmInterfaceCode::DISABLE_SAMBA_CLIENT},
+    {static_cast<int32_t>(RestrictionsFeature::SAMBA_SERVER), EdmInterfaceCode::DISABLE_SAMBA_SERVER},
+    {static_cast<int32_t>(RestrictionsFeature::BACKUP_AND_RESTORE), EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE},
+    {static_cast<int32_t>(RestrictionsFeature::MAINTENANCE_MODE), EdmInterfaceCode::DISABLE_MAINTENANCE_MODE},
+    {static_cast<int32_t>(RestrictionsFeature::MMS), EdmInterfaceCode::DISALLOWED_MMS},
+    {static_cast<int32_t>(RestrictionsFeature::SMS), EdmInterfaceCode::DISALLOWED_SMS},
+    {static_cast<int32_t>(RestrictionsFeature::MOBILE_DATA), EdmInterfaceCode::DISALLOWED_MOBILE_DATA},
+    {static_cast<int32_t>(RestrictionsFeature::AIRPLANE_MODE), EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE},
+    {static_cast<int32_t>(RestrictionsFeature::VPN), EdmInterfaceCode::DISALLOW_VPN},
+    {static_cast<int32_t>(RestrictionsFeature::NOTIFICATION), EdmInterfaceCode::DISALLOWED_NOTIFICATION},
+    {static_cast<int32_t>(RestrictionsFeature::NFC), EdmInterfaceCode::POLICY_CODE_END + 24},
+    {static_cast<int32_t>(RestrictionsFeature::PRIVATE_SPACE), EdmInterfaceCode::DISABLE_PRIVATE_SPACE},
+    {static_cast<int32_t>(RestrictionsFeature::TELEPHONY_CALL), EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL},
+    {static_cast<int32_t>(RestrictionsFeature::APP_CLONE), EdmInterfaceCode::DISABLED_APP_CLONE},
+    {static_cast<int32_t>(RestrictionsFeature::EXTERNAL_STORAGE_CARD),
+        EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD},
+    {static_cast<int32_t>(RestrictionsFeature::RANDOM_MAC), EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS},
+    {static_cast<int32_t>(RestrictionsFeature::UNMUTE_DEVICE), EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE},
+    {static_cast<int32_t>(RestrictionsFeature::HDC_REMOTE), EdmInterfaceCode::DISABLED_HDC_REMOTE},
+    {static_cast<int32_t>(RestrictionsFeature::VIRTUAL_SERVICE), EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE},
+    {static_cast<int32_t>(RestrictionsFeature::USB_SERIAL), EdmInterfaceCode::DISALLOW_USB_SERIAL},
+    {static_cast<int32_t>(RestrictionsFeature::SCREENSHOT), EdmInterfaceCode::POLICY_CODE_END + 11},
+    {static_cast<int32_t>(RestrictionsFeature::SCREEN_RECORD), EdmInterfaceCode::POLICY_CODE_END + 12},
+    {static_cast<int32_t>(RestrictionsFeature::DISK_RECOVERY_KEY), EdmInterfaceCode::POLICY_CODE_END + 17},
+    {static_cast<int32_t>(RestrictionsFeature::NEAR_LINK), EdmInterfaceCode::POLICY_CODE_END + 18},
+    {static_cast<int32_t>(RestrictionsFeature::DEVELOPER_MODE), EdmInterfaceCode::POLICY_CODE_END + 20},
+    {static_cast<int32_t>(RestrictionsFeature::RESET_FACTORY), EdmInterfaceCode::POLICY_CODE_END + 21},
+    {static_cast<int32_t>(RestrictionsFeature::REMOTE_DESK), EdmInterfaceCode::POLICY_CODE_END + 25},
+    {static_cast<int32_t>(RestrictionsFeature::REMOTE_DIAGNOSIS), EdmInterfaceCode::POLICY_CODE_END + 26},
+    {static_cast<int32_t>(RestrictionsFeature::OTA_UPDATE),
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -137,16 +182,46 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::SUPER_HUB),
         POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPERHUB},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::FINGERPRINT), EdmInterfaceCode::FINGERPRINT_AUTH},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::PRINT), EdmInterfaceCode::DISABLED_PRINT},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::MTP_CLIENT), EdmInterfaceCode::DISABLE_USER_MTP_CLIENT},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::USB_STORAGE_DEVICE_WRITE),
+        EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::DISK_RECOVERY_KEY),
+        EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::SUDO), EdmInterfaceCode::DISALLOWED_SUDO},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING),
+        EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST), EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
+};
+
+std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForDeviceEnum2CodeMap = {
+    {static_cast<int32_t>(UserRestrictionForDevice::SET_APN), EdmInterfaceCode::DISALLOW_MODIFY_APN},
+    {static_cast<int32_t>(UserRestrictionForDevice::POWER_LONG_PRESS), EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS},
+    {static_cast<int32_t>(UserRestrictionForDevice::SET_ETHERNET_IP), EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP},
+    {static_cast<int32_t>(UserRestrictionForDevice::SET_DEVICE_NAME), EdmInterfaceCode::DISABLE_SET_DEVICE_NAME},
+    {static_cast<int32_t>(UserRestrictionForDevice::SET_BIOMETRICS_AND_SCREENLOCK),
+        EdmInterfaceCode::DISABLE_SET_BIOMETRICS_AND_SCREENLOCK},
+};
+
+std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForAccountEnum2CodeMap = {
+    {static_cast<int32_t>(UserRestrictionForAccount::MODIFY_WALLPAPER), EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER},
 };
 
 napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nFeatureForDevice = nullptr;
     napi_value nFeatureForAccount = nullptr;
+    napi_value nSettingsForDevice = nullptr;
+    napi_value nSettingsForAccount = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nFeatureForDevice));
     NAPI_CALL(env, napi_create_object(env, &nFeatureForAccount));
+    NAPI_CALL(env, napi_create_object(env, &nSettingsForDevice));
+    NAPI_CALL(env, napi_create_object(env, &nSettingsForAccount));
     CreateFeatureForDeviceObject(env, nFeatureForDevice);
     CreateFeatureForAccountObject(env, nFeatureForAccount);
+    CreateUserRestrictionForDeviceObject(env, nSettingsForDevice);
+    CreateUserRestrictionForAccountObject(env, nSettingsForAccount);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setPrinterDisabled", SetPrinterDisabled),
         DECLARE_NAPI_FUNCTION("isPrinterDisabled", IsPrinterDisabled),
@@ -169,6 +244,8 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserRestrictedForAccount", GetUserRestrictedForAccount),
         DECLARE_NAPI_PROPERTY("FeatureForDevice", nFeatureForDevice),
         DECLARE_NAPI_PROPERTY("FeatureForAccount", nFeatureForAccount),
+        DECLARE_NAPI_PROPERTY("SettingsForDevice", nSettingsForDevice),
+        DECLARE_NAPI_PROPERTY("SettingsForAccount", nSettingsForAccount),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -213,6 +290,60 @@ void RestrictionsAddon::NativeSetPolicyDisabled(napi_env env, void *data)
     AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
     asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicy(
         asyncCallbackInfo->data, asyncCallbackInfo->policyCode);
+}
+
+OHOS::ErrCode RestrictionsAddon::NativeSetDisallowedPolicy(const AppExecFwk::ElementName &elementName,
+    bool disallow, std::uint32_t ipcCode, ErrcodeType errcodeType)
+{
+    EDMLOGI("NativeSetDisallowedPolicy called");
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    
+    if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+        return proxy->SetFingerprintAuthDisabled(elementName, disallow);
+    }
+    
+    std::string permissionTag;
+    if (ipcCode == EdmInterfaceCode::DISALLOWED_MOBILE_DATA ||
+        ipcCode == EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE) {
+        permissionTag = (errcodeType == ErrcodeType::STRING) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
+            EdmConstants::PERMISSION_TAG_VERSION_26;
+    } else if (std::find(multiPermCodes.begin(), multiPermCodes.end(), ipcCode) != multiPermCodes.end()) {
+        permissionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
+    } else {
+        permissionTag = WITHOUT_PERMISSION_TAG;
+    }
+    return proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
+}
+
+OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicy(AppExecFwk::ElementName *elementName,
+    std::uint32_t ipcCode, bool &disallow, ErrcodeType errcodeType)
+{
+    EDMLOGI("NativeGetDisallowedPolicy called");
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get RestrictionsProxy");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    
+    if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+        return proxy->IsFingerprintAuthDisabled(elementName, disallow);
+    }
+    
+    std::string permissionTag;
+    if (ipcCode == EdmInterfaceCode::DISALLOWED_MOBILE_DATA ||
+        ipcCode == EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE) {
+        permissionTag = (errcodeType == ErrcodeType::STRING) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
+            EdmConstants::PERMISSION_TAG_VERSION_26;
+    } else if (std::find(multiPermCodes.begin(), multiPermCodes.end(), ipcCode) != multiPermCodes.end()) {
+        permissionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
+    } else {
+        permissionTag = WITHOUT_PERMISSION_TAG;
+    }
+    return proxy->GetDisallowedPolicy(elementName, ipcCode, disallow, permissionTag);
 }
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)
@@ -450,19 +581,7 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     bool disallow = false;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
 
-    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
-        return nullptr;
-    }
-    if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
-        ret = proxy->SetFingerprintAuthDisabled(elementName, disallow);
-    } else {
-        std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-            ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
-        ret = proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
-    }
+    ret = NativeSetDisallowedPolicy(elementName, disallow, ipcCode, errcodeType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, errcodeType));
     }
@@ -528,20 +647,7 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     }
 
     bool disallow = false;
-    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
-        return nullptr;
-    }
-    if (feature == EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_FINGER_PRINT) {
-        ret = proxy->IsFingerprintAuthDisabled(hasAdmin ? &elementName : nullptr, disallow);
-    } else {
-        std::string permissionTag = (std::find(multiPermCodes.begin(), multiPermCodes.end(),
-            ipcCode) == multiPermCodes.end()) ? WITHOUT_PERMISSION_TAG : EdmConstants::PERMISSION_TAG_VERSION_12;
-        ret = proxy->GetDisallowedPolicy(hasAdmin ? &elementName : nullptr, ipcCode, disallow, permissionTag);
-    }
-
+    ret = NativeGetDisallowedPolicy(hasAdmin ? &elementName : nullptr, ipcCode, disallow, errcodeType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
@@ -583,7 +689,6 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     int32_t accountId = -1;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_THREE]),
         "parameter accountId parse error");
-
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
@@ -787,8 +892,6 @@ napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
-        "parameter settingsItem error");
     ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
         "parameter disallow error");
     OHOS::AppExecFwk::ElementName elementName;
@@ -796,28 +899,27 @@ napi_value RestrictionsAddon::SetUserRestriction(napi_env env, napi_callback_inf
         "element name param error");
     EDMLOGD("SetUserRestriction: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
         elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
-    std::string settingsItem;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
-        "parameter settingsItem parse error");
+    std::uint32_t ipcCode = 0;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndSettingsItem(env, argv[ARR_INDEX_ONE],
+        ipcCode, errcodeType, SettingsItemMode::SET_DEVICE);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, errcodeType));
+        return nullptr;
+    }
     bool disallow = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]),
+        "parameter disallow parse error");
 
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
-    ErrCode ret = ERR_OK;
-    auto itemCode = itemCodeMap.find(settingsItem);
-    if (itemCode == itemCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = itemCode->second;
     ret = proxy->SetUserRestriction(elementName, disallow, ipcCode);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, errcodeType));
     }
     return nullptr;
 }
@@ -835,11 +937,14 @@ napi_value RestrictionsAddon::GetUserRestricted(napi_env env, napi_callback_info
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_string),
-        "parameter settingsItem error");
-    std::string settingsItem;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
-        "parameter settingsItem parse error");
+    std::uint32_t ipcCode = 0;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndSettingsItem(env, argv[ARR_INDEX_ONE],
+        ipcCode, errcodeType, SettingsItemMode::QUERY_DEVICE);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, errcodeType));
+        return nullptr;
+    }
     if (hasAdmin) {
         EDMLOGD("GetUserRestricted: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
             elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
@@ -850,21 +955,14 @@ napi_value RestrictionsAddon::GetUserRestricted(napi_env env, napi_callback_info
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
-
-    auto itemCode = itemQueryCodeMap.find(settingsItem);
-    if (itemCode == itemQueryCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = itemCode->second;
 
     bool restricted = false;
-    ErrCode ret = proxy->GetUserRestricted(hasAdmin ? &elementName : nullptr, ipcCode, restricted);
+    ret = proxy->GetUserRestricted(hasAdmin ? &elementName : nullptr, ipcCode, restricted);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     napi_value result = nullptr;
@@ -874,7 +972,7 @@ napi_value RestrictionsAddon::GetUserRestricted(napi_env env, napi_callback_info
 
 napi_value RestrictionsAddon::SetUserRestrictionForAccount(napi_env env, napi_callback_info info)
 {
-    EDMLOGD("NAPI_SetUserRestrictionForAccont called");
+    EDMLOGD("NAPI_SetUserRestrictionForAccount called");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -884,9 +982,14 @@ napi_value RestrictionsAddon::SetUserRestrictionForAccount(napi_env env, napi_ca
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
-    std::string settingsItem;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
-        "parameter settingsItem parse error");
+    std::uint32_t ipcCode = 0;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndSettingsItem(env, argv[ARR_INDEX_ONE],
+        ipcCode, errcodeType, SettingsItemMode::SET_ACCOUNT);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, errcodeType));
+        return nullptr;
+    }
     int32_t accountId = 0;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
         "parameter accountId parse error");
@@ -896,19 +999,12 @@ napi_value RestrictionsAddon::SetUserRestrictionForAccount(napi_env env, napi_ca
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
-    ErrCode ret = ERR_OK;
-    auto itemCode = itemCodeMap.find(settingsItem);
-    if (itemCode == itemCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = itemCode->second;
     ret = proxy->SetUserRestrictionForAccount(elementName, accountId, disallow, ipcCode);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, errcodeType));
     }
     return nullptr;
 }
@@ -926,35 +1022,34 @@ napi_value RestrictionsAddon::GetUserRestrictedForAccount(napi_env env, napi_cal
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
         "param admin need be null or want");
-    std::string settingsItem;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, settingsItem, argv[ARR_INDEX_ONE]),
-        "parameter settingsItem parse error");
+    std::uint32_t ipcCode = 0;
+    ErrcodeType errcodeType = ErrcodeType::STRING;
+    auto ret = GetInterfaceCodeAndSettingsItem(env, argv[ARR_INDEX_ONE],
+        ipcCode, errcodeType, SettingsItemMode::QUERY_ACCOUNT);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, errcodeType));
+        return nullptr;
+    }
     int32_t accountId = 0;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
         "parameter accountId parse error");
     if (hasAdmin) {
-        EDMLOGD("GetUserRestricted: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        EDMLOGD("GetUserRestrictedForAccount: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
             elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     } else {
-        EDMLOGD("GetUserRestricted: elementName is null");
+        EDMLOGD("GetUserRestrictedForAccount: elementName is null");
     }
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
-    auto itemCode = itemQueryCodeMap.find(settingsItem);
-    if (itemCode == itemQueryCodeMap.end()) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
-        return nullptr;
-    }
-    std::uint32_t ipcCode = itemCode->second;
     bool restricted = false;
-    ErrCode ret = proxy->GetUserRestrictedForAccount(hasAdmin ? &elementName : nullptr,
+    ret = proxy->GetUserRestrictedForAccount(hasAdmin ? &elementName : nullptr,
         accountId, ipcCode, restricted);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
     napi_value result = nullptr;
@@ -962,53 +1057,178 @@ napi_value RestrictionsAddon::GetUserRestrictedForAccount(napi_env env, napi_cal
     return result;
 }
 
+void RestrictionsAddon::SetEnumProperty(napi_env env, napi_value obj, const char *name, uint32_t value)
+{
+    napi_value nVal;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, value, &nVal));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, obj, name, nVal));
+}
+
 void RestrictionsAddon::CreateFeatureForDeviceObject(napi_env env, napi_value value)
 {
-    napi_value nWifiP2P;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P), &nWifiP2P));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WIFI_P2P", nWifiP2P));
-    napi_value nDeviceSudo;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::SUDO), &nDeviceSudo));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUDO", nDeviceSudo));
-    napi_value nLocalInput;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::LOCAL_INPUT), &nLocalInput));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LOCAL_INPUT", nLocalInput));
-    napi_value nTrafficRedirection;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION), &nTrafficRedirection));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TRAFFIC_REDIRECTION", nTrafficRedirection));
-    napi_value nCoreDump;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::CORE_DUMP), &nCoreDump));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "CORE_DUMP", nCoreDump));
-    napi_value nSecureErase;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::SECURE_ERASE), &nSecureErase));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISK_ERASURE", nSecureErase));
-    napi_value nRs232;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeature::RS232), &nRs232));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RS232", nRs232));
+    CreateFeatureForDevicePart1(env, value);
+    CreateFeatureForDevicePart2(env, value);
+}
+
+void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value value)
+{
+    struct EnumEntry { const char *name; uint32_t val; };
+    EnumEntry entries[] = {
+        {"WIFI_P2P", static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P)},
+        {"SUDO", static_cast<uint32_t>(RestrictionsFeature::SUDO)},
+        {"LOCAL_INPUT", static_cast<uint32_t>(RestrictionsFeature::LOCAL_INPUT)},
+        {"TRAFFIC_REDIRECTION", static_cast<uint32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION)},
+        {"CORE_DUMP", static_cast<uint32_t>(RestrictionsFeature::CORE_DUMP)},
+        {"DISK_ERASURE", static_cast<uint32_t>(RestrictionsFeature::SECURE_ERASE)},
+        {"RS232", static_cast<uint32_t>(RestrictionsFeature::RS232)},
+        {"BLUETOOTH", static_cast<uint32_t>(RestrictionsFeature::BLUETOOTH)},
+        {"MODIFY_DATETIME", static_cast<uint32_t>(RestrictionsFeature::MODIFY_DATETIME)},
+        {"PRINTER", static_cast<uint32_t>(RestrictionsFeature::PRINTER)},
+        {"HDC", static_cast<uint32_t>(RestrictionsFeature::HDC)},
+        {"MICROPHONE", static_cast<uint32_t>(RestrictionsFeature::MICROPHONE)},
+        {"FINGERPRINT", static_cast<uint32_t>(RestrictionsFeature::FINGERPRINT)},
+        {"USB", static_cast<uint32_t>(RestrictionsFeature::USB)},
+        {"WIFI", static_cast<uint32_t>(RestrictionsFeature::WIFI)},
+        {"MTP_CLIENT", static_cast<uint32_t>(RestrictionsFeature::MTP_CLIENT)},
+        {"MTP_SERVER", static_cast<uint32_t>(RestrictionsFeature::MTP_SERVER)},
+        {"SAMBA_CLIENT", static_cast<uint32_t>(RestrictionsFeature::SAMBA_CLIENT)},
+        {"SAMBA_SERVER", static_cast<uint32_t>(RestrictionsFeature::SAMBA_SERVER)},
+        {"MAINTENANCE_MODE", static_cast<uint32_t>(RestrictionsFeature::MAINTENANCE_MODE)},
+        {"REMOTE_DESK", static_cast<uint32_t>(RestrictionsFeature::REMOTE_DESK)},
+        {"REMOTE_DIAGNOSIS", static_cast<uint32_t>(RestrictionsFeature::REMOTE_DIAGNOSIS)},
+        {"SCREENSHOT", static_cast<uint32_t>(RestrictionsFeature::SCREENSHOT)},
+        {"SCREEN_RECORD", static_cast<uint32_t>(RestrictionsFeature::SCREEN_RECORD)},
+    };
+    for (auto &e : entries) {
+        SetEnumProperty(env, value, e.name, e.val);
+    }
+}
+
+void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value value)
+{
+    struct EnumEntry { const char *name; uint32_t val; };
+    EnumEntry entries[] = {
+        {"DISK_RECOVERY_KEY", static_cast<uint32_t>(RestrictionsFeature::DISK_RECOVERY_KEY)},
+        {"NEAR_LINK", static_cast<uint32_t>(RestrictionsFeature::NEAR_LINK)},
+        {"TETHERING", static_cast<uint32_t>(RestrictionsFeature::TETHERING)},
+        {"INACTIVE_USER_FREEZE", static_cast<uint32_t>(RestrictionsFeature::INACTIVE_USER_FREEZE)},
+        {"CAMERA", static_cast<uint32_t>(RestrictionsFeature::CAMERA)},
+        {"DEVELOPER_MODE", static_cast<uint32_t>(RestrictionsFeature::DEVELOPER_MODE)},
+        {"RESET_FACTORY", static_cast<uint32_t>(RestrictionsFeature::RESET_FACTORY)},
+        {"NFC", static_cast<uint32_t>(RestrictionsFeature::NFC)},
+        {"SMS", static_cast<uint32_t>(RestrictionsFeature::SMS)},
+        {"MMS", static_cast<uint32_t>(RestrictionsFeature::MMS)},
+        {"BACKUP_AND_RESTORE", static_cast<uint32_t>(RestrictionsFeature::BACKUP_AND_RESTORE)},
+        {"MOBILE_DATA", static_cast<uint32_t>(RestrictionsFeature::MOBILE_DATA)},
+        {"AIRPLANE_MODE", static_cast<uint32_t>(RestrictionsFeature::AIRPLANE_MODE)},
+        {"NOTIFICATION", static_cast<uint32_t>(RestrictionsFeature::NOTIFICATION)},
+        {"APP_CLONE", static_cast<uint32_t>(RestrictionsFeature::APP_CLONE)},
+        {"TELEPHONY_CALL", static_cast<uint32_t>(RestrictionsFeature::TELEPHONY_CALL)},
+        {"VPN", static_cast<uint32_t>(RestrictionsFeature::VPN)},
+        {"OTA_UPDATE", static_cast<uint32_t>(RestrictionsFeature::OTA_UPDATE)},
+        {"RANDOM_MAC", static_cast<uint32_t>(RestrictionsFeature::RANDOM_MAC)},
+        {"EXTERNAL_STORAGE_CARD", static_cast<uint32_t>(RestrictionsFeature::EXTERNAL_STORAGE_CARD)},
+        {"PRIVATE_SPACE", static_cast<uint32_t>(RestrictionsFeature::PRIVATE_SPACE)},
+        {"HDC_REMOTE", static_cast<uint32_t>(RestrictionsFeature::HDC_REMOTE)},
+        {"UNMUTE_DEVICE", static_cast<uint32_t>(RestrictionsFeature::UNMUTE_DEVICE)},
+        {"VIRTUAL_SERVICE", static_cast<uint32_t>(RestrictionsFeature::VIRTUAL_SERVICE)},
+        {"USB_SERIAL", static_cast<uint32_t>(RestrictionsFeature::USB_SERIAL)},
+    };
+    for (auto &e : entries) {
+        SetEnumProperty(env, value, e.name, e.val);
+    }
 }
 
 void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value value)
 {
-    napi_value nMultiWindow;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeatureForAccount::MULTI_WINDOW), &nMultiWindow));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MULTI_WINDOW", nMultiWindow));
-    napi_value nDistributedTransmission;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION), &nDistributedTransmission));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISTRIBUTED_TRANSMISSION",
-        nDistributedTransmission));
-    napi_value nSuperHub;
-    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
-        static_cast<uint32_t>(RestrictionsFeatureForAccount::SUPER_HUB), &nSuperHub));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUPER_HUB", nSuperHub));
+    struct EnumEntry { const char *name; uint32_t val; };
+    EnumEntry entries[] = {
+        {"MULTI_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::MULTI_WINDOW)},
+        {"DISTRIBUTED_TRANSMISSION", static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION)},
+        {"SUPER_HUB", static_cast<uint32_t>(RestrictionsFeatureForAccount::SUPER_HUB)},
+        {"FINGERPRINT", static_cast<uint32_t>(RestrictionsFeatureForAccount::FINGERPRINT)},
+        {"PRINT", static_cast<uint32_t>(RestrictionsFeatureForAccount::PRINT)},
+        {"MTP_CLIENT", static_cast<uint32_t>(RestrictionsFeatureForAccount::MTP_CLIENT)},
+        {"USB_STORAGE_DEVICE_WRITE", static_cast<uint32_t>(RestrictionsFeatureForAccount::USB_STORAGE_DEVICE_WRITE)},
+        {"DISK_RECOVERY_KEY", static_cast<uint32_t>(RestrictionsFeatureForAccount::DISK_RECOVERY_KEY)},
+        {"SUDO", static_cast<uint32_t>(RestrictionsFeatureForAccount::SUDO)},
+        {"DISTRIBUTED_TRANSMISSION_OUTGOING",
+            static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING)},
+        {"OPEN_FILE_BOOST", static_cast<uint32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST)},
+    };
+    for (auto &e : entries) {
+        SetEnumProperty(env, value, e.name, e.val);
+    }
+}
+
+void RestrictionsAddon::CreateUserRestrictionForDeviceObject(napi_env env, napi_value value)
+{
+    struct EnumEntry { const char *name; uint32_t val; };
+    EnumEntry entries[] = {
+        {"SET_APN", static_cast<uint32_t>(UserRestrictionForDevice::SET_APN)},
+        {"POWER_LONG_PRESS", static_cast<uint32_t>(UserRestrictionForDevice::POWER_LONG_PRESS)},
+        {"SET_ETHERNET_IP", static_cast<uint32_t>(UserRestrictionForDevice::SET_ETHERNET_IP)},
+        {"SET_DEVICE_NAME", static_cast<uint32_t>(UserRestrictionForDevice::SET_DEVICE_NAME)},
+        {"SET_BIOMETRICS_AND_SCREENLOCK",
+            static_cast<uint32_t>(UserRestrictionForDevice::SET_BIOMETRICS_AND_SCREENLOCK)},
+    };
+    for (auto &e : entries) {
+        SetEnumProperty(env, value, e.name, e.val);
+    }
+}
+
+void RestrictionsAddon::CreateUserRestrictionForAccountObject(napi_env env, napi_value value)
+{
+    struct EnumEntry { const char *name; uint32_t val; };
+    EnumEntry entries[] = {
+        {"MODIFY_WALLPAPER", static_cast<uint32_t>(UserRestrictionForAccount::MODIFY_WALLPAPER)},
+    };
+    for (auto &e : entries) {
+        SetEnumProperty(env, value, e.name, e.val);
+    }
+}
+
+OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndSettingsItem(napi_env env, napi_value value,
+    uint32_t &ipcCode, ErrcodeType &errcodeType, SettingsItemMode mode)
+{
+    if (MatchValueType(env, value, napi_string)) {
+        errcodeType = ErrcodeType::STRING;
+        std::string settingsItem;
+        if (!ParseString(env, settingsItem, value)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        std::unordered_map<std::string, uint32_t> codeMap;
+        if (mode == SettingsItemMode::SET_DEVICE) {
+            codeMap = itemCodeMap;
+        } else if (mode == SettingsItemMode::QUERY_DEVICE) {
+            codeMap = itemQueryCodeMap;
+        } else {
+            codeMap = itemCodeForAccountMap;
+        }
+        auto itemCode = codeMap.find(settingsItem);
+        if (itemCode == codeMap.end()) {
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+        ipcCode = itemCode->second;
+    } else if (MatchValueType(env, value, napi_number)) {
+        errcodeType = ErrcodeType::NUMBER;
+        int32_t featureNumber = -1;
+        if (!ParseInt(env, featureNumber, value)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        bool isAccount = (mode == SettingsItemMode::SET_ACCOUNT || mode == SettingsItemMode::QUERY_ACCOUNT);
+        auto &enumMap = isAccount ? userRestrictionForAccountEnum2CodeMap
+            : userRestrictionForDeviceEnum2CodeMap;
+        auto it = enumMap.find(featureNumber);
+        if (it == enumMap.end()) {
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+        ipcCode = it->second;
+    } else {
+        errcodeType = ErrcodeType::STRING;
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    return ERR_OK;
 }
 
 static napi_module g_restrictionsModule = {

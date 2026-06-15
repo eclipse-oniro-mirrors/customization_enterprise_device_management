@@ -35,9 +35,16 @@ DisallowMobileDataPlugin::DisallowMobileDataPlugin()
 {
     policyCode_ = EdmInterfaceCode::DISALLOWED_MOBILE_DATA;
     policyName_ = PolicyName::POLICY_DISALLOW_MOBILE_DATA;
-    permissionConfig_.typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+    std::map<std::string, std::map<IPlugin::PermissionType, std::string>> tagPermissions;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag11;
+    std::map<IPlugin::PermissionType, std::string> typePermissionsForTag26;
+    typePermissionsForTag11.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK);
-    permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+    typePermissionsForTag26.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_26, typePermissionsForTag26);
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     needSave_ = true;
 }
 
