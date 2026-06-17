@@ -31,6 +31,13 @@ struct AsyncRestrictionsCallbackInfo : AsyncCallbackInfo {
     bool hasAdmin = false;
 };
 
+enum class SettingsItemMode {
+    SET_DEVICE,
+    QUERY_DEVICE,
+    SET_ACCOUNT,
+    QUERY_ACCOUNT,
+};
+
 class RestrictionsAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -62,6 +69,10 @@ private:
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
     static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);
+    static OHOS::ErrCode NativeSetDisallowedPolicy(const AppExecFwk::ElementName &elementName,
+        bool disallow, std::uint32_t ipcCode, ErrcodeType errcodeType);
+    static OHOS::ErrCode NativeGetDisallowedPolicy(AppExecFwk::ElementName *elementName,
+        std::uint32_t ipcCode, bool &disallow, ErrcodeType errcodeType);
     static OHOS::ErrCode NativeGetDisallowedPolicyForAccount(AppExecFwk::ElementName *elementName,
         std::uint32_t ipcCode, int32_t accountId, bool &disallow, ErrcodeType errcodeType);
     static OHOS::ErrCode GetInterfaceCodeAndFeature(napi_env env, napi_value value,
@@ -69,15 +80,25 @@ private:
     static OHOS::ErrCode GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType);
     static void CreateFeatureForDeviceObject(napi_env env, napi_value value);
+    static void CreateFeatureForDevicePart1(napi_env env, napi_value value);
+    static void CreateFeatureForDevicePart2(napi_env env, napi_value value);
     static void CreateFeatureForAccountObject(napi_env env, napi_value value);
     static std::shared_ptr<RestrictionsProxy> restrictionsProxy_;
     static std::unordered_map<std::string, uint32_t> labelCodeMap;
     static std::unordered_map<std::string, uint32_t> itemCodeMap;
     static std::unordered_map<std::string, uint32_t> itemQueryCodeMap;
     static std::vector<uint32_t> multiPermCodes;
+    static std::unordered_map<std::string, uint32_t> itemCodeForAccountMap;
     static std::unordered_map<std::string, uint32_t> labelCodeMapForAccount;
     static std::unordered_map<int32_t, uint32_t> featureEnum2InterfaceCodeMap;
     static std::unordered_map<int32_t, uint32_t> featureForAccountEnum2InterfaceCodeMap;
+    static std::unordered_map<int32_t, uint32_t> userRestrictionForDeviceEnum2CodeMap;
+    static std::unordered_map<int32_t, uint32_t> userRestrictionForAccountEnum2CodeMap;
+    static OHOS::ErrCode GetInterfaceCodeAndSettingsItem(napi_env env, napi_value value,
+        uint32_t &ipcCode, ErrcodeType &errcodeType, SettingsItemMode mode);
+    static void SetEnumProperty(napi_env env, napi_value obj, const char *name, uint32_t value);
+    static void CreateUserRestrictionForDeviceObject(napi_env env, napi_value value);
+    static void CreateUserRestrictionForAccountObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS
