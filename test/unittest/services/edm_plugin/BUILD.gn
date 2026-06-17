@@ -600,7 +600,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/set_wifi_profile_plugin.cpp",
       "../../../../services/edm_plugin/src/switch_wifi_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
-      "../../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
+      "./src/mock/wifi_policy_utils_mock.cpp",
       "../../../../services/edm_plugin/src/disallow_random_mac_address_plugin.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
