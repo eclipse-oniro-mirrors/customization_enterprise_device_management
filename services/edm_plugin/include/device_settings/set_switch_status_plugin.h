@@ -21,13 +21,15 @@
  
 namespace OHOS {
 namespace EDM {
-class SetSwitchStatusPlugin : public PluginSingleton<SetSwitchStatusPlugin, SwitchParam> {
+class SetSwitchStatusPlugin : public PluginSingleton<SetSwitchStatusPlugin, std::vector<SwitchParam>> {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, SwitchParam>> ptr) override;
-    ErrCode OnSetPolicy(SwitchParam &param,  MessageParcel &reply);
+    void InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, std::vector<SwitchParam>>> ptr) override;
+    ErrCode OnSetPolicy(std::vector<SwitchParam> &param, MessageParcel &reply);
     ErrCode OnSetBluetoothStatus(SwitchStatus status);
     ErrCode OnSetWifiStatus(SwitchStatus status);
     ErrCode OnSetNFCStatus(SwitchStatus status);
+    ErrCode OnAdminRemove(const std::string &adminName, std::vector<SwitchParam> &data,
+        std::vector<SwitchParam> &mergeData, int32_t userId);
 
 private:
     ErrCode ForceEnableBluetooth();

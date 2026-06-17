@@ -25,18 +25,23 @@ namespace EDM {
 /*
  * Policy data serializer of type int.
  */
-class SwitchParamSerializer : public IPolicySerializer<SwitchParam>,
+class SwitchParamSerializer : public IPolicySerializer<std::vector<SwitchParam>>,
     public DelayedSingleton<SwitchParamSerializer> {
 public:
-    bool Deserialize(const std::string &jsonString, SwitchParam &dataObj) override;
+    bool Deserialize(const std::string &jsonString, std::vector<SwitchParam> &dataObj) override;
  
-    bool Serialize(const SwitchParam &dataObj, std::string &jsonString) override;
+    bool Serialize(const std::vector<SwitchParam> &dataObj, std::string &jsonString) override;
  
-    bool GetPolicy(MessageParcel &data, SwitchParam &result) override;
+    bool GetPolicy(MessageParcel &data, std::vector<SwitchParam> &result) override;
  
-    bool WritePolicy(MessageParcel &reply, SwitchParam &result) override;
+    bool WritePolicy(MessageParcel &reply, std::vector<SwitchParam> &result) override;
  
-    bool MergePolicy(std::vector<SwitchParam> &data, SwitchParam &result) override;
+    bool MergePolicy(std::vector<std::vector<SwitchParam>> &data, std::vector<SwitchParam> &result) override;
+private:
+    std::string SwitchKeyToString(SwitchKey key);
+    std::string SwitchStatusToString(SwitchStatus status);
+    SwitchKey StringToSwitchKey(const std::string &str);
+    SwitchStatus StringToSwitchStatus(const std::string &str);
 };
 } // namespace EDM
 } // namespace OHOS

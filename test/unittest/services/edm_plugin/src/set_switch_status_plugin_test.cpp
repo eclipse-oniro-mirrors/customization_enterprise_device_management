@@ -76,16 +76,18 @@ void SetSwitchStatusPluginTest::TearDown()
 HWTEST_F(SetSwitchStatusPluginTest, TestOnSetBluetoothStatusSuccess, TestSize.Level1)
 {
     SetSwitchStatusPlugin plugin;
-    SwitchParam param{SwitchKey::BLUETOOTH, SwitchStatus::OFF};
+    std::vector<SwitchParam> param;
+    SwitchParam paramItem{SwitchKey::BLUETOOTH, SwitchStatus::OFF};
+    param.push_back(paramItem);
     MessageParcel reply;
     EXPECT_CALL(*bluetoothManagerMock_, DisableBt).WillOnce(DoAll(Return(true)));
     ErrCode ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
-    param.status = SwitchStatus::ON;
+    param[0].status = SwitchStatus::ON;
     EXPECT_CALL(*bluetoothManagerMock_, EnableBle).WillOnce(DoAll(Return(true)));
     ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
-    param.status = SwitchStatus::FORCE_ON;
+    param[0].status = SwitchStatus::FORCE_ON;
     EXPECT_CALL(*bluetoothManagerMock_, EnableBle).WillOnce(DoAll(Return(true)));
     ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
@@ -99,11 +101,13 @@ HWTEST_F(SetSwitchStatusPluginTest, TestOnSetBluetoothStatusSuccess, TestSize.Le
 HWTEST_F(SetSwitchStatusPluginTest, OnSetWifiStatusSuccess, TestSize.Level1)
 {
     SetSwitchStatusPlugin plugin;
-    SwitchParam param{SwitchKey::WIFI, SwitchStatus::OFF};
+    std::vector<SwitchParam> param;
+    SwitchParam paramItem{SwitchKey::WIFI, SwitchStatus::OFF};
+    param.push_back(paramItem);
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
-    param.status = SwitchStatus::ON;
+    param[0].status = SwitchStatus::ON;
     ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
 }
