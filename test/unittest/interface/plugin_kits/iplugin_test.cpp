@@ -357,6 +357,55 @@ HWTEST_F(IPluginTest, TestOnHandlePolicyPrepare, TestSize.Level1)
     int32_t userId = 100;
     EXPECT_TRUE(iplugin->OnHandlePolicyPrepare(funcCode, data, reply, policyData, userId) == ERR_OK);
 }
+
+/**
+ * @tc.name: TestOnHandlePolicy
+ * @tc.desc: Test OnHandlePolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestOnHandlePolicy, TestSize.Level1)
+{
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    uint32_t funcCode = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    int32_t userId = 100;
+    ErrCode ret = iplugin->OnHandlePolicy(funcCode, data, reply, policyData, userId);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemove
+ * @tc.desc: Test OnAdminRemove func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestOnAdminRemove, TestSize.Level1)
+{
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    std::string adminName = "com.edm.test.demo";
+    std::string policyData = "testPolicy";
+    std::string mergeData = "testMerge";
+    int32_t userId = 100;
+    ErrCode ret = iplugin->OnAdminRemove(adminName, policyData, mergeData, userId);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnGetPolicy
+ * @tc.desc: Test OnGetPolicy func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestOnGetPolicy, TestSize.Level1)
+{
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    std::string policyData = "testPolicy";
+    MessageParcel data;
+    MessageParcel reply;
+    int32_t userId = 100;
+    ErrCode ret = iplugin->OnGetPolicy(policyData, data, reply, userId);
+    EXPECT_TRUE(ret == ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
