@@ -142,14 +142,20 @@ void WatermarkApplicationObserver::ScheduleRetry(const WatermarkCallParam &param
     EDMLOGE("SetProcessWatermarkOnAppStart via plugin failed, will retry once");
     WatermarkCallParam retryParam = param;
     retryParam.needRetry = false;
-    std::thread retryTask([this, retryParam]() {
+    wptr<WatermarkApplicationObserver> weakThis(this);
+    std::thread retryTask([weakThis, retryParam]() {
         std::condition_variable cv;
         std::mutex mutex;
         auto nextRun = std::chrono::steady_clock::now() + std::chrono::seconds(RETRY_SECONDS);
         std::unique_lock<std::mutex> lock(mutex);
         cv.wait_until(lock, nextRun);
-        EDMLOGI("SetProcessWatermarkOnAppStart retry start, pid %{public}d", retryParam.pid);
-        CallPluginSetWatermark(retryParam);
+        sptr<WatermarkApplicationObserver> strongThis = weakThis.promote();
+        if (strongThis != nullptr) {
+            EDMLOGI("SetProcessWatermarkOnAppStart retry start, pid %{public}d", retryParam.pid);
+            strongThis->CallPluginSetWatermark(retryParam);
+        } else {
+            EDMLOGI("WatermarkApplicationObserver destroyed, skip retry");
+        }
     });
     retryTask.detach();
 }

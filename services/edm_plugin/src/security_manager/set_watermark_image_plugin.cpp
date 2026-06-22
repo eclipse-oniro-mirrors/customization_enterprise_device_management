@@ -117,8 +117,7 @@ ErrCode SetWatermarkImagePlugin::SetPolicy(MessageParcel &data,
             EDMLOGE("SetPolicy SET_PROCESS_WATERMARK_BY_PID param error");
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        SetProcessWatermarkByPid(pid, fileName, enabled);
-        return ERR_OK;
+        return SetProcessWatermarkByPid(pid, fileName, enabled);
     }
     return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
@@ -308,17 +307,19 @@ void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName,
     }
 }
 
-void SetWatermarkImagePlugin::SetProcessWatermarkByPid(int32_t pid, const std::string &fileName, bool enabled)
+ErrCode SetWatermarkImagePlugin::SetProcessWatermarkByPid(int32_t pid, const std::string &fileName, bool enabled)
 {
     EDMLOGI("SetProcessWatermarkByPid start, pid %{public}d, enabled %{public}d", pid, enabled);
     if (fileName.empty() || pid <= 0) {
         EDMLOGE("SetProcessWatermarkByPid param error");
-        return;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     Rosen::WMError ret = Rosen::WindowManager::GetInstance().SetProcessWatermark(pid, fileName, enabled);
     if (ret != Rosen::WMError::WM_OK) {
         EDMLOGE("SetProcessWatermarkByPid fail! pid=%{public}d, code: %{public}d", pid, ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
+    return ERR_OK;
 }
 
 bool SetWatermarkImagePlugin::SetImageUint8(const void *pixels, int32_t size, const std::string &url)
