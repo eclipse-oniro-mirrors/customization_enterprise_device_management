@@ -52,6 +52,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
+#include "edm_timer_manager.h"
 #include "callback_strategies.h"
 #include "enterprise_conn_manager.h"
 #include "ext_info_manager.h"
@@ -1235,6 +1236,8 @@ void EnterpriseDeviceMgrAbility::OnStart()
         EdmBluetoothManagerImpl::GetInstance();
     }
     InitAgTask();
+    EdmTimerManager::GetInstance();
+    CheckAndReportInstalledBundleInfoOnStart();
 }
 
 void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
@@ -2508,7 +2511,8 @@ ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bun
             EDMLOGW("EnterpriseDeviceMgrAbility::ReportAgInstallStatus ExecuteCallback failed.");
         }
         if (status == 0) {
-            HiSysEventAdapter::ReportInstalledBundleInfo(mediaBundleName, bundleName, InstalledBundleType::AG);
+            InstalledBundleInfoUtil::GetInstance()->AddInstalledBundleInfo(
+                mediaBundleName, bundleName, InstalledBundleType::AG);
         }
     }
     return ERR_OK;
@@ -3168,6 +3172,15 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminPreCheck(AdminType type)
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     return ERR_OK;
+}
+
+void EnterpriseDeviceMgrAbility::CheckAndReportInstalledBundleInfoOnStart()
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::CheckAndReportInstalledBundleInfoOnStart");
+    if (!InstalledBundleInfoUtil::GetInstance()->HasInstalledBundleInfo()) {
+        return;
+    }
+    InstalledBundleInfoUtil::GetInstance()->ReportAndClear();
 }
 } // namespace EDM
 } // namespace OHOS

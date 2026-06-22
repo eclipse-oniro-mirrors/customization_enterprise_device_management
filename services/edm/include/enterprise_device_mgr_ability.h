@@ -30,6 +30,7 @@
 #include "enterprise_device_mgr_stub.h"
 #include "extra_policy_notification.h"
 #include "hilog/log.h"
+#include "installed_bundle_info_util.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
 #include "policy_struct.h"
@@ -155,6 +156,7 @@ private:
     void ReportFuncEvent(uint32_t code);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
+    void CheckAndReportInstalledBundleInfoOnStart();
     void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
     void UpdateAllowedPermissionBundleInfo(const std::string &appIdentifier, const std::string &bundleName,
         int32_t userId, int32_t appIndex);

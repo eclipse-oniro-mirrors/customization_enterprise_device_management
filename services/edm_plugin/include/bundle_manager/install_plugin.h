@@ -18,7 +18,7 @@
 
 #include "install_param.h"
 #include "install_param_serializer.h"
-#include "hisysevent_adapter.h"
+#include "installed_bundle_info_util.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {

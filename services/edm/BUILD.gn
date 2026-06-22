@@ -76,6 +76,7 @@ ohos_shared_library("edmservice") {
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "time_service:time_client",
     "device_usage_statistics:usagestatsinner",
   ]
 
@@ -106,6 +107,8 @@ ohos_shared_library("edmservice") {
       "./src/database/edm_rdb_open_callback.cpp",
       "./src/device_policies_storage_rdb.cpp",
       "./src/edm_bluetooth_manager_impl.cpp",
+      "./src/edm_timer_manager.cpp",
+      "./src/edm_timer_info.cpp",
       "./src/enterprise_device_mgr_ability.cpp",
       "./src/ext_info_manager.cpp",
       "./src/extra_policy_notification.cpp",

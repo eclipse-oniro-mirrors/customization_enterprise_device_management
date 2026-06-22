@@ -123,6 +123,9 @@
             vtable?for?OHOS::EDM::EnableSelfDeviceAdminParamSerializer;
             OHOS::EDM::PolicyChangedEvent::*;
             OHOS::EDM::EdmJsonBuilder::*;
+            OHOS::EDM::IEdmTimerManager::*;
+            vtable?for?OHOS::EDM::IEdmTimerManager;
+            OHOS::EDM::InstalledBundleInfoUtil::*;
         };
     local:
         *;
