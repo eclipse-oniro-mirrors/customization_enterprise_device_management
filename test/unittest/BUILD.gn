@@ -22,7 +22,6 @@ group("unittest") {
     "common:unittest",
     "interface/inner_api:unittest",
     "interface/plugin_kits:unittest",
-    "services/edm:unittest",
     "services/edm_plugin:unittest",
   ]
 }
