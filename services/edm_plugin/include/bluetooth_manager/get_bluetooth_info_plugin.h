@@ -16,13 +16,13 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_BLUETOOTH_INFO_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_BLUETOOTH_INFO_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class GetBluetoothInfoPlugin : public PluginSingleton<GetBluetoothInfoPlugin, std::string> {
+class GetBluetoothInfoPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetBluetoothInfoPlugin, std::string>> ptr) override;
+    GetBluetoothInfoPlugin();
 
     int32_t TransformBluetoothState(int32_t state);
 

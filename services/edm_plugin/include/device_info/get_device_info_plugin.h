@@ -18,15 +18,14 @@
 
 #include "cJSON.h"
 
+#include "iplugin.h"
 #include "iexternal_manager_factory.h"
-#include "plugin_singleton.h"
-#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
-class GetDeviceInfoPlugin : public PluginSingleton<GetDeviceInfoPlugin, std::string> {
+class GetDeviceInfoPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceInfoPlugin, std::string>> ptr) override;
+    GetDeviceInfoPlugin();
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 

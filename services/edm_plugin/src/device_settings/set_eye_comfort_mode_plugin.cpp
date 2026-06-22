@@ -23,7 +23,6 @@
 #include "iextra_policy_notification.h"
 #include "iplugin_manager.h"
 #include "override_interface_name.h"
-#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
@@ -36,40 +35,40 @@ const std::string KEY_EYE_COMFORT_ON = "on";
 const std::string KEY_EYE_COMFORT_OFF = "off";
 const std::string KEY_EYE_COMFORT_UNKNOWN = "unknown";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetEyeComfortModePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetEyeComfortModePlugin>());
 
-void SetEyeComfortModePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetEyeComfortModePlugin, std::string>> ptr)
+SetEyeComfortModePlugin::SetEyeComfortModePlugin()
 {
     EDMLOGD("SetEyeComfortModePlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
-        IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::SET_EYE_COMFORT_MODE, PolicyName::POLICY_SET_EYE_COMFORT_MODE,
-        config, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SetEyeComfortModePlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::SET_EYE_COMFORT_MODE;
+    policyName_ = PolicyName::POLICY_SET_EYE_COMFORT_MODE;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode SetEyeComfortModePlugin::OnSetPolicy(std::string &data)
+ErrCode SetEyeComfortModePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGD("SetEyeComfortModePlugin start set set eyeComfort data = %{public}s.", data.c_str());
-    if (data == KEY_EYE_COMFORT_ON || data == KEY_EYE_COMFORT_OFF) {
+    std::string handleData = data.ReadString();
+    EDMLOGD("SetEyeComfortModePlugin start set set eyeComfort data = %{public}s.", handleData.c_str());
+    if (handleData == KEY_EYE_COMFORT_ON || handleData == KEY_EYE_COMFORT_OFF) {
         int32_t value = EdmConstants::DeviceInfo::EYE_COMFORT_OFF;
-        if (data == KEY_EYE_COMFORT_ON) {
+        if (handleData == KEY_EYE_COMFORT_ON) {
             value = EdmConstants::DeviceInfo::EYE_COMFORT_ON;
         }
         std::vector<int32_t> ids;
-        std::string userId;
+        std::string userIdStr;
         ErrCode code = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
         if (SUCCEEDED(code) && !ids.empty()) {
-            userId = std::to_string(ids.at(0));
+            userIdStr = std::to_string(ids.at(0));
         } else {
             EDMLOGE("SetEyeComfortModePlugin::get current account id failed : %{public}d.", code);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        std::string uri = SETTINGS_DATA_BASE_URI + userId + SETTINGS_DATA_PREFIX;
+        std::string uri = SETTINGS_DATA_BASE_URI + userIdStr + SETTINGS_DATA_PREFIX;
         code = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_MODE, std::to_string(value));
         if (FAILED(code)) {
             EDMLOGE("SetEyeComfortModePlugin::set eyecomfort failed : %{public}d.", code);
@@ -77,7 +76,7 @@ ErrCode SetEyeComfortModePlugin::OnSetPolicy(std::string &data)
         }
         std::string params = EdmJsonBuilder()
             .Add("item", "eyeComfort")
-            .Add("value", data)
+            .Add("value", handleData)
             .Build();
         IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(OverrideInterfaceName::DeviceSettings::SET_VALUE,
             params);

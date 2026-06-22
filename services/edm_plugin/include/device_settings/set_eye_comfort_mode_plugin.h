@@ -16,15 +16,16 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_EYE_COMFORT_MODE_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_EYE_COMFORT_MODE_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class SetEyeComfortModePlugin : public PluginSingleton<SetEyeComfortModePlugin, std::string> {
+class SetEyeComfortModePlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetEyeComfortModePlugin, std::string>> ptr) override;
+    SetEyeComfortModePlugin();
 
-    ErrCode OnSetPolicy(std::string &data);
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 
     ErrCode OnGetPolicy(std::string &value, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 };

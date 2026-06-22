@@ -46,8 +46,11 @@ ErrCode DisablePrintPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     constraints.emplace_back(CONSTRAINT_PRINT);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
         EdmConstants::DEFAULT_USER_ID, true);
-    EDMLOGI("DisablePrintPlugin::SetPrintPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
-    return ret;
+    if (FAILED(ret)) {
+        EDMLOGE("DisablePrintPlugin::SetPrintPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

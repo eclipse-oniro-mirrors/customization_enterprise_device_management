@@ -16,19 +16,16 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_NTP_SERVER_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_NTP_SERVER_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class NTPServerPlugin : public PluginSingleton<NTPServerPlugin, std::string> {
+class NTPServerPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<NTPServerPlugin, std::string>> ptr) override;
+    NTPServerPlugin();
 
-private:
-    ErrCode OnAdminRemove(const std::string &adminName, std::string &policyData, std::string &mergeData,
-        int32_t userId);
-
-    ErrCode OnSetPolicy(std::string &value);
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

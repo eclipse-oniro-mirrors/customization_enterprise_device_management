@@ -25,20 +25,22 @@
 #include "external_manager_factory.h"
 #include "parameter.h"
 #include "iplugin_manager.h"
-#include "string_serializer.h"
 
 namespace OHOS {
 namespace EDM {
 const std::string KEY_DEVICE_NAME = "settings.general.display_device_name";
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<GetDeviceInfoPlugin>());
 
-void GetDeviceInfoPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetDeviceInfoPlugin, std::string>> ptr)
+GetDeviceInfoPlugin::GetDeviceInfoPlugin()
 {
-    EDMLOGI("GetDeviceInfoPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_DEVICE_INFO, PolicyName::POLICY_GET_DEVICE_INFO,
-        EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
+    policyCode_ = EdmInterfaceCode::GET_DEVICE_INFO;
+    policyName_ = PolicyName::POLICY_GET_DEVICE_INFO;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
 ErrCode GetDeviceInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -58,7 +60,7 @@ ErrCode GetDeviceInfoPlugin::OnGetPolicy(std::string &policyData, MessageParcel 
     }
 #endif
     reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-    if (GetPlugin()->GetExtensionPlugin() != nullptr) {
+    if (GetExtensionPlugin() != nullptr) {
         reply.WriteString(label);
     }
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

@@ -134,10 +134,11 @@ const bool REGISTER_FIREWALL_RULE_PLUGIN = PluginManager::GetInstance()->AddPlug
 const bool REGISTER_GET_ALL_NETWORK_INTERFACES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(GetAllNetworkInterfacesPlugin::GetPlugin());
 const bool REGISTER_GET_BLUETOOTH_INFO_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(GetBluetoothInfoPlugin::GetPlugin());
-const bool REGISTER_GET_DEVICE_INFO_PLUGIN = PluginManager::GetInstance()->AddPlugin(GetDeviceInfoPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<GetBluetoothInfoPlugin>());
+const bool REGISTER_GET_DEVICE_INFO_PLUGIN = PluginManager::GetInstance()->AddPlugin(
+    std::make_shared<GetDeviceInfoPlugin>());
 const bool REGISTER_GET_IP_OR_MAC_ADDRESS_PLUGIN =
-    PluginManager::GetInstance()->AddPlugin(GetIpOrMacAddressPlugin::GetPlugin());
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<GetIpOrMacAddressPlugin>());
 const bool REGISTER_GLOBAL_PROXY_PLUGIN = PluginManager::GetInstance()->AddPlugin(GlobalProxyPlugin::GetPlugin());
 const bool REGISTER_INSTALL_PLUGIN = PluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
 const bool REGISTER_IPTABLES_RULE_PLUGIN =
@@ -149,11 +150,12 @@ const bool REGISTER_LOCATION_POLICY_PLUGIN =
 const bool REGISTER_LOCK_SCREEN_PLUGIN = PluginManager::GetInstance()->AddPlugin(LockScreenPlugin::GetPlugin());
 const bool REGISTER_MANAGE_AUTO_START_APPS_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<ManageAutoStartAppsPlugin>());
-const bool REGISTER_NTP_SERVER_PLUGIN = PluginManager::GetInstance()->AddPlugin(NTPServerPlugin::GetPlugin());
+const bool REGISTER_NTP_SERVER_PLUGIN = PluginManager::GetInstance()->AddPlugin(std::make_shared<NTPServerPlugin>());
 const bool REGISTER_OPERATE_DEVICE_PLUGIN = PluginManager::GetInstance()->AddPlugin(OperateDevicePlugin::GetPlugin());
 const bool REGISTER_POWER_POLICY_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<PowerPolicyPlugin>());
-const bool REGISTER_RESET_FACTORY_PLUGIN = PluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());
+const bool REGISTER_RESET_FACTORY_PLUGIN = PluginManager::GetInstance()->AddPlugin(
+    std::make_shared<ResetFactoryPlugin>());
 const bool REGISTER_SCREEN_OFF_TIME_PLUGIN = PluginManager::GetInstance()->AddPlugin(ScreenOffTimePlugin::GetPlugin());
 const bool REGISTER_SET_BROWSER_POLICIES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<SetBrowserPoliciesPlugin>());

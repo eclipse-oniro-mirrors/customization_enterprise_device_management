@@ -20,24 +20,24 @@
 #include "edm_log.h"
 #include "iplugin_manager.h"
 #include "session_manager_lite.h"
-#include "string_serializer.h"
 #include "system_ability_definition.h"
 #include "window_state_info.h"
 
 namespace OHOS {
 namespace EDM {
 // LCOV_EXCL_START
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetApplicationWindowStatesPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
+    std::make_shared<GetApplicationWindowStatesPlugin>());
 
-void GetApplicationWindowStatesPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetApplicationWindowStatesPlugin,
-    std::string>> ptr)
+GetApplicationWindowStatesPlugin::GetApplicationWindowStatesPlugin()
 {
-    EDMLOGI("GetApplicationWindowStatesPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES,
-        PolicyName::POLICY_GET_APPLICATION_WINDOW_STATES,
+    policyCode_ = EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES;
+    policyName_ = PolicyName::POLICY_GET_APPLICATION_WINDOW_STATES;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION,
-        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
 ErrCode GetApplicationWindowStatesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,

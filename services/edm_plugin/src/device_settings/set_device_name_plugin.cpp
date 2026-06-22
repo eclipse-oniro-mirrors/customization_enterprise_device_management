@@ -22,7 +22,6 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_os_account_manager_impl.h"
 #include "iplugin_manager.h"
-#include "string_serializer.h"
 
 #ifdef WIFI_EDM_ENABLE
 #include "inner_api/wifi_hotspot.h"
@@ -49,32 +48,30 @@ const int32_t HOTSPOT_NAME_MAX_LENGTH = 30;
 const std::string HOTSPOT_NAME_ELLIPSIS = "...";
 #endif
 
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetDeviceNamePlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<SetDeviceNamePlugin>());
 
-void SetDeviceNamePlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetDeviceNamePlugin, std::string>> ptr)
+SetDeviceNamePlugin::SetDeviceNamePlugin()
 {
-    EDMLOGD("SetDeviceNamePlugin::InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
-    IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions,
-        IPlugin::ApiType::PUBLIC);
-
-    ptr->InitAttribute(EdmInterfaceCode::SET_DEVICE_NAME, PolicyName::POLICY_SET_DEVICE_NAME, config, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&SetDeviceNamePlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::SET_DEVICE_NAME;
+    policyName_ = PolicyName::POLICY_SET_DEVICE_NAME;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode SetDeviceNamePlugin::OnSetPolicy(std::string &data, std::string &currentData, std::string &mergeData,
-    int32_t userId)
+ErrCode SetDeviceNamePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("SetDeviceNamePlugin start set set deviceName data = %{public}s.", data.c_str());
-    if (data.empty()) {
-        EDMLOGE("OnSetPolicy deviceName is empty.");
+    std::string handleData = data.ReadString();
+    EDMLOGI("SetDeviceNamePlugin start set set deviceName data = %{public}s.", handleData.c_str());
+    if (handleData.empty()) {
+        EDMLOGE("OnHandlePolicy deviceName is empty.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (data.length() > DEVICE_NAME_MAX_LENGTH) {
-        EDMLOGE("OnSetPolicy deviceName length exceeds the limit.");
+    if (handleData.length() > DEVICE_NAME_MAX_LENGTH) {
+        EDMLOGE("OnHandlePolicy deviceName length exceeds the limit.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     int32_t currentUserId = externalManagerFactory_->CreateOsAccountManager()->GetCurrentUserId();
@@ -82,13 +79,13 @@ ErrCode SetDeviceNamePlugin::OnSetPolicy(std::string &data, std::string &current
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (userId != currentUserId) {
-        EDMLOGE("SetDeviceNamePlugin::OnSetPolicy userId isn't current userId.");
+        EDMLOGE("SetDeviceNamePlugin::OnHandlePolicy userId isn't current userId.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     std::string uri = SETTINGS_DATA_BASE_URI + std::to_string(userId) + SETTINGS_DATA_PREFIX;
-    ErrCode code1 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_USER_DEFINED_DEVICE_NAME, data);
-    ErrCode code2 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_DISPLAY_DEVICE_NAME, data);
+    ErrCode code1 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_USER_DEFINED_DEVICE_NAME, handleData);
+    ErrCode code2 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_DISPLAY_DEVICE_NAME, handleData);
     ErrCode code3 = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_DISPLAY_DEVICE_NAME_STATE,
         USER_DEFINED_DEVICE_NAME);
     if (FAILED(code1) || FAILED(code2) || FAILED(code3)) {
@@ -97,7 +94,7 @@ ErrCode SetDeviceNamePlugin::OnSetPolicy(std::string &data, std::string &current
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 #if defined(TELEPHONY_EDM_ENABLE) && defined(WIFI_EDM_ENABLE)
-    UpdateHotspotNameIfNeed(data, userId);
+    UpdateHotspotNameIfNeed(handleData, userId);
 #endif
     return ERR_OK;
 }

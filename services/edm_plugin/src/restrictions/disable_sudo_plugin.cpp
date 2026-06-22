@@ -47,8 +47,11 @@ ErrCode DisableSudoPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     constraints.emplace_back(CONSTRAINT_SUDO);
     ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
         EdmConstants::DEFAULT_USER_ID, true);
-    EDMLOGI("DisableSudoPlugin::SetSudoPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
-    return ret;
+    if (FAILED(ret)) {
+        EDMLOGE("DisableSudoPlugin::SetSudoPolicy, SetSpecificOsAccountConstraints ret: %{public}d", ret);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 
 ErrCode DisableSudoPlugin::CheckConflictPolicy(int32_t userId)

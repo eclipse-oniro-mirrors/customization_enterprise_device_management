@@ -51,28 +51,34 @@ void SetEyeComfortModePluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnSetPolicy_001
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_001
+ * @tc.desc: Test OnHandlePolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetEyeComfortModePluginTest, TestOnSetPolicy_001, TestSize.Level1)
+HWTEST_F(SetEyeComfortModePluginTest, TestOnHandlePolicy_001, TestSize.Level1)
 {
     SetEyeComfortModePlugin plugin;
-    std::string data = "on";
-    ErrCode code = plugin.OnSetPolicy(data);
+    MessageParcel data;
+    data.WriteString("on");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_TRUE(code == ERR_OK);
 }
 
 /**
- * @tc.name: TestOnSetPolicy_002
- * @tc.desc: Test OnSetPolicy function.
+ * @tc.name: TestOnHandlePolicy_002
+ * @tc.desc: Test OnHandlePolicy function with invalid data.
  * @tc.type: FUNC
  */
-HWTEST_F(SetEyeComfortModePluginTest, TestOnSetPolicy_002, TestSize.Level1)
+HWTEST_F(SetEyeComfortModePluginTest, TestOnHandlePolicy_002, TestSize.Level1)
 {
     SetEyeComfortModePlugin plugin;
-    std::string data = "112233";
-    ErrCode code = plugin.OnSetPolicy(data);
+    MessageParcel data;
+    data.WriteString("112233");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_TRUE(code == EdmReturnErrCode::PARAM_ERROR);
 }
 
@@ -83,7 +89,7 @@ HWTEST_F(SetEyeComfortModePluginTest, TestOnSetPolicy_002, TestSize.Level1)
  */
 HWTEST_F(SetEyeComfortModePluginTest, TestOnGetPolicy_001, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = SetEyeComfortModePlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<SetEyeComfortModePlugin>();
     std::string policyValue{"TestString"};
     MessageParcel data;
     MessageParcel reply;

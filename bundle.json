@@ -177,8 +177,7 @@
               "utils/array_string_serializer.h",
               "utils/func_code_utils.h",
               "utils/long_serializer.h",
-              "utils/map_string_serializer.h",
-              "utils/string_serializer.h"
+              "utils/map_string_serializer.h"
             ]
           },
           "name": "//base/customization/enterprise_device_management/interfaces/inner_api/plugin_kits:plugin_kits"

@@ -57,7 +57,7 @@ void NTPServerPluginTest::TearDownTestSuite(void)
  */
 HWTEST_F(NTPServerPluginTest, TestOnGetPolicy, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = NTPServerPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<NTPServerPlugin>();
     std::string policyValue{"TestString"};
     MessageParcel data;
     MessageParcel reply;
@@ -65,6 +65,22 @@ HWTEST_F(NTPServerPluginTest, TestOnGetPolicy, TestSize.Level1)
     plugin->OnGetPolicy(policyValue, data, reply, DEFAULT_USER_ID);
     EXPECT_TRUE(reply.ReadInt32() == ERR_OK);
     EXPECT_TRUE(reply.ReadString() == "");
+}
+
+/**
+ * @tc.name: TestOnHandlePolicy
+ * @tc.desc: Test OnHandlePolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NTPServerPluginTest, TestOnHandlePolicy, TestSize.Level1)
+{
+    std::shared_ptr<IPlugin> plugin = std::make_shared<NTPServerPlugin>();
+    MessageParcel data;
+    data.WriteString("ntp.test.com");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    ErrCode ret = plugin->OnHandlePolicy(0, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 } // namespace TEST

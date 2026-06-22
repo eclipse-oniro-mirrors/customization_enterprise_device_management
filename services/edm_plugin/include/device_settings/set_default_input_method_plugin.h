@@ -16,17 +16,18 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_PLUGIN_H
 
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class SetDefaultInputMethodPlugin : public PluginSingleton<SetDefaultInputMethodPlugin, std::string> {
+class SetDefaultInputMethodPlugin : public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<SetDefaultInputMethodPlugin, std::string>> ptr) override;
+    SetDefaultInputMethodPlugin();
 
-    ErrCode OnSetPolicy(std::string &data);
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_SET_DEFAULT_INPUT_METHOD_METHOD_PLUGIN_H

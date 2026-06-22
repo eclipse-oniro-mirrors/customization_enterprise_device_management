@@ -111,7 +111,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/bundle_manager/disallowed_uninstall_bundles_plugin.cpp",
       "./src/restrictions/inactive_user_freeze_plugin.cpp",
       "./src/bundle_manager/install_plugin.cpp",
-      "./src/bundle_manager/installed_bundle_info_list_plugin.cpp",
       "./src/application_manager/kiosk_feature_plugin.cpp",
       "./src/datetime_manager/ntp_server_plugin.cpp",
       "./src/device_settings/power_policy_plugin.cpp",

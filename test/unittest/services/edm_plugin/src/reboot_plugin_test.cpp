@@ -38,14 +38,14 @@ void RebootPluginTest::TearDownTestSuite(void)
 
 /**
  * @tc.name: TestShutdown
- * @tc.desc: Test ShutdownPlugin::OnSetPolicy function fail.
+ * @tc.desc: Test RebootPlugin::OnSetPolicy function fail.
  * @tc.type: FUNC
  */
 HWTEST_F(RebootPluginTest, TestReboot, TestSize.Level1)
 {
     uint64_t selfTokenId = GetSelfTokenID();
     SetSelfTokenID(0);
-    std::shared_ptr<IPlugin> plugin = RebootPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<RebootPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::REBOOT);
     HandlePolicyData handlePolicyData{"", "", false};
     MessageParcel data;

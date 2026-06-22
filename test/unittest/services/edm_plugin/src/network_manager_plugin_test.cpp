@@ -75,7 +75,7 @@ HWTEST_F(NetworkManagerPluginTest, TestGetAllNetworkInterfaces, TestSize.Level1)
  */
 HWTEST_F(NetworkManagerPluginTest, TestGetIpAddress, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GetIpOrMacAddressPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<GetIpOrMacAddressPlugin>();
     std::string policyData{"TestGetIpAddress"};
     MessageParcel data;
     MessageParcel reply;
@@ -91,7 +91,7 @@ HWTEST_F(NetworkManagerPluginTest, TestGetIpAddress, TestSize.Level1)
  */
 HWTEST_F(NetworkManagerPluginTest, TestGetMac, TestSize.Level1)
 {
-    std::shared_ptr<IPlugin> plugin = GetIpOrMacAddressPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<GetIpOrMacAddressPlugin>();
     std::string policyData{"TestGetMac"};
     MessageParcel data;
     MessageParcel reply;

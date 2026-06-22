@@ -45,7 +45,7 @@ HWTEST_F(ShutdownPluginTest, TestShutdown, TestSize.Level1)
 {
     uint64_t selfTokenId = GetSelfTokenID();
     SetSelfTokenID(0);
-    std::shared_ptr<IPlugin> plugin = ShutdownPlugin::GetPlugin();
+    std::shared_ptr<IPlugin> plugin = std::make_shared<ShutdownPlugin>();
     uint32_t code = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SHUTDOWN);
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;

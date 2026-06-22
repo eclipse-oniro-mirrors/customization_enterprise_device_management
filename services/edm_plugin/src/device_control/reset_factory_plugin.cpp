@@ -23,30 +23,33 @@
 
 namespace OHOS {
 namespace EDM {
-const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(ResetFactoryPlugin::GetPlugin());
+const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ResetFactoryPlugin>());
 const std::string DISALLOWED_RESET_FACTORY_PARAM = "persist.edm.reset_factory_disallowed";
 
-void ResetFactoryPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<ResetFactoryPlugin, std::string>> ptr)
+ResetFactoryPlugin::ResetFactoryPlugin()
 {
-    EDMLOGI("ResetFactoryPlugin InitPlugin...");
-    ptr->InitAttribute(EdmInterfaceCode::RESET_FACTORY, PolicyName::POLICY_RESET_FACTORY,
-        EdmPermission::PERMISSION_ENTERPRISE_RESET_DEVICE, IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
-    ptr->SetSerializer(StringSerializer::GetInstance());
-    ptr->SetOnHandlePolicyListener(&ResetFactoryPlugin::OnSetPolicy, FuncOperateType::SET);
+    policyCode_ = EdmInterfaceCode::RESET_FACTORY;
+    policyName_ = PolicyName::POLICY_RESET_FACTORY;
+    permissionConfig_ = IPlugin::PolicyPermissionConfig(
+        EdmPermission::PERMISSION_ENTERPRISE_RESET_DEVICE,
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
+        IPlugin::ApiType::PUBLIC);
+    needSave_ = false;
 }
 
-ErrCode ResetFactoryPlugin::OnSetPolicy()
+ErrCode ResetFactoryPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+    HandlePolicyData &policyData, int32_t userId)
 {
     std::string isDisabled = OHOS::system::GetParameter(DISALLOWED_RESET_FACTORY_PARAM, EdmConstants::CONST_FALSE);
     if (isDisabled == EdmConstants::CONST_TRUE) {
-        EDMLOGE("ResetFactoryPlugin:OnSetPolicy factory reset is disabled by restriction");
+        EDMLOGE("ResetFactoryPlugin:OnHandlePolicy factory reset is disabled by restriction");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
     UpdateService::BusinessError businessError;
     int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
     if (FAILED(ret)) {
-        EDMLOGE("ResetFactoryPlugin:OnSetPolicy send request fail. %{public}d", ret);
+        EDMLOGE("ResetFactoryPlugin:OnHandlePolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
