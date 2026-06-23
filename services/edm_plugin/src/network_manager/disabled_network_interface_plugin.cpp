@@ -106,8 +106,12 @@ ErrCode DisabledNetworkInterfacePlugin::OnSetPolicy(std::map<std::string, std::s
         return ret;
     }
     if (mergeData.find(it->first) == mergeData.end()) {
-        if (!SetInterfaceDisabled(it->first, it->second == "true")) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        bool wantDisabled = it->second == "true";
+        bool currentlyDisabled = currentData.find(it->first) != currentData.end();
+        if (wantDisabled != currentlyDisabled) {
+            if (!SetInterfaceDisabled(it->first, wantDisabled)) {
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
         }
     }
     if (it->second == "true") {
