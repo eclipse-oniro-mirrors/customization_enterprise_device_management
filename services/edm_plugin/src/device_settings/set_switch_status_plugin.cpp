@@ -28,13 +28,13 @@
 #include "iedm_bluetooth_manager.h"
 #include "iextra_policy_notification.h"
 #include "ipc_skeleton.h"
+#include "ipolicy_manager.h"
 #include "iplugin_manager.h"
 #include "os_account_manager.h"
 #include "override_interface_name.h"
 
 namespace OHOS {
 namespace EDM {
-
 const std::string MDM_BLUETOOTH_PROP = "persist.edm.prohibit_bluetooth";
 const std::string MDM_WIFI_PROP = "persist.edm.wifi_enable";
 const std::string PARAM_FORCE_OPEN_WIFI = "persist.edm.force_open_wifi";
@@ -43,10 +43,12 @@ const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluet
 const std::string PARAM_FORCE_ENABLE_NFC = "persist.edm.force_enable_nfc";
 const std::string PARAM_EDM_NFC_DISABLE = "persist.edm.nfc_disable";
 #endif
+const int32_t MIN_ADMIN_NUMBER = 1;
  
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(SetSwitchStatusPlugin::GetPlugin());
  
-void SetSwitchStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, SwitchParam>> ptr)
+void SetSwitchStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin,
+    std::vector<SwitchParam>>> ptr)
 {
     EDMLOGI("SetSwitchStatusPlugin InitPlugin...");
     std::map<IPlugin::PermissionType, std::string> typePermissions;
@@ -55,9 +57,10 @@ void SetSwitchStatusPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitch
     typePermissions.emplace(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS);
     IPlugin::PolicyPermissionConfig config = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    ptr->InitAttribute(EdmInterfaceCode::SET_SWITCH_STATUS, PolicyName::POLICY_SET_SWITCH_STATUS, config, false);
+    ptr->InitAttribute(EdmInterfaceCode::SET_SWITCH_STATUS, PolicyName::POLICY_SET_SWITCH_STATUS, config, true);
     ptr->SetSerializer(SwitchParamSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&SetSwitchStatusPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&SetSwitchStatusPlugin::OnAdminRemove);
 }
 
 bool SetSwitchStatusPlugin::IsByodAdmin()
@@ -74,9 +77,14 @@ bool SetSwitchStatusPlugin::IsByodAdmin()
     return adminType == AdminType::BYOD;
 }
  
-ErrCode SetSwitchStatusPlugin::OnSetPolicy(SwitchParam &param, MessageParcel &reply)
+ErrCode SetSwitchStatusPlugin::OnSetPolicy(std::vector<SwitchParam> &paramVec, MessageParcel &reply)
 {
     int32_t ret = ERR_OK;
+    if (paramVec.size() <= 0) {
+        EDMLOGW("SetSwitchStatusPlugin::OnSetPolicy paramVec size is abnormally");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    SwitchParam param = paramVec[0];
     EDMLOGI("SetSwitchStatusPlugin OnSetPolicy %{public}d, %{public}d",
         static_cast<int32_t>(param.key), static_cast<int32_t>(param.status));
     if (param.status == SwitchStatus::FORCE_ON && IsByodAdmin()) {
@@ -100,7 +108,7 @@ ErrCode SetSwitchStatusPlugin::OnSetPolicy(SwitchParam &param, MessageParcel &re
     }
     reply.WriteInt32(ret);
     if (ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
-        SwitchParamSerializer::GetInstance()->WritePolicy(reply, param);
+        SwitchParamSerializer::GetInstance()->WritePolicy(reply, paramVec);
     }
     if (ret == ERR_OK) {
         std::string params = EdmJsonBuilder()
@@ -226,5 +234,39 @@ ErrCode SetSwitchStatusPlugin::ForceEnableBluetooth()
     return ERR_OK;
 }
 // LCOV_EXCL_STOP
+
+ErrCode SetSwitchStatusPlugin::OnAdminRemove(const std::string &adminName, std::vector<SwitchParam> &dataVec,
+    std::vector<SwitchParam> &mergeData, int32_t userId)
+{
+    std::unordered_map<std::string, std::string> adminListMap;
+    auto policyManager = IPolicyManager::GetInstance();
+    policyManager->GetAdminByPolicyName(PolicyName::POLICY_SET_SWITCH_STATUS,
+        adminListMap, userId);
+    if (adminListMap.size() > MIN_ADMIN_NUMBER) {
+        EDMLOGI("SetSwitchStatusPlugin OnAdminRemove has other admin");
+        return ERR_OK;
+    }
+    if (dataVec.size() <= 0) {
+        EDMLOGW("OnAdminRemove data size is abnormally");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    SwitchParam data = dataVec[0];
+    switch (data.key) {
+        case SwitchKey::BLUETOOTH:
+            system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+            break;
+        case SwitchKey::WIFI:
+            system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
+            break;
+#ifdef NFC_EDM_ENABLE
+        case SwitchKey::NFC:
+            system::SetParameter(PARAM_FORCE_ENABLE_NFC, "false");
+            break;
+#endif
+        default:
+            break;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
