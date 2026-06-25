@@ -23,12 +23,14 @@
 #include "volume_external.h"
 #include "iservice_registry.h"
 #include "parameters.h"
+#ifdef EXTERNAL_DISK_MANAGER_EDM_ENABLE
+#include "disk_manager_client.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
     std::make_shared<DisallowExternalStorageCardPlugin>());
-constexpr int32_t STORAGE_MANAGER_MANAGER_ID = 5003;
 
 DisallowExternalStorageCardPlugin::DisallowExternalStorageCardPlugin()
 {
@@ -58,45 +60,27 @@ ErrCode DisallowExternalStorageCardPlugin::SetOtherModulePolicy(bool data, int32
 
 ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
 {
-    auto storageMgrProxy = GetStorageManager();
-    if (storageMgrProxy == nullptr) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<StorageManager::VolumeExternal> volList;
-    int32_t storageRet = storageMgrProxy->GetAllVolumes(volList);
+#ifdef EXTERNAL_DISK_MANAGER_EDM_ENABLE
+    std::vector<DiskManager::VolumeExternal> volList;
+    int32_t storageRet = OHOS::DiskManager::DiskManagerClient::GetInstance().GetAllVolumes(volList);
     if (storageRet != ERR_OK) {
-        EDMLOGE("DisallowExternalStorageCardPlugin storageMgrProxy GetAllVolumes failed! ret:%{public}d", storageRet);
+        EDMLOGE("DisallowExternalStorageCardPlugin diskMgr GetAllVolumes failed! ret:%{public}d", storageRet);
         return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
     }
     if (volList.empty()) {
         return ERR_OK;
     }
     for (auto &vol : volList) {
-        if (storageMgrProxy->Unmount(vol.GetId()) != ERR_OK) {
-            EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy storageMgrProxy Unmount failed!");
+        if (HOS::DiskManager::DiskManagerClient::GetInstance().Unmount(vol.GetId()) != ERR_OK) {
+            EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy diskMgr Unmount failed!");
             return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
         }
     }
     return ERR_OK;
-}
-
-OHOS::sptr<OHOS::StorageManager::IStorageManager> DisallowExternalStorageCardPlugin::GetStorageManager()
-{
-    auto saMgr = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (saMgr == nullptr) {
-        EDMLOGE("DisallowExternalStorageCardPlugin GetStorageManager:get saMgr fail");
-        return nullptr;
-    }
-    sptr<IRemoteObject> obj = saMgr->GetSystemAbility(STORAGE_MANAGER_MANAGER_ID);
-    if (obj == nullptr) {
-        EDMLOGE("DisallowExternalStorageCardPlugin GetStorageManager:get storage manager client fail");
-        return nullptr;
-    }
-    auto storageMgrProxy = iface_cast<OHOS::StorageManager::IStorageManager>(obj);
-    if (storageMgrProxy == nullptr) {
-        EDMLOGE("DisallowExternalStorageCardPlugin GetStorageManager:get storageMgrProxy fail");
-    }
-    return storageMgrProxy;
+#else
+    EDMLOGE("DisallowExternalStorageCardPlugin::UnmountStorageDevice not support");
+    return ERR_OK;
+#endif
 }
 } // namespace EDM
 } // namespace OHOS

@@ -179,7 +179,7 @@ ohos_static_library("edmservice_static") {
     ]
   }
 
-  if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
+  if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
       usb_manager_edm_enable) {
     sources +=
         [ "../../../../services/edm/src/query_policy/usb_read_only_query.cpp" ]

@@ -73,7 +73,7 @@
 #include "disallow_random_mac_address_query.h"
 #endif
 
-#ifdef USB_STORAGE_SERVICE_EDM_ENABLE
+#ifdef USB_DISK_MANAGER_EDM_ENABLE
 #include "usb_read_only_query.h"
 #endif
 
@@ -146,7 +146,7 @@
 #include "disable_private_space_query.h"
 #endif
 
-#ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
+#ifdef EXTERNAL_DISK_MANAGER_EDM_ENABLE
 #include "disallow_external_storage_card_query.h"
 #endif
 
@@ -412,7 +412,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &o
             obj = std::make_shared<SnapshotSkipQuery>();
             return ERR_OK;
         case EdmInterfaceCode::USB_READ_ONLY:
-#ifdef USB_STORAGE_SERVICE_EDM_ENABLE
+#ifdef USB_DISK_MANAGER_EDM_ENABLE
             obj = std::make_shared<UsbReadOnlyQuery>();
             return ERR_OK;
 #else
@@ -658,7 +658,7 @@ ErrCode PluginPolicyReader::GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
         case EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD:
-#ifdef EXTERNAL_STORAGE_SERVICE_EDM_ENABLE
+#ifdef EXTERNAL_DISK_MANAGER_EDM_ENABLE
             obj = std::make_shared<DisableExternalStorageCardQuery>();
             return ERR_OK;
 #else

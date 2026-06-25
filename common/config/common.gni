@@ -93,10 +93,10 @@ declare_args() {
       defined(global_parts_info.theme_screenlock_mgr)) {
     screenlock_mgr_edm_enable = true
   }
-  storage_service_edm_enable = false
+  enterprise_device_management_enable_disk_manager = false
   if (defined(global_parts_info) &&
-      defined(global_parts_info.filemanagement_storage_service)) {
-    storage_service_edm_enable = true
+      defined(global_parts_info.filemanagement_disk_manager)) {
+    enterprise_device_management_enable_disk_manager = true
   }
   time_service_edm_enable = false
   if (defined(global_parts_info) &&

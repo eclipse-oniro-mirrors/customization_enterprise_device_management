@@ -150,7 +150,7 @@ void DisallowedUsbDevicesPluginBase::OnOtherServiceStart(int32_t systemAbilityId
         disallowUsbDevicePolicy, EdmConstants::DEFAULT_USER_ID);
     std::vector<USB::UsbDeviceType> disallowedDevices;
     GetSerializer()->Deserialize(disallowUsbDevicePolicy, disallowedDevices);
-#ifdef USB_STORAGE_SERVICE_EDM_ENABLE
+#ifdef USB_DISK_MANAGER_EDM_ENABLE
     std::string usbStoragePolicy;
     IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY,
         usbStoragePolicy, EdmConstants::DEFAULT_USER_ID);
