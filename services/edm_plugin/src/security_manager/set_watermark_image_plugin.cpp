@@ -304,6 +304,9 @@ void SetWatermarkImagePlugin::SetProcessWatermark(const std::string &bundleName,
         }
         EDMLOGI("SetProcessWatermark pid %{public}d", info.pid_);
         SetProcessWatermarkByPid(info.pid_, fileName, enabled);
+        if (!enabled) {
+            Rosen::RSInterfaces::GetInstance().ClearSurfaceWatermark(info.pid_, fileName);
+        }
     }
 }
 
