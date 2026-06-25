@@ -17,6 +17,7 @@
 #define INTERFACES_KITS_DEVICE_CONTROL_INCLUDE_DEVICE_CONTROL_ADDON_H
 
 #include "device_control_proxy.h"
+#include "edm_constants.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "ienterprise_device_mgr.h"
 #include "napi_edm_adapter.h"
@@ -42,6 +43,10 @@ private:
     static void NativeResetFactory(napi_env env, void *data);
     static void SetPolicyCommon(AddonMethodSign &addonMethodSign, const std::string &workName);
     static bool ReadFileToBytes(const std::string url, int32_t &fileSize, std::vector<uint8_t> &res);
+    static std::string ConvertOperateTypeToString(EdmConstants::DeviceControl::OperateType operateType);
+    static void CreateOperationObject(napi_env env, napi_value value);
+    static bool ConvertOperation(napi_env env, napi_valuetype operateType,
+        OperateDeviceParam &param, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

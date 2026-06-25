@@ -28,15 +28,27 @@ using namespace OHOS::EDM;
 
 napi_value DeviceControlAddon::Init(napi_env env, napi_value exports)
 {
+    napi_value nOperation = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nOperation));
+    CreateOperationObject(env, nOperation);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("resetFactory", ResetFactory),
         DECLARE_NAPI_FUNCTION("shutdown", Shutdown),
         DECLARE_NAPI_FUNCTION("reboot", Reboot),
         DECLARE_NAPI_FUNCTION("lockScreen", LockScreen),
         DECLARE_NAPI_FUNCTION("operateDevice", OperateDevice),
+        DECLARE_NAPI_PROPERTY("Operation", nOperation),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
+}
+
+void DeviceControlAddon::CreateOperationObject(napi_env env, napi_value value)
+{
+    napi_value nDiskErase;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::DISK_ERASURE), &nDiskErase));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISK_ERASURE", nDiskErase));
 }
 
 void DeviceControlAddon::SetPolicyCommon(AddonMethodSign &addonMethodSign, const std::string &workName)
@@ -176,8 +188,12 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
-        MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
+    bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    napi_valuetype operateType = napi_undefined;
+    napi_typeof(env, argv[ARR_INDEX_ONE], &operateType);
+    if (operateType != napi_string && operateType != napi_number) {
+        matchFlag = false;
+    }
     if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
     }
@@ -186,15 +202,15 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(
         env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error");
-    EDMLOGD("resetFactory: elementName.bundlename %{public}s, abilityname:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     OperateDeviceParam param;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.operate, argv[ARR_INDEX_ONE]), "operate param error");
+    if (!ConvertOperation(env, operateType, param, argv[ARR_INDEX_ONE])) {
+        return nullptr;
+    }
     if (argc > ARGS_SIZE_TWO) {
         ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
             "addition param error");
-        if (param.operate == "diskErase") {
-            if (!ReadFileToBytes(param.addition, param.size, param.file)) {
+        if (param.operate == EdmConstants::DeviceControl::DISK_ERASE) {
+            if (!param.addition.empty() && !ReadFileToBytes(param.addition, param.size, param.file)) {
                 napi_throw(env,
                     CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
                 return nullptr;
@@ -212,6 +228,41 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
+}
+
+bool DeviceControlAddon::ConvertOperation(napi_env env, napi_valuetype operateType, OperateDeviceParam &param,
+    napi_value value)
+{
+    if (operateType == napi_string) {
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.operate, value),
+            "operate param error");
+        if (param.operate == "diskErase") {
+            EDMLOGE("OperateDevice invalid operate string: %{public}s", param.operate.c_str());
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+            return false;
+        }
+    } else if (operateType == napi_number) {
+        int32_t operateValue = 0;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, operateValue, value),
+            "operate param error");
+        param.operate = ConvertOperateTypeToString(static_cast<EdmConstants::DeviceControl::OperateType>(operateValue));
+        if (param.operate.empty()) {
+            EDMLOGE("OperateDevice invalid operate enum value: %{public}d", operateValue);
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string DeviceControlAddon::ConvertOperateTypeToString(EdmConstants::DeviceControl::OperateType operateType)
+{
+    switch (operateType) {
+        case EdmConstants::DeviceControl::OperateType::DISK_ERASURE:
+            return EdmConstants::DeviceControl::DISK_ERASE;
+        default:
+            return "";
+    }
 }
 
 static napi_module g_deviceControlModule = {
