@@ -71,7 +71,7 @@ ErrCode DisallowExternalStorageCardPlugin::UnmountStorageDevice()
         return ERR_OK;
     }
     for (auto &vol : volList) {
-        if (HOS::DiskManager::DiskManagerClient::GetInstance().Unmount(vol.GetId()) != ERR_OK) {
+        if (OHOS::DiskManager::DiskManagerClient::GetInstance().Unmount(vol.GetId()) != ERR_OK) {
             EDMLOGE("DisallowExternalStorageCardPlugin SetPolicy diskMgr Unmount failed!");
             return EdmReturnErrCode::DISALLOW_NOT_TAKE_EFFECT;
         }
