@@ -62,6 +62,7 @@ bool ArrayStringSerializer::Serialize(const std::vector<std::string> &dataObj, s
     }
     char *jsonStr = cJSON_PrintUnformatted(arrayData);
     if (jsonStr == nullptr) {
+        cJSON_Delete(arrayData);
         return false;
     }
     jsonString = std::string(jsonStr);
