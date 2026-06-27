@@ -247,6 +247,15 @@ namespace EdmConstants {
         const char* const SHUT_DOWN = "shutDown";
         const char* const LOCK_SCREEN = "lockScreen";
         const char* const DISK_ERASE = "diskErase";
+
+        enum class OperateType {
+            UNKNOWN = -1,
+            DISK_ERASURE = 0,
+            LOCK_SCREEN = 1,
+            SHUT_DOWN = 2,
+            REBOOT = 3,
+            RESET_FACTORY = 4,
+        };
     } // namespace DeviceControl
 
     namespace SetApn {
