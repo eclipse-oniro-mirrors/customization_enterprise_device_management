@@ -287,13 +287,13 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
-  if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
+  if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
       usb_manager_edm_enable) {
-    external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+    external_deps += [ "disk_manager:disk_manager_innerkits" ]
     sources += [ "./src/usb_read_only_plugin_test.cpp" ]
   }
 
-  if (storage_service_edm_enable) {
+  if (enterprise_device_management_enable_disk_manager) {
     sources += [ "./src/disallow_external_storage_card_plugin_test.cpp" ]
   }
 
@@ -807,14 +807,14 @@ ohos_static_library("edm_all_plugin_static") {
     ]
   }
 
-  if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
+  if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
       usb_manager_edm_enable) {
-    external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+    external_deps += [ "disk_manager:disk_manager_innerkits" ]
     sources +=
         [ "../../../../services/edm_plugin/src/usb_manager/usb_read_only_plugin.cpp" ]
   }
 
-  if (storage_service_edm_enable) {
+  if (enterprise_device_management_enable_disk_manager) {
     sources +=
         [  "../../../../services/edm_plugin/src/restrictions/disallow_external_storage_card_plugin.cpp" ]
   }

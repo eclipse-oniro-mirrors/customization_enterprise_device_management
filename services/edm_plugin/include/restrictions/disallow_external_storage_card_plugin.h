@@ -17,7 +17,6 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_EXTERNAL_STORAGE_CARD_PLUGIN_H
 
 #include "basic_bool_plugin.h"
-#include "istorage_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -27,7 +26,6 @@ public:
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-    OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
     ErrCode UnmountStorageDevice();
 };
 } // namespace EDM

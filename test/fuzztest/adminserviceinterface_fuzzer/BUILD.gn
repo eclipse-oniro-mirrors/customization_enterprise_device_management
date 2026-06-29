@@ -85,9 +85,9 @@ ohos_fuzztest("AdminServiceInterfaceFuzzTest") {
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
       external_deps += [ "usb_manager:usbsrv_client" ]
     }
-    if (drivers_interface_usb_edm_enable && storage_service_edm_enable &&
+    if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
         usb_manager_edm_enable) {
-      external_deps += [ "storage_service:storage_manager_sa_proxy" ]
+      external_deps += [ "disk_manager:disk_manager_innerkits" ]
     }
     if (bluetooth_edm_enable) {
       external_deps += [ "bluetooth:btframework" ]

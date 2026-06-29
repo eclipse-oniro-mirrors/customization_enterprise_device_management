@@ -17,7 +17,6 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_USB_READ_ONLY_PLUGIN_H
 
 #include "plugin_singleton.h"
-#include "istorage_manager.h"
 #include "usb_interface_type.h"
 
 namespace OHOS {
@@ -44,7 +43,6 @@ private:
     ErrCode DealDisablePolicy(std::vector<USB::UsbDeviceType> usbDeviceTypes);
     ErrCode DealReadPolicy(int32_t accessPolicy, const std::string &allowUsbDevice,
         std::vector<USB::UsbDeviceType> usbDeviceTypes);
-    OHOS::sptr<OHOS::StorageManager::IStorageManager> GetStorageManager();
     ErrCode ReloadUsbDevice();
     ErrCode IsStorageDisabledByDisallowedPolicy(bool &isDisallowed);
 };

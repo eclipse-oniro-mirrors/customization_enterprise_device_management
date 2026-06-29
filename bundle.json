@@ -103,7 +103,7 @@
         "samgr",
         "screenlock_mgr",
         "security_guard",
-        "storage_service",
+        "disk_manager",
         "telephony_data",
         "time_service",
         "udmf",
