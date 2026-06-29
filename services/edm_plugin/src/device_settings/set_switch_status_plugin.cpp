@@ -152,7 +152,7 @@ ErrCode SetSwitchStatusPlugin::OnSetNFCStatus(SwitchStatus status)
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (ret != ERR_OK) {
-        EDMLOGE("SetSwitchStatusPlugin:OnSetBluetoothStatus send request fail. %{public}d", ret);
+        EDMLOGE("SetSwitchStatusPlugin:OnSetNFCStatus send request fail. %{public}d", ret);
         return EdmReturnErrCode::SWITCH_STATUS_FAILED;
     }
     return ERR_OK;
@@ -183,6 +183,7 @@ ErrCode SetSwitchStatusPlugin::OnSetBluetoothStatus(SwitchStatus status)
     }
     if (!ret) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetBluetoothStatus send request fail. %{public}d", ret);
+        return EdmReturnErrCode::SWITCH_STATUS_FAILED;
     }
     return ERR_OK;
 }
@@ -214,6 +215,7 @@ ErrCode SetSwitchStatusPlugin::OnSetWifiStatus(SwitchStatus status)
     }
     if (ret != Wifi::WIFI_OPT_SUCCESS) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetWifiStatus send request fail. %{public}d", ret);
+        return EdmReturnErrCode::SWITCH_STATUS_FAILED;
     }
     return ERR_OK;
 }
