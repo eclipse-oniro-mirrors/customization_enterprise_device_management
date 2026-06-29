@@ -44,6 +44,8 @@ const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
+    sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
+    enterpriseDeviceMgrAbility->OnStart();
     return 0;
 }
 
@@ -97,9 +99,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t pos = 0;
     int32_t stringSize = (size - pos) / 8;
 
-    TEST::Utils::SetUid();
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
-    enterpriseDeviceMgrAbility->OnStart();
     EventFwk::CommonEventData eventData = getCommonEventData(data, size);
 
     enterpriseDeviceMgrAbility->OnCommonEventSystemUpdate(eventData);
@@ -129,7 +129,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     const std::string policyName = CommonFuzzer::GetString(data, pos, stringSize, size);
     const std::string policyValue = CommonFuzzer::GetString(data, pos, stringSize, size);
     std::string bundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
-    TEST::Utils::ResetUid();
     PluginManager::GetInstance()->DumpPlugin();
 
     std::string abilityName = CommonFuzzer::GetString(data, pos, stringSize, size);
