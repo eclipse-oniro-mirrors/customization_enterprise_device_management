@@ -35,7 +35,7 @@ std::shared_ptr<RestrictionsProxy> RestrictionsProxy::GetRestrictionsProxy()
 }
 
 int32_t RestrictionsProxy::SetDisallowedPolicy(const AppExecFwk::ElementName &admin, bool disallow, int policyCode,
-    std::string permissionTag)
+    const std::string &permissionTag)
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->SetPolicyDisabled(admin, disallow, policyCode, permissionTag);
 }
@@ -46,7 +46,7 @@ int32_t RestrictionsProxy::SetDisallowedPolicy(MessageParcel &data, uint32_t pol
 }
 
 int32_t RestrictionsProxy::GetDisallowedPolicy(AppExecFwk::ElementName *admin, int policyCode, bool &result,
-    std::string permissionTag)
+    const std::string &permissionTag)
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, policyCode, result, permissionTag);
 }
@@ -98,7 +98,7 @@ int32_t RestrictionsProxy::IsFingerprintAuthDisabled(AppExecFwk::ElementName *ad
 }
 
 int32_t RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,
-    bool disallow, uint32_t policyCode, std::string permissionTag, int32_t accountId)
+    bool disallow, uint32_t policyCode, const std::string &permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount");
     MessageParcel data;
@@ -115,7 +115,7 @@ int32_t RestrictionsProxy::SetFingerprintAuthDisallowedPolicyForAccount(const Ap
 }
 
 int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,
-    bool disallow, uint32_t policyCode, std::string permissionTag, int32_t accountId)
+    bool disallow, uint32_t policyCode, const std::string &permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::SetDisallowedPolicyForAccount");
     MessageParcel data;
@@ -131,7 +131,7 @@ int32_t RestrictionsProxy::SetDisallowedPolicyForAccount(const AppExecFwk::Eleme
 }
 
 int32_t RestrictionsProxy::GetFingerprintAuthDisallowedPolicyForAccount(AppExecFwk::ElementName *admin,
-    int policyCode, bool &result, std::string permissionTag, int32_t accountId)
+    int policyCode, bool &result, const std::string &permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::GetFingerprintAuthDisallowedPolicyForAccount");
     MessageParcel data;
@@ -159,7 +159,7 @@ int32_t RestrictionsProxy::GetFingerprintAuthDisallowedPolicyForAccount(AppExecF
 }
 
 int32_t RestrictionsProxy::GetDisallowedPolicyForAccount(AppExecFwk::ElementName *admin, int policyCode, bool &result,
-    std::string permissionTag, int32_t accountId)
+    const std::string &permissionTag, int32_t accountId)
 {
     EDMLOGD("RestrictionsProxy::GetDisallowedPolicyForAccount");
     MessageParcel data;
@@ -186,7 +186,7 @@ int32_t RestrictionsProxy::GetDisallowedPolicyForAccount(AppExecFwk::ElementName
 }
 
 int32_t RestrictionsProxy::AddOrRemoveDisallowedListForAccount(const AppExecFwk::ElementName &admin,
-    std::string feature, std::vector<std::string> &bundles, int32_t accountId, bool isAdd)
+    const std::string &feature, std::vector<std::string> &bundles, int32_t accountId, bool isAdd)
 {
     EDMLOGD("RestrictionsProxy::AddOrRemoveDisallowedListForAccount called");
     MessageParcel data;
@@ -209,7 +209,7 @@ int32_t RestrictionsProxy::AddOrRemoveDisallowedListForAccount(const AppExecFwk:
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
-int32_t RestrictionsProxy::GetDisallowedListForAccount(AppExecFwk::ElementName &admin, std::string feature,
+int32_t RestrictionsProxy::GetDisallowedListForAccount(AppExecFwk::ElementName &admin, const std::string &feature,
     int32_t accountId, std::vector<std::string> &result)
 {
     EDMLOGD("RestrictionsProxy::GetDisallowedListForAccount called");
@@ -236,7 +236,7 @@ int32_t RestrictionsProxy::GetDisallowedListForAccount(AppExecFwk::ElementName &
     return ERR_OK;
 }
 
-bool RestrictionsProxy::GetDisallowedListInterfaceCode(std::string feature, std::uint32_t &interfaceCode)
+bool RestrictionsProxy::GetDisallowedListInterfaceCode(const std::string &feature, std::uint32_t &interfaceCode)
 {
     auto it = featureInterfaceMap_.find(feature);
     if (it != featureInterfaceMap_.end()) {
@@ -278,7 +278,7 @@ int32_t RestrictionsProxy::GetUserRestricted(const AppExecFwk::ElementName *admi
 }
 
 int32_t RestrictionsProxy::SetUserRestrictionForAccount(const AppExecFwk::ElementName &admin, int32_t accountId,
-    bool disallow, uint32_t policyCode)
+    bool disallow, const std::string &permissionTag, uint32_t policyCode)
 {
     EDMLOGD("RestrictionsProxy::SetUserRestrictionForAccount called");
     MessageParcel data;
@@ -288,13 +288,13 @@ int32_t RestrictionsProxy::SetUserRestrictionForAccount(const AppExecFwk::Elemen
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
     data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     data.WriteBool(disallow);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
 
 int32_t RestrictionsProxy::GetUserRestrictedForAccount(const AppExecFwk::ElementName *admin, int32_t accountId,
-    int policyCode, bool &result)
+    int policyCode, const std::string &permissionTag, bool &result)
 {
     EDMLOGD("RestrictionsProxy::GetUserRestrictedForAccount called");
     MessageParcel data;
@@ -302,7 +302,7 @@ int32_t RestrictionsProxy::GetUserRestrictedForAccount(const AppExecFwk::Element
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteString(permissionTag);
     if (admin != nullptr) {
         data.WriteInt32(HAS_ADMIN);
         data.WriteParcelable(admin);

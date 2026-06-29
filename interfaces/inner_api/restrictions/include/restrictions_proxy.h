@@ -25,36 +25,36 @@ class RestrictionsProxy {
 public:
     static std::shared_ptr<RestrictionsProxy> GetRestrictionsProxy();
     int32_t SetDisallowedPolicy(const AppExecFwk::ElementName &admin, bool disallow, int policyCode,
-        std::string permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
+        const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t SetDisallowedPolicy(MessageParcel &data, uint32_t policyCode);
     int32_t GetDisallowedPolicy(AppExecFwk::ElementName *admin, int policyCode, bool &result,
-        std::string permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
+        const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t GetDisallowedPolicy(MessageParcel &data, uint32_t policyCode, bool &result);
     int32_t SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disallow);
     int32_t IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result);
-    int32_t SetFingerprintAuthDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow,
-        uint32_t policyCode, std::string permissionTag, int32_t accountId);
-    int32_t SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin, bool disallow, uint32_t policyCode,
-        std::string permissionTag, int32_t accountId);
-    int32_t GetFingerprintAuthDisallowedPolicyForAccount(AppExecFwk::ElementName *admin, int policyCode,
-        bool &result, std::string permissionTag, int32_t accountId);
+    int32_t SetFingerprintAuthDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,
+        bool disallow, uint32_t policyCode, const std::string &permissionTag, int32_t accountId);
+    int32_t SetDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,
+        bool disallow, uint32_t policyCode, const std::string &permissionTag, int32_t accountId);
+    int32_t GetFingerprintAuthDisallowedPolicyForAccount(AppExecFwk::ElementName *admin,
+        int policyCode, bool &result, const std::string &permissionTag, int32_t accountId);
     int32_t GetDisallowedPolicyForAccount(AppExecFwk::ElementName *admin, int policyCode, bool &result,
-        std::string permissionTag, int32_t accountId);
+        const std::string &permissionTag, int32_t accountId);
 
-    int32_t AddOrRemoveDisallowedListForAccount(const AppExecFwk::ElementName &admin, std::string feature,
+    int32_t AddOrRemoveDisallowedListForAccount(const AppExecFwk::ElementName &admin, const std::string &feature,
         std::vector<std::string> &bundles, int32_t accountId, bool isAdd);
-    int32_t GetDisallowedListForAccount(AppExecFwk::ElementName &admin, std::string feature, int32_t accountId,
+    int32_t GetDisallowedListForAccount(AppExecFwk::ElementName &admin, const std::string &feature, int32_t accountId,
         std::vector<std::string> &result);
     int32_t SetUserRestriction(const AppExecFwk::ElementName &admin, bool disallow, int policyCode);
     int32_t GetUserRestricted(const AppExecFwk::ElementName *admin, int policyCode, bool &result);
     int32_t SetUserRestrictionForAccount(const AppExecFwk::ElementName &admin, int32_t accountId,
-        bool disallow, uint32_t policyCode);
+        bool disallow, const std::string &permissionTag, uint32_t policyCode);
     int32_t GetUserRestrictedForAccount(const AppExecFwk::ElementName *admin, int32_t accountId,
-        int policyCode, bool &result);
+        int policyCode, const std::string &permissionTag, bool &result);
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
     static std::once_flag flag_;
-    bool GetDisallowedListInterfaceCode(std::string feature, std::uint32_t &ipcCode);
+    bool GetDisallowedListInterfaceCode(const std::string &feature, std::uint32_t &ipcCode);
     std::unordered_map<std::string, std::uint32_t> featureInterfaceMap_ = {
         {"snapshotSkip", EdmInterfaceCode::SNAPSHOT_SKIP}
     };

@@ -695,7 +695,8 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
-    std::string permissionTag = WITHOUT_PERMISSION_TAG;
+    std::string permissionTag = (errcodeType == ErrcodeType::NUMBER) ?
+        EdmConstants::PERMISSION_TAG_VERSION_23 : WITHOUT_PERMISSION_TAG;
     if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
         ret = proxy->SetFingerprintAuthDisallowedPolicyForAccount(elementName, disallow,
             ipcCode, permissionTag, accountId);
@@ -782,7 +783,8 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
 OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk::ElementName *elementName,
     std::uint32_t ipcCode, int32_t accountId, bool &disallow, ErrcodeType errcodeType)
 {
-    std::string permissionTag = WITHOUT_PERMISSION_TAG;
+    std::string permissionTag = (errcodeType == ErrcodeType::NUMBER) ?
+        EdmConstants::PERMISSION_TAG_VERSION_23 : WITHOUT_PERMISSION_TAG;
     auto proxy = RestrictionsProxy::GetRestrictionsProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get RestrictionsProxy");
@@ -1002,7 +1004,9 @@ napi_value RestrictionsAddon::SetUserRestrictionForAccount(napi_env env, napi_ca
         napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, errcodeType));
         return nullptr;
     }
-    ret = proxy->SetUserRestrictionForAccount(elementName, accountId, disallow, ipcCode);
+    std::string permissionTag = (errcodeType == ErrcodeType::NUMBER) ?
+        EdmConstants::PERMISSION_TAG_VERSION_23 : WITHOUT_PERMISSION_TAG;
+    ret = proxy->SetUserRestrictionForAccount(elementName, accountId, disallow, permissionTag, ipcCode);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, errcodeType));
     }
@@ -1046,8 +1050,10 @@ napi_value RestrictionsAddon::GetUserRestrictedForAccount(napi_env env, napi_cal
         return nullptr;
     }
     bool restricted = false;
+    std::string permissionTag = (errcodeType == ErrcodeType::NUMBER) ?
+        EdmConstants::PERMISSION_TAG_VERSION_23 : WITHOUT_PERMISSION_TAG;
     ret = proxy->GetUserRestrictedForAccount(hasAdmin ? &elementName : nullptr,
-        accountId, ipcCode, restricted);
+        accountId, ipcCode, permissionTag, restricted);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
@@ -1197,19 +1203,25 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndSettingsItem(napi_env env, n
         if (!ParseString(env, settingsItem, value)) {
             return EdmReturnErrCode::PARAM_ERROR;
         }
-        std::unordered_map<std::string, uint32_t> codeMap;
         if (mode == SettingsItemMode::SET_DEVICE) {
-            codeMap = itemCodeMap;
+            auto it = itemCodeMap.find(settingsItem);
+            if (it == itemCodeMap.end()) {
+                return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            }
+            ipcCode = it->second;
         } else if (mode == SettingsItemMode::QUERY_DEVICE) {
-            codeMap = itemQueryCodeMap;
+            auto it = itemQueryCodeMap.find(settingsItem);
+            if (it == itemQueryCodeMap.end()) {
+                return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            }
+            ipcCode = it->second;
         } else {
-            codeMap = itemCodeForAccountMap;
+            auto it = itemCodeForAccountMap.find(settingsItem);
+            if (it == itemCodeForAccountMap.end()) {
+                return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            }
+            ipcCode = it->second;
         }
-        auto itemCode = codeMap.find(settingsItem);
-        if (itemCode == codeMap.end()) {
-            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-        }
-        ipcCode = itemCode->second;
     } else if (MatchValueType(env, value, napi_number)) {
         errcodeType = ErrcodeType::NUMBER;
         int32_t featureNumber = -1;
