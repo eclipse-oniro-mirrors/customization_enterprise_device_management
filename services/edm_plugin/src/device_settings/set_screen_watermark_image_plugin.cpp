@@ -116,14 +116,6 @@ ErrCode SetScreenWatermarkImagePlugin::SetPolicy(MessageParcel &data,
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (!currentData.fileName.empty()) {
-        auto oldPixelMap = GetImageFromUrlUint8(currentData);
-        if (oldPixelMap != nullptr) {
-            Rosen::WMError cleanRet = Rosen::WindowManager::GetInstance().CleanScreenWatermarkImage(oldPixelMap);
-            if (cleanRet != Rosen::WMError::WM_OK) {
-                EDMLOGW("SetScreenWatermarkImagePlugin::SetPolicy CleanScreenWatermarkImage failed, code: %{public}d",
-                    cleanRet);
-            }
-        }
         RemoveImageFile(currentData.fileName);
     }
     auto now = std::chrono::system_clock::now();
