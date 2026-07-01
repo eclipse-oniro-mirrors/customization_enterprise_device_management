@@ -111,6 +111,138 @@ HWTEST_F(SetSwitchStatusPluginTest, OnSetWifiStatusSuccess, TestSize.Level1)
     ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestOnAdminRemoveSuccess
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove when there are multiple admins
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveSuccess, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    dataVec.push_back({SwitchKey::BLUETOOTH, SwitchStatus::FORCE_ON});
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveBluetooth
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove for Bluetooth switch
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveBluetooth, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    dataVec.push_back({SwitchKey::BLUETOOTH, SwitchStatus::FORCE_ON});
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveWifi
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove for WiFi switch
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveWifi, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    dataVec.push_back({SwitchKey::WIFI, SwitchStatus::FORCE_ON});
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveNFC
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove for NFC switch
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveNFC, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    dataVec.push_back({SwitchKey::NFC, SwitchStatus::FORCE_ON});
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveEmptyData
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove with empty data vector
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveEmptyData, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveUnknownKey
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove with unknown switch key
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveUnknownKey, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    dataVec.push_back({SwitchKey::UNKNOWN, SwitchStatus::FORCE_ON});
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveNearlink
+ * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove for Nearlink switch (default case)
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveNearlink, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::string adminName = "com.edm.test.admin";
+    std::vector<SwitchParam> dataVec;
+    dataVec.push_back({SwitchKey::NEARLINK, SwitchStatus::FORCE_ON});
+    std::vector<SwitchParam> mergeData;
+    int32_t userId = 100;
+    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyEmptyParam
+ * @tc.desc: Test SetSwitchStatusPlugin::OnSetPolicy with empty parameter vector
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnSetPolicyEmptyParam, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::vector<SwitchParam> param;
+    MessageParcel reply;
+    ErrCode ret = plugin.OnSetPolicy(param, reply);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
