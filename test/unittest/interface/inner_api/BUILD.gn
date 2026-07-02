@@ -67,6 +67,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   defines = []
