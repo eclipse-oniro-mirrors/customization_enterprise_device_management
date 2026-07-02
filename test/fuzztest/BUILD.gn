@@ -43,6 +43,8 @@ group("fuzztest") {
     "edmplugin_fuzzer:EdmPluginFuzzTest",
     "disallowednearlinkprotocolsplugin_fuzzer:DisallowedNearlinkProtocolsPluginFuzzTest",
     "enterprisedevicemgrability_fuzzer:EnterpriseDeviceMgrAbilityFuzzTest",
+    "enterprisedevicemgrabilitypartone_fuzzer:EnterpriseDeviceMgrAbilityPartOneFuzzTest",
+    "enterprisedevicemgrabilityparttwo_fuzzer:EnterpriseDeviceMgrAbilityPartTwoFuzzTest",
     "enterprisedevicemgrstubmock_fuzzer:EnterpriseDeviceMgrStubMockFuzzTest",
     "fingerprintauthplugin_fuzzer:FingerprintAuthPluginFuzzTest",
     "firewallruleplugin_fuzzer:FireWallRulePluginFuzzTest",
