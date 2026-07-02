@@ -62,9 +62,11 @@ ohos_shared_library("enterprise_admin_extension") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "libuv:uv",
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
+    "node:node_header_notice",
     "cJSON:cjson",
   ]
 
