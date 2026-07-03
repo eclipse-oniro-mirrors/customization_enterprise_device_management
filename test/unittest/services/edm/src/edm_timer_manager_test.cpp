@@ -21,6 +21,7 @@
 
 #define private public
 #define protected public
+#include "edm_timer_info.h"
 #include "edm_timer_manager.h"
 #undef protected
 #undef private
@@ -135,6 +136,147 @@ HWTEST_F(EdmTimerManagerTest, IsTimerRunning_TimerRunning_ReturnTrue, TestSize.L
 HWTEST_F(EdmTimerManagerTest, IsTimerRunning_NonExistentTaskId_ReturnFalse, TestSize.Level1)
 {
     EXPECT_FALSE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
+}
+
+/**
+ * @tc.name: EdmTimerManager_SetTimer_TimerInfoTypeSet_CorrectTypeValue
+ * @tc.desc: Test SetTimer sets timerInfo type to the correct combined value of REALTIME|WAKEUP|EXACT.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmTimerManagerTest, SetTimer_TimerInfoTypeSet_CorrectTypeValue, TestSize.Level1)
+{
+    std::atomic<bool> callbackExecuted{false};
+    bool ret = instance_->SetTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER, 5000, [&callbackExecuted]() {
+        callbackExecuted.store(true);
+    });
+    EXPECT_TRUE(ret);
+
+    std::lock_guard<std::mutex> lock(instance_->mutex_);
+    auto it = instance_->timerTaskMap_.find(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
+    ASSERT_TRUE(it != instance_->timerTaskMap_.end());
+    auto &timerInfo = it->second.timerInfo;
+    ASSERT_TRUE(timerInfo != nullptr);
+    int32_t expectedType = static_cast<int32_t>(
+        static_cast<uint8_t>(timerInfo->TIMER_TYPE_REALTIME) |
+        static_cast<uint8_t>(timerInfo->TIMER_TYPE_WAKEUP) |
+        static_cast<uint8_t>(timerInfo->TIMER_TYPE_EXACT));
+    EXPECT_EQ(timerInfo->type, expectedType);
+    EXPECT_FALSE(timerInfo->repeat);
+    EXPECT_EQ(timerInfo->interval, 0);
+    EXPECT_TRUE(timerInfo->callback_ != nullptr);
+    EXPECT_TRUE(timerInfo->cleanupCallback_ != nullptr);
+    EXPECT_NE(it->second.timerId, 0);
+}
+
+/**
+ * @tc.name: EdmTimerManager_CancelTimer_ThenSetSameTimer_ReturnTrue
+ * @tc.desc: Test cancelling a timer then setting the same timer again returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmTimerManagerTest, CancelTimer_ThenSetSameTimer_ReturnTrue, TestSize.Level1)
+{
+    std::atomic<bool> callbackExecuted{false};
+    bool ret1 = instance_->SetTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER, 5000, [&callbackExecuted]() {
+        callbackExecuted.store(true);
+    });
+    EXPECT_TRUE(ret1);
+    EXPECT_TRUE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
+
+    instance_->CancelTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
+    EXPECT_FALSE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
+
+    bool ret2 = instance_->SetTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER, 5000, [&callbackExecuted]() {
+        callbackExecuted.store(true);
+    });
+    EXPECT_TRUE(ret2);
+    EXPECT_TRUE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
+}
+
+/**
+ * @tc.name: EdmTimerManager_GetSystemBootTime_ReturnNonZero_TimeServiceAvailable
+ * @tc.desc: Test GetSystemBootTime returns a value when TimeServiceClient is available.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmTimerManagerTest, GetSystemBootTime_ReturnNonZero_TimeServiceAvailable, TestSize.Level1)
+{
+    uint64_t bootTime = instance_->GetSystemBootTime();
+    EXPECT_TRUE(bootTime > 0);
+}
+
+/**
+ * @tc.name: EdmTimerManager_SetTimer_TimerTaskMapSizeIncreased_MapSizeOne
+ * @tc.desc: Test SetTimer increases timerTaskMap size by one.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmTimerManagerTest, SetTimer_TimerTaskMapSizeIncreased_MapSizeOne, TestSize.Level1)
+{
+    std::atomic<bool> callbackExecuted{false};
+    size_t initialSize = instance_->timerTaskMap_.size();
+    bool ret = instance_->SetTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER, 5000, [&callbackExecuted]() {
+        callbackExecuted.store(true);
+    });
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(instance_->timerTaskMap_.size(), initialSize + 1);
+
+    instance_->CancelTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
+    EXPECT_EQ(instance_->timerTaskMap_.size(), 0);
+}
+
+/**
+ * @tc.name: EdmTimerManager_SetTimer_CleanupCallbackInvoked_CancelTimerCalled
+ * @tc.desc: Test cleanupCallback of EdmTimerInfo calls CancelTimer to remove the timer task.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmTimerManagerTest, SetTimer_CleanupCallbackInvoked_CancelTimerCalled, TestSize.Level1)
+{
+    std::atomic<bool> callbackExecuted{false};
+    bool ret = instance_->SetTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER, 5000, [&callbackExecuted]() {
+        callbackExecuted.store(true);
+    });
+    EXPECT_TRUE(ret);
+    EXPECT_TRUE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
+
+    // 获取cleanupCallback_（不持有锁，避免死锁）
+    std::function<void()> cleanupCallback;
+    {
+        std::lock_guard<std::mutex> lock(instance_->mutex_);
+        auto it = instance_->timerTaskMap_.find(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
+        ASSERT_TRUE(it != instance_->timerTaskMap_.end());
+        cleanupCallback = it->second.timerInfo->cleanupCallback_;
+    }
+    ASSERT_TRUE(cleanupCallback != nullptr);
+
+    // 调用cleanupCallback_，验证其会调用CancelTimer
+    cleanupCallback();
+    EXPECT_FALSE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
+}
+
+/**
+ * @tc.name: EdmTimerManager_SetTimer_CallbackInvoked_CallbackExecuted
+ * @tc.desc: Test callback of EdmTimerInfo executes the user-provided callback function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmTimerManagerTest, SetTimer_CallbackInvoked_CallbackExecuted, TestSize.Level1)
+{
+    std::atomic<bool> callbackExecuted{false};
+    bool ret = instance_->SetTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER, 5000, [&callbackExecuted]() {
+        callbackExecuted.store(true);
+    });
+    EXPECT_TRUE(ret);
+
+    // 获取callback_（不持有锁）
+    std::function<void()> mainCallback;
+    {
+        std::lock_guard<std::mutex> lock(instance_->mutex_);
+        auto it = instance_->timerTaskMap_.find(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
+        ASSERT_TRUE(it != instance_->timerTaskMap_.end());
+        mainCallback = it->second.timerInfo->callback_;
+    }
+    ASSERT_TRUE(mainCallback != nullptr);
+
+    // 调用callback_，验证其执行了用户回调
+    mainCallback();
+    EXPECT_TRUE(callbackExecuted.load());
 }
 } // namespace TEST
 } // namespace EDM

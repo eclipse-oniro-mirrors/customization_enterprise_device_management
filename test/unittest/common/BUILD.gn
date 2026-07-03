@@ -32,6 +32,7 @@ ohos_unittest("EdmCommonUnitTest") {
     "./bundle_manager_utils_test.cpp",
     "./edm_sys_manager_test.cpp",
     "./edm_utils_test.cpp",
+    "./hisysevent_adapter_test.cpp",
     "./installed_bundle_info_util_test.cpp",
     "./password_policy_utils_test.cpp",
     "./external/edm_access_token_manager_impl_test.cpp",
