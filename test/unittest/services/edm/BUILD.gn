@@ -546,6 +546,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/device_policies_storage_rdb_test.cpp",
     "./src/disallow_distributed_transmission_full_query_test.cpp",
     "./src/edm_bluetooth_manager_impl_test.cpp",
+    "./src/edm_timer_info_test.cpp",
     "./src/edm_timer_manager_test.cpp",
     "./src/enhance_execute_strategy_test.cpp",
     "./src/enterprise_conn_manager_test.cpp",

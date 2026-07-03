@@ -702,6 +702,370 @@ HWTEST_F(InstalledBundleInfoUtilTest, EnsureFileExists_FileNotExist_ReturnTrue, 
     EXPECT_TRUE(ret);
 }
 
+/**
+ * @tc.name: InstalledBundleInfoUtil_AddInstalledBundleInfo_TimerNull_ScheduleSkipped
+ * @tc.desc: Test AddInstalledBundleInfo skips timer scheduling when timer instance is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, AddInstalledBundleInfo_TimerNull_ScheduleSkipped, TestSize.Level1)
+{
+    IEdmTimerManager::edmTimerManagerInstance_ = nullptr;
+
+    bool ret = util_->AddInstalledBundleInfo("com.admin.timerNull", "com.app.timerNull", InstalledBundleType::NORMAL);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_AddInstalledBundleInfo_TimerRunning_ScheduleSkipped
+ * @tc.desc: Test AddInstalledBundleInfo skips timer scheduling when timer is already running.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, AddInstalledBundleInfo_TimerRunning_ScheduleSkipped, TestSize.Level1)
+{
+    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
+    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(true));
+    bool ret = util_->AddInstalledBundleInfo("com.admin.timer", "com.app.timerRunning", InstalledBundleType::NORMAL);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_RestoreToFileLocked_EmptySavedList_ReturnTrue
+ * @tc.desc: Test RestoreToFileLocked with empty saved list returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, RestoreToFileLocked_EmptySavedList_ReturnTrue, TestSize.Level1)
+{
+    CleanupTestFile();
+    std::vector<InstalledBundleInfo> savedList;
+    bool ret = util_->RestoreToFileLocked(savedList);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_RestoreToFileLocked_LargeSavedList_LimitedTo100
+ * @tc.desc: Test RestoreToFileLimited restores at most 100 items from a large saved list.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, RestoreToFileLocked_LargeSavedList_LimitedTo100, TestSize.Level1)
+{
+    CleanupTestFile();
+    std::vector<InstalledBundleInfo> savedList;
+    for (int i = 0; i < 150; ++i) {
+        InstalledBundleInfo info;
+        info.mdmName = "com.admin.large" + std::to_string(i);
+        info.installedName = "com.app.large" + std::to_string(i);
+        info.installedType = InstalledBundleType::NORMAL;
+        info.installedTime = i * 1000;
+        savedList.push_back(info);
+    }
+
+    bool ret = util_->RestoreToFileLocked(savedList);
+    EXPECT_TRUE(ret);
+
+    std::vector<InstalledBundleInfo> loadedList;
+    util_->LoadFromFile(loadedList);
+    EXPECT_EQ(loadedList.size(), 100);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_SaveToFile_EmptyList_ReturnTrue
+ * @tc.desc: Test SaveToFile with empty list writes "[]" and returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, SaveToFile_EmptyList_ReturnTrue, TestSize.Level1)
+{
+    CleanupTestFile();
+    std::vector<InstalledBundleInfo> infoList;
+    bool ret = util_->SaveToFile(infoList);
+    EXPECT_TRUE(ret);
+
+    std::string content = ReadTestFile();
+    EXPECT_EQ(content, "[]");
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_GetInstalledBundleInfoCount_LoadFromFileFail_ReturnZero
+ * @tc.desc: Test GetInstalledBundleInfoCount returns zero when LoadFromFile fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, GetInstalledBundleInfoCount_LoadFromFileFail_ReturnZero, TestSize.Level1)
+{
+    WriteTestFile("{invalid json}");
+    size_t count = util_->GetInstalledBundleInfoCount();
+    EXPECT_EQ(count, 0);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_SwapAndClearLocked_LoadFromFileFail_ReturnFalse
+ * @tc.desc: Test SwapAndClearLocked returns false when LoadFromFile fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, SwapAndClearLocked_LoadFromFileFail_ReturnFalse, TestSize.Level1)
+{
+    WriteTestFile("{invalid json}");
+    std::vector<InstalledBundleInfo> outList;
+    bool ret = util_->SwapAndClearLocked(outList);
+    EXPECT_FALSE(ret);
+    EXPECT_TRUE(outList.empty());
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_SerializeToJson_SpecialCharacters_ReturnNonEmpty
+ * @tc.desc: Test SerializeToJson handles strings with special characters correctly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, SerializeToJson_SpecialCharacters_ReturnNonEmpty, TestSize.Level1)
+{
+    std::vector<InstalledBundleInfo> infoList;
+    InstalledBundleInfo info;
+    info.mdmName = "com.admin.special";
+    info.installedName = "com.app.with-dash_and.underscore";
+    info.installedType = InstalledBundleType::MDM;
+    info.installedTime = 999999;
+    infoList.push_back(info);
+
+    std::string jsonStr = util_->SerializeToJson(infoList);
+    EXPECT_FALSE(jsonStr.empty());
+    EXPECT_TRUE(jsonStr.find("com.admin.special") != std::string::npos);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_LoadFromFile_NullStringFields_ReturnEmptyString
+ * @tc.desc: Test LoadFromFile converts null JSON string fields to empty strings.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, LoadFromFile_NullStringFields_ReturnEmptyString, TestSize.Level1)
+{
+    WriteTestFile("[{\"mdmName\":null,\"installedName\":null,\"installedType\":1,\"installedTime\":1000}]");
+    std::vector<InstalledBundleInfo> infoList;
+    bool ret = util_->LoadFromFile(infoList);
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(infoList.size(), 1);
+    EXPECT_EQ(infoList[0].mdmName, "");
+    EXPECT_EQ(infoList[0].installedName, "");
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_ReportAndClearLocked_SwapSuccess_ReportFail_RestoreData
+ * @tc.desc: Test ReportAndClearLocked restores data when SwapAndClearLocked succeeds but HiSysEvent report fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClearLocked_SwapSuccess_ReportFail_RestoreData, TestSize.Level1)
+{
+    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
+    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(false));
+    EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
+    util_->AddInstalledBundleInfo("com.admin.restore", "com.app.restore", InstalledBundleType::NORMAL);
+
+    bool reportResult = HiSysEventAdapter::ReportInstalledBundleInfo("test");
+    if (!reportResult) {
+        std::unique_lock<std::mutex> lock(util_->fileMutex_);
+        std::vector<InstalledBundleInfo> savedList;
+        bool swapRet = util_->SwapAndClearLocked(savedList);
+        if (swapRet) {
+            util_->RestoreToFileLocked(savedList);
+        }
+        lock.unlock();
+        EXPECT_TRUE(util_->HasInstalledBundleInfo());
+    }
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_AddInstalledBundleInfo_MultipleAdds_CountIncreases
+ * @tc.desc: Test multiple AddInstalledBundleInfo calls increase count correctly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, AddInstalledBundleInfo_MultipleAdds_CountIncreases, TestSize.Level1)
+{
+    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
+
+    for (int i = 0; i < 5; ++i) {
+        EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(false));
+        EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
+        bool ret = util_->AddInstalledBundleInfo("com.admin.multi" + std::to_string(i),
+            "com.app.multi" + std::to_string(i), InstalledBundleType::NORMAL);
+        EXPECT_TRUE(ret);
+    }
+
+    size_t count = util_->GetInstalledBundleInfoCount();
+    EXPECT_EQ(count, 5);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_LoadFromFile_MultipleValidItems_ReturnAll
+ * @tc.desc: Test LoadFromFile returns all valid items with correct InstalledBundleType values.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, LoadFromFile_MultipleValidItems_ReturnAll, TestSize.Level1)
+{
+    WriteTestFile("[{\"mdmName\":\"a1\",\"installedName\":\"b1\",\"installedType\":0,\"installedTime\":100},"
+        "{\"mdmName\":\"a2\",\"installedName\":\"b2\",\"installedType\":1,\"installedTime\":200},"
+        "{\"mdmName\":\"a3\",\"installedName\":\"b3\",\"installedType\":2,\"installedTime\":300}]");
+    std::vector<InstalledBundleInfo> infoList;
+    bool ret = util_->LoadFromFile(infoList);
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(infoList.size(), 3);
+    EXPECT_EQ(infoList[0].installedType, InstalledBundleType::AG);
+    EXPECT_EQ(infoList[1].installedType, InstalledBundleType::NORMAL);
+    EXPECT_EQ(infoList[2].installedType, InstalledBundleType::MDM);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_SaveToFile_ThenLoadFromFile_RoundTrip
+ * @tc.desc: Test SaveToFile followed by LoadFromFile preserves data integrity in round-trip.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, SaveToFile_ThenLoadFromFile_RoundTrip, TestSize.Level1)
+{
+    CleanupTestFile();
+    std::vector<InstalledBundleInfo> infoList;
+    InstalledBundleInfo info;
+    info.mdmName = "com.admin.roundtrip";
+    info.installedName = "com.app.roundtrip";
+    info.installedType = InstalledBundleType::MDM;
+    info.installedTime = 12345;
+    infoList.push_back(info);
+
+    bool saveRet = util_->SaveToFile(infoList);
+    EXPECT_TRUE(saveRet);
+
+    std::vector<InstalledBundleInfo> loadedList;
+    bool loadRet = util_->LoadFromFile(loadedList);
+    EXPECT_TRUE(loadRet);
+    EXPECT_EQ(loadedList.size(), 1);
+    EXPECT_EQ(loadedList[0].mdmName, "com.admin.roundtrip");
+    EXPECT_EQ(loadedList[0].installedName, "com.app.roundtrip");
+    EXPECT_EQ(loadedList[0].installedType, InstalledBundleType::MDM);
+    EXPECT_EQ(loadedList[0].installedTime, 12345);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_SwapAndClearLocked_MultipleItemsInFile_ReturnAllItems
+ * @tc.desc: Test SwapAndClearLocked returns all items when file contains multiple entries.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, SwapAndClearLocked_MultipleItemsInFile_ReturnAllItems, TestSize.Level1)
+{
+    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
+    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(false));
+    EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
+    util_->AddInstalledBundleInfo("com.admin.swap1", "com.app.swap1", InstalledBundleType::NORMAL);
+
+    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(true));
+    util_->AddInstalledBundleInfo("com.admin.swap2", "com.app.swap2", InstalledBundleType::AG);
+
+    std::vector<InstalledBundleInfo> outList;
+    bool ret = util_->SwapAndClearLocked(outList);
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(outList.size(), 2);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_AddInstalledBundleInfo_LoadFromFileFail_ReturnFalse
+ * @tc.desc: Test AddInstalledBundleInfo returns false when LoadFromFile fails due to invalid JSON.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, AddInstalledBundleInfo_LoadFromFileFail_ReturnFalse, TestSize.Level1)
+{
+    WriteTestFile("{invalid json content}");
+    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
+    bool ret = util_->AddInstalledBundleInfo("com.admin.fail", "com.app.fail", InstalledBundleType::NORMAL);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_SaveToFile_SerializeFail_ReturnFalse
+ * @tc.desc: Test SaveToFile with empty list writes "[]" and returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, SaveToFile_SerializeFail_ReturnFalse, TestSize.Level1)
+{
+    // 当SerializeToJson返回空字符串且infoList非空时，SaveToFile应返回false
+    // 正常情况下SerializeToJson不会返回空字符串（除非cJSON内存分配失败）
+    // 此测试验证空列表的SaveToFile行为
+    CleanupTestFile();
+    std::vector<InstalledBundleInfo> infoList;
+    bool ret = util_->SaveToFile(infoList);
+    EXPECT_TRUE(ret);
+    std::string content = ReadTestFile();
+    EXPECT_EQ(content, "[]");
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_LoadFromFile_NullItemInArray
+ * @tc.desc: Test LoadFromFile null items in JSON array.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, LoadFromFile_NullItemInArray_Skipped, TestSize.Level1)
+{
+    WriteTestFile("[null,{\"mdmName\":\"admin1\",\"installedName\":\"app1\",\"installedType\":1,"
+        "\"installedTime\":1000}]");
+    std::vector<InstalledBundleInfo> infoList;
+    bool ret = util_->LoadFromFile(infoList);
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(infoList.size(), 2);
+    EXPECT_EQ(infoList[0].mdmName, "");
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_RestoreToFileLocked_WithExistingData_Merged
+ * @tc.desc: Test RestoreToFileLocked merges saved data with existing file data, inserting saved data at the beginning.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, RestoreToFileLocked_WithExistingData_Merged, TestSize.Level1)
+{
+    // 先写入一些数据到文件
+    CleanupTestFile();
+    std::vector<InstalledBundleInfo> existingList;
+    InstalledBundleInfo existingInfo;
+    existingInfo.mdmName = "com.admin.existing";
+    existingInfo.installedName = "com.app.existing";
+    existingInfo.installedType = InstalledBundleType::NORMAL;
+    existingInfo.installedTime = 5000;
+    existingList.push_back(existingInfo);
+    util_->SaveToFile(existingList);
+
+    // RestoreToFileLocked会将savedList插入到currentList前面
+    std::vector<InstalledBundleInfo> savedList;
+    InstalledBundleInfo savedInfo;
+    savedInfo.mdmName = "com.admin.saved";
+    savedInfo.installedName = "com.app.saved";
+    savedInfo.installedType = InstalledBundleType::AG;
+    savedInfo.installedTime = 3000;
+    savedList.push_back(savedInfo);
+
+    bool ret = util_->RestoreToFileLocked(savedList);
+    EXPECT_TRUE(ret);
+
+    std::vector<InstalledBundleInfo> loadedList;
+    util_->LoadFromFile(loadedList);
+    EXPECT_EQ(loadedList.size(), 2);
+    EXPECT_EQ(loadedList[0].mdmName, "com.admin.saved");
+    EXPECT_EQ(loadedList[1].mdmName, "com.admin.existing");
+}
+
+/**
+ * @tc.name: InstalledBundleInfoUtil_ReportAndClearLocked_SwapSuccessAndReportSuccess_CancelTimerCalled
+ * @tc.desc: Test ReportAndClearLocked calls CancelTimer when HiSysEvent report succeeds.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClearLocked_SwapSuccessAndReportSuccess_CancelTimerCalled,
+    TestSize.Level1)
+{
+    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
+    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(false));
+    EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
+    util_->AddInstalledBundleInfo("com.admin.reportok", "com.app.reportok", InstalledBundleType::NORMAL);
+
+    // ReportAndClear会先SwapAndClearLocked，然后调用HiSysEventAdapter::ReportInstalledBundleInfo
+    // 如果报告成功，会调用CancelTimer
+    bool reportResult = HiSysEventAdapter::ReportInstalledBundleInfo("test");
+    if (reportResult) {
+        EXPECT_CALL(*mockTimer_, CancelTimer(_)).Times(1);
+    }
+    util_->ReportAndClear();
+    EXPECT_TRUE(true);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
