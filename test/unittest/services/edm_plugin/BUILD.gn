@@ -99,6 +99,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/utils/allowed_app_distribution_types_utils_test.cpp",
     "./src/utils/managed_browser_policy_serializer_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
+    "./src/utils/switch_param_serializer_test.cpp",
     "./src/disallowed_sms_plugin_test.cpp",
     "./src/disallowed_mms_plugin_test.cpp",
     "./src/set_allowed_kiosk_apps_plugin_test.cpp",
