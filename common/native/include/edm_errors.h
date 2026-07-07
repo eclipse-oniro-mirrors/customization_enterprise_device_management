@@ -108,6 +108,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t CANNOT_DISALLOW_PERMISSION = 9201045;
     constexpr uint32_t LOGIN_USER_NUMBER_UPPER_LIMIT = 9201046;
     constexpr uint32_t DISK_ERASE_FAILED = 9201048;
+    constexpr uint32_t EDM_ERR_UKEY_TIMEOUT = 9201050;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

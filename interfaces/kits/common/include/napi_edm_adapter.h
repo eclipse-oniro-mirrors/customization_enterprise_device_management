@@ -79,6 +79,8 @@ struct AsyncAddonData {
 struct AdapterAddonData : public AsyncCallbackInfo {
     // Business parameters
     MessageParcel data;
+    // IPC reply data
+    MessageParcel reply;
     // Business callback error
     BusinessError error;
     // Business callback result data

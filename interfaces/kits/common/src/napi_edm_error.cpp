@@ -121,6 +121,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "This permission is not disallowed. Applications cannot be added to or removed from the trustlist."},
     {EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION,
         "This permission cannot be disallowed."},
+    {EdmReturnErrCode::EDM_ERR_UKEY_TIMEOUT,
+        "UKey session timed out. $"},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)

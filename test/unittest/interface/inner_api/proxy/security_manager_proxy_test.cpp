@@ -704,6 +704,235 @@ HWTEST_F(SecurityManagerProxyTest, TestGetWatermarkImageAppsFail, TestSize.Level
     int32_t ret = proxy_->GetWatermarkImageApps(data, bundleNames);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestOpenSessionSuc
+ * @tc.desc: Test OpenSession success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestOpenSessionSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(100);
+    MessageParcel reply;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->OpenSession(data, reply);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestOpenSessionFail
+ * @tc.desc: Test OpenSession without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestOpenSessionFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(100);
+    MessageParcel reply;
+    int32_t ret = proxy_->OpenSession(data, reply);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestCloseSessionSuc
+ * @tc.desc: Test CloseSession success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestCloseSessionSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(100);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->CloseSession(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestCloseSessionFail
+ * @tc.desc: Test CloseSession without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestCloseSessionFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(100);
+    int32_t ret = proxy_->CloseSession(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestAddUserExtCredentialSuc
+ * @tc.desc: Test AddUserExtCredential success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestAddUserExtCredentialSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteString("testPluginInfo");
+    std::vector<uint8_t> authToken = {0x01, 0x02, 0x03};
+    data.WriteUInt8Vector(authToken);
+    data.WriteInt32(100);
+    MessageParcel reply;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->AddUserExtCredential(data, reply);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestAddUserExtCredentialFail
+ * @tc.desc: Test AddUserExtCredential without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestAddUserExtCredentialFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteString("testPluginInfo");
+    MessageParcel reply;
+    int32_t ret = proxy_->AddUserExtCredential(data, reply);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestRemoveUserExtCredentialSuc
+ * @tc.desc: Test RemoveUserExtCredential success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestRemoveUserExtCredentialSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<uint8_t> credIdVec = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+    data.WriteUInt8Vector(credIdVec);
+    std::vector<uint8_t> authToken = {0x01, 0x02, 0x03};
+    data.WriteUInt8Vector(authToken);
+    data.WriteInt32(100);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->RemoveUserExtCredential(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveUserExtCredentialFail
+ * @tc.desc: Test RemoveUserExtCredential without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestRemoveUserExtCredentialFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    std::vector<uint8_t> credIdVec = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+    data.WriteUInt8Vector(credIdVec);
+    int32_t ret = proxy_->RemoveUserExtCredential(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUserExtCredentialSuc
+ * @tc.desc: Test GetUserExtCredential success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetUserExtCredentialSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(100);
+    MessageParcel reply;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t ret = proxy_->GetUserExtCredential(data, reply);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetUserExtCredentialFail
+ * @tc.desc: Test GetUserExtCredential without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetUserExtCredentialFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(100);
+    MessageParcel reply;
+    int32_t ret = proxy_->GetUserExtCredential(data, reply);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestSetUnlockPolicySuc
+ * @tc.desc: Test SetUnlockPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetUnlockPolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(1);
+    data.WriteInt32(100);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetUnlockPolicy(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetUnlockPolicyFail
+ * @tc.desc: Test SetUnlockPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetUnlockPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(1);
+    data.WriteInt32(100);
+    int32_t ret = proxy_->SetUnlockPolicy(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUnlockPolicySuc
+ * @tc.desc: Test GetUnlockPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetUnlockPolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(100);
+    int32_t policy = -1;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    int32_t ret = proxy_->GetUnlockPolicy(data, policy);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(policy, 0);
+}
+
+/**
+ * @tc.name: TestGetUnlockPolicyFail
+ * @tc.desc: Test GetUnlockPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetUnlockPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(100);
+    int32_t policy = -1;
+    int32_t ret = proxy_->GetUnlockPolicy(data, policy);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -764,6 +764,23 @@ void ConvertInt32VectorToJS(napi_env env, const std::vector<int32_t> &int32Vecto
     }
 }
 
+napi_value ConvertUint8ArrayToJS(napi_env env, const uint8_t *data, size_t length)
+{
+    void *arrayBufferData = nullptr;
+    napi_value arrayBuffer = nullptr;
+    NAPI_CALL(env, napi_create_arraybuffer(env, length, &arrayBufferData, &arrayBuffer));
+    if (data != nullptr && arrayBufferData != nullptr) {
+        errno_t ret = memcpy_s(arrayBufferData, length, data, length);
+        if (ret != EOK) {
+            EDMLOGE("ConvertUint8ArrayToJS memcpy_s failed, ret: %{public}d", ret);
+            return nullptr;
+        }
+    }
+    napi_value typedArray = nullptr;
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, length, arrayBuffer, 0, &typedArray));
+    return typedArray;
+}
+
 void ConvertApplicationInstanceVectorToJS(napi_env env,
     const std::vector<ApplicationInstance> &applicationInstanceVector, napi_value result)
 {

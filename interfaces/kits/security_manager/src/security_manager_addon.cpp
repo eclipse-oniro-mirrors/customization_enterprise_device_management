@@ -20,14 +20,17 @@
 
 #include "cJSON.h"
 #include "pixel_map_napi.h"
+#include "securec.h"
 
 #include "cjson_check.h"
 #include "clipboard_policy.h"
 #include "device_settings_proxy.h"
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_log.h"
 #include "managed_policy.h"
 #include "override_interface_name.h"
+#include "unlock_policy.h"
 
 using namespace OHOS::EDM;
 
@@ -46,7 +49,10 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nPasswordAlgs = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nPasswordAlgs));
     CreatePasswordAlgsObject(env, nPasswordAlgs);
-    napi_property_descriptor property[] = {
+    napi_value nUnlockPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nUnlockPolicy));
+    CreateUnlockPolicyObject(env, nUnlockPolicy);
+    std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::SET_PASSWORD_POLICY, SetPasswordPolicy),
@@ -75,14 +81,31 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setScreenLockDisabledForAccount", SetScreenLockDisabledForAccount),
         DECLARE_NAPI_FUNCTION("isScreenLockDisabledForAccount", IsScreenLockDisabledForAccount),
         DECLARE_NAPI_FUNCTION("setDisallowedPermission", SetDisallowedPermission),
+        DECLARE_NAPI_FUNCTION("getWatermarkImageApps", GetWatermarkImageApps),
+    };
+    std::vector<napi_property_descriptor> propertyOne = InitOne(nUnlockPolicy);
+    property.insert(property.end(), propertyOne.begin(), propertyOne.end());
+    NAPI_CALL(env, napi_define_properties(env, exports, property.size(), property.data()));
+    return exports;
+}
+
+std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value nUnlockPolicy)
+{
+    std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getDisallowedPermissions", GetDisallowedPermissions),
         DECLARE_NAPI_FUNCTION("addAllowedPermissionBundle", AddAllowedPermissionBundle),
         DECLARE_NAPI_FUNCTION("removeAllowedPermissionBundle", RemoveAllowedPermissionBundle),
         DECLARE_NAPI_FUNCTION("getAllowedPermissionBundles", GetAllowedPermissionBundles),
-        DECLARE_NAPI_FUNCTION("getWatermarkImageApps", GetWatermarkImageApps),
+        DECLARE_NAPI_FUNCTION("openSession", OpenSession),
+        DECLARE_NAPI_FUNCTION("closeSession", CloseSession),
+        DECLARE_NAPI_FUNCTION("addUserExtCredential", AddUserExtCredential),
+        DECLARE_NAPI_FUNCTION("removeUserExtCredential", RemoveUserExtCredential),
+        DECLARE_NAPI_FUNCTION("getUserExtCredential", GetUserExtCredential),
+        DECLARE_NAPI_FUNCTION("setUnlockPolicy", SetUnlockPolicy),
+        DECLARE_NAPI_FUNCTION("getUnlockPolicy", GetUnlockPolicy),
+        DECLARE_NAPI_PROPERTY("UnlockPolicy", nUnlockPolicy),
     };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
-    return exports;
+    return property;
 }
 
 napi_value SecurityManagerAddon::GetSecurityPatchTag(napi_env env, napi_callback_info info)
@@ -1421,6 +1444,327 @@ napi_value SecurityManagerAddon::GetWatermarkImageApps(napi_env env, napi_callba
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_array(env, &result));
     ConvertStringVectorToJS(env, bundleNames, result);
+    return result;
+}
+
+void SecurityManagerAddon::CreateUnlockPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nDefault;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(UnlockPolicyType::DEFAULT), &nDefault));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nDefault));
+    napi_value nExtendedAuthOnly;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_ONLY), &nExtendedAuthOnly));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "EXTENDED_AUTH_ONLY", nExtendedAuthOnly));
+    napi_value nExtendedAuthRequired;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_REQUIRED), &nExtendedAuthRequired));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "EXTENDED_AUTH_REQUIRED", nExtendedAuthRequired));
+}
+
+napi_value SecurityManagerAddon::OpenSession(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_OpenSession called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "OpenSession";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeOpenSession, NativeOpenSessionComplete);
+}
+
+void SecurityManagerAddon::NativeOpenSession(napi_env env, void *data)
+{
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = SecurityManagerProxy::GetSecurityManagerProxy()->OpenSession(
+        asyncCallbackInfo->data, asyncCallbackInfo->reply);
+}
+
+void SecurityManagerAddon::NativeOpenSessionComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    if (asyncCallbackInfo->deferred == nullptr) {
+        napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+        delete asyncCallbackInfo;
+        return;
+    }
+    if (asyncCallbackInfo->ret != ERR_OK) {
+        std::string errMsg;
+        asyncCallbackInfo->reply.ReadString(errMsg);
+        napi_reject_deferred(env, asyncCallbackInfo->deferred,
+            CreateErrorByType(env, asyncCallbackInfo->ret, errMsg, asyncCallbackInfo->errcodeType));
+        napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+        delete asyncCallbackInfo;
+        return;
+    }
+    std::vector<uint8_t> challenge;
+    asyncCallbackInfo->reply.ReadUInt8Vector(&challenge);
+    if (challenge.empty()) {
+        napi_reject_deferred(env, asyncCallbackInfo->deferred,
+            CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, asyncCallbackInfo->errcodeType));
+        napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+        delete asyncCallbackInfo;
+        return;
+    }
+    napi_value result = ConvertUint8ArrayToJS(env, challenge.data(), challenge.size());
+    if (result == nullptr) {
+        EDMLOGE("NativeOpenSessionComplete ConvertUint8ArrayToJS failed");
+        napi_reject_deferred(env, asyncCallbackInfo->deferred,
+            CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, asyncCallbackInfo->errcodeType));
+    } else {
+        napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+napi_value SecurityManagerAddon::CloseSession(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_CloseSession called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "CloseSession";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->CloseSession(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        std::string errMsg;
+        adapterAddonData.reply.ReadString(errMsg);
+        napi_throw(env, CreateErrorByType(env, retCode, errMsg, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::AddUserExtCredential(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddUserExtCredential called");
+    auto convertCredentialInfo = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+            std::string pluginInfo;
+            if (!JsObjectToString(env, argv, "pluginInfo", false, pluginInfo)) {
+                EDMLOGE("Parameter pluginInfo error");
+                return EdmReturnErrCode::PARAM_ERROR;
+            }
+            data.WriteString(pluginInfo);
+            std::vector<uint8_t> authToken;
+            JsObjectToU8Vector(env, argv, "authToken", authToken);
+            data.WriteUInt8Vector(authToken);
+            return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "AddUserExtCredential";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+    addonMethodSign.argsConvert = {nullptr, convertCredentialInfo, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeAddUserExtCredential,
+        NativeAddUserExtCredentialComplete);
+}
+
+void SecurityManagerAddon::NativeAddUserExtCredential(napi_env env, void *data)
+{
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret =
+        SecurityManagerProxy::GetSecurityManagerProxy()->AddUserExtCredential(
+            asyncCallbackInfo->data, asyncCallbackInfo->reply);
+}
+
+void SecurityManagerAddon::NativeAddUserExtCredentialComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            std::vector<uint8_t> credentialId;
+            asyncCallbackInfo->reply.ReadUInt8Vector(&credentialId);
+            if (!credentialId.empty()) {
+                napi_value result = ConvertUint8ArrayToJS(env, credentialId.data(), credentialId.size());
+                napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+            } else {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
+                        asyncCallbackInfo->errcodeType));
+            }
+        } else {
+            std::string errMsg;
+            asyncCallbackInfo->reply.ReadString(errMsg);
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateErrorByType(env, asyncCallbackInfo->ret, errMsg, asyncCallbackInfo->errcodeType));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+napi_value SecurityManagerAddon::RemoveUserExtCredential(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveUserExtCredential called");
+    auto convertRemoveInfo = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+            std::vector<uint8_t> credentialId;
+            JsObjectToU8Vector(env, argv, "credentialId", credentialId);
+            data.WriteUInt8Vector(credentialId);
+            std::vector<uint8_t> authToken;
+            JsObjectToU8Vector(env, argv, "authToken", authToken);
+            data.WriteUInt8Vector(authToken);
+            return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "RemoveUserExtCredential";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+    addonMethodSign.argsConvert = {nullptr, convertRemoveInfo, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->RemoveUserExtCredential(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        std::string errMsg;
+        adapterAddonData.reply.ReadString(errMsg);
+        napi_throw(env, CreateErrorByType(env, retCode, errMsg, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetUserExtCredential(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetUserExtCredential called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetUserExtCredential";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetUserExtCredential,
+        NativeGetUserExtCredentialComplete);
+}
+
+void SecurityManagerAddon::NativeGetUserExtCredential(napi_env env, void *data)
+{
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = SecurityManagerProxy::GetSecurityManagerProxy()->GetUserExtCredential(
+        asyncCallbackInfo->data, asyncCallbackInfo->reply);
+}
+
+static napi_value BuildCredentialArray(napi_env env, OHOS::MessageParcel &reply)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    int32_t count = 0;
+    reply.ReadInt32(count);
+    if (count < 0 || count > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("BuildCredentialArray invalid count: %{public}d", count);
+        return nullptr;
+    }
+    for (int32_t i = 0; i < count; i++) {
+        napi_value obj = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &obj));
+        std::vector<uint8_t> credentialIdVec;
+        reply.ReadUInt8Vector(&credentialIdVec);
+        napi_value credentialIdValue = nullptr;
+        if (!credentialIdVec.empty()) {
+            credentialIdValue = ConvertUint8ArrayToJS(env, credentialIdVec.data(), credentialIdVec.size());
+        } else {
+            NAPI_CALL(env, napi_create_object(env, &credentialIdValue));
+        }
+        napi_set_named_property(env, obj, "credentialId", credentialIdValue);
+        napi_value pluginInfoValue = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &pluginInfoValue));
+        napi_set_named_property(env, obj, "pluginInfo", pluginInfoValue);
+        NAPI_CALL(env, napi_set_element(env, result, i, obj));
+    }
+    return result;
+}
+
+void SecurityManagerAddon::NativeGetUserExtCredentialComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value result = BuildCredentialArray(env, asyncCallbackInfo->reply);
+            if (result != nullptr) {
+                napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+            } else {
+                EDMLOGE("NativeGetUserExtCredentialComplete BuildCredentialArray failed");
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
+                        asyncCallbackInfo->errcodeType));
+            }
+        } else {
+            std::string errMsg;
+            asyncCallbackInfo->reply.ReadString(errMsg);
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateErrorByType(env, asyncCallbackInfo->ret, errMsg, asyncCallbackInfo->errcodeType));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+napi_value SecurityManagerAddon::SetUnlockPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetUnlockPolicy called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetUnlockPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32,
+        EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetUnlockPolicy(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetUnlockPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetUnlockPolicy called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetUnlockPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    int32_t policy = 0;
+    int32_t ret = SecurityManagerProxy::GetSecurityManagerProxy()->GetUnlockPolicy(
+        adapterAddonData.data, policy);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, policy, &result));
     return result;
 }
 

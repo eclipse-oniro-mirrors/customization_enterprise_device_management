@@ -75,6 +75,13 @@ public:
     int32_t GetAllowedPermissionBundles(const AppExecFwk::ElementName *admin, std::string permissionName,
         int32_t userId, std::vector<ApplicationInstance> &result);
     int32_t GetWatermarkImageApps(MessageParcel &data, std::vector<std::string> &bundleNames);
+    int32_t OpenSession(MessageParcel &data, MessageParcel &reply);
+    int32_t CloseSession(MessageParcel &data);
+    int32_t AddUserExtCredential(MessageParcel &data, MessageParcel &reply);
+    int32_t RemoveUserExtCredential(MessageParcel &data);
+    int32_t GetUserExtCredential(MessageParcel &data, MessageParcel &reply);
+    int32_t SetUnlockPolicy(MessageParcel &data);
+    int32_t GetUnlockPolicy(MessageParcel &data, int32_t &policy);
 private:
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::once_flag flag_;

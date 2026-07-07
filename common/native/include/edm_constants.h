@@ -529,6 +529,9 @@ namespace PolicyName {
     const char* const POLICY_ACTIVATE_NORMAL_OS_ACCOUNT = "activate_normal_os_account";
     const char* const POLICY_MANAGE_NORMAL_OS_ACCOUNT = "manage_normal_os_account";
     const char* const POLICY_LOCAL_HOTA_DOMAIN = "local_hota_domain";
+    const char* const POLICY_USER_EXT_SESSION = "user_ext_session";
+    const char* const POLICY_USER_EXT_CREDENTIAL = "user_ext_credential";
+    const char* const POLICY_UNLOCK_POLICY = "unlock_policy";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
