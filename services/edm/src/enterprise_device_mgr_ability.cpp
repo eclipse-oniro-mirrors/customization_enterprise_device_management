@@ -2296,7 +2296,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         }
     }
 #endif
-    ReportFuncEvent(code);
     ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
     std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
     if (ret == ERR_OK && enterpriseConfigEnable == "false") {
@@ -2306,13 +2305,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ret));
     SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;
-}
-
-void EnterpriseDeviceMgrAbility::ReportFuncEvent(uint32_t code)
-{
-    std::uint32_t ipcCode = FuncCodeUtils::GetPolicyCode(code);
-    std::string apiNameParam = std::to_string(ipcCode);
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, apiNameParam);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
