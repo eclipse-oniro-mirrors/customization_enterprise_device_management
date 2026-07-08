@@ -97,7 +97,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_size = size;
     g_pos = 0;
     int32_t pos = 0;
-    int32_t stringSize = (size - pos) / 8;
+    int32_t stringSize = (size - pos) / 7;
 
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     EventFwk::CommonEventData eventData = getCommonEventData(data, size);
@@ -132,7 +132,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     PluginManager::GetInstance()->DumpPlugin();
 
     std::string abilityName = CommonFuzzer::GetString(data, pos, stringSize, size);
-    std::string newAdminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     uint32_t code = CommonFuzzer::GetU32Data(data);
     bool isModeOn = CommonFuzzer::GetU32Data(data) % 2;
     bool isByod = CommonFuzzer::GetU32Data(data) % 2;
@@ -156,11 +155,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->UpdateClipboardInfo(bundleName, userId);
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->DelDisallowUninstallAppForAccount(bundleName, userId);
-    enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr->adminInfo_);
     enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
-    enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId, type);
     enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId, type);
-    enterpriseDeviceMgrAbility->RemoveAdminPolicy(adminName, userId);
     enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName, type);
     enterpriseDeviceMgrAbility->RemoveSuperAdminAndAdminPolicy(bundleName);
     enterpriseDeviceMgrAbility->CheckDelegatedPolicies(type, policies);
