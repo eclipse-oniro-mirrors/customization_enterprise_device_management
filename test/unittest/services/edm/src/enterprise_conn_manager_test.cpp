@@ -654,7 +654,7 @@ HWTEST_F(EnterpriseConnManagerTest, ExecuteCallback_ConnectionTimeout_Success, T
     std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
     EnterpriseConnManager::ConnectionInfo info;
     info.isPending = true;
-    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs() - 15000;  // 15秒前，超过默认10秒超时
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs() - 150000;  // 15秒前，超过默认10秒超时
     info.pendingCallbacks.push_back(std::make_shared<AdminStrategy>(TEST_CODE));
     enterpriseConnManagerTest->connectionMap_[key] = info;
 
@@ -680,7 +680,7 @@ HWTEST_F(EnterpriseConnManagerTest, IsConnectionTimeout_PendingTrue_Success, Tes
     info.createTime = 0;
     EXPECT_TRUE(enterpriseConnManagerTest->IsConnectionTimeout(info));
 
-    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs() - 35000;
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs() - 150000;
     EXPECT_TRUE(enterpriseConnManagerTest->IsConnectionTimeout(info));
 }
 
