@@ -18,6 +18,8 @@
 #include "admin.h"
 #include "edm_constants.h"
 #include "ent_info.h"
+#include "func_code_utils.h"
+#include "hisysevent_adapter.h"
 #include "string_ex.h"
 
 using namespace OHOS::HiviewDFX;
@@ -124,6 +126,7 @@ ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInner(uint32_t code, MessageP
     }
     ErrCode errCode = HandleDevicePolicy(code, *admin, data, reply, userId);
     reply.WriteInt32(errCode);
+    ReportFuncEvent(code);
     return ERR_OK;
 }
 
@@ -142,6 +145,13 @@ ErrCode EnterpriseDeviceMgrStub::CheckAndGetAdminProvisionInfoInner(uint32_t cod
     ErrCode errCode = CheckAndGetAdminProvisionInfo(extInfoCode, data, reply, userId);
     reply.WriteInt32(errCode);
     return ERR_OK;
+}
+
+void EnterpriseDeviceMgrStub::ReportFuncEvent(uint32_t code)
+{
+    std::uint32_t ipcCode = FuncCodeUtils::GetPolicyCode(code);
+    std::string apiNameParam = std::to_string(ipcCode);
+    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, apiNameParam);
 }
 } // namespace EDM
 } // namespace OHOS
