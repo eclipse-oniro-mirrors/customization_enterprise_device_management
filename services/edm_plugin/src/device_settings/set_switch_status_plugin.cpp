@@ -248,26 +248,11 @@ ErrCode SetSwitchStatusPlugin::OnAdminRemove(const std::string &adminName, std::
         EDMLOGI("SetSwitchStatusPlugin OnAdminRemove has other admin");
         return ERR_OK;
     }
-    if (dataVec.size() <= 0) {
-        EDMLOGW("OnAdminRemove data size is abnormally");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    SwitchParam data = dataVec[0];
-    switch (data.key) {
-        case SwitchKey::BLUETOOTH:
-            system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
-            break;
-        case SwitchKey::WIFI:
-            system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
-            break;
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+    system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
 #ifdef NFC_EDM_ENABLE
-        case SwitchKey::NFC:
-            system::SetParameter(PARAM_FORCE_ENABLE_NFC, "false");
-            break;
+    system::SetParameter(PARAM_FORCE_ENABLE_NFC, "false");
 #endif
-        default:
-            break;
-    }
     return ERR_OK;
 }
 } // namespace EDM
