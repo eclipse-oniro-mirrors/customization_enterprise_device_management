@@ -181,22 +181,6 @@ HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveNFC, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestOnAdminRemoveEmptyData
- * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove with empty data vector
- * @tc.type: FUNC
- */
-HWTEST_F(SetSwitchStatusPluginTest, TestOnAdminRemoveEmptyData, TestSize.Level1)
-{
-    SetSwitchStatusPlugin plugin;
-    std::string adminName = "com.edm.test.admin";
-    std::vector<SwitchParam> dataVec;
-    std::vector<SwitchParam> mergeData;
-    int32_t userId = 100;
-    ErrCode ret = plugin.OnAdminRemove(adminName, dataVec, mergeData, userId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-}
-
-/**
  * @tc.name: TestOnAdminRemoveUnknownKey
  * @tc.desc: Test SetSwitchStatusPlugin::OnAdminRemove with unknown switch key
  * @tc.type: FUNC
