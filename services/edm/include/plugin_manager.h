@@ -91,7 +91,6 @@ private:
     static std::vector<uint32_t> needExtraSoCodes_;
     static std::vector<uint32_t> watermarkSoCodes_;
 
-    static std::shared_timed_mutex mutexLock_;
     static std::shared_mutex globalMutex_;
     static std::shared_mutex pluginMapMutex_;
     static std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> policyLocks_;
