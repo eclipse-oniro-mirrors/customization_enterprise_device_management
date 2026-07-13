@@ -20,8 +20,10 @@
 #include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <thread>
+#include <unordered_map>
 
 #include "enhance_execute_strategy.h"
 #include "iplugin.h"
@@ -90,6 +92,13 @@ private:
     static std::vector<uint32_t> watermarkSoCodes_;
 
     static std::shared_timed_mutex mutexLock_;
+    static std::shared_mutex globalMutex_;
+    static std::shared_mutex pluginMapMutex_;
+    static std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> policyLocks_;
+    static std::mutex policyLocksMapMutex_;
+    static std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> conflictSetLocks_;
+    static std::mutex conflictSetLocksMapMutex_;
+    static std::unordered_map<uint32_t, uint32_t> conflictGroupMap_;
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
     std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
@@ -112,6 +121,9 @@ private:
     bool ExtraHasPersistPlugin(std::vector<uint32_t> targetVec);
     bool HasPersistPlugin(std::vector<uint32_t> targetVec);
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
+    std::shared_ptr<std::shared_mutex> GetPolicyLock(uint32_t policyCode);
+    std::shared_ptr<std::shared_mutex> GetConflictSetLock(uint32_t policyCode);
+    static void InitConflictGroupMap();
     std::shared_ptr<IPluginExecuteStrategy> enhanceStrategy_ = std::make_shared<EnhanceExecuteStrategy>();
     std::shared_ptr<IPluginExecuteStrategy> singleStrategy_ = std::make_shared<SingleExecuteStrategy>();
     std::shared_ptr<IPluginExecuteStrategy> replaceStrategy_ = std::make_shared<ReplaceExecuteStrategy>();

@@ -38,6 +38,13 @@ const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
 
 std::shared_ptr<PluginManager> PluginManager::instance_;
 std::shared_timed_mutex PluginManager::mutexLock_;
+std::shared_mutex PluginManager::globalMutex_;
+std::shared_mutex PluginManager::pluginMapMutex_;
+std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> PluginManager::policyLocks_;
+std::mutex PluginManager::policyLocksMapMutex_;
+std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> PluginManager::conflictSetLocks_;
+std::mutex PluginManager::conflictSetLocksMapMutex_;
+std::unordered_map<uint32_t, uint32_t> PluginManager::conflictGroupMap_;
 constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
 
 std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
@@ -149,6 +156,81 @@ PluginManager::~PluginManager()
 #ifndef EDM_FUZZ_TEST
     NotifyUnloadAllPlugin();
 #endif
+}
+
+void PluginManager::InitConflictGroupMap()
+{
+    static std::once_flag flag;
+    std::call_once(flag, []() {
+        const uint32_t usbGroup = 1;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_USB] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_USB_DEVICES] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_USB_DEVICES] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::USB_READ_ONLY] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOW_USB_SERIAL] = usbGroup;
+
+        const uint32_t bluetoothGroup = 2;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_BLUETOOTH] = bluetoothGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES] = bluetoothGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES] = bluetoothGroup;
+
+        const uint32_t wifiGroup = 3;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_WIFI] = wifiGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_WIFI_LIST] = wifiGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_WIFI_LIST] = wifiGroup;
+
+        const uint32_t mtpGroup = 4;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_MTP_CLIENT] = mtpGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_USER_MTP_CLIENT] = mtpGroup;
+
+        const uint32_t distGroup = 5;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION] = distGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL] = distGroup;
+
+        const uint32_t sudoGroup = 6;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_SUDO] = sudoGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_DEVICE_SUDO] = sudoGroup;
+
+        const uint32_t notifGroup = 7;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_NOTIFICATION] = notifGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES] = notifGroup;
+
+        const uint32_t runningBundlesGroup = 8;
+        conflictGroupMap_[EdmInterfaceCode::ALLOW_RUNNING_BUNDLES] = runningBundlesGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES] = runningBundlesGroup;
+        conflictGroupMap_[EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS] = runningBundlesGroup;
+    });
+}
+
+std::shared_ptr<std::shared_mutex> PluginManager::GetPolicyLock(uint32_t policyCode)
+{
+    std::lock_guard<std::mutex> lock(policyLocksMapMutex_);
+    auto it = policyLocks_.find(policyCode);
+    if (it != policyLocks_.end()) {
+        return it->second;
+    }
+    auto newLock = std::make_shared<std::shared_mutex>();
+    policyLocks_[policyCode] = newLock;
+    return newLock;
+}
+
+std::shared_ptr<std::shared_mutex> PluginManager::GetConflictSetLock(uint32_t policyCode)
+{
+    auto groupIt = conflictGroupMap_.find(policyCode);
+    if (groupIt == conflictGroupMap_.end()) {
+        return nullptr;
+    }
+    uint32_t groupId = groupIt->second;
+    std::lock_guard<std::mutex> lock(conflictSetLocksMapMutex_);
+    auto it = conflictSetLocks_.find(groupId);
+    if (it != conflictSetLocks_.end()) {
+        return it->second;
+    }
+    auto newLock = std::make_shared<std::shared_mutex>();
+    conflictSetLocks_[groupId] = newLock;
+    return newLock;
 }
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
