@@ -295,7 +295,6 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByPolicyName(const std::string 
 std::shared_ptr<IPlugin> PluginManager::GetPluginByCode(std::uint32_t code)
 {
     EDMLOGD("PluginManager::code %{public}u", code);
-    std::shared_lock<std::shared_mutex> lock(pluginMapMutex_);
     auto it = pluginsCode_.find(code);
     if (it != pluginsCode_.end()) {
         return it->second;
