@@ -57,10 +57,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     g_data = data;
     g_size = size;
     g_pos = 0;
+    int32_t pos = 0;
+    int32_t stringSize = size;
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     int32_t userId = CommonFuzzer::GetU32Data(data);
     AdminType type = GetData<AdminType>();
-    std::string adminName = std::string(reinterpret_cast<const char*>(data), size);
+    std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId, type);
     enterpriseDeviceMgrAbility->RemoveAdminPolicy(adminName, userId);
     system::SetParameter(PARAM_EDM_ENABLE, "false");
