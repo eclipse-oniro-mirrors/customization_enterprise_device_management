@@ -37,7 +37,13 @@ const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
 #endif
 
 std::shared_ptr<PluginManager> PluginManager::instance_;
-std::shared_timed_mutex PluginManager::mutexLock_;
+std::shared_mutex PluginManager::globalMutex_;
+std::shared_mutex PluginManager::pluginMapMutex_;
+std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> PluginManager::policyLocks_;
+std::mutex PluginManager::policyLocksMapMutex_;
+std::unordered_map<uint32_t, std::shared_ptr<std::shared_mutex>> PluginManager::conflictSetLocks_;
+std::mutex PluginManager::conflictSetLocksMapMutex_;
+std::unordered_map<uint32_t, uint32_t> PluginManager::conflictGroupMap_;
 constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
 
 std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
@@ -151,15 +157,90 @@ PluginManager::~PluginManager()
 #endif
 }
 
+void PluginManager::InitConflictGroupMap()
+{
+    static std::once_flag flag;
+    std::call_once(flag, []() {
+        const uint32_t usbGroup = 1;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_USB] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_USB_DEVICES] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_USB_DEVICES] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::USB_READ_ONLY] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE] = usbGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOW_USB_SERIAL] = usbGroup;
+
+        const uint32_t bluetoothGroup = 2;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_BLUETOOTH] = bluetoothGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES] = bluetoothGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_BLUETOOTH_DEVICES] = bluetoothGroup;
+
+        const uint32_t wifiGroup = 3;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_WIFI] = wifiGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_WIFI_LIST] = wifiGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_WIFI_LIST] = wifiGroup;
+
+        const uint32_t mtpGroup = 4;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_MTP_CLIENT] = mtpGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISABLE_USER_MTP_CLIENT] = mtpGroup;
+
+        const uint32_t distGroup = 5;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION] = distGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL] = distGroup;
+
+        const uint32_t sudoGroup = 6;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_SUDO] = sudoGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_DEVICE_SUDO] = sudoGroup;
+
+        const uint32_t notifGroup = 7;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOWED_NOTIFICATION] = notifGroup;
+        conflictGroupMap_[EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES] = notifGroup;
+
+        const uint32_t runningBundlesGroup = 8;
+        conflictGroupMap_[EdmInterfaceCode::ALLOW_RUNNING_BUNDLES] = runningBundlesGroup;
+        conflictGroupMap_[EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES] = runningBundlesGroup;
+        conflictGroupMap_[EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS] = runningBundlesGroup;
+    });
+}
+
+std::shared_ptr<std::shared_mutex> PluginManager::GetPolicyLock(uint32_t policyCode)
+{
+    std::lock_guard<std::mutex> lock(policyLocksMapMutex_);
+    auto it = policyLocks_.find(policyCode);
+    if (it != policyLocks_.end()) {
+        return it->second;
+    }
+    auto newLock = std::make_shared<std::shared_mutex>();
+    policyLocks_[policyCode] = newLock;
+    return newLock;
+}
+
+std::shared_ptr<std::shared_mutex> PluginManager::GetConflictSetLock(uint32_t policyCode)
+{
+    auto groupIt = conflictGroupMap_.find(policyCode);
+    if (groupIt == conflictGroupMap_.end()) {
+        return nullptr;
+    }
+    uint32_t groupId = groupIt->second;
+    std::lock_guard<std::mutex> lock(conflictSetLocksMapMutex_);
+    auto it = conflictSetLocks_.find(groupId);
+    if (it != conflictSetLocks_.end()) {
+        return it->second;
+    }
+    auto newLock = std::make_shared<std::shared_mutex>();
+    conflictSetLocks_[groupId] = newLock;
+    return newLock;
+}
+
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+        std::unique_lock<std::shared_mutex> autoLock(globalMutex_);
         if (instance_ == nullptr) {
             instance_.reset(new (std::nothrow) PluginManager());
+            InitConflictGroupMap();
         }
     }
-
     IPluginManager::pluginManagerInstance_ = instance_.get();
     return instance_;
 }
@@ -167,18 +248,33 @@ std::shared_ptr<PluginManager> PluginManager::GetInstance()
 std::shared_ptr<IPlugin> PluginManager::GetPluginByFuncCode(std::uint32_t funcCode)
 {
     EDMLOGD("PluginManager::GetPluginByFuncCode %{public}u", funcCode);
-    auto loadRet = LoadPluginByFuncCode(funcCode);
-    if (loadRet != ERR_OK) {
-        return nullptr;
-    }
+    std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
     FuncCodeUtils::PrintFuncCode(funcCode);
     FuncFlag flag = FuncCodeUtils::GetSystemFlag(funcCode);
     if (flag == FuncFlag::POLICY_FLAG) {
-        std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
         EDMLOGD("PluginManager::code %{public}u", code);
-        auto it = pluginsCode_.find(code);
-        if (it != pluginsCode_.end()) {
-            return it->second;
+        {
+            std::shared_lock<std::shared_mutex> lock(pluginMapMutex_);
+            auto it = pluginsCode_.find(code);
+            if (it != pluginsCode_.end()) {
+                return it->second;
+            }
+        }
+        {
+            std::unique_lock<std::shared_mutex> lock(pluginMapMutex_);
+            auto it = pluginsCode_.find(code);
+            if (it != pluginsCode_.end()) {
+                return it->second;
+            }
+            auto loadRet = LoadPluginByFuncCode(funcCode);
+            if (loadRet != ERR_OK) {
+                EDMLOGD("GetPluginByFuncCode::load plugin failed");
+                return nullptr;
+            }
+            it = pluginsCode_.find(code);
+            if (it != pluginsCode_.end()) {
+                return it->second;
+            }
         }
     }
     EDMLOGD("GetPluginByFuncCode::return nullptr");
@@ -187,10 +283,12 @@ std::shared_ptr<IPlugin> PluginManager::GetPluginByFuncCode(std::uint32_t funcCo
 
 std::shared_ptr<IPlugin> PluginManager::GetPluginByPolicyName(const std::string &policyName)
 {
+    std::shared_lock<std::shared_mutex> lock(pluginMapMutex_);
     auto it = pluginsName_.find(policyName);
     if (it != pluginsName_.end()) {
         return it->second;
     }
+    EDMLOGI("GetPluginByPolicyName::return nullptr");
     return nullptr;
 }
 
@@ -359,7 +457,8 @@ void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<
                 return loadStatePtr->notifySignal;
             });
         }
-        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        std::unique_lock<std::shared_mutex> globalLock(globalMutex_);
+        std::unique_lock<std::shared_mutex> mapLock(pluginMapMutex_);
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
         if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
@@ -529,7 +628,7 @@ void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
 
 void PluginManager::NotifyUnloadAllPlugin()
 {
-    std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+    std::unique_lock<std::shared_mutex> lock(globalMutex_);
     for (const auto& it : soLoadStateMap_) {
         auto state = it.second;
         if (state != nullptr && state->pluginHasInit) {
@@ -608,12 +707,22 @@ void PluginManager::DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlu
 ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bundleName,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
+    InitConflictGroupMap();
     std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(code);
     if (plugin == nullptr) {
         EDMLOGW("UpdateDevicePolicy: get plugin by funcCode failed: %{public}d.", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
+    uint32_t policyCode = FuncCodeUtils::GetPolicyCode(code);
+    auto conflictLock = GetConflictSetLock(policyCode);
+    std::unique_ptr<std::unique_lock<std::shared_mutex>> conflictGuard;
+    if (conflictLock != nullptr) {
+        conflictGuard = std::make_unique<std::unique_lock<std::shared_mutex>>(*conflictLock);
+    }
+    auto policyLock = GetPolicyLock(policyCode);
+    std::unique_lock<std::shared_mutex> policyGuard(*policyLock);
+
     std::string policyName = plugin->GetPolicyName();
     std::string oldCombinePolicy;
     PolicyManager::GetInstance()->GetPolicy("", policyName, oldCombinePolicy, userId);
@@ -640,12 +749,16 @@ ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bund
 ErrCode PluginManager::GetPolicy(uint32_t funcCode, const std::string &bundleName, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
     std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
         EDMLOGE("PluginManager::GetPolicy get plugin by funcCode fail: %{public}u.", funcCode);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
+    uint32_t policyCode = FuncCodeUtils::GetPolicyCode(funcCode);
+    auto policyLock = GetPolicyLock(policyCode);
+    std::shared_lock<std::shared_mutex> policyGuard(*policyLock);
+
     std::string policyValue;
     if (plugin->NeedSavePolicy()) {
         PolicyManager::GetInstance()->GetPolicy(bundleName, plugin->GetPolicyName(), policyValue, userId);
@@ -657,14 +770,26 @@ ErrCode PluginManager::GetPolicy(uint32_t funcCode, const std::string &bundleNam
 ErrCode PluginManager::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
     const std::string &policyValue, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    LoadAllPlugin();
+    std::unique_lock<std::shared_mutex> autoLock(globalMutex_);
+    InitConflictGroupMap();
+    {
+        std::unique_lock<std::shared_mutex> mapLock(pluginMapMutex_);
+        LoadAllPlugin();
+    }
     std::shared_ptr<IPlugin> plugin = GetPluginByPolicyName(policyName);
     if (plugin == nullptr) {
         EDMLOGW("RemoveAdminItem: Get plugin by policyName failed: %{public}s", policyName.c_str());
         return ERR_EDM_GET_PLUGIN_MGR_FAILED;
     }
     auto funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, plugin->GetCode());
+    auto conflictLock = GetConflictSetLock(plugin->GetCode());
+    std::unique_ptr<std::unique_lock<std::shared_mutex>> conflictGuard;
+    if (conflictLock != nullptr) {
+        conflictGuard = std::make_unique<std::unique_lock<std::shared_mutex>>(*conflictLock);
+    }
+    auto policyLock = GetPolicyLock(plugin->GetCode());
+    std::unique_lock<std::shared_mutex> policyGuard(*policyLock);
+
     std::string mergedPolicyData;
     plugin->GetOthersMergePolicyData(adminName, userId, mergedPolicyData);
     ErrCode ret = plugin->GetExecuteStrategy()->OnAdminRemoveExecute(funcCode, adminName, policyValue, mergedPolicyData,
@@ -685,7 +810,7 @@ ErrCode PluginManager::RemoveAdminItem(const std::string &adminName, const std::
 
         if (FAILED(setRet)) {
             EDMLOGW("RemoveAdminItem: DeleteAdminPolicy failed, admin:%{public}s, policy:%{public}s, res:%{public}d.",
-                adminName.c_str(), policyName.c_str(), ret);
+                adminName.c_str(), policyValue.c_str(), ret);
             return ERR_EDM_DEL_ADMIN_FAILED;
         }
     }
@@ -696,10 +821,13 @@ ErrCode PluginManager::RemoveAdminItem(const std::string &adminName, const std::
 void PluginManager::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
 {
     EDMLOGI("PluginManager::CallOnOtherServiceStart %{public}d", interfaceCode);
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    auto ret = LoadPluginByCode(interfaceCode);
-    if (ret != ERR_OK) {
-        return;
+    std::unique_lock<std::shared_mutex> autoLock(globalMutex_);
+    {
+        std::unique_lock<std::shared_mutex> mapLock(pluginMapMutex_);
+        auto ret = LoadPluginByCode(interfaceCode);
+        if (ret != ERR_OK) {
+            return;
+        }
     }
     auto plugin = GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
@@ -712,10 +840,13 @@ void PluginManager::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t syst
 void PluginManager::OnInitExecute(uint32_t interfaceCode, const std::vector<std::string> &bundleNames, int32_t userId)
 {
     EDMLOGI("PluginManager::OnInitExecute %{public}u", interfaceCode);
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    auto ret = LoadPluginByCode(interfaceCode);
-    if (ret != ERR_OK) {
-        return;
+    std::unique_lock<std::shared_mutex> autoLock(globalMutex_);
+    {
+        std::unique_lock<std::shared_mutex> mapLock(pluginMapMutex_);
+        auto ret = LoadPluginByCode(interfaceCode);
+        if (ret != ERR_OK) {
+            return;
+        }
     }
     auto plugin = GetPluginByCode(interfaceCode);
     if (plugin == nullptr) {
@@ -731,14 +862,11 @@ void PluginManager::OnInitExecute(uint32_t interfaceCode, const std::vector<std:
 ErrCode PluginManager::SetPluginUnloadFlag(uint32_t code, bool unloadFlag)
 {
     EDMLOGI("PluginManager::SetPluginUnloadFlag %{public}u", code);
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    auto loadRet = LoadPluginByCode(code);
-    if (loadRet != ERR_OK) {
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
-    auto plugin = GetPluginByCode(code);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
+    auto funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, code);
+    auto plugin = GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
-        EDMLOGE("SetPluginUnloadFlag get Plugin by code fail: %{public}u.", code);
+        EDMLOGE("SetPluginUnloadFlag get Plugin by code fail: %{public}u", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     plugin->SetPluginUnloadFlag(unloadFlag);
@@ -748,15 +876,12 @@ ErrCode PluginManager::SetPluginUnloadFlag(uint32_t code, bool unloadFlag)
 ErrCode PluginManager::UnloadCollectLogPlugin()
 {
     EDMLOGI("PluginManager::UnloadCollectLogPlugin");
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
     auto code = EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::START_COLLECT_LOG;
-    auto loadRet = LoadPluginByCode(code);
-    if (loadRet != ERR_OK) {
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
-    auto plugin = PluginManager::GetInstance()->GetPluginByCode(code);
+    auto funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, code);
+    auto plugin = GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
-        EDMLOGE("UnloadCollectLogPlugin get Plugin by code fail: %{public}u.", code);
+        EDMLOGE("UnloadCollectLogPlugin get Plugin by code fail: %{public}u", code);
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     plugin->SetPluginUnloadFlag(true);
@@ -766,7 +891,7 @@ ErrCode PluginManager::UnloadCollectLogPlugin()
 std::string PluginManager::GetPermission(uint32_t funcCode, FuncOperateType operateType,
     IPlugin::PermissionType permissionType, const std::string &permissionTag)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
     std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
         EDMLOGE("PluginManager::GetPermission get plugin by funcCode fail: %{public}u.", funcCode);
@@ -777,7 +902,7 @@ std::string PluginManager::GetPermission(uint32_t funcCode, FuncOperateType oper
 
 IPlugin::ApiType PluginManager::GetPluginType(uint32_t funcCode, FuncOperateType operateType)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
     std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
         EDMLOGE("PluginManager::GetPluginType get plugin by funcCode fail: %{public}u.", funcCode);
@@ -788,7 +913,7 @@ IPlugin::ApiType PluginManager::GetPluginType(uint32_t funcCode, FuncOperateType
 
 std::string PluginManager::GetPolicyName(uint32_t funcCode)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
     std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(funcCode);
     if (plugin == nullptr) {
         EDMLOGE("PluginManager::GetPolicyName get plugin by funcCode fail: %{public}u.", funcCode);
@@ -801,8 +926,11 @@ std::string PluginManager::GetPolicyName(uint32_t funcCode)
 std::string PluginManager::GetPluginPermissionByPolicyName(const std::string &policyName,
     IPlugin::PermissionType permissionType)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    LoadAllPlugin();
+    std::shared_lock<std::shared_mutex> autoLock(globalMutex_);
+    {
+        std::unique_lock<std::shared_mutex> mapLock(pluginMapMutex_);
+        LoadAllPlugin();
+    }
     std::shared_ptr<IPlugin> plugin = GetPluginByPolicyName(policyName);
     if (plugin == nullptr) {
         EDMLOGE("GetPluginPermissionByPolicyName get plugin by policy name fail: %{public}s.", policyName.c_str());

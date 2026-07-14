@@ -471,6 +471,7 @@ ohos_unittest("PluginManagerUnitTest") {
 
   sources = [
     "./src/plugin_manager_test.cpp",
+    "./src/plugin_manager_concurrency_test.cpp",
   ]
 
   configs = [
