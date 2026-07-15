@@ -115,7 +115,7 @@ int32_t AdminManager::JsAdminTypeToAdminType(int32_t jsAdminType)
 bool AdminManager::JsAdminEnableSourceToEnableSource(int32_t jsAdminEnableSource)
 {
     if (jsAdminEnableSource >= static_cast<int32_t>(EnableSource::DEPLOY) &&
-        jsAdminEnableSource <= static_cast<int32_t>(EnableSource::USER)) {
+        jsAdminEnableSource <= static_cast<int32_t>(EnableSource::INTRANET_DEPLOY)) {
             return true;
     }
     return false;
@@ -1216,6 +1216,9 @@ void AdminManager::CreateEnableSourceObject(napi_env env, napi_value value)
     napi_value nUser;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::USER), &nUser));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "USER", nUser));
+    napi_value nIntranetDeploy;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::INTRANET_DEPLOY), &nIntranetDeploy));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INTRANET_DEPLOY", nIntranetDeploy));
 }
 
 napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
