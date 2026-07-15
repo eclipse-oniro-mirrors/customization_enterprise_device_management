@@ -35,6 +35,7 @@ namespace EDM {
 #define ADMIN_TYPE (1 << 7)
 #define IS_DEBUG (1 << 8)
 #define RUNNING_MODE (1 << 9)
+#define ENABLE_SOURCE (1 << 10)
 
 /**
  * This class provides thread-safe access to admin data, with all public methods

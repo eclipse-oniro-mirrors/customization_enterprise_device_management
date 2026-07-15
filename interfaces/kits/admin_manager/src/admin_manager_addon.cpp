@@ -64,22 +64,12 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
     int32_t jsAdminType;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, jsAdminType, argv[ARR_INDEX_TWO]), "Parameter admin type error");
     asyncCallbackInfo->adminType = JsAdminTypeToAdminType(jsAdminType);
-    EDMLOGD("EnableAdmin::asyncCallbackInfo->elementName.bundlename %{public}s, "
-        "asyncCallbackInfo->abilityname:%{public}s , adminType:%{public}d",
-        asyncCallbackInfo->elementName.GetBundleName().c_str(), asyncCallbackInfo->elementName.GetAbilityName().c_str(),
-        asyncCallbackInfo->adminType);
-    if (hasUserId) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_THREE]),
-            "Parameter user id error");
-    } else {
-#ifdef OS_ACCOUNT_EDM_ENABLE
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId);
-#endif
-    }
-    if (hasCallback) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseCallback(env, asyncCallbackInfo->callback,
-            argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR]), "Parameter callback error");
-    }
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseEnableSource(env, argv[ARR_INDEX_ZERO], *asyncCallbackInfo),
+        "Parameter admin EnableSource error");
+    ParseEnableAdminParams(env, argc, argv, hasUserId, hasCallback, *asyncCallbackInfo);
+    EDMLOGD("EnableAdmin::elementName.bundlename %{public}s, abilityname:%{public}s, adminType:%{public}d",
+        asyncCallbackInfo->elementName.GetBundleName().c_str(),
+        asyncCallbackInfo->elementName.GetAbilityName().c_str(), asyncCallbackInfo->adminType);
     napi_value asyncWorkReturn =
         HandleAsyncWork(env, asyncCallbackInfo, "EnableAdmin", NativeEnableAdmin, NativeVoidCallbackComplete);
     callbackPtr.release();
@@ -122,6 +112,15 @@ int32_t AdminManager::JsAdminTypeToAdminType(int32_t jsAdminType)
     return static_cast<int32_t>(AdminType::UNKNOWN);
 }
 
+bool AdminManager::JsAdminEnableSourceToEnableSource(int32_t jsAdminEnableSource)
+{
+    if (jsAdminEnableSource >= static_cast<int32_t>(EnableSource::DEPLOY) &&
+        jsAdminEnableSource <= static_cast<int32_t>(EnableSource::USER)) {
+            return true;
+    }
+    return false;
+}
+
 int32_t AdminManager::AdminTypeToJsAdminType(int32_t AdminType)
 {
     if (AdminType == static_cast<int32_t>(AdminType::BYOD)) {
@@ -131,6 +130,51 @@ int32_t AdminManager::AdminTypeToJsAdminType(int32_t AdminType)
         return AdminType;
     }
     return static_cast<int32_t>(AdminType::UNKNOWN);
+}
+
+bool AdminManager::ParseEnableSource(napi_env env, napi_value adminArg, AsyncEnableAdminCallbackInfo &callbackInfo)
+{
+    napi_value parametersValue;
+    napi_status status = napi_get_named_property(env, adminArg, "parameters", &parametersValue);
+    if (status != napi_ok) {
+        return true;
+    }
+    napi_value enableSourceValue;
+    status = napi_get_named_property(env, parametersValue, "enableSource", &enableSourceValue);
+    if (status != napi_ok) {
+        return true;
+    }
+    int32_t jsEnableSource;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, jsEnableSource, enableSourceValue),
+        "Parameter admin EnableSource error");
+    if (JsAdminEnableSourceToEnableSource(jsEnableSource)) {
+        callbackInfo.enableSource = jsEnableSource;
+        return true;
+    }
+    napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter admin EnableSource error"));
+    return false;
+}
+
+void AdminManager::ParseEnableAdminParams(napi_env env, size_t argc, napi_value argv[],
+    bool hasUserId, bool hasCallback, AsyncEnableAdminCallbackInfo &callbackInfo)
+{
+    if (hasUserId) {
+        if (!ParseInt(env, callbackInfo.userId, argv[ARR_INDEX_THREE])) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error"));
+            return;
+        }
+    } else {
+#ifdef OS_ACCOUNT_EDM_ENABLE
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(callbackInfo.userId);
+#endif
+    }
+    if (hasCallback) {
+        if (!ParseCallback(env, callbackInfo.callback,
+            argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR])) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter callback error"));
+            return;
+        }
+    }
 }
 
 napi_value AdminManager::ReplaceSuperAdmin(napi_env env, napi_callback_info info)
@@ -227,7 +271,8 @@ void AdminManager::NativeEnableAdmin(napi_env env, void *data)
     }
 #endif
     asyncCallbackInfo->ret = proxy->EnableAdmin(asyncCallbackInfo->elementName, asyncCallbackInfo->entInfo,
-        ParseAdminType(asyncCallbackInfo->adminType), asyncCallbackInfo->userId);
+        ParseAdminType(asyncCallbackInfo->adminType), asyncCallbackInfo->userId, false,
+        static_cast<EnableSource>(asyncCallbackInfo->enableSource));
 }
 
 void AdminManager::NativeEnableDeviceAdmin(napi_env env, void *data)
@@ -1154,6 +1199,25 @@ void AdminManager::CreatePolicyObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "TRUST_LIST", nTrust));
 }
 
+void AdminManager::CreateEnableSourceObject(napi_env env, napi_value value)
+{
+    napi_value nDeploy;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::DEPLOY), &nDeploy));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEPLOY", nDeploy));
+    napi_value nSuperAdmin;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::SUPER_ADMIN), &nSuperAdmin));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SUPER_ADMIN", nSuperAdmin));
+    napi_value nSelf;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::SELF), &nSelf));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SELF", nSelf));
+    napi_value nReplace;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::REPLACE), &nReplace));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "REPLACE", nReplace));
+    napi_value nUser;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::USER), &nUser));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "USER", nUser));
+}
+
 napi_value AdminManager::GetSuperAdmin(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSuperAdmin called");
@@ -1299,6 +1363,9 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
         napi_value isDebugToJs = nullptr;
         NAPI_CALL(env, napi_get_boolean(env, want->GetBoolParam("isDebug", false), &isDebugToJs));
         NAPI_CALL(env, napi_set_named_property(env, parameters, "isDebug", isDebugToJs));
+        napi_value enableSourceToJs = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, want->GetIntParam("enableSource", 0), &enableSourceToJs));
+        NAPI_CALL(env, napi_set_named_property(env, parameters, "enableSource", enableSourceToJs));
         NAPI_CALL(env, napi_set_named_property(env, wantItem, "parameters", parameters));
         NAPI_CALL(env, napi_set_element(env, result, idx, wantItem));
         idx++;
@@ -1306,24 +1373,25 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
     return result;
 }
 
+NapiEnumObjects AdminManager::CreateEnumObjects(napi_env env)
+{
+    NapiEnumObjects objs;
+    napi_create_object(env, &objs.adminType);
+    CreateAdminTypeObject(env, objs.adminType);
+    napi_create_object(env, &objs.managedEvent);
+    CreateManagedEventObject(env, objs.managedEvent);
+    napi_create_object(env, &objs.runningMode);
+    CreateRunningModeObject(env, objs.runningMode);
+    napi_create_object(env, &objs.policy);
+    CreatePolicyObject(env, objs.policy);
+    napi_create_object(env, &objs.enableSource);
+    CreateEnableSourceObject(env, objs.enableSource);
+    return objs;
+}
+
 napi_value AdminManager::Init(napi_env env, napi_value exports)
 {
-    napi_value nAdminType = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nAdminType));
-    CreateAdminTypeObject(env, nAdminType);
-
-    napi_value nManagedEvent = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nManagedEvent));
-    CreateManagedEventObject(env, nManagedEvent);
-
-    napi_value nRunningMode = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nRunningMode));
-    CreateRunningModeObject(env, nRunningMode);
-
-    napi_value nPolicy = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &nPolicy));
-    CreatePolicyObject(env, nPolicy);
-
+    auto enums = CreateEnumObjects(env);
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("enableAdmin", EnableAdmin),
         DECLARE_NAPI_FUNCTION("disableAdmin", DisableAdmin),
@@ -1350,11 +1418,11 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disableDeviceAdmin", DisableDeviceAdmin),
         DECLARE_NAPI_FUNCTION("getEnterpriseManagedTips", GetEnterpriseManagedTips),
         DECLARE_NAPI_FUNCTION("enableSelfDeviceAdmin", EnableSelfDeviceAdmin),
-
-        DECLARE_NAPI_PROPERTY("AdminType", nAdminType),
-        DECLARE_NAPI_PROPERTY("ManagedEvent", nManagedEvent),
-        DECLARE_NAPI_PROPERTY("RunningMode", nRunningMode),
-        DECLARE_NAPI_PROPERTY("Policy", nPolicy),
+        DECLARE_NAPI_PROPERTY("AdminType", enums.adminType),
+        DECLARE_NAPI_PROPERTY("ManagedEvent", enums.managedEvent),
+        DECLARE_NAPI_PROPERTY("RunningMode", enums.runningMode),
+        DECLARE_NAPI_PROPERTY("Policy", enums.policy),
+        DECLARE_NAPI_PROPERTY("EnableSource", enums.enableSource),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
