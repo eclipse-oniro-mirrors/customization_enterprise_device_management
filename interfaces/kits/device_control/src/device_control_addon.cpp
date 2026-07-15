@@ -49,6 +49,30 @@ void DeviceControlAddon::CreateOperationObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
         static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::DISK_ERASURE), &nDiskErase));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DISK_ERASURE", nDiskErase));
+    napi_value nResetFactory;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::RESET_FACTORY), &nResetFactory));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RESET_FACTORY", nResetFactory));
+    napi_value nReboot;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::REBOOT), &nReboot));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "REBOOT", nReboot));
+    napi_value nShutDown;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::SHUT_DOWN), &nShutDown));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SHUT_DOWN", nShutDown));
+    napi_value nLockScreen;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::LOCK_SCREEN), &nLockScreen));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LOCK_SCREEN", nLockScreen));
+    napi_value nLockDevice;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::LOCK_DEVICE), &nLockDevice));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LOCK_DEVICE", nLockDevice));
+    napi_value nUnlockDevice;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EdmConstants::DeviceControl::OperateType::UNLOCK_DEVICE), &nUnlockDevice));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UNLOCK_DEVICE", nUnlockDevice));
 }
 
 void DeviceControlAddon::SetPolicyCommon(AddonMethodSign &addonMethodSign, const std::string &workName)
@@ -197,18 +221,18 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
     }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-
+    ErrcodeType errcodeType = (operateType == napi_number) ? ErrcodeType::NUMBER : ErrcodeType::STRING;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, matchFlag, "parameter type error", errcodeType);
     AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error", errcodeType);
     OperateDeviceParam param;
     if (!ConvertOperation(env, operateType, param, argv[ARR_INDEX_ONE])) {
         return nullptr;
     }
     if (argc > ARGS_SIZE_TWO) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
-            "addition param error");
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
+            "addition param error", errcodeType);
         if (param.operate == EdmConstants::DeviceControl::DISK_ERASE) {
             if (!param.addition.empty() && !ReadFileToBytes(param.addition, param.size, param.file)) {
                 napi_throw(env,
@@ -219,15 +243,29 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     }
 #ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(param.userId);
-    EDMLOGI("NAPI_lockScreen called userId");
+    EDMLOGI("NAPI_OperateDevice called userId");
 #else
-    EDMLOGI("NAPI_lockScreen don't call userId");
+    EDMLOGI("NAPI_OperateDevice don't call userId");
 #endif
     int32_t ret = DeviceControlProxy::GetDeviceControlProxy()->OperateDevice(elementName, param);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        ThrowOperateDeviceError(env, ret, errcodeType);
     }
     return nullptr;
+}
+
+void DeviceControlAddon::ThrowOperateDeviceError(napi_env env, int32_t ret, ErrcodeType errcodeType)
+{
+    if (errcodeType == ErrcodeType::NUMBER) {
+        if (ret == EdmReturnErrCode::PARAM_ERROR || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+            napi_throw(env,
+                CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        } else {
+            napi_throw(env, CreateError(env, ret, errcodeType));
+        }
+    } else {
+        napi_throw(env, CreateError(env, ret));
+    }
 }
 
 bool DeviceControlAddon::ConvertOperation(napi_env env, napi_valuetype operateType, OperateDeviceParam &param,
@@ -243,8 +281,8 @@ bool DeviceControlAddon::ConvertOperation(napi_env env, napi_valuetype operateTy
         }
     } else if (operateType == napi_number) {
         int32_t operateValue = 0;
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, operateValue, value),
-            "operate param error");
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, operateValue, value),
+            "operate param error", ErrcodeType::NUMBER);
         param.operate = ConvertOperateTypeToString(static_cast<EdmConstants::DeviceControl::OperateType>(operateValue));
         if (param.operate.empty()) {
             EDMLOGE("OperateDevice invalid operate enum value: %{public}d", operateValue);
@@ -260,6 +298,18 @@ std::string DeviceControlAddon::ConvertOperateTypeToString(EdmConstants::DeviceC
     switch (operateType) {
         case EdmConstants::DeviceControl::OperateType::DISK_ERASURE:
             return EdmConstants::DeviceControl::DISK_ERASE;
+        case EdmConstants::DeviceControl::OperateType::RESET_FACTORY:
+            return EdmConstants::DeviceControl::RESET_FACTORY;
+        case EdmConstants::DeviceControl::OperateType::REBOOT:
+            return EdmConstants::DeviceControl::REBOOT;
+        case EdmConstants::DeviceControl::OperateType::SHUT_DOWN:
+            return EdmConstants::DeviceControl::SHUT_DOWN;
+        case EdmConstants::DeviceControl::OperateType::LOCK_SCREEN:
+            return EdmConstants::DeviceControl::LOCK_SCREEN;
+        case EdmConstants::DeviceControl::OperateType::LOCK_DEVICE:
+            return EdmConstants::DeviceControl::LOCK_DEVICE;
+        case EdmConstants::DeviceControl::OperateType::UNLOCK_DEVICE:
+            return EdmConstants::DeviceControl::UNLOCK_DEVICE;
         default:
             return "";
     }
