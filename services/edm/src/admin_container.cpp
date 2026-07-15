@@ -188,6 +188,9 @@ void AdminContainer::UpdateAdmin(int32_t userId, const std::string &packageName,
             if (updateCode & RUNNING_MODE) {
                 item->adminInfo_.runningMode_ = adminInfo.runningMode_;
             }
+            if (updateCode & ENABLE_SOURCE) {
+                item->adminInfo_.enableSource_ = adminInfo.enableSource_;
+            }
         }
     }
     return;

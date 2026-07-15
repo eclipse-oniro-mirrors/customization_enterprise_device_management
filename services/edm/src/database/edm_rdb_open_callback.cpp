@@ -23,6 +23,7 @@ namespace EDM {
 constexpr int32_t EDM_RDB_VERSION_TWO = 2;
 constexpr int32_t EDM_RDB_VERSION_THREE = 3;
 constexpr int32_t EDM_RDB_VERSION_FOUR = 4;
+constexpr int32_t EDM_RDB_VERSION_FIVE = 5;
 int32_t EdmRdbOpenCallback::OnCreate(NativeRdb::RdbStore &rdbStore)
 {
     EDMLOGD("EdmRdbOpenCallback OnCreate : database create.");
@@ -44,6 +45,10 @@ int32_t EdmRdbOpenCallback::OnUpgrade(NativeRdb::RdbStore &rdbStore, int current
     if (currentVersion < EDM_RDB_VERSION_FOUR && targetVersion >= EDM_RDB_VERSION_FOUR) {
         rdbStore.ExecuteSql("ALTER TABLE " + EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME + " ADD COLUMN " +
             EdmRdbFiledConst::FILED_RUNNING_MODE + " INTEGER DEFAULT 0;");
+    }
+    if (currentVersion < EDM_RDB_VERSION_FIVE && targetVersion >= EDM_RDB_VERSION_FIVE) {
+        rdbStore.ExecuteSql("ALTER TABLE " + EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME + " ADD COLUMN " +
+            EdmRdbFiledConst::FILED_ENABLE_SOURCE + " INTEGER DEFAULT 0;");
     }
     return NativeRdb::E_OK;
 }
