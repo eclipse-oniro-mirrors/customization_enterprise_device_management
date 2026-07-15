@@ -37,6 +37,12 @@ public:
 
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
+    
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override;
+ 
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
+        int32_t userId) override;
 
 protected:
     virtual ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId);
@@ -47,7 +53,13 @@ protected:
 
     virtual ErrCode CheckConflictPolicy(int32_t userId);
 
+    virtual void OnHandlePolicyDone(bool data, bool isGlobalChanged, int32_t userId);
+ 
+    virtual void OnAdminRemoveDone(int32_t userId);
+
     std::string persistParam_;
+
+    bool currentPolicyData_ = false;
 };
 } // namespace EDM
 } // namespace OHOS

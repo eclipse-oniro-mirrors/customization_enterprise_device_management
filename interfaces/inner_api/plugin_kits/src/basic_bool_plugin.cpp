@@ -35,11 +35,12 @@ ErrCode BasicBoolPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &d
     if (result != ERR_OK) {
         return result;
     }
-    std::string afterHandle = currentData ? EdmConstants::CONST_TRUE : "";
-    std::string afterMerge = mergeData ? EdmConstants::CONST_TRUE : "";
+    std::string afterHandle = currentData ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE;
+    std::string afterMerge = mergeData ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE;
     policyData.isChanged = (policyData.policyData != afterHandle);
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
+    currentPolicyData_ = currentData;
     return ERR_OK;
 }
 
@@ -135,5 +136,21 @@ ErrCode BasicBoolPlugin::CheckConflictPolicy(int32_t userId)
 {
     return ERR_OK;
 }
+
+void BasicBoolPlugin::OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName,
+    bool isGlobalChanged, int32_t userId)
+{
+    OnHandlePolicyDone(currentPolicyData_, isGlobalChanged, userId);
+}
+ 
+void BasicBoolPlugin::OnAdminRemoveDone(const std::string &adminName,
+    const std::string &currentJsonData, int32_t userId)
+{
+    OnAdminRemoveDone(userId);
+}
+
+void BasicBoolPlugin::OnHandlePolicyDone(bool data, bool isGlobalChanged, int32_t userId) {}
+ 
+void BasicBoolPlugin::OnAdminRemoveDone(int32_t userId) {}
 } // namespace EDM
 } // namespace OHOS
