@@ -37,17 +37,30 @@ ErrCode InstallLocalEnterpriceAppEnabledForAccountQuery::QueryPolicy(std::string
     MessageParcel &data, MessageParcel &reply, int32_t userId, bool isAdminNull)
 {
     if (isAdminNull) {
-        std::vector<std::string> constraints;
-        ErrCode ret = AccountSA::OsAccountManager::GetOsAccountAllConstraints(userId, constraints);
+        bool isEnable = false;
+        ErrCode ret = AccountSA::OsAccountManager::IsOsAccountConstraintEnable(userId,
+            CONSTRAINT_LOCAL_INSTALL, isEnable);
         if (FAILED(ret)) {
-            EDMLOGE("InstallLocalEnterpriceAppEnabledForAccountQuery GetOsAccountAllConstraints failed");
+            EDMLOGE("InstallLocalEnterpriceAppEnabledForAccountQuery IsOsAccountConstraintEnable failed");
             reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        bool isAllowedInstall =
-            (std::find(constraints.begin(), constraints.end(), CONSTRAINT_LOCAL_INSTALL) != constraints.end());
+        if (isEnable) {
+            std::vector<AccountSA::ConstraintSourceTypeInfo> constraintTypes;
+            ret = AccountSA::OsAccountManager::QueryOsAccountConstraintSourceTypes(userId,
+                CONSTRAINT_LOCAL_INSTALL, constraintTypes);
+            if (FAILED(ret)) {
+                EDMLOGE("InstallLocalEnterpriceAppEnabledForAccountQuery QueryOsAccountConstraintSourceTypes failed");
+                reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
+            isEnable = std::any_of(constraintTypes.begin(), constraintTypes.end(),
+                [](const AccountSA::ConstraintSourceTypeInfo &info) {
+                    return info.typeInfo == AccountSA::ConstraintSourceType::CONSTRAINT_TYPE_DEVICE_OWNER;
+                });
+        }
         reply.WriteInt32(ERR_OK);
-        reply.WriteBool(isAllowedInstall);
+        reply.WriteBool(isEnable);
         return ERR_OK;
     }
     return GetBoolPolicy(policyData, reply);
