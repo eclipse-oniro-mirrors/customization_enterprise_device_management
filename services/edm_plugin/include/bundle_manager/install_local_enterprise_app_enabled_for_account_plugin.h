@@ -23,9 +23,13 @@ namespace EDM {
 class InstallLocalEnterpriseAppEnabledForAccountPlugin : public BasicBoolPlugin {
 public:
     InstallLocalEnterpriseAppEnabledForAccountPlugin();
-
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    void OnHandlePolicyDone(bool data, bool isGlobalChanged, int32_t userId) override;
+    void OnAdminRemoveDone(int32_t userId) override;
+
+public:
+    void OnOtherServiceStart(int32_t systemAbilityId) override;
 };
 } // namespace EDM
 } // namespace OHOS

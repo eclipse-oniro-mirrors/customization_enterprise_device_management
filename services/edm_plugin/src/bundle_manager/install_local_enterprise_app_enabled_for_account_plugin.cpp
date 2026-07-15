@@ -17,9 +17,10 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
-#include "edm_utils.h"
-#include "os_account_manager.h"
 #include "iplugin_manager.h"
+#include "install_local_enterprise_app_policy_utils.h"
+#include "ipolicy_manager.h"
+#include "os_account_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -49,6 +50,35 @@ ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::SetOtherModulePolicy(b
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+void InstallLocalEnterpriseAppEnabledForAccountPlugin::OnHandlePolicyDone(
+    bool data, bool isGlobalChanged, int32_t userId)
+{
+    EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin OnHandlePolicyDone...");
+    if (!isGlobalChanged) {
+        return;
+    }
+    InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(userId);
+    InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy(userId);
+}
+
+void InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemoveDone(int32_t userId)
+{
+    EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin OnAdminRemoveDone...");
+    InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(userId);
+    InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy(userId);
+}
+
+void InstallLocalEnterpriseAppEnabledForAccountPlugin::OnOtherServiceStart(int32_t systemAbilityId)
+{
+    EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin OnOtherServiceStart...");
+    std::vector<int32_t> userIds;
+    IPolicyManager::GetInstance()->GetPolicyUserIds(userIds);
+    for (int32_t userId : userIds) {
+        InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(userId);
+        InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy(userId);
+    }
 }
 } // namespace EDM
 } // namespace OHOS

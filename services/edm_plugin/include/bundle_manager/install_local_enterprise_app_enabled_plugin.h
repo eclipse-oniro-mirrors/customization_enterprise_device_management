@@ -12,19 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
- 
+
 #include "basic_bool_plugin.h"
- 
+
 namespace OHOS {
 namespace EDM {
 class InstallLocalEnterpriseAppEnabledPlugin : public BasicBoolPlugin {
 public:
     InstallLocalEnterpriseAppEnabledPlugin();
+private:
+    void OnHandlePolicyDone(bool data, bool isGlobalChanged, int32_t userId) override;
+    void OnAdminRemoveDone(int32_t userId) override;
+
+public:
+    void OnOtherServiceStart(int32_t systemAbilityId) override;
 };
 } // namespace EDM
 } // namespace OHOS
- 
+
 #endif // SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
