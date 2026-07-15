@@ -34,10 +34,12 @@
 #include "admin_container.h"
 #include "byod_admin.h"
 #include "device_admin.h"
+#include "enable_source.h"
 #include "ext_info_type.h"
 #include "iplugin_template_test.h"
 #include "plugin_manager_test.h"
 #include "utils.h"
+#include "edm_data_ability_utils_mock.h"
 #include "edm_log.h"
 #include "parameters.h"
 #include "set_browser_policies_plugin.h"
@@ -4541,6 +4543,8 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdmins, TestSize.Level1)
     EXPECT_TRUE(abilityName == ADMIN_PACKAGENAME_ABILITY);
     int32_t adminType = want->GetIntParam("adminType", -1);
     EXPECT_TRUE(adminType == static_cast<int32_t>(AdminType::BYOD));
+    int32_t enableSource = want->GetIntParam("enableSource", -1);
+    EXPECT_TRUE(enableSource == static_cast<int32_t>(EnableSource::DEPLOY));
 }
 
 /**
@@ -5397,6 +5401,139 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableSelfDeviceAdminWithoutPermiss
 
     ErrCode ret = edmMgr_->EnableSelfDeviceAdmin(admin, credential);
     ASSERT_TRUE(ret != ERR_OK);
+}
+
+/**
+ * @tc.name: TestEnableAdminWithEnableSourceDeploy
+ * @tc.desc: Test EnableAdmin with enableSource DEPLOY stored correctly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithEnableSourceDeploy, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+    std::shared_ptr<Admin> adminPtr = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    ASSERT_TRUE(adminPtr != nullptr);
+    EXPECT_TRUE(adminPtr->adminInfo_.enableSource_ == EnableSource::DEPLOY);
+}
+
+/**
+ * @tc.name: TestEnableAdminWithEnableSourceSelf
+ * @tc.desc: Test EnableAdmin with enableSource SELF via 5-parameter overload.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithEnableSourceSelf, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1))
+        .WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, admin.GetBundleName());
+    GetBundleInfoMock(true, EDM_TEST_PERMISSION);
+    ErrCode ret = edmMgr_->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USER_ID, false, EnableSource::SELF);
+    EXPECT_TRUE(SUCCEEDED(ret));
+    std::shared_ptr<Admin> adminPtr = edmMgr_->adminMgr_->GetAdminByPkgName(admin.GetBundleName(), DEFAULT_USER_ID);
+    ASSERT_TRUE(adminPtr != nullptr);
+    EXPECT_TRUE(adminPtr->adminInfo_.enableSource_ == EnableSource::SELF);
+}
+
+/**
+ * @tc.name: TestReplaceSuperAdminEnableSource
+ * @tc.desc: Test ReplaceSuperAdmin sets enableSource to REPLACE.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestReplaceSuperAdminEnableSource, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    AppExecFwk::ElementName replaceAdmin;
+    replaceAdmin.SetBundleName(ADMIN_PACKAGENAME_1);
+    replaceAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY_1);
+    bool isKeepPolicy = true;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
+        .Times(testing::AtLeast(1)).WillRepeatedly(DoAll(Return(true)));
+    QueryExtensionAbilityInfosMock(true, replaceAdmin.GetBundleName());
+    GetBundleInfoMock(true, EDM_TEST_PERMISSION);
+    ErrCode err = edmMgr_->ReplaceSuperAdmin(admin, replaceAdmin, isKeepPolicy);
+    ASSERT_TRUE(err == ERR_OK);
+    std::shared_ptr<Admin> newAdmin = edmMgr_->adminMgr_->GetAdminByPkgName(replaceAdmin.GetBundleName(),
+        DEFAULT_USER_ID);
+    ASSERT_TRUE(newAdmin != nullptr);
+    EXPECT_TRUE(newAdmin->adminInfo_.enableSource_ == EnableSource::REPLACE);
+}
+
+/**
+ * @tc.name: TestGetAdminsEnableSource
+ * @tc.desc: Test GetAdmins returns enableSource in Want params.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminsEnableSource, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillOnce(DoAll(SetArgReferee<0>(ids), Return(ERR_OK)));
+    edmMgr_->GetAdmins(wants);
+    ASSERT_TRUE(wants.size() >= 1);
+    int32_t enableSource = wants[0]->GetIntParam("enableSource", -1);
+    EXPECT_TRUE(enableSource == static_cast<int32_t>(EnableSource::DEPLOY));
+}
+
+/**
+ * @tc.name: TestIsNeedUpdateInstallLocalEnterpriseAppSettings_NoPolicy
+ * @tc.desc: Test IsNeedUpdateInstallLocalEnterpriseAppSettings when no policy in EDM RDB.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsNeedUpdateInstallLocalEnterpriseAppSettings_NoPolicy,
+    TestSize.Level1)
+{
+    bool result = edmMgr_->IsNeedUpdateInstallLocalEnterpriseAppSettings();
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsEmpty
+ * @tc.desc: Test IsNeedUpdateInstallLocalEnterpriseAppSettings when device policy exists but Settings DB empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest,
+    TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsEmpty, TestSize.Level1)
+{
+    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+        EdmConstants::CONST_TRUE, EdmConstants::CONST_TRUE, EdmConstants::DEFAULT_USER_ID);
+    EdmDataAbilityUtils::SetResult("test value nullptr");
+    bool result = edmMgr_->IsNeedUpdateInstallLocalEnterpriseAppSettings();
+    EXPECT_TRUE(result);
+    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+        "", "", EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsHasData
+ * @tc.desc: Test IsNeedUpdateInstallLocalEnterpriseAppSettings when device policy and Settings DB both have data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest,
+    TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsHasData, TestSize.Level1)
+{
+    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+        EdmConstants::CONST_TRUE, EdmConstants::CONST_TRUE, EdmConstants::DEFAULT_USER_ID);
+    EdmDataAbilityUtils::SetResult("power_suspend_normal");
+    bool result = edmMgr_->IsNeedUpdateInstallLocalEnterpriseAppSettings();
+    EXPECT_FALSE(result);
+    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
+        "", "", EdmConstants::DEFAULT_USER_ID);
 }
 } // namespace TEST
 } // namespace EDM
