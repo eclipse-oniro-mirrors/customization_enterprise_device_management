@@ -71,6 +71,7 @@ ohos_shared_library("device_core_plugin") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
@@ -472,7 +473,10 @@ ohos_shared_library("communication_plugin") {
     }
 
     if (common_event_service_edm_enable) {
-      external_deps += [ "common_event_service:cesfwk_innerkits" ]
+      external_deps += [
+        "ability_runtime:ability_manager",
+        "common_event_service:cesfwk_innerkits"
+      ]
       sources += [
         "./src/browser/managed_browser_policy_plugin.cpp",
         "./src/browser/set_browser_policies_plugin.cpp",
@@ -702,6 +706,7 @@ ohos_shared_library("need_extra_plugin") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",

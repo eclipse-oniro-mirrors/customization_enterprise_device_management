@@ -17,7 +17,6 @@
 #define COMMON_EXTERNAL_INCLUDE_EDM_ACCESS_TOKEN_MANAGER_IMPL_H
 
 #include "accesstoken_kit.h"
-#include "app_control/app_control_proxy.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include <system_ability_definition.h>
