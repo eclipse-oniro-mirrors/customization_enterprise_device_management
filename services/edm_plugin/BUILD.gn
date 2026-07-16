@@ -589,6 +589,7 @@ ohos_shared_library("sys_service_plugin") {
     if (ability_runtime_edm_enable) {
       external_deps += [
         "ability_runtime:ability_manager",
+        "json:nlohmann_json_static",
         "resource_schedule_service:ressched_client"
       ]
       sources += [
