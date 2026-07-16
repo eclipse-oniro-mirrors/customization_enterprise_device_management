@@ -86,7 +86,7 @@ bool InstallLocalEnterpriseAppPolicyUtils::GetUserActualPolicyValue(int32_t user
             [](const AccountSA::ConstraintSourceTypeInfo &info) {
                 return info.typeInfo == AccountSA::ConstraintSourceType::CONSTRAINT_TYPE_DEVICE_OWNER;
             });
-    }   
+    }
     return isEnable;
 }
 
