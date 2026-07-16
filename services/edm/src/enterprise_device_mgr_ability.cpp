@@ -2345,7 +2345,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         }
     }
 #endif
-        ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
     std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
     if (ret == ERR_OK && enterpriseConfigEnable == "false") {
         EDMLOGD("HandleDevicePolicy success, set PARAM_EDM_ENTERPRISE_CONFIG_ENABLE true.");
