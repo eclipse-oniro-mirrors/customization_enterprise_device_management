@@ -81,6 +81,7 @@ void InitAdminParam(AdminInfo &adminInfo, std::string fuzzString, EntInfo entInf
     fuzzAdminInfo.permission_ = { fuzzString };
     fuzzAdminInfo.managedEvents_ = { event };
     fuzzAdminInfo.parentAdminName_ = fuzzString;
+    fuzzAdminInfo.enableSource_ = GetData<EnableSource>();
     adminInfo = fuzzAdminInfo;
 }
 

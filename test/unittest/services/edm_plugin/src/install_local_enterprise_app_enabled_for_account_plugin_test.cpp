@@ -141,6 +141,18 @@ HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnAdminRemove
     ErrCode ret = plugin.OnAdminRemove(adminName, data, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
+
+/**
+ * @tc.name: TestOnOtherServiceStart
+ * @tc.desc: Test InstallLocalEnterpriseAppEnabledForAccountPlugin::OnOtherServiceStart function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnOtherServiceStart, TestSize.Level1)
+{
+    InstallLocalEnterpriseAppEnabledForAccountPlugin plugin;
+    plugin.OnOtherServiceStart(0);
+    EXPECT_TRUE(true);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -81,6 +81,18 @@ HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnter
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_SET_LOCAL_APP_INSTALL_MODE, true));
 }
+
+/**
+ * @tc.name: TestOnOtherServiceStart
+ * @tc.desc: Test InstallLocalEnterpriseAppEnabledPlugin::OnOtherServiceStart function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestOnOtherServiceStart, TestSize.Level1)
+{
+    InstallLocalEnterpriseAppEnabledPlugin plugin;
+    plugin.OnOtherServiceStart(0);
+    EXPECT_TRUE(true);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
