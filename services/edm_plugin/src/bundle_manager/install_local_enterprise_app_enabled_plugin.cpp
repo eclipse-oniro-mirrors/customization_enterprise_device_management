@@ -52,7 +52,6 @@ void InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemoveDone(int32_t userId)
     EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnAdminRemoveDone...");
     InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser();
     InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy();
-    
 }
 
 void InstallLocalEnterpriseAppEnabledPlugin::OnOtherServiceStart(int32_t systemAbilityId)
