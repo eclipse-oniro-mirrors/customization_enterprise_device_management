@@ -78,7 +78,7 @@ bool InstallLocalEnterpriseAppPolicyUtils::GetUserActualPolicyValue(int32_t user
     std::vector<std::string> constraints;
     bool isEnable = false;
     AccountSA::OsAccountManager::IsOsAccountConstraintEnable(userId, CONSTRAINT_LOCAL_INSTALL, isEnable);
-    if (isEnable) { 
+    if (isEnable) {
         std::vector<AccountSA::ConstraintSourceTypeInfo> constraintTypes;
         AccountSA::OsAccountManager::QueryOsAccountConstraintSourceTypes(userId,
             CONSTRAINT_LOCAL_INSTALL, constraintTypes);
