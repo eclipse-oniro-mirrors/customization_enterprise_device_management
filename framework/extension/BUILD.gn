@@ -113,6 +113,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
     "ipc:ipc_napi",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "node:node_header_notice",
     "resource_management:global_resmgr",
   ]
 
