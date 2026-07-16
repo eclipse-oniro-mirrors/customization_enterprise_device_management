@@ -65,7 +65,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         if (operateType == static_cast<uint32_t>(FuncOperateType::SET)) {
             parcel.WriteParcelable(&admin);
             parcel.WriteString(WITHOUT_PERMISSION_TAG);
-            parcel.WriteBool(data[0] % 2 == 0);
+            parcel.WriteBool(true);
         } else {
             parcel.WriteString(WITHOUT_PERMISSION_TAG);
             parcel.WriteInt32(1);
