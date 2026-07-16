@@ -1217,7 +1217,8 @@ void AdminManager::CreateEnableSourceObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::USER), &nUser));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "USER", nUser));
     napi_value nIntranetDeploy;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::INTRANET_DEPLOY), &nIntranetDeploy));
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(EnableSource::INTRANET_DEPLOY),
+        &nIntranetDeploy));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "INTRANET_DEPLOY", nIntranetDeploy));
 }
 
