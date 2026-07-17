@@ -276,51 +276,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::Commo
 
     ConnectAbilityOnSystemUpdate(updateInfo);
     UpdateNotifyPackagePolicy();
-#if defined(FEATURE_PC_ONLY)
-    if (IsNeedUpdateInstallLocalEnterpriseAppSettings()) {
-        CallOnOtherServiceStart(EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
-        CallOnOtherServiceStart(EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT);
-    }
-#endif
-}
-
-bool EnterpriseDeviceMgrAbility::IsNeedUpdateInstallLocalEnterpriseAppSettings()
-{
-    // 设备级检查：EDM RDB有策略 且 Settings DB无数据
-    std::string devicePolicyValue;
-    PolicyManager::GetInstance()->GetPolicy(
-        "", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-        devicePolicyValue, EdmConstants::DEFAULT_USER_ID);
-    if (!devicePolicyValue.empty()) {
-        std::string settingsValue;
-        EdmDataAbilityUtils::GetStringFromSettingsDataShare(
-            EdmConstants::SETTINGS_DATA_BASE_URI, EdmConstants::KEY_INSTALL_LOCAL_APP_POLICY, settingsValue);
-        if (settingsValue.empty()) {
-            return true;
-        }
-    }
-
-    // 用户级检查：任一用户 EDM RDB有策略 且 Settings DB无数据
-    std::vector<int32_t> userIds;
-    PolicyManager::GetInstance()->GetPolicyUserIds(userIds);
-    for (int32_t userId : userIds) {
-        std::string userPolicyValue;
-        PolicyManager::GetInstance()->GetPolicy(
-            "", PolicyName::POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT,
-            userPolicyValue, userId);
-        if (userPolicyValue.empty()) {
-            continue;
-        }
-        std::string userSettingsValue;
-        std::string uri = std::string(EdmConstants::SETTINGS_DATA_SECURE_URI_PREFIX)
-            + std::to_string(userId) + EdmConstants::SETTINGS_DATA_URI_SUFFIX;
-        EdmDataAbilityUtils::GetStringFromSettingsDataShare(uri, EdmConstants::KEY_INSTALL_LOCAL_APP_POLICY,
-            userSettingsValue);
-        if (userSettingsValue.empty()) {
-            return true;
-        }
-    }
-    return false;
 }
 
 void EnterpriseDeviceMgrAbility::UpdateNotifyPackagePolicy()
@@ -2760,7 +2715,12 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
         EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
-        /* Get all request and registered permissions */
+    std::shared_ptr<Admin> subAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, GetCurrentUserId());
+    if (subAdmin && subAdmin->adminInfo_.adminType_ != AdminType::SUB_SUPER_ADMIN) {
+        EDMLOGW("AuthorizeAdmin: %{public}s is an admin, but not sub super admin.", bundleName.c_str());
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    /* Get all request and registered permissions */
     std::vector<std::string> permissionList;
     if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(bundleName, EdmConstants::DEFAULT_USER_ID,
         permissionList))) {

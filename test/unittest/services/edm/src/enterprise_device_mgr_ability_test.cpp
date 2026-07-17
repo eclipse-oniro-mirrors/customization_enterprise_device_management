@@ -5490,51 +5490,6 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminsEnableSource, TestSize.Lev
     EXPECT_TRUE(enableSource == static_cast<int32_t>(EnableSource::DEPLOY));
 }
 
-/**
- * @tc.name: TestIsNeedUpdateInstallLocalEnterpriseAppSettings_NoPolicy
- * @tc.desc: Test IsNeedUpdateInstallLocalEnterpriseAppSettings when no policy in EDM RDB.
- * @tc.type: FUNC
- */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsNeedUpdateInstallLocalEnterpriseAppSettings_NoPolicy,
-    TestSize.Level1)
-{
-    bool result = edmMgr_->IsNeedUpdateInstallLocalEnterpriseAppSettings();
-    EXPECT_FALSE(result);
-}
-
-/**
- * @tc.name: TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsEmpty
- * @tc.desc: Test IsNeedUpdateInstallLocalEnterpriseAppSettings when device policy exists but Settings DB empty.
- * @tc.type: FUNC
- */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest,
-    TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsEmpty, TestSize.Level1)
-{
-    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-        EdmConstants::CONST_TRUE, EdmConstants::CONST_TRUE, EdmConstants::DEFAULT_USER_ID);
-    EdmDataAbilityUtils::SetResult("test value nullptr");
-    bool result = edmMgr_->IsNeedUpdateInstallLocalEnterpriseAppSettings();
-    EXPECT_TRUE(result);
-    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-        "", "", EdmConstants::DEFAULT_USER_ID);
-}
-
-/**
- * @tc.name: TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsHasData
- * @tc.desc: Test IsNeedUpdateInstallLocalEnterpriseAppSettings when device policy and Settings DB both have data.
- * @tc.type: FUNC
- */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest,
-    TestIsNeedUpdateInstallLocalEnterpriseAppSettings_DevicePolicyHasSettingsHasData, TestSize.Level1)
-{
-    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-        EdmConstants::CONST_TRUE, EdmConstants::CONST_TRUE, EdmConstants::DEFAULT_USER_ID);
-    EdmDataAbilityUtils::SetResult("power_suspend_normal");
-    bool result = edmMgr_->IsNeedUpdateInstallLocalEnterpriseAppSettings();
-    EXPECT_FALSE(result);
-    edmMgr_->policyMgr_->SetPolicy("", PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED,
-        "", "", EdmConstants::DEFAULT_USER_ID);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

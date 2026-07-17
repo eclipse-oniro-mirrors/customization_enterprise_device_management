@@ -76,10 +76,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     // Direct plugin method calls
     InstallLocalEnterpriseAppEnabledPlugin plugin;
-    plugin.OnOtherServiceStart(0);
-    plugin.OnHandlePolicyDone(true, true, WITHOUT_USERID);
-    plugin.OnHandlePolicyDone(true, false, WITHOUT_USERID);
-    plugin.OnAdminRemoveDone(WITHOUT_USERID);
+    std::string adminName = "fuzzAdmin";
+    bool policyData = true;
+    bool mergeData = false;
+    plugin.OnAdminRemove(adminName, policyData, mergeData, WITHOUT_USERID);
     return 0;
 }
 } // namespace EDM

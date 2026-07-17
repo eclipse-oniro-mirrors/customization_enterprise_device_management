@@ -15,6 +15,8 @@
 
 #include "install_local_enterprise_app_enabled_plugin.h"
 
+#include "parameters.h"
+
 #include "edm_ipc_interface_code.h"
 #include "edm_constants.h"
 #include "iplugin_manager.h"
@@ -24,6 +26,7 @@ namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT =
     IPluginManager::GetInstance()->AddPlugin(std::make_shared<InstallLocalEnterpriseAppEnabledPlugin>());
+const char *PERSIST_LOCAL_INSTALL_ENABLE = "persist.edm.is_local_install_enable";
 
 InstallLocalEnterpriseAppEnabledPlugin::InstallLocalEnterpriseAppEnabledPlugin()
 {
@@ -36,29 +39,54 @@ InstallLocalEnterpriseAppEnabledPlugin::InstallLocalEnterpriseAppEnabledPlugin()
     persistParam_ = "persist.edm.is_local_install_enable";
 }
 
-void InstallLocalEnterpriseAppEnabledPlugin::OnHandlePolicyDone(
-    bool data, bool isGlobalChanged, int32_t userId)
+ErrCode InstallLocalEnterpriseAppEnabledPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
+    MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnHandlePolicyDone...");
-    if (!isGlobalChanged) {
-        return;
+    bool handelData = data.ReadBool();
+    bool currentData = policyData.policyData == EdmConstants::CONST_TRUE;
+    bool mergeData = policyData.mergePolicyData == EdmConstants::CONST_TRUE;
+    ErrCode result = OnSetPolicy(handelData, currentData, mergeData, userId);
+    if (result != ERR_OK) {
+        return result;
     }
-    InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser();
-    InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy();
+    std::string afterHandle = currentData ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE;
+    std::string afterMerge = mergeData ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE;
+    policyData.isChanged = (policyData.policyData != afterHandle);
+    policyData.policyData = afterHandle;
+    policyData.mergePolicyData = afterMerge;
+    return ERR_OK;
 }
 
-void InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemoveDone(int32_t userId)
+ErrCode InstallLocalEnterpriseAppEnabledPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
-    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnAdminRemoveDone...");
-    InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser();
-    InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy();
+    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin SetOtherModulePolicy data = %{public}d", data);
+    if (!system::SetParameter(PERSIST_LOCAL_INSTALL_ENABLE, data ? EdmConstants::CONST_TRUE :
+        EdmConstants::CONST_FALSE)) {
+        EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(data ?
+        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_ENABLE : InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_DISABLE);
+    if (FAILED(ret)) {
+        EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin SetSettingsDataAndUserPolicy failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 
-void InstallLocalEnterpriseAppEnabledPlugin::OnOtherServiceStart(int32_t systemAbilityId)
+ErrCode InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
 {
-    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnOtherServiceStart...");
-    InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser();
-    InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy();
+    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnAdminRemove adminName: %{public}s, data : %{public}d", adminName.c_str(), data);
+    if (!mergeData && data && !system::SetParameter(PERSIST_LOCAL_INSTALL_ENABLE, EdmConstants::CONST_FALSE)) {
+        EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin set param failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL);
+    if (FAILED(ret)) {
+        EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin SetSettingsDataAndUserPolicy failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

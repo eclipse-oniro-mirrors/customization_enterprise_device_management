@@ -23,12 +23,10 @@ namespace EDM {
 class InstallLocalEnterpriseAppEnabledPlugin : public BasicBoolPlugin {
 public:
     InstallLocalEnterpriseAppEnabledPlugin();
-private:
-    void OnHandlePolicyDone(bool data, bool isGlobalChanged, int32_t userId) override;
-    void OnAdminRemoveDone(int32_t userId) override;
-
-public:
-    void OnOtherServiceStart(int32_t systemAbilityId) override;
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId) override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

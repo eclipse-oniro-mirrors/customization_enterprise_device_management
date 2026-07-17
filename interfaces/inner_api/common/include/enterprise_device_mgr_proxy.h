@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 #define INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 
+#include "enable_source.h"
 #include <message_parcel.h>
 
 #include <map>
@@ -25,7 +26,6 @@
 #include <vector>
 
 #include "ienterprise_device_mgr.h"
-#include "enable_source.h"
 
 namespace OHOS {
 namespace EDM {

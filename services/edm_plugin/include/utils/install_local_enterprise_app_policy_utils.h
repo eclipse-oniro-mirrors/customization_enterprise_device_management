@@ -25,13 +25,15 @@ namespace OHOS {
 namespace EDM {
 class InstallLocalEnterpriseAppPolicyUtils {
 public:
-    static ErrCode UpdateSettingsPolicy(std::optional<int32_t> userId = std::nullopt);
     static ErrCode UpdatePolicyByUser(std::optional<int32_t> userId = std::nullopt);
+    static ErrCode UpdateSettingsPolicy(int32_t policyValue, std::optional<int32_t> userId = std::nullopt);
+    static ErrCode SetEnterpriseUserPolicy(bool data, int32_t userId);
+    static ErrCode SetSettingsDataAndUserPolicy(int32_t policyValue, std::optional<int32_t> userId = std::nullopt);
  
-private:
     static constexpr int32_t POLICY_NO_CONTROLL = 0;
     static constexpr int32_t POLICY_FORCE_ENABLE = 1;
     static constexpr int32_t POLICY_FORCE_DISABLE = 2;
+private:
     static constexpr const char *CONSTRAINT_LOCAL_INSTALL =
         "constraint.enterprise.bundles.local.install.disallow";
     static constexpr const char *PERSIST_LOCAL_INSTALL_ENABLE = "persist.edm.is_local_install_enable";

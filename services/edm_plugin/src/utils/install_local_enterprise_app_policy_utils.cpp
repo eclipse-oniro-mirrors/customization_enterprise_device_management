@@ -26,19 +26,6 @@
 
 namespace OHOS {
 namespace EDM {
-
-// 从edm数据库获取离线安装器策略
-int32_t InstallLocalEnterpriseAppPolicyUtils::GetPolicyValueFromRdb(const std::string &policyValue)
-{
-    if (policyValue.empty()) {
-        return POLICY_NO_CONTROLL;
-    }
-    if (policyValue == EdmConstants::CONST_TRUE) {
-        return POLICY_FORCE_ENABLE;
-    }
-    return POLICY_FORCE_DISABLE;
-}
-
 // 将策略写入Settings设备级数据库
 ErrCode InstallLocalEnterpriseAppPolicyUtils::WriteDeviceSettingsData(int32_t policyValue)
 {
@@ -105,20 +92,13 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdateOsAccountConstraint(bool val
 }
 
 // 更新settings数据库
-ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy(std::optional<int32_t> userId)
+ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy(int32_t policyValue, std::optional<int32_t> userId)
 {
     EDMLOGI("UpdateSettingsPolicy");
-    std::string policyValue;
     bool isDevice = !userId.has_value();
     int32_t updateUserId = isDevice ? EdmConstants::DEFAULT_USER_ID : userId.value();
-
-    IPolicyManager::GetInstance()->GetPolicy(
-        "", isDevice ? PolicyName::POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED :
-        PolicyName::POLICY_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT,
-        policyValue, updateUserId);
-    int32_t policy = GetPolicyValueFromRdb(policyValue);
-    ErrCode ret = isDevice ? WriteDeviceSettingsData(policy) :
-        WriteUserSettingsData(policy, updateUserId);
+    ErrCode ret = isDevice ? WriteDeviceSettingsData(policyValue) :
+        WriteUserSettingsData(policyValue, updateUserId);
     if (FAILED(ret)) {
         return ret;
     }
@@ -132,12 +112,17 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(std::optional<i
     bool deviceActual = GetDeviceActualPolicyValue();
     if (isDevice) {
         std::vector<int32_t> userIds;
-        IPolicyManager::GetInstance()->GetPolicyUserIds(userIds);
-        ErrCode ret = ERR_OK;
+        ErrCode ret = OHOS::AccountSA::OsAccountManager::GetOsAccountLocalIds(userIds);
+        if (FAILED(ret)) {
+            return ret;
+        }
         for (int32_t id : userIds) {
             bool userActual = GetUserActualPolicyValue(id);
             bool finalValue = deviceActual || userActual;
             ret = UpdateOsAccountConstraint(finalValue, id);
+            if (FAILED(ret)) {
+                return ret;
+            }
         }
         return ret;
     } else {
@@ -146,5 +131,28 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(std::optional<i
         return UpdateOsAccountConstraint(finalValue, userId.value());
     }
 }
+
+// 同步企业设置的用户级策略到账号子系统
+ErrCode InstallLocalEnterpriseAppPolicyUtils::SetEnterpriseUserPolicy(bool data, int32_t userId)
+{
+    std::vector<std::string> constraints;
+    constraints.emplace_back(CONSTRAINT_LOCAL_INSTALL);
+    ErrCode ret = AccountSA::OsAccountManager::SetSpecificOsAccountConstraints(constraints, data, userId,
+        EdmConstants::DEFAULT_USER_ID, true);
+    return ret;
+}
+
+// 根据策略值更新用户级数据库，同步用户低优先级策略
+ErrCode InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(int32_t policyValue, std::optional<int32_t> userId)
+{
+    ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(userId);
+    if (FAILED(ret)) {
+        EDMLOGE("InstallLocalEnterpriseAppPolicyUtils UpdatePolicyByUser failed");
+        return ret;
+    }
+    ret = InstallLocalEnterpriseAppPolicyUtils::UpdateSettingsPolicy(policyValue, userId);
+    return ret;
+}
+
 } // namespace EDM
 } // namespace OHOS

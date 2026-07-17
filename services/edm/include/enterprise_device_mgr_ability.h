@@ -156,7 +156,6 @@ private:
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);
-    void ReportFuncEvent(uint32_t code);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void CheckAndReportInstalledBundleInfoOnStart();
@@ -183,7 +182,6 @@ public:
         const std::string &bundleName);
     ErrCode SetAbilityDisabled(const std::string &bundleName, int32_t userId, const std::string &abilityName);
     void UpdateNotifyPackagePolicy();
-    bool IsNeedUpdateInstallLocalEnterpriseAppSettings();
 #ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
         EnterpriseDeviceMgrAbility &listener);

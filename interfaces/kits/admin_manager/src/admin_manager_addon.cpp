@@ -64,9 +64,9 @@ napi_value AdminManager::EnableAdmin(napi_env env, napi_callback_info info)
     int32_t jsAdminType;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, jsAdminType, argv[ARR_INDEX_TWO]), "Parameter admin type error");
     asyncCallbackInfo->adminType = JsAdminTypeToAdminType(jsAdminType);
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseEnableSource(env, argv[ARR_INDEX_ZERO], *asyncCallbackInfo),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseEnableSource(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo),
         "Parameter admin EnableSource error");
-    ParseEnableAdminParams(env, argc, argv, hasUserId, hasCallback, *asyncCallbackInfo);
+    ParseEnableAdminParams(env, argc, argv, hasUserId, hasCallback, asyncCallbackInfo);
     EDMLOGD("EnableAdmin::elementName.bundlename %{public}s, abilityname:%{public}s, adminType:%{public}d",
         asyncCallbackInfo->elementName.GetBundleName().c_str(),
         asyncCallbackInfo->elementName.GetAbilityName().c_str(), asyncCallbackInfo->adminType);
@@ -132,7 +132,7 @@ int32_t AdminManager::AdminTypeToJsAdminType(int32_t AdminType)
     return static_cast<int32_t>(AdminType::UNKNOWN);
 }
 
-bool AdminManager::ParseEnableSource(napi_env env, napi_value adminArg, AsyncEnableAdminCallbackInfo &callbackInfo)
+bool AdminManager::ParseEnableSource(napi_env env, napi_value adminArg, AsyncEnableAdminCallbackInfo *callbackInfo)
 {
     napi_value parametersValue;
     napi_status status = napi_get_named_property(env, adminArg, "parameters", &parametersValue);
@@ -148,7 +148,7 @@ bool AdminManager::ParseEnableSource(napi_env env, napi_value adminArg, AsyncEna
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, jsEnableSource, enableSourceValue),
         "Parameter admin EnableSource error");
     if (JsAdminEnableSourceToEnableSource(jsEnableSource)) {
-        callbackInfo.enableSource = jsEnableSource;
+        callbackInfo->enableSource = jsEnableSource;
         return true;
     }
     napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter admin EnableSource error"));
@@ -156,20 +156,20 @@ bool AdminManager::ParseEnableSource(napi_env env, napi_value adminArg, AsyncEna
 }
 
 void AdminManager::ParseEnableAdminParams(napi_env env, size_t argc, napi_value argv[],
-    bool hasUserId, bool hasCallback, AsyncEnableAdminCallbackInfo &callbackInfo)
+    bool hasUserId, bool hasCallback, AsyncEnableAdminCallbackInfo *callbackInfo)
 {
     if (hasUserId) {
-        if (!ParseInt(env, callbackInfo.userId, argv[ARR_INDEX_THREE])) {
+        if (!ParseInt(env, callbackInfo->userId, argv[ARR_INDEX_THREE])) {
             napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter user id error"));
             return;
         }
     } else {
 #ifdef OS_ACCOUNT_EDM_ENABLE
-        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(callbackInfo.userId);
+        AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(callbackInfo->userId);
 #endif
     }
     if (hasCallback) {
-        if (!ParseCallback(env, callbackInfo.callback,
+        if (!ParseCallback(env, callbackInfo->callback,
             argc <= ARGS_SIZE_FIVE ? argv[argc - 1] : argv[ARR_INDEX_FOUR])) {
             napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, "Parameter callback error"));
             return;
@@ -1368,7 +1368,8 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
         NAPI_CALL(env, napi_get_boolean(env, want->GetBoolParam("isDebug", false), &isDebugToJs));
         NAPI_CALL(env, napi_set_named_property(env, parameters, "isDebug", isDebugToJs));
         napi_value enableSourceToJs = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, want->GetIntParam("enableSource", 0), &enableSourceToJs));
+        NAPI_CALL(env, napi_create_int32(env, want->GetIntParam("enableSource",
+            static_cast<int32_t>(EnableSource::DEPLOY)), &enableSourceToJs));
         NAPI_CALL(env, napi_set_named_property(env, parameters, "enableSource", enableSourceToJs));
         NAPI_CALL(env, napi_set_named_property(env, wantItem, "parameters", parameters));
         NAPI_CALL(env, napi_set_element(env, result, idx, wantItem));
