@@ -771,6 +771,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (ability_runtime_edm_enable) {
     external_deps += [
       "ability_runtime:ability_manager",
+      "json:nlohmann_json_static",
       "resource_schedule_service:ressched_client"
     ]
     sources += [
