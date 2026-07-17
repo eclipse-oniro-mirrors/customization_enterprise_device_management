@@ -91,15 +91,17 @@ bool InstalledBundleInfoUtil::LoadFromFile(std::vector<InstalledBundleInfo> &inf
         }
         InstalledBundleInfo info;
         cJSON *mdmName = cJSON_GetObjectItem(item, JSON_KEY_MDM_NAME);
-        info.mdmName = (mdmName != nullptr && mdmName->valuestring != nullptr) ? mdmName->valuestring : "";
+        info.mdmName = (mdmName != nullptr && cJSON_IsString(mdmName) && mdmName->valuestring != nullptr)
+            ? mdmName->valuestring : "";
         cJSON *installedName = cJSON_GetObjectItem(item, JSON_KEY_INSTALLED_NAME);
-        info.installedName = (installedName != nullptr && installedName->valuestring != nullptr)
-            ? installedName->valuestring : "";
+        info.installedName = (installedName != nullptr && cJSON_IsString(installedName) &&
+            installedName->valuestring != nullptr) ? installedName->valuestring : "";
         cJSON *installedType = cJSON_GetObjectItem(item, JSON_KEY_INSTALLED_TYPE);
-        info.installedType = (installedType != nullptr)
+        info.installedType = (installedType != nullptr && cJSON_IsNumber(installedType))
             ? static_cast<InstalledBundleType>(installedType->valueint) : InstalledBundleType::NORMAL;
         cJSON *installedTime = cJSON_GetObjectItem(item, JSON_KEY_INSTALLED_TIME);
-        info.installedTime = (installedTime != nullptr) ? static_cast<int64_t>(installedTime->valuedouble) : 0;
+        info.installedTime = (installedTime != nullptr  && cJSON_IsNumber(installedTime))
+            ? static_cast<int64_t>(installedTime->valuedouble) : 0;
         infoList.push_back(info);
     }
     cJSON_Delete(root);
