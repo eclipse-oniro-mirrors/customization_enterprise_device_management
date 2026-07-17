@@ -47,6 +47,7 @@ private:
     static void CreateOperationObject(napi_env env, napi_value value);
     static bool ConvertOperation(napi_env env, napi_valuetype operateType,
         OperateDeviceParam &param, napi_value value);
+    static void ThrowOperateDeviceError(napi_env env, int32_t ret, ErrcodeType errcodeType);
 };
 } // namespace EDM
 } // namespace OHOS
