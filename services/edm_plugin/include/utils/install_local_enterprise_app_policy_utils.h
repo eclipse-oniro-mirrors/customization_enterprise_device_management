@@ -42,7 +42,7 @@ private:
     static ErrCode WriteDeviceSettingsData(int32_t policyValue);
     static ErrCode WriteUserSettingsData(int32_t policyValue, int32_t userId);
     static bool GetDeviceActualPolicyValue();
-    static bool GetUserActualPolicyValue(int32_t userId);
+    static ErrCode GetUserActualPolicyValue(int32_t userId, bool &isEnable);
     static ErrCode UpdateOsAccountConstraint(bool value, int32_t userId);
 };
 } // namespace EDM
