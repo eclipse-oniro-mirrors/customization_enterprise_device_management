@@ -1683,10 +1683,9 @@ ErrCode EnterpriseDeviceMgrAbility::HandleKeepPolicy(std::string &adminName, std
 ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementName &oldAdmin,
     const AppExecFwk::ElementName &newAdmin, bool keepPolicy)
 {
-    EDMLOGD("ReplaceSuperAdmin: oldAdmin.bundlename %{public}s,  oldAdmin.abilityname:%{public}s  "
-        "ReplaceSuperAdmin: newAdmin.bundlename %{public}s,  newAdmin.abilityname:%{public}s",
-        oldAdmin.GetBundleName().c_str(), oldAdmin.GetAbilityName().c_str(), newAdmin.GetBundleName().c_str(),
-        newAdmin.GetAbilityName().c_str());
+    EDMLOGD("ReplaceSuperAdmin: oldAdmin[%{public}s/%{public}s], newAdmin[%{public}s/%{public}s]",
+        oldAdmin.GetBundleName().c_str(), oldAdmin.GetAbilityName().c_str(),
+        newAdmin.GetBundleName().c_str(), newAdmin.GetAbilityName().c_str());
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
     std::vector<std::string> permissionList;
     ErrCode ret = CheckReplaceAdmins(oldAdmin, newAdmin, abilityInfo, permissionList);
@@ -1708,7 +1707,8 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
     }
     EntInfo entInfo = adminPtr->adminInfo_.entInfo_;
     AdminInfo adminInfo = {.packageName_ = abilityInfo.at(0).bundleName, .className_ = abilityInfo.at(0).name,
-        .entInfo_ = entInfo, .permission_ = permissionList, .adminType_ = AdminType::ENT, .isDebug_ = false};
+        .entInfo_ = entInfo, .permission_ = permissionList, .adminType_ = AdminType::ENT,
+        .isDebug_ = false, .enableSource_ = EnableSource::REPLACE};
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (keepPolicy) {
         std::string newAdminName = newAdmin.GetBundleName();
@@ -1745,15 +1745,15 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdminReportEdmEvent(const AppExecFwk
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(const AppExecFwk::ElementName &admin, const EntInfo &entInfo,
-    AdminType adminType, int32_t userId, bool enableSelf)
+    AdminType adminType, int32_t userId, bool enableSelf, EnableSource enableSource)
 {
 #if defined(FEATURE_PC_ONLY)
     if (enableSelf) {
         return EnableAdminWithPermission(admin, entInfo, adminType, userId,
-            EdmPermission::PERMISSION_ENTERPRISE_ACTIVATE_DEVICE_ADMIN);
+            EdmPermission::PERMISSION_ENTERPRISE_ACTIVATE_DEVICE_ADMIN, enableSource);
     }
     return EnableAdminWithPermission(admin, entInfo, adminType, userId,
-            EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN);
+            EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, enableSource);
 #else
     EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin self Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -1761,7 +1761,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(const AppExecFwk::ElementName &a
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdminWithPermission(const AppExecFwk::ElementName &admin,
-    const EntInfo &entInfo, AdminType type, int32_t userId, const std::string &permission)
+    const EntInfo &entInfo, AdminType type, int32_t userId, const std::string &permission,
+    EnableSource enableSource)
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin");
     ErrCode res = EnableAdminPreCheck(type);
@@ -1805,7 +1806,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminWithPermission(const AppExecFwk::
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
     AdminInfo adminInfo = {.packageName_ = abilityInfo.at(0).bundleName, .className_ = abilityInfo.at(0).name,
-        .entInfo_ = entInfo, .permission_ = permissionList, .adminType_ = type, .isDebug_ = isDebug};
+        .entInfo_ = entInfo, .permission_ = permissionList, .adminType_ = type, .isDebug_ = isDebug,
+        .enableSource_ = enableSource};
     if (FAILED(AdminManager::GetInstance()->SetAdminValue(userId, adminInfo))) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
@@ -1815,10 +1817,11 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminWithPermission(const AppExecFwk::
 
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
-    const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType type, int32_t userId)
+    const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType type, int32_t userId,
+    EnableSource enableSource)
 {
     return EnableAdminWithPermission(admin, entInfo, type, userId,
-        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN);
+        EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, enableSource);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin)
@@ -1885,7 +1888,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
     GetPermissionChecker()->GetAllPermissionsByAdmin(admin.GetBundleName(),
         EdmConstants::DEFAULT_USER_ID, permissionList);
     AdminInfo adminInfo = {.packageName_ = admin.GetBundleName(), .className_ = admin.GetAbilityName(),
-        .permission_ = permissionList, .adminType_ = AdminType::NORMAL, .isDebug_ = superAdmin->adminInfo_.isDebug_};
+        .permission_ = permissionList, .adminType_ = AdminType::NORMAL, .isDebug_ = superAdmin->adminInfo_.isDebug_,
+        .enableSource_ = EnableSource::SUPER_ADMIN};
     if (FAILED(AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo))) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
@@ -2711,6 +2715,11 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
         EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
+    std::shared_ptr<Admin> subAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, GetCurrentUserId());
+    if (subAdmin && subAdmin->adminInfo_.adminType_ != AdminType::SUB_SUPER_ADMIN) {
+        EDMLOGW("AuthorizeAdmin: %{public}s is an admin, but not sub super admin.", bundleName.c_str());
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
     /* Get all request and registered permissions */
     std::vector<std::string> permissionList;
     if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(bundleName, EdmConstants::DEFAULT_USER_ID,
@@ -2989,6 +2998,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetAdmins(std::vector<std::shared_ptr<AAFwk:
         want->SetParam("abilityName", admin->adminInfo_.className_);
         want->SetParam("adminType", static_cast<int32_t>(admin->adminInfo_.adminType_));
         want->SetParam("isDebug", admin->adminInfo_.isDebug_);
+        want->SetParam("enableSource", static_cast<int32_t>(admin->adminInfo_.enableSource_));
         wants.push_back(want);
     }
     return ERR_OK;

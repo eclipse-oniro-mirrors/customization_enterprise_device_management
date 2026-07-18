@@ -19,9 +19,10 @@ sequenceable EntInfo..OHOS.EDM.EntInfo;
 sequenceable OHOS.IRemoteObject;
 interface_token ohos.edm.IEnterpriseDeviceMgr;
 import AdminType;
+import EnableSource;
 
 interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
-    [ipccode 1] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId);
+    [ipccode 1] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId, [in] EnableSource enableSource);
     [ipccode 2] void DisableAdmin([in] ElementName admin, [in] int userId);
     [ipccode 4] void DisableSuperAdmin([in] String bundleName);
     [ipccode 5] void GetEnabledAdmin([in] AdminType adminType, [out] String[] enabledAdminList);
@@ -49,5 +50,5 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 27] void GetEnterpriseManagedTips([out] String tips);
     [ipccode 28] void StartAbilityByAdmin([in] ElementName admin, [in] Want want);
     [ipccode 29] void EnableSelfDeviceAdmin([in] ElementName admin, [in] String credential);
-    [ipccode 30] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId, [in] boolean enableSelf);
+    [ipccode 30] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId, [in] boolean enableSelf, [in] EnableSource enableSource);
 }

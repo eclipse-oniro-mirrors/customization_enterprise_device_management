@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#include "install_local_enterprise_app_enabled_plugin_fuzzer.h"
- 
+
+#include "install_local_enterprise_app_enabled_for_account_plugin_fuzzer.h"
+
 #include <system_ability_definition.h>
- 
+
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
@@ -25,7 +25,7 @@
 #include "utils.h"
 
 #define private public
-#include "install_local_enterprise_app_enabled_plugin.h"
+#include "install_local_enterprise_app_enabled_for_account_plugin.h"
 #undef private
 
 namespace OHOS {
@@ -53,7 +53,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t stringSize = size / 10;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::SET); operateType++) {
-        uint32_t code = EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED;
+        uint32_t code = EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT;
         code = POLICY_FUNC_CODE(operateType, code);
 
         AppExecFwk::ElementName admin;
@@ -75,7 +75,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     // Direct plugin method calls
-    InstallLocalEnterpriseAppEnabledPlugin plugin;
+    InstallLocalEnterpriseAppEnabledForAccountPlugin plugin;
     std::string adminName = "fuzzAdmin";
     bool policyData = true;
     bool mergeData = false;

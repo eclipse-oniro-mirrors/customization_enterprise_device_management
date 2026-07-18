@@ -885,6 +885,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/device_settings/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
       "../../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
+      "../../../../services/edm_plugin/src/utils/install_local_enterprise_app_policy_utils.cpp",
       "../../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_for_account_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallowed_nearlink_protocols_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",

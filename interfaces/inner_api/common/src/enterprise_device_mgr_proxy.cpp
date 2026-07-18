@@ -70,7 +70,7 @@ bool EnterpriseDeviceMgrProxy::IsEdmExtEnabled()
 }
 
 ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type,
-    int32_t userId, bool enableSelf)
+    int32_t userId, bool enableSelf, EnableSource enableSource)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::EnableAdmin");
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
@@ -80,9 +80,9 @@ ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName &admin, En
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     if (enableSelf) {
         EDMLOGD("EnterpriseDeviceMgrProxy::Enable Self Admin");
-        return mgrService->EnableAdmin(admin, entInfo, type, userId, true);
+        return mgrService->EnableAdmin(admin, entInfo, type, userId, true, enableSource);
     }
-    return mgrService->EnableAdmin(admin, entInfo, type, userId);
+    return mgrService->EnableAdmin(admin, entInfo, type, userId, enableSource);
 }
 
 ErrCode EnterpriseDeviceMgrProxy::EnableDeviceAdmin(AppExecFwk::ElementName &admin)

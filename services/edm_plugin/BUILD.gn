@@ -144,11 +144,13 @@ ohos_shared_library("device_core_plugin") {
 
     if (os_account_edm_enable) {
       external_deps += [
+        "data_share:datashare_consumer",
         "os_account:libaccountkits",
         "os_account:os_account_innerkits"
       ]
       sources += [
         "./src/account_manager/add_os_account_plugin.cpp",
+        "./src/utils/install_local_enterprise_app_policy_utils.cpp",
         "./src/restrictions/disable_mtp_client_plugin.cpp",
         "./src/restrictions/disable_print_plugin.cpp",
         "./src/restrictions/disable_user_mtp_client_plugin.cpp",

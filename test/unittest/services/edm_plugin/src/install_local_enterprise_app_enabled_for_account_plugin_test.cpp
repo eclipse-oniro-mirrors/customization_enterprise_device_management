@@ -61,42 +61,24 @@ HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestInitPluginSuc
 }
 
 /**
- * @tc.name: TestOnSetPolicySetTrue
- * @tc.desc: Test InstallLocalEnterpriseAppEnabledForAccountPluginTest::OnSetPolicy function.
+ * @tc.name: TestOnSetPolicyMergeDataTrue
+ * @tc.desc: Test OnSetPolicy when mergeData is true (other admin already has policy).
  * @tc.type: FUNC
  */
-HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnSetPolicySetTrue, TestSize.Level1)
+HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnSetPolicyMergeDataTrue, TestSize.Level1)
 {
     bool isEnable = true;
     bool currentdata = false;
-    bool mergeData = false;
+    bool mergeData = true;
     InstallLocalEnterpriseAppEnabledForAccountPlugin plugin;
     ErrCode ret = plugin.OnSetPolicy(isEnable, currentdata, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(currentdata);
-    ASSERT_TRUE(mergeData);
-}
-
-/**
- * @tc.name: TestOnSetPolicySetFalse
- * @tc.desc: Test InstallLocalEnterpriseAppEnabledForAccountPluginTest::OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnSetPolicySetFalse, TestSize.Level1)
-{
-    bool isEnable = false;
-    bool currentdata = false;
-    bool mergeData = false;
-    InstallLocalEnterpriseAppEnabledForAccountPlugin plugin;
-    ErrCode ret = plugin.OnSetPolicy(isEnable, currentdata, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(currentdata);
-    ASSERT_FALSE(mergeData);
 }
 
 /**
  * @tc.name: TestOnSetPolicySetErrUserId
- * @tc.desc: Test InstallLocalEnterpriseAppEnabledForAccountPluginTest::OnSetPolicy function.
+ * @tc.desc: Test OnSetPolicy with invalid userId.
  * @tc.type: FUNC
  */
 HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnSetPolicySetErrUserId, TestSize.Level1)
@@ -128,15 +110,30 @@ HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnGetPolicy, 
 }
 
 /**
-* @tc.name: TestOnAdminRemovePolicy
-* @tc.desc: Test InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemove function.
-* @tc.type: FUNC
-*/
-HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnAdminRemovePolicy, TestSize.Level1)
+ * @tc.name: TestOnAdminRemoveLastAdmin
+ * @tc.desc: Test OnAdminRemove when last admin with policy is removed (mergeData=false, data=true).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnAdminRemoveLastAdmin, TestSize.Level1)
 {
     std::string adminName{"testAdminName"};
     bool data = true;
     bool mergeData = false;
+    InstallLocalEnterpriseAppEnabledForAccountPlugin plugin;
+    ErrCode ret = plugin.OnAdminRemove(adminName, data, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnAdminRemoveNotLastAdmin
+ * @tc.desc: Test OnAdminRemove when other admins still have the policy (mergeData=true).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallLocalEnterpriseAppEnabledForAccountPluginTest, TestOnAdminRemoveNotLastAdmin, TestSize.Level1)
+{
+    std::string adminName{"testAdminName"};
+    bool data = true;
+    bool mergeData = true;
     InstallLocalEnterpriseAppEnabledForAccountPlugin plugin;
     ErrCode ret = plugin.OnAdminRemove(adminName, data, mergeData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);

@@ -12,19 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H
- 
+
 #include "basic_bool_plugin.h"
- 
+
 namespace OHOS {
 namespace EDM {
 class InstallLocalEnterpriseAppEnabledPlugin : public BasicBoolPlugin {
 public:
     InstallLocalEnterpriseAppEnabledPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId) override;
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
- 
+
 #endif // SERVICES_EDM_PLUGIN_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN_H

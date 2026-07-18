@@ -37,7 +37,7 @@ public:
 
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
-
+    
 protected:
     virtual ErrCode OnSetPolicy(bool &data, bool &currentData, bool &mergePolicy, int32_t userId);
 
