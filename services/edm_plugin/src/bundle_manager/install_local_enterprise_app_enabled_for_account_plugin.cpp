@@ -88,8 +88,8 @@ ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemove(const st
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
-    ret =
-        InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL, userId);
+    int32_t policy = InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL;
+    ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(policy, userId);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledForAccountPlugin SetSettingsDataAndUserPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

@@ -84,8 +84,8 @@ ErrCode InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemove(const std::string 
         EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin set param failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    ErrCode ret =
-        InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL);
+    int32_t policy = InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL;
+    ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(policy);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin SetSettingsDataAndUserPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
