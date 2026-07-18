@@ -119,7 +119,10 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(std::optional<i
     ErrCode ret = ERR_OK;
     if (isDevice) {
         std::vector<int32_t> userIds;
-        IPolicyManager::GetInstance()->GetPolicyUserIds(userIds);
+        ret = AccountSA::OsAccountManager::GetOsAccountLocalIds(userIds);
+        if (FAILED(ret)) {
+            return ret;
+        }
         for (int32_t id : userIds) {
             bool userActual = false;
             ret = GetUserActualPolicyValue(id, userActual);

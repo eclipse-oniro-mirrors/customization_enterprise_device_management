@@ -5419,6 +5419,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithEnableSourceDeploy, 
     EXPECT_TRUE(adminPtr->adminInfo_.enableSource_ == EnableSource::DEPLOY);
 }
 
+#ifdef FEATURE_PC_ONLY
 /**
  * @tc.name: TestEnableAdminWithEnableSourceSelf
  * @tc.desc: Test EnableAdmin with enableSource SELF via 5-parameter overload.
@@ -5442,6 +5443,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestEnableAdminWithEnableSourceSelf, Te
     ASSERT_TRUE(adminPtr != nullptr);
     EXPECT_TRUE(adminPtr->adminInfo_.enableSource_ == EnableSource::SELF);
 }
+#endif
 
 /**
  * @tc.name: TestReplaceSuperAdminEnableSource
