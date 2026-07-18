@@ -60,21 +60,27 @@ bool InstallLocalEnterpriseAppPolicyUtils::GetDeviceActualPolicyValue()
 }
 
 // 离线安装器用户级策略实际值
-bool InstallLocalEnterpriseAppPolicyUtils::GetUserActualPolicyValue(int32_t userId)
+ErrCode InstallLocalEnterpriseAppPolicyUtils::GetUserActualPolicyValue(int32_t userId, bool &isEnable)
 {
     std::vector<std::string> constraints;
-    bool isEnable = false;
-    AccountSA::OsAccountManager::IsOsAccountConstraintEnable(userId, CONSTRAINT_LOCAL_INSTALL, isEnable);
+    ErrCode ret = AccountSA::OsAccountManager::IsOsAccountConstraintEnable(userId,
+        CONSTRAINT_LOCAL_INSTALL, isEnable);
+    if (FAILED(ret)) {
+        return ret;
+    }
     if (isEnable) {
         std::vector<AccountSA::ConstraintSourceTypeInfo> constraintTypes;
-        AccountSA::OsAccountManager::QueryOsAccountConstraintSourceTypes(userId,
+        ret = AccountSA::OsAccountManager::QueryOsAccountConstraintSourceTypes(userId,
             CONSTRAINT_LOCAL_INSTALL, constraintTypes);
+        if (FAILED(ret)) {
+            return ret;
+        }
         isEnable = std::any_of(constraintTypes.begin(), constraintTypes.end(),
             [](const AccountSA::ConstraintSourceTypeInfo &info) {
                 return info.typeInfo == AccountSA::ConstraintSourceType::CONSTRAINT_TYPE_DEVICE_OWNER;
             });
     }
-    return isEnable;
+    return ret;
 }
 
 // 更新用户手动打开/关闭离线安装器策略
@@ -112,12 +118,14 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(std::optional<i
     bool deviceActual = GetDeviceActualPolicyValue();
     if (isDevice) {
         std::vector<int32_t> userIds;
-        ErrCode ret = OHOS::AccountSA::OsAccountManager::GetOsAccountLocalIds(userIds);
-        if (FAILED(ret)) {
-            return ret;
-        }
+        IPolicyManager::GetInstance()->GetPolicyUserIds(userIds);
+        ErrCode ret = ERR_OK;
         for (int32_t id : userIds) {
-            bool userActual = GetUserActualPolicyValue(id);
+            bool userActual = false;
+            ret = GetUserActualPolicyValue(id, userActual);
+            if (FAILED(ret)) {
+                return ret;
+            }
             bool finalValue = deviceActual || userActual;
             ret = UpdateOsAccountConstraint(finalValue, id);
             if (FAILED(ret)) {
@@ -126,7 +134,11 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(std::optional<i
         }
         return ret;
     } else {
-        bool userActual = GetUserActualPolicyValue(userId.value());
+        bool userActual = false;
+        ret = GetUserActualPolicyValue(userId.value(), userActual);
+        if (FAILED(ret)) {
+            return ret;
+        }
         bool finalValue = deviceActual || userActual;
         return UpdateOsAccountConstraint(finalValue, userId.value());
     }
@@ -143,8 +155,7 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::SetEnterpriseUserPolicy(bool data,
 }
 
 // 根据策略值更新用户级数据库，同步用户低优先级策略
-ErrCode InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(int32_t policyValue,
-    std::optional<int32_t> userId)
+ErrCode InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(int32_t policyValue, std::optional<int32_t> userId)
 {
     ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(userId);
     if (FAILED(ret)) {
