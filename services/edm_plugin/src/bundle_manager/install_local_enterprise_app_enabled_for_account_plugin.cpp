@@ -66,7 +66,8 @@ ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::SetOtherModulePolicy(b
     }
 
     ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(data ?
-        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_ENABLE : InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_DISABLE, userId);
+        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_ENABLE :
+        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_DISABLE, userId);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledForAccountPlugin SetSettingsDataAndUserPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -74,9 +75,11 @@ ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::SetOtherModulePolicy(b
     return ERR_OK;
 }
 
-ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
+ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemove(const std::string &adminName,
+    bool &data, bool &mergeData, int32_t userId)
 {
-    EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin OnAdminRemove adminName: %{public}s, data : %{public}d", adminName.c_str(), data);
+    EDMLOGI("InstallLocalEnterpriseAppEnabledForAccountPlugin OnAdminRemove adminName: %{public}s, data : %{public}d",
+        adminName.c_str(), data);
     ErrCode ret;
     if (!mergeData && data) {
         ret = InstallLocalEnterpriseAppPolicyUtils::SetEnterpriseUserPolicy(false, userId);
@@ -85,7 +88,8 @@ ErrCode InstallLocalEnterpriseAppEnabledForAccountPlugin::OnAdminRemove(const st
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
     }
-    ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL, userId);
+    ret =
+        InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL, userId);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledForAccountPlugin SetSettingsDataAndUserPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

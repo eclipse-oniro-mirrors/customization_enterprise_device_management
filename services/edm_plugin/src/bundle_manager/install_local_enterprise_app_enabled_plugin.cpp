@@ -66,7 +66,8 @@ ErrCode InstallLocalEnterpriseAppEnabledPlugin::SetOtherModulePolicy(bool data, 
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(data ?
-        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_ENABLE : InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_DISABLE);
+        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_ENABLE :
+        InstallLocalEnterpriseAppPolicyUtils::POLICY_FORCE_DISABLE);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin SetSettingsDataAndUserPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -74,14 +75,17 @@ ErrCode InstallLocalEnterpriseAppEnabledPlugin::SetOtherModulePolicy(bool data, 
     return ERR_OK;
 }
 
-ErrCode InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId)
+ErrCode InstallLocalEnterpriseAppEnabledPlugin::OnAdminRemove(const std::string &adminName, bool &data,
+    bool &mergeData, int32_t userId)
 {
-    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnAdminRemove adminName: %{public}s, data : %{public}d", adminName.c_str(), data);
+    EDMLOGI("InstallLocalEnterpriseAppEnabledPlugin OnAdminRemove adminName: %{public}s, data : %{public}d",
+        adminName.c_str(), data);
     if (!mergeData && data && !system::SetParameter(PERSIST_LOCAL_INSTALL_ENABLE, EdmConstants::CONST_FALSE)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin set param failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL);
+    ErrCode ret =
+        InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(InstallLocalEnterpriseAppPolicyUtils::POLICY_NO_CONTROLL);
     if (FAILED(ret)) {
         EDMLOGE("InstallLocalEnterpriseAppEnabledPlugin SetSettingsDataAndUserPolicy failed");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

@@ -143,7 +143,8 @@ ErrCode InstallLocalEnterpriseAppPolicyUtils::SetEnterpriseUserPolicy(bool data,
 }
 
 // 根据策略值更新用户级数据库，同步用户低优先级策略
-ErrCode InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(int32_t policyValue, std::optional<int32_t> userId)
+ErrCode InstallLocalEnterpriseAppPolicyUtils::SetSettingsDataAndUserPolicy(int32_t policyValue,
+    std::optional<int32_t> userId)
 {
     ErrCode ret = InstallLocalEnterpriseAppPolicyUtils::UpdatePolicyByUser(userId);
     if (FAILED(ret)) {
