@@ -18,13 +18,15 @@
 
 #define private public
 #define protected public
-#include "disallowed_permission_query.h"
+#include "ipolicy_query.h"
 #undef private
 #undef protected
 
 #include "array_string_serializer.h"
 #include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "policy_query_factory.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -37,7 +39,8 @@ class DisallowedPermissionQueryTest : public testing::Test {
 protected:
     void SetUp() override
     {
-        query_ = std::make_shared<DisallowedPermissionQuery>();
+        query_ = PolicyQueryFactory::CreateQuery(EdmInterfaceCode::DISALLOWED_PERMISSION);
+        ASSERT_NE(query_, nullptr);
     }
 
     void TearDown() override
@@ -45,7 +48,7 @@ protected:
         query_ = nullptr;
     }
 
-    std::shared_ptr<DisallowedPermissionQuery> query_;
+    std::shared_ptr<IPolicyQuery> query_;
 };
 
 /**

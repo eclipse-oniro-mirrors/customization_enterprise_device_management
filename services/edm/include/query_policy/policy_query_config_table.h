@@ -13,25 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_NTP_SERVER_QUERY_H
-#define SERVICES_EDM_INCLUDE_QUERY_POLICY_NTP_SERVER_QUERY_H
+#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_POLICY_QUERY_CONFIG_TABLE_H
+#define SERVICES_EDM_INCLUDE_QUERY_POLICY_POLICY_QUERY_CONFIG_TABLE_H
 
-#include "ipolicy_query.h"
+#include "policy_query_config.h"
 
 namespace OHOS {
 namespace EDM {
 
-class NTPServerQuery : public IPolicyQuery {
+class PolicyQueryConfigTable {
 public:
-    ~NTPServerQuery() override = default;
-
-    std::string GetPolicyName() override;
-
-    std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
-
-    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    static const PolicyQueryConfigEntry* FindConfig(uint32_t code);
+    static const PolicyQueryConfigEntry* GetAllEntries();
+    static size_t GetConfigCount();
 };
+
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_NTP_SERVER_QUERY_H
+#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_POLICY_QUERY_CONFIG_TABLE_H

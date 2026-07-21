@@ -71,10 +71,7 @@ HWTEST_F(AllowedPermissionBundleQueryTest, TestGetPolicyName_SUC, TestSize.Level
  */
 HWTEST_F(AllowedPermissionBundleQueryTest, TestQueryPolicy_SUC, TestSize.Level1)
 {
-    std::string policyData = R"({"ohos.permission.CAMERA":[
-        {"appIdentifier":"com.test.app1", "accountId":100, "appIndex":0},
-        {"appIdentifier":"com.test.app2", "accountId":100, "appIndex":0}
-        ]})";
+    std::string policyData = R"({"ohos.permission.CAMERA":[{"appIdentifier":"com.test.app1","accountId":100,"appIndex":0},{"appIdentifier":"com.test.app2","accountId":100,"appIndex":0}]})";
     MessageParcel data;
     MessageParcel reply;
     data.WriteString("ohos.permission.CAMERA");
@@ -326,7 +323,7 @@ HWTEST_F(AllowedPermissionBundleQueryTest, TestQueryPolicyWithAppIndex_SUC, Test
 
     std::string appIdentifier = reply.ReadString();
     EXPECT_EQ(appIdentifier, "com.test.app1");
-
+    
     std::string bundleName = reply.ReadString();
     EXPECT_EQ(bundleName, "");
 

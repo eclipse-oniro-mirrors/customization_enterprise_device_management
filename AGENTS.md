@@ -27,6 +27,16 @@
 | `EnterpriseDeviceMgrAbility` | 主Ability，IPC服务入口 | HandleDevicePolicy, GetDevicePolicy | `services/edm/src/enterprise_device_mgr_ability.cpp` |
 | `EnterpriseDeviceMgrStub` | IPC消息分发 | OnRemoteRequest | `services/edm/src/enterprise_device_mgr_stub.cpp` |
 
+### services/edm query_policy 核心类（factory+config_table模式）
+
+| 类 | 职责 | 核心方法 | 代码路径 |
+|---|------|---------|---------|
+| `PolicyQueryFactory` | 根据接口码创建query对象 | CreateQuery, CheckFeatureEnabled | `services/edm/src/query_policy/policy_query_factory.cpp` |
+| `PolicyQueryConfigTable` | 配置表，集中定义所有策略元数据 | GetConfigTable, GetKnownPolicyCodes | `services/edm/src/query_policy/policy_query_config_table.cpp` |
+| `PolicyQueryConfig` | 单个策略的配置数据结构 | policyName, dataType, permissionConfig | `services/edm/src/query_policy/policy_query_config.cpp` |
+| `GenericPolicyQuery<DataType>` | 通用策略查询模板，根据配置自动处理 | GetPolicyName, GetPermission, QueryPolicy | `services/edm/src/query_policy/generic_policy_query.cpp` |
+| `PluginPolicyReader` | 策略查询入口，调用Factory分发 | GetPolicyByCode, GetPolicyByCodeInner | `services/edm/src/query_policy/plugin_policy_reader.cpp` |
+
 ### interfaces/inner_api/plugin_kits 核心接口
 
 | 接口 | 职责 | 代码路径 |
@@ -121,14 +131,116 @@
 
 **代码路径**: `services/edm/src/query_policy/plugin_policy_reader.cpp`
 
-**架构**: 13层链式switch-case分发，避免单个巨大switch语句
+**架构**: factory+config_table模式替代原来的13层链式switch-case分发
 
-| 函数 | 覆盖策略范围 |
-|------|-------------|
-| GetPolicyQuery | ALLOWED_BLUETOOTH_DEVICES, DISABLE_CAMERA等 |
-| GetPolicyQueryFirst ~ Fourth | 各约7-9个策略 |
-| GetPolicyQueryFifthPartOne ~ FifthPartTwo | 各约3-4个策略 |
-| GetPolicyQuerySixth ~ Eleventh | 各约5-11个策略 |
+**查询流程**:
+1. `GetPolicyByCodeInner` 先调用 `PolicyQueryFactory::CheckFeatureEnabled(code)` 检查feature gate
+2. 检查通过后，调用 `PolicyQueryFactory::CreateQuery(code)` 创建query对象
+3. 若query对象为nullptr（接口码完全未知），返回 `ERR_CANNOT_FIND_QUERY_FAILED`
+4. 调用query对象的 `GetPolicy` 完成策略查询
+
+**feature gate三层逻辑**（`CheckFeatureEnabled`）:
+
+| 场景 | 判断条件 | 返回值 |
+|------|---------|--------|
+| feature已开启，策略可用 | 接口码在config table中 | `ERR_OK` |
+| feature未开启，策略不可用 | 接口码不在config table中，但在known集合中 | `INTERFACE_UNSUPPORTED` |
+| 接口码完全未知 | 接口码不在config table中，也不在known集合中 | `ERR_CANNOT_FIND_QUERY_FAILED` |
+
+### 4.6 PolicyQueryFactory 工厂模式
+
+**代码路径**: `services/edm/src/query_policy/policy_query_factory.cpp`
+
+**核心类关系**:
+```
+PluginPolicyReader → PolicyQueryFactory::CreateQuery(code)
+                        ├── config table中dataType非CUSTOM → GenericPolicyQuery<DataType>
+                        │       ├── BoolPolicyQuery (BOOL)
+                        │       ├── ArrayStringPolicyQuery (ARRAY_STRING)
+                        │       ├── IntPolicyQuery (INT)
+                        │       └── StringPolicyQuery (STRING)
+                        └── config table中dataType为CUSTOM → 保留的独立query类
+                                ├── PasswordPolicyQuery, FingerprintAuthQuery (USERIAM)
+                                ├── ClipboardPolicyQuery (PASTEBOARD)
+                                ├── LocationPolicyQuery (LOCATION)
+                                ├── TelephonyCallPolicyQuery (TELEPHONY)
+                                ├── InstalledBundleInfoListQuery, GetWatermarkImageAppsQuery 等
+```
+
+**CreateQuery流程**:
+1. 查询缓存 `queryCache_`（读写锁保护），命中则直接返回
+2. 从 `PolicyQueryConfigTable::GetConfigTable()` 查找配置
+3. dataType为CUSTOM → `CreateCustomQuery`（链式尝试4个分组switch-case）
+4. dataType为BOOL/ARRAY_STRING/INT/STRING → `CreateGenericQuery`（根据dataType创建对应模板实例）
+5. 创建成功后写入缓存
+
+**CUSTOM类型保留的query类**: 这些query类因QueryPolicy逻辑无法通用化而保留独立实现，共约20个。
+
+### 4.7 PolicyQueryConfig 配置数据结构
+
+**代码路径**: `services/edm/include/query_policy/policy_query_config.h`, `services/edm/src/query_policy/policy_query_config.cpp`
+
+**PermissionConfig** — 权限配置，4种工厂方法:
+
+| 工厂方法 | 适用场景 | 示例 |
+|---------|---------|------|
+| `RestrictionPermission(hasByod)` | 大多数bool禁用策略 | DISALLOWED_P2P, DISABLE_CAMERA |
+| `SuperAdminOnlyPermission()` | 仅超级管理员权限的策略 | DISALLOW_CORE_DUMP |
+| `SpecificPermission(permission)` | 固定权限的策略 | DISABLE_SET_BIOMETRICS_AND_SCREENLOCK → SET_USER_RESTRICTION |
+| `TagPermission(tag, default, byod)` | 需要根据permissionTag返回不同权限的策略 | DISALLOWED_P2P(v11) → RESTRICT_POLICY |
+
+**PermissionConfig::GetPermission 分发逻辑**:
+1. `specificPermission`非空 → 直接返回（最高优先级）
+2. `hasTagPermission`且SUPER_DEVICE_ADMIN且permissionTag非空 → 返回`tagPermission`
+3. BYOD_DEVICE_ADMIN → 返回`byodAdminPermission`（无则回退到`superAdminPermission`）
+4. 默认 → 返回`superAdminPermission`
+
+**PolicyQueryConfig** — 单个策略完整配置:
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `policyName` | string | 策略名称常量（如 `POLICY_DISALLOWED_P2P`） |
+| `dataType` | PolicyDataType枚举 | BOOL/ARRAY_STRING/INT/STRING/CUSTOM |
+| `permissionConfig` | PermissionConfig | 权限配置 |
+| `isPolicySaved` | bool | 是否需要持久化到数据库 |
+| `apiType` | IPlugin::ApiType | API类型（PUBLIC/INNER/SYSTEM） |
+| `customHandler` | function | CUSTOM类型的自定义查询回调（可选） |
+
+### 4.8 PolicyQueryConfigTable 配置表
+
+**代码路径**: `services/edm/src/query_policy/policy_query_config_table.cpp`
+
+**结构**: `unordered_map<uint32_t, PolicyQueryConfig>`，key为EdmInterfaceCode值
+
+**初始化**: 24个Init函数按策略类型分组初始化，每个函数内部使用`#ifdef`条件编译控制feature gate策略的条目是否存在。
+
+**分组Init函数**:
+
+| Init函数 | 覆盖策略类型 | 条件编译 |
+|---------|-------------|---------|
+| InitBoolCameraAndBluetoothConfigs | 摄像头、蓝牙、HDC等 | BLUETOOTH_EDM_ENABLE, CAMERA_FRAMEWORK_EDM_ENABLE, AUDIO_FRAMEWORK_EDM_ENABLE |
+| InitBoolUsbAndMtpConfigs | USB、MTP等 | USB_SERVICE_EDM_ENABLE |
+| InitBoolNetworkConfigs | VPN、飞行模式等 | NET_MANAGER_BASE_EDM_ENABLE, NETMANAGER_EXT_EDM_ENABLE |
+| InitArrayStringBundleConfigs | 安装包列表等 | ABILITY_RUNTIME_EDM_ENABLE |
+| InitCustomSecurityConfigs | 密码、指纹、水印等 | USERIAM_EDM_ENABLE |
+| InitCustomAppPolicyConfigs | 剪贴板、位置等 | PASTEBOARD_EDM_ENABLE, LOCATION_EDM_ENABLE, TELEPHONY_EDM_ENABLE |
+
+**GetKnownPolicyCodes**: 返回所有已知策略码集合（不受`#ifdef`过滤）。用于`CheckFeatureEnabled`区分"feature未开启"和"接口码未知"两种场景。新增策略时必须同步更新此集合。
+
+### 4.9 GenericPolicyQuery 通用查询模板
+
+**代码路径**: `services/edm/include/query_policy/generic_policy_query.h`, `services/edm/src/query_policy/generic_policy_query.cpp`
+
+**模板特化**: `GenericPolicyQuery<PolicyDataType>` 根据DataType特化QueryPolicy实现:
+
+| 类型别名 | 模板参数 | QueryPolicy实现 |
+|---------|---------|----------------|
+| `BoolPolicyQuery` | `PolicyDataType::BOOL` | `GetBoolPolicy(policyData, reply)` |
+| `ArrayStringPolicyQuery` | `PolicyDataType::ARRAY_STRING` | `GetArrayStringPolicy(policyData, reply)` |
+| `IntPolicyQuery` | `PolicyDataType::INT` | `GetIntPolicy(policyData, reply)` |
+| `StringPolicyQuery` | `PolicyDataType::STRING` | `reply.WriteInt32(ERR_OK); reply.WriteString(policyData)` |
+
+**通用方法**（所有特化共享）: `GetPolicyName`、`GetPermission`、`IsPolicySaved`、`GetApiType` — 直接从`config_`字段返回，无需子类覆写
 
 ---
 
@@ -527,9 +639,8 @@ AdminValueItemsMap = unordered_map<string, string>  // 管理员 -> 策略值
 1. 定义接口码: `interfaces/inner_api/common/include/edm_ipc_interface_code.h`
 2. 定义策略常量: `common/native/include/edm_constants.h`（PolicyName命名空间）
 3. 创建插件类: `services/edm_plugin/src/restrictions/xxx_plugin.h/cpp`（继承BasicBoolPlugin）
-4. 创建查询类: `services/edm/src/query_policy/xxx_query.h/cpp`（继承IPolicyQuery）
-5. 注册查询类: `services/edm/src/query_policy/plugin_policy_reader.cpp`
-6. 更新BUILD.gn: 5个文件
+4. 注册查询配置: `services/edm/src/query_policy/policy_query_config_table.cpp`（添加config条目 + 更新GetKnownPolicyCodes集合）
+5. 更新BUILD.gn: 5个文件
 
 **Plugin骨架代码**:
 ```cpp
@@ -555,7 +666,24 @@ void XxxPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<XxxPlugin, bool>> ptr
 }
 ```
 
-**Query骨架代码**:
+**Query配置（替代独立query类）**:
+通用类型（BOOL/ARRAY_STRING/INT/STRING）策略不再需要独立query类，只需在config table中添加配置条目：
+```cpp
+// policy_query_config_table.cpp — 在对应Init函数中添加
+table.emplace(EdmInterfaceCode::XXX,
+    PolicyQueryConfig{
+        PolicyName::POLICY_XXX,                    // policyName
+        PolicyDataType::BOOL,                      // dataType
+        PermissionConfig::RestrictionPermission(), // permissionConfig
+        true,                                      // isPolicySaved
+        IPlugin::ApiType::PUBLIC                   // apiType
+    });
+
+// 同时在GetKnownPolicyCodes集合中添加策略码
+knownCodes.insert(EdmInterfaceCode::XXX);
+```
+
+**CUSTOM类型query骨架**（仅自定义逻辑策略需要独立类）:
 ```cpp
 // xxx_query.h
 class XxxQuery : public IPolicyQuery {
@@ -569,7 +697,7 @@ public:
 std::string XxxQuery::GetPolicyName() { return PolicyName::POLICY_XXX; }
 
 ErrCode XxxQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) {
-    // return GetBoolPolicy(policyData, reply)
+    // 自定义反序列化和IPC回复逻辑
 }
 ```
 
@@ -601,7 +729,7 @@ ErrCode XxxPlugin::RemoveOtherModulePolicy(int32_t userId) {
 }
 ```
 
-**Query骨架代码**: 同Type 1
+**Query配置**: 同Type 1（在config table中添加BOOL类型配置条目）
 
 **参考实现**:
 - `services/edm_plugin/src/restrictions/disable_camera_plugin.cpp`
@@ -644,13 +772,7 @@ void XxxPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<XxxPlugin, int32_t>> 
 }
 ```
 
-**Query骨架代码**:
-```cpp
-// xxx_query.cpp
-ErrCode XxxQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) {
-    // return GetIntPolicy(policyData, reply)  // 或 GetStringPolicy
-}
-```
+**Query配置**: 同Type 1（dataType为INT或STRING，在config table中添加配置条目）
 
 **参考实现**:
 - `services/edm_plugin/src/device_control/lock_screen_plugin.cpp`
@@ -689,13 +811,7 @@ void XxxPlugin::InitPlugin(...) {
 }
 ```
 
-**Query骨架代码**:
-```cpp
-// xxx_query.cpp
-ErrCode XxxQuery::QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) {
-    // return GetArrayStringPolicy(policyData, reply)
-}
-```
+**Query配置**: 同Type 1（dataType为ARRAY_STRING，在config table中添加配置条目）
 
 **参考实现**:
 - `services/edm_plugin/src/bundle_manager/allowed_install_bundles_plugin.cpp`
@@ -829,6 +945,24 @@ ErrCode XxxQuery::QueryPolicy(std::string &policyData, MessageParcel &data, Mess
 }
 ```
 
+**CUSTOM类型query注册**（config table + factory）:
+```cpp
+// policy_query_config_table.cpp — 在对应Init函数中添加CUSTOM类型配置
+table.emplace(EdmInterfaceCode::XXX,
+    PolicyQueryConfig{
+        PolicyName::POLICY_XXX,       // policyName
+        PolicyDataType::CUSTOM,       // dataType
+        PermissionConfig::SuperAdminOnlyPermission(), // permissionConfig
+        true,                         // isPolicySaved
+        IPlugin::ApiType::PUBLIC      // apiType
+    });
+knownCodes.insert(EdmInterfaceCode::XXX);
+
+// policy_query_factory.cpp — 在CreateCustomQuery对应分组中添加case
+case EdmInterfaceCode::XXX:
+    return std::make_shared<XxxQuery>();
+```
+
 **参考实现**:
 - `services/edm_plugin/src/security_manager/set_watermark_image_plugin.cpp`
 - `interfaces/inner_api/security_manager/include/watermark_image_serializer.h`
@@ -843,8 +977,8 @@ ErrCode XxxQuery::QueryPolicy(std::string &policyData, MessageParcel &data, Mess
 | 4. 实现插件类 | `services/edm_plugin/src/xxx/xxx_plugin.h/cpp` | 选择6种类型之一 |
 | 5. 注册插件 | 在.cpp文件中添加 `const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(XxxPlugin::GetPlugin());` | PluginSingleton模式自动注册 |
 | 6. 注册到SO列表 | `services/edm/src/plugin_manager.cpp` | 添加到对应的SoCodes列表（deviceCoreSoCodes_/communicationSoCodes_/sysServiceSoCodes_/needExtraSoCodes_/watermarkSoCodes_） |
-| 7. 实现查询类 | 头文件: `services/edm/include/query_policy/xxx_query.h`，源文件: `services/edm/src/query_policy/xxx_query.cpp` | 继承IPolicyQuery |
-| 8. 注册查询类 | `services/edm/src/query_policy/plugin_policy_reader.cpp` | GetPolicyQuery系列函数中添加case |
+| 7. 实现查询类 | 头文件: `services/edm/include/query_policy/xxx_query.h`，源文件: `services/edm/src/query_policy/xxx_query.cpp` | 继承IPolicyQuery（仅CUSTOM类型需要独立query类） |
+| 8. 注册查询类 | `services/edm/src/query_policy/policy_query_config_table.cpp` | 在config table中添加配置条目（通用类型），或在PolicyQueryFactory::CreateCustomQuery中添加case（CUSTOM类型）；同时在GetKnownPolicyCodes集合中添加策略码 |
 | 9. 添加Addon映射 | `interfaces/kits/xxx/src/xxx_addon.cpp` | 在labelCodeMap/itemCodeMap中添加映射（如适用） |
 | 10. 确认条件编译 | 5个BUILD.gn | **用户未声明条件编译时，所有源文件添加到无条件块，禁止模仿参考文件的if块位置** |
 | 11. 添加Proxy方法 | `interfaces/inner_api/xxx/src/xxx_proxy.cpp` | 封装HandleDevicePolicy/GetPolicy调用（如适用） |
