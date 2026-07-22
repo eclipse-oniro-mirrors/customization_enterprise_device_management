@@ -225,25 +225,25 @@ napi_value AdminManager::EnableSelfDeviceAdmin(napi_env env, napi_callback_info 
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     bool matchFlag = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
         MatchValueType(env, argv[ARR_INDEX_ONE], napi_string);
 
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, admin, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, matchFlag, "parameter type error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, admin, argv[ARR_INDEX_ZERO]),
         "admin param error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, credential, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, credential, argv[ARR_INDEX_ONE]),
         "credential param error");
 
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     int32_t retCode = proxy->EnableSelfDeviceAdmin(admin, credential);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
     }
     return nullptr;
 #else
     EDMLOGW("AdminManager::EnableSelfDeviceAdmin Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
