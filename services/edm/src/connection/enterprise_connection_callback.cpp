@@ -32,6 +32,11 @@ EnterpriseConnectionCallback::EnterpriseConnectionCallback(const std::string& bu
 void EnterpriseConnectionCallback::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
+    if (isStale_.load()) { // LCOV_EXCL_BR_LINE
+        EDMLOGW("EnterpriseConnectionCallback::OnAbilityConnectDone stale callback, ignore: %{public}s",
+            bundleName_.c_str());
+        return;
+    }
     if (resultCode != ERR_OK || remoteObject == nullptr) { // LCOV_EXCL_BR_LINE
         EDMLOGE("EnterpriseConnectionCallback::OnAbilityConnectDone failed: %{public}d", resultCode);
         auto manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
@@ -63,6 +68,12 @@ void EnterpriseConnectionCallback::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName& element, int32_t resultCode)
 {
     EDMLOGI("EnterpriseConnectionCallback::OnAbilityDisconnectDone result: %{public}d", resultCode);
+
+    if (isStale_.load()) { // LCOV_EXCL_BR_LINE
+        EDMLOGW("EnterpriseConnectionCallback::OnAbilityDisconnectDone stale callback, ignore: %{public}s",
+            bundleName_.c_str());
+        return;
+    }
 
     // 先清理无效连接，避免后续使用无效proxy
     auto manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();

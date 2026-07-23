@@ -18,80 +18,80 @@
 namespace OHOS {
 namespace EDM {
 // Admin策略
-void AdminStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool AdminStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnAdmin(code_);
+    return proxy->OnAdmin(code_);
 }
 
 // Device Admin策略
-void DeviceAdminStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool DeviceAdminStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnDeviceAdmin(code_, bundleName_);
+    return proxy->OnDeviceAdmin(code_, bundleName_);
 }
 
 // Bundle策略
-void BundleStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool BundleStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnBundle(code_, bundleName_, accountId_);
+    return proxy->OnBundle(code_, bundleName_, accountId_);
 }
 
 // App策略
-void AppStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool AppStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnApp(code_, bundleName_);
+    return proxy->OnApp(code_, bundleName_);
 }
 
 // System Update策略
-void SystemUpdateStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool SystemUpdateStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnSystemUpdate(updateInfo_);
+    return proxy->OnSystemUpdate(updateInfo_);
 }
 
 // Account策略
-void AccountStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool AccountStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnAccount(code_, accountId_);
+    return proxy->OnAccount(code_, accountId_);
 }
 
 // Kiosk策略
-void KioskModeStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool KioskModeStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnKioskMode(code_, bundleName_, accountId_);
+    return proxy->OnKioskMode(code_, bundleName_, accountId_);
 }
 
 // Market策略
-void MarketAppsInstallStatusChangedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool MarketAppsInstallStatusChangedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnMarketAppsInstallStatusChanged(bundleName_, status_);
+    return proxy->OnMarketAppsInstallStatusChanged(bundleName_, status_);
 }
 
 // Log策略
-void LogCollectedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool LogCollectedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnLogCollected(isSuccess_);
+    return proxy->OnLogCollected(isSuccess_);
 }
 
 // KeyEvent策略
-void KeyEventStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool KeyEventStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnKeyEvent(keyEvent_);
+    return proxy->OnKeyEvent(keyEvent_);
 }
 
 // OOBE策略
-void StartupGuideCompletedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool StartupGuideCompletedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnStartupGuideCompleted(type_);
+    return proxy->OnStartupGuideCompleted(type_);
 }
 
-void DeviceBootCompletedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool DeviceBootCompletedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnDeviceBootCompleted();
+    return proxy->OnDeviceBootCompleted();
 }
 
 // Policy Changed策略
-void AdminPolicyChangedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+bool AdminPolicyChangedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    proxy->OnAdminPolicyChanged(event_);
+    return proxy->OnAdminPolicyChanged(event_);
 }
 } // namespace EDM
 } // namespace OHOS

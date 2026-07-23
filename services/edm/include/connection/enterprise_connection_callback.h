@@ -16,6 +16,8 @@
 #ifndef SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONNECTION_CALLBACK_H
 #define SERVICES_EDM_INCLUDE_CONNECTION_ENTERPRISE_CONNECTION_CALLBACK_H
 
+#include <atomic>
+
 #include "ability_connect_callback_stub.h"
 
 namespace OHOS {
@@ -31,12 +33,16 @@ public:
 
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int32_t resultCode) override;
 
+    void MarkStale() { isStale_.store(true); }
+    bool IsStale() const { return isStale_.load(); }
+
 private:
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     void CreateLogDirIfNeed(const std::string &bundleName, int32_t userId);
 #endif
     std::string bundleName_;
     int32_t userId_;
+    std::atomic<bool> isStale_{false};
 };
 } // namespace EDM
 } // namespace OHOS

@@ -19,13 +19,13 @@
 namespace OHOS {
 namespace EDM {
 // Admin策略
-void ICallbackStrategy::Execute(const sptr<EnterpriseAdminProxy>& proxy)
+bool ICallbackStrategy::Execute(const sptr<EnterpriseAdminProxy>& proxy)
 {
     if (proxy) {
-        ExecuteImpl(proxy);
-    } else {
-        EDMLOGE("ICallbackStrategy::Execute failed. EnterpriseAdminProxy is nullptr.");
+        return ExecuteImpl(proxy);
     }
+    EDMLOGE("ICallbackStrategy::Execute failed. EnterpriseAdminProxy is nullptr.");
+    return false;
 }
 } // namespace EDM
 } // namespace OHOS
