@@ -29,7 +29,7 @@ class HiSysEventAdapter {
 public:
     static void ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo = "");
     static void ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
-        const int32_t &adminType, const std::string &extraInfo = "");
+        const int32_t &adminType, const std::string &extraInfo = "", const int32_t &enableSource = 0);
     static bool ReportInstalledBundleInfo(const std::string &installedInfo);
 };
 } // namespace EDM
