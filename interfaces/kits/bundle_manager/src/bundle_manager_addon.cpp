@@ -217,7 +217,7 @@ napi_value BundleManagerAddon::InstallForResult(napi_env env, napi_callback_info
     return InstallCommon(env, info, "NativeInstallForResult", NativeInstallForResult, false);
 #else
     EDMLOGW("BundleManagerAddon::InstallForResult Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -1328,17 +1328,18 @@ napi_value BundleManagerAddon::GetInstalledBundleStorageStats(napi_env env, napi
         return nullptr;
     }
     std::unique_ptr<AsyncBundleStorageStatsCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "parameter admin parse error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "parameter admin error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, asyncCallbackInfo->elementName,
+        argv[ARR_INDEX_ZERO]), "parameter admin parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
         "parameter bundleNames error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->bundles, argv[ARR_INDEX_ONE]),
-        "parameter bundleNames parse error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseStringArray(env, asyncCallbackInfo->bundles,
+        argv[ARR_INDEX_ONE]), "parameter bundleNames parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
         "parameter userId error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, asyncCallbackInfo->userId, argv[ARR_INDEX_TWO]),
         "parameter userId parse error");
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetInstalledBundleStorageStats",
@@ -1380,7 +1381,8 @@ void BundleManagerAddon::NativeGetInstalledBundleStorageStatsComplete(napi_env e
             ConvertBundleStorageStatsToJs(env, asyncCallbackInfo->bundleStorageStats, nBundleStorageStats);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, nBundleStorageStats);
         } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateError(env, asyncCallbackInfo->ret, ErrcodeType::NUMBER));
         }
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);

@@ -468,6 +468,7 @@ napi_value SecurityManagerAddon::SetScreenLockDisabledForAccount(napi_env env, n
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
     addonMethodSign.argsConvert = {nullptr, convertBool2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -476,7 +477,7 @@ napi_value SecurityManagerAddon::SetScreenLockDisabledForAccount(napi_env env, n
     int32_t retCode =
         SecurityManagerProxy::GetSecurityManagerProxy()->SetScreenLockDisabledForAccount(adapterAddonData.data);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
     }
     return nullptr;
 }
@@ -490,16 +491,17 @@ napi_value SecurityManagerAddon::IsScreenLockDisabledForAccount(napi_env env, na
     void* data = nullptr;
     OHOS::AppExecFwk::ElementName elementName;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
 
     bool disabled = false;
     int32_t retCode =
         SecurityManagerProxy::GetSecurityManagerProxy()->IsScreenLockDisabledForAccount(elementName, disabled);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value result;
@@ -1145,17 +1147,19 @@ napi_value SecurityManagerAddon::SetScreenWatermarkImage(napi_env env, napi_call
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "admin type error");
 
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter admin error");
 
     // Only PixelMap type is supported, string type is not supported
     napi_valuetype imageValueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_ONE], &imageValueType));
-    ASSERT_AND_THROW_PARAM_ERROR(env, imageValueType == napi_object, "image type error, only PixelMap supported");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, imageValueType == napi_object,
+        "image type error, only PixelMap supported");
 
     std::shared_ptr<WatermarkParam> paramPtr = nullptr;
     napi_value ret = CheckBuildScreenWatermarkParam(env, argv, paramPtr);
@@ -1169,7 +1173,7 @@ napi_value SecurityManagerAddon::SetScreenWatermarkImage(napi_env env, napi_call
     }
     retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetScreenWatermarkImage(elementName, paramPtr);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
     }
     return nullptr;
 }
@@ -1180,6 +1184,7 @@ napi_value SecurityManagerAddon::CancelScreenWatermarkImage(napi_env env, napi_c
     addonMethodSign.name = "CancelScreenWatermarkImage";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -1188,7 +1193,7 @@ napi_value SecurityManagerAddon::CancelScreenWatermarkImage(napi_env env, napi_c
     int32_t retCode =
         SecurityManagerProxy::GetSecurityManagerProxy()->CancelScreenWatermarkImage(adapterAddonData.data);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
     }
     return nullptr;
 }
@@ -1372,10 +1377,11 @@ napi_value SecurityManagerAddon::GetAllowedPermissionBundles(napi_env env, napi_
 napi_value SecurityManagerAddon::CheckBuildScreenWatermarkParam(napi_env env, napi_value* argv,
     std::shared_ptr<WatermarkParam> &paramPtr)
 {
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object), "source type error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "source type error");
     auto param = new (std::nothrow) WatermarkParam();
     if (param == nullptr) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, ErrcodeType::NUMBER));
         return nullptr;
     }
     paramPtr = std::shared_ptr<WatermarkParam>(param, [](WatermarkParam *param) {
@@ -1383,9 +1389,9 @@ napi_value SecurityManagerAddon::CheckBuildScreenWatermarkParam(napi_env env, na
         delete param;
     });
     std::shared_ptr<Media::PixelMap> pixelMap = Media::PixelMapNapi::GetPixelMap(env, argv[ARR_INDEX_ONE]);
-    ASSERT_AND_THROW_PARAM_ERROR(env, pixelMap != nullptr, "Parameter pixelMap error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, pixelMap != nullptr, "Parameter pixelMap error");
     if (!GetPixelMapData(pixelMap, paramPtr)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value ret;
