@@ -1845,9 +1845,10 @@ ErrCode EnterpriseDeviceMgrAbility::CheckEnableDeviceAdmin(const AppExecFwk::Ele
     std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
     AAFwk::Want want;
     want.SetElement(admin);
+    int32_t userId = GetCurrentUserId();
     if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
         AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION,
-        EdmConstants::DEFAULT_USER_ID, abilityInfo) || abilityInfo.empty()) {
+        userId, abilityInfo) || abilityInfo.empty()) {
         EDMLOGW("EnableDeviceAdmin: QueryExtensionAbilityInfos failed");
         return EdmReturnErrCode::COMPONENT_INVALID;
     }
