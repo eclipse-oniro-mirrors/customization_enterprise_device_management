@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "ability_manager_interface.h"
+#include "enterprise_connection_callback.h"
 #include "icallback_strategy.h"
 #include "enterprise_admin_proxy.h"
 #include "singleton.h"
@@ -40,6 +41,7 @@ public:
 private:
     struct ConnectionInfo {
         sptr<EnterpriseAdminProxy> proxy;
+        sptr<EnterpriseConnectionCallback> callback;
         std::vector<std::shared_ptr<ICallbackStrategy>> pendingCallbacks;
         bool isPending = false;
         int64_t createTime = 0;
@@ -49,9 +51,13 @@ private:
     bool IsConnectionTimeout(const ConnectionInfo& info);
     int64_t GetCurrentTimeMs();
     bool CheckConnectionState(const std::string& key, std::shared_ptr<ICallbackStrategy> strategy,
-        sptr<EnterpriseAdminProxy>& existingProxy, bool& needCreateConnection);
+        sptr<EnterpriseAdminProxy>& existingProxy, bool& needCreateConnection,
+        sptr<EnterpriseConnectionCallback>& staleCallback);
     bool PrepareNewConnection(const std::string& key, std::shared_ptr<ICallbackStrategy> strategy);
     bool EstablishConnection(const std::string& bundleName, const std::string& abilityName, int32_t userId);
+    void DisconnectStaleCallback(const sptr<EnterpriseConnectionCallback>& callback);
+    bool RequeueAndReconnect(const std::string& bundleName, const std::string& abilityName, int32_t userId,
+        const std::string& key, std::shared_ptr<ICallbackStrategy> strategy);
 
     std::mutex connectionMutex_;
     std::unordered_map<std::string, ConnectionInfo> connectionMap_;

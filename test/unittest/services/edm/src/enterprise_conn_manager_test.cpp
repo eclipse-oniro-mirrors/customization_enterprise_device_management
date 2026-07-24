@@ -994,9 +994,11 @@ HWTEST_F(EnterpriseConnManagerTest, ExecuteCallback_CheckConnectionStateProxyExi
 
     sptr<EnterpriseAdminProxy> existingProxy = nullptr;
     bool needCreateConnection = false;
+    sptr<EnterpriseConnectionCallback> staleCallback;
     auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
 
-    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy, needCreateConnection);
+    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy,
+        needCreateConnection, staleCallback);
 
     EXPECT_TRUE(ret);
     EXPECT_NE(existingProxy, nullptr);
@@ -1014,9 +1016,11 @@ HWTEST_F(EnterpriseConnManagerTest, ExecuteCallback_CheckConnectionStateIsPendin
 
     sptr<EnterpriseAdminProxy> existingProxy = nullptr;
     bool needCreateConnection = false;
+    sptr<EnterpriseConnectionCallback> staleCallback;
     auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
 
-    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy, needCreateConnection);
+    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy,
+        needCreateConnection, staleCallback);
 
     EXPECT_TRUE(ret);
     EXPECT_EQ(existingProxy, nullptr);
@@ -1031,9 +1035,11 @@ HWTEST_F(EnterpriseConnManagerTest, ExecuteCallback_CheckConnectionStateNoEntry_
     std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
     sptr<EnterpriseAdminProxy> existingProxy = nullptr;
     bool needCreateConnection = false;
+    sptr<EnterpriseConnectionCallback> staleCallback;
     auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
 
-    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy, needCreateConnection);
+    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy,
+        needCreateConnection, staleCallback);
 
     EXPECT_TRUE(ret);
     EXPECT_EQ(existingProxy, nullptr);
@@ -1046,6 +1052,170 @@ HWTEST_F(EnterpriseConnManagerTest, GetCurrentTimeMs_ReturnValidTime, TestSize.L
     int64_t time2 = enterpriseConnManagerTest->GetCurrentTimeMs();
     EXPECT_GE(time2, time1);
     EXPECT_GT(time1, 0);
+}
+
+// ========== Return Value Tests ==========
+
+HWTEST_F(EnterpriseConnManagerTest, AdminStrategy_Execute_ProxyIsNull_ReturnFalse, TestSize.Level1)
+{
+    auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
+    ASSERT_NE(strategy, nullptr);
+    sptr<EnterpriseAdminProxy> proxy = nullptr;
+    bool ret = strategy->Execute(proxy);
+    EXPECT_FALSE(ret);
+}
+
+HWTEST_F(EnterpriseConnManagerTest, AdminStrategy_Execute_SendRequestFails_ReturnFalse, TestSize.Level1)
+{
+    auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
+    ASSERT_NE(strategy, nullptr);
+    sptr<EnterpriseAdminStubMock> stubMock = new EnterpriseAdminStubMock();
+    ASSERT_NE(stubMock, nullptr);
+    EXPECT_CALL(*stubMock, SendRequest(_, _, _, _)).WillRepeatedly(Return(-1));
+    sptr<EnterpriseAdminProxy> proxy = new EnterpriseAdminProxy(stubMock);
+    ASSERT_NE(proxy, nullptr);
+    bool ret = strategy->Execute(proxy);
+    EXPECT_FALSE(ret);
+}
+
+HWTEST_F(EnterpriseConnManagerTest, AdminStrategy_Execute_SendRequestSucceeds_ReturnTrue, TestSize.Level1)
+{
+    auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
+    ASSERT_NE(strategy, nullptr);
+    sptr<EnterpriseAdminStubMock> stubMock = new EnterpriseAdminStubMock();
+    ASSERT_NE(stubMock, nullptr);
+    EXPECT_CALL(*stubMock, SendRequest(_, _, _, _)).WillRepeatedly(Return(0));
+    sptr<EnterpriseAdminProxy> proxy = new EnterpriseAdminProxy(stubMock);
+    ASSERT_NE(proxy, nullptr);
+    bool ret = strategy->Execute(proxy);
+    EXPECT_TRUE(ret);
+}
+
+HWTEST_F(EnterpriseConnManagerTest, StartStrategy_Execute_ProxyIsValid_ReturnTrue, TestSize.Level1)
+{
+    auto strategy = std::make_shared<StartStrategy>();
+    ASSERT_NE(strategy, nullptr);
+    sptr<EnterpriseAdminStubMock> stubMock = new EnterpriseAdminStubMock();
+    sptr<EnterpriseAdminProxy> proxy = new EnterpriseAdminProxy(stubMock);
+    bool ret = strategy->Execute(proxy);
+    EXPECT_TRUE(ret);
+}
+
+// ========== Stale Callback Tests ==========
+
+HWTEST_F(EnterpriseConnManagerTest, OnAbilityConnectDone_StaleCallback_Ignored, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    sptr<EnterpriseConnectionCallback> callback = new EnterpriseConnectionCallback(BUNDLE_NAME, DEFAULT_USERID);
+    ASSERT_NE(callback, nullptr);
+
+    std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
+    EnterpriseConnManager::ConnectionInfo info;
+    info.isPending = true;
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs();
+    enterpriseConnManagerTest->connectionMap_[key] = info;
+
+    callback->MarkStale();
+    sptr<EnterpriseAdminStubMock> stubMock = new EnterpriseAdminStubMock();
+    callback->OnAbilityConnectDone(element, stubMock->AsObject(), ERR_OK);
+
+    auto it = enterpriseConnManagerTest->connectionMap_.find(key);
+    ASSERT_NE(it, enterpriseConnManagerTest->connectionMap_.end());
+    EXPECT_EQ(it->second.proxy, nullptr);
+    EXPECT_TRUE(it->second.isPending);
+}
+
+HWTEST_F(EnterpriseConnManagerTest, OnAbilityDisconnectDone_StaleCallback_Ignored, TestSize.Level1)
+{
+    sptr<EnterpriseAdminStubMock> stubMock = new EnterpriseAdminStubMock();
+    sptr<EnterpriseAdminProxy> proxy = new EnterpriseAdminProxy(stubMock);
+    ASSERT_NE(proxy, nullptr);
+
+    std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
+    EnterpriseConnManager::ConnectionInfo info;
+    info.proxy = proxy;
+    info.isPending = false;
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs();
+    enterpriseConnManagerTest->connectionMap_[key] = info;
+
+    AppExecFwk::ElementName element;
+    sptr<EnterpriseConnectionCallback> callback = new EnterpriseConnectionCallback(BUNDLE_NAME, DEFAULT_USERID);
+    ASSERT_NE(callback, nullptr);
+    callback->MarkStale();
+
+    callback->OnAbilityDisconnectDone(element, ERR_OK);
+
+    auto it = enterpriseConnManagerTest->connectionMap_.find(key);
+    EXPECT_NE(it, enterpriseConnManagerTest->connectionMap_.end());
+}
+
+// ========== Timeout Stale Output Tests ==========
+
+HWTEST_F(EnterpriseConnManagerTest, CheckConnectionState_Timeout_StaleCallbackOutput, TestSize.Level1)
+{
+    std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
+    sptr<EnterpriseConnectionCallback> callback = new EnterpriseConnectionCallback(BUNDLE_NAME, DEFAULT_USERID);
+
+    EnterpriseConnManager::ConnectionInfo info;
+    info.isPending = true;
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs() - 150000;
+    info.callback = callback;
+    enterpriseConnManagerTest->connectionMap_[key] = info;
+
+    sptr<EnterpriseAdminProxy> existingProxy = nullptr;
+    bool needCreateConnection = false;
+    sptr<EnterpriseConnectionCallback> staleCallback;
+    auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
+
+    bool ret = enterpriseConnManagerTest->CheckConnectionState(key, strategy, existingProxy,
+        needCreateConnection, staleCallback);
+
+    EXPECT_TRUE(ret);
+    EXPECT_NE(staleCallback, nullptr);
+    EXPECT_TRUE(staleCallback->IsStale());
+}
+
+HWTEST_F(EnterpriseConnManagerTest, ClearConnections_MarksCallbacksStale, TestSize.Level1)
+{
+    std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
+    sptr<EnterpriseConnectionCallback> callback = new EnterpriseConnectionCallback(BUNDLE_NAME, DEFAULT_USERID);
+    ASSERT_NE(callback, nullptr);
+
+    EnterpriseConnManager::ConnectionInfo info;
+    info.isPending = true;
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs();
+    info.callback = callback;
+    enterpriseConnManagerTest->connectionMap_[key] = info;
+
+    EXPECT_FALSE(callback->IsStale());
+    enterpriseConnManagerTest->ClearConnections();
+    EXPECT_TRUE(callback->IsStale());
+    EXPECT_TRUE(enterpriseConnManagerTest->connectionMap_.empty());
+}
+
+// ========== Execute Failure Reconnect Tests ==========
+
+HWTEST_F(EnterpriseConnManagerTest, ExecuteCallback_ExecuteFails_RequeueAndReconnect, TestSize.Level1)
+{
+    sptr<EnterpriseAdminStubMock> stubMock = new EnterpriseAdminStubMock();
+    ASSERT_NE(stubMock, nullptr);
+    EXPECT_CALL(*stubMock, SendRequest(_, _, _, _)).WillRepeatedly(Return(-1));
+    sptr<EnterpriseAdminProxy> proxy = new EnterpriseAdminProxy(stubMock);
+    ASSERT_NE(proxy, nullptr);
+
+    std::string key = enterpriseConnManagerTest->GenerateConnectionKey(BUNDLE_NAME, DEFAULT_USERID);
+    EnterpriseConnManager::ConnectionInfo info;
+    info.proxy = proxy;
+    info.isPending = false;
+    info.createTime = enterpriseConnManagerTest->GetCurrentTimeMs();
+    enterpriseConnManagerTest->connectionMap_[key] = info;
+
+    auto strategy = std::make_shared<AdminStrategy>(TEST_CODE);
+    bool ret = enterpriseConnManagerTest->ExecuteCallback(BUNDLE_NAME, ABILITY_NAME, DEFAULT_USERID, strategy);
+
+    EXPECT_FALSE(ret);
+    auto it = enterpriseConnManagerTest->connectionMap_.find(key);
+    EXPECT_EQ(it, enterpriseConnManagerTest->connectionMap_.end());
 }
 } // namespace TEST
 } // namespace EDM

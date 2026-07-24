@@ -39,31 +39,24 @@ bool EnterpriseConnManager::ExecuteCallback(const std::string& bundleName,
     std::string key = GenerateConnectionKey(bundleName, userId);
     sptr<EnterpriseAdminProxy> existingProxy = nullptr;
     bool needCreateConnection = false;
-    if (!CheckConnectionState(key, strategy, existingProxy, needCreateConnection)) {
+    sptr<EnterpriseConnectionCallback> staleCallback;
+    if (!CheckConnectionState(key, strategy, existingProxy, needCreateConnection, staleCallback)) {
         EDMLOGE("ExecuteCallback: check connection state failed");
         return false;
     }
+    if (staleCallback != nullptr) {
+        DisconnectStaleCallback(staleCallback);
+    }
     if (existingProxy != nullptr) {
         if (!existingProxy->IsValid()) { // LCOV_EXCL_BR_LINE
-            EDMLOGW("ExecuteCallback: proxy is invalid for %{public}s, remove and reconnect",
-                bundleName.c_str());
-            {
-                std::lock_guard<std::mutex> lock(connectionMutex_);
-                auto it = connectionMap_.find(key);
-                if (it != connectionMap_.end()) { // LCOV_EXCL_BR_LINE
-                    auto& info = it->second;
-                    info.proxy = nullptr;
-                    info.isPending = true;
-                    info.createTime = GetCurrentTimeMs();
-
-                    info.pendingCallbacks.push_back(strategy);
-                    EDMLOGI("ExecuteCallback: cleared invalid proxy for %{public}s, pendingCallbacks=%{public}zu",
-                        bundleName.c_str(), info.pendingCallbacks.size());
-                }
-            }
-            return EstablishConnection(bundleName, abilityName, userId);
+            EDMLOGW("ExecuteCallback: proxy is invalid for %{public}s, reconnect", bundleName.c_str());
+            return RequeueAndReconnect(bundleName, abilityName, userId, key, strategy);
         }
-        strategy->Execute(existingProxy);
+        bool ret = strategy->Execute(existingProxy);
+        if (!ret) { // LCOV_EXCL_BR_LINE
+            EDMLOGW("ExecuteCallback: strategy execute failed for %{public}s, reconnect", bundleName.c_str());
+            return RequeueAndReconnect(bundleName, abilityName, userId, key, strategy);
+        }
         return true;
     }
     if (!needCreateConnection) {
@@ -99,7 +92,10 @@ void EnterpriseConnManager::SaveProxy(const std::string& bundleName, int32_t use
     for (auto& cb : callbacks) {
         if (cb != nullptr) {
             EDMLOGI("EnterpriseConnManager::SaveProxy execute pending callback: code=%{public}u", cb->GetCode());
-            cb->Execute(proxy);
+            bool ret = cb->Execute(proxy);
+            if (!ret) { // LCOV_EXCL_BR_LINE
+                EDMLOGW("EnterpriseConnManager::SaveProxy pending callback failed: code=%{public}u", cb->GetCode());
+            }
         }
     }
 }
@@ -125,7 +121,7 @@ bool EnterpriseConnManager::IsConnectionTimeout(const ConnectionInfo& info)
 
 bool EnterpriseConnManager::CheckConnectionState(const std::string& key,
     std::shared_ptr<ICallbackStrategy> strategy, sptr<EnterpriseAdminProxy>& existingProxy,
-    bool& needCreateConnection)
+    bool& needCreateConnection, sptr<EnterpriseConnectionCallback>& staleCallback)
 {
     std::lock_guard<std::mutex> lock(connectionMutex_);
     auto it = connectionMap_.find(key);
@@ -133,6 +129,10 @@ bool EnterpriseConnManager::CheckConnectionState(const std::string& key,
     if (it != connectionMap_.end() && IsConnectionTimeout(it->second)) {
         EDMLOGW("CheckConnectionState: connection timeout for %{public}s,  pending callbacks=%{public}zu",
             key.c_str(), it->second.pendingCallbacks.size());
+        if (it->second.callback != nullptr) { // LCOV_EXCL_BR_LINE
+            it->second.callback->MarkStale();
+            staleCallback = it->second.callback;
+        }
         connectionMap_.erase(it);
         it = connectionMap_.end();
     }
@@ -180,6 +180,20 @@ bool EnterpriseConnManager::EstablishConnection(const std::string& bundleName,
     const std::string& abilityName, int32_t userId)
 {
     EDMLOGI("EstablishConnection: create new connection for %{public}s", bundleName.c_str());
+    std::string key = GenerateConnectionKey(bundleName, userId);
+
+    sptr<EnterpriseConnectionCallback> oldCallback;
+    {
+        std::lock_guard<std::mutex> lock(connectionMutex_);
+        auto it = connectionMap_.find(key);
+        if (it != connectionMap_.end() && it->second.callback != nullptr) { // LCOV_EXCL_BR_LINE
+            oldCallback = it->second.callback;
+        }
+    }
+    if (oldCallback != nullptr) {
+        DisconnectStaleCallback(oldCallback);
+    }
+
     AAFwk::Want want;
     want.SetElementName(bundleName, abilityName);
     sptr<EnterpriseConnectionCallback> connection = new (std::nothrow) EnterpriseConnectionCallback(bundleName, userId);
@@ -188,7 +202,6 @@ bool EnterpriseConnManager::EstablishConnection(const std::string& bundleName,
         return false;
     }
 
-    std::string key = GenerateConnectionKey(bundleName, userId);
     int32_t ret = ExtensionManagerClient::GetInstance().ConnectEnterpriseAdminExtensionAbility(
         want, connection, nullptr, userId);
     if (ret != ERR_OK) {
@@ -201,6 +214,13 @@ bool EnterpriseConnManager::EstablishConnection(const std::string& bundleName,
             connectionMap_.erase(it);
         }
         return false;
+    }
+    {
+        std::lock_guard<std::mutex> lock(connectionMutex_);
+        auto it = connectionMap_.find(key);
+        if (it != connectionMap_.end()) { // LCOV_EXCL_BR_LINE
+            it->second.callback = connection;
+        }
     }
     return true;
 }
@@ -224,9 +244,58 @@ void EnterpriseConnManager::RemoveRemoteObject(const std::string& bundleName, in
 
 void EnterpriseConnManager::ClearConnections()
 {
-    std::lock_guard<std::mutex> lock(connectionMutex_);
-    connectionMap_.clear();
-    EDMLOGI("EnterpriseConnManager::ClearConnections cleared all connections");
+    std::vector<sptr<EnterpriseConnectionCallback>> staleCallbacks;
+    {
+        std::lock_guard<std::mutex> lock(connectionMutex_);
+        for (auto& pair : connectionMap_) {
+            if (pair.second.callback != nullptr) { // LCOV_EXCL_BR_LINE
+                pair.second.callback->MarkStale();
+                staleCallbacks.push_back(pair.second.callback);
+            }
+        }
+        connectionMap_.clear();
+        EDMLOGI("EnterpriseConnManager::ClearConnections cleared all connections");
+    }
+    for (auto& cb : staleCallbacks) {
+        ExtensionManagerClient::GetInstance().DisconnectAbility(cb->AsObject());
+    }
+}
+
+void EnterpriseConnManager::DisconnectStaleCallback(const sptr<EnterpriseConnectionCallback>& callback)
+{
+    if (callback == nullptr) { // LCOV_EXCL_BR_LINE
+        return;
+    }
+    callback->MarkStale();
+    ExtensionManagerClient::GetInstance().DisconnectAbility(callback->AsObject());
+}
+
+bool EnterpriseConnManager::RequeueAndReconnect(const std::string& bundleName, const std::string& abilityName,
+    int32_t userId, const std::string& key, std::shared_ptr<ICallbackStrategy> strategy)
+{
+    EDMLOGI("RequeueAndReconnect: requeue strategy code=%{public}u for %{public}s",
+        strategy->GetCode(), bundleName.c_str());
+    sptr<EnterpriseConnectionCallback> oldCallback;
+    {
+        std::lock_guard<std::mutex> lock(connectionMutex_);
+        auto it = connectionMap_.find(key);
+        if (it == connectionMap_.end()) { // LCOV_EXCL_BR_LINE
+            EDMLOGE("RequeueAndReconnect: connection not found for %{public}s", bundleName.c_str());
+            return false;
+        }
+        auto& info = it->second;
+        info.proxy = nullptr;
+        info.isPending = true;
+        info.createTime = GetCurrentTimeMs();
+        info.pendingCallbacks.push_back(strategy);
+        oldCallback = info.callback;
+        EDMLOGI("RequeueAndReconnect: requeued for %{public}s, pendingCallbacks=%{public}zu",
+            bundleName.c_str(), info.pendingCallbacks.size());
+    }
+    if (oldCallback != nullptr) {
+        DisconnectStaleCallback(oldCallback);
+    }
+    return EstablishConnection(bundleName, abilityName, userId);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -25,7 +25,7 @@ namespace EDM {
 
 class StartStrategy : public ICallbackStrategy {
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override {}
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override { return true; }
 };
 
 class AdminStrategy : public ICallbackStrategy {
@@ -33,7 +33,7 @@ public:
     explicit AdminStrategy(uint32_t code) : ICallbackStrategy(code) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
 };
 
 class DeviceAdminStrategy : public ICallbackStrategy {
@@ -42,7 +42,7 @@ public:
         : ICallbackStrategy(code), bundleName_(bundleName) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     std::string bundleName_;
 };
 
@@ -52,7 +52,7 @@ public:
         : ICallbackStrategy(code), bundleName_(bundleName), accountId_(accountId) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     std::string bundleName_;
     int32_t accountId_;
 };
@@ -63,7 +63,7 @@ public:
         : ICallbackStrategy(code), bundleName_(bundleName) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     std::string bundleName_;
 };
 
@@ -73,7 +73,7 @@ public:
         : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_SYSTEM_UPDATE), updateInfo_(updateInfo) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     UpdateInfo updateInfo_;
 };
 
@@ -83,7 +83,7 @@ public:
         : ICallbackStrategy(code), accountId_(accountId) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     int32_t accountId_;
 };
 
@@ -93,7 +93,7 @@ public:
         : ICallbackStrategy(code), bundleName_(bundleName), accountId_(accountId) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     std::string bundleName_;
     int32_t accountId_;
 };
@@ -105,7 +105,7 @@ public:
           bundleName_(bundleName), status_(status) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     std::string bundleName_;
     int32_t status_;
 };
@@ -116,7 +116,7 @@ public:
         : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_LOG_COLLECTED), isSuccess_(isSuccess) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     bool isSuccess_;
 };
 
@@ -126,7 +126,7 @@ public:
         : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_KEY_EVENT), keyEvent_(keyEvent) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     std::string keyEvent_;
 };
 
@@ -136,7 +136,7 @@ public:
         : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_STARTUP_GUIDE_COMPLETED), type_(type) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     int32_t type_;
 };
 
@@ -146,7 +146,7 @@ public:
         : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_DEVICE_BOOT_COMPLETED) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
 };
 
 class AdminPolicyChangedStrategy : public ICallbackStrategy {
@@ -155,7 +155,7 @@ public:
         : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_POLICIES_CHANGED), event_(event) {}
 
 private:
-    void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     PolicyChangedEvent event_;
 };
 

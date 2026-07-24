@@ -24,14 +24,14 @@ class ICallbackStrategy {
 public:
     virtual ~ICallbackStrategy() = default;
 
-    virtual void Execute(const sptr<EnterpriseAdminProxy>& proxy);
+    virtual bool Execute(const sptr<EnterpriseAdminProxy>& proxy);
 
     uint32_t GetCode() const { return code_; }
 
 protected:
     ICallbackStrategy() = default;
     explicit ICallbackStrategy(uint32_t code) : code_(code) {}
-    virtual void ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) = 0;
+    virtual bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) = 0;
     uint32_t code_ = 0;
 };
 } // namespace EDM
