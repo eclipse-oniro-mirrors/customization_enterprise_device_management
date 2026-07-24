@@ -153,7 +153,8 @@ private:
     void UpdateAbilityEnabled(const std::string &bundleName, int32_t userId, int32_t appIndex);
     ErrCode AddDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     ErrCode DelDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
-    void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
+        EnableSource enableSource);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);

@@ -52,7 +52,7 @@ void HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string 
 }
 
 void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
-    const int32_t & adminType, const std::string &extraInfo)
+    const int32_t & adminType, const std::string &extraInfo, const int32_t &enableSource)
 {
     EDMLOGI("hisysevent ReportEdmEventManagerAdmin");
     std::string enterpriseId = system::GetParameter(EDM_ENTERPRISE_ID, "");
@@ -66,7 +66,9 @@ void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName
         {.name = "EXTRAINFO", .t = HiSysEventParamType::HISYSEVENT_STRING,
             .v = { .s = const_cast<char*>(extraInfo.c_str()) }, .arraySize = 0},
         {.name = "ENTERPRISE_ID", .t = HiSysEventParamType::HISYSEVENT_STRING,
-            .v = { .s = const_cast<char*>(enterpriseId.c_str()) }, .arraySize = 0}
+            .v = { .s = const_cast<char*>(enterpriseId.c_str()) }, .arraySize = 0},
+        {.name = "ENABLE_SOURCE", .t = HiSysEventParamType::HISYSEVENT_INT32,
+            .v = { .i32 = enableSource }, .arraySize = 0}
     };
     int ret = OH_HiSysEvent_Write("CUST_EDM", "EDM_FUNC_EVENT",
         HiSysEventEventType::HISYSEVENT_STATISTIC, params, sizeof(params) / sizeof(params[0]));

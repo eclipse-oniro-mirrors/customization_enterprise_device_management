@@ -156,7 +156,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->UpdateClipboardInfo(bundleName, userId);
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->DelDisallowUninstallAppForAccount(bundleName, userId);
-    enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
+    enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId, EnableSource::DEPLOY);
     enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId, type);
     enterpriseDeviceMgrAbility->RemoveSubSuperAdminAndAdminPolicy(bundleName, type);
     enterpriseDeviceMgrAbility->RemoveSuperAdminAndAdminPolicy(bundleName);
