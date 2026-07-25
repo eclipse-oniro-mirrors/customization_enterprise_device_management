@@ -227,7 +227,6 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
-        const char* const LABEL_DISALLOWED_POLICY_DEVICE_SUDO = "sudo";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -520,11 +519,11 @@ namespace PolicyName {
     const char* const POLICY_SET_ABILITY_ENABLED = "set_ability_enabled";
     const char* const POLICY_SET_FLOATING_NAVIGATION = "set_floating_navigation";
     const char* const POLICY_DISALLOWED_P2P = "disallowed_p2p";
-    const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
     const char* const POLICY_ADD_DOCK_APP = "dock_info";
     const char* const POLICY_DISABLED_SUPERHUB = "disabled_superhub";
-    const char* const POLICY_QUERY_BUNDLE_STATS_INFOS = "query_bundle_stats_infos";
+    const char* const POLICY_QUERY_TRAFFIC_STATS = "query_traffic_stats";
     const char* const POLICY_DISALLOWED_MULTI_WINDOW = "disallowed_multi_window";
+    const char* const POLICY_QUERY_BUNDLE_STATS_INFOS = "query_bundle_stats_infos";
     const char* const POLICY_HIDE_LAUNCHER_ICON = "hide_launcher_icon";
     const char* const POLICY_DISALLOWED_DEVICE_SUDO = "disallowed_device_sudo";
     const char* const POLICY_ACTIVATE_NORMAL_OS_ACCOUNT = "activate_normal_os_account";

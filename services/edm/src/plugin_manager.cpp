@@ -78,9 +78,11 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::SET_DEVICE_NAME, EdmInterfaceCode::SET_FLOATING_NAVIGATION,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
     EdmInterfaceCode::DISALLOW_CORE_DUMP,
-    EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DISALLOW_RS232,
-    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO, EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
+    EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES,
+    EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
+    EdmInterfaceCode::DISALLOW_RS232,
+    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -106,7 +108,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::SET_NETWORK_INTERFACE_CONFIG, EdmInterfaceCode::DISALLOW_USB_SERIAL,
     EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM,
     EdmInterfaceCode::DISALLOWED_P2P, EdmInterfaceCode::QUERY_TRAFFIC_STATS,
-    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
+    EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
     EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES
 };
 
@@ -131,7 +133,8 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::INSTALL_MARKET_APPS, EdmInterfaceCode::SET_KEY_CODE_POLICYS,
     EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::SET_SWITCH_STATUS,
     EdmInterfaceCode::HIDDEN_SETTINGS_MENU, EdmInterfaceCode::ADD_DOCK_APP,
-    EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE
+    EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE,
+    EdmInterfaceCode::DISALLOWED_UINPUT
 };
 
 std::vector<uint32_t> PluginManager::watermarkSoCodes_ = {

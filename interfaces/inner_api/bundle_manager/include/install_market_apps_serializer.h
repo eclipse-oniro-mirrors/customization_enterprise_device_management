@@ -25,7 +25,7 @@ namespace EDM {
 struct InstallMarketAppsInfo {
     // 将要安装的AG包名数组
     std::vector<std::string> bundleNames;
-    // 区分安装AG、更新状态机、
+    // 区分安装AG、更新状态机
     int32_t installFlag = 0;
     // 公共事件code
     int32_t eventCode = 0;

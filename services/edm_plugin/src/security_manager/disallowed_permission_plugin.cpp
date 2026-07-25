@@ -78,41 +78,34 @@ ErrCode DisallowedPermissionPlugin::RemoveOtherModulePolicy(const std::vector<st
 ErrCode DisallowedPermissionPlugin::AddOrRemoveAccessTokenPolicy(const std::vector<std::string> &data,
     int32_t userId, bool isAdd)
 {
-    if (data.size() != 1) {
-        EDMLOGI("DisallowedPermissionPlugin AddOrRemoveAccessTokenPolicy input param size error");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    std::string permission = data[0];
-    if (permission.empty()) {
-        EDMLOGI("DisallowedPermissionPlugin AddOrRemoveAccessTokenPolicy permission empty error");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    Security::AccessToken::PermissionDef permissionDef;
-    ErrCode perReturn = Security::AccessToken::AccessTokenKit::GetDefPermission(permission, permissionDef);
-    if (FAILED(perReturn)) {
-        EDMLOGI("DisallowedPermissionPlugin AddOrRemoveAccessTokenPolicy get permission def error");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    if (permissionDef.availableLevel != Security::AccessToken::TypeATokenAplEnum::APL_SYSTEM_BASIC
-        && permissionDef.availableLevel != Security::AccessToken::TypeATokenAplEnum::APL_NORMAL) {
-        EDMLOGI("DisallowedPermissionPlugin AddOrRemoveAccessTokenPolicy invalide permission apl level");
-        return EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION;
-    }
-    Security::AccessToken::UserPolicy userPolicy;
-    userPolicy.userId = userId;
-    userPolicy.isRestricted = isAdd;
+    for (auto &permission : data) {
+        Security::AccessToken::PermissionDef permissionDef;
+        ErrCode perReturn = Security::AccessToken::AccessTokenKit::GetDefPermission(permission, permissionDef);
+        if (FAILED(perReturn)) {
+            EDMLOGI("DisallowedPermissionPlugin AddOrRemoveAccessTokenPolicy get permission def error");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        if (permissionDef.availableLevel != Security::AccessToken::TypeATokenAplEnum::APL_SYSTEM_BASIC
+            && permissionDef.availableLevel != Security::AccessToken::TypeATokenAplEnum::APL_NORMAL) {
+            EDMLOGI("DisallowedPermissionPlugin AddOrRemoveAccessTokenPolicy invalide permission apl level");
+            return EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION;
+        }
+        Security::AccessToken::UserPolicy userPolicy;
+        userPolicy.userId = userId;
+        userPolicy.isRestricted = isAdd;
 
-    Security::AccessToken::UserPermissionPolicy userPermissionPolicy;
-    userPermissionPolicy.permissionName = permission;
-    userPermissionPolicy.isPersist = true;
-    userPermissionPolicy.userPolicyList.emplace_back(userPolicy);
+        Security::AccessToken::UserPermissionPolicy userPermissionPolicy;
+        userPermissionPolicy.permissionName = permission;
+        userPermissionPolicy.isPersist = true;
+        userPermissionPolicy.userPolicyList.emplace_back(userPolicy);
 
-    std::vector<Security::AccessToken::UserPermissionPolicy> userPermissionPolicys;
-    userPermissionPolicys.emplace_back(userPermissionPolicy);
-    ErrCode setRet = Security::AccessToken::AccessTokenKit::SetUserPolicy(userPermissionPolicys);
-    if (FAILED(setRet)) {
-        EDMLOGI("DisallowedPermissionPlugin SetUserPolicy failed ret %{public}d", setRet);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        std::vector<Security::AccessToken::UserPermissionPolicy> userPermissionPolicys;
+        userPermissionPolicys.emplace_back(userPermissionPolicy);
+        ErrCode setRet = Security::AccessToken::AccessTokenKit::SetUserPolicy(userPermissionPolicys);
+        if (FAILED(setRet)) {
+            EDMLOGI("DisallowedPermissionPlugin SetUserPolicy failed ret %{public}d", setRet);
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
     }
     return ERR_OK;
 }
