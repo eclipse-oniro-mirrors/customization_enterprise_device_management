@@ -1092,8 +1092,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestQueryBundleStatsInfosSuc, TestSize.Lev
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(bundleStatsInfos.size(), 1);
     ASSERT_EQ(bundleStatsInfos[0].bundleName, "com.test.bundle");
-    ASSERT_EQ
-    (bundleStatsInfos[0].abilityInFgTotalTime, 100);
+    ASSERT_EQ(bundleStatsInfos[0].abilityInFgTotalTime, 100);
 }
 
 /**

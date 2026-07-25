@@ -116,11 +116,11 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "The number of login users reaches the upper limit."},
     {EdmReturnErrCode::USER_ACCESS_POLICY_PROHIBITED,
         "User access policy prohibited."},
-    {EdmReturnErrCode::CANNOT_SET_ALLOWED_PERMISSION_BUNDLE,
-        "Prerequisites for the API call have not been satisfied. The permission has not be disallowed."},
-    {EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION,
-        "The permission apl level is system core, can not disallow it"},
     {EdmReturnErrCode::DISK_ERASE_FAILED, "Failed to disk erase"},
+    {EdmReturnErrCode::CANNOT_SET_ALLOWED_PERMISSION_BUNDLE,
+        "This permission is not disallowed. Applications cannot be added to or removed from the trustlist."},
+    {EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION,
+        "The permission cannot be disallowed."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)

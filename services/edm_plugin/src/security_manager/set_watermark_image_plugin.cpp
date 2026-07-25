@@ -213,6 +213,7 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
         EDMLOGE("SetWatermarkImagePlugin policy max");
         return EdmReturnErrCode::PARAM_ERROR;
     }
+
     int32_t intervalsRow = param.hasPropertyParam ? param.intervalsRow : 0;
     int32_t intervalsCol = param.hasPropertyParam ? param.intervalsCol : 0;
     if (!SetWatermarkToRS(fileName, pixelMap, intervalsRow, intervalsCol)) {

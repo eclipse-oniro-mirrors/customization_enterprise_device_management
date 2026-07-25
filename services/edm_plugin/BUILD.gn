@@ -106,8 +106,8 @@ ohos_shared_library("device_core_plugin") {
       "./src/restrictions/disallow_virtual_service_plugin.cpp",
       "./src/restrictions/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/restrictions/disable_set_device_name_plugin.cpp",
-      "./src/restrictions/disallow_distributed_transmission_plugin.cpp",
       "./src/restrictions/disallow_distributed_transmission_full_plugin.cpp",
+      "./src/restrictions/disallow_distributed_transmission_plugin.cpp",
       "./src/bundle_manager/disallowed_install_bundles_plugin.cpp",
       "./src/bundle_manager/disallowed_uninstall_bundles_plugin.cpp",
       "./src/restrictions/inactive_user_freeze_plugin.cpp",
@@ -496,14 +496,6 @@ ohos_shared_library("communication_plugin") {
         "./src/restrictions/disallowed_sms_plugin.cpp",
       ]
     }
-
-    if (uinput_manager_edm_enable) {
-      external_deps += [ "input:libmmi-client" ]
-      sources += [
-        "./src/restrictions/disallow_uinput_plugin.cpp",
-      ]
-      defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
-    }
   }
 
   deps = [
@@ -771,6 +763,14 @@ ohos_shared_library("need_extra_plugin") {
   if (telephony_core_edm_enable) {
     external_deps += [ "core_service:tel_core_service_api" ]
     defines += [ "TELEPHONY_CORE_EDM_ENABLE" ]
+  }
+
+  if (uinput_manager_edm_enable) {
+    external_deps += [ "input:libmmi-client" ]
+    sources += [
+      "./src/restrictions/disallow_uinput_plugin.cpp",
+    ]
+    defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
 
   deps = [

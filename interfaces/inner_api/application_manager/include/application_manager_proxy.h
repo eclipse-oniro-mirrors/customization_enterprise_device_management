@@ -24,8 +24,8 @@
 #ifdef FEATURE_PC_ONLY
 #include "dock_info.h"
 #endif
-#include "bundle_stats_info.h"
 #include "net_stats_utils.h"
+#include "bundle_stats_info.h"
 #include "window_state_info.h"
 
 namespace OHOS {
