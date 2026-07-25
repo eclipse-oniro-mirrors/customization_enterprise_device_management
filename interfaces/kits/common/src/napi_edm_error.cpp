@@ -120,7 +120,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::CANNOT_SET_ALLOWED_PERMISSION_BUNDLE,
         "This permission is not disallowed. Applications cannot be added to or removed from the trustlist."},
     {EdmReturnErrCode::CANNOT_DISALLOW_PERMISSION,
-        "The permission cannot be disallowed."},
+        "This permission cannot be disallowed."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
