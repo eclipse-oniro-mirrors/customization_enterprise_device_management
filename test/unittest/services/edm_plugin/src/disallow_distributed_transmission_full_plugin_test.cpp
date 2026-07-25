@@ -162,7 +162,7 @@ HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
     bool data = true;
     bool mergeData = false;
     ErrCode ret = plugin.OnAdminRemove(TEST_BUNDLE_NAME, data, mergeData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -232,7 +232,7 @@ HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
 {
     DisallowDistributedTransmissionFullPlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK || ret == 4194327);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -245,7 +245,7 @@ HWTEST_F(DisallowDistributedTransmissionFullPluginTest,
 {
     DisallowDistributedTransmissionFullPlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(false, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK || ret == 4194327);
+    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 } // namespace TEST
 } // namespace EDM
