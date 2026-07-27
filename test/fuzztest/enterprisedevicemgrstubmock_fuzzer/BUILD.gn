@@ -410,8 +410,6 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/application_manager/manage_keep_alive_apps_plugin.cpp",
         "../../../services/edm_plugin/src/application_manager/manage_freeze_exempted_apps_plugin.cpp",
         "../../../services/edm_plugin/src/utils/bms_utils.cpp",
-        "../../../services/edm_plugin/src/utils/manage_auto_start_apps_serializer.cpp",
-        "../../../services/edm_plugin/src/utils/manage_auto_start_app_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
         "../../../services/edm_plugin/src/bundle_manager/install_enterprise_re_signature_certificate_plugin.cpp",

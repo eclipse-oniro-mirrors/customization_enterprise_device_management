@@ -59,6 +59,8 @@
 #include "func_code_utils.h"
 #include "hisysevent_adapter.h"
 #include "language_manager.h"
+#include "manage_auto_start_app_info.h"
+#include "manage_auto_start_apps_serializer.h"
 #include "notification_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
@@ -928,6 +930,73 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     UpdateFreezeExemptedApps(bundleName, userId, appIndex);
     UpdateUserNonStopInfo(bundleName, userId, appIndex);
     UpdateAllowedPermissionBundleInfo(appIdentifier, bundleName, userId, appIndex);
+    UpdateAutoStartApps(bundleName, userId);
+    UpdateKeepAliveApps(bundleName, userId);
+}
+
+void EnterpriseDeviceMgrAbility::UpdateAutoStartApps(const std::string &bundleName, int32_t userId)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateAutoStartApps");
+    std::string policyValue;
+    PolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_MANAGE_AUTO_START_APPS, policyValue, userId);
+    std::vector<ManageAutoStartAppInfo> mergePolicyData;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyValue, mergePolicyData);
+    if (mergePolicyData.empty()) {
+        return;
+    }
+    std::vector<std::string> autoStartAppsString;
+    for (const ManageAutoStartAppInfo &item : mergePolicyData) {
+        if (item.GetBundleName() == bundleName) {
+            std::string isHiddenStartString = item.GetIsHiddenStart() ? "true" : "false";
+            autoStartAppsString.push_back(item.GetUniqueKey() + "/" + isHiddenStartString);
+        }
+    }
+    if (autoStartAppsString.empty()) {
+        return;
+    }
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, userId);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+            (std::uint32_t)EdmInterfaceCode::MANAGE_AUTO_START_APPS);
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        data.WriteStringVector(autoStartAppsString);
+        bool disallowModify = true;
+        data.WriteBool(disallowModify);
+        bool isUninstall = true;
+        data.WriteBool(isUninstall);
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, userId);
+    }
+}
+
+void EnterpriseDeviceMgrAbility::UpdateKeepAliveApps(const std::string &bundleName, int32_t userId)
+{
+    EDMLOGI("OnCommonEventPackageRemoved UpdateKeepAliveApps");
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, userId);
+    for (const auto& admin : admins) {
+        std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+            (std::uint32_t)EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
+        MessageParcel reply;
+        MessageParcel data;
+        data.WriteString(WITHOUT_PERMISSION_TAG);
+        std::vector<std::string> keepAliveApps;
+        keepAliveApps.push_back(bundleName);
+        data.WriteStringVector(keepAliveApps);
+        bool disallowModify = true;
+        data.WriteBool(disallowModify);
+        bool isUninstall = true;
+        data.WriteBool(isUninstall);
+        OHOS::AppExecFwk::ElementName elementName;
+        elementName.SetBundleName(admin->adminInfo_.packageName_);
+        elementName.SetAbilityName(admin->adminInfo_.className_);
+        HandleDevicePolicy(funcCode, elementName, data, reply, userId);
+    }
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)

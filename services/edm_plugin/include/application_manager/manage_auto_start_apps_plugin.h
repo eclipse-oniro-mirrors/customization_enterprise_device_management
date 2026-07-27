@@ -48,9 +48,14 @@ private:
         int32_t userId);
     ErrCode OnRemovePolicy(std::vector<std::string> &data,
         std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData,
-        int32_t userId);
+        int32_t userId, bool isUninstall);
     ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
         int32_t userId, std::vector<ManageAutoStartAppInfo> &failedData, bool disallowModify);
+    void DeserializePolicyData(HandlePolicyData &policyData, int32_t userId,
+        std::vector<ManageAutoStartAppInfo> &currentData,
+        std::vector<ManageAutoStartAppInfo> &mergeData,
+        std::string &mergePolicyStr,
+        std::vector<ManageAutoStartAppInfo> &totalMergePolicyData);
     void ParseErrCode(ErrCode &ret);
     void GetErrorMessage(ErrCode &errCode, std::string &errMessage);
     bool CheckBundleAndAbilityExited(const std::string &bundleName, const std::string &abilityName, int32_t userId);
