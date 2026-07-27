@@ -2617,41 +2617,6 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowMultiWindowQuery002, TestSize.Level1
 #endif
 
 /**
- * @tc.name: TestDisallowUInputQuery001
- * @tc.desc: Test DisallowUInputQuery QueryPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery001, TestSize.Level1)
-{
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
-    std::string policyData{"true"};
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
-    int32_t flag = ERR_INVALID_VALUE;
-    reply.ReadInt32(flag);
-    EXPECT_EQ(flag, ERR_OK);
-    bool result = false;
-    reply.ReadBool(result);
-    ASSERT_TRUE(result);
-}
-
-/**
- * @tc.name: TestDisallowUInputQuery002
- * @tc.desc: Test DisallowUInputQuery GetPolicyName and GetPermission function.
- * @tc.type: FUNC
- */
-HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery002, TestSize.Level1)
-{
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
-    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_12;
-    EXPECT_EQ(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag),
-        TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
-    EXPECT_EQ(queryObj->GetPolicyName(), PolicyName::POLICY_DISALLOW_UINPUT);
-}
-
-/**
  * @tc.name: TestDisallowCoreDumpQuery001
  * @tc.desc: Test DisallowCoreDumpQuery QueryPolicy function.
  * @tc.type: FUNC
@@ -2682,6 +2647,41 @@ HWTEST_F(PluginPolicyQueryTest, TestDisallowCoreDumpQuery002, TestSize.Level1)
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_DISALLOW_CORE_DUMP);
+}
+
+/**
+ * @tc.name: TestDisallowUInputQuery001
+ * @tc.desc: Test DisallowUInputQuery QueryPolicy function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery001, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
+    std::string policyData{"true"};
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = queryObj->QueryPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    int32_t flag = ERR_INVALID_VALUE;
+    reply.ReadInt32(flag);
+    EXPECT_EQ(flag, ERR_OK);
+    bool result = false;
+    reply.ReadBool(result);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestDisallowUInputQuery002
+ * @tc.desc: Test DisallowUInputQuery GetPolicyName and GetPermission function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginPolicyQueryTest, TestDisallowUInputQuery002, TestSize.Level1)
+{
+    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowUInputQuery>();
+    std::string permissionTag = TEST_PERMISSION_TAG_VERSION_12;
+    EXPECT_EQ(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag),
+    TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    EXPECT_EQ(queryObj->GetPolicyName(), PolicyName::POLICY_DISALLOW_UINPUT);
 }
 
 /**

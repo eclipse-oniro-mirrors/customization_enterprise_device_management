@@ -89,6 +89,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAllowedKioskApps", GetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("isAppKioskAllowed", IsAppKioskAllowed),
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
+        DECLARE_NAPI_PROPERTY("WindowState", nWindowState),
         DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
         DECLARE_NAPI_FUNCTION("isModifyKeepAliveAppsDisallowed", IsModifyKeepAliveAppsDisallowed),
         DECLARE_NAPI_FUNCTION("isModifyAutoStartAppsDisallowed", IsModifyAutoStartAppsDisallowed),
@@ -98,7 +99,6 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addUserNonStopApps", AddUserNonStopApps),
         DECLARE_NAPI_FUNCTION("removeUserNonStopApps", RemoveUserNonStopApps),
         DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
-        DECLARE_NAPI_PROPERTY("WindowState", nWindowState),
         DECLARE_NAPI_PROPERTY("ServiceType", nServiceType),
     };
     std::vector<napi_property_descriptor> propertyOne = InitOne();
