@@ -59,6 +59,8 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     data.ReadStringVector(&keepAliveApps);
     bool disallowModify = true;
     data.ReadBool(disallowModify);
+    bool isUninstall = false;
+    data.ReadBool(isUninstall);
     std::vector<ManageKeepAliveAppInfo> currentData;
     ManageKeepAliveAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
     std::vector<ManageKeepAliveAppInfo> mergeData;
@@ -75,7 +77,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
         res = OnSetPolicy(keepAliveApps, disallowModify, currentData, mergeData, userId);
         GetErrorMessage(res, errMessage);
     } else if (type == FuncOperateType::REMOVE) {
-        res = OnRemovePolicy(keepAliveApps, currentData, mergeData, userId);
+        res = OnRemovePolicy(keepAliveApps, currentData, mergeData, userId, isUninstall);
         GetErrorMessage(res, errMessage);
     }
     if (res != ERR_OK) {
@@ -147,7 +149,8 @@ ErrCode ManageKeepAliveAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
 }
 
 ErrCode ManageKeepAliveAppsPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<ManageKeepAliveAppInfo> &currentData, std::vector<ManageKeepAliveAppInfo> &mergeData, int32_t userId)
+    std::vector<ManageKeepAliveAppInfo> &currentData,
+    std::vector<ManageKeepAliveAppInfo> &mergeData, int32_t userId, bool isUninstall)
 {
     if (data.empty()) {
         EDMLOGW("BasicArrayStringPlugin OnRemovePolicy data is empty.");
@@ -163,7 +166,7 @@ ErrCode ManageKeepAliveAppsPlugin::OnRemovePolicy(std::vector<std::string> &data
         ManageKeepAliveAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
 
     std::vector<ManageKeepAliveAppInfo> failedData;
-    if (!needRemoveMergePolicy.empty()) {
+    if (!needRemoveMergePolicy.empty() && !isUninstall) {
         ErrCode ret = RemoveOtherModulePolicy(needRemoveMergePolicy, userId, failedData);
         if (FAILED(ret)) {
             return ret;

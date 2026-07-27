@@ -61,28 +61,20 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
     data.ReadStringVector(&autoStartApps);
     bool disallowModify = false;
     data.ReadBool(disallowModify);
+    bool isUninstall = false;
+    data.ReadBool(isUninstall);
     std::vector<ManageAutoStartAppInfo> currentData;
-    bool isDeserializeOk = false;
-    isDeserializeOk = ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.policyData, currentData);
     std::vector<ManageAutoStartAppInfo> mergeData;
-    isDeserializeOk = isDeserializeOk &&
-        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
     std::string mergePolicyStr;
-    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
     std::vector<ManageAutoStartAppInfo> totalMergePolicyData;
-    isDeserializeOk = isDeserializeOk &&
-        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
-    if (!isDeserializeOk) {
-        EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Deserialize failed.");
-    }
-    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData, totalMergePolicyData);
+    DeserializePolicyData(policyData, userId, currentData, mergeData, mergePolicyStr, totalMergePolicyData);
     ErrCode res = EdmReturnErrCode::PARAM_ERROR;
     std::string errMessage;
     if (type == FuncOperateType::SET) {
         res = OnSetPolicy(autoStartApps, disallowModify, currentData, mergeData, userId);
         GetErrorMessage(res, errMessage);
     } else if (type == FuncOperateType::REMOVE) {
-        res = OnRemovePolicy(autoStartApps, currentData, mergeData, userId);
+        res = OnRemovePolicy(autoStartApps, currentData, mergeData, userId, isUninstall);
         GetErrorMessage(res, errMessage);
     }
     if (res != ERR_OK) {
@@ -105,7 +97,8 @@ ErrCode ManageAutoStartAppsPlugin::OnHandlePolicy(std::uint32_t funcCode, Messag
 }
 
 ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data,
-    std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId)
+    std::vector<ManageAutoStartAppInfo> &currentData,
+    std::vector<ManageAutoStartAppInfo> &mergeData, int32_t userId, bool isUninstall)
 {
     if (data.empty()) {
         EDMLOGW("BasicArrayStringPlugin OnRemovePolicy data is empty.");
@@ -121,7 +114,7 @@ ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data
         ManageAutoStartAppsSerializer::GetInstance()->SetNeedRemoveMergePolicyData(mergeData, needRemovePolicy);
 
     std::vector<ManageAutoStartAppInfo> failedData;
-    if (!needRemoveMergePolicy.empty()) {
+    if (!needRemoveMergePolicy.empty() && !isUninstall) {
         ErrCode ret = SetOrRemoveOtherModulePolicy(needRemoveMergePolicy, false, failedData, userId);
         if (FAILED(ret)) {
             return ret;
@@ -407,6 +400,25 @@ bool ManageAutoStartAppsPlugin::CheckBundleAndAbilityExited(const std::string &b
         proxy->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::SERVICE,
             AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_DEFAULT, userId,
             extensionAbilityInfo);
+}
+
+void ManageAutoStartAppsPlugin::DeserializePolicyData(HandlePolicyData &policyData, int32_t userId,
+    std::vector<ManageAutoStartAppInfo> &currentData,
+    std::vector<ManageAutoStartAppInfo> &mergeData,
+    std::string &mergePolicyStr,
+    std::vector<ManageAutoStartAppInfo> &totalMergePolicyData)
+{
+    bool isDeserializeOk = ManageAutoStartAppsSerializer::GetInstance()->Deserialize(
+        policyData.policyData, currentData);
+    isDeserializeOk = isDeserializeOk &&
+        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData.mergePolicyData, mergeData);
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
+    isDeserializeOk = isDeserializeOk &&
+        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, totalMergePolicyData);
+    if (!isDeserializeOk) {
+        EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Deserialize failed.");
+    }
+    ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData, totalMergePolicyData);
 }
 } // namespace EDM
 } // namespace OHOS
