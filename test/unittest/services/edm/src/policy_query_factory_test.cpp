@@ -28,6 +28,7 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin.h"
+#include "parameters.h"
 #include "policy_query_config.h"
 #include "utils.h"
 
@@ -252,20 +253,26 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_StringPolicyQueryPolicyData, Te
     ErrCode ret = query->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(reply.ReadInt32(), ERR_OK);
-    ASSERT_EQ(reply.ReadString(), "ntp.server.example.com");
+    std::string result = reply.ReadString();
+    std::string result1 = OHOS::system::GetParameter("persist.time.ntpserver_specific", "");
+    ASSERT_EQ(result, result1);
 }
 
-HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_IntPolicyQueryPolicyData, TestSize.Level1)
+HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllowedAppDistributionTypesQueryPolicyData, TestSize.Level1)
 {
     auto query = PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE);
     ASSERT_NE(query, nullptr);
-    std::string policyData = "3";
+    std::string policyData = "[1,2,3]";
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = query->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(reply.ReadInt32(), ERR_OK);
-    ASSERT_EQ(reply.ReadInt32(), 3);
+    std::vector<int32_t> result = reply.ReadInt32Vector();
+    ASSERT_EQ(result.size(), 3);
+    ASSERT_EQ(result[0], 1);
+    ASSERT_EQ(result[1], 2);
+    ASSERT_EQ(result[2], 3);
 }
 
 HWTEST_F(PolicyQueryFactoryTest, TestGetPermission_RestrictionPolicy, TestSize.Level1)

@@ -95,6 +95,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/permission_checker.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
+    "../../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../../services/edm/src/query_policy/allowed_notification_bundles_query.cpp",
     "../../../../services/edm/src/query_policy/generic_policy_query.cpp",
     "../../../../services/edm/src/query_policy/get_installed_bundle_storage_stats_query.cpp",

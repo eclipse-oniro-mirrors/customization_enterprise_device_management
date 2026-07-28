@@ -119,6 +119,7 @@ ohos_shared_library("edmservice") {
       "./src/plugin_manager.cpp",
       "./src/policy_manager.cpp",
       "./src/query_policy/generic_policy_query.cpp",
+      "./src/query_policy/allowed_app_distribution_types_query.cpp",
       "./src/query_policy/allowed_notification_bundles_query.cpp",
       "./src/query_policy/allowed_permission_bundle_query.cpp",
       "./src/query_policy/get_device_encryption_status_query.cpp",
