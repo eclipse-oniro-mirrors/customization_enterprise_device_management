@@ -148,11 +148,6 @@ declare_args() {
       defined(global_parts_info.telephony_sms_mms)) {
     sms_mms_edm_enable = true
   }
-  cellular_data_edm_enable = false
-  if (defined(global_parts_info) &&
-      defined(global_parts_info.telephony_cellular_data)) {
-    cellular_data_edm_enable = true
-  }
   notification_edm_enable = false
   if (defined(global_parts_info) &&
       defined(

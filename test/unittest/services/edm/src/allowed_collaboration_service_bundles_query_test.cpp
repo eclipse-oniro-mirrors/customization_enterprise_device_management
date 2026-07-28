@@ -17,12 +17,13 @@
 
 #define private public
 #define protected public
-#include "allowed_collaboration_service_bundles_query.h"
+#include "ipolicy_query.h"
 #undef protected
 #undef private
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "policy_query_factory.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -69,7 +70,9 @@ void AllowedCollaborationServiceBundlesQueryTest::TearDownTestSuite(void)
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, GetPolicyName_ReturnCorrectValue_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyName = queryObj->GetPolicyName();
     EXPECT_EQ(policyName, PolicyName::POLICY_ALLOWED_COLLABORATION_SERVICE_BUNDLES);
 }
@@ -81,7 +84,9 @@ HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, GetPolicyName_ReturnCorrec
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, GetPermission_ReturnCorrectPermission_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_23;
     std::string permission = queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag);
     EXPECT_EQ(permission, TEST_PERMISSION_ENTERPRISE_MANAGE_APPLICATION);
@@ -94,7 +99,9 @@ HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, GetPermission_ReturnCorrec
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_EmptyPolicyData_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData{""};
     MessageParcel data;
     MessageParcel reply;
@@ -114,7 +121,9 @@ HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_EmptyPolicyDat
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_SingleItem_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData = "[\"com.test.app\"]";
     MessageParcel data;
     MessageParcel reply;
@@ -135,7 +144,9 @@ HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_SingleItem_Suc
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_MultipleItems_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData = "[\"com.test.app1\", \"com.test.app2\", \"com.test.app3\"]";
     MessageParcel data;
     MessageParcel reply;
@@ -158,7 +169,9 @@ HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_MultipleItems_
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_InvalidJsonFormat_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData = "invalid_json";
     MessageParcel data;
     MessageParcel reply;
@@ -178,7 +191,9 @@ HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_InvalidJsonFor
  */
 HWTEST_F(AllowedCollaborationServiceBundlesQueryTest, QueryPolicy_DuplicateItems_Success, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<AllowedCollaborationServiceBundlesQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::ALLOWED_COLLABORATION_SERVICE_BUNDLES);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData = "[\"com.test.app\", \"com.test.app\"]";
     MessageParcel data;
     MessageParcel reply;

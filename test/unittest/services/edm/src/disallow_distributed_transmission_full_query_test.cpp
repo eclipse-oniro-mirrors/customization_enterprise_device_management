@@ -17,11 +17,13 @@
 
 #define private public
 #define protected public
-#include "disallow_distributed_transmission_full_query.h"
+#include "ipolicy_query.h"
 #undef protected
 #undef private
+
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "policy_query_factory.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -69,7 +71,9 @@ void DisallowDistributedTransmissionFullQueryTest::TearDownTestSuite(void)
  */
 HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTransmissionFullQuery001, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowDistributedTransmissionFullQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData{"true"};
     MessageParcel data;
     MessageParcel reply;
@@ -89,7 +93,9 @@ HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTr
  */
 HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTransmissionFullQuery002, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowDistributedTransmissionFullQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData{"false"};
     MessageParcel data;
     MessageParcel reply;
@@ -109,7 +115,9 @@ HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTr
  */
 HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTransmissionFullQuery003, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowDistributedTransmissionFullQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL);
+    ASSERT_NE(queryObj, nullptr);
     std::string policyData{""};
     MessageParcel data;
     MessageParcel reply;
@@ -129,7 +137,9 @@ HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTr
  */
 HWTEST_F(DisallowDistributedTransmissionFullQueryTest, TestDisallowDistributedTransmissionFullQuery004, TestSize.Level1)
 {
-    std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<DisallowDistributedTransmissionFullQuery>();
+    std::shared_ptr<IPolicyQuery> queryObj =
+        PolicyQueryFactory::CreateQuery(EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL);
+    ASSERT_NE(queryObj, nullptr);
     std::string permissionTag = TEST_PERMISSION_TAG_VERSION_11;
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, permissionTag)
         == TEST_PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);

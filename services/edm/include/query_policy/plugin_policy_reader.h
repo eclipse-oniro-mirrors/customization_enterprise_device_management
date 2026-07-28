@@ -36,18 +36,6 @@ public:
         MessageParcel &reply, int32_t userId, const std::string &permissionTag);
 
     ErrCode GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryFirst(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQuerySecond(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryThird(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryFourth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryFifthPartOne(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryFifthPartTwo(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQuerySixth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQuerySeventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryEighth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryNinth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryTenth(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
-    ErrCode GetPolicyQueryEleventh(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
 
 private:
     static std::shared_ptr<PluginPolicyReader> instance_;
