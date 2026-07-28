@@ -32,12 +32,14 @@ ohos_shared_library("adminmanager") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
     "ability_runtime:napi_base_context",
     "c_utils:utils",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_single",
     "napi:ace_napi",
     "node:node_header_notice",

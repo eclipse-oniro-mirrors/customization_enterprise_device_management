@@ -57,6 +57,8 @@ ohos_shared_library("enterprise_admin_extension") {
     "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
@@ -67,7 +69,7 @@ ohos_shared_library("enterprise_admin_extension") {
     "ipc:ipc_napi",
     "napi:ace_napi",
     "node:node_header_notice",
-    "cJSON:cjson",
+    "window_manager:libwm",
   ]
 
   cflags_cc = [
@@ -108,6 +110,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
   external_deps = [
     "ability_base:configuration",
     "ability_runtime:abilitykit_native",
+    "bundle_framework:appexecfwk_core",
     "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
     "ipc:ipc_napi",
@@ -115,6 +118,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
     "napi:ace_napi",
     "node:node_header_notice",
     "resource_management:global_resmgr",
+    "window_manager:libwm",
   ]
 
   relative_install_dir = "extensionability/"
