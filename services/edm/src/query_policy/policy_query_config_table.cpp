@@ -354,7 +354,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
 #endif
     }},
     {EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE, {PolicyName::POLICY_ALLOWED_INSTALL_APP_TYPE,
-        PolicyDataType::INT, PermissionConfig::SpecificPermission(
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_SET_BUNDLE_INSTALL_POLICY), true,
         IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_VPN, {PolicyName::POLICY_DISALLOW_VPN, PolicyDataType::BOOL,

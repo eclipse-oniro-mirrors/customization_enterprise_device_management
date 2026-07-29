@@ -40,6 +40,7 @@
 #include "allowed_usb_devices_query.h"
 #endif
 
+#include "allowed_app_distribution_types_query.h"
 #include "ntp_server_query.h"
 
 #include "is_app_kiosk_allowed_query.h"
@@ -192,6 +193,8 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomAppManageQuery(uin
 #endif
         case EdmInterfaceCode::GET_BUNDLE_INFO_LIST:
             return std::make_shared<InstalledBundleInfoListQuery>();
+        case EdmInterfaceCode::ALLOWED_INSTALL_APP_TYPE:
+            return std::make_shared<AllowedAppDistributionTypesQuery>();
         case EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES:
             return std::make_shared<AllowedNotificationBundlesQuery>();
         case EdmInterfaceCode::NTP_SERVER:
