@@ -2306,7 +2306,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         }
     }
 #endif
-    ReportFuncEvent(code);
     ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, admin.GetBundleName(), data, reply, userId);
     std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
     if (ret == ERR_OK && enterpriseConfigEnable == "false") {
@@ -2316,13 +2315,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ret));
     SecurityReport::ReportSecurityInfo(admin.GetBundleName(), admin.GetAbilityName(), info, false);
     return ret;
-}
-
-void EnterpriseDeviceMgrAbility::ReportFuncEvent(uint32_t code)
-{
-    std::uint32_t ipcCode = FuncCodeUtils::GetPolicyCode(code);
-    std::string apiNameParam = std::to_string(ipcCode);
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, apiNameParam);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -2728,11 +2720,6 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
     if (!GetPermissionChecker()->VerifyCallingPermission(IPCSkeleton::GetCallingTokenID(),
         EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN)) {
         return EdmReturnErrCode::PERMISSION_DENIED;
-    }
-    std::shared_ptr<Admin> subAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, GetCurrentUserId());
-    if (subAdmin && subAdmin->adminInfo_.adminType_ != AdminType::SUB_SUPER_ADMIN) {
-        EDMLOGW("AuthorizeAdmin: %{public}s is an admin, but not sub super admin.", bundleName.c_str());
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     /* Get all request and registered permissions */
     std::vector<std::string> permissionList;
