@@ -28,6 +28,7 @@
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
+#include "enable_source.h"
 #include "extra_policy_notification.h"
 #include "hilog/log.h"
 #include "installed_bundle_info_util.h"
@@ -50,7 +51,8 @@ public:
     ~EnterpriseDeviceMgrAbility() override;
     static sptr<EnterpriseDeviceMgrAbility> GetInstance();
     ErrCode EnableAdmin(
-        const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType, int32_t userId) override;
+        const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType, int32_t userId,
+        EnableSource enableSource = EnableSource::DEPLOY) override;
     ErrCode DisableAdmin(const AppExecFwk::ElementName &admin, int32_t userId) override;
     ErrCode DisableSuperAdmin(const std::string &bundleName) override;
     ErrCode GetEnabledAdmin(AdminType adminType, std::vector<std::string> &enabledAdminList) override;
@@ -83,7 +85,7 @@ public:
     ErrCode GetEnterpriseManagedTips(std::string &tips) override;
     ErrCode EnableSelfDeviceAdmin(const AppExecFwk::ElementName &admin, const std::string &credential) override;
     ErrCode EnableAdmin(const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType,
-        int32_t userId, bool enableSelf) override;
+        int32_t userId, bool enableSelf, EnableSource enableSource = EnableSource::DEPLOY) override;
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -131,7 +133,8 @@ private:
     ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
         const std::string &permissionTag);
     ErrCode EnableAdminWithPermission(const AppExecFwk::ElementName &admin, const EntInfo &entInfo,
-        AdminType adminType, int32_t userId, const std::string &permission);
+        AdminType adminType, int32_t userId, const std::string &permission,
+        EnableSource enableSource = EnableSource::DEPLOY);
     int32_t GetCurrentUserId();
     ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode VerifyEnableAdminCondition(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
@@ -150,9 +153,11 @@ private:
     void UpdateAbilityEnabled(const std::string &bundleName, int32_t userId, int32_t appIndex);
     ErrCode AddDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     ErrCode DelDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
-    void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId);
+    void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
+        EnableSource enableSource);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);
+    void ReportFuncEvent(uint32_t code);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void CheckAndReportInstalledBundleInfoOnStart();
@@ -236,7 +241,7 @@ public:
     ErrCode CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin);
     void OnHandleInitExecute(uint32_t interfaceCode);
     bool IsInMaintenanceMode();
-    ErrCode EnableAdminPreCheck(AdminType type);
+    ErrCode EnableAdminPreCheck(AdminType type, EnableSource enableSource);
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     void CreateLogDirIfNeed(const std::string &path);
     void DeleteLogDirIfNeed(const std::string &adminName);

@@ -16,7 +16,7 @@ import("//build/ohos.gni")
 
 idl_gen_interface("enterprise_device_mgr_idl") {
   sources = [ "IEnterpriseDeviceMgrIdl.idl" ]
-  sources_common = [ "AdminType.idl" ]
+  sources_common = [ "AdminType.idl", "EnableSource.idl" ]
   target_type = "source_set"
   log_domainid = "0xD001E00"
   log_tag = "EDM"

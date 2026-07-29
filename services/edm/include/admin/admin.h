@@ -22,6 +22,7 @@
 #include "admin_type.h"
 #include "edm_errors.h"
 #include "ent_info.h"
+#include "enable_source.h"
 #include "func_code.h"
 #include "managed_event.h"
 #include "running_mode.h"
@@ -40,6 +41,7 @@ struct AdminInfo {
     AdminType adminType_ = AdminType::UNKNOWN;
     bool isDebug_ = false;
     RunningMode runningMode_ = RunningMode::DEFAULT;
+    EnableSource enableSource_ = EnableSource::DEPLOY;
 };
 
 class Admin {

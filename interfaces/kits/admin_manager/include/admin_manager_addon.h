@@ -40,6 +40,7 @@ struct AsyncEnableAdminCallbackInfo : AsyncCallbackInfo {
     EntInfo entInfo;
     int32_t adminType = 0;
     int32_t userId = 0;
+    int32_t enableSource = static_cast<int32_t>(EnableSource::DEPLOY);
 };
 
 struct AsyncDisableAdminCallbackInfo : AsyncCallbackInfo {
@@ -88,6 +89,14 @@ struct AsyncGetSuperAdminCallbackInfo : AsyncCallbackInfo {
 
 struct AsyncGetAdminsCallbackInfo : AsyncCallbackInfo {
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
+};
+
+struct NapiEnumObjects {
+    napi_value adminType = nullptr;
+    napi_value managedEvent = nullptr;
+    napi_value runningMode = nullptr;
+    napi_value policy = nullptr;
+    napi_value enableSource = nullptr;
 };
 
 class AdminManager {
@@ -143,6 +152,8 @@ private:
     static void CreateManagedEventObject(napi_env env, napi_value value);
     static void CreateRunningModeObject(napi_env env, napi_value value);
     static void CreatePolicyObject(napi_env env, napi_value value);
+    static void CreateEnableSourceObject(napi_env env, napi_value value);
+    static NapiEnumObjects CreateEnumObjects(napi_env env);
 
     static void NativeGetSuperAdmin(napi_env env, void *data);
     static void NativeGetEnterpriseManagedTips(napi_env env, void *data);
@@ -159,6 +170,10 @@ private:
     static napi_value HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe);
     static int32_t JsAdminTypeToAdminType(int32_t jsAdminType);
     static int32_t AdminTypeToJsAdminType(int32_t AdminType);
+    static bool JsAdminEnableSourceToEnableSource(int32_t jsAdminEnableSource);
+    static bool ParseEnableSource(napi_env env, napi_value adminArg, AsyncEnableAdminCallbackInfo *callbackInfo);
+    static void ParseEnableAdminParams(napi_env env, size_t argc, napi_value argv[],
+        bool hasUserId, bool hasCallback, AsyncEnableAdminCallbackInfo *callbackInfo);
     static bool CheckByodParams(AppExecFwk::ElementName elementName, const std::string &callerBundleName,
         int32_t adminType, std::map<std::string, std::string> &parameters);
     static napi_value AssertStartAdminProvision(napi_env env, napi_callback_info info);

@@ -86,6 +86,15 @@ namespace EdmConstants {
     const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";
     const char* const APP_IDENTIFIER = "appIdentifier";
 
+    // Install local enterprise app settings database
+    const char* const KEY_INSTALL_LOCAL_APP_POLICY = "com.enterprise.install.local.app.policy";
+    const char* const KEY_INSTALL_LOCAL_APP_USER_POLICY = "com.enterprise.install.local.app.user.policy";
+    const char* const SETTINGS_DATA_BASE_URI =
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
+    const char* const SETTINGS_DATA_SECURE_URI_PREFIX =
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_";
+    const char* const SETTINGS_DATA_URI_SUFFIX = "?Proxy=true";
+
     // app-distribution-type
     constexpr const char* APP_DISTRIBUTION_TYPE_NONE = "none";
 
