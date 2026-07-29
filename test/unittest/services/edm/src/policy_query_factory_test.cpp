@@ -268,7 +268,8 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllowedAppDistributionTypesQuer
     ErrCode ret = query->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(reply.ReadInt32(), ERR_OK);
-    std::vector<int32_t> result = reply.ReadInt32Vector();
+    std::vector<int32_t> result;
+    reply.ReadInt32Vector(result);
     ASSERT_EQ(result.size(), 3);
     ASSERT_EQ(result[0], 1);
     ASSERT_EQ(result[1], 2);
