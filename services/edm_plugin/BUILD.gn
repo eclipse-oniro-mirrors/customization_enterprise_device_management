@@ -76,6 +76,7 @@ ohos_shared_library("device_core_plugin") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "access_token:libprivacy_sdk",
+    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "distributed_notification_service:ans_innerkits",
@@ -306,10 +307,12 @@ ohos_shared_library("communication_plugin") {
   }
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "file_api:securitylabel",
@@ -700,11 +703,13 @@ ohos_shared_library("need_extra_plugin") {
   }
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
@@ -825,6 +830,7 @@ ohos_shared_library("watermark_plugin") {
   }
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
