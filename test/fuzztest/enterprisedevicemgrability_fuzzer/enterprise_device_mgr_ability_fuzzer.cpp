@@ -81,6 +81,7 @@ void InitAdminParam(AdminInfo &adminInfo, std::string fuzzString, EntInfo entInf
     fuzzAdminInfo.permission_ = { fuzzString };
     fuzzAdminInfo.managedEvents_ = { event };
     fuzzAdminInfo.parentAdminName_ = fuzzString;
+    fuzzAdminInfo.enableSource_ = GetData<EnableSource>();
     adminInfo = fuzzAdminInfo;
 }
 
@@ -157,7 +158,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->DelDisallowUninstallAppForAccount(bundleName, userId);
     enterpriseDeviceMgrAbility->HandleKeepPolicy(adminName, newAdminName, edmAdmin, adminPtr->adminInfo_);
-    enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId);
+    enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId, EnableSource::DEPLOY);
     enterpriseDeviceMgrAbility->RemoveAdminAndAdminPolicy(adminName, userId, type);
     enterpriseDeviceMgrAbility->RemoveAdmin(adminName, userId, type);
     enterpriseDeviceMgrAbility->RemoveAdminPolicy(adminName, userId);

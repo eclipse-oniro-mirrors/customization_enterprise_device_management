@@ -103,6 +103,7 @@ int EnterpriseDeviceMgrStubMock::InvokeGetAdmins(std::vector<std::shared_ptr<AAF
     want->SetParam("bundleName", bundleName);
     want->SetParam("abilityName", abilityName);
     want->SetParam("adminType", static_cast<int32_t>(AdminType::BYOD));
+    want->SetParam("enableSource", static_cast<int32_t>(EnableSource::DEPLOY));
     wants.push_back(want);
     return ERR_OK;
 }
@@ -470,6 +471,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetAdmins(uint32_t code, Messa
     want->SetParam("bundleName", bundleName);
     want->SetParam("abilityName", abilityName);
     want->SetParam("adminType", static_cast<int32_t>(AdminType::BYOD));
+    want->SetParam("enableSource", static_cast<int32_t>(EnableSource::DEPLOY));
     reply.WriteParcelable(want.get());
     return 0;
 }

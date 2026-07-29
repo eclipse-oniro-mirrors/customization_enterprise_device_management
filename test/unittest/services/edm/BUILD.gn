@@ -395,6 +395,7 @@ ohos_unittest("EnterpriseDeviceMgrAbilityUnitTest") {
 
   sources = [
     "./src/enterprise_device_mgr_ability_test.cpp",
+    "../../common/mock/src/edm_data_ability_utils_mock.cpp",
   ]
 
   defines = []
