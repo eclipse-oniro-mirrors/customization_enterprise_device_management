@@ -157,7 +157,6 @@ private:
         EnableSource enableSource);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);
-    void ReportFuncEvent(uint32_t code);
     void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
     void InitAgTask();
     void CheckAndReportInstalledBundleInfoOnStart();
