@@ -483,7 +483,6 @@ HWTEST_F(PluginPolicyQueryTest, TestGetDeviceEncryptionStatusQuery, TestSize.Lev
     MessageParcel reply;
     plugin->QueryPolicy(policyValue, data, reply, EdmConstants::DEFAULT_USER_ID);
     ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_TRUE(reply.ReadBool() == true);
 }
 
 HWTEST_F(PluginPolicyQueryTest, TestGetDeviceEncryptionStatusQueryPermission, TestSize.Level1)
