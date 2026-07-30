@@ -60,6 +60,8 @@ public:
     int32_t SetOtaUpdateNonceEnable(MessageParcel &data);
     int32_t IsOtaUpdateNonceEnable(MessageParcel &data, bool &isOtaNonceEnable);
 #endif
+    int32_t SetLocalHotaDomain(MessageParcel &data);
+    int32_t GetLocalHotaDomain(MessageParcel &data, std::string &domain);
 private:
     static std::shared_ptr<SystemManagerProxy> instance_;
     static std::once_flag flag_;

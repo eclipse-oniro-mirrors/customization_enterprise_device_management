@@ -72,7 +72,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
         "A lock screen password has been set for the device."},
     {EdmReturnErrCode::SWITCH_STATUS_FAILED, "switch status failed."},
     {EdmReturnErrCode::CHECK_CREDENTIAL_FAILED, "check credential info fialed, please check the credential."},
-    {EdmReturnErrCode::NOT_ENTERPRISE_DEVICE, "current device is not enterprise device or not offline activation."},
+    {EdmReturnErrCode::NOT_ENTERPRISE_DEVICE, "This device is not an enterprise device."},
     {EdmReturnErrCode::INSTALL_APP_INSUFFICIENT_DISK_SPACE,
         "Failed to install the HAP because of insufficient system disk space."},
     {EdmReturnErrCode::INSTALL_APP_ENTERPRISE_DISALLOWED,

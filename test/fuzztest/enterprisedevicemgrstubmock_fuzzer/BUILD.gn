@@ -244,6 +244,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/bundle_manager/install_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/manage_user_non_stop_apps_plugin.cpp",
       "../../../services/edm_plugin/src/datetime_manager/ntp_server_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/local_hota_domain_plugin.cpp",
       "../../../services/edm_plugin/src/device_control/operate_device_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
       "../../../services/edm_plugin/src/device_settings/power_policy_plugin.cpp",

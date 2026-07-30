@@ -562,6 +562,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/application_manager/kiosk_feature_plugin.cpp",
     "../../../../services/edm_plugin/src/browser/managed_browser_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/datetime_manager/ntp_server_plugin.cpp",
+    "../../../../services/edm_plugin/src/system_manager/local_hota_domain_plugin.cpp",
     "../../../../services/edm_plugin/src/device_control/operate_device_plugin.cpp",
     "../../../../services/edm_plugin/src/device_settings/power_policy_plugin.cpp",
     "../../../../services/edm_plugin/src/device_settings/screen_off_time_plugin.cpp",

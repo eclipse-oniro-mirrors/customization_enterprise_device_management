@@ -83,6 +83,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
+    EdmInterfaceCode::LOCAL_HOTA_DOMAIN,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
