@@ -33,6 +33,7 @@ using namespace OHOS::EDM;
 
 constexpr int64_t MAX_VALIDITY_PERIOD = 31536000000000; // 60 * 60 * 24 * 365 * 1000 * 1000
 static const std::string VALIDITY_PERIOD_OUT_OF_RANGE_ERROR = "validityPeriod out of range!";
+static const std::string WITHOUT_PERMISSION_TAG = "";
 
 napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
 {
@@ -194,16 +195,25 @@ napi_value SecurityManagerAddon::GetPasswordPolicy(napi_env env, napi_callback_i
     napi_value argv[ARGS_SIZE_ONE] = { nullptr };
     napi_value thisArg = nullptr;
     void* data = nullptr;
-    OHOS::AppExecFwk::ElementName elementName;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
 
     PasswordPolicy policy;
     int32_t retCode = EdmReturnErrCode::SYSTEM_ABNORMALLY;
     if (argc >= ARGS_SIZE_ONE) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "admin type error");
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin error");
-        retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(elementName, policy);
+        OHOS::AppExecFwk::ElementName elementName;
+        bool isElement = ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]);
+        bool isNull = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_null);
+        if (!isElement && !isNull) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
+            return nullptr;
+        }
+        if (isNull) {
+            retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(nullptr,
+                policy, WITHOUT_PERMISSION_TAG);
+        } else {
+            retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(&elementName, policy,
+                WITHOUT_PERMISSION_TAG);
+        }
     } else {
         retCode = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordPolicy(policy);
     }

@@ -120,23 +120,24 @@ int32_t SecurityManagerProxy::SetPasswordPolicy(MessageParcel &data)
 int32_t SecurityManagerProxy::GetPasswordPolicy(PasswordPolicy &policy)
 {
     EDMLOGD("SecurityManagerProxy::GetPasswordPolicy innerapi");
-    return GetPasswordPolicy(nullptr, policy);
+    return GetPasswordPolicy(nullptr, policy, EdmConstants::PERMISSION_TAG_SYSTEM_API);
 }
 
 int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName &admin, PasswordPolicy &policy)
 {
     EDMLOGD("SecurityManagerProxy::GetPasswordPolicy");
-    return GetPasswordPolicy(&admin, policy);
+    return GetPasswordPolicy(&admin, policy, WITHOUT_PERMISSION_TAG);
 }
 
-int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy)
+int32_t SecurityManagerProxy::GetPasswordPolicy(const AppExecFwk::ElementName *admin, PasswordPolicy &policy,
+    const std::string &permissionTag)
 {
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
     if (admin == nullptr) {
-        data.WriteString(EdmConstants::PERMISSION_TAG_SYSTEM_API);
+        data.WriteString(permissionTag);
         data.WriteInt32(WITHOUT_ADMIN);
         data.WriteInt32(WITHOUT_ADMIN);
     } else {
