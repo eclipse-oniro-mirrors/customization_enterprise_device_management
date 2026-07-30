@@ -20,6 +20,7 @@
 
 #include "admin_container.h"
 #include "admin_manager.h"
+#include "enable_source.h"
 #include "iplugin.h"
 #include "utils.h"
 
@@ -717,6 +718,68 @@ HWTEST_F(AdminManagerTest, TestGetDisallowedCrossAccountAdmins, TestSize.Level1)
     
     bundleNames= adminMgr_->GetDisallowedCrossAccountAdmins(DEFAULT_USER_ID);
     ASSERT_TRUE(bundleNames.size() == 0);
+}
+
+/**
+ * @tc.name: TestSetAdminValueWithEnableSource
+ * @tc.desc: Test AdminManager::SetAdminValue with enableSource field.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestSetAdminValueWithEnableSource, TestSize.Level1)
+{
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company";
+    AdminInfo adminInfo = {.packageName_ = "com.edm.test.enable_source", .className_ = "testDemo",
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::NORMAL,
+        .isDebug_ = false, .enableSource_ = EnableSource::SELF};
+    ErrCode res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    ASSERT_TRUE(res == ERR_OK);
+
+    std::vector<std::shared_ptr<Admin>> userAdmins;
+    adminMgr_->GetAdmins(userAdmins, DEFAULT_USER_ID);
+    bool found = false;
+    for (auto &admin : userAdmins) {
+        if (admin->adminInfo_.packageName_ == "com.edm.test.enable_source") {
+            EXPECT_TRUE(admin->adminInfo_.enableSource_ == EnableSource::SELF);
+            found = true;
+        }
+    }
+    ASSERT_TRUE(found);
+
+    res = adminMgr_->DeleteAdmin("com.edm.test.enable_source", DEFAULT_USER_ID, AdminType::NORMAL);
+    ASSERT_TRUE(res == ERR_OK);
+}
+
+/**
+ * @tc.name: TestUpdateAdminWithEnableSource
+ * @tc.desc: Test AdminContainer::UpdateAdmin with ENABLE_SOURCE flag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdminManagerTest, TestUpdateAdminWithEnableSource, TestSize.Level1)
+{
+    std::vector<std::string> permissions = {"ohos.permission.EDM_TEST_PERMISSION"};
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "technology company";
+    AdminInfo adminInfo = {.packageName_ = "com.edm.test.update_source", .className_ = "testDemo",
+        .entInfo_ = entInfo, .permission_ = permissions, .adminType_ = AdminType::NORMAL,
+        .isDebug_ = false, .enableSource_ = EnableSource::DEPLOY};
+    ErrCode res = adminMgr_->SetAdminValue(DEFAULT_USER_ID, adminInfo);
+    ASSERT_TRUE(res == ERR_OK);
+
+    AdminInfo updateInfo;
+    updateInfo.enableSource_ = EnableSource::SUPER_ADMIN;
+    AdminContainer::GetInstance()->UpdateAdmin(DEFAULT_USER_ID, "com.edm.test.update_source",
+        ENABLE_SOURCE, updateInfo);
+
+    std::shared_ptr<Admin> admin = adminMgr_->GetAdminByPkgName("com.edm.test.update_source", DEFAULT_USER_ID);
+    ASSERT_TRUE(admin != nullptr);
+    EXPECT_TRUE(admin->adminInfo_.enableSource_ == EnableSource::SUPER_ADMIN);
+
+    res = adminMgr_->DeleteAdmin("com.edm.test.update_source", DEFAULT_USER_ID, AdminType::NORMAL);
+    ASSERT_TRUE(res == ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

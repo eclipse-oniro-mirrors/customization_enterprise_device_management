@@ -176,7 +176,7 @@ ErrCode AdminManager::ReplaceSuperAdminByPackageName(const std::string &packageN
     }
 
     AdminContainer::GetInstance()->UpdateAdmin(EdmConstants::DEFAULT_USER_ID, packageName,
-        PACKAGE_NAME | CLASS_NAME, newAdminInfo);
+        PACKAGE_NAME | CLASS_NAME | ENABLE_SOURCE, newAdminInfo);
     AdminContainer::GetInstance()->UpdateParentAdminName(EdmConstants::DEFAULT_USER_ID, packageName,
         newAdminInfo.packageName_);
 

@@ -23,9 +23,11 @@ namespace EDM {
 class InstallLocalEnterpriseAppEnabledForAccountPlugin : public BasicBoolPlugin {
 public:
     InstallLocalEnterpriseAppEnabledForAccountPlugin();
-
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, bool &data, bool &mergeData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

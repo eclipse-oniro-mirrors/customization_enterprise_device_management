@@ -16,6 +16,7 @@
 #ifndef INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 #define INTERFACES_INNER_API_INCLUDE_ENTERPRISE_DEVICE_MGR_PROXY_H
 
+#include "enable_source.h"
 #include <message_parcel.h>
 
 #include <map>
@@ -41,7 +42,7 @@ public:
     static void DestroyInstance();
 
     ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId,
-        bool enableSelf = false);
+        bool enableSelf = false, EnableSource enableSource = EnableSource::DEPLOY);
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId);
     ErrCode DisableSuperAdmin(const std::string &bundleName);
     ErrCode GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);

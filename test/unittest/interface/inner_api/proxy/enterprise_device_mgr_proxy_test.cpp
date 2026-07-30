@@ -20,6 +20,7 @@
 
 #include "edm_constants.h"
 #include "edm_sys_manager_mock.h"
+#include "enable_source.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "func_code.h"
@@ -86,7 +87,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminSuc, TestSize.Level0)
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
     EntInfo entInfo("test", "this is test");
-    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _))
+    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
@@ -104,7 +105,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminFail, TestSize.Level1)
     admin.SetBundleName("com.edm.test.demo");
     admin.SetAbilityName("com.edm.test.demo.Ability");
     EntInfo entInfo("test", "this is test");
-    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _))
+    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
@@ -877,7 +878,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableAdmin, TestSize.Level1)
     admin.SetAbilityName("com.edm.test.demo.Ability");
     EntInfo entInfo("test", "this is test");
 
-    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _))
+    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
@@ -930,7 +931,7 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestDisableSuperAdmin, TestSize.Level1)
     admin.SetAbilityName("com.edm.test.demo.Ability");
     EntInfo entInfo("test", "this is test");
 
-    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _))
+    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::ENT, DEFAULT_USERID);
@@ -1151,6 +1152,8 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminsSucc, TestSize.Level1)
     EXPECT_TRUE(abilityName == "test.ability");
     int32_t adminType = want->GetIntParam("adminType", -1);
     EXPECT_TRUE(adminType == static_cast<int32_t>(AdminType::BYOD));
+    int32_t enableSource = want->GetIntParam("enableSource", -1);
+    EXPECT_TRUE(enableSource == static_cast<int32_t>(EnableSource::DEPLOY));
 }
 
 /**
@@ -1500,6 +1503,61 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableSelfDeviceAdminFail, TestSize.L
         .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
     ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableSelfDeviceAdmin(admin, credential);
     EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestEnableAdminWithEnableSource
+ * @tc.desc: Test EnableAdmin func with enableSource parameter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminWithEnableSource, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _, EnableSource::SELF))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL,
+        DEFAULT_USERID, false, EnableSource::SELF);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestEnableAdminWithEnableSourceDefault
+ * @tc.desc: Test EnableAdmin func with default enableSource(DEPLOY).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestEnableAdminWithEnableSourceDefault, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName("com.edm.test.demo");
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    EntInfo entInfo("test", "this is test");
+    EXPECT_CALL(*object_, EnableAdmin(_, _, _, _, EnableSource::DEPLOY))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->EnableAdmin(admin, entInfo, AdminType::NORMAL, DEFAULT_USERID);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetAdminsWithEnableSource
+ * @tc.desc: Test GetAdmins func returns enableSource in Want params.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminsWithEnableSource, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetAdmins(_))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeGetAdmins));
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdmins(wants);
+    ASSERT_TRUE(errVal == ERR_OK);
+    ASSERT_TRUE(wants.size() == 1);
+    int32_t enableSource = wants[0]->GetIntParam("enableSource", -1);
+    EXPECT_TRUE(enableSource == static_cast<int32_t>(EnableSource::DEPLOY));
 }
 } // namespace TEST
 } // namespace EDM

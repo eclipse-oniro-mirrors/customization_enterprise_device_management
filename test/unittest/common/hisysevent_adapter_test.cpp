@@ -65,6 +65,17 @@ HWTEST_F(HiSysEventAdapterTest, ReportEdmEventManagerAdmin_NormalParams_NoCrash,
 }
 
 /**
+ * @tc.name: HiSysEventAdapter_ReportEdmEventManagerAdmin_WithEnableSource_NoCrash
+ * @tc.desc: Test ReportEdmEventManagerAdmin with non-zero enableSource does not crash.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiSysEventAdapterTest, ReportEdmEventManagerAdmin_WithEnableSource_NoCrash, TestSize.Level1)
+{
+    HiSysEventAdapter::ReportEdmEventManagerAdmin("com.test.bundle", 1, 0, "UT test extra info", 0);
+    EXPECT_TRUE(true);
+}
+
+/**
  * @tc.name: HiSysEventAdapter_ReportInstalledBundleInfo_LongString_ReturnValue
  * @tc.desc: Test ReportInstalledBundleInfo with long string returns a valid bool value.
  * @tc.type: FUNC

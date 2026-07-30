@@ -43,7 +43,8 @@ public:
     virtual ~EnterpriseDeviceMgrStubMock() = default;
 
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
-    MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType, int32_t), (override));
+    MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType, int32_t,
+        EnableSource), (override));
     MOCK_METHOD(int, DisableAdmin, (const AppExecFwk::ElementName &, int32_t), (override));
     MOCK_METHOD(int, DisableSuperAdmin, (const std::string &), (override));
     MOCK_METHOD(int, GetEnabledAdmin, (AdminType, (std::vector<std::string> &)), (override));
@@ -80,7 +81,7 @@ public:
     MOCK_METHOD(int, GetEnterpriseManagedTips, (std::string &), (override));
     MOCK_METHOD(int, StartAbilityByAdmin, (const AppExecFwk::ElementName &, const AAFwk::Want &), (override));
     MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType,
-        int32_t, bool), (override));
+        int32_t, bool, EnableSource), (override));
     MOCK_METHOD(int, EnableSelfDeviceAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)

@@ -12,19 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "set_install_local_enterprise_app_enabled_plugin_test.h"
- 
+
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
+#define protected public
+#define private public
 #include "basic_bool_plugin.h"
 #include "install_local_enterprise_app_enabled_plugin.h"
+#undef private
+#undef protected
 #include "utils.h"
- 
+
 using namespace testing::ext;
 using namespace testing;
- 
+
 namespace OHOS {
 namespace EDM {
 namespace TEST {
@@ -33,7 +37,7 @@ void SetInstallLocalEnterpriseAppEnabledPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
 }
- 
+
 void SetInstallLocalEnterpriseAppEnabledPluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
@@ -41,45 +45,23 @@ void SetInstallLocalEnterpriseAppEnabledPluginTest::TearDownTestSuite(void)
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
- 
+
 /**
- * @tc.name: TestSetInstallLocalEnterpriseAppEnabledPluginTestSetTrue
- * @tc.desc: Test SetInstallLocalEnterpriseAppEnabledPluginTest OnSetPolicy function.
+ * @tc.name: TestOnGetPolicy
+ * @tc.desc: Test InstallLocalEnterpriseAppEnabledPlugin::OnGetPolicy function.
  * @tc.type: FUNC
  */
-HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnterpriseAppEnabledPluginTestSetTrue,
-    TestSize.Level1)
+HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestOnGetPolicy, TestSize.Level1)
 {
+    std::string policyData;
     MessageParcel data;
     MessageParcel reply;
-    data.WriteBool(true);
-    std::shared_ptr<IPlugin> plugin = std::make_shared<InstallLocalEnterpriseAppEnabledPlugin>();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    int32_t userId = 0;
+    InstallLocalEnterpriseAppEnabledPlugin plugin;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
     ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(OHOS::system::GetBoolParameter(PERSIST_EDM_SET_LOCAL_APP_INSTALL_MODE, false));
-}
- 
-/**
- * @tc.name: TestSetInstallLocalEnterpriseAppEnabledPluginTestSetFalse
- * @tc.desc: Test SetInstallLocalEnterpriseAppEnabledPluginTest OnSetPolicy function.
- * @tc.type: FUNC
- */
-HWTEST_F(SetInstallLocalEnterpriseAppEnabledPluginTest, TestSetInstallLocalEnterpriseAppEnabledPluginTestSetFalse,
-    TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteBool(false);
-    std::shared_ptr<IPlugin> plugin = std::make_shared<InstallLocalEnterpriseAppEnabledPlugin>();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_FALSE(OHOS::system::GetBoolParameter(PERSIST_EDM_SET_LOCAL_APP_INSTALL_MODE, true));
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    ASSERT_FALSE(reply.ReadBool());
 }
 } // namespace TEST
 } // namespace EDM

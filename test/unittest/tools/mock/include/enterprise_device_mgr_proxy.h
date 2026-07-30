@@ -23,6 +23,7 @@
 #include "admin_type.h"
 #include "edm_errors.h"
 #include "element_name.h"
+#include "enable_source.h"
 #include "ent_info.h"
 
 namespace OHOS {
@@ -33,7 +34,8 @@ class EnterpriseDeviceMgrProxy {
 public:
     static std::shared_ptr<EnterpriseDeviceMgrProxy> GetInstance();
 
-    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId);
+    ErrCode EnableAdmin(AppExecFwk::ElementName &admin, EntInfo &entInfo, AdminType type, int32_t userId,
+        EnableSource enableSource = EnableSource::DEPLOY);
     ErrCode DisableAdmin(AppExecFwk::ElementName &admin, int32_t userId);
 
 private:

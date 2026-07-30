@@ -19,6 +19,7 @@
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_rdb_filed_const.h"
+#include "enable_source.h"
 
 namespace OHOS {
 namespace EDM {
@@ -47,7 +48,8 @@ bool AdminPoliciesStorageRdb::CreateAdminPoliciesTable()
         .append(EdmRdbFiledConst::FILED_PARENT_ADMIN + " TEXT,")
         .append(EdmRdbFiledConst::FILED_IS_DEBUG + " INTEGER,")
         .append(EdmRdbFiledConst::FILED_ACCESSIBLE_POLICIES + " TEXT,")
-        .append(EdmRdbFiledConst::FILED_RUNNING_MODE + " INTEGER);");
+        .append(EdmRdbFiledConst::FILED_RUNNING_MODE + " INTEGER,")
+        .append(EdmRdbFiledConst::FILED_ENABLE_SOURCE + " INTEGER DEFAULT 0);");
     auto edmRdbDataManager = EdmRdbDataManager::GetInstance();
     if (edmRdbDataManager != nullptr) {
         return edmRdbDataManager->CreateTable(createTableSql);
@@ -141,6 +143,7 @@ NativeRdb::ValuesBucket AdminPoliciesStorageRdb::CreateInsertValuesBucket(int32_
 {
     NativeRdb::ValuesBucket valuesBucket;
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_RUNNING_MODE, static_cast<int>(admin.runningMode_));
+    valuesBucket.PutInt(EdmRdbFiledConst::FILED_ENABLE_SOURCE, static_cast<int32_t>(admin.enableSource_));
     CreateUpdateValuesBucket(userId, admin, valuesBucket);
     valuesBucket.PutInt(EdmRdbFiledConst::FILED_USER_ID, userId);
     valuesBucket.PutString(EdmRdbFiledConst::FILED_PACKAGE_NAME, admin.packageName_);
@@ -378,6 +381,9 @@ void AdminPoliciesStorageRdb::SetAdminItems(std::shared_ptr<NativeRdb::ResultSet
     int32_t runningMode = 0;
     resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_TWELVE, runningMode);
     adminInfo.runningMode_ = static_cast<RunningMode>(runningMode);
+    int32_t enableSource = 0;
+    resultSet->GetInt(EdmRdbFiledConst::FILED_COLUMN_INDEX_THIRTEEN, enableSource);
+    adminInfo.enableSource_ = static_cast<EnableSource>(enableSource);
 }
 
 void AdminPoliciesStorageRdb::SetManagedEventStr(std::shared_ptr<NativeRdb::ResultSet> resultSet,

@@ -27,7 +27,7 @@ std::shared_ptr<EnterpriseDeviceMgrProxy> EnterpriseDeviceMgrProxy::GetInstance(
 }
 
 ErrCode EnterpriseDeviceMgrProxy::EnableAdmin(AppExecFwk::ElementName& admin, EntInfo& entInfo, AdminType type,
-    int32_t userId)
+    int32_t userId, EnableSource enableSource)
 {
     if (admin.GetAbilityName() == "xxx") {
         return EdmReturnErrCode::COMPONENT_INVALID;
