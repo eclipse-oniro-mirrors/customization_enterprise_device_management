@@ -135,6 +135,10 @@ void UpdatePolicyUtils::ReadUpgradePackageInfo(MessageParcel &data, UpgradePacka
         EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo authInfo is null.");
         return;
     }
+    if (packageInfo.authInfoSize > strlen(authInfo)) {
+        EDMLOGE("UpdatePolicyUtils::ReadUpgradePackageInfo authInfoSize exceeds actual length.");
+        return;
+    }
     errno_t err = memcpy_s(packageInfo.authInfo, sizeof(packageInfo.authInfo), authInfo,
         packageInfo.authInfoSize);
     if (err != EOK) {
