@@ -349,7 +349,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 
         std::vector<std::string> removeData = {RIGHT_TEST_EDM_BUNDLE, ERROR_TEST_EDM_BUNDLE, INVALID_TEST_BUNDLE};
         mergeData.clear();
-        ret = plugin.OnRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID);
+        ret = plugin.OnRemovePolicy(removeData, currentData, mergeData, DEFAULT_USER_ID, false);
         EXPECT_TRUE(ret == ERR_OK);
 
         MessageParcel removeReply;
@@ -400,7 +400,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucWithNullData, TestS
     std::vector<std::string> data;
     std::vector<ManageAutoStartAppInfo> currentData;
     std::vector<ManageAutoStartAppInfo> mergeData;
-    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID, false);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -416,7 +416,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicyFileWithErrBundle, Tes
     std::vector<std::string> data = {ERROR_TEST_EDM_BUNDLE};
     std::vector<ManageAutoStartAppInfo> currentData;
     std::vector<ManageAutoStartAppInfo> mergeData;
-    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID, false);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -449,14 +449,14 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         info.SetBundleName(INVALID_TEST_BUNDLE);
         info.SetAbilityName("");
         currentData.push_back(info);
-        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID, false);
         EXPECT_TRUE(ret == ERR_OK);
 
         data = {RIGHT_TEST_EDM_BUNDLE};
         ManageAutoStartAppInfo info1;
         info1.SetUniqueKey(RIGHT_TEST_BUNDLE);
         currentData = {info1};
-        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID, false);
         EXPECT_TRUE(ret == ERR_OK);
 
         UninstallPlugin uninstallPlugin;
@@ -499,7 +499,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
 
         data = {RIGHT_TEST_EDM_BUNDLE};
         mergeData.clear();
-        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
+        ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID, false);
         EXPECT_TRUE(ret == ERR_OK);
     }
 }

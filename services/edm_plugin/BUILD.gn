@@ -597,8 +597,6 @@ ohos_shared_library("sys_service_plugin") {
         "./src/application_manager/manage_keep_alive_apps_plugin.cpp",
         "./src/utils/bms_utils.cpp",
         "./src/utils/manage_keep_alive_apps_info.cpp",
-        "./src/utils/manage_auto_start_app_info.cpp",
-        "./src/utils/manage_auto_start_apps_serializer.cpp",
         "./src/utils/manage_keep_alive_apps_serializer.cpp",
       ]
     }

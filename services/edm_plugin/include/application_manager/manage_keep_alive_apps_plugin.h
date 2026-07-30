@@ -50,7 +50,7 @@ private:
         int32_t userId);
     ErrCode OnRemovePolicy(std::vector<std::string> &data,
         std::vector<ManageKeepAliveAppInfo> &currentData, std::vector<ManageKeepAliveAppInfo> &mergeData,
-        int32_t userId);
+        int32_t userId, bool isUninstall);
     ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
         int32_t userId, std::vector<ManageKeepAliveAppInfo> &failedData, bool disallowModify);
     void ParseErrCode(ErrCode &ret);

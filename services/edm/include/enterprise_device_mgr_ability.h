@@ -163,6 +163,8 @@ private:
     void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
     void UpdateAllowedPermissionBundleInfo(const std::string &appIdentifier, const std::string &bundleName,
         int32_t userId, int32_t appIndex);
+    void UpdateAutoStartApps(const std::string &bundleName, int32_t userId);
+    void UpdateKeepAliveApps(const std::string &bundleName, int32_t userId);
 
 private:
     struct MatchingAppInfo {
