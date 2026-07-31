@@ -116,7 +116,7 @@ bool AdminManager::JsAdminEnableSourceToEnableSource(int32_t jsAdminEnableSource
 {
     if (jsAdminEnableSource >= static_cast<int32_t>(EnableSource::DEPLOY) &&
         jsAdminEnableSource <= static_cast<int32_t>(EnableSource::INTRANET_DEPLOY)) {
-            return true;
+        return true;
     }
     return false;
 }

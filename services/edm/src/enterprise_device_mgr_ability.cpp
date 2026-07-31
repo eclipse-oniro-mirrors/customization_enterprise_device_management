@@ -1836,7 +1836,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminWithPermission(const AppExecFwk::
     EnableSource enableSource)
 {
     EDMLOGD("EnterpriseDeviceMgrAbility::EnableAdmin");
-    ErrCode res = EnableAdminPreCheck(type);
+    ErrCode res = EnableAdminPreCheck(type, enableSource);
     if (FAILED(res)) {
         return res;
     }
@@ -3240,7 +3240,7 @@ bool EnterpriseDeviceMgrAbility::IsInMaintenanceMode()
     return false;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::EnableAdminPreCheck(AdminType type)
+ErrCode EnterpriseDeviceMgrAbility::EnableAdminPreCheck(AdminType type, EnableSource enableSource)
 {
     if (type != AdminType::NORMAL && type != AdminType::ENT && type != AdminType::BYOD) {
         EDMLOGE("EnterpriseDeviceMgrAbility::EnableAdmin admin type is invalid.");
@@ -3249,6 +3249,16 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminPreCheck(AdminType type)
     if (IsInMaintenanceMode()) {
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
+    if (enableSource < EnableSource::DEPLOY ||
+        enableSource > EnableSource::INTRANET_DEPLOY) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+#ifndef FEATURE_PC_ONLY
+    if (enableSource != EnableSource::DEPLOY &&
+        enableSource != EnableSource::INTRANET_DEPLOY) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+#endif
     return ERR_OK;
 }
 
