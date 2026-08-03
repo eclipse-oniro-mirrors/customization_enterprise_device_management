@@ -202,7 +202,7 @@ napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
 {
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_Install called");
-    return InstallCommon(env, info, "NativeInstall", NativeInstall, true);
+    return InstallCommon(env, info, "NativeInstall", NativeInstall, true, ErrcodeType::STRING);
 #else
     EDMLOGW("BundleManagerAddon::Install Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -214,7 +214,7 @@ napi_value BundleManagerAddon::InstallForResult(napi_env env, napi_callback_info
 {
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_InstallForResult called");
-    return InstallCommon(env, info, "NativeInstallForResult", NativeInstallForResult, false);
+    return InstallCommon(env, info, "NativeInstallForResult", NativeInstallForResult, false, ErrcodeType::NUMBER);
 #else
     EDMLOGW("BundleManagerAddon::InstallForResult Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
@@ -223,7 +223,7 @@ napi_value BundleManagerAddon::InstallForResult(napi_env env, napi_callback_info
 }
 
 napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info info, const std::string &funcName,
-    napi_async_execute_callback execute, bool isSupportCallback)
+    napi_async_execute_callback execute, bool isSupportCallback, ErrcodeType errcodeType)
 {
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_InstallCommon called, funcName: %{public}s", funcName.c_str());
@@ -238,6 +238,7 @@ napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info in
         return nullptr;
     }
     std::unique_ptr<AsyncInstallCallbackInfo> callbackPtr{asyncCallbackInfo};
+    asyncCallbackInfo->errcodeType = errcodeType;
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
     if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo, isSupportCallback)) {
         if (asyncCallbackInfo->callback != nullptr) {
