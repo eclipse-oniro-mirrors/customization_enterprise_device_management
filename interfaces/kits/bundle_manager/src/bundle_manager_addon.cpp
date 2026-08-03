@@ -202,7 +202,7 @@ napi_value BundleManagerAddon::Install(napi_env env, napi_callback_info info)
 {
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_Install called");
-    return InstallCommon(env, info, "NativeInstall", NativeInstall, true);
+    return InstallCommon(env, info, "NativeInstall", NativeInstall, true, ErrcodeType::STRING);
 #else
     EDMLOGW("BundleManagerAddon::Install Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
@@ -214,7 +214,7 @@ napi_value BundleManagerAddon::InstallForResult(napi_env env, napi_callback_info
 {
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_InstallForResult called");
-    return InstallCommon(env, info, "NativeInstallForResult", NativeInstallForResult, false);
+    return InstallCommon(env, info, "NativeInstallForResult", NativeInstallForResult, false, ErrcodeType::NUMBER);
 #else
     EDMLOGW("BundleManagerAddon::InstallForResult Unsupported Capabilities.");
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
@@ -223,7 +223,7 @@ napi_value BundleManagerAddon::InstallForResult(napi_env env, napi_callback_info
 }
 
 napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info info, const std::string &funcName,
-    napi_async_execute_callback execute, bool isSupportCallback)
+    napi_async_execute_callback execute, bool isSupportCallback, ErrcodeType errcodeType)
 {
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     EDMLOGI("NAPI_InstallCommon called, funcName: %{public}s", funcName.c_str());
@@ -238,8 +238,9 @@ napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info in
         return nullptr;
     }
     std::unique_ptr<AsyncInstallCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
-    if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo, isSupportCallback)) {
+    asyncCallbackInfo->errcodeType = errcodeType;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", errcodeType);
+    if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo, isSupportCallback, errcodeType)) {
         if (asyncCallbackInfo->callback != nullptr) {
             NAPI_CALL(env, napi_delete_reference(env, asyncCallbackInfo->callback));
         }
@@ -252,7 +253,7 @@ napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info in
     return asyncWorkReturn;
 #else
     EDMLOGW("BundleManagerAddon::InstallCommon Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, errcodeType));
     return nullptr;
 #endif
 }
@@ -435,12 +436,14 @@ bool BundleManagerAddon::jsObjectToInstallParam(napi_env env, napi_value object,
 }
 
 bool BundleManagerAddon::CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
-    AsyncInstallCallbackInfo *asyncCallbackInfo, bool isSupportCallback)
+    AsyncInstallCallbackInfo *asyncCallbackInfo, bool isSupportCallback, ErrcodeType errcodeType)
 {
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter want error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, asyncCallbackInfo->hapFilePaths, argv[ARR_INDEX_ONE]),
-        "Parameter bundleFilePaths error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
+        ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error", errcodeType);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
+        ParseStringArray(env, asyncCallbackInfo->hapFilePaths, argv[ARR_INDEX_ONE]),
+        "Parameter bundleFilePaths error", errcodeType);
     if (argc == ARGS_SIZE_TWO) {
         return true;
     }
@@ -451,20 +454,21 @@ bool BundleManagerAddon::CheckAndParseInstallParamType(napi_env env, size_t argc
             EDMLOGE("CheckAndParseInstallParamType Error: Do not support callback");
             return false;
         }
-        ASSERT_AND_THROW_PARAM_ERROR(env,
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
             ParseCallback(env, asyncCallbackInfo->callback,
                 argc <= ARGS_SIZE_FOUR ? argv[argc - 1] : argv[ARGS_SIZE_THREE]),
-            "Parameter callback error");
+            "Parameter callback error", errcodeType);
         EDMLOGI("CheckAndParseInstallParamType ParseCallback success");
         if (argc == ARGS_SIZE_FOUR) {
-            ASSERT_AND_THROW_PARAM_ERROR(env,
+            ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
                 jsObjectToInstallParam(env, argv[ARR_INDEX_TWO], asyncCallbackInfo->installParam),
-                "installParam param error");
+                "installParam param error", errcodeType);
         }
         return true;
     }
-    ASSERT_AND_THROW_PARAM_ERROR(env, jsObjectToInstallParam(env, argv[ARR_INDEX_TWO], asyncCallbackInfo->installParam),
-        "installParam param error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
+        jsObjectToInstallParam(env, argv[ARR_INDEX_TWO], asyncCallbackInfo->installParam),
+        "installParam param error", errcodeType);
     return true;
 }
 #endif

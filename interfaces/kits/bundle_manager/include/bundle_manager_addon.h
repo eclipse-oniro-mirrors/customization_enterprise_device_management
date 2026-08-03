@@ -119,7 +119,7 @@ private:
     static void NativeInstall(napi_env env, void *data);
     static void NativeInstallForResult(napi_env env, void *data);
     static napi_value InstallCommon(napi_env env, napi_callback_info info, const std::string &funcName,
-        napi_async_execute_callback execute, bool isSupportCallback);
+        napi_async_execute_callback execute, bool isSupportCallback, ErrcodeType errcodeType);
     static void NativeInstallCommon(napi_env env, void *data, bool isInstallForResult);
     static void NativeGetInstalledBundleList(napi_env env, void *data);
     static void NativeGetInstalledBundleListComplete(napi_env env, napi_status status, void *data);
@@ -135,7 +135,7 @@ private:
         napi_value &result);
 #ifdef BUNDLE_FRAMEWORK_EDM_ENABLE
     static bool CheckAndParseInstallParamType(napi_env env, size_t argc, napi_value *argv,
-        AsyncInstallCallbackInfo *asyncCallbackInfo, bool isSupportCallback);
+        AsyncInstallCallbackInfo *asyncCallbackInfo, bool isSupportCallback, ErrcodeType errcodeType);
     static bool jsObjectToInstallParam(napi_env env, napi_value object, OHOS::AppExecFwk::InstallParam &installParam);
     static bool ParseParameters(napi_env env, napi_value object, std::map<std::string, std::string> &parameters);
     static void ConvertVectorBundleToJs(napi_env env, const std::vector<EdmBundleInfo> &bundleVector,
