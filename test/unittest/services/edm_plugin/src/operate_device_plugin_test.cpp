@@ -63,8 +63,9 @@ HWTEST_F(OperateDevicePluginTest, TestLockScreenFail, TestSize.Level1)
     SetSelfTokenID(0);
     ErrCode ret = plugin.OnSetPolicy(param, reply);
     SetSelfTokenID(selfTokenId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == EdmReturnErrCode::DISK_ERASE_FAILED);
 }
+
 /**
  * @tc.name: TestLockScreenSuccess
  * @tc.desc: Test OperateDevicePlugin::OnSetPolicy function success.
@@ -95,7 +96,7 @@ HWTEST_F(OperateDevicePluginTest, TestShutdown, TestSize.Level1)
     OperateDeviceParam param{EdmConstants::DeviceControl::SHUT_DOWN, "", userId};
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == EdmReturnErrCode::DISK_ERASE_FAILED);
     SetSelfTokenID(selfTokenId);
 }
 
@@ -113,7 +114,7 @@ HWTEST_F(OperateDevicePluginTest, TestReboot, TestSize.Level1)
     OperateDeviceParam param{EdmConstants::DeviceControl::REBOOT, "", userId};
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == EdmReturnErrCode::DISK_ERASE_FAILED);
     SetSelfTokenID(selfTokenId);
 }
 
@@ -131,7 +132,7 @@ HWTEST_F(OperateDevicePluginTest, TestResetFactory, TestSize.Level1)
     OperateDeviceParam param{EdmConstants::DeviceControl::RESET_FACTORY, "", userId};
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == EdmReturnErrCode::DISK_ERASE_FAILED);
     SetSelfTokenID(selfTokenId);
 }
 } // namespace TEST
