@@ -239,7 +239,7 @@ napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info in
     }
     std::unique_ptr<AsyncInstallCallbackInfo> callbackPtr{asyncCallbackInfo};
     asyncCallbackInfo->errcodeType = errcodeType;
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "Parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", errcodeType);
     if (!CheckAndParseInstallParamType(env, argc, argv, asyncCallbackInfo, isSupportCallback)) {
         if (asyncCallbackInfo->callback != nullptr) {
             NAPI_CALL(env, napi_delete_reference(env, asyncCallbackInfo->callback));
@@ -253,7 +253,7 @@ napi_value BundleManagerAddon::InstallCommon(napi_env env, napi_callback_info in
     return asyncWorkReturn;
 #else
     EDMLOGW("BundleManagerAddon::InstallCommon Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, errcodeType));
     return nullptr;
 #endif
 }
