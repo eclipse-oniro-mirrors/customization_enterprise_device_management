@@ -55,6 +55,8 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
             GetInstallLocalEnterpriseAppEnabledForAccount),
         DECLARE_NAPI_FUNCTION("setOtaUpdateNonceEnable", SetOtaUpdateNonceEnable),
         DECLARE_NAPI_FUNCTION("isOtaUpdateNonceEnable", IsOtaUpdateNonceEnable),
+        DECLARE_NAPI_FUNCTION("setLocalHotaDomain", SetLocalHotaDomain),
+        DECLARE_NAPI_FUNCTION("getLocalHotaDomain", GetLocalHotaDomain),
     };
     NAPI_CALL_RETURN_VOID(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 }
@@ -1301,6 +1303,60 @@ napi_value SystemManagerAddon::GetInstallLocalEnterpriseAppEnabledForAccount(nap
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
+}
+
+napi_value SystemManagerAddon::SetLocalHotaDomain(napi_env env, napi_callback_info info)
+{
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGI("SetLocalHotaDomain Addon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetLocalHotaDomain";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetLocalHotaDomain(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("SetLocalHotaDomain failed!");
+    }
+    return nullptr;
+#else
+    EDMLOGW("SystemManagerAddon::SetLocalHotaDomain Unsupported Capabilities");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#endif
+}
+
+napi_value SystemManagerAddon::GetLocalHotaDomain(napi_env env, napi_callback_info info)
+{
+    std::string domain;
+    napi_value domainString = nullptr;
+#if defined(FEATURE_PC_ONLY)
+    EDMLOGI("GetLocalHotaDomain Addon called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetLocalHotaDomain";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetLocalHotaDomain(adapterAddonData.data, domain);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("GetLocalHotaDomain failed!");
+        return nullptr;
+    }
+#endif
+    NAPI_CALL(env, napi_create_string_utf8(env, domain.c_str(), domain.size(), &domainString));
+    return domainString;
 }
 
 static napi_module g_systemManagerModule = {

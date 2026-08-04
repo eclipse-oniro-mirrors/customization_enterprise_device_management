@@ -386,5 +386,29 @@ int32_t SystemManagerProxy::IsActivationLockDisabled(AppExecFwk::ElementName &ad
     reply.ReadBool(result);
     return ERR_OK;
 }
+
+int32_t SystemManagerProxy::SetLocalHotaDomain(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetLocalHotaDomain");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCAL_HOTA_DOMAIN);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string &domain)
+{
+    EDMLOGD("SystemManagerProxy::GetLocalHotaDomain");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("SystemManagerProxy::GetLocalHotaDomain fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(domain);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

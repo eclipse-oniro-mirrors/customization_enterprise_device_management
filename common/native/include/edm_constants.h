@@ -528,6 +528,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_DEVICE_SUDO = "disallowed_device_sudo";
     const char* const POLICY_ACTIVATE_NORMAL_OS_ACCOUNT = "activate_normal_os_account";
     const char* const POLICY_MANAGE_NORMAL_OS_ACCOUNT = "manage_normal_os_account";
+    const char* const POLICY_LOCAL_HOTA_DOMAIN = "local_hota_domain";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
