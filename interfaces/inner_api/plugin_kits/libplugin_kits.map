@@ -24,6 +24,7 @@
             OHOS::EDM::Array*Serializer::*;
             OHOS::EDM::Basic*Plugin::*;
             OHOS::EDM::IEdmBluetoothManager::*;
+            OHOS::EDM::IEdmCellularDataManager::*;
             non-virtual?thunk?to?OHOS::EDM::Array*Serializer::*;
             vtable?for?OHOS::EDM::*Serializer;
             vtable?for?OHOS::EDM::IPlugin;
