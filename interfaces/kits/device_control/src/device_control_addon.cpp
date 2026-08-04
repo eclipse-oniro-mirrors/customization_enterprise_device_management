@@ -257,14 +257,16 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
 void DeviceControlAddon::ThrowOperateDeviceError(napi_env env, int32_t ret, ErrcodeType errcodeType)
 {
     if (errcodeType == ErrcodeType::NUMBER) {
-        if (ret == EdmReturnErrCode::PARAM_ERROR || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
-            napi_throw(env,
-                CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        } else {
-            napi_throw(env, CreateError(env, ret, errcodeType));
-        }
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     } else {
-        napi_throw(env, CreateError(env, ret));
+        if (ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
+        } else if (ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED ||
+            ret == EdmReturnErrCode::DISK_ERASE_FAILED) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        } else {
+            napi_throw(env, CreateError(env, ret));
+        }
     }
 }
 

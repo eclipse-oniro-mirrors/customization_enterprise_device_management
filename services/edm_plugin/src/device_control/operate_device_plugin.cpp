@@ -69,14 +69,14 @@ ErrCode OperateDevicePlugin::OnFactoryReset(MessageParcel &reply)
     std::string isDisabled = OHOS::system::GetParameter(DISALLOWED_RESET_FACTORY_PARAM, EdmConstants::CONST_FALSE);
     if (isDisabled == EdmConstants::CONST_TRUE) {
         EDMLOGE("OperateDevicePlugin:OnFactoryReset factory reset is disabled by restriction");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     UpdateService::BusinessError businessError;
     int32_t ret = UpdateService::UpdateServiceKits::GetInstance().ForceFactoryReset(businessError);
     if (FAILED(ret)) {
         EDMLOGE("OperateDevicePlugin:OnSetPolicy send request fail. %{public}d", ret);
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::DISK_ERASE_FAILED);
+        return EdmReturnErrCode::DISK_ERASE_FAILED;
     }
     reply.WriteInt32(ERR_OK);
     return ERR_OK;
@@ -89,8 +89,8 @@ ErrCode OperateDevicePlugin::OnSetPolicy(OperateDeviceParam &param, MessageParce
         int32_t ret = ScreenLock::ScreenLockManager::GetInstance()->Lock(param.userId);
         if (ret != ScreenLock::E_SCREENLOCK_OK) {
             EDMLOGE("OperateDevicePlugin:OnSetPolicy send request fail. %{public}d", ret);
-            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            reply.WriteInt32(EdmReturnErrCode::DISK_ERASE_FAILED);
+            return EdmReturnErrCode::DISK_ERASE_FAILED;
         }
         reply.WriteInt32(ERR_OK);
         return ERR_OK;
@@ -106,8 +106,8 @@ ErrCode OperateDevicePlugin::OnSetPolicy(OperateDeviceParam &param, MessageParce
         }
         if (ret != PowerMgr::PowerErrors::ERR_OK) {
             EDMLOGE("OperateDevicePlugin:OnSetPolicy send request fail. %{public}d", int32_t(ret));
-            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            reply.WriteInt32(EdmReturnErrCode::DISK_ERASE_FAILED);
+            return EdmReturnErrCode::DISK_ERASE_FAILED;
         }
         reply.WriteInt32(ERR_OK);
         return ERR_OK;
