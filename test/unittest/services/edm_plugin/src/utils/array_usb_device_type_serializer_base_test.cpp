@@ -319,18 +319,19 @@ HWTEST_F(ArrayUsbDeviceTypeSerializerBaseTest,
 }
 
 /**
- * @tc.name: ArrayUsbDeviceTypeSerializerBase_Deserialize_MissingField_Fail
- * @tc.desc: Test Deserialize when JSON is missing required field.
+ * @tc.name: ArrayUsbDeviceTypeSerializerBase_Deserialize_MissingOptionalField_Success
+ * @tc.desc: Test Deserialize when JSON is missing optional field isDeviceTypeAllMatch.
  * @tc.type: FUNC
  */
 HWTEST_F(ArrayUsbDeviceTypeSerializerBaseTest,
-    ArrayUsbDeviceTypeSerializerBase_Deserialize_MissingField_Fail, TestSize.Level1)
+    ArrayUsbDeviceTypeSerializerBase_Deserialize_MissingOptionalField_Success, TestSize.Level1)
 {
     auto serializer = ArrayUsbDeviceTypeSerializer::GetInstance();
     std::string jsonString = R"([{"baseClass":1,"subClass":2,"protocol":3,"isDeviceType":false}])";
     std::vector<USB::UsbDeviceType> dataObj;
     bool ret = serializer->Deserialize(jsonString, dataObj);
-    ASSERT_FALSE(ret);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(dataObj.size(), 1);
 }
 
 /**
@@ -675,6 +676,37 @@ HWTEST_F(ArrayUsbDeviceTypeSerializerBaseTest,
 
     std::vector<USB::UsbDeviceType> res = serializer->SetDifferencePolicyData(data, currentData);
     ASSERT_TRUE(res.empty());
+}
+
+/**
+ * @tc.name: ArrayUsbDeviceTypeSerializerBase_Deserialize_MissingRequiredField_Fail
+ * @tc.desc: Test Deserialize when JSON is missing required field isDeviceType.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceTypeSerializerBaseTest,
+    ArrayUsbDeviceTypeSerializerBase_Deserialize_MissingRequiredField_Fail, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceTypeSerializer::GetInstance();
+    std::string jsonString = R"([{"baseClass":1,"subClass":2,"protocol":3}])";
+    std::vector<USB::UsbDeviceType> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: ArrayUsbDeviceTypeSerializerBase_Deserialize_IsDeviceTypeAllMatchWrongType_Fail
+ * @tc.desc: Test Deserialize when isDeviceTypeAllMatch field exists but is not a boolean type.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ArrayUsbDeviceTypeSerializerBaseTest,
+    ArrayUsbDeviceTypeSerializerBase_Deserialize_IsDeviceTypeAllMatchWrongType_Fail, TestSize.Level1)
+{
+    auto serializer = ArrayUsbDeviceTypeSerializer::GetInstance();
+    std::string jsonString =
+        R"([{"baseClass":1,"subClass":2,"protocol":3,"isDeviceType":false,"isDeviceTypeAllMatch":123}])";
+    std::vector<USB::UsbDeviceType> dataObj;
+    bool ret = serializer->Deserialize(jsonString, dataObj);
+    ASSERT_FALSE(ret);
 }
 
 } // namespace TEST

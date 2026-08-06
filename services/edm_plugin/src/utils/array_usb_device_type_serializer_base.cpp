@@ -71,15 +71,19 @@ bool ArrayUsbDeviceTypeSerializerBase::Deserialize(const std::string &jsonString
         cJSON* protocol = cJSON_GetObjectItem(item, PROTOCOL.c_str());
         cJSON* isDeviceType = cJSON_GetObjectItem(item, IS_DEVICE_TYPE.c_str());
         cJSON* isDeviceTypeAllMatch = cJSON_GetObjectItem(item, IS_DEVICE_TYPE_ALL_MATCH.c_str());
-        if (baseClass == nullptr || subClass == nullptr || protocol == nullptr || isDeviceType == nullptr ||
-            isDeviceTypeAllMatch == nullptr) {
+        if (baseClass == nullptr || subClass == nullptr || protocol == nullptr || isDeviceType == nullptr) {
             EDMLOGI("ArrayUsbDeviceTypeSerializerBase::cJSON_GetObjectItem get null.");
             cJSON_Delete(root);
             return false;
         }
         if (!cJSON_IsNumber(baseClass) || !cJSON_IsNumber(subClass) || !cJSON_IsNumber(protocol) ||
-            !cJSON_IsBool(isDeviceType) || !cJSON_IsBool(isDeviceTypeAllMatch)) {
+            !cJSON_IsBool(isDeviceType)) {
             EDMLOGI("ArrayUsbDeviceTypeSerializerBase::cJSON_GetObjectItem get error type.");
+            cJSON_Delete(root);
+            return false;
+        }
+        if (isDeviceTypeAllMatch != nullptr && !cJSON_IsBool(isDeviceTypeAllMatch)) {
+            EDMLOGI("ArrayUsbDeviceTypeSerializerBase::isDeviceTypeAllMatch type error.");
             cJSON_Delete(root);
             return false;
         }
@@ -88,7 +92,8 @@ bool ArrayUsbDeviceTypeSerializerBase::Deserialize(const std::string &jsonString
         usbDeviceType.subClass = cJSON_GetNumberValue(subClass);
         usbDeviceType.protocol = cJSON_GetNumberValue(protocol);
         usbDeviceType.isDeviceType = cJSON_IsTrue(isDeviceType);
-        usbDeviceType.isDeviceTypeAllMatch = cJSON_IsTrue(isDeviceTypeAllMatch);
+        usbDeviceType.isDeviceTypeAllMatch = (isDeviceTypeAllMatch != nullptr) ?
+            cJSON_IsTrue(isDeviceTypeAllMatch) : false;
         dataObj.emplace_back(usbDeviceType);
     }
 
