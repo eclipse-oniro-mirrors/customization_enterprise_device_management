@@ -200,7 +200,6 @@ bool ParseString(napi_env env, std::string &param, napi_value args)
         EDMLOGE("can not get string value");
         return false;
     }
-    EDMLOGD("ParseString param = %{public}s.", param.c_str());
     return true;
 }
 
