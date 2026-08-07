@@ -571,7 +571,7 @@ int32_t ApplicationManagerProxy::GetDockApps(const AppExecFwk::ElementName &admi
 bool ApplicationManagerProxy::ParseDockInfos(MessageParcel &reply, std::vector<DockInfo> &dockInfos)
 {
     int32_t size = reply.ReadInt32();
-    if (size < 0 || size > EdmConstants::POLICIES_MAX_SIZE) {
+    if (size < 0 || size > static_cast<int32_t>(EdmConstants::POLICIES_MAX_SIZE)) {
         return false;
     }
     dockInfos.clear();

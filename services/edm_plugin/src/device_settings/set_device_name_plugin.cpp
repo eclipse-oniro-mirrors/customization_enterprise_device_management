@@ -65,7 +65,7 @@ ErrCode SetDeviceNamePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParce
     HandlePolicyData &policyData, int32_t userId)
 {
     std::string handleData = data.ReadString();
-    EDMLOGI("SetDeviceNamePlugin start set set deviceName data = %{public}s.", handleData.c_str());
+    EDMLOGI("SetDeviceNamePlugin start set deviceName.");
     if (handleData.empty()) {
         EDMLOGE("OnHandlePolicy deviceName is empty.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
