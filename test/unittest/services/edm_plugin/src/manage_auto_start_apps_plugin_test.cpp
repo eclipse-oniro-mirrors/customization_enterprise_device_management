@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <filesystem>
+
 #define protected public
 #define private public
 #include "manage_auto_start_apps_plugin_test.h"
@@ -50,12 +52,18 @@ const std::string ERROR_TEST_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo
 const std::string ERROR_TEST_EDM_BUNDLE = "com.example.l3jsdemo/com.example.l3jsdemo.ErrorAbility/false";
 const std::string INVALID_TEST_BUNDLE = "com.example.l3jsdemo.com.example.l3jsdemo.ErrorAbility";
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
+const std::string HAP_FILE_PATH_BAK = "/data/test/resource/enterprise_device_management/hap_bak/right.hap";
 const std::string BOOT_OEM_MODE = "const.boot.oemmode";
 const std::string DEVELOP_PARAM = "rd";
 const std::string USER_MODE = "user";
 void ManageAutoStartAppsPluginTest::SetUpTestSuite(void)
 {
     Utils::SetEdmInitialEnv();
+}
+
+void ManageAutoStartAppsPluginTest::SetUp()
+{
+    std::filesystem::copy_file(HAP_FILE_PATH_BAK, HAP_FILE_PATH, std::filesystem::copy_options::overwrite_existing);
 }
 
 void ManageAutoStartAppsPluginTest::TearDownTestSuite(void)
