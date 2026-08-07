@@ -531,5 +531,79 @@ int32_t SecurityManagerProxy::GetWatermarkImageApps(MessageParcel &data, std::ve
     }
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::OpenSession(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("SecurityManagerProxy::OpenSession");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USER_EXT_SESSION);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+}
+
+int32_t SecurityManagerProxy::CloseSession(MessageParcel &data)
+{
+    EDMLOGI("SecurityManagerProxy::CloseSession");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::USER_EXT_SESSION);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::AddUserExtCredential(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("SecurityManagerProxy::AddUserExtCredential");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USER_EXT_CREDENTIAL);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+}
+
+int32_t SecurityManagerProxy::RemoveUserExtCredential(MessageParcel &data)
+{
+    EDMLOGI("SecurityManagerProxy::RemoveUserExtCredential");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::USER_EXT_CREDENTIAL);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetUserExtCredential(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("SecurityManagerProxy::GetUserExtCredential");
+    if (!EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply)) {
+        EDMLOGE("SecurityManagerProxy:GetUserExtCredential GetPolicy fail");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetUserExtCredential fail. %{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t SecurityManagerProxy::SetUnlockPolicy(MessageParcel &data)
+{
+    EDMLOGI("SecurityManagerProxy::SetUnlockPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::UNLOCK_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetUnlockPolicy(MessageParcel &data, int32_t &policy)
+{
+    EDMLOGI("SecurityManagerProxy::GetUnlockPolicy");
+    MessageParcel reply;
+    if (!EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::UNLOCK_POLICY, data, reply)) {
+        EDMLOGE("SecurityManagerProxy:GetUnlockPolicy GetPolicy fail");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetUnlockPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    policy = reply.ReadInt32();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

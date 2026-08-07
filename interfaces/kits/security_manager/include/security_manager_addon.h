@@ -93,6 +93,21 @@ private:
     static napi_value AddOrRemoveAllowedPermissionBundle(napi_env env, napi_callback_info info, bool isAdd);
     static napi_value GetAllowedPermissionBundles(napi_env env, napi_callback_info info);
     static napi_value GetWatermarkImageApps(napi_env env, napi_callback_info info);
+    static napi_value OpenSession(napi_env env, napi_callback_info info);
+    static napi_value CloseSession(napi_env env, napi_callback_info info);
+    static napi_value AddUserExtCredential(napi_env env, napi_callback_info info);
+    static napi_value RemoveUserExtCredential(napi_env env, napi_callback_info info);
+    static napi_value GetUserExtCredential(napi_env env, napi_callback_info info);
+    static napi_value SetUnlockPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetUnlockPolicy(napi_env env, napi_callback_info info);
+    static void CreateUnlockPolicyObject(napi_env env, napi_value value);
+    static void NativeOpenSession(napi_env env, void *data);
+    static void NativeOpenSessionComplete(napi_env env, napi_status status, void *data);
+    static void NativeAddUserExtCredential(napi_env env, void *data);
+    static void NativeAddUserExtCredentialComplete(napi_env env, napi_status status, void *data);
+    static void NativeGetUserExtCredential(napi_env env, void *data);
+    static void NativeGetUserExtCredentialComplete(napi_env env, napi_status status, void *data);
+    static std::vector<napi_property_descriptor> InitOne(napi_value nUnlockPolicy);
 };
 } // namespace EDM
 } // namespace OHOS

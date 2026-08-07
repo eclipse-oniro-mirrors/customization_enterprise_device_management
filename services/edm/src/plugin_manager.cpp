@@ -77,7 +77,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN, EdmInterfaceCode::SET_ABILITY_ENABLED,
     EdmInterfaceCode::SET_DEVICE_NAME, EdmInterfaceCode::SET_FLOATING_NAVIGATION,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
-    EdmInterfaceCode::DISALLOW_CORE_DUMP,
+    EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::UNLOCK_POLICY,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
@@ -123,7 +123,8 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::PERMISSION_MANAGED_STATE, EdmInterfaceCode::ALLOW_RUNNING_BUNDLES,
     EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS,
     EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES, EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS,
-    EdmInterfaceCode::DISALLOWED_PERMISSION, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE
+    EdmInterfaceCode::DISALLOWED_PERMISSION, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE,
+    EdmInterfaceCode::USER_EXT_SESSION, EdmInterfaceCode::USER_EXT_CREDENTIAL
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {

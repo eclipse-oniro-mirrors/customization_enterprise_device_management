@@ -508,6 +508,25 @@ ohos_static_library("edmservice_fuzz_static") {
       defines += [ "FEATURE_PC_ONLY" ]
     }
 
+    if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+      external_deps += [
+        "user_auth_framework:userauth_client",
+        "os_account:account_iam_innerkits",
+        "os_account:os_account_innerkits",
+        "os_account:domain_account_innerkits",
+      ]
+      sources += [
+        "../../../services/edm_plugin/src/security_manager/user_ext_session_plugin.cpp",
+        "../../../services/edm_plugin/src/security_manager/user_ext_credential_plugin.cpp",
+      ]
+    }
+
+    if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
+      sources += [
+        "../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp",
+      ]
+    }
+
     if (!enterprise_device_management_feature_pc_only &&
         cellular_data_edm_enable && telephony_core_edm_enable) {
       external_deps += [

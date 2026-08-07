@@ -222,6 +222,10 @@ ohos_shared_library("device_core_plugin") {
       sources += [ "./src/device_settings/disable_screen_lock_plugin.cpp" ]
     }
 
+    if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
+      sources += [ "./src/security_manager/unlock_policy_plugin.cpp" ]
+    }
+
     if (!enterprise_device_management_feature_pc_only) {
       sources += [
         "./src/restrictions/disable_backup_and_restore_plugin.cpp",
@@ -643,6 +647,18 @@ ohos_shared_library("sys_service_plugin") {
 
     if (notification_edm_enable) {
         sources += [ "./src/restrictions/disallowed_notification_plugin.cpp" ]
+    }
+
+    if (enterprise_device_management_feature_pc_only) {
+      external_deps += [
+        "os_account:account_iam_innerkits",
+        "os_account:domain_account_innerkits",
+      ]
+      sources += [
+        "./src/security_manager/ukey_iam_error_converter.cpp",
+        "./src/security_manager/user_ext_session_plugin.cpp",
+        "./src/security_manager/user_ext_credential_plugin.cpp",
+      ]
     }
   }
   deps = [

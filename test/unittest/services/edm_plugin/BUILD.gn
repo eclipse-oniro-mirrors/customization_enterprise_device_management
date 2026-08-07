@@ -366,6 +366,21 @@ ohos_unittest("EdmPluginTest") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/security_manager/unlock_policy_plugin_test.cpp" ]
+  }
+
+  if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [
+      "os_account:account_iam_innerkits",
+      "user_auth_framework:userauth_client",
+    ]
+    sources += [
+      "./src/security_manager/user_ext_session_plugin_test.cpp",
+      "./src/security_manager/user_ext_credential_plugin_test.cpp",
+    ]
+  }
+
   if (netmanager_ext_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [
       "netmanager_base:net_manager_common",
@@ -897,6 +912,24 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disallow_core_dump_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_rs232_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/ota_update_nonce_plugin.cpp",
+    ]
+  }
+
+  if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    sources += [ "../../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp" ]
+  }
+
+  if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    external_deps += [
+      "user_auth_framework:userauth_client",
+      "os_account:account_iam_innerkits",
+      "os_account:os_account_innerkits",
+      "os_account:domain_account_innerkits",
+    ]
+    sources += [
+      "../../../../services/edm_plugin/src/security_manager/user_ext_session_plugin.cpp",
+      "../../../../services/edm_plugin/src/security_manager/user_ext_credential_plugin.cpp",
     ]
   }
 
