@@ -22,9 +22,14 @@ namespace EDM {
 bool EnterpriseAdminProxy::SendRequest(uint32_t code, MessageParcel &data)
 {
     EDMLOGI("EnterpriseAdminProxy::SendRequest %{public}u", code);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        EDMLOGE("EnterpriseAdminProxy::SendRequest remote is nullptr");
+        return false;
+    }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    int32_t result = Remote()->SendRequest(code, data, reply, option);
+    int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != ERR_NONE) {
         EDMLOGE("EnterpriseAdminProxy::SendRequest failed, code=%{public}u, result=%{public}d", code, result);
         return false;
