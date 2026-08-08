@@ -182,7 +182,6 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/allowed_running_bundles_plugin_test.cpp",
       "./src/disallowed_running_bundles_plugin_test.cpp",
-      "./src/manage_auto_start_apps_plugin_test.cpp",
       "./src/manage_freeze_exempted_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
       "./src/manage_user_non_stop_apps_plugin_test.cpp",
@@ -465,6 +464,62 @@ ohos_unittest("EdmPluginTest") {
     defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
  
+  sanitize = {
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    integer_overflow = true
+    ubsan = true
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+  subsystem_name = "customization"
+  part_name = "enterprise_device_management"
+}
+
+ohos_unittest("ManageAutoStartAppsPluginTest") {
+  module_out_path = module_output_path
+ 
+  include_dirs = [
+    "./include",
+    "../../../../services/edm_plugin/include",
+    "../../../../services/edm_plugin/include/application_manager",
+    "../../../../services/edm_plugin/include/bundle_manager",
+    "../../../../services/edm_plugin/include/utils"
+  ]
+
+  sources = [ "./src/manage_auto_start_apps_plugin_test.cpp" ]
+
+  configs = [
+    ":module_private_config",
+    "../../../../common/config:coverage_flags",
+  ]
+
+  deps = [
+    ":edm_all_plugin_static",
+    "../../../../common/native:edm_commom",
+    "../../../../interfaces/inner_api:edmservice_kits",
+    "../../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../utils:edm_unittest_utils",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libnativetoken_shared",
+    "access_token:libtoken_setproc",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "googletest:gmock_main",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "udmf:udmf_client",
+    "window_manager:session_manager_lite",
+  ]
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -1014,6 +1069,7 @@ group("unittest") {
     # deps file
     ":EdmFingerPrintPluginTest",
     ":EdmPluginTest",
+    ":ManageAutoStartAppsPluginTest",
   ]
 }
 

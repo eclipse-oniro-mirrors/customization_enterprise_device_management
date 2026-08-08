@@ -27,6 +27,8 @@ protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+    // Sets up the test fixture.
+    void SetUp() override;
 };
 } // namespace TEST
 } // namespace EDM

@@ -249,6 +249,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
       "../../../services/edm_plugin/src/device_settings/power_policy_plugin.cpp",
       "../../../services/edm_plugin/src/device_settings/screen_off_time_plugin.cpp",
+      "../../../services/edm_plugin/src/device_settings/set_device_name_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/set_ability_disable_plugin.cpp",
       "../../../services/edm_plugin/src/security_manager/allowed_permission_bundle_plugin.cpp",
       "../../../services/edm_plugin/src/security_manager/disallowed_permission_plugin.cpp",
