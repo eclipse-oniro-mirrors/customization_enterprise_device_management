@@ -33,7 +33,6 @@
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 48;
-constexpr size_t WITHOUT_USERID = 0;
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {

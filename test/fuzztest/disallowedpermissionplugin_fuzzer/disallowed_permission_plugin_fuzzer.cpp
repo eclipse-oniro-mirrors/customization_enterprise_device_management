@@ -33,7 +33,6 @@
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 24;
-constexpr size_t HAS_USERID = 1;
 constexpr int32_t USER_ID = 100;
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
@@ -52,7 +51,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     int32_t pos = 0;
-    int32_t stringSize = size / 12;
+    int32_t stringSize = size / 13;
 
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {

@@ -88,6 +88,10 @@ ohos_fuzztest("AllowedPermissionBundlePluginFuzzTest") {
     if (bluetooth_edm_enable) {
       external_deps += [ "bluetooth:btframework" ]
     }
+    if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
+        usb_manager_edm_enable) {
+      external_deps += [ "disk_manager:disk_manager_innerkits" ]
+    }
   }
 
   subsystem_name = "customization"
