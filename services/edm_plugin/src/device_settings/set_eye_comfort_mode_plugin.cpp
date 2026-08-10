@@ -28,6 +28,7 @@ namespace OHOS {
 namespace EDM {
 
 const std::string KEY_EYE_COMFORT_MODE = "settings.display.eye_comfort_mode";
+const std::string KEY_EYE_COMFORT_LAST_MODE = "settings.display.eye_comfort_last_mode";
 const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_";
 const std::string SETTINGS_DATA_PREFIX = "?Proxy=true";
@@ -74,6 +75,7 @@ ErrCode SetEyeComfortModePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
             EDMLOGE("SetEyeComfortModePlugin::set eyecomfort failed : %{public}d.", code);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
+        EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_LAST_MODE, std::to_string(value));
         std::string params = EdmJsonBuilder()
             .Add("item", "eyeComfort")
             .Add("value", handleData)
