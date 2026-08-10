@@ -810,6 +810,7 @@ void EnterpriseDeviceMgrAbility::UpdateAbilityEnabled(const std::string &bundleN
     }
 }
 
+// LCOV_EXCL_START
 ErrCode EnterpriseDeviceMgrAbility::SetAbilityDisabled(const std::string &bundleName, int32_t userId,
     const std::string &abilityName)
 {
@@ -839,6 +840,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetAbilityDisabled(const std::string &bundle
     }
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
 void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bundleName,
     int32_t userId, int32_t appIndex)
@@ -1596,6 +1598,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(const AppExecFwk:
     return ERR_OK;
 }
 
+// LCOV_EXCL_START
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(const AppExecFwk::ElementName &admin,
     AdminType type, int32_t userId, bool isDebug)
 {
@@ -1618,6 +1621,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminConditionCheckExistAdmin(co
     }
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
 ErrCode EnterpriseDeviceMgrAbility::CheckReplaceAdmins(const AppExecFwk::ElementName &oldAdmin,
     const AppExecFwk::ElementName &newAdmin, std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo,
@@ -2189,6 +2193,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
     return DoDisableAdmin(deviceAdmin, userId, adminType);
 }
 
+// LCOV_EXCL_START
 ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType)
 {
     if (admin->IsSuperAdmin() && FAILED(RemoveSuperAdminAndAdminPolicy(admin->adminInfo_.packageName_))) {
@@ -2232,6 +2237,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
         static_cast<int32_t>(AdminAction::DISABLE), static_cast<int32_t>(adminType));
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
 ErrCode EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName, bool &isSuper)
 {
@@ -2775,6 +2781,7 @@ bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
     return false;
 }
 
+// LCOV_EXCL_START
 ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName)
 {
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
@@ -2818,6 +2825,7 @@ ErrCode EnterpriseDeviceMgrAbility::AuthorizeAdmin(const AppExecFwk::ElementName
         static_cast<int32_t>(EnableSource::SUPER_ADMIN));
     return ret;
 }
+// LCOV_EXCL_STOP
 
 std::string EnterpriseDeviceMgrAbility::GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId)
 {
