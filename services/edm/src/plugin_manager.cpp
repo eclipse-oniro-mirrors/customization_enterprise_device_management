@@ -82,8 +82,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::DISALLOW_RS232,
-    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
-    EdmInterfaceCode::LOCAL_HOTA_DOMAIN,
+    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -136,7 +135,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::SET_SWITCH_STATUS,
     EdmInterfaceCode::HIDDEN_SETTINGS_MENU, EdmInterfaceCode::ADD_DOCK_APP,
     EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE,
-    EdmInterfaceCode::DISALLOWED_UINPUT
+    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN
 };
 
 std::vector<uint32_t> PluginManager::watermarkSoCodes_ = {
