@@ -15,12 +15,11 @@
 #include "turnonoff_mobile_data_plugin.h"
 
 #include "parameters.h"
-#include "wifi_device.h"
-#include "cellular_data_client.h"
 #include "telephony_errors.h"
 
 #include "edm_ipc_interface_code.h"
 #include "func_code_utils.h"
+#include "iedm_cellular_data_manager.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
@@ -67,7 +66,12 @@ ErrCode TurnOnOffMobileDataPlugin::OnSetPolicy(bool isForce)
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
+    auto cellularDataManager = IEdmCellularDataManager::GetInstance();
+    if (cellularDataManager == nullptr) {
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy cellularDataManager is null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t ret = cellularDataManager->EnableCellularData(true);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
         EDMLOGE("TurnOnOffMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -87,7 +91,12 @@ ErrCode TurnOnOffMobileDataPlugin::OnRemovePolicy()
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(false);
+    auto cellularDataManager = IEdmCellularDataManager::GetInstance();
+    if (cellularDataManager == nullptr) {
+        EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy cellularDataManager is null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t ret = cellularDataManager->EnableCellularData(false);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
         EDMLOGE("TurnOnOffMobileDataPlugin:OnRemovePolicy send request fail. %{public}d", ret);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

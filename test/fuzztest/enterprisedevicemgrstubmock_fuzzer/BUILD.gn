@@ -538,6 +538,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "telephony_data:tel_telephony_data",
       ]
       sources += [
+        "../../../services/edm/src/edm_cellular_data_manager_impl.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_mobile_data_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_modify_apn_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallowed_sim_plugin.cpp",

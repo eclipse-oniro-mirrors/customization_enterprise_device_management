@@ -17,6 +17,7 @@
 #define EDM_UNIT_TEST_DISALLOW_MOBILE_DATA_PLUGIIN_TEST_H
    
 #include <gtest/gtest.h>
+#include "edm_cellular_data_manager_mock.h"
 
 namespace OHOS {
 namespace EDM {
@@ -26,6 +27,13 @@ protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+    void SetUp() override;
+
+    void TearDown() override;
+
+    std::shared_ptr<EdmCellularDataManagerMock> cellularDataManagerMock_ =
+        std::make_shared<EdmCellularDataManagerMock>();
 };
 } // namespace TEST
 } // namespace EDM

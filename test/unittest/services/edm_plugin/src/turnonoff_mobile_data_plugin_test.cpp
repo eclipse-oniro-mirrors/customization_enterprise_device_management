@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-#include "core_service_client.h"
 #include "turnonoff_mobile_data_plugin_test.h"
 #include "edm_ipc_interface_code.h"
+#include "iedm_cellular_data_manager.h"
 #include "parameters.h"
 #include "basic_bool_plugin.h"
 #include "utils.h"
-#include "telephony_types.h"
+#include "telephony_errors.h"
 
 using namespace testing::ext;
+using namespace testing;
 
 namespace OHOS {
 namespace EDM {
@@ -38,6 +39,16 @@ void TurnOnOffMobileDataTest::TearDownTestSuite(void)
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
 }
 
+void TurnOnOffMobileDataTest::SetUp()
+{
+    IEdmCellularDataManager::iInstance_ = cellularDataManagerMock_.get();
+}
+
+void TurnOnOffMobileDataTest::TearDown()
+{
+    cellularDataManagerMock_.reset();
+}
+
 /**
  * @tc.name: TestForceTurnOnMobileDataSuccess
  * @tc.desc: Test TurnOnMobileDataPlugin::OnSetPolicy function sucess.
@@ -51,6 +62,10 @@ HWTEST_F(TurnOnOffMobileDataTest, TestForceTurnOnMobileDataSuccess, TestSize.Lev
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(true);
+
+    EXPECT_CALL(*cellularDataManagerMock_, EnableCellularData(_))
+        .WillOnce(Return(Telephony::TELEPHONY_ERR_SUCCESS));
+
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -68,6 +83,10 @@ HWTEST_F(TurnOnOffMobileDataTest, TestTurnOnMobileDataSuccess, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     data.WriteBool(false);
+
+    EXPECT_CALL(*cellularDataManagerMock_, EnableCellularData(_))
+        .WillOnce(Return(Telephony::TELEPHONY_ERR_SUCCESS));
+
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -104,6 +123,10 @@ HWTEST_F(TurnOnOffMobileDataTest, TestTurnOffMobileDataSuccess, TestSize.Level1)
     HandlePolicyData handlePolicyData{"false", "", false};
     MessageParcel data;
     MessageParcel reply;
+
+    EXPECT_CALL(*cellularDataManagerMock_, EnableCellularData(_))
+        .WillOnce(Return(Telephony::TELEPHONY_ERR_SUCCESS));
+
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
 }

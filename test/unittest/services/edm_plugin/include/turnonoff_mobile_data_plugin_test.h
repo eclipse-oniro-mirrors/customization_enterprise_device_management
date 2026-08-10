@@ -13,23 +13,31 @@
  * limitations under the License.
  */
 
- #ifndef EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
- #define EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
-   
- #include <gtest/gtest.h>
- #include "iplugin_manager.h"
- #include "turnonoff_mobile_data_plugin.h"
-   
- namespace OHOS {
- namespace EDM {
- namespace TEST {
- class TurnOnOffMobileDataTest : public testing::Test {
- protected:
-     static void SetUpTestSuite(void);
-  
-     static void TearDownTestSuite(void);
- };
- } // namespace TEST
- } // namespace EDM
- } // namespace OHOS
- #endif // EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+#ifndef EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+#define EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H
+
+#include <gtest/gtest.h>
+#include "edm_cellular_data_manager_mock.h"
+#include "iplugin_manager.h"
+#include "turnonoff_mobile_data_plugin.h"
+
+namespace OHOS {
+namespace EDM {
+namespace TEST {
+class TurnOnOffMobileDataTest : public testing::Test {
+protected:
+    static void SetUpTestSuite(void);
+
+    static void TearDownTestSuite(void);
+
+    void SetUp() override;
+
+    void TearDown() override;
+
+    std::shared_ptr<EdmCellularDataManagerMock> cellularDataManagerMock_ =
+        std::make_shared<EdmCellularDataManagerMock>();
+};
+} // namespace TEST
+} // namespace EDM
+} // namespace OHOS
+#endif // EDM_UNIT_TEST_TURNONOFF_MOBILE_DATA_PLUGIIN_TEST_H

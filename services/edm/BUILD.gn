@@ -282,7 +282,9 @@ ohos_shared_library("edmservice") {
 
   if (!enterprise_device_management_feature_pc_only &&
       cellular_data_edm_enable) {
+    external_deps += [ "cellular_data:tel_cellular_data_api" ]
     sources += [
+      "./src/edm_cellular_data_manager_impl.cpp",
       "./src/query_policy/telephony_call_policy_query.cpp",
     ]
     defines += [

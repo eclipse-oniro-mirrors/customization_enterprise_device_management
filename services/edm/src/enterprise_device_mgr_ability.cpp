@@ -46,6 +46,9 @@
 #include "array_string_serializer.h"
 #include "admin_action.h"
 #include "edm_bluetooth_manager_impl.h"
+#ifdef MOBILE_DATA_ENABLE
+#include "edm_cellular_data_manager_impl.h"
+#endif
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_errors.h"
@@ -1305,6 +1308,9 @@ void EnterpriseDeviceMgrAbility::OnStart()
     ExtInfoManager::GetInstance()->GetSuperHubInfo();
     ExtInfoManager::GetInstance()->GetAppUidMap();
     EdmBluetoothManagerImpl::GetInstance();
+#ifdef MOBILE_DATA_ENABLE
+    EdmCellularDataManagerImpl::GetInstance();
+#endif
     WatermarkObserverManager::GetInstance();
     InitAgTask();
     EdmTimerManager::GetInstance();

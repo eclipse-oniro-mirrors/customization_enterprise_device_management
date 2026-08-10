@@ -15,10 +15,10 @@
 
 #include "disallow_mobile_data_plugin.h"
 
-#include "cellular_data_client.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code_utils.h"
+#include "iedm_cellular_data_manager.h"
 #include "iplugin_manager.h"
 #include "parameters.h"
 #include "telephony_errors.h"
@@ -60,14 +60,17 @@ ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
     const std::string flag = data.ReadString();
     if (flag.empty() || flag == EdmConstants::MobileData::DISALLOW_FLAG) {
         const bool isDisallow = data.ReadBool();
-        EDMLOGI("DisallowMobileDataPlugin:ReadBool isDisallow:%{public}d", isDisallow);
         if (isDisallow) {
             if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_DISALLOW)) {
                 EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
             }
-            int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(false);
-            EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
+            auto cellularDataManager = IEdmCellularDataManager::GetInstance();
+            if (cellularDataManager == nullptr) {
+                EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy cellularDataManager is null");
+                return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            }
+            int32_t ret = cellularDataManager->EnableCellularData(false);
             if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
                 EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
                 return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -78,7 +81,6 @@ ErrCode DisallowMobileDataPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
             return ERR_OK;
         }
         if (!system::SetParameter(PARAM_MOBILE_DATA_POLICY, MOBILE_DATA_NONE)) {
-            EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         policyData.isChanged = true;
@@ -115,7 +117,12 @@ ErrCode DisallowMobileDataPlugin::OnHandleForceOpen(MessageParcel &data)
         EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy SetParameter fail");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    int32_t ret = Telephony::CellularDataClient::GetInstance().EnableCellularData(true);
+    auto cellularDataManager = IEdmCellularDataManager::GetInstance();
+    if (cellularDataManager == nullptr) {
+        EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy cellularDataManager is null");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t ret = cellularDataManager->EnableCellularData(true);
     EDMLOGI("DisallowMobileDataPlugin:OnSetPolicy send request result:%{public}d", ret);
     if (ret != Telephony::TELEPHONY_ERR_SUCCESS) {
         EDMLOGE("DisallowMobileDataPlugin:OnSetPolicy send request fail. %{public}d", ret);
