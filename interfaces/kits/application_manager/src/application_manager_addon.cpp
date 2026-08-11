@@ -180,6 +180,7 @@ napi_value ApplicationManagerAddon::AddAllowedNotificationBundles(napi_env env, 
         EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -188,7 +189,7 @@ napi_value ApplicationManagerAddon::AddAllowedNotificationBundles(napi_env env, 
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     int32_t ret = applicationManagerProxy->AddAllowedNotificationBundles(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("AddAllowedNotificationBundles failed!");
     }
     return nullptr;
@@ -203,6 +204,7 @@ napi_value ApplicationManagerAddon::RemoveAllowedNotificationBundles(napi_env en
         EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr};
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -211,7 +213,7 @@ napi_value ApplicationManagerAddon::RemoveAllowedNotificationBundles(napi_env en
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     int32_t ret = applicationManagerProxy->RemoveAllowedNotificationBundles(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("RemoveAllowedNotificationBundles failed!");
     }
     return nullptr;
@@ -225,6 +227,7 @@ napi_value ApplicationManagerAddon::GetAllowedNotificationBundles(napi_env env, 
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -234,7 +237,7 @@ napi_value ApplicationManagerAddon::GetAllowedNotificationBundles(napi_env env, 
     std::vector<std::string> bundleNames;
     int32_t ret = applicationManagerProxy->GetAllowedNotificationBundles(adapterAddonData.data, bundleNames);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("GetAllowedNotificationBundles failed!");
         return nullptr;
     }
@@ -258,6 +261,7 @@ napi_value ApplicationManagerAddon::QueryBundleStatsInfos(napi_env env, napi_cal
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, nullptr};
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -267,7 +271,7 @@ napi_value ApplicationManagerAddon::QueryBundleStatsInfos(napi_env env, napi_cal
     std::vector<BundleStatsInfo> bundleStatsInfos;
     int32_t ret = applicationManagerProxy->QueryBundleStatsInfos(adapterAddonData.data, bundleStatsInfos);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("QueryBundleStatsInfos failed!");
         return nullptr;
     }
@@ -1612,23 +1616,23 @@ napi_value ApplicationManagerAddon::QueryTrafficStats(napi_env env, napi_callbac
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FIVE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_FIVE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
         "parameter admin error");
     auto asyncCallbackInfo = new (std::nothrow) AsyncQueryTrafficStatsCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
     std::unique_ptr<AsyncQueryTrafficStatsCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, asyncCallbackInfo->elementName,
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, asyncCallbackInfo->elementName,
         argv[ARR_INDEX_ZERO]), "element name param error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, asyncCallbackInfo->networkInfo.bundleName,
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseString(env, asyncCallbackInfo->networkInfo.bundleName,
         argv[ARR_INDEX_ONE]), "bundleName param error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->networkInfo.appIndex,
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, asyncCallbackInfo->networkInfo.appIndex,
         argv[ARR_INDEX_TWO]), "appIndex param error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, asyncCallbackInfo->networkInfo.accountId,
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, asyncCallbackInfo->networkInfo.accountId,
         argv[ARR_INDEX_THREE]), "accountId param error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseNetworkInfo(env, asyncCallbackInfo->networkInfo,
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseNetworkInfo(env, asyncCallbackInfo->networkInfo,
         argv[ARR_INDEX_FOUR]), "networkInfo param error");
 
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "QueryTrafficStats",
@@ -1641,7 +1645,8 @@ napi_value ApplicationManagerAddon::QueryTrafficStats(napi_env env, napi_callbac
     napi_deferred deferred = nullptr;
     auto status = napi_create_promise(env, &deferred, &result);
     if (status == napi_ok) {
-        napi_reject_deferred(env, deferred, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        napi_reject_deferred(env, deferred, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED,
+            ErrcodeType::NUMBER));
     }
     return result;
 #endif
@@ -1717,7 +1722,8 @@ void ApplicationManagerAddon::NativeQueryTrafficStatsComplete(napi_env env, napi
             NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "txPackets", txPackets));
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
         } else {
-            napi_reject_deferred(env, asyncCallbackInfo->deferred, CreateError(env, asyncCallbackInfo->ret));
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateError(env, asyncCallbackInfo->ret, ErrcodeType::NUMBER));
         }
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);

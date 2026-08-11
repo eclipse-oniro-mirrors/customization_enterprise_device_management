@@ -873,13 +873,14 @@ napi_value DeviceSettingsAddon::SetSwitchStatus(napi_env env, napi_callback_info
     addonMethodSign.name = "SetSwitchStatus";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
     }
     int32_t retCode = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetSwitchStatus(adapterAddonData.data);
     if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode));
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
     }
     return nullptr;
 }

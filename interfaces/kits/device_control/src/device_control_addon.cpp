@@ -197,18 +197,18 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     if (argc > ARGS_SIZE_TWO) {
         matchFlag = matchFlag && MatchValueType(env, argv[ARR_INDEX_TWO], napi_string);
     }
-    ASSERT_AND_THROW_PARAM_ERROR(env, matchFlag, "parameter type error");
-
+    ErrcodeType errcodeType = (operateType == napi_number) ? ErrcodeType::NUMBER : ErrcodeType::STRING;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, matchFlag, "parameter type error", errcodeType);
     AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(
-        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(
+        env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]), "element name param error", errcodeType);
     OperateDeviceParam param;
     if (!ConvertOperation(env, operateType, param, argv[ARR_INDEX_ONE])) {
         return nullptr;
     }
     if (argc > ARGS_SIZE_TWO) {
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
-            "addition param error");
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseString(env, param.addition, argv[ARR_INDEX_TWO]),
+            "addition param error", errcodeType);
         if (param.operate == EdmConstants::DeviceControl::DISK_ERASE) {
             if (!param.addition.empty() && !ReadFileToBytes(param.addition, param.size, param.file)) {
                 napi_throw(env,
@@ -219,15 +219,31 @@ napi_value DeviceControlAddon::OperateDevice(napi_env env, napi_callback_info in
     }
 #ifdef OS_ACCOUNT_EDM_ENABLE
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(param.userId);
-    EDMLOGI("NAPI_lockScreen called userId");
+    EDMLOGI("NAPI_OperateDevice called userId");
 #else
-    EDMLOGI("NAPI_lockScreen don't call userId");
+    EDMLOGI("NAPI_OperateDevice don't call userId");
 #endif
     int32_t ret = DeviceControlProxy::GetDeviceControlProxy()->OperateDevice(elementName, param);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        ThrowOperateDeviceError(env, ret, errcodeType);
     }
     return nullptr;
+}
+
+void DeviceControlAddon::ThrowOperateDeviceError(napi_env env, int32_t ret, ErrcodeType errcodeType)
+{
+    if (errcodeType == ErrcodeType::NUMBER) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    } else {
+        if (ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
+        } else if (ret == EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED ||
+            ret == EdmReturnErrCode::DISK_ERASE_FAILED) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        } else {
+            napi_throw(env, CreateError(env, ret));
+        }
+    }
 }
 
 bool DeviceControlAddon::ConvertOperation(napi_env env, napi_valuetype operateType, OperateDeviceParam &param,
@@ -243,8 +259,8 @@ bool DeviceControlAddon::ConvertOperation(napi_env env, napi_valuetype operateTy
         }
     } else if (operateType == napi_number) {
         int32_t operateValue = 0;
-        ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, operateValue, value),
-            "operate param error");
+        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, operateValue, value),
+            "operate param error", ErrcodeType::NUMBER);
         param.operate = ConvertOperateTypeToString(static_cast<EdmConstants::DeviceControl::OperateType>(operateValue));
         if (param.operate.empty()) {
             EDMLOGE("OperateDevice invalid operate enum value: %{public}d", operateValue);
