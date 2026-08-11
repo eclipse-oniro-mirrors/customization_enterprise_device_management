@@ -983,6 +983,7 @@ ohos_static_library("edm_all_plugin_static") {
       "os_account:domain_account_innerkits",
     ]
     sources += [
+      "../../../../services/edm_plugin/src/security_manager/ukey_iam_error_converter.cpp",
       "../../../../services/edm_plugin/src/security_manager/user_ext_session_plugin.cpp",
       "../../../../services/edm_plugin/src/security_manager/user_ext_credential_plugin.cpp",
     ]
