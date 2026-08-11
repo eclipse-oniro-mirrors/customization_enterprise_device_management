@@ -386,6 +386,7 @@ napi_value TelephonyManagerAddon::ActiveSim(napi_env env, napi_callback_info inf
     addonMethodSign.name = "activeSim";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -393,12 +394,12 @@ napi_value TelephonyManagerAddon::ActiveSim(napi_env env, napi_callback_info inf
     }
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->ActiveSim(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 #else
     EDMLOGW("TelephonyManagerAddon::ActiveSim Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -411,6 +412,7 @@ napi_value TelephonyManagerAddon::DeactiveSim(napi_env env, napi_callback_info i
     addonMethodSign.name = "deactiveSim";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -418,12 +420,12 @@ napi_value TelephonyManagerAddon::DeactiveSim(napi_env env, napi_callback_info i
     }
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->DeactiveSim(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 #else
     EDMLOGW("TelephonyManagerAddon::DeactiveSim Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -436,6 +438,7 @@ napi_value TelephonyManagerAddon::SetDefaultDataSim(napi_env env, napi_callback_
     addonMethodSign.name = "setDefaultDataSim";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -443,12 +446,12 @@ napi_value TelephonyManagerAddon::SetDefaultDataSim(napi_env env, napi_callback_
     }
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->SetDefaultDataSim(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 #else
     EDMLOGW("TelephonyManagerAddon::SetDefaultDataSim Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -461,6 +464,7 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
     addonMethodSign.name = "getDefaultDataSim";
     addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -469,7 +473,7 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
     int32_t simId = -1;
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetDefaultDataSim(adapterAddonData.data, simId);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
 
@@ -478,7 +482,7 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
     return jsResult;
 #else
     EDMLOGW("TelephonyManagerAddon::GetDefaultDataSim Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
