@@ -307,15 +307,7 @@ OHOS::ErrCode RestrictionsAddon::NativeSetDisallowedPolicy(const AppExecFwk::Ele
     }
     
     std::string permissionTag;
-    if (ipcCode == EdmInterfaceCode::DISALLOWED_MOBILE_DATA ||
-        ipcCode == EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE) {
-        permissionTag = (errcodeType == ErrcodeType::STRING) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
-            EdmConstants::PERMISSION_TAG_VERSION_26;
-    } else if (std::find(multiPermCodes.begin(), multiPermCodes.end(), ipcCode) != multiPermCodes.end()) {
-        permissionTag = EdmConstants::PERMISSION_TAG_VERSION_12;
-    } else {
-        permissionTag = WITHOUT_PERMISSION_TAG;
-    }
+    CreatePermissionTag(ipcCode, errcodeType, permissionTag);
     return proxy->SetDisallowedPolicy(elementName, disallow, ipcCode, permissionTag);
 }
 
@@ -334,6 +326,13 @@ OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicy(AppExecFwk::ElementNa
     }
     
     std::string permissionTag;
+    CreatePermissionTag(ipcCode, errcodeType, permissionTag);
+    return proxy->GetDisallowedPolicy(elementName, ipcCode, disallow, permissionTag);
+}
+
+void RestrictionsAddon::CreatePermissionTag(std::uint32_t ipcCode,
+    ErrcodeType errcodeType, std::string &permissionTag)
+{
     if (ipcCode == EdmInterfaceCode::DISALLOWED_MOBILE_DATA ||
         ipcCode == EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE) {
         permissionTag = (errcodeType == ErrcodeType::STRING) ? EdmConstants::PERMISSION_TAG_VERSION_11 :
@@ -343,7 +342,6 @@ OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicy(AppExecFwk::ElementNa
     } else {
         permissionTag = WITHOUT_PERMISSION_TAG;
     }
-    return proxy->GetDisallowedPolicy(elementName, ipcCode, disallow, permissionTag);
 }
 
 napi_value RestrictionsAddon::IsPrinterDisabled(napi_env env, napi_callback_info info)

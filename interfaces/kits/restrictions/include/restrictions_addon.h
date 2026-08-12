@@ -99,6 +99,7 @@ private:
     static void SetEnumProperty(napi_env env, napi_value obj, const char *name, uint32_t value);
     static void CreateUserRestrictionForDeviceObject(napi_env env, napi_value value);
     static void CreateUserRestrictionForAccountObject(napi_env env, napi_value value);
+    static void CreatePermissionTag(std::uint32_t ipcCode, ErrcodeType errcodeType, std::string &permissionTag);
 };
 } // namespace EDM
 } // namespace OHOS
