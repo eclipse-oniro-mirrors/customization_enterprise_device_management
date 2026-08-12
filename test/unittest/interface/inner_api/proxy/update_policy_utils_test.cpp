@@ -177,6 +177,29 @@ HWTEST_F(UpdatePolicyUtilsTest, TestReadUpdatePolicySuc, TestSize.Level1)
     UpdatePolicyUtils::ProcessOtaPolicyType(static_cast<int32_t>(OtaPolicyType::DEFAULT), otaPolicyType);
     ASSERT_TRUE(otaPolicyType == OtaPolicyType::DEFAULT);
 }
+
+/*
+ *@tc.name: TestReadUpgradePackageInfoWithAuthInfoSizeExceedsActualLength
+ *@tc.desc: Test ReadUpgradePackageInfo when authInfoSize exceeds actual authInfo length.
+ *@tc.type: FUNC
+ */
+HWTEST_F(UpdatePolicyUtilsTest, TestReadUpgradePackageInfoWithAuthInfoSizeExceedsActualLength, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteString(TEST_VERSION);
+    data.WriteUint32(0);
+    data.WriteString(TEST_INSTALL_TIPS);
+    data.WriteString(TEST_INSTALL_TIPS_DEATIL);
+    data.WriteUint32(100);
+    data.WriteCString("short");
+
+    UpgradePackageInfo packageInfo;
+    UpdatePolicyUtils::ReadUpgradePackageInfo(data, packageInfo);
+    ASSERT_TRUE(packageInfo.version == TEST_VERSION);
+    ASSERT_TRUE(packageInfo.packages.empty());
+    ASSERT_TRUE(packageInfo.authInfoSize == 100);
+    ASSERT_TRUE(packageInfo.authInfo[0] == '\0');
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
