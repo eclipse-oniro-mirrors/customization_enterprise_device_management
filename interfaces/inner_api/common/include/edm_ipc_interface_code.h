@@ -220,6 +220,7 @@ enum EdmInterfaceCode : uint32_t {
     USER_EXT_SESSION = 1171,
     USER_EXT_CREDENTIAL = 1172,
     UNLOCK_POLICY = 1173,
+    DEVICE_SECURITY_LEVEL_POLICY = 1174,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

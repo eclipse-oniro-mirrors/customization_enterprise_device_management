@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_MANAGED_POLICY_PROXY_H
-#define INTERFACES_INNER_API_MANAGED_POLICY_PROXY_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SECURITY_LEVEL_POLICY_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SECURITY_LEVEL_POLICY_PLUGIN_H
+
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-enum class ManagedPolicy {
-    DEFAULT = 0,
-    DISALLOW = 1,
-    FORCE_OPEN = 2,
-};
+class DeviceSecurityLevelPolicyPlugin : public IPlugin {
+public:
+    DeviceSecurityLevelPolicyPlugin();
 
-enum class DeviceSecurityLevelPolicy {
-    DEFAULT_ENFORCED = 0,
-    ALLOW_BALANCED = 1,
-    ALLOW_FLEXIBLE = 2,
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+
+private:
+    ErrCode OnSetPolicy(int32_t policyValue);
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // INTERFACES_INNER_API_MANAGED_POLICY_PROXY_H
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SECURITY_LEVEL_POLICY_PLUGIN_H

@@ -237,6 +237,7 @@ namespace EdmConstants {
         const char* const SET_ALL_WATERMARK_TYPE = "all";
         const char* const SET_PROCESS_WATERMARK_BY_PID = "set_process_watermark_by_pid";
         const char* const FASTBOOT  = "fastboot";
+        const char* const PARAM_EDM_DEVICE_SECURITY_LEVEL_POLICY = "persist.edm.dsl.config";
     } // namespace SecurityManager
 
     namespace DeviceSettings {
@@ -532,6 +533,7 @@ namespace PolicyName {
     const char* const POLICY_USER_EXT_SESSION = "user_ext_session";
     const char* const POLICY_USER_EXT_CREDENTIAL = "user_ext_credential";
     const char* const POLICY_UNLOCK_POLICY = "unlock_policy";
+    const char* const POLICY_DEVICE_SECURITY_LEVEL_POLICY = "device_security_level_policy";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

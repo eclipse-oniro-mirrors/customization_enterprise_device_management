@@ -78,11 +78,11 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::SET_DEVICE_NAME, EdmInterfaceCode::SET_FLOATING_NAVIGATION,
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
     EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::UNLOCK_POLICY,
-    EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES,
+    EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
     EdmInterfaceCode::DISALLOW_RS232,
-    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO
+    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
