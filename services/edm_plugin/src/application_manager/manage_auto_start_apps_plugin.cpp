@@ -16,6 +16,7 @@
 #include "manage_auto_start_apps_plugin.h"
 
 #include <algorithm>
+#include <set>
 
 #include "app_control/app_control_proxy.h"
 #include <bundle_info.h>
@@ -133,46 +134,70 @@ ErrCode ManageAutoStartAppsPlugin::OnRemovePolicy(std::vector<std::string> &data
     return ERR_OK;
 }
 
+std::set<std::string> ManageAutoStartAppsPlugin::QueryImsAutoStartKeys()
+{
+    std::set<std::string> imsKeys;
+    auto autoStartupClient = AAFwk::AbilityAutoStartupClient::GetInstance();
+    if (!autoStartupClient) {
+        return imsKeys;
+    }
+    std::vector<OHOS::AbilityRuntime::AutoStartupInfo> autoStartList;
+    ErrCode ret = autoStartupClient->QueryAllAutoStartupApplications(autoStartList);
+    if (ret != ERR_OK) {
+        EDMLOGW("QueryAllAutoStartupApplications failed, ret: %{public}d", ret);
+        return imsKeys;
+    }
+    for (const auto &info : autoStartList) {
+        imsKeys.insert(info.bundleName + "/" + info.abilityName);
+    }
+    return imsKeys;
+}
+
+std::vector<std::string> ManageAutoStartAppsPlugin::GetAutoStartBundleInfos(std::string &policyData)
+{
+    std::vector<ManageAutoStartAppInfo> appInfos;
+    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
+    std::set<std::string> imsKeys = QueryImsAutoStartKeys();
+    std::vector<std::string> policies;
+    for (const ManageAutoStartAppInfo &item : appInfos) {
+        if (imsKeys.count(item.GetUniqueKey()) > 0) {
+            std::string isHiddenStartStr = item.GetIsHiddenStart() ? "true" : "false";
+            policies.push_back(item.GetUniqueKey() + "/" + isHiddenStartStr);
+        }
+    }
+    return policies;
+}
+
 ErrCode ManageAutoStartAppsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
     EDMLOGI("ManageAutoStartAppsPlugin OnGetPolicy.");
     std::string type = data.ReadString();
     if (type == EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APPS_BUNDLE_INFO) {
-        std::vector<ManageAutoStartAppInfo> appInfos;
-        ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyData, appInfos);
-        std::vector<std::string> policies;
-        for (const ManageAutoStartAppInfo &item : appInfos) {
-            std::string isHiddenStartStr = item.GetIsHiddenStart() ? "true" : "false";
-            policies.push_back(item.GetUniqueKey() + "/" + isHiddenStartStr);
-            EDMLOGD("GetAutoStartApps parse auto start app join isHiddenStart OK");
-        }
+        std::vector<std::string> policies = GetAutoStartBundleInfos(policyData);
         reply.WriteInt32(ERR_OK);
         reply.WriteStringVector(policies);
-    } else if (type == EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY) {
+        return ERR_OK;
+    }
+    if (type == EdmConstants::AutoStart::GET_MANAGE_AUTO_START_APP_DISALLOW_MODIFY) {
         std::string uniqueKey = data.ReadString();
         std::string mergePolicyStr;
         IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), mergePolicyStr, userId);
         std::vector<ManageAutoStartAppInfo> mergePolicyData;
         ManageAutoStartAppsSerializer::GetInstance()->Deserialize(mergePolicyStr, mergePolicyData);
-        bool hasSetAutoStart = false;
         for (const ManageAutoStartAppInfo &item : mergePolicyData) {
             if (item.GetUniqueKey() == uniqueKey) {
                 reply.WriteInt32(ERR_OK);
                 reply.WriteBool(item.GetDisallowModify());
-                hasSetAutoStart = true;
-                break;
+                return ERR_OK;
             }
         }
-        if (!hasSetAutoStart) {
-            reply.WriteInt32(ERR_OK);
-            reply.WriteBool(false);
-        }
-    } else {
-        EDMLOGE("ManageAutoStartAppsPlugin::OnGetPolicy type error");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(ERR_OK);
+        reply.WriteBool(false);
+        return ERR_OK;
     }
-    return ERR_OK;
+    EDMLOGE("ManageAutoStartAppsPlugin::OnGetPolicy type error");
+    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
 }
 
 ErrCode ManageAutoStartAppsPlugin::OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
@@ -303,10 +328,8 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
     }
     std::vector<ManageAutoStartAppInfo> addData =
         ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(currentData, tmpData);
-    std::vector<ManageAutoStartAppInfo> needAddMergeData =
-        ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(mergeData, addData);
     std::vector<ManageAutoStartAppInfo> afterHandle =
-        ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, addData);
+        ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, tmpData);
     std::vector<ManageAutoStartAppInfo> afterMerge =
         ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
     if (afterMerge.size() > maxListSize_) {
@@ -315,8 +338,8 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
     }
 
     std::vector<ManageAutoStartAppInfo> failedData;
-    if (!needAddMergeData.empty()) {
-        ErrCode ret = SetOrRemoveOtherModulePolicy(needAddMergeData, true, failedData, userId);
+    if (!tmpData.empty()) {
+        ErrCode ret = SetOrRemoveOtherModulePolicy(tmpData, true, failedData, userId);
         if (FAILED(ret)) {
             return ret;
         }
@@ -325,8 +348,10 @@ ErrCode ManageAutoStartAppsPlugin::OnSetPolicy(std::vector<std::string> &data, b
         currentData = afterHandle;
         mergeData = afterMerge;
     } else {
-        currentData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(failedData, afterHandle);
-        mergeData = ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(failedData, afterMerge);
+        auto addDataSuccessful =
+            ManageAutoStartAppsSerializer::GetInstance()->SetDifferencePolicyData(failedData, addData);
+        currentData = ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(currentData, addDataSuccessful);
+        mergeData = ManageAutoStartAppsSerializer::GetInstance()->SetUnionPolicyData(mergeData, currentData);
     }
     return ERR_OK;
 }

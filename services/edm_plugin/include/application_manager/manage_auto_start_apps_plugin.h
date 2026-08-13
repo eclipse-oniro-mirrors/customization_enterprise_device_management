@@ -16,6 +16,8 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_AUTO_START_APPS_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_AUTO_START_APPS_PLUGIN_H
 
+#include <set>
+
 #include "ability_manager_interface.h"
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
@@ -58,6 +60,8 @@ private:
         std::vector<ManageAutoStartAppInfo> &totalMergePolicyData);
     void ParseErrCode(ErrCode &ret);
     void GetErrorMessage(ErrCode &errCode, std::string &errMessage);
+    std::set<std::string> QueryImsAutoStartKeys();
+    std::vector<std::string> GetAutoStartBundleInfos(std::string &policyData);
     bool CheckBundleAndAbilityExited(const std::string &bundleName, const std::string &abilityName, int32_t userId);
     void ParseManageAutoStartAppsInfo(std::vector<std::string> &data, bool disallowModify,
         std::vector<ManageAutoStartAppInfo> &appInfoArray);

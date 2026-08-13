@@ -511,6 +511,74 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         EXPECT_TRUE(ret == ERR_OK);
     }
 }
+/**
+ * @tc.name: TestGetAutoStartBundleInfosWithValidJson
+ * @tc.desc: Test GetAutoStartBundleInfos with valid JSON policyData, IMS returns empty, result is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestGetAutoStartBundleInfosWithValidJson, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    ManageAutoStartAppInfo info;
+    info.SetUniqueKey("com.test.bundle/com.test.ability");
+    info.SetDisallowModify(false);
+    info.SetIsHiddenStart(true);
+    std::vector<ManageAutoStartAppInfo> appInfos = {info};
+    std::string policyData;
+    ManageAutoStartAppsSerializer::GetInstance()->Serialize(appInfos, policyData);
+
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("bundleInfo");
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    std::vector<std::string> res;
+    reply.ReadStringVector(&res);
+    ASSERT_TRUE(res.empty());
+}
+
+/**
+ * @tc.name: TestOnSetPolicyPreserveExistingOnFailure
+ * @tc.desc: Test OnSetPolicy preserves existing currentData when external call fails for new apps.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicyPreserveExistingOnFailure, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::AUTO_START_APPS_MAX_SIZE;
+
+    ManageAutoStartAppInfo existingInfo;
+    existingInfo.SetUniqueKey("com.existing/com.existing.Ability");
+    existingInfo.SetDisallowModify(false);
+    existingInfo.SetIsHiddenStart(false);
+    std::vector<ManageAutoStartAppInfo> currentData = {existingInfo};
+    std::vector<ManageAutoStartAppInfo> mergeData;
+
+    std::vector<std::string> data = {"com.new.app/com.new.app.Ability/false"};
+    bool disallowModify = false;
+    ErrCode ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_FALSE(currentData.empty());
+    ASSERT_TRUE(currentData[0].GetUniqueKey() == "com.existing/com.existing.Ability");
+}
+
+/**
+ * @tc.name: TestOnGetPolicyTypeError
+ * @tc.desc: Test OnGetPolicy returns SYSTEM_ABNORMALLY when type is unknown.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsPluginTest, TestOnGetPolicyTypeError, TestSize.Level1)
+{
+    ManageAutoStartAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("unknownType");
+    std::string policyData;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
