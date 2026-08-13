@@ -129,6 +129,14 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::ALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_WIFI_LIST,
     EdmInterfaceCode::PASSWORD_POLICY,
+    EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
+    EdmInterfaceCode::DISALLOW_MODIFY_APN,
+    EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS,
+    EdmInterfaceCode::DISABLE_USER_MTP_CLIENT,
+    EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE,
+    EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY,
+    EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
+    EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
