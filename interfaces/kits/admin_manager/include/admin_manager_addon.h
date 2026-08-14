@@ -126,6 +126,7 @@ private:
     static napi_value GetDelegatedPolicies(napi_env env, napi_callback_info info, uint32_t code);
     static napi_value StartAdminProvision(napi_env env, napi_callback_info info);
     static napi_value GetAdmins(napi_env env, napi_callback_info info);
+    static napi_value GetAdminInfos(napi_env env, napi_callback_info info);
     static napi_value ReplaceSuperAdmin(napi_env env, napi_callback_info info);
     static napi_value SetAdminRunningMode(napi_env env, napi_callback_info info);
     static napi_value EnableDeviceAdmin(napi_env env, napi_callback_info info);
@@ -162,6 +163,7 @@ private:
     static void NativeGetAdminsComplete(napi_env env, napi_status status, void *data);
     static napi_value ConvertWantToJs(napi_env env, const std::string &bundleName, const std::string &abilityName);
     static napi_value ConvertWantToJsWithType(napi_env env, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
+    static napi_value ConvertAdminInfoToJs(napi_env env, std::vector<std::shared_ptr<AAFwk::Want>> &wants);
 
     static AdminType ParseAdminType(int32_t type);
     static bool CheckEnableAdminParamType(napi_env env, size_t argc, napi_value *argv, bool &hasCallback,

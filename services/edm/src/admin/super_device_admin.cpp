@@ -52,6 +52,7 @@ bool SuperDeviceAdmin::HasPermissionToCallServiceCode(uint32_t interfaceCode) co
         case static_cast<uint32_t>(EdmInterfaceCode::SET_DELEGATED_POLICIES):
         case static_cast<uint32_t>(EdmInterfaceCode::GET_DELEGATED_POLICIES):
         case static_cast<uint32_t>(EdmInterfaceCode::GET_DELEGATED_BUNDLE_NAMES):
+        case static_cast<uint32_t>(EdmInterfaceCode::GET_ADMIN_INFOS):
 #if defined(FEATURE_PC_ONLY)
         case static_cast<uint32_t>(EdmInterfaceCode::ENABLE_DEVICE_ADMIN):
         case static_cast<uint32_t>(EdmInterfaceCode::DISABLE_DEVICE_ADMIN):

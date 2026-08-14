@@ -51,6 +51,7 @@ public:
     MOCK_METHOD(int, GetEnterpriseInfo, (const AppExecFwk::ElementName &, EntInfo &), (override));
     MOCK_METHOD(int, SetEnterpriseInfo, (const AppExecFwk::ElementName &, const EntInfo &), (override));
     MOCK_METHOD(int, IsSuperAdmin, (const std::string &, bool &), (override));
+    MOCK_METHOD(int, IsSuperAdminByWant, (const AppExecFwk::ElementName &, bool &), (override));
     MOCK_METHOD(int, IsByodAdmin, (const AppExecFwk::ElementName &, bool &), (override));
     MOCK_METHOD(int, IsAdminEnabled, (const AppExecFwk::ElementName &, int32_t, bool &), (override));
     MOCK_METHOD(int, SubscribeManagedEvent, (const AppExecFwk::ElementName &, (const std::vector<uint32_t> &)),
@@ -68,6 +69,8 @@ public:
     MOCK_METHOD(int, ReplaceSuperAdmin, (const AppExecFwk::ElementName &, const AppExecFwk::ElementName &, bool),
         (override));
     MOCK_METHOD(int, GetAdmins, ((std::vector<std::shared_ptr<AAFwk::Want>> &)), (override));
+    MOCK_METHOD(int, GetAdminInfos, (const AppExecFwk::ElementName &, (std::vector<std::shared_ptr<AAFwk::Want>> &)),
+        (override));
     MOCK_METHOD(int, SetAdminRunningMode, (const AppExecFwk::ElementName &, uint32_t), (override));
     MOCK_METHOD(int, SetDelegatedPolicies, (const std::string &, (const std::vector<std::string> &), int32_t),
         (override));
@@ -96,10 +99,13 @@ public:
     int InvokeGetEnterpriseInfoFail(const AppExecFwk::ElementName &admin, EntInfo &entInfo);
     int InvokeIsAdminEnabledFail(const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled);
     int InvokeIsSuperAdminFail(const std::string &bundleName, bool &isSuper);
+    int InvokeIsSuperAdminByWantFail(const AppExecFwk::ElementName &admin, bool &isSuper);
     int InvokeIsByodAdminFail(const AppExecFwk::ElementName &admin, bool &isByod);
     int InvokeGetSuperAdmin(std::string &bundleName, std::string &abilityName);
     int InvokeGetEnterpriseManagedTips(std::string &result);
     int InvokeGetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants);
+    int InvokeGetAdminInfos(const AppExecFwk::ElementName &admin,
+        std::vector<std::shared_ptr<AAFwk::Want>> &wants);
     int InvokeGetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList);
 
     int InvokeSendRequestEnableAdmin(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

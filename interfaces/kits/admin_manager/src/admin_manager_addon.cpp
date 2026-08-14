@@ -641,6 +641,22 @@ napi_value AdminManager::IsSuperAdmin(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool isWant = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    if (isWant) {
+        EDMLOGI("NAPI_IsSuperAdmin sync path called");
+        OHOS::AppExecFwk::ElementName elementName;
+        ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+            "parameter want error");
+        bool result = false;
+        auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+        ErrCode ret = proxy->IsSuperAdminByWant(elementName, result);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret));
+        }
+        napi_value jsResult = nullptr;
+        NAPI_CALL(env, napi_get_boolean(env, result, &jsResult));
+        return jsResult;
+    }
     auto asyncCallbackInfo = new (std::nothrow) AsyncIsSuperAdminCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
         return nullptr;
@@ -1016,6 +1032,29 @@ napi_value AdminManager::GetAdmins(napi_env env, napi_callback_info info)
     return asyncWorkReturn;
 }
 
+napi_value AdminManager::GetAdminInfos(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetAdminInfos called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "Parameter want error");
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetAdminInfos(elementName, wants);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        return nullptr;
+    }
+    return ConvertAdminInfoToJs(env, wants);
+}
+
 napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info info)
 {
 #if defined(FEATURE_PC_ONLY)
@@ -1378,6 +1417,37 @@ napi_value AdminManager::ConvertWantToJsWithType(napi_env env, std::vector<std::
     return result;
 }
 
+napi_value AdminManager::ConvertAdminInfoToJs(napi_env env,
+    std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    size_t idx = 0;
+    for (std::shared_ptr<AAFwk::Want> want : wants) {
+        std::string bundleName = want->GetStringParam("bundleName");
+        std::string abilityName = want->GetStringParam("abilityName");
+        int32_t adminType = want->GetIntParam("adminType", -1);
+        if (bundleName.empty() || abilityName.empty() || adminType == -1) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+            return nullptr;
+        }
+        napi_value adminInfo = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &adminInfo));
+        napi_value typeToJs = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, AdminTypeToJsAdminType(adminType), &typeToJs));
+        NAPI_CALL(env, napi_set_named_property(env, adminInfo, "type", typeToJs));
+        napi_value bundleNameToJs = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, bundleName.c_str(), NAPI_AUTO_LENGTH, &bundleNameToJs));
+        NAPI_CALL(env, napi_set_named_property(env, adminInfo, "bundleName", bundleNameToJs));
+        napi_value abilityNameToJs = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, abilityName.c_str(), NAPI_AUTO_LENGTH, &abilityNameToJs));
+        NAPI_CALL(env, napi_set_named_property(env, adminInfo, "abilityName", abilityNameToJs));
+        NAPI_CALL(env, napi_set_element(env, result, idx, adminInfo));
+        idx++;
+    }
+    return result;
+}
+
 NapiEnumObjects AdminManager::CreateEnumObjects(napi_env env)
 {
     NapiEnumObjects objs;
@@ -1417,6 +1487,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDelegatedBundleNames", GetDelegatedBundleNames),
         DECLARE_NAPI_FUNCTION("startAdminProvision", StartAdminProvision),
         DECLARE_NAPI_FUNCTION("getAdmins", GetAdmins),
+        DECLARE_NAPI_FUNCTION("getAdminInfos", GetAdminInfos),
         DECLARE_NAPI_FUNCTION("replaceSuperAdmin", ReplaceSuperAdmin),
         DECLARE_NAPI_FUNCTION("setAdminRunningMode", SetAdminRunningMode),
         DECLARE_NAPI_FUNCTION("enableDeviceAdmin", EnableDeviceAdmin),

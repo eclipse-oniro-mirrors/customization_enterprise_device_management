@@ -2247,7 +2247,27 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
 
 ErrCode EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName, bool &isSuper)
 {
+    isSuper = false;
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
+        EDMLOGE("IsSuperAdmin: check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     isSuper = AdminManager::GetInstance()->IsSuperAdmin(bundleName);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::IsSuperAdminByWant(const AppExecFwk::ElementName &admin, bool &isSuper)
+{
+    isSuper = false;
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
+        EDMLOGE("IsSuperAdminByWant: check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    isSuper = AdminManager::GetInstance()->IsSuperAdmin(admin.GetBundleName());
     return ERR_OK;
 }
 
@@ -3089,6 +3109,44 @@ ErrCode EnterpriseDeviceMgrAbility::GetAdmins(std::vector<std::shared_ptr<AAFwk:
         want->SetParam("adminType", static_cast<int32_t>(admin->adminInfo_.adminType_));
         want->SetParam("isDebug", admin->adminInfo_.isDebug_);
         want->SetParam("enableSource", static_cast<int32_t>(admin->adminInfo_.enableSource_));
+        wants.push_back(want);
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetAdminInfos(const AppExecFwk::ElementName &admin,
+    std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::GetAdminInfos calling.");
+    wants.clear();
+    std::shared_ptr<Admin> adminInfo = AdminManager::GetInstance()->GetAdminByPkgName(
+        admin.GetBundleName(), EdmConstants::DEFAULT_USER_ID);
+    if (adminInfo == nullptr) {
+        EDMLOGE("GetAdminInfos: %{public}s is not activated.", admin.GetBundleName().c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
+        EDMLOGE("GetAdminInfos: check permission failed.");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (adminInfo->GetAdminType() != AdminType::ENT) {
+        EDMLOGE("GetAdminInfos: %{public}s is not sda.", admin.GetBundleName().c_str());
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+
+    std::vector<std::shared_ptr<Admin>> admins;
+    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
+    for (auto adminItem : admins) {
+        if (adminItem->adminInfo_.adminType_ != AdminType::NORMAL &&
+            adminItem->adminInfo_.adminType_ != AdminType::ENT) {
+            continue;
+        }
+        std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+        want->SetParam("bundleName", adminItem->adminInfo_.packageName_);
+        want->SetParam("abilityName", adminItem->adminInfo_.className_);
+        want->SetParam("adminType", static_cast<int32_t>(adminItem->adminInfo_.adminType_));
         wants.push_back(want);
     }
     return ERR_OK;

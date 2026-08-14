@@ -267,6 +267,21 @@ ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(const std::string &bundleName, bo
     return mgrService->IsSuperAdmin(bundleName, result);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::IsSuperAdminByWant(const AppExecFwk::ElementName &admin, bool &result)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::IsSuperAdminByWant");
+    result = false;
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->IsSuperAdminByWant(admin, result);
+}
+
 ErrCode EnterpriseDeviceMgrProxy::IsByodAdmin(const AppExecFwk::ElementName &admin, bool &result)
 {
     EDMLOGI("EnterpriseDeviceMgrProxy::IsByodAdmin");
@@ -480,6 +495,18 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdmins(std::vector<std::shared_ptr<AAFwk::W
     }
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->GetAdmins(wants);
+}
+
+ErrCode EnterpriseDeviceMgrProxy::GetAdminInfos(AppExecFwk::ElementName &admin,
+    std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetAdminInfos");
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->GetAdminInfos(admin, wants);
 }
 
 ErrCode EnterpriseDeviceMgrProxy::CheckAndGetAdminProvisionInfo(AppExecFwk::ElementName &admin,

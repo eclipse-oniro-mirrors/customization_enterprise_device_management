@@ -1559,6 +1559,96 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminsWithEnableSource, TestSize.L
     int32_t enableSource = wants[0]->GetIntParam("enableSource", -1);
     EXPECT_TRUE(enableSource == static_cast<int32_t>(EnableSource::DEPLOY));
 }
+
+/**
+ * @tc.name: TestIsSuperAdminByWantReturnFail
+ * @tc.desc: Test IsSuperAdminByWant func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsSuperAdminByWantReturnFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, IsSuperAdminByWant(_, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminByWantFail));
+    bool ret = true;
+    AppExecFwk::ElementName admin;
+    enterpriseDeviceMgrProxyTest->IsSuperAdminByWant(admin, ret);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestIsSuperAdminByWantIpcFail
+ * @tc.desc: Test IsSuperAdminByWant func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsSuperAdminByWantIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, IsSuperAdminByWant(_, _))
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    bool ret = true;
+    AppExecFwk::ElementName admin;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->IsSuperAdminByWant(admin, ret);
+    EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestIsSuperAdminByWantWithEdmDisable
+ * @tc.desc: Test IsSuperAdminByWant without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestIsSuperAdminByWantWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool ret = true;
+    AppExecFwk::ElementName admin;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->IsSuperAdminByWant(admin, ret);
+    ASSERT_TRUE(errVal == ERR_OK);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: TestGetAdminInfosSucc
+ * @tc.desc: Test GetAdminInfos func succ.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminInfosSucc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetAdminInfos(_, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeGetAdminInfos));
+    AppExecFwk::ElementName admin;
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdminInfos(admin, wants);
+    ASSERT_TRUE(errVal == ERR_OK);
+    int32_t wantSize = wants.size();
+    ASSERT_TRUE(wantSize == 1);
+    std::shared_ptr<AAFwk::Want> want = wants[0];
+    ASSERT_TRUE(want != nullptr);
+    std::string bundleName = want->GetStringParam("bundleName");
+    EXPECT_TRUE(bundleName == "com.edm.test.demo");
+    std::string abilityName = want->GetStringParam("abilityName");
+    EXPECT_TRUE(abilityName == "test.ability");
+    int32_t adminType = want->GetIntParam("adminType", -1);
+    EXPECT_TRUE(adminType == static_cast<int32_t>(AdminType::ENT));
+}
+
+/**
+ * @tc.name: TestGetAdminInfosIpcFail
+ * @tc.desc: Test GetAdminInfos func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminInfosIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetAdminInfos(_, _))
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    AppExecFwk::ElementName admin;
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdminInfos(admin, wants);
+    EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

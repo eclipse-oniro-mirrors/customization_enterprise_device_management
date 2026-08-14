@@ -79,6 +79,13 @@ int EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminFail(const std::string &bundl
     return ERR_OK;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminByWantFail(const AppExecFwk::ElementName &admin, bool &isSuper)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsSuperAdminByWantFail";
+    isSuper = false;
+    return ERR_OK;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeIsByodAdminFail(const AppExecFwk::ElementName &admin, bool &isByod)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsByodAdminFail";
@@ -104,6 +111,20 @@ int EnterpriseDeviceMgrStubMock::InvokeGetAdmins(std::vector<std::shared_ptr<AAF
     want->SetParam("abilityName", abilityName);
     want->SetParam("adminType", static_cast<int32_t>(AdminType::BYOD));
     want->SetParam("enableSource", static_cast<int32_t>(EnableSource::DEPLOY));
+    wants.push_back(want);
+    return ERR_OK;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeGetAdminInfos(const AppExecFwk::ElementName &admin,
+    std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetAdminInfos";
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    std::string bundleName = "com.edm.test.demo";
+    std::string abilityName = "test.ability";
+    want->SetParam("bundleName", bundleName);
+    want->SetParam("abilityName", abilityName);
+    want->SetParam("adminType", static_cast<int32_t>(AdminType::ENT));
     wants.push_back(want);
     return ERR_OK;
 }
