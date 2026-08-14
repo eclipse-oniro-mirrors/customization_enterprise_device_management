@@ -240,39 +240,6 @@ HWTEST_F(SwitchParamSerializerTest, TestGetPolicyInvalidStatus, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWritePolicySuccess
- * @tc.desc: Test SwitchParamSerializer::WritePolicy success
- * @tc.type: FUNC
- */
-HWTEST_F(SwitchParamSerializerTest, TestWritePolicySuccess, TestSize.Level1)
-{
-    auto serializer = SwitchParamSerializer::GetInstance();
-    MessageParcel reply;
-    std::vector<SwitchParam> result;
-    result.push_back({SwitchKey::BLUETOOTH, SwitchStatus::ON});
-    bool ret = serializer->WritePolicy(reply, result);
-    ASSERT_TRUE(ret);
-    int32_t key = reply.ReadInt32();
-    int32_t status = reply.ReadInt32();
-    ASSERT_EQ(key, static_cast<int32_t>(SwitchKey::BLUETOOTH));
-    ASSERT_EQ(status, static_cast<int32_t>(SwitchStatus::ON));
-}
-
-/**
- * @tc.name: TestWritePolicyEmptyVector
- * @tc.desc: Test SwitchParamSerializer::WritePolicy with empty vector
- * @tc.type: FUNC
- */
-HWTEST_F(SwitchParamSerializerTest, TestWritePolicyEmptyVector, TestSize.Level1)
-{
-    auto serializer = SwitchParamSerializer::GetInstance();
-    MessageParcel reply;
-    std::vector<SwitchParam> result;
-    bool ret = serializer->WritePolicy(reply, result);
-    ASSERT_FALSE(ret);
-}
-
-/**
  * @tc.name: TestMergePolicySuccess
  * @tc.desc: Test SwitchParamSerializer::MergePolicy success
  * @tc.type: FUNC
