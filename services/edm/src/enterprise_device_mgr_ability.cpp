@@ -430,6 +430,7 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
     addSystemAbilityFuncMap_[ABILITY_MGR_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnAbilityManagerServiceStart();
+            that->OnHandleInitExecute(EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_KIOSK_APPS, ABILITY_MGR_SERVICE_ID);
         };
     addSystemAbilityFuncMap_[WINDOW_MANAGER_SERVICE_ID] =
@@ -446,10 +447,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
     addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
-        };
-    addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnHandleInitExecute(EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
         };
 #ifdef MOBILE_DATA_ENABLE
     addSystemAbilityFuncMap_[TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID] =
