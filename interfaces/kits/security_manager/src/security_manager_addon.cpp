@@ -52,6 +52,9 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nUnlockPolicy = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nUnlockPolicy));
     CreateUnlockPolicyObject(env, nUnlockPolicy);
+    napi_value nDeviceSecurityLevelPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nDeviceSecurityLevelPolicy));
+    CreateDeviceSecurityLevelPolicyObject(env, nDeviceSecurityLevelPolicy);
     std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
@@ -72,24 +75,15 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("ClipboardPolicy", nClipboardPolicy),
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
         DECLARE_NAPI_PROPERTY("PasswordAlgs", nPasswordAlgs),
-        DECLARE_NAPI_FUNCTION("setExternalSourceExtensionsPolicy", SetExternalSourceExtensionsPolicy),
-        DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
-        DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
-            InstallEnterpriseReSignatureCertificate),
-        DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::UNINSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
-            UninstallEnterpriseReSignatureCertificate),
-        DECLARE_NAPI_FUNCTION("setScreenLockDisabledForAccount", SetScreenLockDisabledForAccount),
-        DECLARE_NAPI_FUNCTION("isScreenLockDisabledForAccount", IsScreenLockDisabledForAccount),
-        DECLARE_NAPI_FUNCTION("setDisallowedPermission", SetDisallowedPermission),
-        DECLARE_NAPI_FUNCTION("getWatermarkImageApps", GetWatermarkImageApps),
     };
-    std::vector<napi_property_descriptor> propertyOne = InitOne(nUnlockPolicy);
+    std::vector<napi_property_descriptor> propertyOne = InitOne(nUnlockPolicy, nDeviceSecurityLevelPolicy);
     property.insert(property.end(), propertyOne.begin(), propertyOne.end());
     NAPI_CALL(env, napi_define_properties(env, exports, property.size(), property.data()));
     return exports;
 }
 
-std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value nUnlockPolicy)
+std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value nUnlockPolicy,
+    napi_value nDeviceSecurityLevelPolicy)
 {
     std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getDisallowedPermissions", GetDisallowedPermissions),
@@ -104,6 +98,19 @@ std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value n
         DECLARE_NAPI_FUNCTION("setUnlockPolicy", SetUnlockPolicy),
         DECLARE_NAPI_FUNCTION("getUnlockPolicy", GetUnlockPolicy),
         DECLARE_NAPI_PROPERTY("UnlockPolicy", nUnlockPolicy),
+        DECLARE_NAPI_PROPERTY("DeviceSecurityLevelPolicy", nDeviceSecurityLevelPolicy),
+        DECLARE_NAPI_FUNCTION("setDeviceSecurityLevelPolicy", SetDeviceSecurityLevelPolicy),
+        DECLARE_NAPI_FUNCTION("getDeviceSecurityLevelPolicy", GetDeviceSecurityLevelPolicy),
+        DECLARE_NAPI_FUNCTION("setExternalSourceExtensionsPolicy", SetExternalSourceExtensionsPolicy),
+        DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
+        DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
+            InstallEnterpriseReSignatureCertificate),
+        DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::UNINSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
+            UninstallEnterpriseReSignatureCertificate),
+        DECLARE_NAPI_FUNCTION("setScreenLockDisabledForAccount", SetScreenLockDisabledForAccount),
+        DECLARE_NAPI_FUNCTION("isScreenLockDisabledForAccount", IsScreenLockDisabledForAccount),
+        DECLARE_NAPI_FUNCTION("setDisallowedPermission", SetDisallowedPermission),
+        DECLARE_NAPI_FUNCTION("getWatermarkImageApps", GetWatermarkImageApps),
     };
     return property;
 }
@@ -1766,6 +1773,69 @@ napi_value SecurityManagerAddon::GetUnlockPolicy(napi_env env, napi_callback_inf
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_int32(env, policy, &result));
     return result;
+}
+
+void SecurityManagerAddon::CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nDefaultEnforced;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DeviceSecurityLevelPolicy::DEFAULT_ENFORCED), &nDefaultEnforced));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT_ENFORCED", nDefaultEnforced));
+    napi_value nAllowBalanced;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DeviceSecurityLevelPolicy::ALLOW_BALANCED), &nAllowBalanced));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_BALANCED", nAllowBalanced));
+    napi_value nAllowFlexible;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DeviceSecurityLevelPolicy::ALLOW_FLEXIBLE), &nAllowFlexible));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALLOW_FLEXIBLE", nAllowFlexible));
+}
+
+napi_value SecurityManagerAddon::SetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDeviceSecurityLevelPolicy called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsConvert = {nullptr, nullptr};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.name = "SetDeviceSecurityLevelPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->SetDeviceSecurityLevelPolicy(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info)
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsConvert = {nullptr};
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.name = "GetDeviceSecurityLevelPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t policy;
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
+        GetDeviceSecurityLevelPolicy(adapterAddonData.data, policy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value deviceSecurityLevelPolicy;
+    NAPI_CALL(env, napi_create_int32(env, policy, &deviceSecurityLevelPolicy));
+    return deviceSecurityLevelPolicy;
 }
 
 static napi_module g_securityModule = {

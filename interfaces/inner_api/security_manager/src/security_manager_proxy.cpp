@@ -605,5 +605,28 @@ int32_t SecurityManagerProxy::GetUnlockPolicy(MessageParcel &data, int32_t &poli
     policy = reply.ReadInt32();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::SetDeviceSecurityLevelPolicy(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::SetDeviceSecurityLevelPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetDeviceSecurityLevelPolicy(MessageParcel &data, int32_t &policy)
+{
+    EDMLOGD("SecurityManagerProxy::GetDeviceSecurityLevelPolicy");
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGW("SecurityManagerProxy:GetDeviceSecurityLevelPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    policy = reply.ReadInt32();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

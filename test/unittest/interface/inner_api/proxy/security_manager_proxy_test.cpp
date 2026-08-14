@@ -21,6 +21,7 @@
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "security_manager_proxy.h"
+#include "managed_policy.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -932,6 +933,66 @@ HWTEST_F(SecurityManagerProxyTest, TestGetUnlockPolicyFail, TestSize.Level1)
     int32_t policy = -1;
     int32_t ret = proxy_->GetUnlockPolicy(data, policy);
     ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestSetDeviceSecurityLevelPolicySuc
+ * @tc.desc: Test SetDeviceSecurityLevelPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetDeviceSecurityLevelPolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(DeviceSecurityLevelPolicy::ALLOW_BALANCED));
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetDeviceSecurityLevelPolicy(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDeviceSecurityLevelPolicyFail
+ * @tc.desc: Test SetDeviceSecurityLevelPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetDeviceSecurityLevelPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(DeviceSecurityLevelPolicy::ALLOW_BALANCED));
+    int32_t ret = proxy_->SetDeviceSecurityLevelPolicy(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDeviceSecurityLevelPolicySuc
+ * @tc.desc: Test GetDeviceSecurityLevelPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetDeviceSecurityLevelPolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    int32_t policy = -1;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t ret = proxy_->GetDeviceSecurityLevelPolicy(data, policy);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDeviceSecurityLevelPolicyFail
+ * @tc.desc: Test GetDeviceSecurityLevelPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetDeviceSecurityLevelPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    int32_t policy = -1;
+    int32_t ret = proxy_->GetDeviceSecurityLevelPolicy(data, policy);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 } // namespace TEST
 } // namespace EDM

@@ -107,7 +107,11 @@ private:
     static void NativeAddUserExtCredentialComplete(napi_env env, napi_status status, void *data);
     static void NativeGetUserExtCredential(napi_env env, void *data);
     static void NativeGetUserExtCredentialComplete(napi_env env, napi_status status, void *data);
-    static std::vector<napi_property_descriptor> InitOne(napi_value nUnlockPolicy);
+    static std::vector<napi_property_descriptor> InitOne(napi_value nUnlockPolicy,
+        napi_value nDeviceSecurityLevelPolicy);
+    static napi_value SetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info);
+    static void CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

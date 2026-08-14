@@ -82,6 +82,8 @@ public:
     int32_t GetUserExtCredential(MessageParcel &data, MessageParcel &reply);
     int32_t SetUnlockPolicy(MessageParcel &data);
     int32_t GetUnlockPolicy(MessageParcel &data, int32_t &policy);
+    int32_t SetDeviceSecurityLevelPolicy(MessageParcel &data);
+    int32_t GetDeviceSecurityLevelPolicy(MessageParcel &data, int32_t &policy);
 private:
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::once_flag flag_;

@@ -56,6 +56,7 @@ namespace OverrideInterfaceName {
 
     namespace SecurityManager {
         const char* const SET_PASSWORD_POLICY = "setPasswordPolicy";
+        const char* const SET_DEVICE_SECURITY_LEVEL_POLICY = "setDeviceSecurityLevelPolicy";
         const char* const UNINSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE = "uninstallEnterpriseReSignatureCertificate";
         const char* const INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE = "installEnterpriseReSignatureCertificate";
     } // namespace SecurityManager
