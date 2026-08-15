@@ -29,7 +29,11 @@
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <vector>
+
+#include "directory_ex.h"
+#include "edm_constants.h"
 
 #include "admin_container.h"
 #include "application_state_observer.h"
@@ -7211,6 +7215,32 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminInfosWithoutActiveAdmin, Te
     EXPECT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: CleanHapTempDirectory_FilesExist_AllFilesRemoved
+ * @tc.desc: Test CleanHapTempDirectory when the HAP directory has files that can be removed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, CleanHapTempDirectory_FilesExist_AllFilesRemoved, TestSize.Level1)
+{
+    // Create the directory and some temporary files
+    OHOS::ForceCreateDirectory(EdmConstants::BundleManager::HAP_DIRECTORY);
+    std::string testFile1 = std::string(EdmConstants::BundleManager::HAP_DIRECTORY) + "/test1.tmp";
+    std::string testFile2 = std::string(EdmConstants::BundleManager::HAP_DIRECTORY) + "/test2.tmp";
+    int fd1 = open(testFile1.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (fd1 >= 0) {
+        close(fd1);
+    }
+    int fd2 = open(testFile2.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (fd2 >= 0) {
+        close(fd2);
+    }
+
+    edmMgr_->CleanHapTempDirectory();
+
+    // Verify files are removed
+    EXPECT_EQ(access(testFile1.c_str(), F_OK), -1);
+    EXPECT_EQ(access(testFile2.c_str(), F_OK), -1);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

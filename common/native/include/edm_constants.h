@@ -115,6 +115,10 @@ namespace EdmConstants {
         const char* const ENTERPRISE_CUSTOM_HIDE_APP_LIST = "com.enterprise.custom_hide_app_list";
     }
 
+    namespace BundleManager {
+        const char* const HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
+    }
+
     namespace Browser {
         const char* const GET_MANAGED_BROWSER_VERSION = "version";
         const char* const GET_MANAGED_BROWSER_FILE_DATA = "fileData";

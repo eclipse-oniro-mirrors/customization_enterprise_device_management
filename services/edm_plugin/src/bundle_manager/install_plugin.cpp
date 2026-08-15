@@ -36,7 +36,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
-const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string RELATIVE_PATH = "../";
 const std::string CURRENT_PATH = "./";
 const std::string SEPARATOR = "/";
@@ -349,8 +348,7 @@ void InstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstallPlugin, In
 ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
     std::string fileName = data.ReadString();
-    std::string bundlePath = HAP_DIRECTORY + "/" + fileName;
-
+    std::string bundlePath = std::string(EdmConstants::BundleManager::HAP_DIRECTORY) + "/" + fileName;
     if (bundlePath.length() > PATH_MAX) {
         EDMLOGE("bundlePath length is error, the length is: [%{public}zu]", bundlePath.length());
         reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
@@ -388,17 +386,17 @@ ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
 
 bool InstallPlugin::CreateDirectory()
 {
-    if (!OHOS::ForceCreateDirectory(HAP_DIRECTORY)) {
-        EDMLOGE("mkdir %{public}s failed", HAP_DIRECTORY.c_str());
+    if (!OHOS::ForceCreateDirectory(EdmConstants::BundleManager::HAP_DIRECTORY)) {
+        EDMLOGE("mkdir %{public}s failed", EdmConstants::BundleManager::HAP_DIRECTORY);
         return false;
     }
-    if (chown(HAP_DIRECTORY.c_str(), EDM_UID, EDM_GID) != 0) {
-        EDMLOGE("fail to change %{public}s ownership", HAP_DIRECTORY.c_str());
+    if (chown(EdmConstants::BundleManager::HAP_DIRECTORY, EDM_UID, EDM_GID) != 0) {
+        EDMLOGE("fail to change %{public}s ownership", EdmConstants::BundleManager::HAP_DIRECTORY);
         return false;
     }
     mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-    if (!OHOS::ChangeModeFile(HAP_DIRECTORY, mode)) {
-        EDMLOGE("change mode failed, temp install dir : %{public}s", HAP_DIRECTORY.c_str());
+    if (!OHOS::ChangeModeFile(EdmConstants::BundleManager::HAP_DIRECTORY, mode)) {
+        EDMLOGE("change mode failed, temp install dir : %{public}s", EdmConstants::BundleManager::HAP_DIRECTORY);
         return false;
     }
     return true;
