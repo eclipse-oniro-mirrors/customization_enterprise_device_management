@@ -2244,13 +2244,6 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
 
 ErrCode EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName, bool &isSuper)
 {
-    isSuper = false;
-    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
-        EDMLOGE("IsSuperAdmin: check permission failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
-    }
     isSuper = AdminManager::GetInstance()->IsSuperAdmin(bundleName);
     return ERR_OK;
 }
