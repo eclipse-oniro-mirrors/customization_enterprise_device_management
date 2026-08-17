@@ -446,7 +446,11 @@ ohos_shared_library("communication_plugin") {
     }
 
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
-      external_deps += [ "usb_manager:usbsrv_client" ]
+      external_deps += [
+        "drivers_interface_usb:usb_idl_headers_1.1",
+        "drivers_interface_usb:usb_idl_headers_1.2",
+        "usb_manager:usbsrv_client",
+        ]
       sources += [
         "./src/usb_manager/allowed_usb_devices_plugin.cpp",
         "./src/restrictions/disable_usb_plugin.cpp",

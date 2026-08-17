@@ -65,6 +65,8 @@ ohos_unittest("EdmPluginPermissionUnitTest") {
   if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager && usb_manager_edm_enable) {
     external_deps += [
       "disk_manager:disk_manager_innerkits",
+      "drivers_interface_usb:usb_idl_headers_1.1",
+      "drivers_interface_usb:usb_idl_headers_1.2",
       "usb_manager:usbsrv_client",
     ]
   }

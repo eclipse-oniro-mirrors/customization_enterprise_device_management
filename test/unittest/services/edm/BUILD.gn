@@ -274,7 +274,11 @@ ohos_static_library("edmservice_static") {
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
-    external_deps += [ "usb_manager:usbsrv_client" ]
+    external_deps += [
+        "drivers_interface_usb:usb_idl_headers_1.1",
+        "drivers_interface_usb:usb_idl_headers_1.2",
+        "usb_manager:usbsrv_client",
+      ]
   }
 
   if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {

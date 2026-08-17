@@ -83,7 +83,11 @@ ohos_fuzztest("DisableUserMtpClientPluginFuzzTest") {
       ]
     }
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
-      external_deps += [ "usb_manager:usbsrv_client" ]
+      external_deps += [
+        "drivers_interface_usb:usb_idl_headers_1.1",
+        "drivers_interface_usb:usb_idl_headers_1.2",
+        "usb_manager:usbsrv_client",
+      ]
     }
     if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
         usb_manager_edm_enable) {
