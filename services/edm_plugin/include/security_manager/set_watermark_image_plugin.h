@@ -75,6 +75,7 @@ private:
     bool UnsubscribeAppState();
     bool IsRowColParamValid(int32_t row, int32_t col);
     sptr<AppExecFwk::IAppMgr> GetAppManager();
+    std::string GenerateUniqueFileName();
 };
 } // namespace EDM
 } // namespace OHOS
