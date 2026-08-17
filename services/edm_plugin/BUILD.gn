@@ -177,7 +177,11 @@ ohos_shared_library("device_core_plugin") {
         "SUDO_EDM_ENABLE",
         "FEATURE_PC_ONLY"
       ]
-      external_deps += [ "usb_manager:usbsrv_client" ]
+      external_deps += [
+        "drivers_interface_usb:usb_idl_headers_1.1",
+        "drivers_interface_usb:usb_idl_headers_1.2",
+        "usb_manager:usbsrv_client",
+        ]
     }
 
     if (enterprise_device_management_feature_pc_only) {

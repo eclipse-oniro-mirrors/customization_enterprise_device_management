@@ -84,6 +84,7 @@ ohos_fuzztest("AdminManagerFuzzTest") {
     }
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
       external_deps += [
+        "cJSON:cjson",
         "drivers_interface_usb:usb_idl_headers_1.1",
         "drivers_interface_usb:usb_idl_headers_1.2",
         "usb_manager:usbsrv_client",
