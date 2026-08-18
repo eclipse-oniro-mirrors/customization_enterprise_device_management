@@ -34,6 +34,9 @@
 #include "edm_sys_manager.h"
 #include "func_code.h"
 #include "utils.h"
+#include "policy_manager.h"
+#include "ipolicy_manager.h"
+#include "manage_keep_alive_apps_serializer.h"
 
 using namespace testing::ext;
 
@@ -251,6 +254,117 @@ HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnAdminRemoveDoneFail, TestSize.Leve
     reply.ReadStringVector(&keepAliveApps);
     ASSERT_TRUE((ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) || (keepAliveApps.empty()));
 }
+/**
+ * @tc.name: TestGetDisallowModifyMatch
+ * @tc.desc: Test OnGetPolicy disallowModify branch when bundleName matches an item in mergePolicyData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageKeepAliveAppsPluginTest, TestGetDisallowModifyMatch, TestSize.Level1)
+{
+    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
+    IPolicyManager::policyManagerInstance_ = policyManager.get();
+
+    ManageKeepAliveAppInfo info;
+    info.SetBundleName("com.test.bundle");
+    info.SetDisallowModify(true);
+    std::vector<ManageKeepAliveAppInfo> mergeData = {info};
+    std::string mergePolicyStr;
+    ManageKeepAliveAppsSerializer::GetInstance()->Serialize(mergeData, mergePolicyStr);
+
+    ErrCode setRes = policyManager->SetPolicy("testAdmin",
+        PolicyName::POLICY_MANAGE_KEEP_ALIVE_APPS, "", mergePolicyStr, DEFAULT_USER_ID);
+    ASSERT_TRUE(setRes == ERR_OK);
+
+    ManageKeepAliveAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("disallowModify");
+    data.WriteString("com.test.bundle");
+    std::string policyData;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    bool disallowModify = false;
+    ASSERT_TRUE(reply.ReadBool(disallowModify));
+    ASSERT_TRUE(disallowModify == true);
+
+    policyManager->SetPolicy("testAdmin",
+        PolicyName::POLICY_MANAGE_KEEP_ALIVE_APPS, "", "", DEFAULT_USER_ID);
+    IPolicyManager::policyManagerInstance_ = nullptr;
+}
+
+/**
+ * @tc.name: TestGetKeepAliveBundleNamesWithValidJson
+ * @tc.desc: Test GetKeepAliveBundleNames with valid JSON policyData, IMS returns empty, result is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageKeepAliveAppsPluginTest, TestGetKeepAliveBundleNamesWithValidJson, TestSize.Level1)
+{
+    ManageKeepAliveAppsPlugin plugin;
+    ManageKeepAliveAppInfo info;
+    info.SetBundleName("com.test.bundle");
+    info.SetDisallowModify(false);
+    std::vector<ManageKeepAliveAppInfo> appInfos = {info};
+    std::string policyData;
+    ManageKeepAliveAppsSerializer::GetInstance()->Serialize(appInfos, policyData);
+
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("bundleName");
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+    std::vector<std::string> res;
+    reply.ReadStringVector(&res);
+    ASSERT_TRUE(res.empty());
+}
+
+/**
+ * @tc.name: TestOnSetPolicyPreserveExistingOnFailure
+ * @tc.desc: Test OnSetPolicy preserves existing currentData when external call fails for new apps.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnSetPolicyPreserveExistingOnFailure, TestSize.Level1)
+{
+    ManageKeepAliveAppsPlugin plugin;
+    plugin.maxListSize_ = EdmConstants::KEEP_ALIVE_APPS_MAX_SIZE;
+
+    ManageKeepAliveAppInfo existingInfo;
+    existingInfo.SetBundleName("com.existing");
+    existingInfo.SetDisallowModify(false);
+    std::vector<ManageKeepAliveAppInfo> currentData = {existingInfo};
+    std::vector<ManageKeepAliveAppInfo> mergeData;
+
+    std::vector<std::string> data = {"com.new.app"};
+    bool disallowModify = false;
+    ErrCode ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret != ERR_OK || currentData.size() >= 1);
+    bool hasExisting = false;
+    for (const auto &item : currentData) {
+        if (item.GetBundleName() == "com.existing") {
+            hasExisting = true;
+            break;
+        }
+    }
+    ASSERT_TRUE(hasExisting);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyTypeError
+ * @tc.desc: Test OnGetPolicy returns SYSTEM_ABNORMALLY when type is unknown.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnGetPolicyTypeError, TestSize.Level1)
+{
+    ManageKeepAliveAppsPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteString("unknownType");
+    std::string policyData;
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

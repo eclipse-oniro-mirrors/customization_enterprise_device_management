@@ -16,6 +16,8 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_KEEP_ALIVE_APPS_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_MANAGE_KEEP_ALIVE_APPS_PLUGIN_H
 
+#include <set>
+
 #include "ability_manager_interface.h"
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
@@ -55,6 +57,8 @@ private:
         int32_t userId, std::vector<ManageKeepAliveAppInfo> &failedData, bool disallowModify);
     void ParseErrCode(ErrCode &ret);
     void GetErrorMessage(ErrCode &errCode, std::string &errMessage);
+    std::set<std::string> QueryAmsKeepAliveBundles(int32_t userId);
+    std::vector<std::string> GetKeepAliveBundleNames(std::string &policyData, int32_t userId);
     sptr<AAFwk::IAbilityManager> GetAbilityManager();
     sptr<AppExecFwk::IAppControlMgr> GetAppControlProxy();
     uint32_t maxListSize_ = 0;
