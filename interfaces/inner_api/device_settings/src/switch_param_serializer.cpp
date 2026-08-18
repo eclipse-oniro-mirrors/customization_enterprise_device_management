@@ -176,6 +176,13 @@ bool SwitchParamSerializer::GetPolicy(MessageParcel &data, std::vector<SwitchPar
  
 bool SwitchParamSerializer::WritePolicy(MessageParcel &reply, std::vector<SwitchParam> &result)
 {
+    if (result.size() <= 0) {
+        EDMLOGE("SwitchParamSerializer::WritePolicy result is empty");
+        return false;
+    }
+    SwitchParam param = result[0];
+    reply.WriteInt32(static_cast<int32_t>(param.key));
+    reply.WriteInt32(static_cast<int32_t>(param.status));
     return true;
 }
  
