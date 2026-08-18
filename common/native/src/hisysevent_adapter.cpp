@@ -23,7 +23,7 @@ namespace OHOS {
 namespace EDM {
 using namespace OHOS::HiviewDFX;
 const std::string EDM_ENTERPRISE_ID = "persist.edm.enterprise_id";
-void HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
+bool HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string &apiName, const std::string &msgInfo)
 {
     EDMLOGI("hisysevent ReportEdmEvent");
     int ret;
@@ -48,10 +48,12 @@ void HiSysEventAdapter::ReportEdmEvent(ReportType reportType, const std::string 
     if (ret != 0) {
         EDMLOGE("hisysevent write failed! ret %{public}d, apiName %{public}s, errMsg %{public}s", ret,
             apiName.c_str(), msgInfo.c_str());
+        return false;
     }
+    return true;
 }
 
-void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
+bool HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName, const int32_t &action,
     const int32_t & adminType, const std::string &extraInfo, const int32_t &enableSource)
 {
     EDMLOGI("hisysevent ReportEdmEventManagerAdmin");
@@ -74,7 +76,9 @@ void HiSysEventAdapter::ReportEdmEventManagerAdmin(const std::string &bundleName
         HiSysEventEventType::HISYSEVENT_STATISTIC, params, sizeof(params) / sizeof(params[0]));
     if (ret != 0) {
         EDMLOGE("hisysevent write manager admin failed! ret %{public}d", ret);
+        return false;
     }
+    return true;
 }
 
 bool HiSysEventAdapter::ReportInstalledBundleInfo(const std::string &installedInfo)

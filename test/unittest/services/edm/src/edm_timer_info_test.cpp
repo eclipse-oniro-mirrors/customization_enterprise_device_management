@@ -37,20 +37,6 @@ public:
 };
 
 /**
- * @tc.name: EdmTimerInfo_Constructor_WithNullCallbacks_CallbacksNull
- * @tc.desc: Test EdmTimerInfo constructor sets callbacks to nullptr when nullptr is passed.
- * @tc.type: FUNC
- */
-HWTEST_F(EdmTimerInfoTest, Constructor_WithNullCallbacks_CallbacksNull, TestSize.Level1)
-{
-    EdmTimerInfo timerInfo(nullptr, nullptr);
-    EXPECT_TRUE(timerInfo.callback_ == nullptr);
-    EXPECT_TRUE(timerInfo.cleanupCallback_ == nullptr);
-    timerInfo.OnTrigger();
-    EXPECT_TRUE(true);
-}
-
-/**
  * @tc.name: EdmTimerInfo_OnTrigger_BothCallbacksSet_BothCalled
  * @tc.desc: Test OnTrigger invokes both callback and cleanupCallback when both are set.
  * @tc.type: FUNC

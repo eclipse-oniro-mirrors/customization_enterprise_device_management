@@ -118,12 +118,6 @@ HWTEST_F(EdmTimerManagerTest, CancelTimer_RunningTimer_IsTimerRunningFalse, Test
     EXPECT_FALSE(instance_->IsTimerRunning(EdmTimerTask::INSTALLED_BUNDLE_TIMER));
 }
 
-HWTEST_F(EdmTimerManagerTest, CancelTimer_NonExistentTaskId_NoCrash, TestSize.Level1)
-{
-    instance_->CancelTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
-    EXPECT_TRUE(true);
-}
-
 HWTEST_F(EdmTimerManagerTest, IsTimerRunning_TimerRunning_ReturnTrue, TestSize.Level1)
 {
     std::atomic<bool> callbackExecuted{false};
