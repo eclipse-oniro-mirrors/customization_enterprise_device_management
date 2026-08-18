@@ -38,8 +38,8 @@ public:
  */
 HWTEST_F(HiSysEventAdapterTest, ReportEdmEvent_FuncEventType_NoCrash, TestSize.Level1)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "DisableAdmin");
-    EXPECT_TRUE(true);
+    bool ret = HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, "DisableAdmin");
+    EXPECT_TRUE(ret);
 }
 
 /**
@@ -49,8 +49,8 @@ HWTEST_F(HiSysEventAdapterTest, ReportEdmEvent_FuncEventType_NoCrash, TestSize.L
  */
 HWTEST_F(HiSysEventAdapterTest, ReportEdmEvent_EmptyApiName_NoCrash, TestSize.Level1)
 {
-    HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_FAILED, "", "UT test error message");
-    EXPECT_TRUE(true);
+    bool ret = HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_FAILED, "", "UT test error message");
+    EXPECT_TRUE(ret);
 }
 
 /**
@@ -60,8 +60,8 @@ HWTEST_F(HiSysEventAdapterTest, ReportEdmEvent_EmptyApiName_NoCrash, TestSize.Le
  */
 HWTEST_F(HiSysEventAdapterTest, ReportEdmEventManagerAdmin_NormalParams_NoCrash, TestSize.Level1)
 {
-    HiSysEventAdapter::ReportEdmEventManagerAdmin("com.test.bundle", 1, 0, "UT test extra info");
-    EXPECT_TRUE(true);
+    bool ret = HiSysEventAdapter::ReportEdmEventManagerAdmin("com.test.bundle", 1, 0, "UT test extra info");
+    EXPECT_TRUE(ret);
 }
 
 /**
@@ -71,8 +71,8 @@ HWTEST_F(HiSysEventAdapterTest, ReportEdmEventManagerAdmin_NormalParams_NoCrash,
  */
 HWTEST_F(HiSysEventAdapterTest, ReportEdmEventManagerAdmin_WithEnableSource_NoCrash, TestSize.Level1)
 {
-    HiSysEventAdapter::ReportEdmEventManagerAdmin("com.test.bundle", 1, 0, "UT test extra info", 0);
-    EXPECT_TRUE(true);
+    bool ret = HiSysEventAdapter::ReportEdmEventManagerAdmin("com.test.bundle", 1, 0, "UT test extra info", 0);
+    EXPECT_TRUE(ret);
 }
 
 /**

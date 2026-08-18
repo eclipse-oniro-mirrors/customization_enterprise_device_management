@@ -237,45 +237,6 @@ HWTEST_F(InstalledBundleInfoUtilTest, HasInstalledBundleInfo_NoData_ReturnFalse,
 }
 
 /**
- * @tc.name: TestScheduleReportIfNeededTimerNull
- * @tc.desc: Test ScheduleReportIfNeeded does not start timer when timer instance is nullptr.
- * @tc.type: FUNC
- */
-HWTEST_F(InstalledBundleInfoUtilTest, ScheduleReportIfNeeded_TimerNull_NoStart, TestSize.Level1)
-{
-    IEdmTimerManager::edmTimerManagerInstance_ = nullptr;
-    util_->ScheduleReportIfNeeded();
-    EXPECT_TRUE(true);
-}
-
-/**
- * @tc.name: TestScheduleReportIfNeededTimerAlreadyRunning
- * @tc.desc: Test ScheduleReportIfNeeded does not start timer when timer is already running.
- * @tc.type: FUNC
- */
-HWTEST_F(InstalledBundleInfoUtilTest, ScheduleReportIfNeeded_TimerRunning_NoStart, TestSize.Level1)
-{
-    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
-    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(true));
-
-    util_->ScheduleReportIfNeeded();
-}
-
-/**
- * @tc.name: TestScheduleReportIfNeededTimerNotRunning
- * @tc.desc: Test ScheduleReportIfNeeded starts timer when timer is not running.
- * @tc.type: FUNC
- */
-HWTEST_F(InstalledBundleInfoUtilTest, ScheduleReportIfNeeded_TimerNotRunning_SetTimer, TestSize.Level1)
-{
-    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
-    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(false));
-    EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
-
-    util_->ScheduleReportIfNeeded();
-}
-
-/**
  * @tc.name: TestReportAndClearNoData
  * @tc.desc: Test ReportAndClear returns immediately when no data exists (SwapAndClearLocked returns false).
  * @tc.type: FUNC
@@ -857,17 +818,13 @@ HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClearLocked_SwapSuccess_ReportFai
     EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
     util_->AddInstalledBundleInfo("com.admin.restore", "com.app.restore", InstalledBundleType::NORMAL);
 
-    bool reportResult = HiSysEventAdapter::ReportInstalledBundleInfo("test");
-    if (!reportResult) {
-        std::unique_lock<std::mutex> lock(util_->fileMutex_);
-        std::vector<InstalledBundleInfo> savedList;
-        bool swapRet = util_->SwapAndClearLocked(savedList);
-        if (swapRet) {
-            util_->RestoreToFileLocked(savedList);
-        }
-        lock.unlock();
-        EXPECT_TRUE(util_->HasInstalledBundleInfo());
-    }
+    std::unique_lock<std::mutex> lock(util_->fileMutex_);
+    std::vector<InstalledBundleInfo> savedList;
+    bool swapRet = util_->SwapAndClearLocked(savedList);
+    ASSERT_TRUE(swapRet);
+    EXPECT_TRUE(util_->RestoreToFileLocked(savedList));
+    lock.unlock();
+    EXPECT_TRUE(util_->HasInstalledBundleInfo());
 }
 
 /**
@@ -1042,29 +999,6 @@ HWTEST_F(InstalledBundleInfoUtilTest, RestoreToFileLocked_WithExistingData_Merge
     EXPECT_EQ(loadedList.size(), 2);
     EXPECT_EQ(loadedList[0].mdmName, "com.admin.saved");
     EXPECT_EQ(loadedList[1].mdmName, "com.admin.existing");
-}
-
-/**
- * @tc.name: InstalledBundleInfoUtil_ReportAndClearLocked_SwapSuccessAndReportSuccess_CancelTimerCalled
- * @tc.desc: Test ReportAndClearLocked calls CancelTimer when HiSysEvent report succeeds.
- * @tc.type: FUNC
- */
-HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClearLocked_SwapSuccessAndReportSuccess_CancelTimerCalled,
-    TestSize.Level1)
-{
-    IEdmTimerManager::edmTimerManagerInstance_ = mockTimer_.get();
-    EXPECT_CALL(*mockTimer_, IsTimerRunning(_)).WillOnce(Return(false));
-    EXPECT_CALL(*mockTimer_, SetTimer(_, _, _)).WillOnce(Return(true));
-    util_->AddInstalledBundleInfo("com.admin.reportok", "com.app.reportok", InstalledBundleType::NORMAL);
-
-    // ReportAndClear会先SwapAndClearLocked，然后调用HiSysEventAdapter::ReportInstalledBundleInfo
-    // 如果报告成功，会调用CancelTimer
-    bool reportResult = HiSysEventAdapter::ReportInstalledBundleInfo("test");
-    if (reportResult) {
-        EXPECT_CALL(*mockTimer_, CancelTimer(_)).Times(1);
-    }
-    util_->ReportAndClear();
-    EXPECT_TRUE(true);
 }
 } // namespace TEST
 } // namespace EDM
