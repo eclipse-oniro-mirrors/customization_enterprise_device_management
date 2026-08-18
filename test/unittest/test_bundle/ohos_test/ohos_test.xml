@@ -26,4 +26,12 @@
         src="res" />
     </preparer>
   </target>
+    <target name="ManageAutoStartAppsPluginTest">
+  <preparer>
+      <option name="push" value="test_bundle/right.hap -> /data/test/resource/enterprise_device_management/hap/"
+        src="res" />
+      <option name="push" value="test_bundle/right.hap -> /data/test/resource/enterprise_device_management/hap_bak/"
+        src="res" />
+    </preparer>
+  </target>
 </configuration>
