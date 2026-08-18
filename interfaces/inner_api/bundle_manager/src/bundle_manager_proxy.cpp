@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include "directory_ex.h"
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "install_error_codes.h"
@@ -33,7 +34,6 @@ namespace EDM {
 std::shared_ptr<BundleManagerProxy> BundleManagerProxy::instance_ = nullptr;
 std::once_flag BundleManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
-const std::string HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
 const std::string SEPARATOR = "/";
 const int32_t SET_MARKET_APPS = 0;
 
@@ -344,7 +344,7 @@ ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std
         errMessage = "write file to stream failed due to invalid file path";
         return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
-    std::string innerFilePath = HAP_DIRECTORY + SEPARATOR + fileName;
+    std::string innerFilePath = EdmConstants::BundleManager::HAP_DIRECTORY + SEPARATOR + fileName;
     if ((innerFilePath.length() > PATH_MAX)) {
         errMessage = "invalid hap file path";
         return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;

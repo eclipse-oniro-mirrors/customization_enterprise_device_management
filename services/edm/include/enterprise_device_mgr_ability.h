@@ -230,6 +230,7 @@ public:
     void InitAllAdmins();
     void InitAllPolices();
     void RemoveAllDebugAdmin();
+    void CleanHapTempDirectory();
     void AddSystemAbilityListeners();
     void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
     void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);

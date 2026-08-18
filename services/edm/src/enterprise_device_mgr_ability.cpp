@@ -1312,6 +1312,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
     InitAgTask();
     EdmTimerManager::GetInstance();
     CheckAndReportInstalledBundleInfoOnStart();
+    CleanHapTempDirectory();
 }
 
 void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
@@ -1324,6 +1325,18 @@ void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
             EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "true");
         }
     }
+}
+
+void EnterpriseDeviceMgrAbility::CleanHapTempDirectory()
+{
+    std::vector<std::string> files;
+    OHOS::GetDirFiles(EdmConstants::BundleManager::HAP_DIRECTORY, files);
+    for (const auto &file : files) {
+        if (!OHOS::RemoveFile(file)) {
+            EDMLOGW("CleanHapTempDirectory: failed to remove file : %{public}s", file.c_str());
+        }
+    }
+    EDMLOGI("CleanHapTempDirectory: cleaned %{public}zu files from stream_install directory", files.size());
 }
 
 void EnterpriseDeviceMgrAbility::InitAllAdmins()
