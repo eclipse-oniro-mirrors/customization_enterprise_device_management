@@ -122,6 +122,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
+    {static_cast<int32_t>(RestrictionsFeature::X_KEY), EdmInterfaceCode::DISALLOW_X_KEY},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
     {static_cast<int32_t>(RestrictionsFeature::SUDO), EdmInterfaceCode::DISALLOWED_DEVICE_SUDO},
     {static_cast<int32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION), EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION},
@@ -1079,6 +1080,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
     struct EnumEntry { const char *name; uint32_t val; };
     EnumEntry entries[] = {
         {"WIFI_P2P", static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P)},
+        {"X_KEY", static_cast<uint32_t>(RestrictionsFeature::X_KEY)},
         {"SUDO", static_cast<uint32_t>(RestrictionsFeature::SUDO)},
         {"LOCAL_INPUT", static_cast<uint32_t>(RestrictionsFeature::LOCAL_INPUT)},
         {"TRAFFIC_REDIRECTION", static_cast<uint32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION)},
