@@ -441,6 +441,8 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/account_manager/manage_normal_os_account_plugin.cpp",
       "./src/activate_normal_os_account_plugin_test.cpp",
       "../../../../services/edm_plugin/src/account_manager/activate_normal_os_account_plugin.cpp",
+      "./src/disallow_x_key_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
     ]
   }
 

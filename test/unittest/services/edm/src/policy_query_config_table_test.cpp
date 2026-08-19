@@ -185,6 +185,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOWED_UINPUT] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_CORE_DUMP] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_RS232] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_USB_SERIAL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::IS_APP_KIOSK_ALLOWED] = "";
@@ -377,6 +378,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
         EdmInterfaceCode::DISALLOWED_UINPUT,
         EdmInterfaceCode::DISALLOW_CORE_DUMP,
         EdmInterfaceCode::DISALLOW_RS232,
+        EdmInterfaceCode::DISALLOW_X_KEY,
         EdmInterfaceCode::DISALLOW_USB_SERIAL,
         EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
