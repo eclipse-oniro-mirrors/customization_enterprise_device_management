@@ -161,6 +161,7 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_SUPERHUB = 36;
         constexpr uint32_t HIDE_LAUNCHER_ICON = 37;
         constexpr uint32_t DISABLE_SECURE_ERASE = 39;
+        constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
     }
 
     namespace KeepAlive {
@@ -539,6 +540,7 @@ namespace PolicyName {
     const char* const POLICY_USER_EXT_CREDENTIAL = "user_ext_credential";
     const char* const POLICY_UNLOCK_POLICY = "unlock_policy";
     const char* const POLICY_DEVICE_SECURITY_LEVEL_POLICY = "device_security_level_policy";
+    const char* const POLICY_DISALLOWED_SYSTEM_ROLLBACK = "disallowed_system_rollback";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

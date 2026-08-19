@@ -174,6 +174,8 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::REMOTE_DIAGNOSIS), EdmInterfaceCode::POLICY_CODE_END + 26},
     {static_cast<int32_t>(RestrictionsFeature::OTA_UPDATE),
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_OTA},
+    {static_cast<int32_t>(RestrictionsFeature::SYSTEM_ROLLBACK),
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_SYSTEM_ROLLBACK},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -1139,6 +1141,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"UNMUTE_DEVICE", static_cast<uint32_t>(RestrictionsFeature::UNMUTE_DEVICE)},
         {"VIRTUAL_SERVICE", static_cast<uint32_t>(RestrictionsFeature::VIRTUAL_SERVICE)},
         {"USB_SERIAL", static_cast<uint32_t>(RestrictionsFeature::USB_SERIAL)},
+        {"SYSTEM_ROLLBACK", static_cast<uint32_t>(RestrictionsFeature::SYSTEM_ROLLBACK)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

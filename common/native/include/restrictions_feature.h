@@ -69,6 +69,7 @@ enum class RestrictionsFeature : int32_t {
     REMOTE_DESK = 48,
     REMOTE_DIAGNOSIS = 49,
     OTA_UPDATE = 50,
+    SYSTEM_ROLLBACK = 51,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {
