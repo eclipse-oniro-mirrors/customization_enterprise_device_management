@@ -812,5 +812,19 @@ int32_t ApplicationManagerProxy::GetAllowedDistributeAbilityConnBundles(int32_t 
     data.WriteInt32(WITHOUT_ADMIN);
     return GetAllowedDistributeAbilityConnBundles(data, appIdentifiers);
 }
+
+int32_t ApplicationManagerProxy::PublishFormToDesktop(MessageParcel &data, std::string &formId)
+{
+    EDMLOGI("ApplicationManagerProxy::PublishFormToDesktop");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP);
+    MessageParcel reply;
+    int32_t ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    if (SUCCEEDED(ret)) {
+        formId = reply.ReadString();
+    }
+    return ret;
+}
 } // namespace EDM
 } // namespace OHOS

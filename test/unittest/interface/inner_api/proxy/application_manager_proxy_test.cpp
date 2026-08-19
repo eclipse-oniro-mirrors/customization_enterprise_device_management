@@ -1838,6 +1838,79 @@ HWTEST_F(ApplicationManagerProxyTest, AddKeepAliveApps_ErrorCode_ReadRetMessage,
     ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
     ASSERT_EQ(retMessage, RETURN_STRING);
 }
+
+/**
+ * @tc.name: PublishFormToDesktop_Suc
+ * @tc.desc: Test PublishFormToDesktop success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, PublishFormToDesktop_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    std::string formId;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t ret = applicationManagerProxy_->PublishFormToDesktop(data, formId);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(formId, RETURN_STRING);
+}
+
+/**
+ * @tc.name: PublishFormToDesktop_Fail
+ * @tc.desc: Test PublishFormToDesktop without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, PublishFormToDesktop_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    std::string formId;
+    int32_t ret = applicationManagerProxy_->PublishFormToDesktop(data, formId);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: PublishFormToDesktop_ReplyFail
+ * @tc.desc: Test PublishFormToDesktop when reply returns error, formId should not be read.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, PublishFormToDesktop_ReplyFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::string formId;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = applicationManagerProxy_->PublishFormToDesktop(data, formId);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_TRUE(formId.empty());
+}
+
+/**
+ * @tc.name: PublishFormToDesktop_FormIdCorrect
+ * @tc.desc: Test PublishFormToDesktop when reply contains a numeric formId string.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, PublishFormToDesktop_FormIdCorrect, TestSize.Level1)
+{
+    MessageParcel data;
+    const std::string expectedFormId = "1234567890";
+    std::string formId;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce([&](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteString(expectedFormId);
+            return 0;
+        });
+    int32_t ret = applicationManagerProxy_->PublishFormToDesktop(data, formId);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(formId, expectedFormId);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

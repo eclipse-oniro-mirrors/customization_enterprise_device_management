@@ -466,6 +466,12 @@ ohos_unittest("EdmPluginTest") {
     ]
     defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
+
+  if (ability_form_fwk_edm_enable) {
+    sources += [
+      "./src/publish_form_to_desktop_plugin_test.cpp",
+    ]
+  }
  
   sanitize = {
     boundary_sanitize = true
@@ -1051,6 +1057,13 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     ]
     sources += [
       "../../../../services/edm_plugin/src/restrictions/disallow_vpn_plugin.cpp",
+    ]
+  }
+
+  if (ability_form_fwk_edm_enable) {
+    external_deps += [ "form_fwk:fmskit_native" ]
+    sources += [
+      "../../../../services/edm_plugin/src/application_manager/publish_form_to_desktop_plugin.cpp",
     ]
   }
 

@@ -84,6 +84,8 @@ const std::string PERMISSION_ACCESS_SCREEN_LOCK = "ohos.permission.ACCESS_SCREEN
 const std::string PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION =
     "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION";
 const std::string PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS = "ohos.permission.GET_LOCAL_ACCOUNT_IDENTIFIERS";
+const std::string PERMISSION_AGENT_REQUIRE_FORM = "ohos.permission.AGENT_REQUIRE_FORM";
+const std::string PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -179,7 +181,9 @@ void Utils::SetEdmPermissions()
         PERMISSION_MANAGE_USER_POLICY.c_str(),
         PERMISSION_ACCESS_SCREEN_LOCK.c_str(),
         PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION.c_str(),
-        PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS.c_str()
+        PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS.c_str(),
+        PERMISSION_AGENT_REQUIRE_FORM.c_str(),
+        PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 }

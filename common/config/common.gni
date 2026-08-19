@@ -169,4 +169,9 @@ declare_args() {
       defined(global_parts_info.multimodalinput_input)) {
     uinput_manager_edm_enable = true
   }
+  ability_form_fwk_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.ability_form_fwk)) {
+    ability_form_fwk_edm_enable = true
+  }
 }

@@ -78,6 +78,7 @@
         "ets_runtime",
         "eventhandler",
         "file_api",
+        "form_fwk",
         "graphic_2d",
         "netmanager_base",
         "netmanager_ext",

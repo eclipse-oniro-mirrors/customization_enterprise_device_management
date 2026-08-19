@@ -107,7 +107,11 @@ namespace EdmReturnErrCode {
     constexpr uint32_t CANNOT_SET_ALLOWED_PERMISSION_BUNDLE = 9201044;
     constexpr uint32_t CANNOT_DISALLOW_PERMISSION = 9201045;
     constexpr uint32_t LOGIN_USER_NUMBER_UPPER_LIMIT = 9201046;
+    constexpr uint32_t FORM_LIMIT_REACHED = 9201047;
     constexpr uint32_t DISK_ERASE_FAILED = 9201048;
+    constexpr uint32_t FORM_NOT_EXIST = 9201049;
+    constexpr uint32_t FORM_TYPE_NOT_SUPPORT = 9201050;
+    constexpr uint32_t ADD_FORM_FAILED = 9201051;
     constexpr uint32_t EDM_ERR_UKEY_TIMEOUT = 9201052;
 };
 
