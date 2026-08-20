@@ -29,7 +29,7 @@
 #include "dock_info.h"
 #endif
 #include "override_interface_name.h"
-
+#include "publish_form_to_desktop_param.h"
 #include "service_type.h"
 
 using namespace OHOS::EDM;
@@ -100,6 +100,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeUserNonStopApps", RemoveUserNonStopApps),
         DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
         DECLARE_NAPI_PROPERTY("ServiceType", nServiceType),
+        DECLARE_NAPI_FUNCTION("publishFormToDesktop", PublishFormToDesktop),
     };
     std::vector<napi_property_descriptor> propertyOne = InitOne();
     property.insert(property.end(), propertyOne.begin(), propertyOne.end());
@@ -1892,6 +1893,47 @@ void ApplicationManagerAddon::CreateServiceTypeObject(napi_env env, napi_value v
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(ServiceType::COLLABORATION_SERVICE),
         &nCollaborationService));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "COLLABORATION_SERVICE", nCollaborationService));
+}
+
+napi_value ApplicationManagerAddon::PublishFormToDesktop(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_PublishFormToDesktop called");
+    auto convertFormInfo2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        PublishFormToDesktopParam param;
+        if (!JsObjectToString(env, argv, "bundleName", true, param.bundleName) ||
+            !JsObjectToString(env, argv, "moduleName", true, param.moduleName) ||
+            !JsObjectToString(env, argv, "abilityName", true, param.abilityName) ||
+            !JsObjectToString(env, argv, "name", true, param.name) ||
+            !JsObjectToInt(env, argv, "dimension", true, param.dimension)) {
+            EDMLOGE("NAPI_PublishFormToDesktop ParseFormInfo fail");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        param.Marshalling(data);
+        return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "PublishFormToDesktop";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.argsConvert = {nullptr, convertFormInfo2Data};
+    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::string formId;
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->PublishFormToDesktop(
+        adapterAddonData.data, formId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value napiFormId = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, formId.c_str(), formId.size(), &napiFormId));
+    return napiFormId;
 }
 
 static napi_module g_applicationManagerModule = {

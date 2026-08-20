@@ -93,6 +93,7 @@ public:
     static napi_value AddAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info);
     static napi_value GetAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info);
+    static napi_value PublishFormToDesktop(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,

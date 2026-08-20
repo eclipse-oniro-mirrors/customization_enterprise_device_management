@@ -366,6 +366,9 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_MANAGE_LOCAL_ACCOUNTS";
     const char* const PERMISSION_ENTERPRISE_INTERACT_ACROSS_LOCAL_ACCOUNTS =
         "ohos.permission.ENTERPRISE_INTERACT_ACROSS_LOCAL_ACCOUNTS";
+    // api 26.1.0
+    const char* const PERMISSION_ENTERPRISE_REQUEST_PUBLISH_FORM =
+        "ohos.permission.ENTERPRISE_REQUEST_PUBLISH_FORM";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -509,6 +512,7 @@ namespace PolicyName {
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
     const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
+    const char* const POLICY_PUBLISH_FORM_TO_DESKTOP = "publish_form_to_desktop";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

@@ -29,6 +29,7 @@ ohos_shared_library("plugin_kits") {
     "./src/basic_bool_plugin.cpp",
     "./src/iedm_bluetooth_manager.cpp",
     "./src/iedm_cellular_data_manager.cpp",
+    "./src/iedm_form_manager.cpp",
     "./src/iextra_policy_notification.cpp",
     "./src/iplugin.cpp",
     "./src/iplugin_manager.cpp",
@@ -53,6 +54,7 @@ ohos_shared_library("plugin_kits") {
   deps = [ "../../../common/native:edm_commom" ]
 
   external_deps = [
+    "ability_base:want",
     "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",

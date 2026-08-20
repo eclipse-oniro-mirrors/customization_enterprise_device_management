@@ -98,6 +98,7 @@ public:
     int32_t GetAllowedDistributeAbilityConnBundles(MessageParcel &data, std::vector<std::string> &appIdentifiers);
     int32_t GetAllowedDistributeAbilityConnBundles(int32_t serviceType, int32_t accountId,
         std::vector<std::string> &appIdentifiers);
+    int32_t PublishFormToDesktop(MessageParcel &data, std::string &formId);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

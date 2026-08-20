@@ -224,6 +224,7 @@ enum EdmInterfaceCode : uint32_t {
     UNLOCK_POLICY = 1173,
     DEVICE_SECURITY_LEVEL_POLICY = 1174,
     DISALLOW_X_KEY = 1175,
+    PUBLISH_FORM_TO_DESKTOP = 1176,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
