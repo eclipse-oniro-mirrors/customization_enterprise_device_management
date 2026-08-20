@@ -90,7 +90,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::USB_READ_ONLY, {PolicyName::POLICY_USB_READ_ONLY, PolicyDataType::INT,
         PermissionConfig::TagPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB,
         EdmPermission::PERMISSION_PERSONAL_MANAGE_RESTRICTIONS), true, IPlugin::ApiType::PUBLIC,
 #ifdef USB_DISK_MANAGER_EDM_ENABLE
         true
