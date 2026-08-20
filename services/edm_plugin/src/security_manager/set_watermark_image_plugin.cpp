@@ -14,8 +14,10 @@
  */
 #include "set_watermark_image_plugin.h"
 
+#include <chrono>
 #include <fcntl.h>
 #include <fstream>
+#include <random>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -45,6 +47,7 @@ constexpr int32_t MIX_ROW_NUM = 1;
 constexpr int32_t MIX_COL_NUM = 1;
 constexpr int32_t MAX_ROW_NUM = 255;
 constexpr int32_t MAX_COL_NUM = 255;
+constexpr int32_t RANDOM_NUM_MAX = 9999;
 SetWatermarkImagePlugin::SetWatermarkImagePlugin()
 {
     EDMLOGI("SetWatermarkImagePlugin InitPlugin...");
@@ -203,7 +206,7 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
     if (currentData.find(key) != currentData.end()) {
         oldFileName = currentData[key].fileName;
     }
-    std::string fileName = FILE_PREFIX + std::to_string(time(nullptr));
+    std::string fileName = GenerateUniqueFileName();
     std::string filePath = WATERMARK_IMAGE_DIR_PATH + fileName;
     currentData[key] = WatermarkImageType{fileName, param.width, param.height, param.intervalsRow, param.intervalsCol};
     for (auto item : currentData) {
@@ -488,6 +491,16 @@ bool SetWatermarkImagePlugin::IsRowColParamValid(int32_t row, int32_t col)
         return false;
     }
     return true;
+}
+
+std::string SetWatermarkImagePlugin::GenerateUniqueFileName()
+{
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, RANDOM_NUM_MAX);
+    return FILE_PREFIX + std::to_string(timestamp) + "_" + std::to_string(dis(gen));
 }
 } // namespace EDM
 } // namespace OHOS
