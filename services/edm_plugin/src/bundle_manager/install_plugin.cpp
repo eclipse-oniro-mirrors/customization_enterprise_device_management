@@ -372,7 +372,8 @@ ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     int32_t fd = open(bundlePath.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IROTH);
     if (fd < 0) {
         EDMLOGE("open bundlePath %{public}s failed", bundlePath.c_str());
-        DeleteFiles();
+        std::vector<std::string> files = { bundlePath };
+        DeleteFiles(files);
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
@@ -403,11 +404,8 @@ bool InstallPlugin::CreateDirectory()
     return true;
 }
 
-bool InstallPlugin::DeleteFiles()
+bool InstallPlugin::DeleteFiles(const std::vector<std::string> &files)
 {
-    std::vector<std::string> files;
-    OHOS::GetDirFiles(HAP_DIRECTORY, files);
-
     bool res = true;
     for (auto const &file : files) {
         if (!OHOS::RemoveFile(file)) {
@@ -432,24 +430,24 @@ ErrCode InstallPlugin::OnSetPolicy(InstallParam &param, MessageParcel &reply)
     auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (iBundleMgr == nullptr) {
         EDMLOGE("can not get iBundleMgr");
-        DeleteFiles();
+        DeleteFiles(param.hapFilePaths);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto iBundleInstaller = iBundleMgr->GetBundleInstaller();
     if ((iBundleInstaller == nullptr) || (iBundleInstaller->AsObject() == nullptr)) {
         EDMLOGE("can not get iBundleInstaller");
-        DeleteFiles();
+        DeleteFiles(param.hapFilePaths);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     sptr<InstallerCallback> callback = new (std::nothrow) InstallerCallback();
     if (callback == nullptr) {
-        DeleteFiles();
+        DeleteFiles(param.hapFilePaths);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
     ErrCode ret = iBundleInstaller->StreamInstall(realPaths, installParam, callback);
     if (FAILED(ret)) {
-        if (!DeleteFiles()) {
+        if (!DeleteFiles(param.hapFilePaths)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         EDMLOGE("StreamInstall resultCode %{public}d", ret);
@@ -480,7 +478,7 @@ ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string
         }
     }
 
-    if (!DeleteFiles()) {
+    if (!DeleteFiles(realPaths)) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     if (resultCode != ERR_OK) {
@@ -522,7 +520,7 @@ ErrCode InstallPlugin::InstallParamInit(InstallParam &param, MessageParcel &repl
             std::string errMsg = "invalid hap file path";
             reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
             reply.WriteString(errMsg);
-            DeleteFiles();
+            DeleteFiles(hapFilePaths);
             return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
         }
         realPaths.emplace_back(realPath);

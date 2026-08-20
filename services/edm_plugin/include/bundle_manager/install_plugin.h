@@ -34,7 +34,7 @@ public:
 private:
     bool CreateDirectory();
 
-    bool DeleteFiles();
+    bool DeleteFiles(const std::vector<std::string> &files);
 
     ErrCode InstallParamInit(InstallParam &param, MessageParcel &reply, AppExecFwk::InstallParam &installParam,
         std::vector<std::string> &realPaths);
