@@ -1088,7 +1088,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
         {"DISK_ERASURE", static_cast<uint32_t>(RestrictionsFeature::SECURE_ERASE)},
         {"RS232", static_cast<uint32_t>(RestrictionsFeature::RS232)},
         {"BLUETOOTH", static_cast<uint32_t>(RestrictionsFeature::BLUETOOTH)},
-        {"MODIFY_DATETIME", static_cast<uint32_t>(RestrictionsFeature::MODIFY_DATETIME)},
+        {"MODIFY_DATE_TIME", static_cast<uint32_t>(RestrictionsFeature::MODIFY_DATETIME)},
         {"PRINTER", static_cast<uint32_t>(RestrictionsFeature::PRINTER)},
         {"HDC", static_cast<uint32_t>(RestrictionsFeature::HDC)},
         {"MICROPHONE", static_cast<uint32_t>(RestrictionsFeature::MICROPHONE)},
@@ -1102,7 +1102,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
         {"MAINTENANCE_MODE", static_cast<uint32_t>(RestrictionsFeature::MAINTENANCE_MODE)},
         {"REMOTE_DESK", static_cast<uint32_t>(RestrictionsFeature::REMOTE_DESK)},
         {"REMOTE_DIAGNOSIS", static_cast<uint32_t>(RestrictionsFeature::REMOTE_DIAGNOSIS)},
-        {"SCREENSHOT", static_cast<uint32_t>(RestrictionsFeature::SCREENSHOT)},
+        {"SCREEN_SHOT", static_cast<uint32_t>(RestrictionsFeature::SCREENSHOT)},
         {"SCREEN_RECORD", static_cast<uint32_t>(RestrictionsFeature::SCREEN_RECORD)},
     };
     for (auto &e : entries) {
@@ -1129,7 +1129,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"AIRPLANE_MODE", static_cast<uint32_t>(RestrictionsFeature::AIRPLANE_MODE)},
         {"NOTIFICATION", static_cast<uint32_t>(RestrictionsFeature::NOTIFICATION)},
         {"APP_CLONE", static_cast<uint32_t>(RestrictionsFeature::APP_CLONE)},
-        {"TELEPHONY_CALL", static_cast<uint32_t>(RestrictionsFeature::TELEPHONY_CALL)},
+        {"TELEPHONE_CALL", static_cast<uint32_t>(RestrictionsFeature::TELEPHONY_CALL)},
         {"VPN", static_cast<uint32_t>(RestrictionsFeature::VPN)},
         {"OTA_UPDATE", static_cast<uint32_t>(RestrictionsFeature::OTA_UPDATE)},
         {"RANDOM_MAC", static_cast<uint32_t>(RestrictionsFeature::RANDOM_MAC)},
@@ -1175,7 +1175,7 @@ void RestrictionsAddon::CreateUserRestrictionForDeviceObject(napi_env env, napi_
         {"POWER_LONG_PRESS", static_cast<uint32_t>(UserRestrictionForDevice::POWER_LONG_PRESS)},
         {"SET_ETHERNET_IP", static_cast<uint32_t>(UserRestrictionForDevice::SET_ETHERNET_IP)},
         {"SET_DEVICE_NAME", static_cast<uint32_t>(UserRestrictionForDevice::SET_DEVICE_NAME)},
-        {"SET_BIOMETRICS_AND_SCREENLOCK",
+        {"SET_BIOMETRICS_AND_SCREEN_LOCK",
             static_cast<uint32_t>(UserRestrictionForDevice::SET_BIOMETRICS_AND_SCREENLOCK)},
     };
     for (auto &e : entries) {
