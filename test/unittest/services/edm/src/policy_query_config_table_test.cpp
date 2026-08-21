@@ -206,7 +206,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::ALLOWED_USB_DEVICES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB;
 #endif
 #ifdef USB_DISK_MANAGER_EDM_ENABLE
-    map[EdmInterfaceCode::USB_READ_ONLY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::USB_READ_ONLY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB;
 #endif
 #ifdef SUDO_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_SUDO] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
