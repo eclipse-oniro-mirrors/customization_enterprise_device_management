@@ -168,6 +168,10 @@ ohos_unittest("EdmInnerApiUnitTest") {
     defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [ "./proxy/edm_client_timer_callback_test.cpp" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true

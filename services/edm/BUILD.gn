@@ -25,6 +25,7 @@ config("edm_config") {
     "include/observer",
     "include/query_policy",
     "include/strategy",
+    "include/system_manager",
     "include/watermark",
     "../../framework/extension/include",
   ]
@@ -267,6 +268,14 @@ ohos_shared_library("edmservice") {
     external_deps += [ "common_event_service:cesfwk_innerkits" ]
     sources += [ "./src/query_policy/set_browser_policies_query.cpp" ]
     defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/system_manager/edm_timer_info_sa.cpp",
+      "./src/system_manager/system_timer_manager.cpp",
+      "./src/system_manager/timer_death_recipient.cpp",
+    ]
   }
 
   if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {

@@ -89,6 +89,8 @@ group("fuzztest") {
       "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
       "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
       "hiddensettingsmenuplugin_fuzzer:HiddenSettingsMenuPluginFuzzTest",
+      "system_timer_manager_fuzzer:SystemTimerManagerFuzzTest",
+      "edm_client_timer_callback_fuzzer:EdmClientTimerCallbackFuzzTest",
     ]
   }
 
