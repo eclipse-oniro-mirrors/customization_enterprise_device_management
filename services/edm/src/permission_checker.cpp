@@ -83,6 +83,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_DEVELOPER_MODE,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_RESET_FACTORY,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SECURE_ERASE,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_SYSTEM_ROLLBACK,
     EdmInterfaceCode::DISALLOWED_NOTIFICATION,
     EdmInterfaceCode::DISABLED_PRINT,
     EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS,
