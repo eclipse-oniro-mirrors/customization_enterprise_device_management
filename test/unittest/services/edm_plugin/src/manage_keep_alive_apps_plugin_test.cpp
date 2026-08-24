@@ -108,8 +108,8 @@ HWTEST_F(ManageKeepAliveAppsPluginTest, TestOnHandlePolicyFailWithOversizeData, 
     MessageParcel data;
     MessageParcel reply;
     HandlePolicyData policyData;
-    std::vector<std::string> keepAliveApps =
-        {"com.test1", "com.test2", "com.test3", "com.test4", "com.test5", "com.test6"};
+    std::vector<std::string> keepAliveApps = {"com.test1", "com.test2", "com.test3", "com.test4",
+        "com.test5", "com.test6", "com.test7", "com.test8", "com.test9", "com.test10", "com.test11"};
     data.WriteStringVector(keepAliveApps);
 
     std::uint32_t funcCode =
