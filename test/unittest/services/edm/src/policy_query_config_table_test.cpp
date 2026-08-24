@@ -291,9 +291,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef PASTEBOARD_EDM_ENABLE
     map[EdmInterfaceCode::CLIPBOARD_POLICY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
     map[EdmInterfaceCode::SET_BROWSER_POLICIES] = "";
-#endif
 #ifdef OS_ACCOUNT_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
@@ -563,9 +561,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
         {EdmInterfaceCode::ALLOW_RUNNING_BUNDLES, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION},
 #endif
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
         {EdmInterfaceCode::SET_BROWSER_POLICIES, ""},
-#endif
 #ifdef MULTI_WINDOW_EDM_ENABLE
         {EdmInterfaceCode::DISALLOWED_MULTI_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif

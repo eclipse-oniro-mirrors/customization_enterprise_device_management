@@ -24,15 +24,19 @@
 #include <system_ability_definition.h>
 
 #include "ability_auto_startup_client.h"
+#include "bundle_constants.h"
 #include "manage_auto_start_apps_serializer.h"
 #include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
 #include "func_code_utils.h"
 #include "edm_errors.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {
@@ -444,6 +448,59 @@ void ManageAutoStartAppsPlugin::DeserializePolicyData(HandlePolicyData &policyDa
         EDMLOGE("ManageAutoStartAppsPlugin OnHandlePolicy Deserialize failed.");
     }
     ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData, totalMergePolicyData);
+}
+
+bool ManageAutoStartAppsPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("ManageAutoStartAppsPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_MANAGE_AUTO_START_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
+        EdmInterfaceCode::MANAGE_AUTO_START_APPS, true, true);
+}
+
+bool ManageAutoStartAppsPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("ManageAutoStartAppsPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_MANAGE_AUTO_START_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
+    return true;
+}
+
+void ManageAutoStartAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+
+    auto serializer = ManageAutoStartAppsSerializer::GetInstance();
+    std::vector<ManageAutoStartAppInfo> adminData;
+    serializer->Deserialize(policyData.policyData, adminData);
+    auto iter = std::find_if(adminData.begin(), adminData.end(), [&](const auto &appInfo) {
+        return appInfo.GetBundleName() == bundleName;
+    });
+    if (iter == adminData.end()) {
+        return;
+    }
+    std::vector<ManageAutoStartAppInfo> mergeData;
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
+    std::vector<ManageAutoStartAppInfo> autoStartApps{*iter};
+    std::vector<std::string> toRemove;
+    for (const auto &app : autoStartApps) {
+        toRemove.push_back(app.GetUniqueKey() + "/" + (app.GetIsHiddenStart() ? "true" : "false"));
+    }
+
+    OnRemovePolicy(toRemove, adminData, mergeData, userId, true);
+
+    serializer->Serialize(adminData, policyData.policyData);
+    serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
 } // namespace EDM
 } // namespace OHOS

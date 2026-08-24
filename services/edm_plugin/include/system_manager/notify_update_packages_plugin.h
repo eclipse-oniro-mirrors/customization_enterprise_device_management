@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPDATE_PACKAGES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_NOTIFY_UPDATE_PACKAGES_PLUGIN_H
 
+#include "iplugin_event_subscribe_manager.h"
 #include "plugin_singleton.h"
 #include "update_policy_utils.h"
 
@@ -28,6 +29,9 @@ public:
     ErrCode OnSetPolicy(UpgradePackageInfo &packageInfo);
 
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
 };
 } // namespace EDM
 } // namespace OHOS

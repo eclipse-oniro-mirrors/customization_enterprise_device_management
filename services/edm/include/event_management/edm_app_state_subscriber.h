@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2026-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_EDM_APP_STATE_OBSERVER_H
-#define SERVICES_EDM_INCLUDE_EDM_APP_STATE_OBSERVER_H
+#ifndef SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_EDM_APP_STATE_SUBSCRIBER_H
+#define SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_EDM_APP_STATE_SUBSCRIBER_H
 
 #include "application_state_observer_stub.h"
-#include "enterprise_device_mgr_ability.h"
+#include "edm_event_data.h"
+#include "event_subscription_manager.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {
-class EnterpriseDeviceMgrAbility;
-class ApplicationStateObserver : public AppExecFwk::ApplicationStateObserverStub {
+class EdmAppStateSubscriber : public AppExecFwk::ApplicationStateObserverStub {
 public:
-    ApplicationStateObserver(EnterpriseDeviceMgrAbility &listener) : listener_(listener) {}
-
+    explicit EdmAppStateSubscriber(EventSubscriptionManager &manager);
     void OnProcessCreated(const AppExecFwk::ProcessData &processData) override;
     void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
 
 private:
-    EnterpriseDeviceMgrAbility &listener_;
+    EventSubscriptionManager &manager_;
 };
 } // namespace EDM
 } // namespace OHOS
-#endif // SERVICES_EDM_INCLUDE_EDM_APP_STATE_OBSERVER_H
+
+#endif // SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_EDM_APP_STATE_SUBSCRIBER_H

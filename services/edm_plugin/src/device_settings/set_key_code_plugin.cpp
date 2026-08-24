@@ -18,13 +18,17 @@
 #include <algorithm>
 #include <system_ability_definition.h>
 
+#include "iadmin_manager.h"
 #include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
 #include "func_code_utils.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {
@@ -83,5 +87,27 @@ void SetKeyCodePlugin::OnOtherServiceStartForAdmin(const std::string &adminName,
     return;
 }
 
+bool SetKeyCodePlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("SetKeyCodePlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_SET_KEY_CODE,
+        static_cast<uint32_t>(ManagedEvent::USER_SWITCHED),
+        EdmInterfaceCode::SET_KEY_CODE_POLICYS, true, false);
+}
+
+bool SetKeyCodePlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_SET_KEY_CODE,
+        static_cast<uint32_t>(ManagedEvent::USER_SWITCHED));
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

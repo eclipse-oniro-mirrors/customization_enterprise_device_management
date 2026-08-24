@@ -33,7 +33,7 @@ config("edm_config") {
     "../../../../services/edm/include/query_policy",
     "../../../../services/edm/include/strategy",
     "../../../../services/edm/include/system_manager",
-    "../../../../services/edm/include/watermark",
+    "../../../../services/edm/include/event_management",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/account_manager",
     "../../../../services/edm_plugin/include/admin_manager",
@@ -74,7 +74,6 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/admin_container.cpp",
     "../../../../services/edm/src/admin_manager.cpp",
     "../../../../services/edm/src/admin_policies_storage_rdb.cpp",
-    "../../../../services/edm/src/application_state_observer.cpp",
     "../../../../services/edm/src/connection/callback_strategies.cpp",
     "../../../../services/edm/src/connection/enterprise_conn_manager.cpp",
     "../../../../services/edm/src/connection/enterprise_connection_callback.cpp",
@@ -202,12 +201,21 @@ ohos_static_library("edmservice_static") {
   sources += [
        "../../../../services/edm/src/query_policy/permission_managed_state_query.cpp",
        "../../../../services/edm/src/query_policy/allowed_permission_bundle_query.cpp",
-    ]
+     ]
 
-  if (common_event_service_edm_enable) {
-    defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
-    sources += [ "../../../../services/edm/src/query_policy/set_browser_policies_query.cpp" ]
-  }
+  sources += [
+    "../../../../services/edm/src/query_policy/set_browser_policies_query.cpp",
+    "../../../../services/edm/src/event_management/delay_cancel_timer.cpp",
+    "../../../../services/edm/src/event_management/event_subscription_manager.cpp",
+    "../../../../services/edm/src/event_management/subscription_handle.cpp",
+    "../../../../services/edm/src/event_management/edm_common_event_subscriber.cpp",
+    "../../../../services/edm/src/event_management/common_event_adapter.cpp",
+    "../../../../services/edm/src/event_management/adapter_factory.cpp",
+    "../../../../services/edm/src/event_management/edm_app_state_subscriber.cpp",
+    "../../../../services/edm/src/event_management/app_lifecycle_adapter.cpp",
+    "../../../../services/edm/src/event_management/mdm_event_relayer.cpp",
+    "../../../../services/edm/src/event_management/plugin_event_router.cpp",
+  ]
 
   if (power_manager_edm_enable && !enterprise_device_management_feature_pc_only) {
     defines += ["POWER_MANAGER_EDM_ENABLE"]
@@ -272,10 +280,6 @@ ohos_static_library("edmservice_static") {
       "os_account:os_account_innerkits",
     ]
 
-    sources += [
-      "../../../../services/edm/src/watermark/watermark_application_observer.cpp",
-      "../../../../services/edm/src/watermark/watermark_observer_manager.cpp",
-    ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
@@ -355,10 +359,6 @@ ohos_unittest("EnterpriseDeviceMgrAbilityUnitTest") {
   ]
 
   defines = []
-  if (common_event_service_edm_enable) {
-    defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
-  }
-
   if (enterprise_device_management_feature_pc_only) {
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -530,13 +530,25 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/query_policy/get_watermark_image_apps_query_test.cpp",
   ]
 
+  if (common_event_service_edm_enable) {
+    sources += [
+      "./src/adapter_factory_test.cpp",
+      "./src/app_lifecycle_adapter_test.cpp",
+      "./src/common_event_adapter_test.cpp",
+      "./src/delay_cancel_timer_test.cpp",
+      "./src/edm_app_state_subscriber_test.cpp",
+      "./src/edm_common_event_subscriber_test.cpp",
+      "./src/event_subscription_manager_test.cpp",
+      "./src/mdm_event_relayer_test.cpp",
+      "./src/plugin_event_router_test.cpp",
+      "./src/subscription_handle_test.cpp",
+    ]
+  }
+
   defines = [
     "USERIAM_EDM_ENABLE",
     "EDM_SUPPORT_ALL_ENABLE"
   ]
-  if (common_event_service_edm_enable) {
-    defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
-  }
 
   if (enterprise_device_management_feature_pc_only){
     defines += [ "FEATURE_PC_ONLY" ]

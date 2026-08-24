@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_COMMON_INCLUDE_IADMIN_MANAGER_H
 
 #include <string>
+#include <vector>
 
 #include "admin_type.h"
 
@@ -29,6 +30,8 @@ public:
     static IAdminManager *GetInstance();
 
     virtual AdminType GetAdminTypeByName(const std::string &bundleName, int32_t userId);
+
+    virtual void GetAdminPackageNames(std::vector<std::string> &packageNames, int32_t currentUserId) {}
 
     static IAdminManager* adminManagerInstance_;
 };

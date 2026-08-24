@@ -17,6 +17,7 @@
 #define ENTERPRISE_DEVICE_MANAGEMENT_SET_KEY_CODE_PLUGIN_H
 
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "key_code.h"
 
 namespace OHOS {
@@ -40,6 +41,8 @@ public:
         int32_t userId) override {};
     ErrCode SetOtherModulePolicy(std::vector<KeyCustomization> &keyCustomization);
     void OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
 };
 } // namespace EDM
 } // namespace OHOS

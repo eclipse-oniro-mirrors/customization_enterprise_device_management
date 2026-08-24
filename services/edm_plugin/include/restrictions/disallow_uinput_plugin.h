@@ -17,12 +17,17 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_DISALLOW_UINPUT_PLUGIN_H
 
 #include "basic_bool_plugin.h"
+#include "iplugin_event_subscribe_manager.h"
 
 namespace OHOS {
 namespace EDM {
 class DisallowUInputPlugin : public BasicBoolPlugin {
 public:
     DisallowUInputPlugin();
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };

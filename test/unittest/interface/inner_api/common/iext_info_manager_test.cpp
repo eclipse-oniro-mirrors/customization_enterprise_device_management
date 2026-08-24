@@ -38,6 +38,7 @@ protected:
 HWTEST_F(IExtInfoManagerTest, TestGetSuperHubInfo, TestSize.Level1)
 {
     IExtInfoManager extInfoManager;
+    EXPECT_EQ(true, true);
     std::string ret = extInfoManager.GetSuperHubInfo();
     EXPECT_EQ(ret, "");
 }

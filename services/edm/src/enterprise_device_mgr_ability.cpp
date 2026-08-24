@@ -23,11 +23,9 @@
 #include "ability_controller.h"
 #include "ability_controller_factory.h"
 #include "admin_observer.h"
-#include "application_state_observer.h"
 #include "bundle_info.h"
 #include "clipboard_policy.h"
 #include "common_event_manager.h"
-#include "common_event_support.h"
 #ifdef TELEPHONY_CORE_EDM_ENABLE
 #include "core_service_client.h"
 #endif
@@ -35,15 +33,11 @@
 #include "directory_ex.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "matching_skills.h"
 #include "message_parcel.h"
 #include "parameters.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
 #include "system_service_start_handler.h"
-#include "application_instance.h"
-#include "allowed_permission_bundle_serializer.h"
-#include "array_string_serializer.h"
 #include "admin_action.h"
 #include "edm_bluetooth_manager_impl.h"
 #ifdef MOBILE_DATA_ENABLE
@@ -63,19 +57,19 @@
 #ifndef FEATURE_PC_ONLY
 #include "system_timer_manager.h"
 #endif
+#include "adapter_factory.h"
+#include "mdm_event_relayer.h"
+#include "plugin_event_router.h"
 #include "callback_strategies.h"
 #include "enterprise_conn_manager.h"
+#include "event_subscription_manager.h"
 #include "ext_info_manager.h"
 #include "func_code_utils.h"
 #include "hisysevent_adapter.h"
 #include "language_manager.h"
-#include "manage_auto_start_app_info.h"
-#include "manage_auto_start_apps_serializer.h"
 #include "notification_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
-#include "startup_scene.h"
-#include "update_policy_utils.h"
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
@@ -94,15 +88,10 @@ namespace EDM {
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(EnterpriseDeviceMgrAbility::GetInstance().GetRefPtr());
 
-const std::string PERMISSION_UPDATE_SYSTEM = "ohos.permission.UPDATE_SYSTEM";
 const std::string PARAM_EDM_ENABLE = "persist.edm.edm_enable";
 const std::string PARAM_EDM_ENTERPRISE_CONFIG_ENABLE = "persist.edm.enterprise_config_enable";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
-const std::string SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
 const std::string WANT_BUNDLE_NAME = "bundleName";
-const std::string FIRMWARE_EVENT_INFO_NAME = "version";
-const std::string FIRMWARE_EVENT_INFO_TYPE = "packageType";
-const std::string FIRMWARE_EVENT_INFO_CHECK_TIME = "firstReceivedTime";
 const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 const std::string EDM_ADMIN_ENABLED_EVENT = "com.ohos.edm.edmadminenabled";
 const std::string EDM_ADMIN_DISABLED_EVENT = "com.ohos.edm.edmadmindisabled";
@@ -112,322 +101,31 @@ const char* const KEY_EDM_DISPLAY = "com.enterprise.enterprise_device_manager_di
 const std::string POLICY_ALLOW_ALL = "allow_all";
 const int32_t INVALID_SYSTEM_ABILITY_ID = -1;
 const int32_t MAX_POLICY_TYPE = 3;
-const int32_t UPDATE_APPS_STATE_ON_AG_CHANGE = 1;
-const int32_t UPDATE_APPS_STATE_ON_BMS_CHANGE = 2;
-const int32_t INIT_AG_TASK = 3;
 const int32_t INSTALL_MARKET_APPS_PLUGIN_CODE = 3028;
+const int32_t APPS_STATE_ON_AG_CHANGE = 1;
+const int32_t APPS_STATE_ON_BMS_CHANGE = 2;
+const int32_t INIT_AG_TASK = 3;
 const int32_t AG_COMMON_EVENT_SIZE = 3;
 const int32_t AG_PERMISSION_INDEX = 2;
 const char* const REASON = "reason";
+constexpr const char *WITHOUT_PERMISSION_TAG = "";
 constexpr int32_t MAX_SDA_AND_DA_COUNT = 10;
-constexpr int32_t BUNDLE_UPDATE_EVENT = 2;
-constexpr int32_t BUNDLE_INVALID_EVENT = -1;
+
 #if defined(FEATURE_PC_ONLY)
 constexpr float ICON_AXIS = 0.5;
 #endif
 const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
-const std::string OOBE_FINISHED_EVENT = "custom.event.OOBE.HWSTARTUPGUIDE.FINISHED";
-const std::string PERMISSION_OOBE_FINISHED = "ohos.permission.ACCESS_STARTUPGUIDE";
-const std::string BUNDLE_EVENT_PARAM_TYPE = "type";
+
 const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
-std::mutex EnterpriseDeviceMgrAbility::subscribeAppLock_;
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
-constexpr const char *WITHOUT_PERMISSION_TAG = "";
-
 const int EDC_UID = 7200;
 
-void EnterpriseDeviceMgrAbility::AddCommonEventFuncMap()
-{
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_ADDED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventUserAdded(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventUserSwitched(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventUserRemoved(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventPackageAdded(data);
-            that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_BMS_CHANGE);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventPackageRemoved(data);
-        };
-    commonEventFuncMap_[SYSTEM_UPDATE_FOR_POLICY] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventSystemUpdate(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventPackageChanged(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventBmsReady(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_ON] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventKioskMode(data, true);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_KIOSK_MODE_OFF] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventKioskMode(data, false);
-        };
-    AddCommonEventFuncMapSecond();
-}
-
-void EnterpriseDeviceMgrAbility::AddCommonEventFuncMapSecond()
-{
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventSimStateChanged(data);
-        };
-    commonEventFuncMap_[OOBE_FINISHED_EVENT] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventOobeFinish(data);
-        };
-    commonEventFuncMap_[EventFwk::CommonEventSupport::COMMON_EVENT_BOOT_COMPLETED] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->OnCommonEventDevicePowerOn(data);
-        };
-}
-
-void EnterpriseDeviceMgrAbility::InitAgTask()
-{
-    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
-    if (superAdmin == nullptr) {
-        EDMLOGE("current super admin is nullptr");
-        return;
-    }
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
-    MessageParcel reply;
-    MessageParcel messageData;
-    messageData.WriteString(WITHOUT_PERMISSION_TAG);
-    std::vector<std::string> bundleNames = {};
-    messageData.WriteStringVector(bundleNames);
-    messageData.WriteInt32(INIT_AG_TASK);
-
-    OHOS::AppExecFwk::ElementName elementName;
-    elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
-    elementName.SetAbilityName(superAdmin->adminInfo_.className_);
-    HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
-}
-
-std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::CreateAGEventSubscriber(
-    EnterpriseDeviceMgrAbility &listener)
-{
-    std::vector<std::string> agCommonEventList = ExtInfoManager::GetInstance()->GetAgCommonEventName();
-    if (agCommonEventList.size() != AG_COMMON_EVENT_SIZE) {
-        EDMLOGE("ag common event size is abnormally");
-        return nullptr;
-    }
-    commonEventFuncMap_[agCommonEventList[0]] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_AG_CHANGE);
-        };
-    commonEventFuncMap_[agCommonEventList[1]] =
-        [](EnterpriseDeviceMgrAbility* that, const EventFwk::CommonEventData &data) {
-            that->UpdateMarketAppsState(data, UPDATE_APPS_STATE_ON_AG_CHANGE);
-        };
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    skill.AddEvent(agCommonEventList[0]);
-    skill.AddEvent(agCommonEventList[1]);
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    info.SetPermission(agCommonEventList[AG_PERMISSION_INDEX]);
-    return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
-}
-
 // LCOV_EXCL_START
-void EnterpriseDeviceMgrAbility::UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event)
-{
-    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
-    if (superAdmin == nullptr) {
-        EDMLOGE("current super admin is nullptr");
-        return;
-    }
-    std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
-    MessageParcel reply;
-    MessageParcel messageData;
-    messageData.WriteString(WITHOUT_PERMISSION_TAG);
-    std::vector<std::string> bundleNames = {};
-    messageData.WriteStringVector(bundleNames);
-    // event用于区分BMS和AG的安装事件
-    messageData.WriteInt32(event);
-    // data.GetCode()用于状态机更新状态
-    messageData.WriteInt32(data.GetCode());
-    messageData.WriteString(data.GetWant().GetStringParam(WANT_BUNDLE_NAME));
-    messageData.WriteInt32(data.GetWant().GetIntParam(REASON, -1));
-
-    OHOS::AppExecFwk::ElementName elementName;
-    elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
-    elementName.SetAbilityName(superAdmin->adminInfo_.className_);
-    HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
-}
-// LCOV_EXCL_STOP
-
-void EnterpriseDeviceMgrAbility::OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data)
-{
-    EDMLOGI("OnCommonEventSystemUpdate");
-    UpdateInfo updateInfo;
-    updateInfo.version = data.GetWant().GetStringParam(FIRMWARE_EVENT_INFO_NAME);
-    updateInfo.firstReceivedTime = data.GetWant().GetLongParam(FIRMWARE_EVENT_INFO_CHECK_TIME, 0);
-    updateInfo.packageType = data.GetWant().GetStringParam(FIRMWARE_EVENT_INFO_TYPE);
-
-    ConnectAbilityOnSystemUpdate(updateInfo);
-    UpdateNotifyPackagePolicy();
-}
-
-void EnterpriseDeviceMgrAbility::UpdateNotifyPackagePolicy()
-{
-    EDMLOGI("OnCommonEventSystemUpdate UpdateNotifyPackagePolicy");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES);
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        UpgradePackageInfo packageInfo;
-        UpdatePolicyUtils::WriteUpgradePackageInfo(data, packageInfo);
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
-    }
-}
-
-// LCOV_EXCL_START
-void EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish(const EventFwk::CommonEventData &data)
-{
-    bool isOtaFinish = data.GetWant().GetBoolParam("ota", false);
-    bool isFirstBoot = data.GetWant().GetBoolParam("firstBoot", false);
-    bool isSubUserScene = data.GetWant().GetBoolParam("subUserScene", false);
-
-    uint32_t type = 0;
-    if (isSubUserScene) {
-        type |= 1 << static_cast<uint32_t>(StartupScene::USER_SETUP);
-    }
-    if (isOtaFinish) {
-        type |= 1 << static_cast<uint32_t>(StartupScene::OTA);
-    }
-    if (isFirstBoot) {
-        type |= 1 << static_cast<uint32_t>(StartupScene::DEVICE_PROVISION);
-    }
-    EDMLOGI("OnCommonEventOobeFinish type:%{public}d", type);
-
-    if (type == 0) {
-        EDMLOGE("OnCommonEventOobeFinish type is error!");
-        return;
-    }
-
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::STARTUP_GUIDE_COMPLETED, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("Get subscriber by common event failed.");
-        return;
-    }
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    for (const auto& subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            auto strategy = std::make_shared<StartupGuideCompletedStrategy>(type);
-            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, subAdmin.first,
-                strategy);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventOobeFinish ExecuteCallback failed.");
-            }
-        }
-    }
-}
-// LCOV_EXCL_STOP
-
-// LCOV_EXCL_START
-void EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data)
-{
-#ifdef UINPUT_MANAGER_EDM_ENABLE
-    ResetDisallowUinputStatus();
-#endif
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::BOOT_COMPLETED, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("Get subscriber by common event failed.");
-        return;
-    }
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    for (const auto& subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            auto strategy = std::make_shared<DeviceBootCompletedStrategy>();
-            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, subAdmin.first,
-                strategy);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventDevicePowerOn ExecuteCallback failed.");
-            }
-        }
-    }
-}
-// LCOV_EXCL_STOP
-
-// LCOV_EXCL_START
-#ifdef UINPUT_MANAGER_EDM_ENABLE
-void EnterpriseDeviceMgrAbility::ResetDisallowUinputStatus()
-{
-    // uinput power on to reset status
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DISALLOWED_UINPUT);
-        MessageParcel messageData;
-        messageData.WriteString(WITHOUT_PERMISSION_TAG);
-        messageData.WriteBool(false);
-        MessageParcel reply;
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
-    }
-}
-#endif
-// LCOV_EXCL_STOP
-
-void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo)
-{
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::SYSTEM_UPDATE, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("Get subscriber by common event failed.");
-        return;
-    }
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    if (manager == nullptr) {
-        EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate EnterpriseConnManager null");
-        return;
-    }
-    for (const auto &subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            auto strategy = std::make_shared<SystemUpdateStrategy>(updateInfo);
-            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, subAdmin.first,
-                strategy);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemUpdate ExecuteCallback failed.");
-            }
-        }
-    }
-}
-
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
 {
     addSystemAbilityFuncMap_[BUNDLE_MGR_SERVICE_SYS_ABILITY_ID] =
@@ -529,174 +227,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
         };
 }
 
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
-EnterpriseDeviceEventSubscriber::EnterpriseDeviceEventSubscriber(
-    const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
-    EnterpriseDeviceMgrAbility &listener) : EventFwk::CommonEventSubscriber(subscribeInfo), listener_(listener) {}
-
-void EnterpriseDeviceEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
-{
-    const std::string action = data.GetWant().GetAction();
-    EDMLOGI("EDM OnReceiveEvent get action: %{public}s", action.c_str());
-    auto func = listener_.commonEventFuncMap_.find(action);
-    if (func != listener_.commonEventFuncMap_.end()) {
-        auto commonEventFunc = func->second;
-        if (commonEventFunc != nullptr) {
-            return commonEventFunc(&listener_, data);
-        }
-    } else {
-        EDMLOGW("OnReceiveEvent action is invalid");
-    }
-}
-
-std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::CreateEnterpriseDeviceEventSubscriber(
-    EnterpriseDeviceMgrAbility &listener)
-{
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    AddCommonEventFuncMap();
-    for (auto &item : commonEventFuncMap_) {
-        if (item.first == SYSTEM_UPDATE_FOR_POLICY) {
-            continue;
-        }
-        if (item.first == OOBE_FINISHED_EVENT) {
-            continue;
-        }
-        skill.AddEvent(item.first);
-        EDMLOGI("CreateEnterpriseDeviceEventSubscriber AddEvent: %{public}s", item.first.c_str());
-    }
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
-}
-
-std::shared_ptr<EventFwk::CommonEventSubscriber> EnterpriseDeviceMgrAbility::CreateOobeEventSubscriber(
-    EnterpriseDeviceMgrAbility &listener)
-{
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    skill.AddEvent(OOBE_FINISHED_EVENT);
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    info.SetPermission(PERMISSION_OOBE_FINISHED);
-    return std::make_shared<EnterpriseDeviceEventSubscriber>(info, listener);
-}
-#endif
-
-void EnterpriseDeviceMgrAbility::UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex)
-{
-    EDMLOGI("OnCommonEventPackageRemoved UpdateUserNonStopInfo");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-        std::vector<ApplicationInstance> userNonStopApps;
-        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
-        ApplicationInstance applicationInstance = { appIdentifier, bundleName, userId, appIndex };
-        userNonStopApps.push_back(applicationInstance);
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(data, userNonStopApps)) {
-            EDMLOGE("OnCommonEventPackageRemoved WriteApplicationInstanceVector fail");
-        }
-        data.WriteBool(true);
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
-    }
-}
-
-void EnterpriseDeviceMgrAbility::UpdateAllowedPermissionBundleInfo(const std::string &appIdentifier,
-    const std::string &bundleName, int32_t userId, int32_t appIndex)
-{
-    EDMLOGI("UpdateAllowedPermissionBundleInfo appIdentifier=%{public}s bundleName=%{public}s userId=%{public}d",
-        appIdentifier.c_str(), bundleName.c_str(), userId);
-    std::string policyValue;
-    PolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_ALLOWED_PERMISSION_BUNDLE, policyValue,
-        userId);
-    if (policyValue.empty()) {
-        EDMLOGI("UpdateAllowedPermissionBundleInfo policy is empty");
-        return;
-    }
-
-    std::map<std::string, std::vector<ApplicationInstance>> policyMap;
-    AllowedPermissionBundleSerializer::GetInstance()->Deserialize(policyValue, policyMap);
-    if (policyMap.empty()) {
-        return;
-    }
-
-    std::vector<MatchingAppInfo> matchingApps = FindMatchingAppsFromPolicy(policyMap, bundleName, appIndex);
-    if (matchingApps.empty()) {
-        EDMLOGI("UpdateAllowedPermissionBundleInfo no matching apps found");
-        return;
-    }
-
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    RemoveMatchingAppsFromPolicy(matchingApps, admins, userId, appIdentifier, appIndex);
-}
-
-std::vector<EnterpriseDeviceMgrAbility::MatchingAppInfo> EnterpriseDeviceMgrAbility::FindMatchingAppsFromPolicy(
-    const std::map<std::string, std::vector<ApplicationInstance>> &policyMap,
-    const std::string &bundleName, int32_t appIndex)
-{
-    std::vector<MatchingAppInfo> result;
-    for (const auto& [permissionName, appList] : policyMap) {
-        for (const ApplicationInstance& app : appList) {
-            if (app.bundleName == bundleName && app.appIndex == appIndex) {
-                EDMLOGI("FindMatchingAppsFromPolicy found matching app %{public}s", app.appIdentifier.c_str());
-                result.push_back({permissionName, app});
-            }
-        }
-    }
-    return result;
-}
-
-void EnterpriseDeviceMgrAbility::RemoveMatchingAppsFromPolicy(
-    const std::vector<MatchingAppInfo> &matchingApps,
-    const std::vector<std::shared_ptr<Admin>> &admins, int32_t userId,
-    const std::string &appIdentifier, int32_t appIndex)
-{
-    for (const auto& admin : admins) {
-        for (const auto& matchInfo : matchingApps) {
-            ExecutePolicyRemoveForApp(admin, matchInfo, userId, appIdentifier, appIndex);
-        }
-    }
-}
-
-void EnterpriseDeviceMgrAbility::ExecutePolicyRemoveForApp(
-    const std::shared_ptr<Admin> &admin, const MatchingAppInfo &matchInfo,
-    int32_t userId, const std::string &appIdentifier, int32_t appIndex)
-{
-    EDMLOGI("ExecutePolicyRemoveForApp permission=%{public}s appIdentifier=%{public}s",
-        matchInfo.permissionName.c_str(), appIdentifier.c_str());
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-        EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE);
-    MessageParcel reply;
-    MessageParcel data;
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteString(EdmConstants::SCENE_APP_UNINSTALL);
-    data.WriteString(matchInfo.permissionName);
-    data.WriteString(appIdentifier);
-    data.WriteString("");
-    data.WriteInt32(userId);
-    data.WriteInt32(appIndex);
-    OHOS::AppExecFwk::ElementName elementName;
-    elementName.SetBundleName(admin->adminInfo_.packageName_);
-    elementName.SetAbilityName(admin->adminInfo_.className_);
-    HandleDevicePolicy(funcCode, elementName, data, reply, userId);
-}
-
-void EnterpriseDeviceMgrAbility::OnCommonEventUserAdded(const EventFwk::CommonEventData &data)
-{
-    int userIdToAdd = data.GetCode();
-    if (userIdToAdd < 0) {
-        EDMLOGE("EnterpriseDeviceMgrAbility OnCommonEventUserAdded error");
-        return;
-    }
-    EDMLOGI("EnterpriseDeviceMgrAbility OnCommonEventUserAdded");
-    ConnectAbilityOnSystemAccountEvent(userIdToAdd, ManagedEvent::USER_ADDED);
-}
-
 void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
 {
     int32_t oldUserId = -1;
@@ -729,11 +259,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::Commo
             ConnectAbility(userIdToSwitch, admin);
         }
     }
-    ConnectAbilityOnSystemAccountEvent(userIdToSwitch, ManagedEvent::USER_SWITCHED);
-    CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS);
-    OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
     UpdateNetworkAccessPolicy(oldUserId, userIdToSwitch);
-    OnHandleInitExecute(EdmInterfaceCode::HIDDEN_SETTINGS_MENU);
 }
 
 void EnterpriseDeviceMgrAbility::UpdateNetworkAccessPolicy(int oldId, int newId)
@@ -775,128 +301,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventUserRemoved(const EventFwk::Common
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
     DeleteSubUserLogDirIfNeed(userIdToRemove);
 #endif
-    ConnectAbilityOnSystemAccountEvent(userIdToRemove, ManagedEvent::USER_REMOVED);
-}
-
-void EnterpriseDeviceMgrAbility::OnCommonEventPackageAdded(const EventFwk::CommonEventData &data)
-{
-    EDMLOGI("OnCommonEventPackageAdded");
-    AAFwk::Want want = data.GetWant();
-    std::string bundleName = want.GetElement().GetBundleName();
-    int32_t userId = want.GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
-    if (userId == AppExecFwk::Constants::INVALID_USERID) {
-        EDMLOGE("OnCommonEventPackageAdded get INVALID_USERID");
-        return;
-    }
-    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_ADDED, userId);
-    int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
-        AppExecFwk::Constants::DEFAULT_APP_INDEX);
-    UpdateAbilityEnabled(bundleName, userId, appIndex);
-}
-
-void EnterpriseDeviceMgrAbility::UpdateAbilityEnabled(const std::string &bundleName,
-    int32_t userId, int32_t appIndex)
-{
-    EDMLOGI("EnterpriseDeviceMgrAbility UpdateAbilityEnabled");
-    if (appIndex != 0) {
-        EDMLOGI("EnterpriseDeviceMgrAbility UpdateAbilityEnabled clone application created.");
-        return;
-    }
-    std::string combinePolicy;
-    policyMgr_->GetPolicy("", PolicyName::POLICY_SET_ABILITY_ENABLED, combinePolicy, userId);
-    std::vector<std::string> policies;
-    ArrayStringSerializer::GetInstance()->Deserialize(combinePolicy, policies);
-    for (const std::string &policy : policies) {
-        size_t index = policy.find("/");
-        if (index == policy.npos) {
-            continue;
-        }
-        if (policy.substr(0, index) == bundleName) {
-            SetAbilityDisabled(bundleName, userId, policy.substr(index + 1));
-        }
-    }
-}
-
-// LCOV_EXCL_START
-ErrCode EnterpriseDeviceMgrAbility::SetAbilityDisabled(const std::string &bundleName, int32_t userId,
-    const std::string &abilityName)
-{
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (!proxy) {
-        EDMLOGE("EnterpriseDeviceMgrAbility::SetAbilityDisabled GetBundleMgr failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<OHOS::AppExecFwk::AbilityInfo> abilityInfos;
-    AppExecFwk::ElementName element;
-    element.SetBundleName(bundleName);
-    element.SetAbilityName(abilityName);
-    OHOS::AppExecFwk::IBundleMgr::Want want;
-    want.SetElement(element);
-    bool res = proxy->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_DISABLE,
-        userId, abilityInfos);
-    if (!res) {
-        EDMLOGE("EnterpriseDeviceMgrAbility::SetAbilityDisabled QueryAbilityInfos failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    for (size_t appIndex = 0; appIndex < abilityInfos.size(); ++appIndex) {
-        ErrCode ret = proxy->SetCloneAbilityEnabled(abilityInfos[appIndex], appIndex, false, userId);
-        if (FAILED(ret)) {
-            EDMLOGE("SetAbilityEnabled failed, ret: %{public}d", ret);
-        }
-    }
-    return ERR_OK;
-}
-// LCOV_EXCL_STOP
-
-void EnterpriseDeviceMgrAbility::UpdateFreezeExemptedApps(const std::string &bundleName,
-    int32_t userId, int32_t appIndex)
-{
-    EDMLOGI("OnCommonEventPackageRemoved UpdateFreezeExemptedApps");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
-        std::vector<ApplicationInstance> freezeExemptedApps;
-        std::string appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
-        ApplicationInstance appMsg = { appIdentifier, bundleName, userId, appIndex };
-        freezeExemptedApps.push_back(appMsg);
-        MessageParcel reply;
-        MessageParcel data;
-        std::u16string descriptor = u"ohos.edm.IEnterpriseDeviceMgr";
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(data, freezeExemptedApps)) {
-            EDMLOGE("UpdateFreezeExemptedApps WriteApplicationInstanceVector fail");
-        }
-        data.WriteBool(true);
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
-    }
-}
-
-void EnterpriseDeviceMgrAbility::UpdateClipboardInfo(const std::string &bundleName, int32_t userId)
-{
-    EDMLOGI("OnCommonEventPackageRemoved UpdateClipboardInfo");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, EdmConstants::DEFAULT_USER_ID);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode =
-            POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::CLIPBOARD_POLICY);
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        data.WriteInt32(ClipboardFunctionType::SET_HAS_BUNDLE_NAME);
-        data.WriteString(bundleName);
-        data.WriteInt32(userId);
-        data.WriteInt32(static_cast<int32_t>(ClipboardPolicy::DEFAULT));
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, EdmConstants::DEFAULT_USER_ID);
-    }
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data)
@@ -906,7 +310,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
     int32_t appIndex = data.GetWant().GetIntParam(AppExecFwk::Constants::APP_INDEX,
         AppExecFwk::Constants::DEFAULT_APP_INDEX);
-    std::string appIdentifier = data.GetWant().GetStringParam(EdmConstants::APP_IDENTIFIER);
     if (userId == AppExecFwk::Constants::INVALID_USERID) {
         EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
         return;
@@ -933,79 +336,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
             }
         }
     }
-    ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_REMOVED, userId);
     autoLock.unlock();
-    UpdateClipboardInfo(bundleName, userId);
-    UpdateFreezeExemptedApps(bundleName, userId, appIndex);
-    UpdateUserNonStopInfo(bundleName, userId, appIndex);
-    UpdateAllowedPermissionBundleInfo(appIdentifier, bundleName, userId, appIndex);
-    UpdateAutoStartApps(bundleName, userId);
-    UpdateKeepAliveApps(bundleName, userId);
-}
-
-void EnterpriseDeviceMgrAbility::UpdateAutoStartApps(const std::string &bundleName, int32_t userId)
-{
-    EDMLOGI("OnCommonEventPackageRemoved UpdateAutoStartApps");
-    std::string policyValue;
-    PolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_MANAGE_AUTO_START_APPS, policyValue, userId);
-    std::vector<ManageAutoStartAppInfo> mergePolicyData;
-    ManageAutoStartAppsSerializer::GetInstance()->Deserialize(policyValue, mergePolicyData);
-    if (mergePolicyData.empty()) {
-        return;
-    }
-    std::vector<std::string> autoStartAppsString;
-    for (const ManageAutoStartAppInfo &item : mergePolicyData) {
-        if (item.GetBundleName() == bundleName) {
-            std::string isHiddenStartString = item.GetIsHiddenStart() ? "true" : "false";
-            autoStartAppsString.push_back(item.GetUniqueKey() + "/" + isHiddenStartString);
-        }
-    }
-    if (autoStartAppsString.empty()) {
-        return;
-    }
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, userId);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-            (std::uint32_t)EdmInterfaceCode::MANAGE_AUTO_START_APPS);
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        data.WriteStringVector(autoStartAppsString);
-        bool disallowModify = true;
-        data.WriteBool(disallowModify);
-        bool isUninstall = true;
-        data.WriteBool(isUninstall);
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, userId);
-    }
-}
-
-void EnterpriseDeviceMgrAbility::UpdateKeepAliveApps(const std::string &bundleName, int32_t userId)
-{
-    EDMLOGI("OnCommonEventPackageRemoved UpdateKeepAliveApps");
-    std::vector<std::shared_ptr<Admin>> admins;
-    AdminManager::GetInstance()->GetAdmins(admins, userId);
-    for (const auto& admin : admins) {
-        std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-            (std::uint32_t)EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS);
-        MessageParcel reply;
-        MessageParcel data;
-        data.WriteString(WITHOUT_PERMISSION_TAG);
-        std::vector<std::string> keepAliveApps;
-        keepAliveApps.push_back(bundleName);
-        data.WriteStringVector(keepAliveApps);
-        bool disallowModify = true;
-        data.WriteBool(disallowModify);
-        bool isUninstall = true;
-        data.WriteBool(isUninstall);
-        OHOS::AppExecFwk::ElementName elementName;
-        elementName.SetBundleName(admin->adminInfo_.packageName_);
-        elementName.SetAbilityName(admin->adminInfo_.className_);
-        HandleDevicePolicy(funcCode, elementName, data, reply, userId);
-    }
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::CommonEventData &data)
@@ -1013,10 +344,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageChanged(const EventFwk::Com
     EDMLOGI("OnCommonEventPackageChanged");
     std::string bundleName = data.GetWant().GetElement().GetBundleName();
     int32_t userId = data.GetWant().GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
-    int32_t eventType = data.GetWant().GetIntParam(BUNDLE_EVENT_PARAM_TYPE, BUNDLE_INVALID_EVENT);
-    if (eventType == BUNDLE_UPDATE_EVENT) {
-        ConnectAbilityOnSystemEvent(bundleName, ManagedEvent::BUNDLE_UPDATED, userId);
-    }
     std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
     if (admin != nullptr) {
         if (admin->IsEnterpriseAdminKeepAlive()) {
@@ -1037,7 +364,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventBmsReady(const EventFwk::CommonEve
 {
     EDMLOGI("OnCommonEventBmsReady");
     ConnectEnterpriseAbility();
-    CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS);
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn)
@@ -1055,7 +381,6 @@ void EnterpriseDeviceMgrAbility::OnCommonEventKioskMode(const EventFwk::CommonEv
     AdminManager::GetInstance()->GetAdmins(admins, currentUserId);
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
     for (const auto& admin : admins) {
-        EDMLOGI("OnCommonEventKioskMode packageName:%{public}s", admin->adminInfo_.packageName_.c_str());
         auto strategy = std::make_shared<KioskModeStrategy>(code, bundleName, paramUserId);
         bool ret = manager->ExecuteCallback(admin->adminInfo_.packageName_, admin->adminInfo_.className_, currentUserId,
             strategy);
@@ -1110,46 +435,6 @@ bool EnterpriseDeviceMgrAbility::OnAdminEnabled(AdminInfo adminInfo, uint32_t co
     return manager->ExecuteCallback(adminInfo.packageName_, adminInfo.className_, userId, strategy);
 }
 
-void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event)
-{
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(event, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("SystemEventSubscriber Get subscriber by common event failed.");
-        return;
-    }
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    if (manager == nullptr) { // LCOV_EXCL_BR_LINE
-        EDMLOGE("ConnectAbilityOnSystemAccountEvent get EnterpriseConnManager failed.");
-        return;
-    }
-    for (const auto &subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            int32_t userId = subAdmin.first;
-            int32_t currentUserId = GetCurrentUserId();
-            if (currentUserId < 0) {
-                return;
-            }
-            if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER) {
-                userId = currentUserId;
-            }
-            std::shared_ptr<ICallbackStrategy> strategy;
-            if (event == ManagedEvent::USER_ADDED) {
-                strategy = std::make_shared<AccountStrategy>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED, accountId);
-            } else if (event == ManagedEvent::USER_SWITCHED) {
-                strategy = std::make_shared<AccountStrategy>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED, accountId);
-            } else {
-                strategy = std::make_shared<AccountStrategy>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED, accountId);
-            }
-            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, userId,
-                strategy);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility ExecuteCallback failed.");
-            }
-        }
-    }
-}
-
 bool EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin)
 {
     std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
@@ -1161,50 +446,6 @@ bool EnterpriseDeviceMgrAbility::ConnectAbility(const int32_t accountId, std::sh
         return false;
     }
     return true;
-}
-
-void EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent(const std::string &bundleName,
-    ManagedEvent event, int32_t userId)
-{
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(event, subAdmins);
-    if (subAdmins.empty()) {
-        EDMLOGW("Get subscriber by common event failed.");
-        return;
-    }
-    std::shared_ptr<EnterpriseConnManager> manager = DelayedSingleton<EnterpriseConnManager>::GetInstance();
-    for (const auto &subAdmin : subAdmins) {
-        for (const auto &it : subAdmin.second) {
-            int32_t currentUserId = subAdmin.first;
-            int32_t tmpUserId = GetCurrentUserId();
-            if (it->adminInfo_.runningMode_ == RunningMode::MULTI_USER && tmpUserId >= 0) {
-                currentUserId = tmpUserId;
-            }
-            std::shared_ptr<ICallbackStrategy> strategy;
-            if (event == ManagedEvent::BUNDLE_ADDED) {
-                strategy = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED, bundleName,
-                    userId);
-            } else if (event == ManagedEvent::BUNDLE_REMOVED) {
-                strategy = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED, bundleName,
-                    userId);
-            } else if (event == ManagedEvent::BUNDLE_UPDATED) {
-                strategy = std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED, bundleName,
-                    userId);
-            } else if (event == ManagedEvent::APP_START) {
-                strategy = std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_START, bundleName);
-            } else if (event == ManagedEvent::APP_STOP) {
-                strategy = std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_STOP, bundleName);
-            } else {
-                EDMLOGW("ConnectAbilityOnSystemEvent: unknown event %{public}d", static_cast<int32_t>(event));
-                continue;
-            }
-            bool ret = manager->ExecuteCallback(it->adminInfo_.packageName_, it->adminInfo_.className_, currentUserId,
-                strategy);
-            if (!ret) {
-                EDMLOGW("EnterpriseDeviceMgrAbility::ConnectAbilityOnSystemEvent ExecuteCallback failed.");
-            }
-        }
-    }
 }
 
 void EnterpriseDeviceMgrAbility::NotifyAdminEnabled(bool isEnabled)
@@ -1315,7 +556,6 @@ void EnterpriseDeviceMgrAbility::OnStart()
 #ifdef MOBILE_DATA_ENABLE
     EdmCellularDataManagerImpl::GetInstance();
 #endif
-    WatermarkObserverManager::GetInstance();
     InitAgTask();
     EdmTimerManager::GetInstance();
     CheckAndReportInstalledBundleInfoOnStart();
@@ -1432,13 +672,11 @@ void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, con
 void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart()
 {
     EDMLOGI("OnAppManagerServiceStart");
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::APP_START, subAdmins);
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::APP_STOP, subAdmins);
-    if (!subAdmins.empty()) {
-        EDMLOGI("the admin that listened the APP_START or APP_STOP event is existed");
-        SubscribeAppState();
-    }
+    EventSubscriptionManager::GetInstance().ResetAdapterSubscribedState(
+        EventId{static_cast<uint32_t>(ManagedEvent::APP_START)});
+    MdmEventRelayer::GetInstance().RestoreAppLifecycleSubscriptions();
+    EventSubscriptionManager::GetInstance().RetryFailedAdapters(AdapterType::APP_LIFECYCLE);
+    ConnectEnterpriseAbility();
 }
 
 void EnterpriseDeviceMgrAbility::OnAbilityManagerServiceStart()
@@ -1493,30 +731,112 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStartForWatermark(uint32_t in
 
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
 {
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
-    commonEventSubscriber = CreateEnterpriseDeviceEventSubscriber(*this);
-    EventFwk::CommonEventManager::SubscribeCommonEvent(this->commonEventSubscriber);
-    EDMLOGI("create commonEventSubscriber success");
+    saCoreHandles_.clear();
+    EventSubscriptionManager::GetInstance().ResetCommonEventAdapterStates();
 
-    EventFwk::MatchingSkills skill = EventFwk::MatchingSkills();
-    skill.AddEvent(SYSTEM_UPDATE_FOR_POLICY);
-    EDMLOGI("CreateEnterpriseDeviceEventSubscriber AddEvent: %{public}s", SYSTEM_UPDATE_FOR_POLICY.c_str());
-    EventFwk::CommonEventSubscribeInfo info(skill);
-    info.SetPermission(PERMISSION_UPDATE_SYSTEM);
-    EventFwk::CommonEventManager::SubscribeCommonEvent(std::make_shared<EnterpriseDeviceEventSubscriber>(info, *this));
+    auto &manager = EventSubscriptionManager::GetInstance();
 
-    auto agEventSubscriber = CreateAGEventSubscriber(*this);
-    if (agEventSubscriber) {
-        EDMLOGI("create agEventSubscriber success");
-        EventFwk::CommonEventManager::SubscribeCommonEvent(agEventSubscriber);
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::USER_SWITCHED)},
+        [this](const EdmEventData &data) { OnCommonEventUserSwitched(data.commonEventData); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)},
+        [this](const EdmEventData &data) { OnCommonEventUserRemoved(data.commonEventData); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED)},
+        [this](const EdmEventData &data) { OnCommonEventPackageRemoved(data.commonEventData); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)},
+        [this](const EdmEventData &data) { UpdateMarketAppsState(data.commonEventData, APPS_STATE_ON_BMS_CHANGE); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED)},
+        [this](const EdmEventData &data) { OnCommonEventPackageChanged(data.commonEventData); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::BMS_READY)},
+        [this](const EdmEventData &data) { OnCommonEventBmsReady(data.commonEventData); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::KIOSK_MODE_ON)},
+        [this](const EdmEventData &data) { OnCommonEventKioskMode(data.commonEventData, true); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::KIOSK_MODE_OFF)},
+        [this](const EdmEventData &data) { OnCommonEventKioskMode(data.commonEventData, false); }));
+
+    saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+        EventId{static_cast<uint32_t>(ManagedEvent::SIM_STATE_CHANGED)},
+        [this](const EdmEventData &data) { OnCommonEventSimStateChanged(data.commonEventData); }));
+
+    std::vector<std::string> agCommonEventList = ExtInfoManager::GetInstance()->GetAgCommonEventName();
+    if (agCommonEventList.size() == AG_COMMON_EVENT_SIZE) {
+        saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+            EventId{static_cast<uint32_t>(ManagedEvent::APP_MARKET_DOWNLOAD)},
+            [this](const EdmEventData &data) { UpdateMarketAppsState(data.commonEventData, APPS_STATE_ON_AG_CHANGE); },
+            agCommonEventList[0], agCommonEventList[AG_PERMISSION_INDEX]));
+        saCoreHandles_.push_back(manager.Subscribe("EDM_SA", SubscriberType::SA_CORE,
+            EventId{static_cast<uint32_t>(ManagedEvent::APP_MARKET_INSTALL)},
+            [this](const EdmEventData &data) { UpdateMarketAppsState(data.commonEventData, APPS_STATE_ON_AG_CHANGE); },
+            agCommonEventList[1], agCommonEventList[AG_PERMISSION_INDEX]));
+        EDMLOGI("OnCommonEventServiceStart subscribe ag events success");
     }
 
-    auto oobeEventSubscriber = CreateOobeEventSubscriber(*this);
-    EventFwk::CommonEventManager::SubscribeCommonEvent(oobeEventSubscriber);
-#else
-    EDMLOGW("EnterpriseDeviceMgrAbility::OnCommonEventServiceStart Unsupported Capabilities.");
-    return;
-#endif
+    MdmEventRelayer::GetInstance().RestoreAdminSubscriptions();
+    PluginEventRouter::GetInstance().RestorePluginSubscriptions();
+    EventSubscriptionManager::GetInstance().RetryFailedAdapters(AdapterType::COMMON_EVENT);
+}
+
+// LCOV_EXCL_START
+void EnterpriseDeviceMgrAbility::UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event)
+{
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin == nullptr) {
+        EDMLOGE("current super admin is nullptr");
+        return;
+    }
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
+    MessageParcel reply;
+    MessageParcel messageData;
+    messageData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> bundleNames = {};
+    messageData.WriteStringVector(bundleNames);
+    messageData.WriteInt32(event);
+    messageData.WriteInt32(data.GetCode());
+    messageData.WriteString(data.GetWant().GetStringParam(WANT_BUNDLE_NAME));
+    messageData.WriteInt32(data.GetWant().GetIntParam(REASON, -1));
+
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
+    elementName.SetAbilityName(superAdmin->adminInfo_.className_);
+    HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
+}
+// LCOV_EXCL_STOP
+
+void EnterpriseDeviceMgrAbility::InitAgTask()
+{
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin == nullptr) {
+        EDMLOGE("InitAgTask current super admin is nullptr");
+        return;
+    }
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_MARKET_APPS);
+    MessageParcel reply;
+    MessageParcel messageData;
+    messageData.WriteString(WITHOUT_PERMISSION_TAG);
+    std::vector<std::string> bundleNames = {};
+    messageData.WriteStringVector(bundleNames);
+    messageData.WriteInt32(INIT_AG_TASK);
+
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(superAdmin->adminInfo_.packageName_);
+    elementName.SetAbilityName(superAdmin->adminInfo_.className_);
+    HandleDevicePolicy(funcCode, elementName, messageData, reply, EdmConstants::DEFAULT_USER_ID);
 }
 
 void EnterpriseDeviceMgrAbility::OnDistributedKvDataServiceStart()
@@ -1555,49 +875,6 @@ std::shared_ptr<IEdmOsAccountManager> EnterpriseDeviceMgrAbility::GetOsAccountMg
 std::shared_ptr<PermissionChecker> EnterpriseDeviceMgrAbility::GetPermissionChecker()
 {
     return PermissionChecker::GetInstance();
-}
-
-bool EnterpriseDeviceMgrAbility::SubscribeAppState()
-{
-    std::unique_lock<std::mutex> lock(subscribeAppLock_);
-    if (appStateObserver_) {
-        EDMLOGD("appStateObserver has subscribed");
-        return true;
-    }
-    appStateObserver_ = new (std::nothrow) ApplicationStateObserver(*this);
-    if (!appStateObserver_) {
-        EDMLOGE("new ApplicationStateObserver failed");
-        return false;
-    }
-    if (GetAppMgr()->RegisterApplicationStateObserver(appStateObserver_)) {
-        EDMLOGE("RegisterApplicationStateObserver fail!");
-        appStateObserver_.clear();
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    return true;
-}
-
-bool EnterpriseDeviceMgrAbility::UnsubscribeAppState()
-{
-    std::unique_lock<std::mutex> lock(subscribeAppLock_);
-    if (!appStateObserver_) {
-        EDMLOGD("appStateObserver has subscribed");
-        return true;
-    }
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::APP_START, subAdmins);
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(ManagedEvent::APP_STOP, subAdmins);
-    if (!subAdmins.empty()) {
-        return true;
-    }
-    if (GetAppMgr()->UnregisterApplicationStateObserver(appStateObserver_)) {
-        EDMLOGE("UnregisterApplicationStateObserver fail!");
-        return false;
-    }
-    appStateObserver_.clear();
-    appStateObserver_ = nullptr;
-    return true;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::VerifyEnableAdminCondition(const AppExecFwk::ElementName &admin, AdminType type,
@@ -2067,14 +1344,11 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType)
 {
-    bool shouldUnsubscribeAppState = ShouldUnsubscribeAppState(adminName, userId);
     auto ret = AdminManager::GetInstance()->DeleteAdmin(adminName, userId, adminType);
     if (ret != ERR_OK && ret != ERR_EDM_UNKNOWN_ADMIN) {
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
-    if (shouldUnsubscribeAppState) {
-        UnsubscribeAppState();
-    }
+    MdmEventRelayer::GetInstance().OnAdminRemoved(adminName, userId);
     return ERR_OK;
 }
 
@@ -2128,17 +1402,6 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveSubOrSuperAdminAndAdminPolicy(const st
     }
     // remove super admin default userid
     return RemoveAdminAndAdminPolicy(bundleName, EdmConstants::DEFAULT_USER_ID, adminType);
-}
-
-bool EnterpriseDeviceMgrAbility::ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId)
-{
-    std::shared_ptr<Admin> adminPtr = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
-    if (adminPtr == nullptr) {
-        EDMLOGE("ShouldUnsubscribeAppState adminPtr null");
-        return false;
-    }
-    return std::any_of(adminPtr->adminInfo_.managedEvents_.begin(), adminPtr->adminInfo_.managedEvents_.end(),
-        [](ManagedEvent event) { return event == ManagedEvent::APP_START || event == ManagedEvent::APP_STOP; });
 }
 
 ErrCode EnterpriseDeviceMgrAbility::DisableAdmin(const AppExecFwk::ElementName &admin, int32_t userId)
@@ -2743,28 +2006,11 @@ bool EnterpriseDeviceMgrAbility::CheckRunningMode(uint32_t runningMode)
     return false;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe)
-{
-    bool shouldHandleAppState = std::any_of(events.begin(), events.end(), [](uint32_t event) {
-        return event == static_cast<uint32_t>(ManagedEvent::APP_START) ||
-            event == static_cast<uint32_t>(ManagedEvent::APP_STOP);
-    });
-    if (!shouldHandleAppState) {
-        return ERR_OK;
-    }
-    if (subscribe) {
-        return SubscribeAppState() ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    } else {
-        return UnsubscribeAppState() ? ERR_OK : EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-}
-
 ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
-    RETURN_IF_FAILED(HandleApplicationEvent(events, true));
     int32_t userId = EdmConstants::DEFAULT_USER_ID;
     std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
         GetCurrentUserId());
@@ -2772,6 +2018,10 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
         userId = GetCurrentUserId();
     }
     AdminManager::GetInstance()->SaveSubscribeEvents(events, admin.GetBundleName(), userId);
+    for (uint32_t event : events) {
+        MdmEventRelayer::GetInstance().OnAdminSubscribe(admin.GetBundleName(), userId,
+            static_cast<ManagedEvent>(event));
+    }
     return ERR_OK;
 }
 
@@ -2787,7 +2037,11 @@ ErrCode EnterpriseDeviceMgrAbility::UnsubscribeManagedEvent(const AppExecFwk::El
         userId = GetCurrentUserId();
     }
     AdminManager::GetInstance()->RemoveSubscribeEvents(events, admin.GetBundleName(), userId);
-    return HandleApplicationEvent(events, false);
+    for (uint32_t event : events) {
+        MdmEventRelayer::GetInstance().OnAdminUnsubscribe(admin.GetBundleName(), userId,
+            static_cast<ManagedEvent>(event));
+    }
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::ElementName &admin,

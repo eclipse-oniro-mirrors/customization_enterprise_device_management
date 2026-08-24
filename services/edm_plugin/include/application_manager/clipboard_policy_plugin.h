@@ -17,6 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_CLIPBOARD_POLICY_PLUGIN_H
 
 #include "clipboard_policy_serializer.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "plugin_singleton.h"
 
 namespace OHOS {
@@ -37,6 +38,10 @@ public:
     ErrCode DeleteHandle(std::map<int32_t, ClipboardInfo> &data, std::map<int32_t, ClipboardInfo> &afterHandle);
     ErrCode UpdateHandle(std::map<int32_t, ClipboardInfo> &data, std::map<int32_t, ClipboardInfo> &afterHandle);
     void OnOtherServiceStart(int32_t systemAbilityId);
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -82,11 +82,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::SET_BROWSER_POLICIES, {PolicyName::POLICY_SET_BROWSER_POLICIES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(""), true, IPlugin::ApiType::PUBLIC,
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
         true
-#else
-        false
-#endif
     }},
     {EdmInterfaceCode::USB_READ_ONLY, {PolicyName::POLICY_USB_READ_ONLY, PolicyDataType::INT,
         PermissionConfig::TagPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB,

@@ -32,7 +32,13 @@ enum class ManagedEvent : uint32_t {
     STARTUP_GUIDE_COMPLETED = 8,
     BOOT_COMPLETED = 9,
     BUNDLE_UPDATED = 10,
-    POLICIES_CHANGED = 11
+    POLICIES_CHANGED = 11,
+    BMS_READY = 101,
+    KIOSK_MODE_ON = 102,
+    KIOSK_MODE_OFF = 103,
+    SIM_STATE_CHANGED = 104,
+    APP_MARKET_DOWNLOAD = 105,
+    APP_MARKET_INSTALL = 106,
 };
 } // namespace EDM
 } // namespace OHOS

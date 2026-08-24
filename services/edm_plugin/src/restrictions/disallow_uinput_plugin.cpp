@@ -14,10 +14,15 @@
  */
 #include "disallow_uinput_plugin.h"
 
+#include "iadmin_manager.h"
 #include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "input_manager.h"
+#include "ipolicy_manager.h"
+#include "managed_event.h"
  
 namespace OHOS {
 namespace EDM {
@@ -46,6 +51,40 @@ ErrCode DisallowUInputPlugin::SetOtherModulePolicy(bool data, int32_t userId)
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return ERR_OK;
+}
+
+bool DisallowUInputPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("DisallowUInputPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_DISALLOW_UINPUT,
+        static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED),
+        EdmInterfaceCode::DISALLOWED_UINPUT, true, false);
+}
+
+bool DisallowUInputPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("DisallowUInputPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_DISALLOW_UINPUT,
+        static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED));
+    return true;
+}
+
+void DisallowUInputPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    EDMLOGI("DisallowUInputPlugin::OnPluginEvent BOOT_COMPLETED, resetting uinput status");
+    if (policyData.mergePolicyData != EdmConstants::CONST_TRUE) {
+        SetOtherModulePolicy(false, userId);
+    }
+    policyData.policyData = "";
 }
 } // namespace EDM
 } // namespace OHOS

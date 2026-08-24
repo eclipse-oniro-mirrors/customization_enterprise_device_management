@@ -20,6 +20,7 @@
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iremote_stub.h"
 #include "application_instance.h"
 
@@ -37,12 +38,16 @@ public:
         const std::string &mergeJsonData, int32_t userId) override;
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
         int32_t userId) override {};
-    void OnOtherServiceStart(int32_t systemAbilityId) override;
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnBmsReady(HandlePolicyData &policyData);
+    void OnBundleRemoved(HandlePolicyData &policyData, const EdmEventData &data, int32_t userId);
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 
 private:
-    ErrCode RemoveOtherModulePolicy();
     ErrCode OnSetPolicy(std::vector<ApplicationInstance> &freezeExemptedApps,
         std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
     ErrCode OnRemovePolicy(std::vector<ApplicationInstance> &freezeExemptedApps,

@@ -16,11 +16,12 @@
 #include "install_market_apps_plugin.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
-#include "install_market_apps_serializer.h"
 #include "iplugin_manager.h"
+#include "install_market_apps_serializer.h"
 
 namespace OHOS {
 namespace EDM {
+
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InstallMarketAppsPlugin::GetPlugin());
 
 void InstallMarketAppsPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstallMarketAppsPlugin,

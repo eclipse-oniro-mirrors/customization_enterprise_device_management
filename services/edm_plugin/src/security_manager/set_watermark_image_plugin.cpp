@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "set_watermark_image_plugin.h"
+#include "security_label.h"
 
 #include <chrono>
 #include <fcntl.h>
@@ -21,14 +22,21 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <chrono>
+#include <thread>
 #include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
+#include "iplugin_event_subscribe_manager.h"
+#include "func_code.h"
 #include "func_code_utils.h"
 #include "ipolicy_manager.h"
 #include "iservice_registry.h"
 #include "iplugin_manager.h"
-#include "iwatermark_observer_manager.h"
-#include "security_label.h"
+#include "managed_event.h"
+#include "os_account_manager.h"
+#include "plugin_manager.h"
+#include "policy_manager.h"
 #include "system_ability_definition.h"
 #include "transaction/rs_interfaces.h"
 #include "watermark_image_serializer.h"
@@ -47,6 +55,7 @@ constexpr int32_t MIX_ROW_NUM = 1;
 constexpr int32_t MIX_COL_NUM = 1;
 constexpr int32_t MAX_ROW_NUM = 255;
 constexpr int32_t MAX_COL_NUM = 255;
+constexpr int32_t WATERMARK_RETRY_SECONDS = 5;
 constexpr int32_t RANDOM_NUM_MAX = 9999;
 SetWatermarkImagePlugin::SetWatermarkImagePlugin()
 {
@@ -154,9 +163,6 @@ ErrCode SetWatermarkImagePlugin::CancelWatermarkImage(MessageParcel &data,
     for (auto item : currentData) {
         mergeData[item.first] = item.second;
     }
-    if (mergeData.empty()) {
-        UnsubscribeAppState();
-    }
     return ERR_OK;
 }
 
@@ -185,9 +191,6 @@ void SetWatermarkImagePlugin::SetAllWatermarkImage()
             EDMLOGE("SetWatermarkToRS fail");
             return;
         }
-    }
-    if (!SubscribeAppState()) {
-        EDMLOGE("SetWatermarkImagePlugin SubscribeAppState error");
     }
 }
 
@@ -225,10 +228,6 @@ ErrCode SetWatermarkImagePlugin::SetSingleWatermarkImage(WatermarkParam &param,
     }
     if (!SetImageUint8(param.pixels, param.size, filePath)) {
         EDMLOGE("SetWatermarkImagePlugin SetImageUint8 error.fileName=%{public}s", fileName.c_str());
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    if (!SubscribeAppState()) {
-        EDMLOGE("SetWatermarkImagePlugin SubscribeAppState error");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     if (!oldFileName.empty()) {
@@ -399,14 +398,77 @@ std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::CreatePixelMapFromUint
     return pixelMap;
 }
 
-bool SetWatermarkImagePlugin::SubscribeAppState()
+bool SetWatermarkImagePlugin::SubscribeEvent()
 {
-    return IWatermarkObserverManager::GetInstance()->SubscribeAppStateObserver();
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("SetWatermarkImagePlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    bool ret1 = manager->SubscribeEvent(PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+        static_cast<uint32_t>(ManagedEvent::APP_START),
+        EdmInterfaceCode::WATERMARK_IMAGE, false, false);
+    if (!ret1) {
+        EDMLOGE("SetWatermarkImagePlugin SubscribeEvent APP_START failed");
+    }
+    bool ret2 = manager->SubscribeEvent(PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+        static_cast<uint32_t>(ManagedEvent::APP_STOP),
+        EdmInterfaceCode::WATERMARK_IMAGE, false, false);
+    if (!ret2) {
+        EDMLOGE("SetWatermarkImagePlugin SubscribeEvent APP_STOP failed");
+    }
+    return ret1 && ret2;
 }
 
-bool SetWatermarkImagePlugin::UnsubscribeAppState()
+bool SetWatermarkImagePlugin::UnsubscribeEvent()
 {
-    return IWatermarkObserverManager::GetInstance()->UnSubscribeAppStateObserver();
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("SetWatermarkImagePlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+        static_cast<uint32_t>(ManagedEvent::APP_START));
+    manager->UnsubscribeEvent(PolicyName::POLICY_WATERMARK_IMAGE_POLICY,
+        static_cast<uint32_t>(ManagedEvent::APP_STOP));
+    return true;
+}
+
+void SetWatermarkImagePlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    const auto &appData = data.appProcessData;
+    int32_t accountId = -1;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(appData.uid, accountId);
+    if (appData.bundleName.empty() || accountId <= 0 || appData.pid <= 0) {
+        return;
+    }
+    std::string fileName = GetWatermarkFileNameForBundle(policyData.mergePolicyData, appData.bundleName, accountId);
+    bool isAppStart = data.eventId.code == static_cast<uint32_t>(ManagedEvent::APP_START);
+    ErrCode ret = SetProcessWatermarkByPid(appData.pid, fileName, isAppStart);
+    if (ret != ERR_OK) {
+        EDMLOGI("SetWatermarkImagePlugin::OnPluginEvent retry after delay, pid=%{public}d", appData.pid);
+        std::thread([this, pid = appData.pid, fileName, isAppStart]() {
+            std::this_thread::sleep_for(std::chrono::seconds(WATERMARK_RETRY_SECONDS));
+            ErrCode retryRet = SetProcessWatermarkByPid(pid, fileName, isAppStart);
+            if (retryRet != ERR_OK) {
+                EDMLOGE("SetWatermarkImagePlugin::OnPluginEvent retry failed, pid=%{public}d", pid);
+            }
+        }).detach();
+    }
+}
+
+std::string SetWatermarkImagePlugin::GetWatermarkFileNameForBundle(const std::string &policyData,
+    const std::string &bundleName, int32_t accountId)
+{
+    std::map<std::pair<std::string, int32_t>, WatermarkImageType> currentData;
+    auto serializer = WatermarkImageSerializer::GetInstance();
+    serializer->Deserialize(policyData, currentData);
+    auto iter = currentData.find(std::pair<std::string, int32_t>{bundleName, accountId});
+    if (iter == currentData.end() || iter->second.fileName.empty()) {
+        return "";
+    }
+    return iter->second.fileName;
 }
 
 sptr<AppExecFwk::IAppMgr> SetWatermarkImagePlugin::GetAppManager()
@@ -436,9 +498,6 @@ ErrCode SetWatermarkImagePlugin::OnAdminRemove(const std::string &adminName, con
             EDMLOGE("SetWatermarkToRS fail");
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-    }
-    if (mergeData.empty() && !UnsubscribeAppState()) {
-        EDMLOGE("SetWatermarkImagePlugin OnAdminRemove UnsubscribeAppState fail");
     }
     return ERR_OK;
 }

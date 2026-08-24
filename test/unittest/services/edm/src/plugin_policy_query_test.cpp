@@ -50,9 +50,7 @@
 #include "location_policy_query.h"
 #endif
 
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 #include "set_browser_policies_query.h"
-#endif
 
 #ifdef TELEPHONY_EDM_ENABLE
 #include "telephony_call_policy_query.h"
@@ -622,7 +620,6 @@ HWTEST_F(PluginPolicyQueryTest, TestLocationPolicyQueryPermission, TestSize.Leve
 }
 #endif
 
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 HWTEST_F(PluginPolicyQueryTest, TestSetBrowserPoliciesQueryPermission, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<SetBrowserPoliciesQuery>();
@@ -630,7 +627,6 @@ HWTEST_F(PluginPolicyQueryTest, TestSetBrowserPoliciesQueryPermission, TestSize.
         == "");
     ASSERT_TRUE(queryObj->GetPolicyName() == PolicyName::POLICY_SET_BROWSER_POLICIES);
 }
-#endif
 
 #ifdef TELEPHONY_EDM_ENABLE
 HWTEST_F(PluginPolicyQueryTest, TestTelephonyCallPolicyQueryPermission, TestSize.Level1)

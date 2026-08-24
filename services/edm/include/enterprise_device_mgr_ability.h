@@ -22,22 +22,21 @@
 #include <string>
 
 #include "admin_manager.h"
-#include "allowed_permission_bundle_serializer.h"
 #include "app_control_interface.h"
-#include "application_instance.h"
 #include "common_event_subscriber.h"
 #include "enterprise_admin_proxy.h"
 #include "enterprise_device_mgr_stub.h"
 #include "enable_source.h"
+#include "event_subscription_manager.h"
 #include "extra_policy_notification.h"
 #include "hilog/log.h"
 #include "installed_bundle_info_util.h"
 #include "plugin_manager.h"
 #include "policy_manager.h"
-#include "policy_struct.h"
 #include "security_report.h"
+#include "subscription_handle.h"
 #include "system_ability.h"
-#include "watermark_observer_manager.h"
+#include "mdm_event_relayer.h"
 
 namespace OHOS {
 namespace EDM {
@@ -99,11 +98,7 @@ public:
     ErrCode ReportAgInstallStatus(const std::string &bundleName,
         const std::string &mediaBundleName, int32_t status) override;
     ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want) override;
-    void ConnectAbilityOnSystemEvent(const std::string &bundleName, ManagedEvent event, int32_t userId = 100);
     bool ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
-    std::unordered_map<std::string,
-        std::function<void(EnterpriseDeviceMgrAbility *that, const EventFwk::CommonEventData &data)>>
-        commonEventFuncMap_;
     std::unordered_map<int32_t,
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>
         addSystemAbilityFuncMap_;
@@ -117,15 +112,10 @@ protected:
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
 
 private:
-    void AddCommonEventFuncMap();
-    void AddCommonEventFuncMapSecond();
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
-    bool SubscribeAppState();
-    bool UnsubscribeAppState();
     void NotifyAdminEnabled(bool isEnabled);
     void CheckAndUpdateByodSettingsData();
-    void UpdateClipboardInfo(const std::string &bundleName, int32_t userId);
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
@@ -144,7 +134,6 @@ private:
         AdminType adminType, int32_t userId, const std::string &permission,
         EnableSource enableSource = EnableSource::DEPLOY);
     int32_t GetCurrentUserId();
-    ErrCode HandleApplicationEvent(const std::vector<uint32_t> &events, bool subscribe);
     ErrCode VerifyEnableAdminCondition(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
         bool isDebug);
     ErrCode VerifyEnableAdminConditionCheckExistAdmin(const AppExecFwk::ElementName &admin, AdminType type,
@@ -157,71 +146,31 @@ private:
         const AdminInfo &oldAdminInfo);
     ErrCode AddDisallowUninstallApp(const std::string &bundleName);
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
-    void UpdateFreezeExemptedApps(const std::string &bundleName, int32_t userId, int32_t appIndex);
-    void UpdateAbilityEnabled(const std::string &bundleName, int32_t userId, int32_t appIndex);
     ErrCode AddDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     ErrCode DelDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
         EnableSource enableSource);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,
         const AppExecFwk::ElementName &oldAdmin);
-    void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
-    void InitAgTask();
     void CheckAndReportInstalledBundleInfoOnStart();
-    void UpdateUserNonStopInfo(const std::string &bundleName, int32_t userId, int32_t appIndex);
-    void UpdateAllowedPermissionBundleInfo(const std::string &appIdentifier, const std::string &bundleName,
-        int32_t userId, int32_t appIndex);
-    void UpdateAutoStartApps(const std::string &bundleName, int32_t userId);
-    void UpdateKeepAliveApps(const std::string &bundleName, int32_t userId);
-
-private:
-    struct MatchingAppInfo {
-        std::string permissionName;
-        ApplicationInstance app;
-    };
-    std::vector<MatchingAppInfo> FindMatchingAppsFromPolicy(
-        const std::map<std::string, std::vector<ApplicationInstance>> &policyMap,
-        const std::string &bundleName, int32_t appIndex);
-    void RemoveMatchingAppsFromPolicy(const std::vector<MatchingAppInfo> &matchingApps,
-        const std::vector<std::shared_ptr<Admin>> &admins, int32_t userId,
-        const std::string &appIdentifier, int32_t appIndex);
-    void ExecutePolicyRemoveForApp(const std::shared_ptr<Admin> &admin, const MatchingAppInfo &matchInfo,
-        int32_t userId, const std::string &appIdentifier, int32_t appIndex);
 
 public:
     ErrCode CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
         const std::string &bundleName);
-    ErrCode SetAbilityDisabled(const std::string &bundleName, int32_t userId, const std::string &abilityName);
-    void UpdateNotifyPackagePolicy();
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
-    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateEnterpriseDeviceEventSubscriber(
-        EnterpriseDeviceMgrAbility &listener);
-    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateAGEventSubscriber(
-        EnterpriseDeviceMgrAbility &listener);
-    std::shared_ptr<EventFwk::CommonEventSubscriber> CreateOobeEventSubscriber(
-        EnterpriseDeviceMgrAbility &listener);
-#endif
-    void OnCommonEventUserAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventUserSwitched(const EventFwk::CommonEventData &data);
     void OnCommonEventUserRemoved(const EventFwk::CommonEventData &data);
-    void OnCommonEventPackageAdded(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageRemoved(const EventFwk::CommonEventData &data);
     void OnCommonEventPackageChanged(const EventFwk::CommonEventData &data);
     void OnCommonEventBmsReady(const EventFwk::CommonEventData &data);
     void OnCommonEventKioskMode(const EventFwk::CommonEventData &data, bool isModeOn);
     void OnCommonEventSimStateChanged(const EventFwk::CommonEventData &data);
-    void OnCommonEventOobeFinish(const EventFwk::CommonEventData &data);
-    void OnCommonEventDevicePowerOn(const EventFwk::CommonEventData &data);
-#ifdef UINPUT_MANAGER_EDM_ENABLE
-    void ResetDisallowUinputStatus();
-#endif
-    bool ShouldUnsubscribeAppState(const std::string &adminName, int32_t userId);
+    void UpdateMarketAppsState(const EventFwk::CommonEventData &data, int32_t event);
+    void InitAgTask();
     bool CheckManagedEvent(uint32_t event);
     void OnAppManagerServiceStart();
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
     void OnDistributedKvDataServiceStart();
-    void ConnectAbilityOnSystemAccountEvent(const int32_t accountId, ManagedEvent event);
     bool CheckRunningMode(uint32_t runningMode);
     void ConnectEnterpriseAbility();
     void CallOnOtherServiceStart(uint32_t interfaceCode);
@@ -237,8 +186,6 @@ public:
     void RemoveAllDebugAdmin();
     void CleanHapTempDirectory();
     void AddSystemAbilityListeners();
-    void ConnectAbilityOnSystemUpdate(const UpdateInfo &updateInfo);
-    void OnCommonEventSystemUpdate(const EventFwk::CommonEventData &data);
     std::shared_ptr<IEdmBundleManager> GetBundleMgr();
     std::shared_ptr<IEdmAppManager> GetAppMgr();
     std::shared_ptr<IEdmOsAccountManager> GetOsAccountMgr();
@@ -258,29 +205,14 @@ public:
     void DeleteSubUserLogDirIfNeed(int32_t userId);
 #endif
     static std::shared_mutex adminLock_;
-    static std::mutex subscribeAppLock_;
     static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<ExtraPolicyNotification> policyNotification_;
     bool registerToService_ = false;
-    std::shared_ptr<EventFwk::CommonEventSubscriber> commonEventSubscriber = nullptr;
-    sptr<AppExecFwk::IApplicationStateObserver> appStateObserver_;
     std::unordered_map<std::string, bool> adminConnectMap_;
     bool isNeedRemoveSettigsMenu_ = false;
+    std::vector<std::shared_ptr<SubscriptionHandle>> saCoreHandles_;
 };
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
-class EnterpriseDeviceEventSubscriber : public EventFwk::CommonEventSubscriber {
-public:
-    EnterpriseDeviceEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
-        EnterpriseDeviceMgrAbility &listener);
-    ~EnterpriseDeviceEventSubscriber() override = default;
-
-    void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
-
-private:
-    EnterpriseDeviceMgrAbility &listener_;
-};
-#endif
 } // namespace EDM
 } // namespace OHOS
 #endif // SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H

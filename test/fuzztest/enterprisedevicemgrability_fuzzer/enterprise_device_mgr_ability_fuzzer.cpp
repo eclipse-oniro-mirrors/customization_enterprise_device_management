@@ -103,9 +103,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     sptr<EnterpriseDeviceMgrAbility> enterpriseDeviceMgrAbility = EnterpriseDeviceMgrAbility::GetInstance();
     EventFwk::CommonEventData eventData = getCommonEventData(data, size);
 
-    enterpriseDeviceMgrAbility->OnCommonEventSystemUpdate(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventUserRemoved(eventData);
-    enterpriseDeviceMgrAbility->OnCommonEventPackageAdded(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventPackageRemoved(eventData);
     int32_t systemAbilityId = CommonFuzzer::GetU32Data(data);
     const std::string deviceId = CommonFuzzer::GetString(data, pos, stringSize, size);
@@ -117,8 +115,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     int32_t userId = CommonFuzzer::GetU32Data(data);
     int32_t accountId = CommonFuzzer::GetU32Data(data);
     int32_t interfaceCode = CommonFuzzer::GetU32Data(data);
-    enterpriseDeviceMgrAbility->SubscribeAppState();
-    enterpriseDeviceMgrAbility->UnsubscribeAppState();
     AppExecFwk::ElementName admin;
     std::string fuzzString = CommonFuzzer::GetString(data, pos, stringSize, size);
     admin.SetBundleName(fuzzString);
@@ -145,7 +141,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     entInfo.description = fuzzString;
     InitAdminParam(edmAdmin, fuzzString, entInfo, event);
     std::shared_ptr<Admin> adminPtr = std::make_shared<Admin>(edmAdmin);
-    enterpriseDeviceMgrAbility->OnCommonEventUserAdded(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventUserSwitched(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventPackageChanged(eventData);
     enterpriseDeviceMgrAbility->OnCommonEventBmsReady(eventData);
@@ -153,7 +148,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->OnAdminEnabled(bundleName, abilityName, code, userId);
     enterpriseDeviceMgrAbility->AddDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->AddDisallowUninstallAppForAccount(bundleName, userId);
-    enterpriseDeviceMgrAbility->UpdateClipboardInfo(bundleName, userId);
     enterpriseDeviceMgrAbility->DelDisallowUninstallApp(bundleName);
     enterpriseDeviceMgrAbility->DelDisallowUninstallAppForAccount(bundleName, userId);
     enterpriseDeviceMgrAbility->AfterEnableAdmin(admin, type, userId, EnableSource::DEPLOY);
@@ -164,8 +158,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     enterpriseDeviceMgrAbility->CheckRunningMode(code);
     enterpriseDeviceMgrAbility->CheckManagedEvent(code);
     enterpriseDeviceMgrAbility->ConnectAbility(accountId, adminPtr);
-    enterpriseDeviceMgrAbility->ConnectAbilityOnSystemAccountEvent(accountId, event);
-    enterpriseDeviceMgrAbility->ConnectAbilityOnSystemEvent(bundleName, event, userId);
     enterpriseDeviceMgrAbility->CallOnOtherServiceStart(interfaceCode);
     enterpriseDeviceMgrAbility->CallOnOtherServiceStart(interfaceCode, systemAbilityId);
     enterpriseDeviceMgrAbility->IsByodAdmin(admin, isByod);

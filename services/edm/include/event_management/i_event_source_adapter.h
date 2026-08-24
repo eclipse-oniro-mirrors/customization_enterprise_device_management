@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2026-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,25 @@
  * limitations under the License.
  */
 
-#include "application_state_observer.h"
-#include "managed_event.h"
+#ifndef SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_I_EVENT_SOURCE_ADAPTER_H
+#define SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_I_EVENT_SOURCE_ADAPTER_H
 
 namespace OHOS {
 namespace EDM {
-void ApplicationStateObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
-{
-    listener_.ConnectAbilityOnSystemEvent(processData.bundleName, ManagedEvent::APP_START);
-}
 
-void ApplicationStateObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
-{
-    listener_.ConnectAbilityOnSystemEvent(processData.bundleName, ManagedEvent::APP_STOP);
-}
+enum class AdapterType {
+    COMMON_EVENT,
+    APP_LIFECYCLE,
+};
+
+class IEventSourceAdapter {
+public:
+    virtual ~IEventSourceAdapter() = default;
+    virtual bool SubscribeEvent() = 0;
+    virtual bool UnsubscribeEvent() = 0;
+    virtual AdapterType GetAdapterType() const = 0;
+};
 } // namespace EDM
 } // namespace OHOS
+
+#endif // SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_I_EVENT_SOURCE_ADAPTER_H

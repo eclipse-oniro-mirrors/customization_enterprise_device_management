@@ -453,6 +453,7 @@ namespace PolicyName {
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";
     const char* const POLICY_INSTALL = "install";
+    const char* const POLICY_INSTALL_MARKET_APPS = "install_market_apps";
     const char* const POLICY_IPTABLES_RULE = "iptables_rule";
     const char* const POLICY_IS_WIFI_ACTIVE = "is_wifi_active";
     const char* const POLICY_LOCATION_POLICY = "location_policy";

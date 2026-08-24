@@ -31,6 +31,8 @@ public:
     ErrCode OnInitExecute(std::uint32_t funcCode, const std::string &adminName, int32_t userId) override;
     ErrCode OnAdminRemoveExecute(std::uint32_t funcCode, const std::string &adminName, const std::string &policyValue,
         const std::string &mergedPolicyData, int32_t userId) override;
+    void OnPluginEventExecute(const std::string &adminName, std::uint32_t funcCode, HandlePolicyData &policyData,
+        const EdmEventData &data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

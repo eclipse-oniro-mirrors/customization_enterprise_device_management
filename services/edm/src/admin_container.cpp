@@ -119,6 +119,23 @@ void AdminContainer::GetAdminCopyBySubscribeEvent(ManagedEvent event,
     }
 }
 
+void AdminContainer::GetAllAdmins(std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &allAdmins)
+{
+    ReadLock lock(adminMutex_);
+    for (const auto &adminItem : admins_) {
+        std::vector<std::shared_ptr<Admin>> admins;
+        for (const auto &it : adminItem.second) {
+            auto admin = CreateAdmin(it->adminInfo_);
+            if (admin != nullptr) {
+                admins.push_back(admin);
+            }
+        }
+        if (!admins.empty()) {
+            allAdmins[adminItem.first] = admins;
+        }
+    }
+}
+
 bool AdminContainer::GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin)
 {
     userAdmin.clear();

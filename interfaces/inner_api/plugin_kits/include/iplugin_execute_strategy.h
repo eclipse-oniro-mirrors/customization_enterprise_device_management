@@ -25,6 +25,8 @@
 namespace OHOS {
 namespace EDM {
 
+struct EdmEventData;
+
 class IPluginExecuteStrategy {
 public:
     virtual ~IPluginExecuteStrategy() = default;
@@ -47,6 +49,8 @@ public:
     {
         return ERR_OK;
     }
+    virtual void OnPluginEventExecute(const std::string &adminName, std::uint32_t funcCode,
+        HandlePolicyData &policyData, const EdmEventData &data, int32_t userId) {}
 };
 
 } // namespace EDM

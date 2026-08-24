@@ -20,6 +20,8 @@
 
 namespace OHOS {
 namespace EDM {
+
+struct EdmEventData;
 /*
  * Policy processing plugin singleton mode template,which needs to inherit the template.
  *
@@ -49,6 +51,13 @@ public:
 
     virtual ErrCode OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId);
+
+    virtual bool SubscribeEvent() { return true; }
+
+    virtual bool UnsubscribeEvent() { return true; }
+
+    virtual void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+        const EdmEventData &data, int32_t userId) {}
 
     static void DestroyPlugin();
 

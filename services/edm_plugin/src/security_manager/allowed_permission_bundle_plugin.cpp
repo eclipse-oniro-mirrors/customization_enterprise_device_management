@@ -19,14 +19,18 @@
 #include "access_token_error.h"
 #include "allowed_permission_bundle_serializer.h"
 #include "array_string_serializer.h"
+#include "bundle_constants.h"
 #include "edm_access_token_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {
@@ -400,6 +404,65 @@ ErrCode AllowedPermissionBundlePlugin::GetOthersMergePolicyData(const std::strin
         return ERR_EDM_OPERATE_JSON;
     }
     return ERR_OK;
+}
+
+bool AllowedPermissionBundlePlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("AllowedPermissionBundlePlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_ALLOWED_PERMISSION_BUNDLE,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
+        EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE, true, true);
+}
+
+bool AllowedPermissionBundlePlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("AllowedPermissionBundlePlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_ALLOWED_PERMISSION_BUNDLE,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
+    return true;
+}
+
+void AllowedPermissionBundlePlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+    int32_t appIndex = want.GetIntParam(AppExecFwk::Constants::APP_INDEX, AppExecFwk::Constants::DEFAULT_APP_INDEX);
+
+    auto serializer = AllowedPermissionBundleSerializer::GetInstance();
+    std::map<std::string, std::vector<ApplicationInstance>> adminData;
+    serializer->Deserialize(policyData.policyData, adminData);
+
+    std::vector<std::pair<std::string, ApplicationInstance>> toRemove;
+    for (const auto &[permission, appList] : adminData) {
+        auto iter = std::find_if(appList.begin(), appList.end(), [&](const auto &app) {
+            return app.bundleName == bundleName && app.appIndex == appIndex;
+        });
+        if (iter != appList.end()) {
+            toRemove.emplace_back(permission, *iter);
+        }
+    }
+    if (toRemove.empty()) {
+        return;
+    }
+
+    std::map<std::string, std::vector<ApplicationInstance>> mergeData;
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
+
+    for (const auto &[permission, app] : toRemove) {
+        OnRemovePolicy(permission, app, adminData, mergeData, PolicyScene::APP_UNINSTALL);
+    }
+
+    serializer->Serialize(adminData, policyData.policyData);
+    serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
 } // namespace EDM
 } // namespace OHOS
