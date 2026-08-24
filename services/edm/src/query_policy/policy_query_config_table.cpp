@@ -596,6 +596,23 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         {PolicyName::POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_ACCOUNT,
         PolicyDataType::ARRAY_STRING, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISABLE_SATA_ODD_BURN, {PolicyName::POLICY_DISABLE_SATA_ODD_BURN, PolicyDataType::BOOL,
+        PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        true
+#else
+        false
+#endif
+    }},
+    {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        true
+#else
+        false
+#endif
+    }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

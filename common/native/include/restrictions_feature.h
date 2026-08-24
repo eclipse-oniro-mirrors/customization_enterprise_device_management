@@ -70,6 +70,7 @@ enum class RestrictionsFeature : int32_t {
     REMOTE_DIAGNOSIS = 49,
     OTA_UPDATE = 50,
     SYSTEM_ROLLBACK = 51,
+    SATA_ODD_BURN = 52,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {

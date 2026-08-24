@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_USB_MANAGER_INCLUDE_USB_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "odd_burn_usb_device.h"
 #include "usb_device_id.h"
 #ifdef USB_EDM_ENABLE
 #include "usb_interface_type.h"
@@ -36,6 +37,10 @@ public:
     int32_t SetUsbStorageDeviceAccessPolicy(MessageParcel &data);
     int32_t GetUsbStorageDeviceAccessPolicy(MessageParcel &data, int32_t &result);
     int32_t GetUsbSerialNumber(MessageParcel &data, std::string &result);
+    int32_t AddAllowedOddBurnUsbDevices(MessageParcel &data);
+    int32_t RemoveAllowedOddBurnUsbDevices(MessageParcel &data);
+    int32_t GetAllowedOddBurnUsbDevices(MessageParcel &data, std::vector<OddBurnUsbDevice> &result);
+    bool IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial);
 #ifdef USB_EDM_ENABLE
     int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive = true);
     int32_t GetDisallowedUsbDevices(MessageParcel &data,

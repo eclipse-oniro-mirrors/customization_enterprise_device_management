@@ -149,6 +149,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/utils/nearlink_config_utils.cpp",
       "./src/utils/nearlink_protocol_utils.cpp",
       "./src/restrictions/disallow_core_dump_plugin.cpp",
+      "./src/restrictions/disable_sata_odd_burn_plugin.cpp",
       "./src/restrictions/disallow_rs232_plugin.cpp",
       ]
     }
@@ -488,6 +489,13 @@ ohos_shared_library("communication_plugin") {
         "./src/utils/array_permissive_usb_device_type_serializer.cpp",
         "./src/utils/usb_policy_utils.cpp",
       ]
+    }
+
+    if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
+        enterprise_device_management_feature_pc_only) {
+      external_deps += [ "usb_manager:usbsrv_client" ]
+      sources += [ "./src/usb_manager/allowed_odd_burn_usb_devices_plugin.cpp" ]
+      defines += [ "FEATURE_PC_ONLY" ]
     }
 
     if (enterprise_device_management_enable_disk_manager) {

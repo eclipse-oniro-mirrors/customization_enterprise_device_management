@@ -40,6 +40,7 @@ namespace EdmConstants {
     constexpr int32_t USB_DEVICE_DESCRIPTOR = 1;
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     constexpr uint32_t DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE = 1000;
+    constexpr uint32_t ALLOWED_ODD_BURN_USB_DEVICES_MAX_SIZE = 10000;
     constexpr int32_t DISTRIBUTE_SERVICE_TYPE_COLLABORATION = 0;
     constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
     constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 10;
@@ -399,6 +400,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_BLUETOOTH_DEVICES = "disallowed_bluetooth_devices";
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
+    const char* const POLICY_ALLOWED_ODD_BURN_USB_DEVICES = "allowed_odd_burn_usb_devices";
     const char* const POLICY_CLIPBOARD_POLICY = "clipboard_policy";
     const char* const POLICY_DISABLED_APP_CLONE = "disabled_app_clone";
     const char* const POLICY_DISABLED_BLUETOOTH = "disabled_bluetooth";
@@ -571,6 +573,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_SYSTEM_ROLLBACK = "disallowed_system_rollback";
     const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_DEVICE = "allowed_printer_ip_addresses_for_device";
     const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_ACCOUNT = "allowed_printer_ip_addresses_for_account";
+    const char* const POLICY_DISABLE_SATA_ODD_BURN = "disable_sata_odd_burn";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

@@ -28,6 +28,10 @@
             "virtual thunk to OHOS::EDM::UsbDeviceId::~UsbDeviceId()";
             VTT?for?OHOS::EDM::UsbDeviceId;
             vtable?for?OHOS::EDM::UsbDeviceId;
+            OHOS::EDM::OddBurnUsbDevice::*;
+            "virtual thunk to OHOS::EDM::OddBurnUsbDevice::~OddBurnUsbDevice()";
+            VTT?for?OHOS::EDM::OddBurnUsbDevice;
+            vtable?for?OHOS::EDM::OddBurnUsbDevice;
             OHOS::EDM::WifiId::*;
             "virtual thunk to OHOS::EDM::WifiId::~WifiId()";
             VTT?for?OHOS::EDM::WifiId;
@@ -39,6 +43,9 @@
             VTT?for?OHOS::EDM::ArrayUsbDeviceIdSerializer;
             vtable?for?OHOS::EDM::ArrayUsbDeviceIdSerializer;
             OHOS::EDM::ArrayUsbDeviceIdSerializer::*;
+            VTT?for?OHOS::EDM::ArrayOddBurnUsbDeviceSerializer;
+            vtable?for?OHOS::EDM::ArrayOddBurnUsbDeviceSerializer;
+            OHOS::EDM::ArrayOddBurnUsbDeviceSerializer::*;
             VTT?for?OHOS::EDM::ArrayWifiIdSerializer;
             vtable?for?OHOS::EDM::ArrayWifiIdSerializer;
             OHOS::EDM::ArrayWifiIdSerializer::*;
