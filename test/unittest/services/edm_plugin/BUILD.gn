@@ -366,6 +366,8 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_rs232_plugin_test.cpp",
       "./src/ota_update_nonce_plugin_test.cpp",
       "./src/security_manager/device_security_level_policy_plugin_test.cpp",
+      "./src/system_manager/allowed_printer_ip_addresses_plugin_test.cpp",
+      "./src/plugin_utils/ip_utils_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -915,6 +917,14 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disable_hdc_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disable_microphone_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disable_printer_plugin.cpp",
+    ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
+      "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
+      "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_util.cpp",
     ]
   }
 

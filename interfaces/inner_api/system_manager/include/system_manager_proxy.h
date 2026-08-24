@@ -59,6 +59,11 @@ public:
     int32_t GetInstallLocalEnterpriseAppEnabledForAccount(MessageParcel &data, bool &isAllowedInstall);
     int32_t SetOtaUpdateNonceEnable(MessageParcel &data);
     int32_t IsOtaUpdateNonceEnable(MessageParcel &data, bool &isOtaNonceEnable);
+    int32_t AddOrRemoveAllowedPrinterIPAddresses(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetAllowedPrinterIPAddresses(MessageParcel &data, std::vector<std::string> &ipAddresses);
+    int32_t AddOrRemoveAllowedPrinterIPAddressesForAccount(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetAllowedPrinterIPAddressesForAccount(MessageParcel &data, std::vector<std::string> &ipAddresses);
+    ErrCode GetPrintPolicy(const std::string userId, std::string &json);
 #endif
     int32_t SetLocalHotaDomain(MessageParcel &data);
     int32_t GetLocalHotaDomain(MessageParcel &data, std::string &domain);

@@ -124,7 +124,9 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS,
     EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES, EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS,
     EdmInterfaceCode::DISALLOWED_PERMISSION, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE,
-    EdmInterfaceCode::USER_EXT_SESSION, EdmInterfaceCode::USER_EXT_CREDENTIAL
+    EdmInterfaceCode::USER_EXT_SESSION, EdmInterfaceCode::USER_EXT_CREDENTIAL,
+    EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
+    EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {

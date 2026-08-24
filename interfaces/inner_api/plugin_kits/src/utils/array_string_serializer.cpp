@@ -128,5 +128,12 @@ std::vector<std::string> ArrayStringSerializer::SetIntersectionPolicyData(std::v
     std::set_intersection(currentData.begin(), currentData.end(), data.begin(), data.end(), back_inserter(mergeData));
     return mergeData;
 }
+
+void ArrayStringSerializer::Deduplication(std::vector<std::string> &dataObj)
+{
+    std::sort(dataObj.begin(), dataObj.end());
+    auto iter = std::unique(dataObj.begin(), dataObj.end());
+    dataObj.erase(iter, dataObj.end());
+}
 } // namespace EDM
 } // namespace OHOS

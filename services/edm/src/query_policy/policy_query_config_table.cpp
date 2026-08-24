@@ -592,6 +592,14 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_X_KEY, {PolicyName::POLICY_DISALLOW_X_KEY, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
+        {PolicyName::POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_DEVICE,
+        PolicyDataType::ARRAY_STRING, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+        {PolicyName::POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_ACCOUNT,
+        PolicyDataType::ARRAY_STRING, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

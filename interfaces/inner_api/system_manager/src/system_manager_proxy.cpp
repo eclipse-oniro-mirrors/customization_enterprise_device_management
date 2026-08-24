@@ -16,7 +16,9 @@
 #include "system_manager_proxy.h"
 
 #include "edm_log.h"
+#include "edm_utils.h"
 #include "func_code.h"
+#include "print_policy_util.h"
 #include "update_policy_utils.h"
 
 namespace OHOS {
@@ -80,6 +82,68 @@ int32_t SystemManagerProxy::IsOtaUpdateNonceEnable(MessageParcel &data, bool &is
     }
     reply.ReadBool(isOtaNonceEnable);
     return ERR_OK;
+}
+
+int32_t SystemManagerProxy::AddOrRemoveAllowedPrinterIPAddresses(MessageParcel &data, FuncOperateType operateType)
+{
+    EDMLOGD("SystemManagerProxy::AddOrRemoveAllowedPrinterIPAddresses");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+ 
+int32_t SystemManagerProxy::GetAllowedPrinterIPAddresses(MessageParcel &data, std::vector<std::string> &ipAddresses)
+{
+    EDMLOGD("SystemManagerProxy::GetAllowedPrinterIPAddresses");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&ipAddresses);
+    return ERR_OK;
+}
+ 
+int32_t SystemManagerProxy::AddOrRemoveAllowedPrinterIPAddressesForAccount(MessageParcel &data,
+    FuncOperateType operateType)
+{
+    EDMLOGD("SystemManagerProxy::AddOrRemoveAllowedPrinterIPAddressesForAccount");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)operateType, EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+ 
+int32_t SystemManagerProxy::GetAllowedPrinterIPAddressesForAccount(MessageParcel &data,
+    std::vector<std::string> &ipAddresses)
+{
+    EDMLOGD("SystemManagerProxy::GetAllowedPrinterIPAddresses");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&ipAddresses);
+    return ERR_OK;
+}
+ 
+ErrCode SystemManagerProxy::GetPrintPolicy(const std::string userId, std::string &json)
+{
+    EDMLOGI("SystemManagerProxy::GetPrintPolicy userId=%{public}s", userId.c_str());
+    int32_t userIdInt = 0;
+    if (EdmUtils::ParseStringToInt(userId, userIdInt) != ERR_OK) {
+        EDMLOGE("SystemManagerProxy::GetPrintPolicy invalid userId");
+        json = "{}";
+        return ERR_OK;
+    }
+    return PrintPolicyUtil::GetPrintPolicy(userIdInt, json);
 }
 #endif
 
