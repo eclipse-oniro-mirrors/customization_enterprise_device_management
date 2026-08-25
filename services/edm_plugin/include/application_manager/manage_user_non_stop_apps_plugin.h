@@ -20,6 +20,7 @@
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iremote_stub.h"
 #include "application_instance.h"
 #include "session_manager_lite.h"
@@ -43,6 +44,12 @@ public:
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
     void OnOtherServiceStart(int32_t systemAbilityId) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnBundleRemoved(HandlePolicyData &policyData, const EdmEventData &data, int32_t userId);
+    void OnUserSwitched(HandlePolicyData &policyData);
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 
 private:
     ErrCode RemoveOtherModulePolicy(const std::vector<ApplicationInstance> needResetPolicy,

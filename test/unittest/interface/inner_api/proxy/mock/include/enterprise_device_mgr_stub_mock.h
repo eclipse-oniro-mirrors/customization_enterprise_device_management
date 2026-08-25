@@ -76,7 +76,6 @@ public:
         (override));
     MOCK_METHOD(int, SetBundleInstallPolicies, ((const std::vector<std::string> &), int32_t, int32_t),
         (override));
-    MOCK_METHOD(int, UnloadInstallMarketAppsPlugin, (), (override));
     MOCK_METHOD(int, ReportAgInstallStatus, (const std::string &, const std::string &, int32_t),
         (override));
     MOCK_METHOD(int, EnableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
@@ -86,6 +85,7 @@ public:
     MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType,
         int32_t, bool, EnableSource), (override));
     MOCK_METHOD(int, EnableSelfDeviceAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
+    MOCK_METHOD(ErrCode, UnloadInstallMarketAppsPlugin, (), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {

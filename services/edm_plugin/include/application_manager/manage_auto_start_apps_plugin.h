@@ -22,6 +22,7 @@
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iremote_stub.h"
 #include "manage_auto_start_app_info.h"
 
@@ -41,6 +42,10 @@ public:
         int32_t userId) override {};
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 
 private:
     ErrCode SetOrRemoveOtherModulePolicy(const std::vector<ManageAutoStartAppInfo> &data, bool isSet,
@@ -51,8 +56,6 @@ private:
     ErrCode OnRemovePolicy(std::vector<std::string> &data,
         std::vector<ManageAutoStartAppInfo> &currentData, std::vector<ManageAutoStartAppInfo> &mergeData,
         int32_t userId, bool isUninstall);
-    ErrCode SetOtherModulePolicy(const std::vector<std::string> &keepAliveApps,
-        int32_t userId, std::vector<ManageAutoStartAppInfo> &failedData, bool disallowModify);
     void DeserializePolicyData(HandlePolicyData &policyData, int32_t userId,
         std::vector<ManageAutoStartAppInfo> &currentData,
         std::vector<ManageAutoStartAppInfo> &mergeData,

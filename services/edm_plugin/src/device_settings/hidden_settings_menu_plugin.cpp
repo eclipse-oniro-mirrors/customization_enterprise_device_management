@@ -15,12 +15,16 @@
 
 #include "hidden_settings_menu_plugin.h"
 
+#include "iadmin_manager.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code_utils.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
+#include "managed_event.h"
 #include "parameters.h"
 #include "array_int_serializer.h"
 #include "common_event_manager.h"
@@ -116,6 +120,29 @@ ErrCode HiddenSettingsMenuPlugin::OnAdminRemove(const std::string &adminName, co
 void HiddenSettingsMenuPlugin::OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId)
 {
     return;
+}
+
+bool HiddenSettingsMenuPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("HiddenSettingsMenuPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_HIDDEN_SETTINGS_MENU,
+        static_cast<uint32_t>(ManagedEvent::USER_SWITCHED),
+        EdmInterfaceCode::HIDDEN_SETTINGS_MENU, true, false);
+}
+
+bool HiddenSettingsMenuPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_HIDDEN_SETTINGS_MENU,
+        static_cast<uint32_t>(ManagedEvent::USER_SWITCHED));
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

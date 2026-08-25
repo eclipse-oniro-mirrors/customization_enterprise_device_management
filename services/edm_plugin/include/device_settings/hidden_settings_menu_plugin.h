@@ -26,6 +26,7 @@
 
 #include "cJSON.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "plugin_singleton.h"
 #include "key_code.h"
 
@@ -50,6 +51,8 @@ public:
     ErrCode RemoveOtherModulePolicy(const std::vector<int32_t> &data, int32_t userId,
         std::vector<int32_t> &failedData) override;
     void OnOtherServiceStartForAdmin(const std::string &adminName, int32_t userId) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -65,6 +65,11 @@ public:
     void GetAdminCopyBySubscribeEvent(ManagedEvent event,
         std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins);
 
+    /**
+     * Get a thread-safe independent copy of all admins grouped by userId.
+     */
+    void GetAllAdmins(std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &allAdmins);
+
     bool HasAdmin(int32_t userId);
 
     bool IsAdminExist();

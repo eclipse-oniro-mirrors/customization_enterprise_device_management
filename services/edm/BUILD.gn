@@ -26,7 +26,7 @@ config("edm_config") {
     "include/query_policy",
     "include/strategy",
     "include/system_manager",
-    "include/watermark",
+    "include/event_management",
     "../../framework/extension/include",
   ]
 }
@@ -98,7 +98,6 @@ ohos_shared_library("edmservice") {
       "./src/admin_container.cpp",
       "./src/admin_manager.cpp",
       "./src/admin_policies_storage_rdb.cpp",
-      "./src/application_state_observer.cpp",
       "./src/connection/callback_strategies.cpp",
       "./src/connection/enterprise_admin_proxy.cpp",
       "./src/connection/enterprise_conn_manager.cpp",
@@ -228,10 +227,6 @@ ohos_shared_library("edmservice") {
       "os_account:os_account_innerkits",
     ]
 
-    sources += [
-      "./src/watermark/watermark_application_observer.cpp",
-      "./src/watermark/watermark_observer_manager.cpp",
-    ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
@@ -264,11 +259,20 @@ ohos_shared_library("edmservice") {
     defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
   }
 
-  if (common_event_service_edm_enable) {
-    external_deps += [ "common_event_service:cesfwk_innerkits" ]
-    sources += [ "./src/query_policy/set_browser_policies_query.cpp" ]
-    defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
-  }
+  external_deps += [ "common_event_service:cesfwk_innerkits" ]
+  sources += [
+    "./src/query_policy/set_browser_policies_query.cpp",
+    "./src/event_management/delay_cancel_timer.cpp",
+    "./src/event_management/event_subscription_manager.cpp",
+    "./src/event_management/subscription_handle.cpp",
+    "./src/event_management/edm_common_event_subscriber.cpp",
+    "./src/event_management/common_event_adapter.cpp",
+    "./src/event_management/adapter_factory.cpp",
+    "./src/event_management/edm_app_state_subscriber.cpp",
+    "./src/event_management/app_lifecycle_adapter.cpp",
+    "./src/event_management/mdm_event_relayer.cpp",
+    "./src/event_management/plugin_event_router.cpp",
+  ]
 
   if (!enterprise_device_management_feature_pc_only) {
     sources += [

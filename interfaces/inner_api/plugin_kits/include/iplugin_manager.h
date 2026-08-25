@@ -21,7 +21,9 @@
 #include <memory>
 
 #include "execute_strategy.h"
+#include "edm_errors.h"
 #include "iplugin.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace EDM {

@@ -19,6 +19,7 @@
 #include <message_parcel.h>
 
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "application_instance.h"
 
 namespace OHOS {
@@ -34,6 +35,11 @@ public:
         int32_t userId) override;
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData, int32_t userId) override{};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
+    void OnBundleAdded(const std::string &bundleName, int32_t userId, const std::string &mergePolicyData);
 private:
     ErrCode SetPolicy(const std::string &bundleName, const std::string &abilityName,
         std::vector<std::string> &currentPolicy, std::vector<std::string> &mergePolicy, int32_t userId);

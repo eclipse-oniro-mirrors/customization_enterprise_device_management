@@ -63,6 +63,11 @@ void AdminManager::GetAdminBySubscribeEvent(ManagedEvent event,
     return AdminContainer::GetInstance()->GetAdminCopyBySubscribeEvent(event, subscribeAdmins);
 }
 
+void AdminManager::GetAllAdmins(std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &allAdmins)
+{
+    return AdminContainer::GetInstance()->GetAllAdmins(allAdmins);
+}
+
 ErrCode AdminManager::SetAdminValue(int32_t userId, const AdminInfo &adminItem)
 {
     std::shared_ptr<Admin> getAdmin = GetAdminByPkgName(adminItem.packageName_, userId);
@@ -336,6 +341,15 @@ void AdminManager::GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_
             std::back_inserter(admins), [&](std::shared_ptr<Admin> admin) {
             return admin->adminInfo_.adminType_ == AdminType::BYOD;
         });
+    }
+}
+
+void AdminManager::GetAdminPackageNames(std::vector<std::string> &packageNames, int32_t currentUserId)
+{
+    std::vector<std::shared_ptr<Admin>> admins;
+    GetAdmins(admins, currentUserId);
+    for (const auto &admin : admins) {
+        packageNames.push_back(admin->adminInfo_.packageName_);
     }
 }
 

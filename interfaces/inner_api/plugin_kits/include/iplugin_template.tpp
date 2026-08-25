@@ -391,6 +391,34 @@ void IPluginTemplate<CT, DT>::OnOtherServiceStart(int32_t systemAbilityId)
 }
 
 template <class CT, class DT>
+void IPluginTemplate<CT, DT>::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    if (instance_ == nullptr) {
+        return;
+    }
+    instance_->OnPluginEvent(adminName, policyData, data, userId);
+}
+
+template <class CT, class DT>
+bool IPluginTemplate<CT, DT>::SubscribeEvent()
+{
+    if (instance_ == nullptr) {
+        return true;
+    }
+    return instance_->SubscribeEvent();
+}
+
+template <class CT, class DT>
+bool IPluginTemplate<CT, DT>::UnsubscribeEvent()
+{
+    if (instance_ == nullptr) {
+        return true;
+    }
+    return instance_->UnsubscribeEvent();
+}
+
+template <class CT, class DT>
 void IPluginTemplate<CT, DT>::SetOtherServiceStartListener(IntConsumer &&listener)
 {
     if (instance_ == nullptr) {

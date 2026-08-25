@@ -675,7 +675,13 @@ ohos_static_library("edm_all_plugin_static") {
 
   include_dirs = [
     "../../../../services/edm/include",
+    "../../../../services/edm/include/ability",
+    "../../../../services/edm/include/admin",
+    "../../../../services/edm/include/connection",
     "../../../../services/edm/include/database",
+    "../../../../services/edm/include/event_management",
+    "../../../../services/edm/include/observer",
+    "../../../../services/edm/include/query_policy",
     "../../../../services/edm/include/strategy",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/account_manager",

@@ -56,6 +56,13 @@ public:
 
     void OnOtherServiceStart(int32_t systemAbilityId) override;
 
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+        const EdmEventData &data, int32_t userId) override;
+
+    bool SubscribeEvent() override;
+
+    bool UnsubscribeEvent() override;
+
     ErrCode OnHandlePolicyPrepare(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
 

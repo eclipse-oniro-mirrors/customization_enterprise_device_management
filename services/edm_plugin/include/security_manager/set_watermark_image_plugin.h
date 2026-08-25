@@ -18,6 +18,7 @@
 
 #include "app_mgr_interface.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "pixel_map.h"
 #include "watermark_image_type.h"
 #include "watermark_param.h"
@@ -49,10 +50,16 @@ public:
 
     void OnOtherServiceStart(int32_t systemAbilityId) override;
 
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
+
     void SetAllWatermarkImage();
-    void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);
     ErrCode SetProcessWatermarkByPid(int32_t pid, const std::string &fileName, bool enabled);
     std::string GenerateUniqueFileName();
+    std::string GetWatermarkFileNameForBundle(const std::string &policyData, const std::string &bundleName,
+        int32_t accountId);
 
 private:
     ErrCode SetPolicy(MessageParcel &data, std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
@@ -72,8 +79,6 @@ private:
     std::shared_ptr<Media::PixelMap> GetImageFromUrlUint8(const WatermarkImageType &imageType);
     std::shared_ptr<Media::PixelMap> CreatePixelMapFromUint8(const uint8_t* data, size_t size,
         int32_t width, int32_t height);
-    bool SubscribeAppState();
-    bool UnsubscribeAppState();
     bool IsRowColParamValid(int32_t row, int32_t col);
     sptr<AppExecFwk::IAppMgr> GetAppManager();
 };
