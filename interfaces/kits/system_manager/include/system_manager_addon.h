@@ -157,7 +157,7 @@ private:
     static napi_value RemoveAllowedPrinterIPAddressesForAccount(napi_env env, napi_callback_info info);
     static napi_value GetAllowedPrinterIPAddressesForAccount(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveAllowedPrinterIPAddressesForAccount(napi_env env,
-        napi_callback_info info,FuncOperateType operateType);
+        napi_callback_info info, FuncOperateType operateType);
     static napi_value AddOrRemoveAllowedPrinterIPAddresses(napi_env env,
         napi_callback_info info, FuncOperateType operateType);
 #ifdef FEATURE_PC_ONLY

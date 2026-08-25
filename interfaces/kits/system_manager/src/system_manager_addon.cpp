@@ -1692,7 +1692,7 @@ napi_value SystemManagerAddon::RemoveAllowedPrinterIPAddressesForDevice(napi_env
 napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env,
     napi_callback_info info, FuncOperateType operateType)
 {
-   EDMLOGI("NAPI_AddOrRemoveAllowedPrinterIPAddresses called");
+    EDMLOGI("NAPI_AddOrRemoveAllowedPrinterIPAddresses called");
 #ifdef FEATURE_PC_ONLY
     auto convertIpList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
@@ -1745,7 +1745,7 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForDevice(napi_env en
     if (result == nullptr) {
         return nullptr;
     }
-   std::vector<std::string> ipAddresses;
+    std::vector<std::string> ipAddresses;
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetAllowedPrinterIPAddresses(
         adapterAddonData.data, ipAddresses);
     if (FAILED(ret)) {
@@ -1902,7 +1902,7 @@ bool SystemManagerAddon::EdmParsePrinterIpArray(napi_env env,
             return false;
         }
     }
-   return true;
+    return true;
 }
 #endif
 

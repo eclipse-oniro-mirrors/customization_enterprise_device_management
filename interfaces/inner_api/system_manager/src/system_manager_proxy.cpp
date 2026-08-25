@@ -22,7 +22,6 @@
 #include "func_code.h"
 #include "message_parcel.h"
 #include "print_policy_util.h"
->>>>>>> master
 #include "update_policy_utils.h"
 #include "want.h"
 

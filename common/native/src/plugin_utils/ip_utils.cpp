@@ -25,7 +25,7 @@ const char* const IPV4_PATTERN =
     "((2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)\\.){3}(2([0-4]\\d|5[0-5])|1\\d\\d|[1-9]\\d|\\d)";
  
 const char* const IPV6_PATTERN =
-    "([0-9a-fA-F]{4}:){7}[0-9a-fA-F]{4}"; 
+    "([0-9a-fA-F]{4}:){7}[0-9a-fA-F]{4}";
 }
  
 bool IpUtils::IsValidIPv4(const std::string &ip)
