@@ -52,6 +52,7 @@ public:
     void SetAllWatermarkImage();
     void SetProcessWatermarkOnAppStart(const std::string &bundleName, int32_t accountId, int32_t pid, bool enabled);
     ErrCode SetProcessWatermarkByPid(int32_t pid, const std::string &fileName, bool enabled);
+    std::string GenerateUniqueFileName();
 
 private:
     ErrCode SetPolicy(MessageParcel &data, std::map<std::pair<std::string, int32_t>, WatermarkImageType> &currentData,
@@ -75,7 +76,6 @@ private:
     bool UnsubscribeAppState();
     bool IsRowColParamValid(int32_t row, int32_t col);
     sptr<AppExecFwk::IAppMgr> GetAppManager();
-    std::string GenerateUniqueFileName();
 };
 } // namespace EDM
 } // namespace OHOS

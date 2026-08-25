@@ -14,6 +14,8 @@
  */
 
 #include <gtest/gtest.h>
+#include <regex>
+#include <set>
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
@@ -167,6 +169,126 @@ HWTEST_F(SetWatermarkImagePluginTest, TestCancelWatermarkImage, TestSize.Level1)
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(policyData.policyData.empty());
+}
+
+/**
+ * @tc.name: TestGenerateUniqueFileNameFormat
+ * @tc.desc: Test SetWatermarkImagePlugin::GenerateUniqueFileName returns correct format.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWatermarkImagePluginTest, TestGenerateUniqueFileNameFormat, TestSize.Level1)
+{
+    SetWatermarkImagePlugin plugin;
+    std::string fileName = plugin.GenerateUniqueFileName();
+    
+    ASSERT_FALSE(fileName.empty());
+    ASSERT_TRUE(fileName.find("edm_") == 0);
+    
+    std::regex pattern("^edm_[0-9]+_[0-9]+$");
+    ASSERT_TRUE(std::regex_match(fileName, pattern));
+}
+
+/**
+ * @tc.name: TestGenerateUniqueFileNameContainsTimestamp
+ * @tc.desc: Test SetWatermarkImagePlugin::GenerateUniqueFileName contains timestamp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWatermarkImagePluginTest, TestGenerateUniqueFileNameContainsTimestamp, TestSize.Level1)
+{
+    SetWatermarkImagePlugin plugin;
+    std::string fileName = plugin.GenerateUniqueFileName();
+    
+    ASSERT_FALSE(fileName.empty());
+    ASSERT_TRUE(fileName.find("edm_") == 0);
+    
+    size_t firstUnderscore = fileName.find('_');
+    size_t secondUnderscore = fileName.find('_', firstUnderscore + 1);
+    ASSERT_NE(secondUnderscore, std::string::npos);
+    
+    std::string timestampStr = fileName.substr(firstUnderscore + 1, secondUnderscore - firstUnderscore - 1);
+    ASSERT_FALSE(timestampStr.empty());
+    
+    for (char c : timestampStr) {
+        ASSERT_TRUE(std::isdigit(c));
+    }
+    
+    int64_t timestamp = std::stoll(timestampStr);
+    ASSERT_GT(timestamp, 0);
+}
+
+/**
+ * @tc.name: TestGenerateUniqueFileNameRandomInRange
+ * @tc.desc: Test SetWatermarkImagePlugin::GenerateUniqueFileName random number is in valid range.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWatermarkImagePluginTest, TestGenerateUniqueFileNameRandomInRange, TestSize.Level1)
+{
+    SetWatermarkImagePlugin plugin;
+    
+    for (int i = 0; i < 100; i++) {
+        std::string fileName = plugin.GenerateUniqueFileName();
+        ASSERT_FALSE(fileName.empty());
+        
+        size_t lastUnderscore = fileName.rfind('_');
+        ASSERT_NE(lastUnderscore, std::string::npos);
+        
+        std::string randomStr = fileName.substr(lastUnderscore + 1);
+        ASSERT_FALSE(randomStr.empty());
+        
+        for (char c : randomStr) {
+            ASSERT_TRUE(std::isdigit(c));
+        }
+        
+        int32_t randomNum = std::stoi(randomStr);
+        ASSERT_GE(randomNum, 0);
+        ASSERT_LE(randomNum, 9999);
+    }
+}
+
+/**
+ * @tc.name: TestGenerateUniqueFileNameUniqueness
+ * @tc.desc: Test SetWatermarkImagePlugin::GenerateUniqueFileName generates unique names.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWatermarkImagePluginTest, TestGenerateUniqueFileNameUniqueness, TestSize.Level1)
+{
+    SetWatermarkImagePlugin plugin;
+    std::set<std::string> fileNames;
+    const int testCount = 1000;
+    
+    for (int i = 0; i < testCount; i++) {
+        std::string fileName = plugin.GenerateUniqueFileName();
+        ASSERT_FALSE(fileName.empty());
+        fileNames.insert(fileName);
+    }
+    
+    ASSERT_EQ(fileNames.size(), testCount);
+}
+
+/**
+ * @tc.name: TestGenerateUniqueFileNameMultipleCalls
+ * @tc.desc: Test SetWatermarkImagePlugin::GenerateUniqueFileName with multiple calls.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetWatermarkImagePluginTest, TestGenerateUniqueFileNameMultipleCalls, TestSize.Level1)
+{
+    SetWatermarkImagePlugin plugin;
+    
+    std::string fileName1 = plugin.GenerateUniqueFileName();
+    std::string fileName2 = plugin.GenerateUniqueFileName();
+    std::string fileName3 = plugin.GenerateUniqueFileName();
+    
+    ASSERT_FALSE(fileName1.empty());
+    ASSERT_FALSE(fileName2.empty());
+    ASSERT_FALSE(fileName3.empty());
+    
+    ASSERT_NE(fileName1, fileName2);
+    ASSERT_NE(fileName2, fileName3);
+    ASSERT_NE(fileName1, fileName3);
+    
+    ASSERT_TRUE(fileName1.find("edm_") == 0);
+    ASSERT_TRUE(fileName2.find("edm_") == 0);
+    ASSERT_TRUE(fileName3.find("edm_") == 0);
 }
 
 } // namespace TEST
