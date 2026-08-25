@@ -129,6 +129,11 @@ private:
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
+#ifndef FEATURE_PC_ONLY
+    bool IsSystemTimerFuncCode(uint32_t code);
+    ErrCode HandleSystemTimerPolicy(uint32_t code, AppExecFwk::ElementName &admin,
+        MessageParcel &data, MessageParcel &reply, int32_t userId);
+#endif
     ErrCode RemoveSubSuperAdminAndAdminPolicy(const std::string &bundleName, AdminType adminType);
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);
     ErrCode RemoveSubOrSuperAdminAndAdminPolicy(const std::string &bundleName,

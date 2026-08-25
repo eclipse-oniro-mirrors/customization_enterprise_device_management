@@ -59,6 +59,10 @@
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "edm_timer_manager.h"
+#include "admin_manager.h"
+#ifndef FEATURE_PC_ONLY
+#include "system_timer_manager.h"
+#endif
 #include "callback_strategies.h"
 #include "enterprise_conn_manager.h"
 #include "ext_info_manager.h"
@@ -2044,6 +2048,9 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
     AdminType adminType)
 {
     EDMLOGD("RemoveAdminAndAdminPolicy:admin: %{public}s.", adminName.c_str());
+#ifndef FEATURE_PC_ONLY
+    SystemTimerManager::GetInstance()->OnAdminRemove(adminName);
+#endif
     ErrCode removeAdminPolicyRet = RemoveAdminPolicy(adminName, userId);
     if (FAILED(removeAdminPolicyRet)) {
         EDMLOGE("Remove admin %{public}s policy fail.", adminName.c_str());
@@ -2372,6 +2379,11 @@ int32_t EnterpriseDeviceMgrAbility::GetCurrentUserId()
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
+#ifndef FEATURE_PC_ONLY
+    if (IsSystemTimerFuncCode(code)) {
+        return HandleSystemTimerPolicy(code, admin, data, reply, userId);
+    }
+#endif
     std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
     if (policyName.empty()) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
@@ -3351,5 +3363,29 @@ void EnterpriseDeviceMgrAbility::CheckAndReportInstalledBundleInfoOnStart()
     }
     InstalledBundleInfoUtil::GetInstance()->ReportAndClear();
 }
+
+#ifndef FEATURE_PC_ONLY
+bool EnterpriseDeviceMgrAbility::IsSystemTimerFuncCode(uint32_t code)
+{
+    uint32_t policyCode = FUNC_TO_POLICY(code);
+    return policyCode == static_cast<uint32_t>(EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
+}
+
+ErrCode EnterpriseDeviceMgrAbility::HandleSystemTimerPolicy(uint32_t code, AppExecFwk::ElementName &admin,
+    MessageParcel &data, MessageParcel &reply, int32_t userId)
+{
+    EDMLOGI("HandleSystemTimerPolicy: code=%{public}u", code);
+#ifndef EDM_FUZZ_TEST
+    std::string permissionTag = data.ReadString();
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+    ErrCode permRet = GetPermissionChecker()->CheckSystemTimerPermission(admin, GetCurrentUserId());
+    if (FAILED(permRet)) {
+        return permRet;
+    }
+#endif
+    return SystemTimerManager::GetInstance()->HandleTimerOperation(
+        code, admin.GetBundleName(), data, reply, userId);
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

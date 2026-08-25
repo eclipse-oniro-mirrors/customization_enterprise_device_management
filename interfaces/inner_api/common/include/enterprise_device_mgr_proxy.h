@@ -94,6 +94,7 @@ public:
     bool IsEdmEnabled();
     bool IsEdmExtEnabled();
     bool CheckDataInEdmDisabled(MessageParcel &data);
+    sptr<IRemoteObject> GetEdmRemoteObject();
 
 private:
     sptr<IRemoteObject> LoadAndGetEdmService();
