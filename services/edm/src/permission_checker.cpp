@@ -424,5 +424,31 @@ std::string PermissionChecker::GetHapTokenBundleName(Security::AccessToken::Acce
 {
     return GetExternalManagerFactory()->CreateAccessTokenManager()->GetHapTokenBundleName(tokenId);
 }
+
+#ifndef FEATURE_PC_ONLY
+ErrCode PermissionChecker::CheckSystemTimerPermission(const AppExecFwk::ElementName &admin, int32_t userId)
+{
+    std::shared_ptr<Admin> deviceAdmin =
+        AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
+    if (deviceAdmin == nullptr) {
+        EDMLOGE("CheckSystemTimerPermission: %{public}s is not activated", admin.GetBundleName().c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    if (deviceAdmin->GetAdminType() == AdminType::BYOD) {
+        EDMLOGE("CheckSystemTimerPermission: byod admin not allowed");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    if (FAILED(CheckCallingUid(deviceAdmin->adminInfo_.packageName_))) {
+        EDMLOGE("CheckSystemTimerPermission: CheckCallingUid failed");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (!VerifyCallingPermission(IPCSkeleton::GetCallingTokenID(),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM)) {
+        EDMLOGE("CheckSystemTimerPermission: permission denied");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    return ERR_OK;
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

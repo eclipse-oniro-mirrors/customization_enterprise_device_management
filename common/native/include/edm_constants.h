@@ -296,7 +296,26 @@ namespace EdmConstants {
         const std::string OUTGOING = "outgoing";
         const std::string INCOMING = "incoming";
     }
+
+    namespace SystemTimer {
+        constexpr uint32_t TIMER_NAME_MAX_LEN = 64;
+        constexpr uint64_t TIMER_INTERVAL_MIN_MS = 1000;
+        constexpr uint64_t TIMER_INTERVAL_MAX_MS = 24ULL * 3600 * 1000;
+        constexpr uint32_t TIMER_MAX_COUNT_PER_ADMIN = 5;
+        constexpr int32_t TIMER_TYPE_REALTIME = 1;
+        constexpr int32_t TIMER_TYPE_WAKEUP = 2;
+        constexpr int32_t TIMER_TYPE_EXACT = 4;
+        constexpr int32_t DEFAULT_TIMER_TYPE =
+            TIMER_TYPE_REALTIME | TIMER_TYPE_WAKEUP | TIMER_TYPE_EXACT;
+    }
 } // namespace EdmConstants
+
+enum class TimerOperationType : int32_t {
+    CREATE = 0,
+    START = 1,
+    STOP = 2,
+    DESTROY = 3,
+};
 
 namespace EdmPermission {
     const char* const PERMISSION_DENIED = "PERMISSION_DENIED";
@@ -513,6 +532,7 @@ namespace PolicyName {
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
     const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
+    const char* const POLICY_SYSTEM_TIMER = "system_timer";
     const char* const POLICY_PUBLISH_FORM_TO_DESKTOP = "publish_form_to_desktop";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";

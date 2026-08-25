@@ -678,6 +678,11 @@ sptr<IRemoteObject> EnterpriseDeviceMgrProxy::LoadAndGetEdmService()
     return EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
 }
 
+sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetEdmRemoteObject()
+{
+    return LoadAndGetEdmService();
+}
+
 void EnterpriseDeviceMgrProxy::GetEnabledAdmins(AdminType type, std::vector<std::string> &enabledAdminList)
 {
     if (!IsEdmEnabled()) {

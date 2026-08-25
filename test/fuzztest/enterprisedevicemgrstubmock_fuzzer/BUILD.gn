@@ -33,6 +33,7 @@ config("edm_config") {
     "../../../services/edm/include/observer",
     "../../../services/edm/include/query_policy",
     "../../../services/edm/include/strategy",
+    "../../../services/edm/include/system_manager",
     "../../../services/edm/include/watermark",
     "../../../framework/extension/include",
     "../../../services/edm_plugin/include",
@@ -164,6 +165,14 @@ ohos_static_library("edmservice_fuzz_static") {
 
   defines += [ "EDM_FUZZ_TEST" ]
   defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../services/edm/src/system_manager/edm_timer_info_sa.cpp",
+      "../../../services/edm/src/system_manager/system_timer_manager.cpp",
+      "../../../services/edm/src/system_manager/timer_death_recipient.cpp",
+    ]
+  }
 
   external_deps = [
     "ability_base:want",

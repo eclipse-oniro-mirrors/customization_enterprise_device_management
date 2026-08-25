@@ -113,6 +113,8 @@ namespace EdmReturnErrCode {
     constexpr uint32_t FORM_TYPE_NOT_SUPPORT = 9201050;
     constexpr uint32_t ADD_FORM_FAILED = 9201051;
     constexpr uint32_t EDM_ERR_UKEY_TIMEOUT = 9201052;
+    constexpr uint32_t SYSTEM_TIMER_MAX_COUNT_REACHED = 9201053;
+    constexpr uint32_t SYSTEM_TIMER_NOT_FOUND = 9201054;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

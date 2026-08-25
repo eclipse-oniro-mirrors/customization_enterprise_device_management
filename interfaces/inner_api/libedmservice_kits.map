@@ -125,6 +125,10 @@
             OHOS::EDM::EdmJsonBuilder::*;
             OHOS::EDM::IEdmTimerManager::*;
             vtable?for?OHOS::EDM::IEdmTimerManager;
+            OHOS::EDM::EdmClientTimerCallback::*;
+            "virtual thunk to OHOS::EDM::EdmClientTimerCallback::~EdmClientTimerCallback()";
+            VTT?for?OHOS::EDM::EdmClientTimerCallback;
+            vtable?for?OHOS::EDM::EdmClientTimerCallback;
             OHOS::EDM::InstalledBundleInfoUtil::*;
         };
     local:

@@ -18,7 +18,11 @@
 
 #include "enterprise_device_mgr_proxy.h"
 
+#ifndef FEATURE_PC_ONLY
+#include "edm_client_timer_callback.h"
+#endif
 #include "func_code.h"
+#include "iremote_object.h"
 #include "update_policy_utils.h"
 #include "key_code.h"
 
@@ -26,7 +30,16 @@ namespace OHOS {
 namespace EDM {
 class SystemManagerProxy {
 public:
+    SystemManagerProxy();
     static std::shared_ptr<SystemManagerProxy> GetSystemManagerProxy();
+#ifndef FEATURE_PC_ONLY
+    int32_t CreateTimer(const AppExecFwk::ElementName &admin, bool repeat, uint64_t interval,
+        const std::string &name, uint64_t &timerId);
+    int32_t StartTimer(const AppExecFwk::ElementName &admin, uint64_t timerId, uint64_t triggerTime);
+    int32_t StopTimer(const AppExecFwk::ElementName &admin, uint64_t timerId);
+    int32_t DestroyTimer(const AppExecFwk::ElementName &admin, uint64_t timerId);
+    sptr<EdmClientTimerCallback> GetClientTimerCallback();
+#endif
     int32_t SetNTPServer(MessageParcel &data);
     int32_t GetNTPServer(MessageParcel &data, std::string &value);
     int32_t SetOTAUpdatePolicy(MessageParcel &data, std::string &errorMsg);
@@ -63,8 +76,17 @@ public:
     int32_t SetLocalHotaDomain(MessageParcel &data);
     int32_t GetLocalHotaDomain(MessageParcel &data, std::string &domain);
 private:
+#ifndef FEATURE_PC_ONLY
+    void EnsureEdmSaDeathRecipient();
+#endif
     static std::shared_ptr<SystemManagerProxy> instance_;
     static std::once_flag flag_;
+#ifndef FEATURE_PC_ONLY
+    sptr<EdmClientTimerCallback> clientCallback_;
+    std::mutex drMutex_;
+    sptr<IRemoteObject::DeathRecipient> edmDeathRecipient_;
+    sptr<IRemoteObject> registeredRemote_;
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

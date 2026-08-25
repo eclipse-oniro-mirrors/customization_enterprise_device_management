@@ -32,6 +32,7 @@ config("edm_config") {
     "../../../../services/edm/include/observer",
     "../../../../services/edm/include/query_policy",
     "../../../../services/edm/include/strategy",
+    "../../../../services/edm/include/system_manager",
     "../../../../services/edm/include/watermark",
     "../../../../services/edm_plugin/include",
     "../../../../services/edm_plugin/include/account_manager",
@@ -225,7 +226,12 @@ ohos_static_library("edmservice_static") {
   }
 
   if (!enterprise_device_management_feature_pc_only) {
-    sources += [ "../../../../services/edm/src/query_policy/hide_launcher_icon_query.cpp" ]
+    sources += [
+      "../../../../services/edm/src/query_policy/hide_launcher_icon_query.cpp",
+      "../../../../services/edm/src/system_manager/edm_timer_info_sa.cpp",
+      "../../../../services/edm/src/system_manager/system_timer_manager.cpp",
+      "../../../../services/edm/src/system_manager/timer_death_recipient.cpp",
+    ]
   }
 
   external_deps = [
@@ -541,6 +547,9 @@ ohos_unittest("EdmServicesUnitTest") {
       "BACKUP_AND_RESTORE_EDM_ENABLE",
       "PRIVATE_SPACE_EDM_ENABLE",
       "MULTI_WINDOW_EDM_ENABLE"
+    ]
+    sources += [
+      "./src/system_timer_manager_test.cpp",
     ]
   }
 

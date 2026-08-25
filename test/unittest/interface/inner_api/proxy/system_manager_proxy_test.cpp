@@ -24,6 +24,11 @@
 #include "update_policy_utils.h"
 #include "utils.h"
 #include "key_code.h"
+#ifndef FEATURE_PC_ONLY
+#include "edm_constants.h"
+#include "edm_errors.h"
+#include "edm_ipc_interface_code.h"
+#endif
 
 using namespace testing::ext;
 using namespace testing;
@@ -1169,6 +1174,193 @@ HWTEST_F(SystemManagerProxyTest, GetKeyEventPolicies_ReplyFail_ReturnSystemAbnor
     int32_t ret = systemmanagerProxy->GetKeyEventPolicies(data, keyCustomizations);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
+
+#ifndef FEATURE_PC_ONLY
+namespace {
+const uint64_t TEST_TIMER_ID = 30001;
+const uint64_t TEST_TRIGGER_TIME = 5000;
+const std::string TIMER_NAME = "proxy_test_timer";
+} // namespace
+
+/**
+ * @tc.name: CreateTimer_Success_ReturnTimerId
+ * @tc.desc: Test CreateTimer sends IPC and returns the timerId from reply.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, CreateTimer_Success_ReturnTimerId, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    uint64_t timerId = 0;
+    auto mockReply = [](uint32_t, MessageParcel &, MessageParcel &reply, MessageOption &) -> int {
+        reply.WriteInt32(ERR_OK);
+        reply.WriteUint64(TEST_TIMER_ID);
+        return 0;
+    };
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockReply));
+    int32_t ret = systemmanagerProxy->CreateTimer(admin, false, 0, TIMER_NAME, timerId);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(timerId, TEST_TIMER_ID);
+}
+
+/**
+ * @tc.name: CreateTimer_IPCFailed_ReturnSystemAbnormally
+ * @tc.desc: Test CreateTimer returns SYSTEM_ABNORMALLY when SendRequest fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, CreateTimer_IPCFailed_ReturnSystemAbnormally, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    uint64_t timerId = 0;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    int32_t ret = systemmanagerProxy->CreateTimer(admin, false, 0, TIMER_NAME, timerId);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: CreateTimer_ReplyError_ReturnErrorCode
+ * @tc.desc: Test CreateTimer returns the error code when reply contains an error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, CreateTimer_ReplyError_ReturnErrorCode, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    uint64_t timerId = 0;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    int32_t ret = systemmanagerProxy->CreateTimer(admin, false, 0, TIMER_NAME, timerId);
+    ASSERT_NE(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: StartTimer_Success_ReturnOk
+ * @tc.desc: Test StartTimer sends IPC and returns ERR_OK on success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, StartTimer_Success_ReturnOk, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = systemmanagerProxy->StartTimer(admin, TEST_TIMER_ID, TEST_TRIGGER_TIME);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: StartTimer_IPCFailed_ReturnSystemAbnormally
+ * @tc.desc: Test StartTimer returns SYSTEM_ABNORMALLY when SendRequest fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, StartTimer_IPCFailed_ReturnSystemAbnormally, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    int32_t ret = systemmanagerProxy->StartTimer(admin, TEST_TIMER_ID, TEST_TRIGGER_TIME);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: StopTimer_Success_ReturnOk
+ * @tc.desc: Test StopTimer sends IPC and returns ERR_OK on success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, StopTimer_Success_ReturnOk, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = systemmanagerProxy->StopTimer(admin, TEST_TIMER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: StopTimer_IPCFailed_ReturnSystemAbnormally
+ * @tc.desc: Test StopTimer returns SYSTEM_ABNORMALLY when SendRequest fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, StopTimer_IPCFailed_ReturnSystemAbnormally, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    int32_t ret = systemmanagerProxy->StopTimer(admin, TEST_TIMER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: DestroyTimer_Success_ReturnOk
+ * @tc.desc: Test DestroyTimer sends IPC and returns ERR_OK on success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, DestroyTimer_Success_ReturnOk, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = systemmanagerProxy->DestroyTimer(admin, TEST_TIMER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: DestroyTimer_IPCFailed_CallbackNotRemoved
+ * @tc.desc: Test DestroyTimer does not remove the local callback when IPC fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, DestroyTimer_IPCFailed_CallbackNotRemoved, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    auto clientCallback = systemmanagerProxy->GetClientTimerCallback();
+    ASSERT_TRUE(clientCallback != nullptr);
+    clientCallback->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    int32_t ret = systemmanagerProxy->DestroyTimer(admin, TEST_TIMER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: GetClientTimerCallback_NotNull
+ * @tc.desc: Test GetClientTimerCallback returns a non-null EdmClientTimerCallback instance.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetClientTimerCallback_NotNull, TestSize.Level1)
+{
+    auto clientCallback = systemmanagerProxy->GetClientTimerCallback();
+    ASSERT_TRUE(clientCallback != nullptr);
+}
+
+/**
+ * @tc.name: GetClientTimerCallback_MultipleCalls_SameInstance
+ * @tc.desc: Test GetClientTimerCallback returns the same instance on multiple calls.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemManagerProxyTest, GetClientTimerCallback_MultipleCalls_SameInstance, TestSize.Level1)
+{
+    auto cb1 = systemmanagerProxy->GetClientTimerCallback();
+    auto cb2 = systemmanagerProxy->GetClientTimerCallback();
+    EXPECT_EQ(cb1.GetRefPtr(), cb2.GetRefPtr());
+}
+#endif // FEATURE_PC_ONLY
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

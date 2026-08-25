@@ -56,6 +56,23 @@ struct AsyncIsActivationLockDisabledCallbackInfo : AsyncCallbackInfo {
     bool isDisabled;
 };
 
+#ifndef FEATURE_PC_ONLY
+struct AsyncCreateTimerCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    bool repeat = false;
+    uint64_t interval = 0;
+    std::string name;
+    uint64_t timerId = 0;
+    napi_ref timerCallbackRef = nullptr;
+};
+
+struct AsyncTimerOperationCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    uint64_t timerId = 0;
+    uint64_t triggerTime = 0;
+};
+#endif
+
 enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 
 class SystemManagerAddon {
@@ -121,6 +138,18 @@ private:
     static napi_value IsOtaUpdateNonceEnable(napi_env env, napi_callback_info info);
     static napi_value SetLocalHotaDomain(napi_env env, napi_callback_info info);
     static napi_value GetLocalHotaDomain(napi_env env, napi_callback_info info);
+    static napi_value CreateTimer(napi_env env, napi_callback_info info);
+    static napi_value StartTimer(napi_env env, napi_callback_info info);
+    static napi_value StopTimer(napi_env env, napi_callback_info info);
+    static napi_value DestroyTimer(napi_env env, napi_callback_info info);
+#ifndef FEATURE_PC_ONLY
+    static bool ParseWakeupTimerOptions(napi_env env, napi_value options, AsyncCreateTimerCallbackInfo *info);
+    static void NativeCreateTimer(napi_env env, void *data);
+    static void NativeStartTimer(napi_env env, void *data);
+    static void NativeStopTimer(napi_env env, void *data);
+    static void NativeDestroyTimer(napi_env env, void *data);
+    static void NativeCreateTimerComplete(napi_env env, napi_status status, void *data);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS
