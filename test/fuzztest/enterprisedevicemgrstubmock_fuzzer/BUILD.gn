@@ -520,7 +520,6 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/install_local_enterprise_app_policy_utils.cpp",
         "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_hdc_remote_plugin.cpp",
-        "../../../services/edm_plugin/src/device_security_level_policy_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/device_security_level_policy_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
