@@ -26,7 +26,7 @@
  
 namespace OHOS {
 namespace EDM {
- 
+
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
@@ -64,7 +64,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
                 parcel.WriteParcelable(&admin);
                 std::vector<std::string> ipAddresses;
                 uint32_t ipCount = CommonFuzzer::GetU32Data(data) % 10;
-                for (uint32_t i = 0; i < ipCount && ipAddresses.size() < 100; ++i) {
+                for (uint32_t i = 0; i < ipCount && ipAddresses.size() < MAX_SIZE; ++i) {
                     ipAddresses.push_back(CommonFuzzer::GetString(data, pos, stringSize, size));
                 }
                 parcel.WriteStringVector(ipAddresses);

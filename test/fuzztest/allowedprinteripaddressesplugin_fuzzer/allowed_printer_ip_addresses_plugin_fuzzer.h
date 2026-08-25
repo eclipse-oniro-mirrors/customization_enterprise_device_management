@@ -24,6 +24,7 @@ constexpr size_t MIN_SIZE = 8;
 constexpr int32_t WITHOUT_USERID = 0;
 constexpr int32_t HAS_ADMIN = 0;
 constexpr int32_t WITHOUT_ADMIN = 1;
+constexpr size_t MAX_SIZE = 100;
  
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv);
  
