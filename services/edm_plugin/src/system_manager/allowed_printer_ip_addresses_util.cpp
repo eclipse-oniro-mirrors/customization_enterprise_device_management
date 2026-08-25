@@ -175,9 +175,6 @@ void AllowedPrinterIpAddressesUtil::NotifyPrintPolicyChanged(int32_t userId, All
     eventData.SetWant(want);
     eventData.SetData(eventDataJson);
     EventFwk::CommonEventPublishInfo publishInfo;
-    std::vector<int32_t> subscriberUids;
-    subscriberUids.push_back(EdmConstants::PRINT_SERVICE_UID);
-    publishInfo.SetSubscriberUid(subscriberUids);
     if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData, publishInfo)) {
         EDMLOGE("AllowedPrinterIpAddressesUtil::NotifyPrintPolicyChanged publish failed");
     }
