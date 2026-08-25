@@ -110,7 +110,8 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM,
     EdmInterfaceCode::DISALLOWED_P2P, EdmInterfaceCode::QUERY_TRAFFIC_STATS,
     EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
-    EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES
+    EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES,
+    EdmInterfaceCode::GET_USB_SERIAL_NUMBER,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

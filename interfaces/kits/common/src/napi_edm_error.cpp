@@ -132,6 +132,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::FORM_NOT_EXIST, "The form does not exist."},
     {EdmReturnErrCode::FORM_TYPE_NOT_SUPPORT, "The form type is not supported."},
     {EdmReturnErrCode::ADD_FORM_FAILED, "Failed to add the form to the desktop."},
+    {EdmReturnErrCode::GET_USB_SERIAL_NUMBER_FAILED, "Failed to get the USB serial number."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)

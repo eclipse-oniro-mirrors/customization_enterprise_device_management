@@ -468,6 +468,7 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
         "./src/usb_manager/disallowed_permissive_usb_devices_plugin.cpp",
         "./src/restrictions/disallow_usb_serial_plugin.cpp",
+        "./src/usb_manager/get_usb_serial_number_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer_base.cpp",
         "./src/utils/array_permissive_usb_device_type_serializer.cpp",
