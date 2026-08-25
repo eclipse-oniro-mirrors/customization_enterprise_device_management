@@ -79,13 +79,6 @@ int EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminFail(const std::string &bundl
     return ERR_OK;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeIsSuperAdminByWantFail(const AppExecFwk::ElementName &admin, bool &isSuper)
-{
-    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsSuperAdminByWantFail";
-    isSuper = false;
-    return ERR_OK;
-}
-
 int EnterpriseDeviceMgrStubMock::InvokeIsByodAdminFail(const AppExecFwk::ElementName &admin, bool &isByod)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeIsByodAdminFail";
@@ -115,8 +108,7 @@ int EnterpriseDeviceMgrStubMock::InvokeGetAdmins(std::vector<std::shared_ptr<AAF
     return ERR_OK;
 }
 
-int EnterpriseDeviceMgrStubMock::InvokeGetAdminInfos(const AppExecFwk::ElementName &admin,
-    std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+int EnterpriseDeviceMgrStubMock::InvokeGetAdminInfos(std::vector<std::shared_ptr<AAFwk::Want>> &wants)
 {
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeGetAdminInfos";
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();

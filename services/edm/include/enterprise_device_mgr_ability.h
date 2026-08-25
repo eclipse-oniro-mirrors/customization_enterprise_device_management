@@ -59,7 +59,7 @@ public:
     ErrCode GetEnterpriseInfo(const AppExecFwk::ElementName &admin, EntInfo &entInfo) override;
     ErrCode SetEnterpriseInfo(const AppExecFwk::ElementName &admin, const EntInfo &entInfo) override;
     ErrCode IsSuperAdmin(const std::string &bundleName, bool &isSuper) override;
-    ErrCode IsSuperAdminByWant(const AppExecFwk::ElementName &admin, bool &isSuper) override;
+    ErrCode IsSelfSuperAdmin(bool &isSuper) override;
     ErrCode IsByodAdmin(const AppExecFwk::ElementName &admin, bool &isByod) override;
     ErrCode IsAdminEnabled(const AppExecFwk::ElementName &admin, int32_t userId, bool &isEnabled) override;
     ErrCode SubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
@@ -75,8 +75,7 @@ public:
     ErrCode ReplaceSuperAdmin(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
         bool keepPolicy) override;
     ErrCode GetAdmins(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override;
-    ErrCode GetAdminInfos(const AppExecFwk::ElementName &admin,
-        std::vector<std::shared_ptr<AAFwk::Want>> &wants) override;
+    ErrCode GetAdminInfos(std::vector<std::shared_ptr<AAFwk::Want>> &wants) override;
     ErrCode SetAdminRunningMode(const AppExecFwk::ElementName &admin, uint32_t runningMode) override;
     ErrCode SetDelegatedPolicies(const std::string &bundleName,
         const std::vector<std::string> &policies, int32_t userId) override;

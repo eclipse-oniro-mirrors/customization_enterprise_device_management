@@ -7088,40 +7088,41 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminsDirect, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestIsSuperAdminByWantWithSuperAdmin
- * @tc.desc: Test IsSuperAdminByWant with super admin.
+ * @tc.name: TestIsSelfSuperAdmin
+ * @tc.desc: Test IsSelfSuperAdmin with bundle-name checks.
  * @tc.type: FUNC
  */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsSuperAdminByWantWithSuperAdmin, TestSize.Level1)
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsSelfSuperAdmin, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
-    bool isSuper = false;
-    ErrCode ret = edmMgr_->IsSuperAdminByWant(admin, isSuper);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName)
+        .WillOnce(Return(ADMIN_PACKAGENAME))
+        .WillOnce(Return(ADMIN_PACKAGENAME))
+        .WillOnce(Return("otherBundle"));
+
+    // 1. no super admin -> isSuper false
+    bool isSuper = true;
+    ErrCode ret = edmMgr_->IsSelfSuperAdmin(isSuper);
+    EXPECT_TRUE(ret == ERR_OK);
+    EXPECT_FALSE(isSuper);
+
+    // set up a super admin (AdminType::ENT)
+    AdminInfo adminInfo = {.packageName_ = ADMIN_PACKAGENAME, .className_ = ADMIN_PACKAGENAME_ABILITY,
+        .adminType_ = AdminType::ENT};
+    AdminContainer::GetInstance()->SetAdminByUserId(EdmConstants::DEFAULT_USER_ID, adminInfo);
+
+    // 2. caller == super admin -> isSuper true
+    isSuper = false;
+    ret = edmMgr_->IsSelfSuperAdmin(isSuper);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_TRUE(isSuper);
-    DisableSuperAdminSuc(admin.GetBundleName());
-}
 
-/**
- * @tc.name: TestIsSuperAdminByWantWithoutPermission
- * @tc.desc: Test IsSuperAdminByWant without permission.
- * @tc.type: FUNC
- */
-HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsSuperAdminByWantWithoutPermission, TestSize.Level1)
-{
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
-    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
-    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
-    bool isSuper = false;
-    ErrCode ret = edmMgr_->IsSuperAdminByWant(admin, isSuper);
-    EXPECT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
+    // 3. caller != super admin -> isSuper false
+    isSuper = true;
+    ret = edmMgr_->IsSelfSuperAdmin(isSuper);
+    EXPECT_TRUE(ret == ERR_OK);
     EXPECT_FALSE(isSuper);
-    DisableSuperAdminSuc(admin.GetBundleName());
+
+    AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
 }
 
 /**
@@ -7141,8 +7142,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminInfosSuc, TestSize.Level1)
     normalAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(normalAdmin, AdminType::NORMAL, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
-    ErrCode ret = edmMgr_->GetAdminInfos(admin, wants);
+    ErrCode ret = edmMgr_->GetAdminInfos(wants);
     EXPECT_TRUE(ret == ERR_OK);
     int32_t wantSize = wants.size();
     ASSERT_TRUE(wantSize == 2);
@@ -7172,8 +7174,9 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminInfosFilterByod, TestSize.L
     byodAdmin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
     EnableAdminSuc(byodAdmin, AdminType::BYOD, DEFAULT_USER_ID);
 
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
-    ErrCode ret = edmMgr_->GetAdminInfos(admin, wants);
+    ErrCode ret = edmMgr_->GetAdminInfos(wants);
     EXPECT_TRUE(ret == ERR_OK);
     for (const auto &want : wants) {
         int32_t adminType = want->GetIntParam("adminType", -1);
@@ -7195,7 +7198,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminInfosWithoutPermission, Tes
     EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
-    ErrCode ret = edmMgr_->GetAdminInfos(admin, wants);
+    ErrCode ret = edmMgr_->GetAdminInfos(wants);
     EXPECT_TRUE(ret == EdmReturnErrCode::PERMISSION_DENIED);
     DisableSuperAdminSuc(admin.GetBundleName());
 }
@@ -7207,11 +7210,10 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminInfosWithoutPermission, Tes
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetAdminInfosWithoutActiveAdmin, TestSize.Level1)
 {
-    AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
-    ErrCode ret = edmMgr_->GetAdminInfos(admin, wants);
+    ErrCode ret = edmMgr_->GetAdminInfos(wants);
     EXPECT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
