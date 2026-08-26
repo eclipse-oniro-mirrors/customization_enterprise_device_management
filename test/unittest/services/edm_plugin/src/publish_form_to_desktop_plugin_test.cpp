@@ -81,6 +81,8 @@ void PublishFormToDesktopPluginTest::SetUpTestSuite(void)
 
 void PublishFormToDesktopPluginTest::TearDownTestSuite(void)
 {
+    PublishFormToDesktopPlugin::externalManagerFactory_ =
+        std::make_shared<ExternalManagerFactory>();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is original ut env : " << Utils::IsOriginalUTEnv() << std::endl;
