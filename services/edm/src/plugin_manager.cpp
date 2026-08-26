@@ -350,10 +350,12 @@ void PluginManager::LoadPlugin(const std::string &soName)
         EDMLOGI("PluginManager::DlopenPlugin soName %{public}s", soName.c_str());
         DlopenPlugin(PLUGIN_DIR + soName, loadStatePtr);
         loadStatePtr->pluginHasInit = true;
+#ifndef EDM_UT_TEST
         std::thread timerThread([=]() {
             this->UnloadPluginTask(soName, loadStatePtr);
         });
         timerThread.detach();
+#endif
     }
 }
 
@@ -454,6 +456,7 @@ bool PluginManager::UnloadPlugin(const std::string &soName)
         return true;
     }
     std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
+#ifndef EDM_UT_TEST
     if (loadStatePtr == nullptr || loadStatePtr->pluginHandles == nullptr) {
         EDMLOGE("PluginManager::UnloadPlugin %{public}s handle nullptr", soName.c_str());
         return true;
@@ -464,6 +467,7 @@ bool PluginManager::UnloadPlugin(const std::string &soName)
     } else {
         EDMLOGI("PluginManager::UnloadPlugin %{public}s close lib success", soName.c_str());
     }
+#endif
     soLoadStateMap_.erase(soName);
     return true;
 }

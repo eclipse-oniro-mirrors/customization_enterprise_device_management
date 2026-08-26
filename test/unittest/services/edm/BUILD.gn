@@ -131,7 +131,8 @@ ohos_static_library("edmservice_static") {
 
   defines = [
     "USERIAM_EDM_ENABLE",
-    "EDM_SUPPORT_ALL_ENABLE"
+    "EDM_SUPPORT_ALL_ENABLE",
+    "EDM_UT_TEST"
   ]
 
   if (target_cpu == "arm64") {
