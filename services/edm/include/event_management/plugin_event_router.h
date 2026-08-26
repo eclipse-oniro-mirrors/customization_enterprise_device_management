@@ -37,11 +37,6 @@ public:
 
     bool UnsubscribeEvent(const std::string &policyName, uint32_t eventCode) override;
 
-    bool SubscribeCustomEvent(const std::string &policyName, uint32_t eventCode,
-        uint32_t policyCode, const std::string &eventFilter, const std::string &permission) override;
-
-    bool UnsubscribeCustomEvent(const std::string &policyName, uint32_t eventCode) override;
-
 private:
     PluginEventRouter();
 

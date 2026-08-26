@@ -32,11 +32,6 @@ public:
 
     virtual bool UnsubscribeEvent(const std::string &policyName, uint32_t eventCode) = 0;
 
-    virtual bool SubscribeCustomEvent(const std::string &policyName, uint32_t eventCode,
-        uint32_t policyCode, const std::string &eventFilter, const std::string &permission) = 0;
-
-    virtual bool UnsubscribeCustomEvent(const std::string &policyName, uint32_t eventCode) = 0;
-
     static IPluginEventSubscribeManager *GetInstance()
     {
         std::lock_guard<std::mutex> lock(instanceMutex_);
