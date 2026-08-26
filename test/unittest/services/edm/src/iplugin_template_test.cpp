@@ -17,6 +17,7 @@
 #include "iplugin_template_test.h"
 #undef protected
 
+#include "edm_event_data.h"
 #include "policy_manager.h"
 using namespace testing::ext;
 
@@ -403,6 +404,23 @@ HWTEST_F(PluginTemplateTest, TestOnHandlePolicyPrepare, TestSize.Level1)
     HandlePolicyData handlePolicyData;
     ErrCode eRet = plugin->OnHandlePolicyPrepare(funcCode, data, reply, handlePolicyData, 100);
     ASSERT_TRUE(eRet == ERR_OK);
+}
+
+/**
+ * @tc.name: TestPluginSingletonSubscribeEvent
+ * @tc.desc: Test PluginSingleton SubscribeEvent default func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginTemplateTest, TestPluginSingletonSubscribeEvent, TestSize.Level1)
+{
+    PLUGIN::ArrayTestPlugin plugin;
+    EXPECT_TRUE(plugin.SubscribeEvent());
+    std::string adminName = "com.edm.test.demo";
+    HandlePolicyData policyData{"", "", false};
+    EdmEventData data;
+    int32_t userId = 100;
+    plugin.OnPluginEvent(adminName, policyData, data, userId);
+    EXPECT_TRUE(plugin.UnsubscribeEvent());
 }
 
 void PluginTemplateTest::SetUp()

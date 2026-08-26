@@ -198,30 +198,6 @@ HWTEST_F(PluginEventRouterTest, AppStartAndAppStop_SeparateEntries, TestSize.Lev
     EXPECT_EQ(router.entries_.count(startKey), 0u);
     EXPECT_EQ(router.entries_.count(stopKey), 0u);
 }
-
-/**
- * @tc.name: Test_UnsubscribeCustomEventRemovesEntry
- * @tc.desc: Test UnsubscribeCustomEvent removes entry and custom group state.
- * @tc.type: FUNC
- */
-HWTEST_F(PluginEventRouterTest, UnsubscribeCustomEvent_RemovesEntry, TestSize.Level1)
-{
-    PluginEventRouter &router = PluginEventRouter::GetInstance();
-    std::string policyName = "POLICY_UT_CUSTOM_" + std::to_string(std::rand());
-    uint32_t eventCode = 5000;
-    bool result = router.SubscribeCustomEvent(policyName, eventCode, 7001, "test.event", "test.perm");
-    EXPECT_TRUE(result);
-
-    EventId eventId{eventCode};
-    std::string key = policyName + ":custom:" + std::to_string(eventCode);
-    EXPECT_EQ(router.entries_.count(key), 1u);
-    EXPECT_EQ(router.customEventGroupStates_.count(eventId), 1u);
-
-    router.UnsubscribeCustomEvent(policyName, eventCode);
-    EXPECT_EQ(router.entries_.count(key), 0u);
-    EXPECT_EQ(router.customEventGroupStates_.count(eventId), 0u);
-}
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

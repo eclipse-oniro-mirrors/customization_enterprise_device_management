@@ -43,7 +43,9 @@ ohos_unittest("EdmPluginKitsUnitTest") {
   deps = [ "../../../../interfaces/inner_api/plugin_kits:plugin_kits" ]
 
   external_deps = [
+    "ability_runtime:app_manager",
     "cJSON:cjson",
+    "common_event_service:cesfwk_innerkits",
     "c_utils:utils",
     "googletest:gmock_main",
     "hilog:libhilog",
