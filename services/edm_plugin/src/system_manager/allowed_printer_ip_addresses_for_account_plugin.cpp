@@ -47,7 +47,7 @@ void AllowedPrinterIPAddressesForAccountPlugin::InitPlugin(
     ptr->SetOnAdminRemoveListener(&AllowedPrinterIPAddressesForAccountPlugin::OnBasicAdminRemove);
     ptr->SetOnAdminRemoveDoneListener(&AllowedPrinterIPAddressesForAccountPlugin::OnAdminRemoveDone);
     maxListSize_ = EdmConstants::ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE;
-    overMaxReturnErrCode_ = EdmReturnErrCode::PARAM_ERROR;
+    overMaxReturnErrCode_ = EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
 }
  
 void AllowedPrinterIPAddressesForAccountPlugin::OnChangedPolicyDone(std::vector<std::string> &data,

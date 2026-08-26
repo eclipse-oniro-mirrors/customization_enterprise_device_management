@@ -44,7 +44,7 @@ void AllowedPrinterIPAddressesPlugin::InitPlugin(
     ptr->SetOnAdminRemoveListener(&AllowedPrinterIPAddressesPlugin::OnBasicAdminRemove);
     ptr->SetOnAdminRemoveDoneListener(&AllowedPrinterIPAddressesPlugin::OnAdminRemoveDone);
     maxListSize_ = EdmConstants::ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE;
-    overMaxReturnErrCode_ = EdmReturnErrCode::PARAM_ERROR;
+    overMaxReturnErrCode_ = EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
 }
  
 void AllowedPrinterIPAddressesPlugin::OnChangedPolicyDone(bool isGlobalChanged)
