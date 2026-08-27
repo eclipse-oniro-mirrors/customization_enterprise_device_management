@@ -47,6 +47,7 @@ protected:
     std::shared_ptr<SystemManagerProxy> systemmanagerProxy = nullptr;
     std::shared_ptr<EdmSysManager> edmSysManager_ = nullptr;
     sptr<EnterpriseDeviceMgrStubMock> object_ = nullptr;
+    EnterpriseDeviceMgrStubMock* objectRaw_ = nullptr;
 };
 
 void SystemManagerProxyTest::SetUp()
@@ -54,6 +55,7 @@ void SystemManagerProxyTest::SetUp()
     systemmanagerProxy = SystemManagerProxy::GetSystemManagerProxy();
     edmSysManager_ = std::make_shared<EdmSysManager>();
     object_ = new (std::nothrow) EnterpriseDeviceMgrStubMock();
+    objectRaw_ = object_.GetRefPtr();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID, object_);
     Utils::SetEdmServiceEnable();
 }
@@ -62,7 +64,7 @@ void SystemManagerProxyTest::TearDown()
 {
     systemmanagerProxy.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
-    Mock::VerifyAndClearExpectations(object_.GetRefPtr());
+    Mock::VerifyAndClearExpectations(objectRaw_);
     object_ = nullptr;
     Utils::SetEdmServiceDisable();
 }
@@ -86,7 +88,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetNTPServerSuc, TestSize.Level1)
     data.WriteString("ntp.aliyun.com");
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
 
     int32_t ret = systemmanagerProxy->SetNTPServer(data);
     ASSERT_TRUE(ret == ERR_OK);
@@ -123,7 +125,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetNTPServerSuc, TestSize.Level1)
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
 
     std::string server = "";
     int32_t ret = systemmanagerProxy->GetNTPServer(data, server);
@@ -161,7 +163,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicySuc, TestSize.Level1)
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     UpdatePolicy updatePolicy;
     UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
 
@@ -183,7 +185,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetOTAUpdatePolicyParamError, TestSize.Leve
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError));
     UpdatePolicy updatePolicy;
     UpdatePolicyUtils::WriteUpdatePolicy(data, updatePolicy);
 
@@ -224,7 +226,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetOTAUpdatePolicySuc, TestSize.Level1)
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetOTAUpdatePolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetOTAUpdatePolicy));
 
     UpdatePolicy updatePolicy;
     int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(data, updatePolicy);
@@ -244,7 +246,7 @@ HWTEST_F(SystemManagerProxyTest, TestNotifyUpdatePackagesSuc, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     UpgradePackageInfo packageInfo;
     std::string errMsg;
     int32_t ret = systemmanagerProxy->NotifyUpdatePackages(admin, packageInfo, errMsg);
@@ -277,7 +279,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetUpgradeResultSuc, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpgradeResult));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpgradeResult));
     UpgradeResult upgradeResult;
     int32_t ret = systemmanagerProxy->GetUpgradeResult(admin, UPGRADE_VERSION, upgradeResult);
     ASSERT_TRUE(ret == ERR_OK);
@@ -318,7 +320,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetUpdateAuthDataSuc, TestSize.Level1)
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
     std::string authData;
     int32_t ret = systemmanagerProxy->GetUpdateAuthData(data, authData);
     ASSERT_TRUE(ret == ERR_OK);
@@ -340,7 +342,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetAutoUnlockAfterRebootSuc, TestSize.Level
     data.WriteBool(isAllowed);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     
     int32_t ret = systemmanagerProxy->SetAutoUnlockAfterReboot(data);
     ASSERT_TRUE(ret == ERR_OK);
@@ -396,7 +398,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledSuc, Tes
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetUpdateAuthData));
     bool isAllowed = true;
     int32_t ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabled(data, isAllowed);
     ASSERT_TRUE(ret == ERR_OK);
@@ -418,7 +420,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledSuc, Tes
     data.WriteBool(isAllowed);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     
     int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabled(data);
     ASSERT_TRUE(ret == ERR_OK);
@@ -477,7 +479,7 @@ HWTEST_F(SystemManagerProxyTest, TestAddOrRemoveDisallowedNearlinkProtocolsSuc, 
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = systemmanagerProxy->AddOrRemoveDisallowedNearlinkProtocols(data, FuncOperateType::SET);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -508,7 +510,7 @@ HWTEST_F(SystemManagerProxyTest, TestStartCollectlogSuc, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = systemmanagerProxy->StartCollectlog(admin);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -542,7 +544,7 @@ HWTEST_F(SystemManagerProxyTest, TestFinishLogCollectedSuc, TestSize.Level1)
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = systemmanagerProxy->FinishLogCollected(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -561,7 +563,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetKeyEventPolicysSuc, TestSize.Level1)
     std::string errMsg;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     
     int32_t ret = systemmanagerProxy->SetKeyEventPolicys(admin, keyCusts, errMsg);
     ASSERT_TRUE(ret == ERR_OK);
@@ -596,7 +598,7 @@ HWTEST_F(SystemManagerProxyTest, TestRemoveKeyEventPolicysSuc, TestSize.Level1)
     std::vector<int32_t> KeyCodes;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     
     int32_t ret = systemmanagerProxy->RemoveKeyEventPolicys(admin, KeyCodes);
     ASSERT_TRUE(ret == ERR_OK);
@@ -628,7 +630,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetKeyEventPoliciesSuc, TestSize.Level1)
     MessageParcel data;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     std::vector<OHOS::EDM::KeyCustomization> keyCusts;
     int32_t ret = systemmanagerProxy->GetKeyEventPolicies(data, keyCusts);
     ASSERT_TRUE(ret == ERR_OK);
@@ -662,7 +664,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetActivationLockDisabledSuc, TestSize.Leve
     std::string credential = "test_credential";
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     
     int32_t ret = systemmanagerProxy->SetActivationLockDisabled(admin, isDisabled, credential);
     ASSERT_TRUE(ret == ERR_OK);
@@ -696,7 +698,7 @@ HWTEST_F(SystemManagerProxyTest, TestIsActivationLockDisabledSuc, TestSize.Level
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     bool isDisabled;
     int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
     ASSERT_TRUE(ret == ERR_OK);
@@ -744,7 +746,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetInstallLocalEnterpriseAppEnabledForAccou
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = systemmanagerProxy->SetInstallLocalEnterpriseAppEnabledForAccount(data);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -778,7 +780,7 @@ HWTEST_F(SystemManagerProxyTest, TestGetInstallLocalEnterpriseAppEnabledForAccou
     bool isAllowedInstall = false;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     ErrCode ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabledForAccount(data, isAllowedInstall);
     ASSERT_TRUE(ret == ERR_OK);
 }
@@ -798,7 +800,7 @@ HWTEST_F(SystemManagerProxyTest, GetInstallLocalEnterpriseAppEnabledForAccount_R
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     ErrCode ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabledForAccount(data, isAllowedInstall);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -816,7 +818,7 @@ HWTEST_F(SystemManagerProxyTest, IsActivationLockDisabled_ReplyFail_ReturnError,
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->IsActivationLockDisabled(admin, isDisabled);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -850,7 +852,7 @@ HWTEST_F(SystemManagerProxyTest, TestSetOtaUpdateNonceEnableSuc, TestSize.Level1
     data.WriteString(RETURN_STRING);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = systemmanagerProxy->SetOtaUpdateNonceEnable(data);
     EXPECT_EQ(ret, ERR_OK);
 }
@@ -885,7 +887,7 @@ HWTEST_F(SystemManagerProxyTest, TestIsOtaUpdateNonceEnableSuc, TestSize.Level1)
     bool isOtaNonceEnable = false;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     int32_t ret = systemmanagerProxy->IsOtaUpdateNonceEnable(data, isOtaNonceEnable);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(isOtaNonceEnable, true);
@@ -907,7 +909,7 @@ HWTEST_F(SystemManagerProxyTest, GetNTPServer_ReplyFail_ReturnSystemAbnormally, 
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetNTPServer(data, server);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -927,7 +929,7 @@ HWTEST_F(SystemManagerProxyTest, GetAutoUnlockAfterReboot_Suc, TestSize.Level1)
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
     int32_t ret = systemmanagerProxy->GetAutoUnlockAfterReboot(data, authData);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_TRUE(authData);
@@ -966,7 +968,7 @@ HWTEST_F(SystemManagerProxyTest, GetAutoUnlockAfterReboot_ReplyFail_ReturnSystem
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetAutoUnlockAfterReboot(data, authData);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -986,7 +988,7 @@ HWTEST_F(SystemManagerProxyTest, GetDisallowedNearlinkProtocols_Suc, TestSize.Le
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeArrayIntSendRequestGetPolicy));
     int32_t ret = systemmanagerProxy->GetDisallowedNearlinkProtocols(data, protocols);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(protocols.size(), 2);
@@ -1025,7 +1027,7 @@ HWTEST_F(SystemManagerProxyTest, GetDisallowedNearlinkProtocols_ReplyFail_Return
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetDisallowedNearlinkProtocols(data, protocols);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1093,7 +1095,7 @@ HWTEST_F(SystemManagerProxyTest, GetOTAUpdatePolicy_ReplyFail_ReturnSystemAbnorm
     UpdatePolicy updatePolicy;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetOTAUpdatePolicy(data, updatePolicy);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1111,7 +1113,7 @@ HWTEST_F(SystemManagerProxyTest, GetUpgradeResult_ReplyFail_ReturnSystemAbnormal
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetUpgradeResult(admin, UPGRADE_VERSION, upgradeResult);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1131,7 +1133,7 @@ HWTEST_F(SystemManagerProxyTest, GetUpdateAuthData_ReplyFail_ReturnSystemAbnorma
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetUpdateAuthData(data, authData);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1151,7 +1153,7 @@ HWTEST_F(SystemManagerProxyTest, GetInstallLocalEnterpriseAppEnabled_ReplyFail_R
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetInstallLocalEnterpriseAppEnabled(data, isAllowedInstall);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1171,7 +1173,7 @@ HWTEST_F(SystemManagerProxyTest, GetKeyEventPolicies_ReplyFail_ReturnSystemAbnor
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->GetKeyEventPolicies(data, keyCustomizations);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1218,7 +1220,7 @@ HWTEST_F(SystemManagerProxyTest, CreateTimer_IPCFailed_ReturnSystemAbnormally, T
     uint64_t timerId = 0;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     int32_t ret = systemmanagerProxy->CreateTimer(admin, false, 0, TIMER_NAME, timerId);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1235,7 +1237,7 @@ HWTEST_F(SystemManagerProxyTest, CreateTimer_ReplyError_ReturnErrorCode, TestSiz
     uint64_t timerId = 0;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = systemmanagerProxy->CreateTimer(admin, false, 0, TIMER_NAME, timerId);
     ASSERT_NE(ret, ERR_OK);
 }
@@ -1251,7 +1253,7 @@ HWTEST_F(SystemManagerProxyTest, StartTimer_Success_ReturnOk, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = systemmanagerProxy->StartTimer(admin, TEST_TIMER_ID, TEST_TRIGGER_TIME);
     ASSERT_EQ(ret, ERR_OK);
 }
@@ -1267,7 +1269,7 @@ HWTEST_F(SystemManagerProxyTest, StartTimer_IPCFailed_ReturnSystemAbnormally, Te
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     int32_t ret = systemmanagerProxy->StartTimer(admin, TEST_TIMER_ID, TEST_TRIGGER_TIME);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1283,7 +1285,7 @@ HWTEST_F(SystemManagerProxyTest, StopTimer_Success_ReturnOk, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = systemmanagerProxy->StopTimer(admin, TEST_TIMER_ID);
     ASSERT_EQ(ret, ERR_OK);
 }
@@ -1299,7 +1301,7 @@ HWTEST_F(SystemManagerProxyTest, StopTimer_IPCFailed_ReturnSystemAbnormally, Tes
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     int32_t ret = systemmanagerProxy->StopTimer(admin, TEST_TIMER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
@@ -1315,7 +1317,7 @@ HWTEST_F(SystemManagerProxyTest, DestroyTimer_Success_ReturnOk, TestSize.Level1)
     admin.SetBundleName(ADMIN_PACKAGENAME);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t ret = systemmanagerProxy->DestroyTimer(admin, TEST_TIMER_ID);
     ASSERT_EQ(ret, ERR_OK);
 }
@@ -1334,7 +1336,7 @@ HWTEST_F(SystemManagerProxyTest, DestroyTimer_IPCFailed_CallbackNotRemoved, Test
     clientCallback->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+        .WillOnce(Invoke(objectRaw_, &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
     int32_t ret = systemmanagerProxy->DestroyTimer(admin, TEST_TIMER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
