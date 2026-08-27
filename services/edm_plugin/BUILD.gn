@@ -137,6 +137,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/bundle_manager/install_enterprise_re_signature_certificate_plugin.cpp",
       "../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
       "./src/application_manager/get_application_window_states_plugin.cpp",
+      "./src/restrictions/disallow_x_key_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -248,7 +249,6 @@ ohos_shared_library("device_core_plugin") {
         "./src/device_settings/set_floating_navigation_plugin.cpp",
         "./src/account_manager/manage_normal_os_account_plugin.cpp",
         "./src/account_manager/activate_normal_os_account_plugin.cpp",
-        "./src/restrictions/disallow_x_key_plugin.cpp",
       ]
     }
 

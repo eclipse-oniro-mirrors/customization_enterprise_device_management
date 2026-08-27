@@ -35,5 +35,16 @@ DisallowXKeyPlugin::DisallowXKeyPlugin()
     permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.x_key_disable";
 }
+
+ErrCode DisallowXKeyPlugin::SetOtherModulePolicy(bool data, int32_t userId)
+{
+    EDMLOGI("DisallowXKeyPlugin SetOtherModulePolicy...");
+    std::string deviceType = system::GetParameter("const.quickaccess.function_type", "0");
+    if (deviceType == "0") {
+        EDMLOGE("DisallowXKeyPlugin device not support x_key.");
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
