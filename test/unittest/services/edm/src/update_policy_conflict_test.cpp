@@ -67,6 +67,12 @@ void UpdatePolicyConflictTest::TearDown()
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
+    for (auto& pair : PluginManager::GetInstance()->pluginsCode_) {
+        if (pair.second && pair.second->extensionPlugin_) {
+            pair.second->extensionPlugin_->externalModuleAdapter_ =
+                std::make_shared<IExternalModuleAdapter>();
+        }
+    }
     bundleMgrMock_.reset();
     osAccountMgrMock_.reset();
     accessTokenMgrMock_.reset();
