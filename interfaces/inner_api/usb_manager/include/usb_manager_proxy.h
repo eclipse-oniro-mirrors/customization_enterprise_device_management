@@ -35,6 +35,7 @@ public:
     int32_t GetAllowedUsbDevices(MessageParcel &data, std::vector<UsbDeviceId> &result);
     int32_t SetUsbStorageDeviceAccessPolicy(MessageParcel &data);
     int32_t GetUsbStorageDeviceAccessPolicy(MessageParcel &data, int32_t &result);
+    int32_t GetUsbSerialNumber(MessageParcel &data, std::string &result);
 #ifdef USB_EDM_ENABLE
     int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive = true);
     int32_t GetDisallowedUsbDevices(MessageParcel &data,

@@ -115,6 +115,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t EDM_ERR_UKEY_TIMEOUT = 9201052;
     constexpr uint32_t SYSTEM_TIMER_MAX_COUNT_REACHED = 9201053;
     constexpr uint32_t SYSTEM_TIMER_NOT_FOUND = 9201054;
+    constexpr uint32_t GET_USB_SERIAL_NUMBER_FAILED = 9201055;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

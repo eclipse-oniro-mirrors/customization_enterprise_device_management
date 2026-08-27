@@ -226,6 +226,7 @@ enum EdmInterfaceCode : uint32_t {
     DISALLOW_X_KEY = 1175,
     PUBLISH_FORM_TO_DESKTOP = 1176,
     SYSTEM_TIMER_OPERATION = 1178,
+    GET_USB_SERIAL_NUMBER = 1179,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

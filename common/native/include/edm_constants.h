@@ -484,6 +484,7 @@ namespace PolicyName {
     const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";
     const char* const POLICY_UNINSTALL = "uninstall";
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
+    const char* const POLICY_USB_SERIAL_NUMBER = "usb_serial_number";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
     const char* const POLICY_SCREEN_WATERMARK_IMAGE = "screen_watermark_image";

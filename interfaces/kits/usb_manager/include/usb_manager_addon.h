@@ -65,6 +65,7 @@ private:
     static napi_value UsbDeviceIdToJsObj(napi_env env, const UsbDeviceId &usbDeviceId);
     static napi_value SetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
     static napi_value GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetUsbSerialNumber(napi_env env, napi_callback_info info);
 
     static void CreateDescriptorEnum(napi_env env, napi_value value);
     static napi_value AddDisallowedUsbDevices(napi_env env, napi_callback_info info);
