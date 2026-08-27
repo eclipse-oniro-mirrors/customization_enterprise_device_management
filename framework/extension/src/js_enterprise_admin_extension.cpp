@@ -234,9 +234,9 @@ void JsEnterpriseAdminExtension::OnDeviceAdmin(uint32_t code, const std::string 
     auto task = [functionName, bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnDeviceAdminEnabled scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnDeviceAdminEnabled failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
@@ -262,9 +262,9 @@ void JsEnterpriseAdminExtension::OnBundle(uint32_t code, const std::string &bund
     auto task = [functionName, bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnBundleAdded scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnBundleAdded failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
@@ -289,9 +289,9 @@ void JsEnterpriseAdminExtension::OnApp(uint32_t code, const std::string &bundleN
     auto task = [functionName, bundleName, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnAppStart scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnAppStart failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName) };
@@ -307,9 +307,9 @@ void JsEnterpriseAdminExtension::OnSystemUpdate(const UpdateInfo &updateInfo)
     auto task = [updateInfo, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnSystemUpdate scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnSystemUpdate failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { CreateUpdateInfoObject(env, updateInfo) };
@@ -335,9 +335,9 @@ void JsEnterpriseAdminExtension::OnAccount(uint32_t code, const int32_t accountI
     auto task = [functionName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnAccountAdded scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnAccountAdded failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
@@ -361,9 +361,9 @@ void JsEnterpriseAdminExtension::OnKioskMode(uint32_t code, const std::string &b
     auto task = [functionName, bundleName, accountId, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnKioskModeEntering scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnKioskModeEntering failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
@@ -380,9 +380,9 @@ void JsEnterpriseAdminExtension::OnMarketAppsInstallStatusChanged(const std::str
     auto task = [bundleName, status, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnMarketAppsInstallStatusChanged scope is nullptr");
+        auto napiStatus = napi_open_handle_scope(env, &scope);
+        if (napiStatus != napi_ok || scope == nullptr) {
+            EDMLOGE("OnMarketAppsInstallStatusChanged failed to open handle scope, status=%{public}d", napiStatus);
             return;
         }
         napi_value argv[] = { AbilityRuntime::CreateJsValue(env, bundleName),
@@ -399,9 +399,9 @@ void JsEnterpriseAdminExtension::OnLogCollected(bool isSuccess)
     auto task = [isSuccess, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
-            EDMLOGE("OnLogCollected scope is nullptr");
+        auto status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok || scope == nullptr) {
+            EDMLOGE("OnLogCollected failed to open handle scope, status=%{public}d", status);
             return;
         }
         napi_value argv[] = { CreateResultObject(env, isSuccess ? 0 : -1) };
@@ -419,9 +419,9 @@ void JsEnterpriseAdminExtension::OnKeyEvent(const std::string &event)
         auto task = [keyEventInfo, this]() {
             auto env = jsRuntime_.GetNapiEnv();
             napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(env, &scope);
-            if (scope == nullptr) {
-                EDMLOGE("OnKeyEvent scope is nullptr");
+            auto status = napi_open_handle_scope(env, &scope);
+            if (status != napi_ok || scope == nullptr) {
+                EDMLOGE("OnKeyEvent failed to open handle scope, status=%{public}d", status);
                 return;
             }
             napi_value argv[] = { CreateKeyEventInfoObject(env, keyEventInfo)};

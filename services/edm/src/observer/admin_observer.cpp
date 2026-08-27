@@ -50,7 +50,11 @@ void AdminObserver::SendByodDisableSelfNotification(const std::string &bundleNam
     int32_t uid = IPCSkeleton::GetCallingUid();
     std::string callingBundleName;
     EdmBundleManagerImpl bundleManager;
-    bundleManager.GetNameForUid(uid, callingBundleName);
+    auto ret = bundleManager.GetNameForUid(uid, callingBundleName);
+    if (ret != ERR_OK) {
+        EDMLOGE("GetNameForUid failed, ret=%{public}d", ret);
+        return;
+    }
     if (callingBundleName == bundleName) {
         WantAgentInfo wantAgentInfo;
         SendAdminNotification(EdmConstants::REMOVED_MANAGEMENT_NOTIFICATION_TIPS, wantAgentInfo);

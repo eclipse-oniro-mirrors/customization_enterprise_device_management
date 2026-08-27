@@ -1105,7 +1105,11 @@ napi_value SystemManagerAddon::GetKeyEventPolicies(napi_env env, napi_callback_i
         return nullptr;
     }
     napi_value napiKeyCustomizations = nullptr;
-    napi_create_array(env, &napiKeyCustomizations);
+    auto status = napi_create_array(env, &napiKeyCustomizations);
+    if (status != napi_ok) {
+        EDMLOGE("napi_create_array failed, status=%{public}d", status);
+        return nullptr;
+    }
     ConvertKeyCustomizationVectorToJS(env, KeyCustomizations, napiKeyCustomizations);
     return napiKeyCustomizations;
 }

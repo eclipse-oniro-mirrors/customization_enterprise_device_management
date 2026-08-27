@@ -314,7 +314,12 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
         ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, status == napi_ok, errorMsg.str(), methodSign.errcodeType);
     }
     napi_value result = nullptr;
-    napi_get_undefined(env, &result);
+    status = napi_get_undefined(env, &result);
+    if (status != napi_ok) {
+        EDMLOGE("AddonMethodAdapter napi_get_undefined failed, status=%{public}d", status);
+        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, errorStr, methodSign.errcodeType));
+        return nullptr;
+    }
     EDMLOGI("AddonMethodAdapter %{public}s JsObjectToData exec success.", methodSign.name.c_str());
     addonData->policyCode = methodSign.policyCode;
     return result;
