@@ -87,6 +87,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_X_KEY,
+    EdmInterfaceCode::EXEMPTION_RESOURCE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

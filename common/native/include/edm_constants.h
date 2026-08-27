@@ -534,6 +534,7 @@ namespace PolicyName {
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
     const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     const char* const POLICY_SYSTEM_TIMER = "system_timer";
+    const char* const POLICY_EXEMPTION_RESOURCE = "exemption_resource";
     const char* const POLICY_PUBLISH_FORM_TO_DESKTOP = "publish_form_to_desktop";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";

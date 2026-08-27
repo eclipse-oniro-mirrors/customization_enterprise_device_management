@@ -826,5 +826,13 @@ int32_t ApplicationManagerProxy::PublishFormToDesktop(MessageParcel &data, std::
     }
     return ret;
 }
+
+int32_t ApplicationManagerProxy::ExemptionResource(MessageParcel &data, FuncOperateType operateType)
+{
+    EDMLOGD("ApplicationManagerProxy::ExemptionResource operateType=%{public}u", static_cast<uint32_t>(operateType));
+    std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(operateType),
+        EdmInterfaceCode::EXEMPTION_RESOURCE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

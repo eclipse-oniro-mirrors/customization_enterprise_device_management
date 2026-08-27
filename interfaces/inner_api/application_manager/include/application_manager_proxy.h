@@ -19,6 +19,7 @@
 #include "clear_up_application_data_param.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "application_instance.h"
+#include "func_code.h"
 #include "napi_edm_element_name.h"
 
 #ifdef FEATURE_PC_ONLY
@@ -99,6 +100,7 @@ public:
     int32_t GetAllowedDistributeAbilityConnBundles(int32_t serviceType, int32_t accountId,
         std::vector<std::string> &appIdentifiers);
     int32_t PublishFormToDesktop(MessageParcel &data, std::string &formId);
+    int32_t ExemptionResource(MessageParcel &data, FuncOperateType operateType);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

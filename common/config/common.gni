@@ -174,4 +174,9 @@ declare_args() {
       defined(global_parts_info.ability_form_fwk)) {
     ability_form_fwk_edm_enable = true
   }
+  device_standby_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.resourceschedule_device_standby)) {
+    device_standby_edm_enable = true
+  }
 }

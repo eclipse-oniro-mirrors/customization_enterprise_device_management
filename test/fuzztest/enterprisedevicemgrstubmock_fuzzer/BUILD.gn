@@ -585,6 +585,11 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ "../../../services/edm/src/edm_form_manager_impl.cpp" ]
       defines += [ "ABILITY_FORM_FWK_EDM_ENABLE" ]
     }
+
+    if (device_standby_edm_enable && !enterprise_device_management_feature_pc_only) {
+      external_deps += [ "device_standby:standby_innerkits" ]
+      sources += [ "../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp" ]
+    }
   }
 
   sanitize = {

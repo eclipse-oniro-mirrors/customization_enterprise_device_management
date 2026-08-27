@@ -476,6 +476,12 @@ ohos_unittest("EdmPluginTest") {
       "./src/publish_form_to_desktop_plugin_test.cpp",
     ]
   }
+
+  if (device_standby_edm_enable && !enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/exemption_resource_plugin_test.cpp",
+    ]
+  }
  
   sanitize = {
     boundary_sanitize = true
@@ -1078,6 +1084,13 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [ "form_fwk:fmskit_native" ]
     sources += [
       "../../../../services/edm_plugin/src/application_manager/publish_form_to_desktop_plugin.cpp",
+    ]
+  }
+
+  if (device_standby_edm_enable && !enterprise_device_management_feature_pc_only) {
+    external_deps += [ "device_standby:standby_innerkits" ]
+    sources += [
+      "../../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp",
     ]
   }
 

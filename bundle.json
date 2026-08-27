@@ -117,7 +117,8 @@
         "wifi",
         "window_manager",
         "resource_schedule_service",
-        "device_usage_statistics"
+        "device_usage_statistics",
+        "device_standby"
       ]
     },
     "build": {

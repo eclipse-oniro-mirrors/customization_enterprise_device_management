@@ -1911,6 +1911,62 @@ HWTEST_F(ApplicationManagerProxyTest, PublishFormToDesktop_FormIdCorrect, TestSi
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(formId, expectedFormId);
 }
+
+/**
+ * @tc.name: ExemptionResource_Apply_Suc
+ * @tc.desc: Test ExemptionResource (apply/SET) success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, ExemptionResource_Apply_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->ExemptionResource(data, FuncOperateType::SET);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: ExemptionResource_Apply_Fail
+ * @tc.desc: Test ExemptionResource (apply/SET) when edm service is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, ExemptionResource_Apply_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    int32_t ret = applicationManagerProxy_->ExemptionResource(data, FuncOperateType::SET);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: ExemptionResource_Release_Suc
+ * @tc.desc: Test ExemptionResource (release/REMOVE) success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, ExemptionResource_Release_Suc, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = applicationManagerProxy_->ExemptionResource(data, FuncOperateType::REMOVE);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: ExemptionResource_Release_Fail
+ * @tc.desc: Test ExemptionResource (release/REMOVE) when edm service is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, ExemptionResource_Release_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    int32_t ret = applicationManagerProxy_->ExemptionResource(data, FuncOperateType::REMOVE);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
