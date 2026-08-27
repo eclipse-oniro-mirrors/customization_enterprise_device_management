@@ -61,9 +61,17 @@ void UpdatePolicyConflictTest::SetUp()
 
 void UpdatePolicyConflictTest::TearDown()
 {
+    Mock::VerifyAndClearExpectations(edmMgr_.GetRefPtr());
+    Mock::VerifyAndClearExpectations(permissionCheckerMock_.get());
+    Mock::VerifyAndClearExpectations(factoryMock_.get());
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
+    bundleMgrMock_.reset();
+    osAccountMgrMock_.reset();
+    accessTokenMgrMock_.reset();
+    factoryMock_.reset();
+    permissionCheckerMock_.reset();
     edmMgr_.clear();
 }
 
