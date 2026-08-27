@@ -16,6 +16,7 @@
 #include "single_execute_strategy.h"
 
 #include "edm_log.h"
+#include "edm_event_data.h"
 #include "plugin_manager.h"
 
 namespace OHOS {
@@ -71,5 +72,16 @@ ErrCode SingleExecuteStrategy::OnAdminRemoveExecute(std::uint32_t funcCode, cons
     }
     return ERR_OK;
 }
+void SingleExecuteStrategy::OnPluginEventExecute(const std::string &adminName, std::uint32_t funcCode,
+    HandlePolicyData &policyData, const EdmEventData &data, int32_t userId)
+{
+    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    if (plugin == nullptr) {
+        EDMLOGW("SingleExecuteStrategy::OnPluginEventExecute plugin not found: %{public}d", funcCode);
+        return;
+    }
+    plugin->OnPluginEvent(adminName, policyData, data, userId);
+}
+
 } // namespace EDM
 } // namespace OHOS

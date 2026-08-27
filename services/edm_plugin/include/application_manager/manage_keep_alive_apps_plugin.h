@@ -22,6 +22,7 @@
 #include "bundle_mgr_interface.h"
 #include "message_parcel.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iremote_stub.h"
 #include "manage_keep_alive_apps_info.h"
 
@@ -41,12 +42,14 @@ public:
         int32_t userId) override {};
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 
 private:
     ErrCode RemoveOtherModulePolicy(const std::vector<ManageKeepAliveAppInfo> &data, int32_t userId,
         std::vector<ManageKeepAliveAppInfo> &failedData);
-    ErrCode AddKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId, bool disallowModify);
-    ErrCode RemoveKeepAliveApps(std::vector<std::string> &keepAliveApps, int32_t userId);
     ErrCode OnSetPolicy(std::vector<std::string> &data, bool disallowModify,
         std::vector<ManageKeepAliveAppInfo> &currentData, std::vector<ManageKeepAliveAppInfo> &mergeData,
         int32_t userId);

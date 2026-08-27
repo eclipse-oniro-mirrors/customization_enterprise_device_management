@@ -114,6 +114,27 @@ ErrCode UsbPolicyUtils::QueryAllCreatedOsAccountIds(std::vector<int32_t> &userId
 #endif
 }
 
+ErrCode UsbPolicyUtils::GetUsbSerialNumber(int32_t busNum, int32_t devAddress, std::string &serial)
+{
+    EDMLOGI("UsbPolicyUtils GetUsbSerialNumber busNum:%{public}d devAddress:%{public}d", busNum, devAddress);
+    auto &srvClient = OHOS::USB::UsbSrvClient::GetInstance();
+    std::vector<OHOS::USB::UsbDevice> deviceList;
+    int32_t ret = srvClient.GetDevices(deviceList);
+    if (ret != ERR_OK) {
+        EDMLOGE("UsbPolicyUtils GetDevices failed ret:%{public}d", ret);
+        return EdmReturnErrCode::GET_USB_SERIAL_NUMBER_FAILED;
+    }
+    for (const auto &device : deviceList) {
+        if (static_cast<int32_t>(device.GetBusNum()) == busNum &&
+            static_cast<int32_t>(device.GetDevAddr()) == devAddress) {
+            serial = device.GetmSerial();
+            return ERR_OK;
+        }
+    }
+    EDMLOGE("UsbPolicyUtils device not found, busNum:%{public}d devAddress:%{public}d", busNum, devAddress);
+    return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+}
+
 #ifdef FEATURE_PC_ONLY
 ErrCode UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(bool &isDisallowed)
 {

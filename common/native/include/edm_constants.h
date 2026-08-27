@@ -454,6 +454,7 @@ namespace PolicyName {
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";
     const char* const POLICY_INSTALL = "install";
+    const char* const POLICY_INSTALL_MARKET_APPS = "install_market_apps";
     const char* const POLICY_IPTABLES_RULE = "iptables_rule";
     const char* const POLICY_IS_WIFI_ACTIVE = "is_wifi_active";
     const char* const POLICY_LOCATION_POLICY = "location_policy";
@@ -484,6 +485,7 @@ namespace PolicyName {
     const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";
     const char* const POLICY_UNINSTALL = "uninstall";
     const char* const POLICY_USB_READ_ONLY = "usb_read_only";
+    const char* const POLICY_USB_SERIAL_NUMBER = "usb_serial_number";
     const char* const POLICY_INSTALL_CERTIFICATE = "install_certificate";
     const char* const POLICY_WATERMARK_IMAGE_POLICY = "watermark_image_policy";
     const char* const POLICY_SCREEN_WATERMARK_IMAGE = "screen_watermark_image";

@@ -20,12 +20,16 @@
 #include <system_ability_definition.h>
 #include "array_string_serializer.h"
 #include "edm_constants.h"
+#include "edm_event_data.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "func_code_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "application_instance.h"
 #include "bundle_mgr_interface.h"
 #include "edm_sys_manager.h"
+#include "ipolicy_manager.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {
@@ -181,6 +185,60 @@ ErrCode SetAbilityDisablePlugin::OnAdminRemove(const std::string &adminName, con
         SetAbilityDisabled(policy.substr(0, index), userId, policy.substr(index + 1), false);
     }
     return ERR_OK;
+}
+
+bool SetAbilityDisablePlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("SetAbilityDisablePlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_SET_ABILITY_ENABLED,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED),
+        EdmInterfaceCode::SET_ABILITY_ENABLED, false, true);
+}
+
+bool SetAbilityDisablePlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("SetAbilityDisablePlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_SET_ABILITY_ENABLED,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED));
+    return true;
+}
+
+void SetAbilityDisablePlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+    int32_t appIndex = want.GetIntParam(AppExecFwk::Constants::APP_INDEX, AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    if (appIndex != 0) {
+        EDMLOGI("SetAbilityDisablePlugin OnPluginEvent clone application created, skip");
+        return;
+    }
+    OnBundleAdded(bundleName, userId, policyData.mergePolicyData);
+}
+
+void SetAbilityDisablePlugin::OnBundleAdded(const std::string &bundleName, int32_t userId,
+    const std::string &mergePolicyData)
+{
+    std::vector<std::string> abilityList;
+    ArrayStringSerializer::GetInstance()->Deserialize(mergePolicyData, abilityList);
+    for (const auto &abilityName : abilityList) {
+        auto pos = abilityName.find(SEPARATOR);
+        if (pos == std::string::npos) {
+            continue;
+        }
+        std::string policyBundleName = abilityName.substr(0, pos);
+        if (policyBundleName == bundleName) {
+            SetAbilityDisabled(bundleName, userId, abilityName.substr(pos + 1), true);
+        }
+    }
 }
 } // namespace EDM
 } // namespace OHOS

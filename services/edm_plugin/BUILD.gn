@@ -43,6 +43,15 @@ config("edm_plugin_config") {
     "./include/network/executer",
     "./include/network/rule",
     "./include/utils",
+    "../edm/include",
+    "../edm/include/ability",
+    "../edm/include/admin",
+    "../edm/include/connection",
+    "../edm/include/database",
+    "../edm/include/event_management",
+    "../edm/include/observer",
+    "../edm/include/query_policy",
+    "../edm/include/strategy",
   ]
 }
 
@@ -468,6 +477,7 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
         "./src/usb_manager/disallowed_permissive_usb_devices_plugin.cpp",
         "./src/restrictions/disallow_usb_serial_plugin.cpp",
+        "./src/usb_manager/get_usb_serial_number_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer_base.cpp",
         "./src/utils/array_permissive_usb_device_type_serializer.cpp",
@@ -496,18 +506,15 @@ ohos_shared_library("communication_plugin") {
       defines += [ "USB_DISK_MANAGER_EDM_ENABLE" ]
     }
 
-    if (common_event_service_edm_enable) {
-      external_deps += [
-        "ability_runtime:ability_manager",
-        "common_event_service:cesfwk_innerkits"
-      ]
-      sources += [
-        "./src/browser/managed_browser_policy_plugin.cpp",
-        "./src/browser/set_browser_policies_plugin.cpp",
-        "./src/utils/managed_browser_policy_serializer.cpp",
-      ]
-      defines += [ "COMMON_EVENT_SERVICE_EDM_ENABLE" ]
-    }
+    external_deps += [
+      "ability_runtime:ability_manager",
+      "common_event_service:cesfwk_innerkits"
+    ]
+    sources += [
+      "./src/browser/managed_browser_policy_plugin.cpp",
+      "./src/browser/set_browser_policies_plugin.cpp",
+      "./src/utils/managed_browser_policy_serializer.cpp",
+    ]
 
     if (!enterprise_device_management_feature_pc_only) {
       external_deps += [ 

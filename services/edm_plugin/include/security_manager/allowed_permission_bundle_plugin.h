@@ -18,6 +18,7 @@
 
 #include "message_parcel.h"
 #include "iplugin.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "application_instance.h"
 #include "policy_type.h"
 #include "func_code.h"
@@ -53,6 +54,11 @@ ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel 
 
     ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
         std::string &othersMergePolicyData) override;
+
+    bool SubscribeEvent() override;
+    bool UnsubscribeEvent() override;
+    void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData, const EdmEventData &data,
+        int32_t userId) override;
 
 private:
     ErrCode ReadParameters(MessageParcel &data, PolicyOperationParams &params, std::uint32_t funcCode);

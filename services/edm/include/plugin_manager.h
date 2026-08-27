@@ -29,6 +29,7 @@
 #include "iplugin_manager.h"
 #include "replace_execute_strategy.h"
 #include "single_execute_strategy.h"
+#include "subscription_handle.h"
 
 namespace OHOS {
 namespace EDM {
@@ -72,6 +73,13 @@ public:
     IPlugin::ApiType GetPluginType(uint32_t funcCode, FuncOperateType operateType);
     std::string GetPolicyName(uint32_t funcCode);
     std::string GetPluginPermissionByPolicyName(const std::string &policyName, IPlugin::PermissionType permissionType);
+    void DispatchPluginEvent(uint32_t policyCode, const EdmEventData &data,
+        bool needAdminIteration, bool useEventUserId);
+    void SubscribePluginEvent(uint32_t policyCode);
+    void DispatchForAdmins(const std::shared_ptr<IPlugin> &plugin, const std::string &policyName,
+        uint32_t funcCode, const EdmEventData &data, int32_t userId);
+    void DispatchWithoutAdmins(const std::shared_ptr<IPlugin> &plugin, uint32_t funcCode,
+        const std::string &policyName, const EdmEventData &data, int32_t userId);
     virtual ~PluginManager();
 
     void DumpPlugin();

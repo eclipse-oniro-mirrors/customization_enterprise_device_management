@@ -17,10 +17,18 @@
 
 #include "cJSON.h"
 #include "edm_bundle_manager_impl.h"
+#include "admin_manager.h"
+#include "clipboard_policy.h"
+#include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
+#include "func_code.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
+#include "managed_event.h"
 #include "pasteboard_client.h"
+#include "bundle_constants.h"
 
 namespace OHOS {
 namespace EDM {
@@ -206,6 +214,51 @@ void ClipboardPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
     std::map<int32_t, ClipboardInfo> policyMap;
     clipboardSerializer_->Deserialize(policyData, policyMap);
     HandlePasteboardPolicy(policyMap);
+}
+
+bool ClipboardPolicyPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("ClipboardPolicyPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_CLIPBOARD_POLICY,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
+        EdmInterfaceCode::CLIPBOARD_POLICY, true, false);
+}
+
+bool ClipboardPolicyPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("ClipboardPolicyPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_CLIPBOARD_POLICY,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
+    return true;
+}
+
+void ClipboardPolicyPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+    int32_t eventUserId = want.GetIntParam(AppExecFwk::Constants::USER_ID, EdmConstants::DEFAULT_USER_ID);
+    std::map<int32_t, ClipboardInfo> result;
+    ClipboardInfo info = {.bundleName = bundleName, .userId = eventUserId, .policy = ClipboardPolicy::DEFAULT};
+    result.insert(std::make_pair(0, info));
+
+    auto serializer = ClipboardSerializer::GetInstance();
+    std::map<int32_t, ClipboardInfo> adminData;
+    serializer->Deserialize(policyData.policyData, adminData);
+    std::map<int32_t, ClipboardInfo> mergeData;
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
+    OnSetPolicy(result, adminData, mergeData, eventUserId);
+
+    serializer->Serialize(adminData, policyData.policyData);
+    serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
 } // namespace EDM
 } // namespace OHOS

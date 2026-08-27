@@ -17,8 +17,12 @@
 
 #include "securec.h"
 
+#include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
+#include "managed_event.h"
 #include "upgrade_package_info_serializer.h"
 
 namespace OHOS {
@@ -52,6 +56,30 @@ ErrCode NotifyUpdatePackagesPlugin::OnGetPolicy(std::string &policyData, Message
     int32_t userId)
 {
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
+
+bool NotifyUpdatePackagesPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("NotifyUpdatePackagesPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES,
+        static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE),
+        EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, false, false);
+}
+
+bool NotifyUpdatePackagesPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("NotifyUpdatePackagesPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_NOTIFY_UPGRADE_PACKAGES,
+        static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE));
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

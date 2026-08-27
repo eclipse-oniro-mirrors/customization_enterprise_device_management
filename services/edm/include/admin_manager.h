@@ -34,6 +34,7 @@ public:
     bool GetAdminByUserId(int32_t userId, std::vector<std::shared_ptr<Admin>> &userAdmin);
     void GetAdminBySubscribeEvent(ManagedEvent event,
         std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &subscribeAdmins);
+    void GetAllAdmins(std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> &allAdmins);
     std::shared_ptr<Admin> GetAdminByPkgName(const std::string &packageName, int32_t userId);
     ErrCode DeleteAdmin(const std::string &packageName, int32_t userId, AdminType adminType);
     ErrCode UpdateAdmin(int32_t userId, const AdminInfo &adminInfo, uint32_t code);
@@ -57,6 +58,7 @@ public:
     ErrCode GetAllowedAcrossAccountSetPolicyAdmin(const std::string &subAdminName,
         std::shared_ptr<Admin> &subOrSuperOrByodAdmin);
     void GetAdmins(std::vector<std::shared_ptr<Admin>> &admins, int32_t currentUserId);
+    void GetAdminPackageNames(std::vector<std::string> &packageNames, int32_t currentUserId) override;
     std::vector<std::string> GetDisallowedCrossAccountAdmins(int userId);
     void Register(std::shared_ptr<IAdminObserver> observer);
     void GetSubSuperAdmins(int32_t userId, std::vector<std::shared_ptr<Admin>> &subAdmins);

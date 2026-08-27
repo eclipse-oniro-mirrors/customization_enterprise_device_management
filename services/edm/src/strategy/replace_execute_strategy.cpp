@@ -16,6 +16,7 @@
 #include "enhance_execute_strategy.h"
 
 #include "edm_log.h"
+#include "edm_event_data.h"
 #include "plugin_manager.h"
 
 namespace OHOS {
@@ -96,6 +97,23 @@ ErrCode ReplaceExecuteStrategy::OnAdminRemoveExecute(std::uint32_t funcCode, con
         return ERR_EDM_HANDLE_POLICY_FAILED;
     }
     return ERR_OK;
+}
+void ReplaceExecuteStrategy::OnPluginEventExecute(const std::string &adminName, std::uint32_t funcCode,
+    HandlePolicyData &policyData, const EdmEventData &data, int32_t userId)
+{
+    auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    if (plugin == nullptr) {
+        EDMLOGW("ReplaceExecuteStrategy::OnPluginEventExecute plugin not found: %{public}d", funcCode);
+        return;
+    }
+    auto extensionPlugin = plugin->GetExtensionPlugin();
+    if (extensionPlugin != nullptr && extensionPlugin->GetPluginType() == IPlugin::PluginType::EXTENSION) {
+        EDMLOGD("ReplaceExecuteStrategy::OnPluginEventExecute extensionPlugin %{public}d execute.",
+            extensionPlugin->GetCode());
+        extensionPlugin->OnPluginEvent(adminName, policyData, data, userId);
+        return;
+    }
+    plugin->OnPluginEvent(adminName, policyData, data, userId);
 }
 
 } // namespace EDM

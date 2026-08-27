@@ -42,6 +42,7 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAllowedUsbDevices", GetAllowedUsbDevices),
         DECLARE_NAPI_FUNCTION("setUsbStorageDeviceAccessPolicy", SetUsbStorageDeviceAccessPolicy),
         DECLARE_NAPI_FUNCTION("getUsbStorageDeviceAccessPolicy", GetUsbStorageDeviceAccessPolicy),
+        DECLARE_NAPI_FUNCTION("getUsbSerialNumber", GetUsbSerialNumber),
         DECLARE_NAPI_FUNCTION("addDisallowedUsbDevices", AddDisallowedUsbDevices),
         DECLARE_NAPI_FUNCTION("removeDisallowedUsbDevices", RemoveDisallowedUsbDevices),
         DECLARE_NAPI_FUNCTION("getDisallowedUsbDevices", GetDisallowedUsbDevices),
@@ -614,6 +615,36 @@ napi_value UsbManagerAddon::UsbDeviceTypeToJsObj(napi_env env, const USB::UsbDev
     return value;
 }
 #endif
+
+napi_value UsbManagerAddon::GetUsbSerialNumber(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::GetUsbSerialNumber called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getUsbSerialNumber";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    std::string serial;
+    int32_t ret = usbManagerProxy->GetUsbSerialNumber(adapterAddonData.data, serial);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    result = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, serial.c_str(), NAPI_AUTO_LENGTH, &result));
+    return result;
+}
 
 static napi_module g_usbManagerModule = {
     .nm_version = 1,

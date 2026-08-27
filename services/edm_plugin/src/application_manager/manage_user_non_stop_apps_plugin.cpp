@@ -25,17 +25,21 @@
 #include "ability_auto_startup_client.h"
 #include "manage_apps_serializer.h"
 #include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
 #include "func_code_utils.h"
+#include "managed_event.h"
 #include "edm_bundle_manager_impl.h"
 #include "edm_data_ability_utils.h"
 #include "wm_common.h"
 #include "edm_os_account_manager_impl.h"
 #include "iext_info_manager.h"
+#include "bundle_constants.h"
 
 namespace OHOS {
 namespace EDM {
@@ -477,5 +481,92 @@ void ManageUserNonStopAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
         EDMLOGE("ManageUserNonStopAppsPlugin OnOtherServiceStart fail res: %{public}d", ret);
     }
 }
+
+bool ManageUserNonStopAppsPlugin::SubscribeEvent()
+{
+    auto *eventManager = IPluginEventSubscribeManager::GetInstance();
+    if (eventManager == nullptr) {
+        EDMLOGE("ManageUserNonStopAppsPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    bool ret1 = eventManager->SubscribeEvent(PolicyName::POLICY_MANAGE_USER_NON_STOP_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
+        EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, true, false);
+    if (!ret1) {
+        EDMLOGE("ManageUserNonStopAppsPlugin SubscribeEvent BUNDLE_REMOVED failed");
+    }
+    bool ret2 = eventManager->SubscribeEvent(PolicyName::POLICY_MANAGE_USER_NON_STOP_APPS,
+        static_cast<uint32_t>(ManagedEvent::USER_SWITCHED),
+        EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, false, false);
+    if (!ret2) {
+        EDMLOGE("ManageUserNonStopAppsPlugin SubscribeEvent USER_SWITCHED failed");
+    }
+    return ret1 && ret2;
+}
+
+bool ManageUserNonStopAppsPlugin::UnsubscribeEvent()
+{
+    auto *eventManager = IPluginEventSubscribeManager::GetInstance();
+    if (eventManager == nullptr) {
+        EDMLOGE("ManageUserNonStopAppsPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    eventManager->UnsubscribeEvent(PolicyName::POLICY_MANAGE_USER_NON_STOP_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
+    eventManager->UnsubscribeEvent(PolicyName::POLICY_MANAGE_USER_NON_STOP_APPS,
+        static_cast<uint32_t>(ManagedEvent::USER_SWITCHED));
+    return true;
+}
+
+void ManageUserNonStopAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    if (data.eventId.code == static_cast<uint32_t>(ManagedEvent::USER_SWITCHED)) {
+        OnUserSwitched(policyData);
+        return;
+    }
+    if (data.eventId.code == static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED)) {
+        OnBundleRemoved(policyData, data, userId);
+    }
+}
+
+void ManageUserNonStopAppsPlugin::OnUserSwitched(HandlePolicyData &policyData)
+{
+    EDMLOGI("ManageUserNonStopAppsPlugin OnUserSwitched");
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> mergeData;
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
+    ErrCode ret = SetOtherModulePolicy(mergeData);
+    if (FAILED(ret)) {
+        EDMLOGE("ManageUserNonStopAppsPlugin OnUserSwitched fail res: %{public}d", ret);
+    }
+}
+
+void ManageUserNonStopAppsPlugin::OnBundleRemoved(HandlePolicyData &policyData, const EdmEventData &data,
+    int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+    int32_t bundleUserId = want.GetIntParam(AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> adminData;
+    serializer->Deserialize(policyData.policyData, adminData);
+    auto iter = std::find_if(adminData.begin(), adminData.end(), [&](const auto &app) {
+        return app.bundleName == bundleName && app.accountId == bundleUserId;
+    });
+    if (iter == adminData.end()) {
+        return;
+    }
+    std::vector<ApplicationInstance> mergeData;
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
+    std::vector<ApplicationInstance> toRemove{*iter};
+
+    OnRemovePolicy(toRemove, adminData, mergeData);
+
+    serializer->Serialize(adminData, policyData.policyData);
+    serializer->Serialize(mergeData, policyData.mergePolicyData);
+}
+
 } // namespace EDM
 } // namespace OHOS

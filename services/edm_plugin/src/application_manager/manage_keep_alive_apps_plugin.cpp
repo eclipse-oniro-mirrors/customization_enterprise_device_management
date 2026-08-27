@@ -20,14 +20,18 @@
 
 #include "app_control/app_control_proxy.h"
 #include "manage_keep_alive_apps_serializer.h"
+#include "bundle_constants.h"
 #include "bundle_info.h"
 #include "edm_constants.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
 #include "func_code_utils.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
+#include "managed_event.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -443,6 +447,54 @@ sptr<AppExecFwk::IAppControlMgr> ManageKeepAliveAppsPlugin::GetAppControlProxy()
         return nullptr;
     }
     return proxy->GetAppControlProxy();
+}
+
+bool ManageKeepAliveAppsPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("ManageKeepAliveAppsPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_MANAGE_KEEP_ALIVE_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
+        EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, true, true);
+}
+
+bool ManageKeepAliveAppsPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("ManageKeepAliveAppsPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_MANAGE_KEEP_ALIVE_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
+    return true;
+}
+
+void ManageKeepAliveAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+    const EdmEventData &data, int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+
+    auto serializer = ManageKeepAliveAppsSerializer::GetInstance();
+    std::vector<ManageKeepAliveAppInfo> adminData;
+    serializer->Deserialize(policyData.policyData, adminData);
+    auto iter = std::find_if(adminData.begin(), adminData.end(), [&](const auto &app) {
+        return app.GetBundleName() == bundleName;
+    });
+    if (iter == adminData.end()) {
+        return;
+    }
+    std::vector<ManageKeepAliveAppInfo> mergeData;
+    serializer->Deserialize(policyData.mergePolicyData, mergeData);
+    std::vector<std::string> toRemove{bundleName};
+    OnRemovePolicy(toRemove, adminData, mergeData, userId, true);
+
+    serializer->Serialize(adminData, policyData.policyData);
+    serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
 } // namespace EDM
 } // namespace OHOS

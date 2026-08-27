@@ -25,8 +25,11 @@
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "edm_event_data.h"
+#include "bundle_constants.h"
 #include "func_code_utils.h"
 #include "policy_manager.h"
+#include "subscription_handle.h"
 
 namespace OHOS {
 namespace EDM {
@@ -110,7 +113,8 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM,
     EdmInterfaceCode::DISALLOWED_P2P, EdmInterfaceCode::QUERY_TRAFFIC_STATS,
     EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
-    EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES
+    EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES,
+    EdmInterfaceCode::GET_USB_SERIAL_NUMBER,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -349,10 +353,12 @@ void PluginManager::LoadPlugin(const std::string &soName)
         EDMLOGI("PluginManager::DlopenPlugin soName %{public}s", soName.c_str());
         DlopenPlugin(PLUGIN_DIR + soName, loadStatePtr);
         loadStatePtr->pluginHasInit = true;
+#ifndef EDM_UT_TEST
         std::thread timerThread([=]() {
             this->UnloadPluginTask(soName, loadStatePtr);
         });
         timerThread.detach();
+#endif
     }
 }
 
@@ -453,6 +459,7 @@ bool PluginManager::UnloadPlugin(const std::string &soName)
         return true;
     }
     std::shared_ptr<SoLoadState> loadStatePtr = soLoadStateMap_[soName];
+#ifndef EDM_UT_TEST
     if (loadStatePtr == nullptr || loadStatePtr->pluginHandles == nullptr) {
         EDMLOGE("PluginManager::UnloadPlugin %{public}s handle nullptr", soName.c_str());
         return true;
@@ -463,6 +470,7 @@ bool PluginManager::UnloadPlugin(const std::string &soName)
     } else {
         EDMLOGI("PluginManager::UnloadPlugin %{public}s close lib success", soName.c_str());
     }
+#endif
     soLoadStateMap_.erase(soName);
     return true;
 }
@@ -639,6 +647,13 @@ ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bund
         PolicyManager::GetInstance()->SetPolicy(bundleName, policyName, handlePolicyData.policyData,
             handlePolicyData.mergePolicyData, userId);
         isGlobalChanged = (oldCombinePolicy != handlePolicyData.mergePolicyData);
+        if (handlePolicyData.mergePolicyData.empty()) {
+            EDMLOGI("UpdateDevicePolicy: policy cleared, unsubscribe events for %{public}s",
+                policyName.c_str());
+            plugin->UnsubscribeEvent();
+        } else {
+            plugin->SubscribeEvent();
+        }
     }
     plugin->OnHandlePolicyDone(code, bundleName, isGlobalChanged, userId);
     return ERR_OK;
@@ -697,6 +712,13 @@ ErrCode PluginManager::RemoveAdminItem(const std::string &adminName, const std::
         }
     }
     plugin->OnAdminRemoveDone(adminName, policyValue, userId);
+    std::string currentMerge;
+    PolicyManager::GetInstance()->GetPolicy("", policyName, currentMerge, userId);
+    if (currentMerge.empty()) {
+        EDMLOGI("RemoveAdminItem: policy fully removed, unsubscribe events for %{public}s",
+            policyName.c_str());
+        plugin->UnsubscribeEvent();
+    }
     return ERR_OK;
 }
 
@@ -733,6 +755,86 @@ void PluginManager::OnInitExecute(uint32_t interfaceCode, const std::vector<std:
     for (const std::string &bundleName : bundleNames) {
         plugin->GetExecuteStrategy()->OnInitExecute(funcCode, bundleName, userId);
     }
+}
+
+void PluginManager::DispatchForAdmins(const std::shared_ptr<IPlugin> &plugin, const std::string &policyName,
+    uint32_t funcCode, const EdmEventData &data, int32_t userId)
+{
+    AdminValueItemsMap adminValues;
+    PolicyManager::GetInstance()->GetAdminByPolicyName(policyName, adminValues, userId);
+    for (const auto &adminEntry : adminValues) {
+        const std::string &adminName = adminEntry.first;
+        std::string oldCombinePolicy;
+        PolicyManager::GetInstance()->GetPolicy("", policyName, oldCombinePolicy, userId);
+        HandlePolicyData handlePolicyData{"", "", false};
+        handlePolicyData.policyData = adminEntry.second;
+        plugin->GetOthersMergePolicyData(adminName, userId, handlePolicyData.mergePolicyData);
+        plugin->GetExecuteStrategy()->OnPluginEventExecute(adminName, funcCode, handlePolicyData, data, userId);
+        if (plugin->NeedSavePolicy()) {
+            PolicyManager::GetInstance()->SetPolicy(adminName, policyName, handlePolicyData.policyData,
+                handlePolicyData.mergePolicyData, userId);
+            if (handlePolicyData.mergePolicyData.empty()) {
+                EDMLOGI("DispatchPluginEvent: policy cleared, unsubscribe for %{public}s", policyName.c_str());
+                plugin->UnsubscribeEvent();
+            }
+        }
+    }
+}
+
+void PluginManager::DispatchWithoutAdmins(const std::shared_ptr<IPlugin> &plugin, uint32_t funcCode,
+    const std::string &policyName, const EdmEventData &data, int32_t userId)
+{
+    HandlePolicyData handlePolicyData{"", "", false};
+    PolicyManager::GetInstance()->GetPolicy("", policyName, handlePolicyData.mergePolicyData, userId);
+    plugin->GetExecuteStrategy()->OnPluginEventExecute("", funcCode, handlePolicyData, data, userId);
+}
+
+void PluginManager::DispatchPluginEvent(uint32_t policyCode, const EdmEventData &data,
+    bool needAdminIteration, bool useEventUserId)
+{
+    EDMLOGI("PluginManager::DispatchPluginEvent %{public}u needAdminIteration=%{public}d useEventUserId=%{public}d",
+        policyCode, needAdminIteration, useEventUserId);
+    std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+    auto loadRet = LoadPluginByCode(policyCode);
+    if (loadRet != ERR_OK) {
+        EDMLOGE("PluginManager::DispatchPluginEvent load failed policyCode=%{public}u", policyCode);
+        return;
+    }
+    auto it = pluginsCode_.find(policyCode);
+    if (it == pluginsCode_.end() || it->second == nullptr) {
+        EDMLOGE("PluginManager::DispatchPluginEvent plugin not found policyCode=%{public}u", policyCode);
+        return;
+    }
+    auto plugin = it->second;
+    std::string policyName = plugin->GetPolicyName();
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
+    if (useEventUserId) {
+        userId = data.commonEventData.GetWant().GetIntParam(
+            AppExecFwk::Constants::USER_ID, EdmConstants::DEFAULT_USER_ID);
+    }
+    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET), policyCode);
+    if (needAdminIteration) {
+        DispatchForAdmins(plugin, policyName, funcCode, data, userId);
+    } else {
+        DispatchWithoutAdmins(plugin, funcCode, policyName, data, userId);
+    }
+}
+
+void PluginManager::SubscribePluginEvent(uint32_t policyCode)
+{
+    EDMLOGI("PluginManager::SubscribePluginEvent %{public}u", policyCode);
+    std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+    auto loadRet = LoadPluginByCode(policyCode);
+    if (loadRet != ERR_OK) {
+        EDMLOGE("PluginManager::SubscribePluginEvent load failed policyCode=%{public}u", policyCode);
+        return;
+    }
+    auto it = pluginsCode_.find(policyCode);
+    if (it == pluginsCode_.end() || it->second == nullptr) {
+        EDMLOGE("PluginManager::SubscribePluginEvent plugin not found policyCode=%{public}u", policyCode);
+        return;
+    }
+    it->second->SubscribeEvent();
 }
 
 ErrCode PluginManager::SetPluginUnloadFlag(uint32_t code, bool unloadFlag)

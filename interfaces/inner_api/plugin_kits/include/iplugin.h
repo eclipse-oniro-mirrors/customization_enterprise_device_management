@@ -28,6 +28,9 @@
 
 namespace OHOS {
 namespace EDM {
+
+struct EdmEventData;
+
 constexpr const char *NONE_PERMISSION_MATCH = "NA";
 
 class IPlugin {
@@ -142,6 +145,11 @@ public:
     {
         return this->externalModuleAdapter_;
     }
+    virtual bool SubscribeEvent() { return true; }
+    virtual bool UnsubscribeEvent() { return true; }
+    virtual void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
+        const EdmEventData &data, int32_t userId) {}
+
     virtual ~IPlugin();
 
 protected:

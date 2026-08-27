@@ -133,6 +133,23 @@ int32_t UsbManagerProxy::GetUsbStorageDeviceAccessPolicy(MessageParcel &data, in
     reply.ReadInt32(result);
     return ERR_OK;
 }
+
+int32_t UsbManagerProxy::GetUsbSerialNumber(MessageParcel &data, std::string &result)
+{
+    EDMLOGD("UsbManagerProxy::GetUsbSerialNumber");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::GET_USB_SERIAL_NUMBER, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("UsbManagerProxy:GetUsbSerialNumber fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(result);
+    return ERR_OK;
+}
+
 #ifdef USB_EDM_ENABLE
 int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive)
 {

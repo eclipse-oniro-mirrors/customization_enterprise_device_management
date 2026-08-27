@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 
-#include "application_state_observer.h"
 #include "edm_app_manager_impl.h"
 
 using namespace testing::ext;

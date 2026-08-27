@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +13,20 @@
  * limitations under the License.
  */
 
-#include "iwatermark_observer_manager.h"
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_USB_MANAGER_GET_USB_SERIAL_NUMBER_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_USB_MANAGER_GET_USB_SERIAL_NUMBER_PLUGIN_H
+
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-    IWatermarkObserverManager* IWatermarkObserverManager::observerInstance_ = nullptr;
-    std::once_flag IWatermarkObserverManager::observerFlag_;
-}
-}
+class GetUsbSerialNumberPlugin : public IPlugin {
+public:
+    GetUsbSerialNumberPlugin();
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+};
+} // namespace EDM
+} // namespace OHOS
+
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_USB_MANAGER_GET_USB_SERIAL_NUMBER_PLUGIN_H

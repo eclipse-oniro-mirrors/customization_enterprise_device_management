@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2026-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,11 @@
  * limitations under the License.
  */
 
-#include "application_state_observer.h"
-#include "managed_event.h"
+#include "iplugin_event_subscribe_manager.h"
 
 namespace OHOS {
 namespace EDM {
-void ApplicationStateObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
-{
-    listener_.ConnectAbilityOnSystemEvent(processData.bundleName, ManagedEvent::APP_START);
-}
-
-void ApplicationStateObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
-{
-    listener_.ConnectAbilityOnSystemEvent(processData.bundleName, ManagedEvent::APP_STOP);
-}
+IPluginEventSubscribeManager *IPluginEventSubscribeManager::instance_ = nullptr;
+std::mutex IPluginEventSubscribeManager::instanceMutex_;
 } // namespace EDM
 } // namespace OHOS

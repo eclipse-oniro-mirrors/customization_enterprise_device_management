@@ -52,9 +52,7 @@
 #include "disallowed_wifi_list_query.h"
 #endif
 
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
 #include "set_browser_policies_query.h"
-#endif
 
 #include "get_display_version_query.h"
 #include "get_security_patch_tag_query.h"
@@ -186,10 +184,8 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomAppManageQuery(uin
         case EdmInterfaceCode::CLIPBOARD_POLICY:
             return std::make_shared<ClipboardPolicyQuery>();
 #endif
-#ifdef COMMON_EVENT_SERVICE_EDM_ENABLE
         case EdmInterfaceCode::SET_BROWSER_POLICIES:
             return std::make_shared<SetBrowserPoliciesQuery>();
-#endif
 #ifdef TELEPHONY_EDM_ENABLE
         case EdmInterfaceCode::TELEPHONY_CALL_POLICY:
             return std::make_shared<TelephonyCallPolicyQuery>();

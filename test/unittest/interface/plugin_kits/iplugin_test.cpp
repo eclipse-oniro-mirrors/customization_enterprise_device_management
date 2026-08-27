@@ -22,6 +22,7 @@
 #undef protected
 #undef private
 #include "func_code.h"
+#include "edm_event_data.h"
 #include "iplugin_mock.h"
 
 using namespace testing::ext;
@@ -405,6 +406,23 @@ HWTEST_F(IPluginTest, TestOnGetPolicy, TestSize.Level1)
     int32_t userId = 100;
     ErrCode ret = iplugin->OnGetPolicy(policyData, data, reply, userId);
     EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyPrepare
+ * @tc.desc: Test OnHandlePolicyPrepare func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IPluginTest, TestIPluginSubscribeEvent, TestSize.Level1)
+{
+    std::unique_ptr<IPlugin> iplugin = std::make_unique<IPluginMock>();
+    EXPECT_TRUE(iplugin->SubscribeEvent());
+    std::string adminName = "com.edm.test.demo";
+    HandlePolicyData policyData{"", "", false};
+    EdmEventData data;
+    int32_t userId = 100;
+    iplugin->OnPluginEvent(adminName, policyData, data, userId);
+    EXPECT_TRUE(iplugin->UnsubscribeEvent());
 }
 } // namespace TEST
 } // namespace EDM
