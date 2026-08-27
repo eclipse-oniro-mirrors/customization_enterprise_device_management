@@ -155,7 +155,7 @@ PluginManager::PluginManager()
 PluginManager::~PluginManager()
 {
     EDMLOGI("PluginManager::~PluginManager.");
-#ifndef EDM_FUZZ_TEST
+#if !defined(EDM_FUZZ_TEST) && !defined(EDM_UT_TEST)
     NotifyUnloadAllPlugin();
 #endif
 }

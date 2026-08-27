@@ -59,9 +59,19 @@ void NativeCallPluginTest::SetUp()
 
 void NativeCallPluginTest::TearDown()
 {
+    Mock::VerifyAndClearExpectations(edmMgr_.get());
+    Mock::VerifyAndClearExpectations(permissionCheckerMock_.get());
+    Mock::VerifyAndClearExpectations(factoryMock_.get());
+    PermissionChecker::instance_ = nullptr;
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->policyMgr_.reset();
     edmMgr_->instance_.clear();
+    bundleMgrMock_.reset();
+    appMgrMock_.reset();
+    osAccountMgrMock_.reset();
+    accessTokenMgr_.reset();
+    factoryMock_.reset();
+    permissionCheckerMock_.reset();
     edmMgr_ = nullptr;
 }
 
