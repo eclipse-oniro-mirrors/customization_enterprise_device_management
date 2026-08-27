@@ -69,8 +69,7 @@ void UpdatePolicyConflictTest::TearDown()
     edmMgr_->instance_.clear();
     for (auto& pair : PluginManager::GetInstance()->pluginsCode_) {
         if (pair.second && pair.second->extensionPlugin_) {
-            pair.second->extensionPlugin_->externalModuleAdapter_ =
-                std::make_shared<IExternalModuleAdapter>();
+            pair.second->extensionPlugin_->externalModuleAdapter_ = nullptr;
         }
     }
     bundleMgrMock_.reset();
