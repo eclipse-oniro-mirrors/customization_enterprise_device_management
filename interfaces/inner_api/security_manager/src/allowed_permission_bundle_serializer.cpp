@@ -377,7 +377,7 @@ bool AllowedPermissionBundleSerializer::GetPolicy(MessageParcel &data,
         return false;
     }
 
-    if (permissionCount > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+    if (permissionCount > EdmConstants::POLICIES_MAX_SIZE) {
         EDMLOGE("AllowedPermissionBundleSerializer::GetPolicy size over max failed");
         return false;
     }

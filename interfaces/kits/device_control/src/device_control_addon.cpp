@@ -187,7 +187,7 @@ bool DeviceControlAddon::ReadFileToBytes(const std::string fileName, int32_t &fi
     file.seekg(0, std::ios::end);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
-    if (size < 0 || size > EdmConstants::MAX_DISK_ERASE_IMAGE_SIZE) {
+    if (size <= 0 || size > EdmConstants::MAX_DISK_ERASE_IMAGE_SIZE) {
         EDMLOGE("file size is abnormally");
         return false;
     }

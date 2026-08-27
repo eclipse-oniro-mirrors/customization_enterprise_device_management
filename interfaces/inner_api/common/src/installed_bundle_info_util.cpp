@@ -221,7 +221,10 @@ bool InstalledBundleInfoUtil::SwapAndClearLocked(std::vector<InstalledBundleInfo
 bool InstalledBundleInfoUtil::RestoreToFileLocked(const std::vector<InstalledBundleInfo> &savedList)
 {
     std::vector<InstalledBundleInfo> currentList;
-    LoadFromFile(currentList);
+    if (!LoadFromFile(currentList)) {
+        EDMLOGE("RestoreToFileLocked failed to load current list");
+        return false;
+    }
     size_t maxCount = 100;
     size_t restoreCount = std::min(savedList.size(), maxCount);
     currentList.insert(currentList.begin(), savedList.begin(), savedList.begin() + restoreCount);

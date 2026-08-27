@@ -679,8 +679,8 @@ bool ApplicationManagerProxy::ParseBundleStatsInfos(MessageParcel &reply,
     if (!reply.ReadUint32(size)) {
         return false;
     }
-    if (size < 0 || size > EdmConstants::POLICIES_MAX_SIZE) {
-        EDMLOGE("QueryBundleStatsInfos size invalid: %{public}d", size);
+    if (size == 0 || size > EdmConstants::POLICIES_MAX_SIZE) {
+        EDMLOGE("QueryBundleStatsInfos size invalid: %{public}u", size);
         return false;
     }
     
