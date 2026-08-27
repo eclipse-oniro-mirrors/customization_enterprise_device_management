@@ -17,7 +17,10 @@
 #include <string>
 #include <system_ability_definition.h>
 
+#define private public
 #include "system_manager_proxy.h"
+#undef private
+
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "func_code.h"
@@ -63,6 +66,7 @@ void SystemManagerProxyTest::SetUp()
 void SystemManagerProxyTest::TearDown()
 {
     systemmanagerProxy.reset();
+    SystemManagerProxy::instance_->registeredRemote_ = nullptr;
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     Mock::VerifyAndClearExpectations(objectRaw_);
     object_ = nullptr;
