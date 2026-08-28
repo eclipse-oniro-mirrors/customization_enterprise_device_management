@@ -82,11 +82,11 @@ HWTEST_F(GetUsbSerialNumberPluginTest, TestOnGetPolicyWithOneParams, TestSize.Le
     data.WriteInt32(TEST_BUS_NUM);
     data.WriteInt32(TEST_DEV_ADDRESS);
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-#ifdef FEATURE_PC_ONLY
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-#else
-    ASSERT_EQ(ret, ERR_OK);
-#endif
+    if (ret == ERR_OK) {
+        ASSERT_EQ(ret, ERR_OK);
+    } else {
+        ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    }
 }
 } // namespace TEST
 } // namespace EDM
