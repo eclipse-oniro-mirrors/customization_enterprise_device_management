@@ -1846,8 +1846,8 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
     parcelData.WriteString(EdmConstants::PERMISSION_TAG_VERSION_26);
     bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-       "param admin need be null or want");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin,
+        elementName), "param admin need be null or want");
     if (!hasAdmin) {
         parcelData.WriteInt32(WITHOUT_ADMIN);
     } else {
