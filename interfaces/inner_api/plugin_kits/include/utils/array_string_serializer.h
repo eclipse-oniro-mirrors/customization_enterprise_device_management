@@ -37,7 +37,6 @@ public:
         std::vector<std::string> &currentData);
     std::vector<std::string> SetIntersectionPolicyData(std::vector<std::string> &data,
         std::vector<std::string> &currentData);
-    void Deduplication(std::vector<std::string> &dataObj);
 };
 } // namespace EDM
 } // namespace OHOS

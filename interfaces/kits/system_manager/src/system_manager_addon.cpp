@@ -1697,9 +1697,10 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
     auto convertIpList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
         std::vector<std::string> ipList;
-        bool isStringArr = EdmParsePrinterIpArray(env, ipList, argv);
-        if (!isStringArr) {
-            return EdmReturnErrCode::PARAM_ERROR;
+        int32_t ret = EdmParsePrinterIpArray(env, ipList, argv);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+            EDMLOGE("EdmParsePrinterIpArray failed!");
         }
         data.WriteStringVector(ipList);
         return ERR_OK;
@@ -1711,6 +1712,7 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
     addonMethodSign.argsConvert = {nullptr, convertIpList2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_26;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -1719,13 +1721,13 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddresses(
         adapterAddonData.data, operateType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("NAPI_AddOrRemoveAllowedPrinterIPAddresses failed!");
     }
     return nullptr;
 #else
     EDMLOGW("SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses Unsupported Capabilities");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -1740,6 +1742,7 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForDevice(napi_env en
     addonMethodSign.argsConvert = {nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_26;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -1749,7 +1752,7 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForDevice(napi_env en
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetAllowedPrinterIPAddresses(
         adapterAddonData.data, ipAddresses);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value ipList = nullptr;
@@ -1789,15 +1792,18 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddressesForAccount(na
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_TWO, "parameter count error");
     bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, hasAdmin, "The first parameter must be want.");
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "Parameter elementName error");
     std::vector<std::string> ipLists;
-    ASSERT_AND_THROW_PARAM_ERROR(env, EdmParsePrinterIpArray(env, ipLists, argv[ARR_INDEX_ONE]),
-        "Parameter ipLists error");
+    int32_t ret = EdmParsePrinterIpArray(env, ipLists, argv[ARR_INDEX_ONE]);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("EdmParsePrinterIpArray failed!");
+    }
     int32_t userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     MessageParcel parcelData;
@@ -1807,16 +1813,16 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddressesForAccount(na
     parcelData.WriteParcelable(&elementName);
     parcelData.WriteString(EdmConstants::PERMISSION_TAG_VERSION_26);
     parcelData.WriteStringVector(ipLists);
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddressesForAccount(
+    ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddressesForAccount(
         parcelData, operateType);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("NAPI_AddOrRemoveAllowedPrinterIPAddressesForAccount failed!");
     }
     return nullptr;
 #else
     EDMLOGW("SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddressesForAccount Unsupported Capabilities");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
 }
@@ -1830,7 +1836,7 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_ONE, "parameter count error");
     MessageParcel parcelData;
     parcelData.WriteInterfaceToken(DESCRIPTOR);
     int32_t userId = 0;
@@ -1840,7 +1846,7 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
     parcelData.WriteString(EdmConstants::PERMISSION_TAG_VERSION_26);
     bool hasAdmin = false;
     OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
        "param admin need be null or want");
     if (!hasAdmin) {
         parcelData.WriteInt32(WITHOUT_ADMIN);
@@ -1852,7 +1858,7 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetAllowedPrinterIPAddressesForAccount(
         parcelData, ipAddresses);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value ipList = nullptr;
@@ -1871,19 +1877,19 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
 }
 
 #ifdef FEATURE_PC_ONLY
-bool SystemManagerAddon::EdmParsePrinterIpArray(napi_env env,
+OHOS::ErrCode SystemManagerAddon::EdmParsePrinterIpArray(napi_env env,
     std::vector<std::string> &ipList, napi_value args)
 {
     EDMLOGD("begin to parse printer ip array");
     bool isArray = false;
     if (napi_is_array(env, args, &isArray) != napi_ok || !isArray) {
         EDMLOGE("napi object is not array.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     uint32_t arrayLength = 0;
     if (napi_get_array_length(env, args, &arrayLength) != napi_ok) {
         EDMLOGE("napi object get array length err.");
-        return false;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     for (uint32_t j = 0; j < arrayLength; j++) {
         napi_value value = nullptr;
@@ -1892,17 +1898,17 @@ bool SystemManagerAddon::EdmParsePrinterIpArray(napi_env env,
         NAPI_CALL_BASE(env, napi_typeof(env, value, &valueType), false);
         if (valueType != napi_string) {
             ipList.clear();
-            return false;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         std::string str;
         GetStringFromNAPI(env, value, str);
         if (Utils::IpUtils::IsValidIpAddress(str)) {
             ipList.push_back(str);
         } else {
-            return false;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
     }
-    return true;
+    return ERR_OK;
 }
 #endif
 

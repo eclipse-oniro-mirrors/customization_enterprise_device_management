@@ -161,7 +161,8 @@ private:
     static napi_value AddOrRemoveAllowedPrinterIPAddresses(napi_env env,
         napi_callback_info info, FuncOperateType operateType);
 #ifdef FEATURE_PC_ONLY
-    static bool EdmParsePrinterIpArray(napi_env env, std::vector<std::string> &ipList, napi_value args);
+    static OHOS::ErrCode EdmParsePrinterIpArray(napi_env env, std::vector<std::string> &ipList,
+        napi_value args);
 #endif
 };
 } // namespace EDM

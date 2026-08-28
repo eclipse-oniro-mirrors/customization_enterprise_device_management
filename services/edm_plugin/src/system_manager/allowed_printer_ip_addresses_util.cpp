@@ -60,8 +60,6 @@ ErrCode AllowedPrinterIpAddressesUtil::OnSetPolicy(std::vector<std::string> &dat
     std::vector<std::string> originalCurrentData = currentData;
     std::vector<std::string> originalMergeData =
         ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, currentData);
- 
-    ArrayStringSerializer::GetInstance()->Deduplication(data);
     std::vector<std::string> needAddData =
         ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(currentData, data);
     std::vector<std::string> needAddMergeData =
@@ -107,8 +105,6 @@ ErrCode AllowedPrinterIpAddressesUtil::OnRemovePolicy(std::vector<std::string> &
     std::vector<std::string> originalCurrentData = currentData;
     std::vector<std::string> originalMergeData =
         ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, currentData);
- 
-    ArrayStringSerializer::GetInstance()->Deduplication(data);
     std::vector<std::string> needRemovePolicy =
         ArrayStringSerializer::GetInstance()->SetIntersectionPolicyData(data, currentData);
     std::vector<std::string> needRemoveMergePolicy =
