@@ -66,7 +66,9 @@ void SystemManagerProxyTest::SetUp()
 void SystemManagerProxyTest::TearDown()
 {
     systemmanagerProxy.reset();
+#ifndef FEATURE_PC_ONLY
     SystemManagerProxy::instance_->registeredRemote_ = nullptr;
+#endif
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     Mock::VerifyAndClearExpectations(objectRaw_);
     object_ = nullptr;
