@@ -150,6 +150,20 @@ private:
     static void NativeDestroyTimer(napi_env env, void *data);
     static void NativeCreateTimerComplete(napi_env env, napi_status status, void *data);
 #endif
+    static napi_value addAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info);
+    static napi_value GetAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedPrinterIPAddressesForAccount(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedPrinterIPAddressesForAccount(napi_env env, napi_callback_info info);
+    static napi_value GetAllowedPrinterIPAddressesForAccount(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedPrinterIPAddressesForAccount(napi_env env,
+        napi_callback_info info, FuncOperateType operateType);
+    static napi_value AddOrRemoveAllowedPrinterIPAddresses(napi_env env,
+        napi_callback_info info, FuncOperateType operateType);
+#ifdef FEATURE_PC_ONLY
+    static OHOS::ErrCode EdmParsePrinterIpArray(napi_env env, std::vector<std::string> &ipList,
+        napi_value args);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

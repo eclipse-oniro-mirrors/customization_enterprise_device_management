@@ -36,6 +36,7 @@ config("edmservice_kits_config") {
     "wifi_manager/include",
     "telephony_manager/include",
     "../kits/common/include",
+    "plugin_kits/include/utils",
   ]
 }
 
@@ -91,6 +92,7 @@ ohos_shared_library("edmservice_kits") {
     "./security_manager/src/allowed_permission_bundle_serializer.cpp",
     "./security_manager/src/security_manager_proxy.cpp",
     "./system_manager/src/system_manager_proxy.cpp",
+    "./system_manager/src/print_policy_util.cpp",
     "./system_manager/src/update_policy_serializer.cpp",
     "./system_manager/src/update_policy_utils.cpp",
     "./system_manager/src/upgrade_package_info_serializer.cpp",

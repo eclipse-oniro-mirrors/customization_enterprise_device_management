@@ -680,6 +680,9 @@ ohos_shared_library("sys_service_plugin") {
         "./src/security_manager/ukey_iam_error_converter.cpp",
         "./src/security_manager/user_ext_session_plugin.cpp",
         "./src/security_manager/user_ext_credential_plugin.cpp",
+        "./src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
+        "./src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
+        "./src/system_manager/allowed_printer_ip_addresses_util.cpp",
       ]
     }
   }

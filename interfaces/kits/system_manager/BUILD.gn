@@ -27,6 +27,7 @@ ohos_shared_library("systemmanager") {
   configs = [ "../../../common/config:coverage_flags" ]
 
   deps = [
+    "../../../common/native:edm_commom",
     "../../inner_api:edmservice_kits",
     "../../inner_api/plugin_kits:plugin_kits",
     "../common:napi_edm_common",
@@ -48,6 +49,11 @@ ohos_shared_library("systemmanager") {
 
   if (log_service_plugin_edm_enable) {
     defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
+  }
+
+  if (os_account_edm_enable) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+    defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
   relative_install_dir = "module/enterprise"

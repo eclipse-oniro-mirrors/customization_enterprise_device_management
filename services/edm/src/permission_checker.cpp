@@ -140,6 +140,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_EXPORT_RECOVERY_KEY,
     EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
+    EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
+    EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

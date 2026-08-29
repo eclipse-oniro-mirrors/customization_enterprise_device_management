@@ -53,6 +53,7 @@ namespace EdmConstants {
     constexpr uint32_t NOTIFICATION_BUNDLES_MAX_SIZE = 200;
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
     constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
+    constexpr int32_t ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE = 100;
 
     constexpr int32_t EDM_UID = 3057;
 
@@ -567,6 +568,8 @@ namespace PolicyName {
     const char* const POLICY_UNLOCK_POLICY = "unlock_policy";
     const char* const POLICY_DEVICE_SECURITY_LEVEL_POLICY = "device_security_level_policy";
     const char* const POLICY_DISALLOWED_SYSTEM_ROLLBACK = "disallowed_system_rollback";
+    const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_DEVICE = "allowed_printer_ip_addresses_for_device";
+    const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_ACCOUNT = "allowed_printer_ip_addresses_for_account";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
