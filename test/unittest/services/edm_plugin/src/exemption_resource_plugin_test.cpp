@@ -271,7 +271,7 @@ HWTEST_F(ExemptionResourcePluginTest, OnHandlePolicy_NegativeDuration_Fail, Test
 
 /**
  * @tc.name: OnHandlePolicy_Remove_NoDurationParam_PassesValidation
- * @tc.desc: Test OnHandlePolicy with REMOVE. Passes validation, calls downstream + ResetStandbyServiceClient. Needs rd mode.
+ * @tc.desc: Test OnHandlePolicy with REMOVE. Passes validation, calls downstream + ResetStandbyServiceClient.
  * @tc.type: FUNC
  */
 HWTEST_F(ExemptionResourcePluginTest, OnHandlePolicy_Remove_NoDurationParam_PassesValidation, TestSize.Level1)
