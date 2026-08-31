@@ -1537,16 +1537,12 @@ ErrCode EnterpriseDeviceMgrAbility::IsSuperAdmin(const std::string &bundleName, 
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::IsSuperAdminByWant(const AppExecFwk::ElementName &admin, bool &isSuper)
+ErrCode EnterpriseDeviceMgrAbility::IsSelfSuperAdmin(bool &isSuper)
 {
     isSuper = false;
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
-        EDMLOGE("IsSuperAdminByWant: check permission failed.");
-        return EdmReturnErrCode::PERMISSION_DENIED;
-    }
-    isSuper = AdminManager::GetInstance()->IsSuperAdmin(admin.GetBundleName());
+    std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
+    isSuper = AdminManager::GetInstance()->IsSuperAdmin(callingBundleName);
     return ERR_OK;
 }
 
@@ -2389,25 +2385,25 @@ ErrCode EnterpriseDeviceMgrAbility::GetAdmins(std::vector<std::shared_ptr<AAFwk:
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::GetAdminInfos(const AppExecFwk::ElementName &admin,
-    std::vector<std::shared_ptr<AAFwk::Want>> &wants)
+ErrCode EnterpriseDeviceMgrAbility::GetAdminInfos(std::vector<std::shared_ptr<AAFwk::Want>> &wants)
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::GetAdminInfos calling.");
     wants.clear();
-    std::shared_ptr<Admin> adminInfo = AdminManager::GetInstance()->GetAdminByPkgName(
-        admin.GetBundleName(), EdmConstants::DEFAULT_USER_ID);
-    if (adminInfo == nullptr) {
-        EDMLOGE("GetAdminInfos: %{public}s is not activated.", admin.GetBundleName().c_str());
-        return EdmReturnErrCode::ADMIN_INACTIVE;
-    }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_DEVICE_ADMIN)) {
         EDMLOGE("GetAdminInfos: check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
+    std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
+    std::shared_ptr<Admin> adminInfo = AdminManager::GetInstance()->GetAdminByPkgName(
+        callingBundleName, EdmConstants::DEFAULT_USER_ID);
+    if (adminInfo == nullptr) {
+        EDMLOGE("GetAdminInfos: %{public}s is not activated.", callingBundleName.c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
     if (adminInfo->GetAdminType() != AdminType::ENT) {
-        EDMLOGE("GetAdminInfos: %{public}s is not sda.", admin.GetBundleName().c_str());
+        EDMLOGE("GetAdminInfos: %{public}s is not sda.", callingBundleName.c_str());
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
 

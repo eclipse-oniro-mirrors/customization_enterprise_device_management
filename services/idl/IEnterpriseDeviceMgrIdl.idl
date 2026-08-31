@@ -51,6 +51,6 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 28] void StartAbilityByAdmin([in] ElementName admin, [in] Want want);
     [ipccode 29] void EnableSelfDeviceAdmin([in] ElementName admin, [in] String credential);
     [ipccode 30] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId, [in] boolean enableSelf, [in] EnableSource enableSource);
-    [ipccode 31] void GetAdminInfos([in] ElementName admin, [out] List<sharedptr<Want>> wants);
-    [ipccode 32] void IsSuperAdminByWant([in] ElementName admin, [out] boolean isSuper);
+    [ipccode 31] void GetAdminInfos([out] List<sharedptr<Want>> wants);
+    [ipccode 33] void IsSelfSuperAdmin([out] boolean isSuper);
 }
