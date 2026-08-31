@@ -563,14 +563,6 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object), "parameter admin error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
-        "parameter disallow error");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
-    EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
-        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     std::uint32_t ipcCode = 0;
     std::string feature;
     ErrcodeType errcodeType = ErrcodeType::STRING;
@@ -579,8 +571,18 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "parameter admin error", errcodeType);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_boolean),
+        "parameter disallow error", errcodeType);
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
+        "element name param error", errcodeType);
+    EDMLOGD("SetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
+        elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
     bool disallow = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]), "parameter disallow parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseBool(env, disallow, argv[ARR_INDEX_TWO]),
+        "parameter disallow parse error", errcodeType);
 
     ret = NativeSetDisallowedPolicy(elementName, disallow, ipcCode, errcodeType);
     if (FAILED(ret)) {
@@ -628,10 +630,6 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
-        "param admin need be null or want");
     std::uint32_t ipcCode = 0;
     std::string feature;
     ErrcodeType errcodeType = ErrcodeType::STRING;
@@ -640,6 +638,11 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
         napi_throw(env, CreateError(env, ret, errcodeType));
         return nullptr;
     }
+    bool hasAdmin = false;
+    OHOS::AppExecFwk::ElementName elementName;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
+        CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin, elementName),
+        "param admin need be null or want", errcodeType);
     if (hasAdmin) {
         EDMLOGD("GetDisallowedPolicy: elementName.bundleName %{public}s, elementName.abilityName:%{public}s",
             elementName.GetBundleName().c_str(), elementName.GetAbilityName().c_str());
