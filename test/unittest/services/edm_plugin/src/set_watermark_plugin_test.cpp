@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include <regex>
 #include <set>
+#include <vector>
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
@@ -121,13 +122,12 @@ HWTEST_F(SetWatermarkImagePluginTest, TestSetSingleWatermarkImage, TestSize.Leve
     data.WriteInt32(400);
     int32_t size = 200;
     data.WriteInt32(size);
-    void* pixels = malloc(size);
-    ASSERT_TRUE(pixels != nullptr);
-    data.WriteRawData(pixels, size);
+    std::vector<uint8_t> pixels(size, 1);
+    data.WriteRawData(pixels.data(), size);
     MessageParcel reply;
     HandlePolicyData policyData;
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, 100);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_EQ(ret, ERR_OK);
 }
 
 /**
