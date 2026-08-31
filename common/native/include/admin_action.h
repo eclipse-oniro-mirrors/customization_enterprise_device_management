@@ -1,29 +1,21 @@
-/*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-#ifndef COMMON_NATIVE_INCLUDE_ADMIN_ACTION_H
-#define COMMON_NATIVE_INCLUDE_ADMIN_ACTION_H
-
-namespace OHOS {
-namespace EDM {
-enum class AdminAction {
-    ENABLE = 0,
-    DISABLE = 1,
-    REPLACE = 2
-};
-} // namespace EDM
-} // namespace OHOS
-
-#endif // COMMON_NATIVE_INCLUDE_ADMIN_ACTION_H
+    /**
+     * @tc.name   test_device_settings_remove_hidden_settings_menu_0109
+     * @tc.number SUB_CUSTOMIZATION_EDM_DEVICE_SETTINGS_REMOVE_HIDDEN_SETTINGS_MENU_JS_0109
+     * @tc.desc   test add hidden settings menu success
+     * @tc.type   FUNCTION
+     * @tc.size   MEDIUMTEST
+     * @tc.level  LEVEL2
+     */
+    it("test_device_settings_remove_hidden_settings_menu_0109", Level.LEVEL2, async (done: Function) => {
+      await adminManager.enableAdmin(SELFWANT, ENTINFO1, adminManager.AdminType.ADMIN_TYPE_SUPER);
+      try {
+        deviceSettings.removeHiddenSettingsMenu(SELFWANT, FULL_VALID_MENUS_TO_HIDE);
+        const removeResultList: Array<number> = deviceSettings.getHiddenSettingsMenu(SELFWANT) as Array<number>;
+        expect(removeResultList.length).assertEqual(0);
+      } catch (error) {
+        expect(error.code === 801).assertTrue();
+      } finally {
+        await adminManager.disableSuperAdmin(SELFHAPNAME);
+      }
+      done();
+    });
