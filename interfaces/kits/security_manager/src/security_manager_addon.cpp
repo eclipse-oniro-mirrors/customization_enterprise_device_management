@@ -1622,7 +1622,10 @@ napi_value SecurityManagerAddon::RemoveUserExtCredential(napi_env env, napi_call
     auto convertRemoveInfo = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
             std::vector<uint8_t> credentialId;
-            JsObjectToU8Vector(env, argv, "credentialId", credentialId);
+            if (!JsObjectToU8Vector(env, argv, "credentialId", credentialId)) {
+                EDMLOGE("Parameter credentialId error");
+                return EdmReturnErrCode::PARAM_ERROR;
+            }
             data.WriteUInt8Vector(credentialId);
             std::vector<uint8_t> authToken;
             JsObjectToU8Vector(env, argv, "authToken", authToken);
