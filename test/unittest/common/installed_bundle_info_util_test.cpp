@@ -289,18 +289,15 @@ HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClear_ReportSuccess_DataCleared, 
 
 /**
  * @tc.name: TestReportAndClearLockedSwapFailed
- * @tc.desc: Test ReportAndClearLocked returns immediately when SwapAndClearLocked fails (empty file).
+ * @tc.desc: Test ReportAndClear returns immediately when SwapAndClearLocked fails (empty file).
  * @tc.type: FUNC
  */
-HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClearLocked_SwapFailed_ReturnImmediately, TestSize.Level1)
+HWTEST_F(InstalledBundleInfoUtilTest, ReportAndClear_SwapFailed_ReturnImmediately, TestSize.Level1)
 {
     CleanupTestFile();
-    // 文件为空，SwapAndClearLocked返回false
-    std::unique_lock<std::mutex> lock(util_->fileMutex_);
-    util_->ReportAndClearLocked(lock);
-    // SwapAndClearLocked返回false，ReportAndClearLocked直接return
-    // lock应仍处于锁定状态（没有unlock）
-    EXPECT_TRUE(lock.owns_lock());
+    // 文件为空，SwapAndClearLocked返回false，ReportAndClear直接return
+    util_->ReportAndClear();
+    EXPECT_FALSE(util_->HasInstalledBundleInfo());
 }
 
 /**

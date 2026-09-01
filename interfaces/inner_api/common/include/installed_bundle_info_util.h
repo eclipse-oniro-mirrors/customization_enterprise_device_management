@@ -58,7 +58,7 @@ private:
     bool ClearInstalledBundleInfoLocked();
     bool SwapAndClearLocked(std::vector<InstalledBundleInfo> &outList);
     bool RestoreToFileLocked(const std::vector<InstalledBundleInfo> &savedList);
-    void ReportAndClearLocked(std::unique_lock<std::mutex> &lock);
+    void ReportSavedList(const std::vector<InstalledBundleInfo> &savedList);
 
     std::mutex fileMutex_;
 };
