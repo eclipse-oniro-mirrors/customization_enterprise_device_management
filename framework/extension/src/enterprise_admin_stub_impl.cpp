@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "edm_log.h"
 #include "enterprise_admin_stub_impl.h"
 
 namespace OHOS {
@@ -145,6 +146,17 @@ bool EnterpriseAdminStubImpl::OnAdminPolicyChanged(const PolicyChangedEvent &pol
         return false;
     }
     extension->OnAdminPolicyChanged(policyChangedEvent);
+    return true;
+}
+
+bool EnterpriseAdminStubImpl::OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo)
+{
+    EDMLOGI("EnterpriseAdminStubImpl::OnUnmountExternalStorageDevice");
+    auto extension = extension_.lock();
+    if (extension == nullptr) {
+        return false;
+    }
+    extension->OnUnmountExternalStorageDevice(deviceInfo);
     return true;
 }
 } // namespace EDM

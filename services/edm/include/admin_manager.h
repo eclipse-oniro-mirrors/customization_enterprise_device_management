@@ -49,8 +49,10 @@ public:
     void Init();
     ErrCode SetAdminValue(int32_t userId, const AdminInfo &adminItem);
     ErrCode SetEntInfo(std::shared_ptr<Admin> admin, const EntInfo &entInfo, int32_t userId);
-    ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
-    ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName, int32_t userId);
+    ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
+        int32_t userId) override;
+    ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
+        int32_t userId) override;
     ErrCode GetPoliciesByVirtualAdmin(const std::string &bundleName, const std::string &parentName,
         std::vector<std::string> &policies);
     void GetVirtualAdminsByPolicy(const std::string &policyName, const std::string &parentName,

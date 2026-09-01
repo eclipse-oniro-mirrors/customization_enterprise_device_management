@@ -20,6 +20,7 @@
 
 #include "ienterprise_admin.h"
 #include "policy_struct.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -55,6 +56,8 @@ public:
     bool OnDeviceBootCompleted() override;
 
     bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
+
+    bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
 
     bool IsValid();
 private:

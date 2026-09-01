@@ -244,6 +244,40 @@ bool UsbManagerProxy::IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t
     return true;
 }
 
+int32_t UsbManagerProxy::SetExternalStorageInterceptEnable(MessageParcel &data)
+{
+    EDMLOGI("UsbManagerProxy::SetExternalStorageInterceptEnable");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t UsbManagerProxy::IsExternalStorageInterceptEnable(MessageParcel &data, bool &result)
+{
+    EDMLOGI("UsbManagerProxy::IsExternalStorageInterceptEnable");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("UsbManagerProxy:IsExternalStorageInterceptEnable fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
+
+int32_t UsbManagerProxy::SetExternalStorageDeviceMountPolicy(MessageParcel &data)
+{
+    EDMLOGI("UsbManagerProxy::SetExternalStorageDeviceMountPolicy");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
 #ifdef USB_EDM_ENABLE
 int32_t UsbManagerProxy::AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive)
 {

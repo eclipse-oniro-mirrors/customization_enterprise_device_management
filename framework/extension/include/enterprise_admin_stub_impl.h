@@ -21,6 +21,7 @@
 #include "enterprise_admin_stub.h"
 #include "js_enterprise_admin_extension.h"
 #include "policy_changed_event.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -56,6 +57,7 @@ public:
     bool OnDeviceBootCompleted() override;
 
     bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
+    bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

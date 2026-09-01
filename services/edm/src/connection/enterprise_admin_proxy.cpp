@@ -183,6 +183,18 @@ bool EnterpriseAdminProxy::OnAdminPolicyChanged(const PolicyChangedEvent &policy
     return SendRequest(COMMAND_ON_POLICIES_CHANGED, data);
 }
 
+bool EnterpriseAdminProxy::OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo)
+{
+    EDMLOGI("EnterpriseAdminProxy::OnUnmountExternalStorageDevice");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::OnUnmountExternalStorageDevice write descriptor failed!");
+        return false;
+    }
+    deviceInfo.Marshalling(data);
+    return SendRequest(COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE, data);
+}
+
 bool EnterpriseAdminProxy::IsValid()
 {
     sptr<IRemoteObject> remoteObject = AsObject();

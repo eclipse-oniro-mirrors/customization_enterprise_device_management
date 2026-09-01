@@ -22,17 +22,18 @@
 #include <unordered_map>
 
 #include "edm_event_data.h"
+#include "imdm_event_relayer.h"
 #include "managed_event.h"
 #include "subscription_handle.h"
 
 namespace OHOS {
 namespace EDM {
-class MdmEventRelayer {
+class MdmEventRelayer : public IMdmEventRelayer {
 public:
     static MdmEventRelayer &GetInstance();
 
-    void OnAdminSubscribe(const std::string &adminName, int32_t userId, ManagedEvent event);
-    void OnAdminUnsubscribe(const std::string &adminName, int32_t userId, ManagedEvent event);
+    void OnAdminSubscribe(const std::string &adminName, int32_t userId, ManagedEvent event) override;
+    void OnAdminUnsubscribe(const std::string &adminName, int32_t userId, ManagedEvent event) override;
     void OnAdminRemoved(const std::string &adminName, int32_t userId);
     void RestoreAdminSubscriptions();
     void RestoreAppLifecycleSubscriptions();
@@ -46,6 +47,7 @@ private:
     void RegisterBundleStrategies();
     void RegisterAccountStrategies();
     void RegisterDeviceStrategies();
+    void RegisterUnmountExternalStorageDeviceStrategies();
     void RestoreSubscriptions(bool appLifecycleOnly);
     void RestoreAdminEvents(const std::string &adminName, int32_t userId, bool appLifecycleOnly);
     std::string MakeAdminKey(const std::string &adminName, int32_t userId);

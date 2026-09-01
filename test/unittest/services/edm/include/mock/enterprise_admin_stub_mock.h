@@ -64,6 +64,8 @@ public:
 
     bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override { return true; }
 
+    bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override { return true; }
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

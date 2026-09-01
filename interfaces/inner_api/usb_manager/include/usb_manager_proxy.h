@@ -41,6 +41,9 @@ public:
     int32_t RemoveAllowedOddBurnUsbDevices(MessageParcel &data);
     int32_t GetAllowedOddBurnUsbDevices(MessageParcel &data, std::vector<OddBurnUsbDevice> &result);
     bool IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial);
+    int32_t SetExternalStorageInterceptEnable(MessageParcel &data);
+    int32_t IsExternalStorageInterceptEnable(MessageParcel &data, bool &result);
+    int32_t SetExternalStorageDeviceMountPolicy(MessageParcel &data);
 #ifdef USB_EDM_ENABLE
     int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive = true);
     int32_t GetDisallowedUsbDevices(MessageParcel &data,

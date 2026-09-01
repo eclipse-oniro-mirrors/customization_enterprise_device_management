@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "admin_type.h"
+#include "errors.h"
 
 namespace OHOS {
 namespace EDM {
@@ -32,6 +33,18 @@ public:
     virtual AdminType GetAdminTypeByName(const std::string &bundleName, int32_t userId);
 
     virtual void GetAdminPackageNames(std::vector<std::string> &packageNames, int32_t currentUserId) {}
+
+    virtual ErrCode SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
+        int32_t userId)
+    {
+        return ERR_OK;
+    }
+
+    virtual ErrCode RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
+        int32_t userId)
+    {
+        return ERR_OK;
+    }
 
     static IAdminManager* adminManagerInstance_;
 };

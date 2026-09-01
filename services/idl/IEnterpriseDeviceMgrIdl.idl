@@ -16,6 +16,7 @@
 sequenceable Want..OHOS.AAFwk.Want;
 sequenceable ElementName..OHOS.AppExecFwk.ElementName;
 sequenceable EntInfo..OHOS.EDM.EntInfo;
+sequenceable ExternalStorageDeviceInfo..OHOS.EDM.ExternalStorageDeviceInfo;
 sequenceable OHOS.IRemoteObject;
 interface_token ohos.edm.IEnterpriseDeviceMgr;
 import AdminType;
@@ -53,4 +54,5 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 30] void EnableAdmin([in] ElementName admin, [in] EntInfo entInfo, [in] AdminType adminType, [in] int userId, [in] boolean enableSelf, [in] EnableSource enableSource);
     [ipccode 31] void GetAdminInfos([out] List<sharedptr<Want>> wants);
     [ipccode 33] void IsSelfSuperAdmin([out] boolean isSuper);
+    [ipccode 34] void NotifyUnmountExternalStorageDeviceInfo([in] ExternalStorageDeviceInfo deviceInfo);
 }

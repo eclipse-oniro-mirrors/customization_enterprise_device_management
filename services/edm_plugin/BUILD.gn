@@ -484,6 +484,7 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/disallowed_permissive_usb_devices_plugin.cpp",
         "./src/restrictions/disallow_usb_serial_plugin.cpp",
         "./src/usb_manager/get_usb_serial_number_plugin.cpp",
+        "./src/usb_manager/external_storage_intercept_enable_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer_base.cpp",
         "./src/utils/array_permissive_usb_device_type_serializer.cpp",
@@ -500,7 +501,10 @@ ohos_shared_library("communication_plugin") {
 
     if (enterprise_device_management_enable_disk_manager) {
       external_deps += [ "disk_manager:disk_manager_innerkits" ]
-      sources += [ "./src/restrictions/disallow_external_storage_card_plugin.cpp" ]
+      sources += [
+        "./src/restrictions/disallow_external_storage_card_plugin.cpp",
+        "./src/usb_manager/external_storage_device_mount_policy_plugin.cpp",
+      ]
       defines += [ "EXTERNAL_DISK_MANAGER_EDM_ENABLE" ]
     }
 

@@ -14,6 +14,7 @@
  */
 
 #include "callback_strategies.h"
+#include "edm_log.h"
 
 namespace OHOS {
 namespace EDM {
@@ -92,6 +93,13 @@ bool DeviceBootCompletedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& 
 bool AdminPolicyChangedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
     return proxy->OnAdminPolicyChanged(event_);
+}
+
+// UnmountExternalStorageDevice策略
+bool UnmountExternalStorageDeviceStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+{
+    EDMLOGI("UnmountExternalStorageDeviceStrategy::ExecuteImpl");
+    return proxy->OnUnmountExternalStorageDevice(deviceInfo_);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -21,6 +21,7 @@
 
 #include "policy_struct.h"
 #include "policy_changed_event.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -133,6 +134,8 @@ public:
      */
     virtual bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) = 0;
 
+    virtual bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) = 0;
+
     /**
      * @brief IPC命令码枚举，定义了所有事件通知的命令码。
      */
@@ -178,7 +181,9 @@ public:
         /** 应用包更新事件 */
         COMMAND_ON_BUNDLE_UPDATED = 20,
         /** 管理员策略变更事件 */
-        COMMAND_ON_POLICIES_CHANGED = 21
+        COMMAND_ON_POLICIES_CHANGED = 21,
+        /** 外置存储设备卸载事件 */
+        COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE = 22
     };
 };
 } // namespace EDM

@@ -97,6 +97,7 @@ public:
     ErrCode ReportAgInstallStatus(const std::string &bundleName,
         const std::string &mediaBundleName, int32_t status) override;
     ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want) override;
+    ErrCode NotifyUnmountExternalStorageDeviceInfo(const ExternalStorageDeviceInfo &deviceInfo) override;
     bool ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<int32_t,
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>

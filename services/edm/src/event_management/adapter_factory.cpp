@@ -18,6 +18,7 @@
 #include "app_lifecycle_adapter.h"
 #include "common_event_adapter.h"
 #include "edm_log.h"
+#include "null_event_adapter.h"
 
 namespace OHOS {
 namespace EDM {
@@ -45,6 +46,8 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
         case ManagedEvent::STARTUP_GUIDE_COMPLETED:
             return CreateCommonEventAdapter(manager, groupId,
                 EDM_OOBE_FINISHED_EVENT, EDM_OOBE_FINISHED_PERMISSION);
+        case ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE:
+            return std::make_shared<NullEventAdapter>();
         default:
             break;
     }

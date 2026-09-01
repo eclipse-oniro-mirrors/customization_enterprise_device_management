@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "ienterprise_device_mgr.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -73,6 +74,7 @@ public:
     ErrCode DisableDeviceAdmin(AppExecFwk::ElementName &admin);
     ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want);
     ErrCode EnableSelfDeviceAdmin(const AppExecFwk::ElementName &admin, std::string &credential);
+    ErrCode NotifyUnmountExternalStorageDeviceInfo(const ExternalStorageDeviceInfo &deviceInfo);
 
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
