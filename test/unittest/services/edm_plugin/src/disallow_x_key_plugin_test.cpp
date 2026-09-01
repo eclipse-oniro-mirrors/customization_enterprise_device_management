@@ -17,6 +17,7 @@
 
 #include "disallow_x_key_plugin.h"
 #include "edm_ipc_interface_code.h"
+#include "parameters.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -59,11 +60,19 @@ HWTEST_F(DisallowXKeyPluginTest, TestOnSetPolicy, TestSize.Level1)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::DISALLOW_X_KEY);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, ERR_OK);
-    ASSERT_TRUE(handlePolicyData.isChanged);
+    std::string deviceType = system::GetParameter("const.quickaccess.function_type", "0");
+    if (deviceType == "0") {
+        ASSERT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    } else {
+        ASSERT_EQ(ret, ERR_OK);
+    }
     data.WriteBool(false);
     ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, ERR_OK);
+    if (deviceType == "0") {
+        ASSERT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    } else {
+        ASSERT_EQ(ret, ERR_OK);
+    }
 }
 } // namespace TEST
 } // namespace EDM

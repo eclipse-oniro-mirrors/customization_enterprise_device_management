@@ -23,6 +23,8 @@ namespace EDM {
 class DisallowXKeyPlugin : public BasicBoolPlugin {
 public:
     DisallowXKeyPlugin();
+private:
+    ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

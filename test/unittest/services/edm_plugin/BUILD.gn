@@ -110,6 +110,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/get_application_window_states_plugin_test.cpp",
     "./src/security_manager/allowed_permission_bundle_plugin_test.cpp",
     "./src/security_manager/disallowed_permission_plugin_test.cpp",
+    "./src/disallow_x_key_plugin_test.cpp",
   ]
 
   configs = [
@@ -448,8 +449,6 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/account_manager/manage_normal_os_account_plugin.cpp",
       "./src/activate_normal_os_account_plugin_test.cpp",
       "../../../../services/edm_plugin/src/account_manager/activate_normal_os_account_plugin.cpp",
-      "./src/disallow_x_key_plugin_test.cpp",
-      "../../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
     ]
   }
 
@@ -672,6 +671,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/device_settings/set_floating_navigation_plugin.cpp",
     "../../../../services/edm_plugin/src/application_manager/get_application_window_states_plugin.cpp",
     "../../../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
+    "../../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]
