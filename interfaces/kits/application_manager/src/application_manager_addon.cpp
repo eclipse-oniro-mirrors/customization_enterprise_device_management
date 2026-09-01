@@ -17,10 +17,11 @@
 
 #include "clear_up_application_data_param.h"
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_log.h"
+#include "func_code.h"
 #include "kiosk_feature.h"
 #include "napi_edm_adapter.h"
-#include "edm_errors.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_manager.h"
 #endif
@@ -67,6 +68,12 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nServiceType = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nServiceType));
     CreateServiceTypeObject(env, nServiceType);
+
+#ifndef FEATURE_PC_ONLY
+    napi_value nStandbyResourceType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nStandbyResourceType));
+    CreateStandbyResourceTypeObject(env, nStandbyResourceType);
+#endif
     
     std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundles", AddDisallowedRunningBundles),
@@ -100,7 +107,12 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeUserNonStopApps", RemoveUserNonStopApps),
         DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
         DECLARE_NAPI_PROPERTY("ServiceType", nServiceType),
+#ifndef FEATURE_PC_ONLY
+        DECLARE_NAPI_PROPERTY("StandbyResourceType", nStandbyResourceType),
+#endif
         DECLARE_NAPI_FUNCTION("publishFormToDesktop", PublishFormToDesktop),
+        DECLARE_NAPI_FUNCTION("requestExemptionResource", RequestExemptionResource),
+        DECLARE_NAPI_FUNCTION("releaseExemptionResource", ReleaseExemptionResource),
     };
     std::vector<napi_property_descriptor> propertyOne = InitOne();
     property.insert(property.end(), propertyOne.begin(), propertyOne.end());
@@ -1934,6 +1946,73 @@ napi_value ApplicationManagerAddon::PublishFormToDesktop(napi_env env, napi_call
     napi_value napiFormId = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, formId.c_str(), formId.size(), &napiFormId));
     return napiFormId;
+}
+
+#ifndef FEATURE_PC_ONLY
+void ApplicationManagerAddon::CreateStandbyResourceTypeObject(napi_env env, napi_value value)
+{
+    napi_value nNetwork;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, 1, &nNetwork));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NETWORK", nNetwork));
+}
+#endif
+
+napi_value ApplicationManagerAddon::RequestExemptionResource(napi_env env, napi_callback_info info)
+{
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("RequestExemptionResource not supported on PC");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#else
+    EDMLOGI("ApplicationManagerAddon::RequestExemptionResource called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "RequestExemptionResource";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32,
+                               EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->ExemptionResource(
+        adapterAddonData.data, FuncOperateType::SET);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("ApplicationManagerAddon::RequestExemptionResource failed!");
+    }
+    return nullptr;
+#endif
+}
+
+napi_value ApplicationManagerAddon::ReleaseExemptionResource(napi_env env, napi_callback_info info)
+{
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("ReleaseExemptionResource not supported on PC");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#else
+    EDMLOGI("ApplicationManagerAddon::ReleaseExemptionResource called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "ReleaseExemptionResource";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32,
+                               EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->ExemptionResource(
+        adapterAddonData.data, FuncOperateType::REMOVE);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("ApplicationManagerAddon::ReleaseExemptionResource failed!");
+    }
+    return nullptr;
+#endif
 }
 
 static napi_module g_applicationManagerModule = {
