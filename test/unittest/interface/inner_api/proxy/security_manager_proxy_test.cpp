@@ -867,7 +867,7 @@ HWTEST_F(SecurityManagerProxyTest, TestGetUserExtCredentialFail, TestSize.Level1
     data.WriteInt32(100);
     MessageParcel reply;
     int32_t ret = proxy_->GetUserExtCredential(data, reply);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**
@@ -932,7 +932,7 @@ HWTEST_F(SecurityManagerProxyTest, TestGetUnlockPolicyFail, TestSize.Level1)
     data.WriteInt32(100);
     int32_t policy = -1;
     int32_t ret = proxy_->GetUnlockPolicy(data, policy);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**

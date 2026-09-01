@@ -332,6 +332,7 @@ napi_value AddonMethodAdapter(napi_env env, napi_callback_info info, const Addon
     if (adapterAddonData == nullptr) {
         return nullptr;
     }
+    adapterAddonData->errcodeType = methodSign.errcodeType;
     std::unique_ptr<AdapterAddonData> adapterAddonDataPtr {adapterAddonData};
     napi_value result = JsObjectToData(env, info, methodSign, adapterAddonData, true);
     if (result == nullptr) {

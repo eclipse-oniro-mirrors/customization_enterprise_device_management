@@ -567,13 +567,10 @@ int32_t SecurityManagerProxy::RemoveUserExtCredential(MessageParcel &data)
 int32_t SecurityManagerProxy::GetUserExtCredential(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("SecurityManagerProxy::GetUserExtCredential");
-    if (!EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply)) {
-        EDMLOGE("SecurityManagerProxy:GetUserExtCredential GetPolicy fail");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    int32_t ret = ERR_INVALID_VALUE;
-    reply.ReadInt32(ret);
-    if (ret != ERR_OK) {
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply);
+    int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
         EDMLOGE("SecurityManagerProxy:GetUserExtCredential fail. %{public}d", ret);
         return ret;
     }
@@ -592,13 +589,10 @@ int32_t SecurityManagerProxy::GetUnlockPolicy(MessageParcel &data, int32_t &poli
 {
     EDMLOGI("SecurityManagerProxy::GetUnlockPolicy");
     MessageParcel reply;
-    if (!EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::UNLOCK_POLICY, data, reply)) {
-        EDMLOGE("SecurityManagerProxy:GetUnlockPolicy GetPolicy fail");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    int32_t ret = ERR_INVALID_VALUE;
-    reply.ReadInt32(ret);
-    if (ret != ERR_OK) {
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::UNLOCK_POLICY, data, reply);
+    int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
         EDMLOGE("SecurityManagerProxy:GetUnlockPolicy fail. %{public}d", ret);
         return ret;
     }
