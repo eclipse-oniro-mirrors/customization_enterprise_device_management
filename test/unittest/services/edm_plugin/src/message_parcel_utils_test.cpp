@@ -78,6 +78,7 @@ HWTEST_F(MessageParcelUtilsTest, TestReadWifiDeviceConfig, TestSize.Level1)
     config.wifiProxyconfig.manualProxyConfig.serverPort = 1;
     config.wifiProxyconfig.manualProxyConfig.exclusionObjectList = "";
     config.wifiPrivacySetting = Wifi::WifiPrivacyConfig::RANDOMMAC;
+    config.macAddress = "AA:BB:CC:DD:EE:FF";
     MessageParcelUtils::WriteWifiDeviceConfig(config, data, pwd);
     
     Wifi::WifiDeviceConfig config2;
@@ -119,6 +120,7 @@ HWTEST_F(MessageParcelUtilsTest, TestReadWifiDeviceConfig, TestSize.Level1)
     ASSERT_TRUE(config2.wifiProxyconfig.manualProxyConfig.serverPort == 1);
     ASSERT_TRUE(config2.wifiProxyconfig.manualProxyConfig.exclusionObjectList == "");
     ASSERT_TRUE(config2.wifiPrivacySetting == Wifi::WifiPrivacyConfig::RANDOMMAC);
+    ASSERT_TRUE(config2.macAddress == "AA:BB:CC:DD:EE:FF");
 }
 	
 /**

@@ -64,6 +64,7 @@ void MessageParcelUtils::WriteWifiDeviceConfig(Wifi::WifiDeviceConfig &config, M
     data.WriteInt32(config.wifiProxyconfig.manualProxyConfig.serverPort);
     data.WriteString(config.wifiProxyconfig.manualProxyConfig.exclusionObjectList);
     data.WriteInt32(static_cast<int32_t>(config.wifiPrivacySetting));
+    data.WriteString(config.macAddress);
 }
 
 void MessageParcelUtils::WriteIpAddress(MessageParcel &data, const Wifi::WifiIpAddress &address)
@@ -126,6 +127,7 @@ void MessageParcelUtils::ReadWifiDeviceConfig(MessageParcel &data, Wifi::WifiDev
     config.wifiProxyconfig.manualProxyConfig.serverPort = data.ReadInt32();
     config.wifiProxyconfig.manualProxyConfig.exclusionObjectList = data.ReadString();
     ProcessPrivacyConfig(data.ReadInt32(), config);
+    config.macAddress = data.ReadString();
 }
 
 void MessageParcelUtils::ProcessAssignIpMethod(int32_t ipMethod, Wifi::WifiIpConfig &ipConfig)

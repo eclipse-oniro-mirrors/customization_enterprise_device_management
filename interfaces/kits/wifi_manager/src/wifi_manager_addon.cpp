@@ -22,6 +22,10 @@
 #include "message_parcel_utils.h"
 #include "napi_edm_adapter.h"
 #include "override_interface_name.h"
+#ifdef WIFI_EDM_ENABLE
+#include "wifi_device.h"
+#include <system_ability_definition.h>
+#endif
 
 using namespace OHOS::EDM;
 
@@ -523,7 +527,7 @@ bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi
 {
     int32_t type = static_cast<int32_t>(SecurityType::SEC_TYPE_INVALID);
     int32_t ipType = static_cast<int32_t>(IpType::UNKNOWN);
-    /* "creatorUid" "disableReason" "randomMacType" "randomMacAddr" is not supported currently */
+    /* "creatorUid" "disableReason" "randomMacAddr" is not supported currently */
     std::tuple<int, bool> charArrayProp = {WIFI_PASSWORD_LEN, true};
     std::vector<char> ret;
     if (!JsObjectToString(env, object, "ssid", true, config.ssid) ||
@@ -533,7 +537,8 @@ bool WifiManagerAddon::JsObjToDeviceConfig(napi_env env, napi_value object, Wifi
         !JsObjectToInt(env, object, "securityType", true, type) ||
         !JsObjectToInt(env, object, "netId", false, config.networkId) ||
         !JsObjectToInt(env, object, "ipType", false, ipType) ||
-        !ProcessIpType(ipType, env, object, config.wifiIpConfig)) {
+        !ProcessIpType(ipType, env, object, config.wifiIpConfig) ||
+        !ProcessRandomMacAddress(env, object, config)) {
         EdmUtils::ClearString(config.ssid);
         EdmUtils::ClearString(config.bssid);
         return false;
@@ -644,6 +649,22 @@ bool WifiManagerAddon::ConfigStaticIp(napi_env env, napi_value object, Wifi::Wif
     napi_get_element(env, dnsServers, 1, &secondDns);
     napi_get_value_uint32(env, primaryDns, &ipConfig.staticIpAddress.dnsServer1.addressIpv4);
     napi_get_value_uint32(env, secondDns, &ipConfig.staticIpAddress.dnsServer2.addressIpv4);
+    return true;
+}
+
+bool WifiManagerAddon::ProcessRandomMacAddress(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config)
+{
+    int32_t randomMacType = 0;
+    JsObjectToInt(env, object, "randomMacType", false, randomMacType);
+    if (randomMacType == 1) {
+        std::string macAddr;
+        auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+        if (wifiDevice != nullptr && wifiDevice->GetDeviceMacAddress(macAddr) == ERR_OK) {
+            EDMLOGI("ProcessRandomMacAddress set device mac");
+            config.wifiPrivacySetting = Wifi::WifiPrivacyConfig::DEVICEMAC;
+            config.macAddress = macAddr;
+        }
+    }
     return true;
 }
 
