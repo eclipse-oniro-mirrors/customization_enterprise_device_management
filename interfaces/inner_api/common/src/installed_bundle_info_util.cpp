@@ -154,28 +154,38 @@ std::string InstalledBundleInfoUtil::SerializeToJson(const std::vector<Installed
 bool InstalledBundleInfoUtil::AddInstalledBundleInfo(const std::string &mdmName,
     const std::string &installedName, InstalledBundleType installedType)
 {
-    std::unique_lock<std::mutex> lock(fileMutex_);
-    if (!EnsureFileExists()) {
-        return false;
+    std::vector<InstalledBundleInfo> savedList;
+    bool needReport = false;
+    {
+        std::lock_guard<std::mutex> lock(fileMutex_);
+        if (!EnsureFileExists()) {
+            return false;
+        }
+        std::vector<InstalledBundleInfo> infoList;
+        if (!LoadFromFile(infoList)) {
+            return false;
+        }
+        InstalledBundleInfo info;
+        info.mdmName = mdmName;
+        info.installedName = installedName;
+        info.installedType = installedType;
+        info.installedTime = std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        infoList.push_back(info);
+        if (!SaveToFile(infoList)) {
+            return false;
+        }
+        if (infoList.size() >= MAX_BUNDLE_INFO_COUNT) {
+            if (!SwapAndClearLocked(savedList)) {
+                return false;
+            }
+            needReport = true;
+        } else {
+            ScheduleReportIfNeeded();
+        }
     }
-    std::vector<InstalledBundleInfo> infoList;
-    if (!LoadFromFile(infoList)) {
-        return false;
-    }
-    InstalledBundleInfo info;
-    info.mdmName = mdmName;
-    info.installedName = installedName;
-    info.installedType = installedType;
-    info.installedTime = std::chrono::duration_cast<std::chrono::seconds>(
-        std::chrono::system_clock::now().time_since_epoch()).count();
-    infoList.push_back(info);
-    if (!SaveToFile(infoList)) {
-        return false;
-    }
-    if (infoList.size() >= MAX_BUNDLE_INFO_COUNT) {
-        ReportAndClearLocked(lock);
-    } else {
-        ScheduleReportIfNeeded();
+    if (needReport) {
+        ReportSavedList(savedList);
     }
     return true;
 }
@@ -243,14 +253,9 @@ void InstalledBundleInfoUtil::ScheduleReportIfNeeded()
     });
 }
 
-void InstalledBundleInfoUtil::ReportAndClearLocked(std::unique_lock<std::mutex> &lock)
+void InstalledBundleInfoUtil::ReportSavedList(const std::vector<InstalledBundleInfo> &savedList)
 {
-    EDMLOGI("InstalledBundleInfoUtil::ReportAndClearLocked");
-    std::vector<InstalledBundleInfo> savedList;
-    if (!SwapAndClearLocked(savedList)) {
-        return;
-    }
-    lock.unlock();
+    EDMLOGI("InstalledBundleInfoUtil::ReportSavedList");
     std::string installedInfo = SerializeToJson(savedList);
     bool ret = HiSysEventAdapter::ReportInstalledBundleInfo(installedInfo);
     if (ret) {
@@ -258,17 +263,23 @@ void InstalledBundleInfoUtil::ReportAndClearLocked(std::unique_lock<std::mutex> 
         if (timer != nullptr) {
             timer->CancelTimer(EdmTimerTask::INSTALLED_BUNDLE_TIMER);
         }
-    } else {
-        lock.lock();
-        RestoreToFileLocked(savedList);
+        return;
     }
+    std::lock_guard<std::mutex> lock(fileMutex_);
+    RestoreToFileLocked(savedList);
 }
 
 void InstalledBundleInfoUtil::ReportAndClear()
 {
     EDMLOGI("InstalledBundleInfoUtil::ReportAndClear");
-    std::unique_lock<std::mutex> lock(fileMutex_);
-    ReportAndClearLocked(lock);
+    std::vector<InstalledBundleInfo> savedList;
+    {
+        std::lock_guard<std::mutex> lock(fileMutex_);
+        if (!SwapAndClearLocked(savedList)) {
+            return;
+        }
+    }
+    ReportSavedList(savedList);
 }
 } // namespace EDM
 } // namespace OHOS

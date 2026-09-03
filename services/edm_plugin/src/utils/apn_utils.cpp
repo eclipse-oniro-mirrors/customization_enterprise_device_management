@@ -186,6 +186,7 @@ std::vector<std::string> ApnUtils::ApnQuery(const std::map<std::string, std::str
     auto helper = CreatePdpProfileAbilityHelper();
     std::vector<std::string> result;
     ApnQueryVector(helper, apnInfo, result);
+    EDMLOGI("ApnUtils::ApnQueryId result size: %{public}zu", result.size());
     return result;
 }
 
