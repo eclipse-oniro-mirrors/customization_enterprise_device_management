@@ -14,6 +14,7 @@
  */
 #include "usb_manager_addon.h"
 
+#include "array_odd_burn_usb_device_serializer.h"
 #include "edm_log.h"
 #include "usb_manager_proxy.h"
 
@@ -49,6 +50,10 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addDisallowedPermissiveUsbDevices", AddDisallowedPermissiveUsbDevices),
         DECLARE_NAPI_FUNCTION("removeDisallowedPermissiveUsbDevices", RemoveDisallowedPermissiveUsbDevices),
         DECLARE_NAPI_FUNCTION("getDisallowedPermissiveUsbDevices", GetDisallowedPermissiveUsbDevices),
+        DECLARE_NAPI_FUNCTION("addAllowedOpticalDiscDriveBurnUsbDevices", AddAllowedOpticalDiscDriveBurnUsbDevices),
+        DECLARE_NAPI_FUNCTION("removeAllowedOpticalDiscDriveBurnUsbDevices",
+            RemoveAllowedOpticalDiscDriveBurnUsbDevices),
+        DECLARE_NAPI_FUNCTION("getAllowedOpticalDiscDriveBurnUsbDevices", GetAllowedOpticalDiscDriveBurnUsbDevices),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -508,6 +513,199 @@ napi_value UsbManagerAddon::GetDisallowedUsbDevicesCore(napi_env env, napi_callb
         NAPI_CALL(env, napi_set_element(env, jsList, i, item));
     }
     return jsList;
+}
+
+napi_value UsbManagerAddon::AddAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::AddAllowedOpticalDiscDriveBurnUsbDevices called");
+#ifdef FEATURE_PC_ONLY
+    return AddOrRemoveAllowedOddBurnUsbDevices(env, info, true);
+#else
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#endif
+}
+
+napi_value UsbManagerAddon::RemoveAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::RemoveAllowedOpticalDiscDriveBurnUsbDevices called");
+#ifdef FEATURE_PC_ONLY
+    return AddOrRemoveAllowedOddBurnUsbDevices(env, info, false);
+#else
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#endif
+}
+
+napi_value UsbManagerAddon::AddOrRemoveAllowedOddBurnUsbDevices(napi_env env, napi_callback_info info, bool isAdd)
+{
+    auto convertUsbDevices2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+            std::vector<OddBurnUsbDevice> usbDevices;
+            int32_t parseRet = ParseOddBurnUsbDevicesArray(env, usbDevices, argv);
+            if (FAILED(parseRet)) {
+                EDMLOGE("parameter parse error");
+                return parseRet;
+            }
+            if (usbDevices.empty()) {
+                EDMLOGE("usbDevices array is empty");
+                return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+            }
+            if (!ArrayOddBurnUsbDeviceSerializer::GetInstance()->WriteRawDataToParcel(data, usbDevices)) {
+                EDMLOGE("WriteRawDataToParcel failed");
+                return EdmReturnErrCode::PARAM_ERROR;
+            }
+            return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, convertUsbDevices2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.name = (isAdd ? "addAllowedOpticalDiscDriveBurnUsbDevices" :
+        "removeAllowedOpticalDiscDriveBurnUsbDevices");
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = ERR_OK;
+    if (isAdd) {
+        ret = usbManagerProxy->AddAllowedOddBurnUsbDevices(adapterAddonData.data);
+    } else {
+        ret = usbManagerProxy->RemoveAllowedOddBurnUsbDevices(adapterAddonData.data);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+    }
+    return nullptr;
+}
+
+int32_t UsbManagerAddon::ParseOddBurnUsbDevicesArray(napi_env env, std::vector<OddBurnUsbDevice> &usbDevices,
+    napi_value object)
+{
+    bool isArray = false;
+    napi_is_array(env, object, &isArray);
+    if (!isArray) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, object, &arrayLength);
+    if (arrayLength > EdmConstants::ALLOWED_ODD_BURN_USB_DEVICES_MAX_SIZE) {
+        EDMLOGE("ParseOddBurnUsbDevicesArray: arrayLength=%{public}d is too large", arrayLength);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value value = nullptr;
+        napi_get_element(env, object, i, &value);
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env, value, &valueType);
+        if (valueType != napi_object) {
+            usbDevices.clear();
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        OddBurnUsbDevice usbDevice;
+        if (!GetOddBurnUsbDeviceFromNAPI(env, value, usbDevice)) {
+            usbDevices.clear();
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        usbDevices.push_back(usbDevice);
+    }
+    return ERR_OK;
+}
+
+bool UsbManagerAddon::GetOddBurnUsbDeviceFromNAPI(napi_env env, napi_value value, OddBurnUsbDevice &usbDevice)
+{
+    int32_t vendorId = 0;
+    if (!JsObjectToInt(env, value, "vendorId", true, vendorId)) {
+        EDMLOGE("GetOddBurnUsbDeviceFromNAPI vendorId parse error!");
+        return false;
+    }
+    int32_t productId = 0;
+    if (!JsObjectToInt(env, value, "productId", true, productId)) {
+        EDMLOGE("GetOddBurnUsbDeviceFromNAPI productId parse error!");
+        return false;
+    }
+    std::string serial;
+    if (!JsObjectToString(env, value, "serial", false, serial)) {
+        EDMLOGE("GetOddBurnUsbDeviceFromNAPI serial parse error!");
+        return false;
+    }
+    usbDevice.SetVendorId(vendorId);
+    usbDevice.SetProductId(productId);
+    usbDevice.SetSerial(serial);
+    EDMLOGI("GetOddBurnUsbDeviceFromNAPI vendorId: %{public}d, productId: %{public}d, serial: %{public}s",
+        vendorId, productId, serial.c_str());
+    return true;
+}
+
+napi_value UsbManagerAddon::GetAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::GetAllowedOpticalDiscDriveBurnUsbDevices called");
+#ifdef FEATURE_PC_ONLY
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getAllowedOpticalDiscDriveBurnUsbDevices";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    std::vector<OddBurnUsbDevice> usbDevices;
+    int32_t ret = usbManagerProxy->GetAllowedOddBurnUsbDevices(adapterAddonData.data, usbDevices);
+    EDMLOGI("UsbManagerAddon::GetAllowedOpticalDiscDriveBurnUsbDevices return size: %{public}zu",
+        usbDevices.size());
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, usbDevices.size(), &jsList));
+    for (size_t i = 0; i < usbDevices.size(); i++) {
+        napi_value item = OddBurnUsbDeviceToJsObj(env, usbDevices[i]);
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+#else
+    EDMLOGI("getAllowedOpticalDiscDriveBurnUsbDevices not supported on this device, return empty array");
+    napi_value emptyArray = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, 0, &emptyArray));
+    return emptyArray;
+#endif
+}
+
+napi_value UsbManagerAddon::OddBurnUsbDeviceToJsObj(napi_env env, const OddBurnUsbDevice &usbDevice)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+
+    napi_value vendorId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, usbDevice.GetVendorId(), &vendorId));
+    NAPI_CALL(env, napi_set_named_property(env, value, "vendorId", vendorId));
+
+    napi_value productId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, usbDevice.GetProductId(), &productId));
+    NAPI_CALL(env, napi_set_named_property(env, value, "productId", productId));
+
+    if (!usbDevice.GetSerial().empty()) {
+        napi_value serial = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, usbDevice.GetSerial().c_str(), NAPI_AUTO_LENGTH, &serial));
+        NAPI_CALL(env, napi_set_named_property(env, value, "serial", serial));
+    }
+    return value;
 }
 
 #ifdef USB_EDM_ENABLE

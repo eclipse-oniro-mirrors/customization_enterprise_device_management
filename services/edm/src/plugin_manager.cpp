@@ -88,6 +88,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::EXEMPTION_RESOURCE,
+    EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -116,6 +117,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
     EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES,
     EdmInterfaceCode::GET_USB_SERIAL_NUMBER,
+    EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

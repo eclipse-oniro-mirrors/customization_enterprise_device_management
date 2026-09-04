@@ -15,6 +15,7 @@
 
 #include "usb_manager_proxy.h"
 
+#include "array_odd_burn_usb_device_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -148,6 +149,99 @@ int32_t UsbManagerProxy::GetUsbSerialNumber(MessageParcel &data, std::string &re
     }
     reply.ReadString(result);
     return ERR_OK;
+}
+
+int32_t UsbManagerProxy::AddAllowedOddBurnUsbDevices(MessageParcel &data)
+{
+    EDMLOGI("UsbManagerProxy::AddAllowedOddBurnUsbDevices");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t UsbManagerProxy::RemoveAllowedOddBurnUsbDevices(MessageParcel &data)
+{
+    EDMLOGI("UsbManagerProxy::RemoveAllowedOddBurnUsbDevices");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES);
+    return proxy->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t UsbManagerProxy::GetAllowedOddBurnUsbDevices(MessageParcel &data, std::vector<OddBurnUsbDevice> &result)
+{
+    EDMLOGI("UsbManagerProxy::GetAllowedOddBurnUsbDevices");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicy(EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("UsbManagerProxy:GetAllowedOddBurnUsbDevices fail. %{public}d", ret);
+        return ret;
+    }
+    if (!ArrayOddBurnUsbDeviceSerializer::GetInstance()->ReadRawDataFromParcel(reply, result)) {
+        EDMLOGE("UsbManagerProxy:GetAllowedOddBurnUsbDevices ReadRawDataFromParcel failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGI("UsbManagerProxy:GetAllowedOddBurnUsbDevices return size:%{public}zu", result.size());
+    return ERR_OK;
+}
+
+bool UsbManagerProxy::IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial)
+{
+    EDMLOGI("UsbManagerProxy::IsAllowedOddBurn userId=%{public}d, vendorId=%{public}d, productId=%{public}d, "
+        "serial=%{public}s", userId, vendorId, productId, serial.c_str());
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return false;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteUint32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(WITHOUT_ADMIN);
+    if (!proxy->GetPolicy(EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, data, reply)) {
+        EDMLOGW("UsbManagerProxy:IsAllowedOddBurn GetPolicy fail, whitelist not exist");
+        return false;
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGW("UsbManagerProxy:IsAllowedOddBurn GetPolicy fail. %{public}d", ret);
+        return false;
+    }
+    std::vector<OddBurnUsbDevice> usbDevices;
+    if (!ArrayOddBurnUsbDeviceSerializer::GetInstance()->ReadRawDataFromParcel(reply, usbDevices)) {
+        EDMLOGE("UsbManagerProxy:IsAllowedOddBurn ReadRawDataFromParcel failed");
+        return false;
+    }
+
+    if (usbDevices.empty()) {
+        EDMLOGI("UsbManagerProxy:IsAllowedOddBurn whitelist is empty, return true");
+        return true;
+    }
+    auto allowedDevice = std::find_if(usbDevices.begin(), usbDevices.end(), [=](auto &device) {
+        if (device.GetSerial().empty()) {
+            if (device.GetVendorId() == vendorId && device.GetProductId() == productId) {
+                EDMLOGI("UsbManagerProxy:IsAllowedOddBurn matched by vendorId+productId");
+                return true;
+            }
+        } else if (device.GetVendorId() == vendorId && device.GetProductId() == productId &&
+                   device.GetSerial() == serial) {
+            EDMLOGI("UsbManagerProxy:IsAllowedOddBurn matched by vendorId+productId+serial");
+            return true;
+        }
+        return false;
+    });
+    if (allowedDevice == usbDevices.end()) {
+        EDMLOGI("UsbManagerProxy:IsAllowedOddBurn device not in whitelist, return false");
+        return false;
+    }
+    return true;
 }
 
 #ifdef USB_EDM_ENABLE

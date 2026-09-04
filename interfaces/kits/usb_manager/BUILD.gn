@@ -18,6 +18,7 @@ ohos_shared_library("usbmanager") {
   include_dirs = [
     "../common/include",
     "include",
+    "../../inner_api/plugin_kits/include",
   ]
 
   sources = [
@@ -46,6 +47,10 @@ ohos_shared_library("usbmanager") {
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
     external_deps += [ "usb_manager:usbsrv_client" ]
     defines += [ "USB_EDM_ENABLE" ]
+  }
+
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
   }
 
   relative_install_dir = "module/enterprise"

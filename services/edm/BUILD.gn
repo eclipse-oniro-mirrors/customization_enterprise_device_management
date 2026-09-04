@@ -207,6 +207,12 @@ ohos_shared_library("edmservice") {
     defines += [ "USB_SERVICE_EDM_ENABLE" ]
   }
 
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
+      enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/query_policy/allowed_odd_burn_usb_devices_query.cpp" ]
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
       usb_manager_edm_enable) {
     defines += [ "USB_DISK_MANAGER_EDM_ENABLE" ]

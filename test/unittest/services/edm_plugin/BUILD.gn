@@ -913,6 +913,15 @@ ohos_static_library("edm_all_plugin_static") {
     ]
   }
 
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
+      enterprise_device_management_feature_pc_only) {
+    external_deps += [ "usb_manager:usbsrv_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/usb_manager/allowed_odd_burn_usb_devices_plugin.cpp",
+    ]
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
       usb_manager_edm_enable) {
     external_deps += [ "disk_manager:disk_manager_innerkits" ]
@@ -1006,6 +1015,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disable_hdc_remote_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disable_running_binary_app_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_core_dump_plugin.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disable_sata_odd_burn_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_rs232_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/ota_update_nonce_plugin.cpp",
       "../../../../services/edm_plugin/src/security_manager/device_security_level_policy_plugin.cpp",

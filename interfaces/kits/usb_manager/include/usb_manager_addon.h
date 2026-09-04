@@ -22,6 +22,7 @@
 #include "napi/native_node_api.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
+#include "odd_burn_usb_device.h"
 #include "usb_device_id.h"
 #ifdef USB_EDM_ENABLE
 #include "usb_interface_type.h"
@@ -77,6 +78,14 @@ private:
     static napi_value RemoveDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedPermissiveUsbDevices(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedUsbDevicesCore(napi_env env, napi_callback_info info, bool notPermissive);
+    static napi_value AddAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedOddBurnUsbDevices(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value GetAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
+    static int32_t ParseOddBurnUsbDevicesArray(napi_env env, std::vector<OddBurnUsbDevice> &usbDevices,
+        napi_value object);
+    static bool GetOddBurnUsbDeviceFromNAPI(napi_env env, napi_value value, OddBurnUsbDevice &usbDevice);
+    static napi_value OddBurnUsbDeviceToJsObj(napi_env env, const OddBurnUsbDevice &usbDevice);
 #ifdef USB_EDM_ENABLE
     static int32_t ParseUsbDeviceTypesArray(napi_env env, std::vector<USB::UsbDeviceType> &usbDeviceTypes,
         napi_value object, bool notPermissive);
