@@ -994,6 +994,76 @@ HWTEST_F(SecurityManagerProxyTest, TestGetDeviceSecurityLevelPolicyFail, TestSiz
     int32_t ret = proxy_->GetDeviceSecurityLevelPolicy(data, policy);
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetWeakPinEnableSuc
+ * @tc.desc: Test SetWeakPinEnable success func with isEnable=true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetWeakPinEnableSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetWeakPinEnable(true, 50);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetWeakPinEnableSuc_01
+ * @tc.desc: Test SetWeakPinEnable success func with isEnable=false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetWeakPinEnableSuc_01, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetWeakPinEnable(false, -1);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetWeakPinEnableFail
+ * @tc.desc: Test SetWeakPinEnable without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetWeakPinEnableFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    int32_t ret = proxy_->SetWeakPinEnable(true, 50);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsWeakPinEnabledSuc
+ * @tc.desc: Test IsWeakPinEnabled success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestIsWeakPinEnabledSuc, TestSize.Level1)
+{
+    bool result = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    int32_t ret = proxy_->IsWeakPinEnabled(result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestIsWeakPinEnabledFail
+ * @tc.desc: Test IsWeakPinEnabled without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestIsWeakPinEnabledFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool result = false;
+    int32_t ret = proxy_->IsWeakPinEnabled(result);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(result);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

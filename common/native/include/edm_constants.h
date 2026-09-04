@@ -168,6 +168,7 @@ namespace EdmConstants {
         constexpr uint32_t HIDE_LAUNCHER_ICON = 37;
         constexpr uint32_t DISABLE_SECURE_ERASE = 39;
         constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
+        constexpr uint32_t WEAK_PIN = 43;
     }
 
     namespace KeepAlive {
@@ -580,6 +581,7 @@ namespace PolicyName {
     const char* const POLICY_UNLOCK_POLICY = "unlock_policy";
     const char* const POLICY_DEVICE_SECURITY_LEVEL_POLICY = "device_security_level_policy";
     const char* const POLICY_DISALLOWED_SYSTEM_ROLLBACK = "disallowed_system_rollback";
+    const char* const POLICY_WEAK_PIN = "weak_pin";
     const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_DEVICE = "allowed_printer_ip_addresses_for_device";
     const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_ACCOUNT = "allowed_printer_ip_addresses_for_account";
     const char* const POLICY_DISABLE_SATA_ODD_BURN = "disable_sata_odd_burn";
