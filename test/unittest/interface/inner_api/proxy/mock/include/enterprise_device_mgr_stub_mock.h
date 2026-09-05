@@ -52,6 +52,7 @@ public:
     MOCK_METHOD(int, SetEnterpriseInfo, (const AppExecFwk::ElementName &, const EntInfo &), (override));
     MOCK_METHOD(int, IsSuperAdmin, (const std::string &, bool &), (override));
     MOCK_METHOD(int, IsSelfSuperAdmin, (bool &), (override));
+    MOCK_METHOD(int, IsFeatureSupported, (int32_t, bool &), (override));
     MOCK_METHOD(int, IsByodAdmin, (const AppExecFwk::ElementName &, bool &), (override));
     MOCK_METHOD(int, IsAdminEnabled, (const AppExecFwk::ElementName &, int32_t, bool &), (override));
     MOCK_METHOD(int, SubscribeManagedEvent, (const AppExecFwk::ElementName &, (const std::vector<uint32_t> &)),

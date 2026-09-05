@@ -17,6 +17,7 @@
 
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
+#include "managed_feature.h"
 #include "managed_policy.h"
 #include "result.h"
 #include "startup_scene.h"
@@ -34,11 +35,16 @@ napi_value CommonManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nStartupScene = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nStartupScene));
     CreateStartupSceneObject(env, nStartupScene);
+    napi_value nManagedFeature = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nManagedFeature));
+    CreateManagedFeatureObject(env, nManagedFeature);
 
     napi_property_descriptor property[] = {
+        DECLARE_NAPI_FUNCTION("isFeatureSupported", IsFeatureSupported),
         DECLARE_NAPI_PROPERTY("ManagedPolicy", nManagedPolicy),
         DECLARE_NAPI_PROPERTY("Result", nResult),
         DECLARE_NAPI_PROPERTY("StartupScene", nStartupScene),
+        DECLARE_NAPI_PROPERTY("ManagedFeature", nManagedFeature),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -86,6 +92,47 @@ void CommonManagerAddon::CreateStartupSceneObject(napi_env env, napi_value value
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<int32_t>(StartupScene::DEVICE_PROVISION), &nDeviceProvision));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_PROVISION", nDeviceProvision));
+}
+
+void CommonManagerAddon::CreateManagedFeatureObject(napi_env env, napi_value value)
+{
+    napi_value nLocalHotaDomain;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::LOCAL_HOTA_DOMAIN), &nLocalHotaDomain));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "LOCAL_HOTA_DOMAIN", nLocalHotaDomain));
+    napi_value nUserExtendCredential;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::USER_EXTEND_CREDENTIAL), &nUserExtendCredential));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "USER_EXTEND_CREDENTIAL", nUserExtendCredential));
+    napi_value nDeviceSecurityLevel;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::DEVICE_SECURITY_LEVEL), &nDeviceSecurityLevel));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_SECURITY_LEVEL", nDeviceSecurityLevel));
+    napi_value nPrinterIpAddressPolicy;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY), &nPrinterIpAddressPolicy));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "PRINTER_IP_ADDRESS_POLICY", nPrinterIpAddressPolicy));
+}
+
+napi_value CommonManagerAddon::IsFeatureSupported(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_IsFeatureSupported called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number),
+        "parameter feature error");
+    int32_t featureNumber = -1;
+    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseInt(env, featureNumber, argv[ARR_INDEX_ZERO]),
+        "parameter feature parse error");
+    bool supported = CommonManagerProxy::GetCommonManagerProxy()->IsFeatureSupported(featureNumber);
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, supported, &result));
+    return result;
 }
 
 static napi_module g_commonManagerServiceModule = {

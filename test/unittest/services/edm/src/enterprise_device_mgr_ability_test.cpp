@@ -34,6 +34,7 @@
 
 #include "directory_ex.h"
 #include "edm_constants.h"
+#include "managed_feature.h"
 
 #include "admin_container.h"
 #include "byod_admin.h"
@@ -6286,6 +6287,36 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsSelfSuperAdmin, TestSize.Level1)
     EXPECT_FALSE(isSuper);
 
     AdminContainer::GetInstance()->DeleteAdmin(ADMIN_PACKAGENAME, EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestIsFeatureSupported
+ * @tc.desc: Test IsFeatureSupported with known and unknown features.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupported, TestSize.Level1)
+{
+    int32_t features[] = {
+        static_cast<int32_t>(ManagedFeature::LOCAL_HOTA_DOMAIN),
+        static_cast<int32_t>(ManagedFeature::USER_EXTEND_CREDENTIAL),
+        static_cast<int32_t>(ManagedFeature::DEVICE_SECURITY_LEVEL),
+        static_cast<int32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY),
+    };
+    for (int32_t feature : features) {
+        bool supported = true;
+        ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
+        EXPECT_TRUE(ret == ERR_OK);
+#ifdef FEATURE_PC_ONLY
+        EXPECT_TRUE(supported);
+#else
+        EXPECT_FALSE(supported);
+#endif
+    }
+
+    bool supported = true;
+    ErrCode ret = edmMgr_->IsFeatureSupported(999, supported);
+    EXPECT_TRUE(ret == ERR_OK);
+    EXPECT_FALSE(supported);
 }
 
 /**
