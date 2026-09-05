@@ -906,6 +906,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/usb_manager/disallowed_permissive_usb_devices_plugin.cpp",
       "../../../../services/edm_plugin/src/usb_manager/get_usb_serial_number_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/external_storage_intercept_enable_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
       "../../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
@@ -930,8 +931,11 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (enterprise_device_management_enable_disk_manager) {
-    sources +=
-        [  "../../../../services/edm_plugin/src/restrictions/disallow_external_storage_card_plugin.cpp" ]
+    external_deps += [ "disk_manager:disk_manager_innerkits" ]
+    sources += [
+        "../../../../services/edm_plugin/src/restrictions/disallow_external_storage_card_plugin.cpp",
+        "../../../../services/edm_plugin/src/usb_manager/external_storage_device_mount_policy_plugin.cpp",
+    ]
   }
 
   if (audio_framework_edm_enable) {

@@ -68,6 +68,11 @@ private:
     static napi_value GetUsbStorageDeviceAccessPolicy(napi_env env, napi_callback_info info);
     static napi_value GetUsbSerialNumber(napi_env env, napi_callback_info info);
 
+    static napi_value SetExternalStorageInterceptEnable(napi_env env, napi_callback_info info);
+    static napi_value IsExternalStorageInterceptEnable(napi_env env, napi_callback_info info);
+    static napi_value SetExternalStorageDeviceMountPolicy(napi_env env, napi_callback_info info);
+    static void CreateMountPolicyEnum(napi_env env, napi_value value);
+
     static void CreateDescriptorEnum(napi_env env, napi_value value);
     static napi_value AddDisallowedUsbDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedUsbDevices(napi_env env, napi_callback_info info);

@@ -109,6 +109,10 @@ namespace EdmConstants {
     constexpr const char* CONST_ENTERPRISE_EXTERNAL_STORAGE_DEVICE_MANAGE_ENABLE =
         "const.enterprise.external_storage_device.manage.enable";
 
+    // 外置存储设备挂载拦截使能persist参数
+    constexpr const char* PARAM_EDM_ENABLE_EXTERNAL_STORAGE_MOUNT_INTERCEPT =
+        "persist.edm.enable_external_storage_mount_intercept";
+
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
         const char* const PARAM_EDM_KIOSK_ALLOW_CONTROL_CENTER = "persist.edm.kiosk.allow_control_center";
@@ -574,6 +578,8 @@ namespace PolicyName {
     const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_DEVICE = "allowed_printer_ip_addresses_for_device";
     const char* const POLICY_ALLOWED_PRINTER_IP_ADDRESSES_FOR_ACCOUNT = "allowed_printer_ip_addresses_for_account";
     const char* const POLICY_DISABLE_SATA_ODD_BURN = "disable_sata_odd_burn";
+    const char* const POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE = "external_storage_intercept_enable";
+    const char* const POLICY_EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY = "external_storage_device_mount_policy";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

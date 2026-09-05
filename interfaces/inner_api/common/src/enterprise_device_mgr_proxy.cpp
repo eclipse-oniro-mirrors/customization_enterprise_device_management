@@ -743,5 +743,20 @@ ErrCode EnterpriseDeviceMgrProxy::StartAbilityByAdmin(const AppExecFwk::ElementN
     }
     return mgrService->StartAbilityByAdmin(admin, want);
 }
+
+ErrCode EnterpriseDeviceMgrProxy::NotifyUnmountExternalStorageDeviceInfo(
+    const ExternalStorageDeviceInfo &deviceInfo)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::NotifyUnmountExternalStorageDeviceInfo");
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return mgrService->NotifyUnmountExternalStorageDeviceInfo(deviceInfo);
+}
 } // namespace EDM
 } // namespace OHOS

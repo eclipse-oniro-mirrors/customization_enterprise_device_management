@@ -16,6 +16,7 @@
 
 #include "array_odd_burn_usb_device_serializer.h"
 #include "edm_log.h"
+#include "mount_policy.h"
 #include "usb_manager_proxy.h"
 
 #include "napi_edm_adapter.h"
@@ -32,9 +33,14 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &descriptorValue));
     CreateDescriptorEnum(env, descriptorValue);
 
+    napi_value mountPolicyValue = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &mountPolicyValue));
+    CreateMountPolicyEnum(env, mountPolicyValue);
+
     napi_property_descriptor property[] = {
         DECLARE_NAPI_PROPERTY("UsbPolicy", policyValue),
         DECLARE_NAPI_PROPERTY("Descriptor", descriptorValue),
+        DECLARE_NAPI_PROPERTY("MountPolicy", mountPolicyValue),
         DECLARE_NAPI_FUNCTION("setUsbPolicy", SetUsbPolicy),
         DECLARE_NAPI_FUNCTION("disableUsb", DisableUsb),
         DECLARE_NAPI_FUNCTION("isUsbDisabled", IsUsbDisabled),
@@ -54,6 +60,9 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeAllowedOpticalDiscDriveBurnUsbDevices",
             RemoveAllowedOpticalDiscDriveBurnUsbDevices),
         DECLARE_NAPI_FUNCTION("getAllowedOpticalDiscDriveBurnUsbDevices", GetAllowedOpticalDiscDriveBurnUsbDevices),
+        DECLARE_NAPI_FUNCTION("setExternalStorageInterceptEnable", SetExternalStorageInterceptEnable),
+        DECLARE_NAPI_FUNCTION("isExternalStorageInterceptEnable", IsExternalStorageInterceptEnable),
+        DECLARE_NAPI_FUNCTION("setExternalStorageDeviceMountPolicy", SetExternalStorageDeviceMountPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -83,6 +92,106 @@ void UsbManagerAddon::CreateDescriptorEnum(napi_env env, napi_value value)
     napi_value deviceDescriptor;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, EdmConstants::USB_DEVICE_DESCRIPTOR, &deviceDescriptor));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE", deviceDescriptor));
+}
+
+void UsbManagerAddon::CreateMountPolicyEnum(napi_env env, napi_value value)
+{
+    napi_value mountReadWrite;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(MountPolicy::MOUNT_READ_WRITE),
+        &mountReadWrite));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MOUNT_READ_WRITE", mountReadWrite));
+
+    napi_value mountReadOnly;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(MountPolicy::MOUNT_READ_ONLY),
+        &mountReadOnly));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MOUNT_READ_ONLY", mountReadOnly));
+
+    napi_value unmount;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(MountPolicy::UNMOUNT), &unmount));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "UNMOUNT", unmount));
+}
+
+napi_value UsbManagerAddon::SetExternalStorageInterceptEnable(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::SetExternalStorageInterceptEnable called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setExternalStorageInterceptEnable";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = usbManagerProxy->SetExternalStorageInterceptEnable(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+    }
+    return nullptr;
+}
+
+napi_value UsbManagerAddon::IsExternalStorageInterceptEnable(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::IsExternalStorageInterceptEnable called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "isExternalStorageInterceptEnable";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    bool isEnabled = false;
+    int32_t ret = usbManagerProxy->IsExternalStorageInterceptEnable(adapterAddonData.data, isEnabled);
+    EDMLOGI("UsbManagerAddon::IsExternalStorageInterceptEnable return: %{public}d", isEnabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, isEnabled, &result));
+    return result;
+}
+
+napi_value UsbManagerAddon::SetExternalStorageDeviceMountPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::SetExternalStorageDeviceMountPolicy called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setExternalStorageDeviceMountPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        return nullptr;
+    }
+    int32_t ret = usbManagerProxy->SetExternalStorageDeviceMountPolicy(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+    }
+    return nullptr;
 }
 
 napi_value UsbManagerAddon::SetUsbPolicy(napi_env env, napi_callback_info info)

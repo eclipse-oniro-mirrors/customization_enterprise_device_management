@@ -19,6 +19,7 @@
 #include "icallback_strategy.h"
 #include "ienterprise_admin.h"
 #include "policy_struct.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -157,6 +158,16 @@ public:
 private:
     bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     PolicyChangedEvent event_;
+};
+
+class UnmountExternalStorageDeviceStrategy : public ICallbackStrategy {
+public:
+    explicit UnmountExternalStorageDeviceStrategy(const ExternalStorageDeviceInfo& deviceInfo)
+        : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE), deviceInfo_(deviceInfo) {}
+
+private:
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    ExternalStorageDeviceInfo deviceInfo_;
 };
 
 } // namespace EDM

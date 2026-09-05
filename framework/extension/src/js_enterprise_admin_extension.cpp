@@ -585,6 +585,60 @@ void JsEnterpriseAdminExtension::OnAdminPolicyChanged(const PolicyChangedEvent &
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnUnmountExternalStorageDevice");
+    auto task = [deviceInfo, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateExternalStorageDeviceInfoObject(env, deviceInfo) };
+        CallObjectMethod("onUnmountExternalStorageDevice", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+napi_value JsEnterpriseAdminExtension::CreateExternalStorageDeviceInfoObject(napi_env env,
+    const ExternalStorageDeviceInfo &deviceInfo)
+{
+    napi_value nDeviceInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nDeviceInfo));
+
+    napi_value nType = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, deviceInfo.type, &nType));
+    NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "type", nType));
+
+    napi_value nDevicePath = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, deviceInfo.devicePath.c_str(), NAPI_AUTO_LENGTH, &nDevicePath));
+    NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "devicePath", nDevicePath));
+
+    napi_value nVolumeId = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, deviceInfo.volumeId.c_str(), NAPI_AUTO_LENGTH, &nVolumeId));
+    NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "volumeId", nVolumeId));
+
+    napi_value nMountStatus = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, deviceInfo.mountStatus, &nMountStatus));
+    NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "mountStatus", nMountStatus));
+
+    if (deviceInfo.vendorId != -1) {
+        napi_value nVendorId = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, deviceInfo.vendorId, &nVendorId));
+        NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "vendorId", nVendorId));
+    }
+
+    if (deviceInfo.productId != -1) {
+        napi_value nProductId = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, deviceInfo.productId, &nProductId));
+        NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "productId", nProductId));
+    }
+
+    if (!deviceInfo.serial.empty()) {
+        napi_value nSerial = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, deviceInfo.serial.c_str(), NAPI_AUTO_LENGTH, &nSerial));
+        NAPI_CALL(env, napi_set_named_property(env, nDeviceInfo, "serial", nSerial));
+    }
+
+    return nDeviceInfo;
+}
+
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)
 {
     napi_value nSystemUpdateInfo = nullptr;

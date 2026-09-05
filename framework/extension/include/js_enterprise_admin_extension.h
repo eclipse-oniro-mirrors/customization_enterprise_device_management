@@ -23,6 +23,7 @@
 #include "policy_changed_event.h"
 #include "policy_struct.h"
 #include "key_code.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -82,6 +83,8 @@ public:
 
     void OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent);
 
+    void OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo);
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 
@@ -98,6 +101,8 @@ private:
     napi_value CreateKeyEventInfoObject(napi_env env, const OHOS::EDM::KeyEvent &keyEventInfo);
 
     napi_value CreatePolicyChangedEvent(napi_env env, const PolicyChangedEvent &policyChangedEvent);
+
+    napi_value CreateExternalStorageDeviceInfoObject(napi_env env, const ExternalStorageDeviceInfo &deviceInfo);
 
     bool ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo);
 

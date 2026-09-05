@@ -20,6 +20,10 @@
             "virtual thunk to OHOS::EDM::EntInfo::~EntInfo()";
             VTT?for?OHOS::EDM::EntInfo;
             vtable?for?OHOS::EDM::EntInfo;
+            OHOS::EDM::ExternalStorageDeviceInfo::*;
+            "virtual thunk to OHOS::EDM::ExternalStorageDeviceInfo::~ExternalStorageDeviceInfo()";
+            VTT?for?OHOS::EDM::ExternalStorageDeviceInfo;
+            vtable?for?OHOS::EDM::ExternalStorageDeviceInfo;
             OHOS::EDM::PowerPolicy::*;
             "virtual thunk to OHOS::EDM::PowerPolicy::~PowerPolicy()";
             VTT?for?OHOS::EDM::PowerPolicy;
@@ -110,6 +114,11 @@
             OHOS::EDM::KeyEventHandle::*;
             "OHOS::EDM::IAdminManager::GetInstance()";
             "OHOS::EDM::IAdminManager::adminManagerInstance_";
+            "OHOS::EDM::IMdmEventRelayer::GetInstance()";
+            "OHOS::EDM::IMdmEventRelayer::mdmEventRelayerInstance_";
+            OHOS::EDM::IMdmEventRelayer::*;
+            vtable?for?OHOS::EDM::IMdmEventRelayer;
+            VTT?for?OHOS::EDM::IMdmEventRelayer;
             vtable?for?OHOS::EDM::UpdatePolicySerializer;
             vtable?for?OHOS::EDM::UpgradePackageInfoSerializer;
             OHOS::EDM::AllowedNotificationBundlesSerializer::*;

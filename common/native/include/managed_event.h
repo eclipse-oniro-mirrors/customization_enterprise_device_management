@@ -39,6 +39,7 @@ enum class ManagedEvent : uint32_t {
     SIM_STATE_CHANGED = 104,
     APP_MARKET_DOWNLOAD = 105,
     APP_MARKET_INSTALL = 106,
+    UNMOUNT_EXTERNAL_STORAGE_DEVICE = 107,
 };
 } // namespace EDM
 } // namespace OHOS

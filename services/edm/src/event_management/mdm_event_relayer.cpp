@@ -36,6 +36,8 @@ void DispatchToAdmins(ManagedEvent event, const EdmEventData &data, const AdminC
 {
     std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
     AdminManager::GetInstance()->GetAdminBySubscribeEvent(event, subAdmins);
+    EDMLOGI("DispatchToAdmins event=%{public}u subAdmins size=%{public}zu",
+        static_cast<uint32_t>(event), subAdmins.size());
     for (auto &[uid, admins] : subAdmins) {
         for (auto &admin : admins) {
             callback(admin->adminInfo_.packageName_, admin->adminInfo_.className_, uid);
@@ -51,6 +53,7 @@ MdmEventRelayer::MdmEventRelayer()
 MdmEventRelayer &MdmEventRelayer::GetInstance()
 {
     static MdmEventRelayer instance;
+    IMdmEventRelayer::mdmEventRelayerInstance_ = &instance;
     return instance;
 }
 
@@ -167,12 +170,28 @@ void MdmEventRelayer::RegisterDeviceStrategies()
     };
 }
 
+void MdmEventRelayer::RegisterUnmountExternalStorageDeviceStrategies()
+{
+    strategyFactories_[ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE] = [](const EdmEventData &data) {
+        EDMLOGI("MdmEventRelayer::UNMOUNT_EXTERNAL_STORAGE_DEVICE strategy factory invoked");
+        DispatchToAdmins(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE, data,
+            [&data](const std::string &pkg, const std::string &cls, int32_t uid) {
+                EDMLOGI("MdmEventRelayer::UNMOUNT_EXTERNAL_STORAGE_DEVICE dispatch to admin=%{public}s cls=%{public}s",
+                    pkg.c_str(), cls.c_str());
+                auto strategy = std::make_shared<UnmountExternalStorageDeviceStrategy>(
+                    data.externalStorageDeviceInfo);
+                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
+            });
+    };
+}
+
 void MdmEventRelayer::RegisterStrategyFactories()
 {
     RegisterAppLifecycleStrategies();
     RegisterBundleStrategies();
     RegisterAccountStrategies();
     RegisterDeviceStrategies();
+    RegisterUnmountExternalStorageDeviceStrategies();
 }
 
 void MdmEventRelayer::OnAdminSubscribe(const std::string &adminName, int32_t userId, ManagedEvent event)

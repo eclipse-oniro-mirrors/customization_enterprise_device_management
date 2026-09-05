@@ -17,9 +17,11 @@
 
 #include <accesstoken_kit.h>
 #include <ipc_skeleton.h>
+#include <memory>
 
 #include "edm_errors.h"
 #include "edm_log.h"
+#include "external_storage_device_info.h"
 #include "policy_changed_event.h"
 
 namespace OHOS {
@@ -132,6 +134,10 @@ void EnterpriseAdminStub::InitOtherHandleFuncs()
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnAdminPolicyChangedInner(code, data, reply);
         };
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE] =
+        [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
+            return OnUnmountExternalStorageDeviceInner(code, data, reply);
+        };
 }
 
 int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply,
@@ -232,6 +238,18 @@ bool EnterpriseAdminStub::OnAdminPolicyChangedInner(uint32_t code, MessageParcel
     PolicyChangedEvent event;
     PolicyChangedEvent::Unmarshalling(data, event);
     return OnAdminPolicyChanged(event);
+}
+
+bool EnterpriseAdminStub::OnUnmountExternalStorageDeviceInner(uint32_t code, MessageParcel& data,
+    MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnUnmountExternalStorageDeviceInner");
+    std::unique_ptr<ExternalStorageDeviceInfo> deviceInfo(ExternalStorageDeviceInfo::Unmarshalling(data));
+    if (deviceInfo == nullptr) {
+        EDMLOGE("OnUnmountExternalStorageDeviceInner read deviceInfo failed");
+        return false;
+    }
+    return OnUnmountExternalStorageDevice(*deviceInfo);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

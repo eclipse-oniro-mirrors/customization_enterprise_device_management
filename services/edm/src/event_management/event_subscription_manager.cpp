@@ -199,6 +199,8 @@ void EventSubscriptionManager::DispatchEvent(const EdmEventData &data)
             }
         }
     }
+    EDMLOGI("EventSubscriptionManager::DispatchEvent eventId=%{public}u callbacks size=%{public}zu",
+        data.eventId.code, callbacks.size());
     for (const auto &cb : callbacks) {
         cb(data);
     }

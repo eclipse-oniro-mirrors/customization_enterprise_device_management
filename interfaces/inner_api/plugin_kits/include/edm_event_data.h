@@ -21,6 +21,7 @@
 
 #include "application_state_observer_stub.h"
 #include "common_event_subscriber.h"
+#include "external_storage_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -50,6 +51,7 @@ struct EdmEventData {
     EventId eventId{};
     EventFwk::CommonEventData commonEventData;
     AppExecFwk::ProcessData appProcessData;
+    ExternalStorageDeviceInfo externalStorageDeviceInfo;
 };
 
 } // namespace EDM

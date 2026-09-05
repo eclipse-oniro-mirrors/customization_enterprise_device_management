@@ -2474,6 +2474,21 @@ ErrCode EnterpriseDeviceMgrAbility::StartAbilityByAdmin(const AppExecFwk::Elemen
     return controller->StartAbilityByAdmin(want, userId);
 }
 
+ErrCode EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo(
+    const ExternalStorageDeviceInfo &deviceInfo)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo "
+        "type=%{public}d devicePath=%{public}s volumeId=%{public}s mountStatus=%{public}d "
+        "vendorId=%{public}d productId=%{public}d serial=%{public}s",
+        deviceInfo.type, deviceInfo.devicePath.c_str(), deviceInfo.volumeId.c_str(),
+        deviceInfo.mountStatus, deviceInfo.vendorId, deviceInfo.productId, deviceInfo.serial.c_str());
+    EdmEventData edmData;
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE)};
+    edmData.externalStorageDeviceInfo = deviceInfo;
+    EventSubscriptionManager::GetInstance().DispatchEvent(edmData);
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,
     const std::string &bundleName)
 {

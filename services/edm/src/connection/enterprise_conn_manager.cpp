@@ -32,6 +32,8 @@ constexpr const char* TIMEOUT_PARAM_NAME = "persist.sys.abilityms.timeout_unit_t
 bool EnterpriseConnManager::ExecuteCallback(const std::string& bundleName,
     const std::string& abilityName, int32_t userId, std::shared_ptr<ICallbackStrategy> strategy)
 {
+    EDMLOGI("EnterpriseConnManager::ExecuteCallback bundle=%{public}s ability=%{public}s userId=%{public}d",
+        bundleName.c_str(), abilityName.c_str(), userId);
     if (strategy == nullptr) { // LCOV_EXCL_BR_LINE
         EDMLOGE("ExecuteCallback: strategy is nullptr");
         return false;
