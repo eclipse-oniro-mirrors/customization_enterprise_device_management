@@ -55,4 +55,5 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 31] void GetAdminInfos([out] List<sharedptr<Want>> wants);
     [ipccode 33] void IsSelfSuperAdmin([out] boolean isSuper);
     [ipccode 34] void NotifyUnmountExternalStorageDeviceInfo([in] ExternalStorageDeviceInfo deviceInfo);
+    [ipccode 35] void IsFeatureSupported([in] int feature, [out] boolean supported);
 }

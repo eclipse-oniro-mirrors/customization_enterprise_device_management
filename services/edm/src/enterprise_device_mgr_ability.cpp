@@ -15,10 +15,12 @@
 
 #include "enterprise_device_mgr_ability.h"
 
+#include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <string_ex.h>
 #include <thread>
+#include <vector>
 
 #include "ability_controller.h"
 #include "ability_controller_factory.h"
@@ -67,6 +69,7 @@
 #include "func_code_utils.h"
 #include "hisysevent_adapter.h"
 #include "language_manager.h"
+#include "managed_feature.h"
 #include "notification_manager.h"
 #include "plugin_policy_reader.h"
 #include "policy_type.h"
@@ -118,6 +121,15 @@ const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 
 const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
+
+const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
+#if defined(FEATURE_PC_ONLY)
+    static_cast<int32_t>(ManagedFeature::LOCAL_HOTA_DOMAIN),
+    static_cast<int32_t>(ManagedFeature::USER_EXTEND_CREDENTIAL),
+    static_cast<int32_t>(ManagedFeature::DEVICE_SECURITY_LEVEL),
+    static_cast<int32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY),
+#endif
+};
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
 
@@ -1543,6 +1555,14 @@ ErrCode EnterpriseDeviceMgrAbility::IsSelfSuperAdmin(bool &isSuper)
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
     isSuper = AdminManager::GetInstance()->IsSuperAdmin(callingBundleName);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::IsFeatureSupported(int32_t feature, bool &supported)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::IsFeatureSupported feature %{public}d", feature);
+    supported = std::find(FEATURE_SUPPORTED_LIST.begin(), FEATURE_SUPPORTED_LIST.end(), feature)
+        != FEATURE_SUPPORTED_LIST.end();
     return ERR_OK;
 }
 

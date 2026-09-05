@@ -16,6 +16,8 @@
 #ifndef INTERFACES_KITS_COMMON_MANAGER_INCLUDE_COMMON_MANAGER_ADDON_H
 #define INTERFACES_KITS_COMMON_MANAGER_INCLUDE_COMMON_MANAGER_ADDON_H
 
+#include "common_manager_proxy.h"
+#include "managed_feature.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -33,6 +35,8 @@ private:
     static void CreateManagedPolicyTypeObject(napi_env env, napi_value value);
     static void CreateResultObject(napi_env env, napi_value value);
     static void CreateStartupSceneObject(napi_env env, napi_value value);
+    static void CreateManagedFeatureObject(napi_env env, napi_value value);
+    static napi_value IsFeatureSupported(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
