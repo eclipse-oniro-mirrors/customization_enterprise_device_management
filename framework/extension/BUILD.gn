@@ -39,7 +39,6 @@ ohos_shared_library("enterprise_admin_extension") {
     "../../common/config:coverage_flags",
   ]
 
-  version_script = "libenterprise_admin_extension.map"
 
   public_configs = [ ":enterprise_admin_public_config" ]
 
@@ -94,6 +93,7 @@ ohos_shared_library("enterprise_admin_extension") {
 }
 
 ohos_shared_library("enterprise_admin_extension_module") {
+  version_script = "libenterprise_admin_extension_module.map"
   include_dirs = [ 
     "include",
     "../../common/native/include"

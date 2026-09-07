@@ -22,6 +22,7 @@ config("edm_commom_public_configs") {
 }
 
 ohos_shared_library("edm_commom") {
+  version_script = "libedm_commom.map"
   sources = [
     "./src/bundle_manager_utils.cpp",
     "./src/edm_data_ability_utils.cpp",

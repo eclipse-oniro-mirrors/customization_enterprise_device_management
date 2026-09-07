@@ -19,6 +19,7 @@ config("edm_external_adapters_public_configs") {
 }
 
 ohos_shared_library("edm_external_adapters") {
+  version_script = "libedm_external_adapters.map"
   sources = [
     "./src/edm_access_token_manager_impl.cpp",
     "./src/edm_app_manager_impl.cpp",

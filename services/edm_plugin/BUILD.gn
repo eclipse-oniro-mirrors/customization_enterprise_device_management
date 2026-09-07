@@ -56,6 +56,7 @@ config("edm_plugin_config") {
 }
 
 ohos_shared_library("device_core_plugin") {
+  version_script = "libedm_plugin.map"
   sources = [
     "./src/utils/installer_callback.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
@@ -317,6 +318,7 @@ ohos_shared_library("device_core_plugin") {
 }
 
 ohos_shared_library("communication_plugin") {
+  version_script = "libedm_plugin.map"
   sources = []
 
   public_configs = [
@@ -574,6 +576,7 @@ ohos_shared_library("communication_plugin") {
 }
 
 ohos_shared_library("sys_service_plugin") {
+  version_script = "libedm_plugin.map"
   sources = []
   public_configs = [
     ":edm_plugin_config",
@@ -733,6 +736,7 @@ ohos_shared_library("sys_service_plugin") {
 }
 
 ohos_shared_library("need_extra_plugin") {
+  version_script = "libedm_plugin.map"
   sources = [
     "./src/utils/operate_device_param_serializer.cpp",
     "./src/utils/uninstall_param_serializer.cpp",
@@ -865,6 +869,7 @@ ohos_shared_library("need_extra_plugin") {
 }
 
 ohos_shared_library("watermark_plugin") {
+  version_script = "libedm_plugin.map"
   sources = [
     "./src/device_settings/set_screen_watermark_image_plugin.cpp",
   ]
