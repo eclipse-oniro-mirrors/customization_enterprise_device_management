@@ -17,6 +17,7 @@
 
 #include <sstream>
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "napi_edm_common.h"
 #include "napi_edm_error.h"
@@ -193,6 +194,49 @@ static bool UserIdArgToData(napi_env env, napi_value *argv, const AddonMethodSig
     return true;
 }
 
+static bool UserIdArgToDataNew(napi_env env, napi_value *argv, const AddonMethodSign &methodSign,
+    MessageParcel &data, std::string &errorStr)
+{
+    auto it = std::find(methodSign.argsType.begin(), methodSign.argsType.end(), EdmAddonCommonType::USERID);
+    if (it != methodSign.argsType.end()) {
+        int32_t argvIndex = it - methodSign.argsType.begin();
+        uint32_t userIdValue = 0;
+        bool isUint = ParseUint(env, userIdValue, argv[argvIndex]);
+        if (!isUint) {
+            std::ostringstream errorMsg;
+            errorMsg << "The " << argvIndex << "th parameter must be number.";
+            errorStr = errorMsg.str();
+            return false;
+        }
+        data.WriteInt32(userIdValue);
+    } else {
+        data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    }
+    return true;
+}
+
+static void QueryPolicyArgToData(napi_env env, napi_value *argv, size_t argc,
+    const AddonMethodSign &methodSign, MessageParcel &data)
+{
+    auto qpIt = std::find(methodSign.argsType.begin(), methodSign.argsType.end(),
+        EdmAddonCommonType::QUERY_POLICY);
+    if (qpIt == methodSign.argsType.end()) {
+        return;
+    }
+    int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
+    size_t totalParamCount = methodSign.argsType.size();
+    if (argc >= totalParamCount) {
+        int32_t argvIndex = static_cast<int32_t>(totalParamCount) - 1;
+        int32_t parsedValue = 0;
+        if (ParseInt(env, parsedValue, argv[argvIndex]) &&
+            (parsedValue == static_cast<int32_t>(QueryPolicy::SELF) ||
+             parsedValue == static_cast<int32_t>(QueryPolicy::ALL))) {
+            queryPolicy = parsedValue;
+        }
+    }
+    data.WriteInt32(queryPolicy);
+}
+
 static std::string EdmAddonCommonType2String(EdmAddonCommonType argType)
 {
     switch (argType) {
@@ -321,6 +365,50 @@ napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMeth
         return nullptr;
     }
     EDMLOGI("AddonMethodAdapter %{public}s JsObjectToData exec success.", methodSign.name.c_str());
+    addonData->policyCode = methodSign.policyCode;
+    return result;
+}
+
+napi_value JsObjectToDataNew(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
+    AdapterAddonData *addonData)
+{
+    napi_status status;
+    size_t argc = ARGS_SIZE_FIVE;
+    napi_value argv[ARGS_SIZE_FIVE];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    size_t minSize = methodSign.argsType.size() - methodSign.defaultArgSize;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= minSize, "parameter count error", ErrcodeType::NUMBER);
+    EDMLOGI("JsObjectToDataNew argc:%{public}zu", argc);
+    if (!methodSign.argsType.empty() && !methodSign.argsConvert.empty() &&
+        methodSign.argsType.size() != methodSign.argsConvert.size()) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    addonData->data.WriteInterfaceToken(DESCRIPTOR);
+
+    std::string errorStr;
+    bool convertRes = UserIdArgToDataNew(env, argv, methodSign, addonData->data, errorStr);
+    if (!convertRes) {
+        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, errorStr, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    QueryPolicyArgToData(env, argv, argc, methodSign, addonData->data);
+
+    napi_value errorRes = JsParamsToData(env, argv, argc, methodSign, addonData->data);
+    if (errorRes != nullptr) {
+        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, "parameter convert error",
+            ErrcodeType::NUMBER));
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    status = napi_get_undefined(env, &result);
+    if (status != napi_ok) {
+        EDMLOGE("JsObjectToDataNew napi_get_undefined failed, status=%{public}d", status);
+        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, errorStr, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    EDMLOGI("JsObjectToDataNew %{public}s exec success.", methodSign.name.c_str());
     addonData->policyCode = methodSign.policyCode;
     return result;
 }

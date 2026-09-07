@@ -28,9 +28,9 @@ namespace EDM {
  * +-----+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
  * | Bit |31|30|29|28|27|26|25|24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|09|08|07|06|05|04|03|02|01|00|
  * +-----+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
- * |Field|       Reserved        |SystemFlag |                                 Code                      |
+ * |Field|       Reserved        |NewFlag|SystemFlag |                                 Code              |
  * +-----+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
- * |Field|       Reserved        |PolicyFlag |OperateType|  PolicyCode                                   |
+ * |Field|       Reserved        |NewFlag|PolicyFlag |OperateType|  PolicyCode                           |
  * +-----+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
  */
 
@@ -47,13 +47,16 @@ enum class FuncOperateType {
     UNKNOWN = 0xF,
 };
 
-#define FUNC_TO_FLAG(CODE) (((CODE) & 0x00F00000) >> 20)
+#define FUNC_TO_FLAG(CODE) (((CODE) & 0x00300000) >> 20)
 #define FUNC_TO_OPERATE(CODE) (((CODE) & 0x000F0000) >> 16)
 #define FUNC_TO_POLICY(CODE) (((CODE) & 0x0000FFFF))
-#define SERVICE_FLAG(CODE) ((((CODE) & 0x00F00000) >> 20) == 0)
-#define POLICY_FLAG(CODE) ((((CODE) & 0x00F00000) >> 20) == 1)
+#define FUNC_TO_NEW_FLAG(CODE) (((CODE) >> 22) & 1)
+#define SERVICE_FLAG(CODE) ((((CODE) & 0x00300000) >> 20) == 0)
+#define POLICY_FLAG(CODE) ((((CODE) & 0x00300000) >> 20) == 1)
+#define IS_NEW_INTERFACE(CODE) (FUNC_TO_NEW_FLAG(CODE) == 1)
 #define CREATE_FUNC_CODE(FLAG, OPERATE_TYPE, POLICY) (((FLAG) << 20) | ((OPERATE_TYPE) << 16) | (POLICY))
 #define POLICY_FUNC_CODE(OPERATE_TYPE, POLICY) CREATE_FUNC_CODE(1, OPERATE_TYPE, POLICY)
+#define POLICY_FUNC_CODE_NEW(OPERATE_TYPE, POLICY) ((1 << 22) | (1 << 20) | ((OPERATE_TYPE) << 16) | (POLICY))
 } // namespace EDM
 } // namespace OHOS
 #endif // COMMON_NATIVE_INCLUDE_EDM_FUNC_CODE_H

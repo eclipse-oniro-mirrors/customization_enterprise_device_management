@@ -37,6 +37,10 @@ public:
         MessageParcel &reply, int32_t userId) = 0;
     virtual ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         int32_t userId, int32_t hasUserId = 1) = 0;
+    virtual ErrCode HandleDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) = 0;
+    virtual ErrCode GetDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) = 0;
     virtual ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply,
         int32_t userId) = 0;
 };

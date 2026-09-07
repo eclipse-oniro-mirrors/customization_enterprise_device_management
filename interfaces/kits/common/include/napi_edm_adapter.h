@@ -39,6 +39,7 @@ enum class EdmAddonCommonType {
     INT32 = 8,
     INT64 = 9,
     ARRAY_INT32 = 10,
+    QUERY_POLICY = 11,
     CUSTOM = 100,
 };
 
@@ -89,6 +90,9 @@ struct AdapterAddonData : public AsyncCallbackInfo {
 
 napi_value JsObjectToData(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
     AdapterAddonData *addonData, bool isAsync = false);
+
+napi_value JsObjectToDataNew(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
+    AdapterAddonData *addonData);
 
 napi_value AddonMethodAdapter(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
     napi_async_execute_callback execute, napi_async_complete_callback complete);

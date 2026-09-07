@@ -55,6 +55,8 @@ public:
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data);
     int32_t HandleDevicePolicy(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
+    int32_t HandleDevicePolicyNew(int32_t policyCode, MessageParcel &data);
+    int32_t HandleDevicePolicyNew(int32_t policyCode, MessageParcel &data, MessageParcel &reply);
     ErrCode AuthorizeAdmin(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
     ErrCode GetEnterpriseManagedTips(std::string &tips);
@@ -91,6 +93,7 @@ public:
         int32_t userId = DEFAULT_USER_ID);
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
+    bool GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
     bool IsEdmExtEnabled();
     bool CheckDataInEdmDisabled(MessageParcel &data);

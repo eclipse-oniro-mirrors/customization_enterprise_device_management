@@ -81,6 +81,9 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
         reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
         return ERR_OK;
     }
+    if (IS_NEW_INTERFACE(code)) {
+        return HandleNewInterfacePolicy(code, data, reply);
+    }
     if (POLICY_FLAG(code)) {
         EDMLOGD("POLICY_FLAG(code:%{public}x)\n", code);
         int32_t hasUserId = 0;
@@ -153,6 +156,35 @@ void EnterpriseDeviceMgrStub::ReportFuncEvent(uint32_t code)
     std::uint32_t ipcCode = FuncCodeUtils::GetPolicyCode(code);
     std::string apiNameParam = std::to_string(ipcCode);
     HiSysEventAdapter::ReportEdmEvent(ReportType::EDM_FUNC_EVENT, apiNameParam);
+}
+
+int32_t EnterpriseDeviceMgrStub::HandleNewInterfacePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply)
+{
+    int32_t userId = 0;
+    data.ReadInt32(userId);
+    if (FUNC_TO_OPERATE(code) == static_cast<int>(FuncOperateType::GET)) {
+        EDMLOGD("GetDevicePolicyInnerNew");
+        return GetDevicePolicyInnerNew(code, data, reply, userId);
+    }
+    EDMLOGD("HandleDevicePolicyInnerNew");
+    return HandleDevicePolicyInnerNew(code, data, reply, userId);
+}
+
+ErrCode EnterpriseDeviceMgrStub::HandleDevicePolicyInnerNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    ErrCode errCode = HandleDevicePolicyNew(code, data, reply, userId);
+    reply.WriteInt32(errCode);
+    ReportFuncEvent(code);
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrStub::GetDevicePolicyInnerNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    ErrCode errCode = GetDevicePolicyNew(code, data, reply, userId);
+    reply.WriteInt32(errCode);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS
