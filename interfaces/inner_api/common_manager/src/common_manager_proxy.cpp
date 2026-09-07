@@ -15,7 +15,6 @@
 
 #include "common_manager_proxy.h"
 
-#include "edm_errors.h"
 #include "edm_log.h"
 #include "enterprise_device_mgr_proxy.h"
 
@@ -37,23 +36,7 @@ std::shared_ptr<CommonManagerProxy> CommonManagerProxy::GetCommonManagerProxy()
 bool CommonManagerProxy::IsFeatureSupported(int32_t feature)
 {
     EDMLOGI("CommonManagerProxy::IsFeatureSupported feature %{public}d", feature);
-    sptr<IRemoteObject> remote = EnterpriseDeviceMgrProxy::GetInstance()->GetEdmRemoteObject();
-    if (remote == nullptr) {
-        EDMLOGE("CommonManagerProxy::IsFeatureSupported remote is null");
-        return false;
-    }
-    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
-    if (mgrService == nullptr) {
-        EDMLOGE("CommonManagerProxy::IsFeatureSupported mgrService is null");
-        return false;
-    }
-    bool supported = false;
-    ErrCode ret = mgrService->IsFeatureSupported(feature, supported);
-    if (FAILED(ret)) {
-        EDMLOGE("CommonManagerProxy::IsFeatureSupported call fail. %{public}d", ret);
-        return false;
-    }
-    return supported;
+    return EnterpriseDeviceMgrProxy::GetInstance()->IsFeatureSupported(feature);
 }
 } // namespace EDM
 } // namespace OHOS
