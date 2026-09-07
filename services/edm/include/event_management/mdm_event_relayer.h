@@ -28,6 +28,8 @@
 
 namespace OHOS {
 namespace EDM {
+class ICallbackStrategy;
+
 class MdmEventRelayer : public IMdmEventRelayer {
 public:
     static MdmEventRelayer &GetInstance();
@@ -39,7 +41,7 @@ public:
     void RestoreAppLifecycleSubscriptions();
 
 private:
-    using StrategyFactory = std::function<void(const EdmEventData &)>;
+    using StrategyFactory = std::function<std::shared_ptr<ICallbackStrategy>(const EdmEventData &)>;
 
     MdmEventRelayer();
     void RegisterStrategyFactories();
