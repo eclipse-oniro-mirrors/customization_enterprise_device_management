@@ -1926,13 +1926,12 @@ napi_value ApplicationManagerAddon::PublishFormToDesktop(napi_env env, napi_call
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "PublishFormToDesktop";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.argsConvert = {nullptr, convertFormInfo2Data};
-    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_23;
+    addonMethodSign.argsConvert = {convertFormInfo2Data};
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }

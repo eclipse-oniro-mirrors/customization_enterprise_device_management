@@ -817,10 +817,10 @@ int32_t ApplicationManagerProxy::PublishFormToDesktop(MessageParcel &data, std::
 {
     EDMLOGI("ApplicationManagerProxy::PublishFormToDesktop");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP);
     MessageParcel reply;
-    int32_t ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    int32_t ret = proxy->HandleDevicePolicyNew(funcCode, data, reply);
     if (SUCCEEDED(ret)) {
         formId = reply.ReadString();
     }
