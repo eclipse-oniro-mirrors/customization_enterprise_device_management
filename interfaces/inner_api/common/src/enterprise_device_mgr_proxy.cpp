@@ -377,6 +377,35 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicy(int32_t policyCode, Message
     return ret;
 }
 
+int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicyNew(int32_t policyCode, MessageParcel &data)
+{
+    MessageParcel reply;
+    return HandleDevicePolicyNew(policyCode, data, reply);
+}
+
+int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicyNew(int32_t policyCode, MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::HandleDevicePolicyNew");
+    if (!IsEdmExtEnabled() && !IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    HistogramsReport::ReportBoolean(policyCode);
+    MessageOption option;
+    EDMLOGD("EnterpriseDeviceMgrProxy::HandleDevicePolicyNew::sendRequest %{public}d", policyCode);
+    ErrCode res = remote->SendRequest(policyCode, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:HandleDevicePolicyNew send request fail. %{public}d", res);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    return ret;
+}
+
 ErrCode EnterpriseDeviceMgrProxy::AuthorizeAdmin(AppExecFwk::ElementName &admin, std::string &bundleName)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::AuthorizeAdmin");
@@ -620,6 +649,36 @@ bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, Me
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);
     if (FAILED(res)) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicy send request fail.");
+        return false;
+    }
+    return true;
+}
+
+bool EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply)
+{
+    if (policyCode == EdmInterfaceCode::PASSWORD_POLICY) {
+        if (!IsEdmExtEnabled() && !IsEdmEnabled()) {
+            reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
+            return false;
+        }
+    } else if (!IsEdmEnabled()) {
+        reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
+        return false;
+    }
+    if (policyCode < 0) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew invalid policyCode:%{public}d", policyCode);
+        return false;
+    }
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, (std::uint32_t)policyCode);
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return false;
+    }
+    MessageOption option;
+    ErrCode res = remote->SendRequest(funcCode, data, reply, option);
+    if (FAILED(res)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew send request fail.");
         return false;
     }
     return true;

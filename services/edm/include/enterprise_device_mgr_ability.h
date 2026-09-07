@@ -93,6 +93,10 @@ public:
         int32_t userId) override;
     ErrCode GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
         int32_t hasUserId = 1) override;
+    ErrCode HandleDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override;
+    ErrCode GetDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override;
     ErrCode CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId)
         override;
     ErrCode ReportAgInstallStatus(const std::string &bundleName,

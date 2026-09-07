@@ -45,6 +45,7 @@
 #ifdef MOBILE_DATA_ENABLE
 #include "edm_cellular_data_manager_impl.h"
 #endif
+#include "edm_bundle_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_errors.h"
@@ -72,7 +73,9 @@
 #include "managed_feature.h"
 #include "notification_manager.h"
 #include "plugin_policy_reader.h"
+#include "policy_manager.h"
 #include "policy_type.h"
+#include "array_string_serializer.h"
 
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
 #include "map_string_serializer.h"
@@ -1746,6 +1749,67 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     }
     EDMLOGI("policy query get finished");
     return errCode;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
+    if (policyName.empty()) {
+        EDMLOGW("HandleDevicePolicyNew: get plugin failed, code:%{public}d", code);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    std::string bundleName;
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    int uid = IPCSkeleton::GetCallingUid();
+    bundleMgr->GetNameForUid(uid, bundleName);
+    EDMLOGI("HandleDevicePolicyNew: policyName=%{public}s, bundleName=%{public}s", policyName.c_str(),
+        bundleName.c_str());
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, bundleName, data, reply, userId);
+    std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
+    if (ret == ERR_OK && enterpriseConfigEnable == "false") {
+        system::SetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "true");
+    }
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ret));
+    SecurityReport::ReportSecurityInfo(bundleName, std::string(), info, false);
+    return ret;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    int32_t userId)
+{
+    bool isUserExist = false;
+    GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
+    if (!isUserExist) {
+        EDMLOGW("GetDevicePolicyNew: IsOsAccountExists failed");
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
+    data.ReadInt32(queryPolicy);
+    std::string bundleName;
+    if (queryPolicy == static_cast<int32_t>(QueryPolicy::SELF)) {
+        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+        int uid = IPCSkeleton::GetCallingUid();
+        bundleMgr->GetNameForUid(uid, bundleName);
+    }
+    std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
+    if (policyName.empty()) {
+        EDMLOGW("GetDevicePolicyNew: get plugin failed, code:%{public}d", code);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    EDMLOGI("GetDevicePolicyNew: policyName=%{public}s, queryPolicy=%{public}d, bundleName=%{public}s",
+        policyName.c_str(), queryPolicy, bundleName.c_str());
+
+    std::string policyValue;
+    PolicyManager::GetInstance()->GetPolicy(bundleName, policyName, policyValue, userId);
+    reply.WriteInt32(ERR_OK);
+    std::vector<std::string> policyArray;
+    ArrayStringSerializer::GetInstance()->Deserialize(policyValue, policyArray);
+    reply.WriteStringVector(policyArray);
+
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ERR_OK));
+    SecurityReport::ReportSecurityInfo(bundleName, std::string(), info, true);
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableSelfDeviceAdmin(const AppExecFwk::ElementName &admin,

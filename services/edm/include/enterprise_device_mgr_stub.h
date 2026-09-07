@@ -43,6 +43,10 @@ private:
     ErrCode HandleDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
     ErrCode GetDevicePolicyInner(uint32_t code, MessageParcel &data, MessageParcel &reply,
         int32_t userId, int32_t hasUserId = 1);
+    ErrCode HandleDevicePolicyInnerNew(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode GetDevicePolicyInnerNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        int32_t userId);
+    int32_t HandleNewInterfacePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply);
     ErrCode CheckAndGetAdminProvisionInfoInner(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t
         userId);
     #ifdef EDM_SUPPORT_ALL_ENABLE

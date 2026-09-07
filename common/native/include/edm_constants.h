@@ -316,6 +316,11 @@ namespace EdmConstants {
     }
 } // namespace EdmConstants
 
+enum class QueryPolicy : int32_t {
+    SELF = 0,
+    ALL = 1,
+};
+
 enum class TimerOperationType : int32_t {
     CREATE = 0,
     START = 1,
