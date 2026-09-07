@@ -18,8 +18,12 @@
 #undef private
 
 #include <gtest/gtest.h>
+#include <memory>
 #include <string>
 
+#include "edm_event_data.h"
+#include "event_subscription_manager.h"
+#include "icallback_strategy.h"
 #include "managed_event.h"
 
 using namespace testing;
@@ -150,6 +154,101 @@ HWTEST_F(MdmEventRelayerTest, OnAdminRemoved_ClearsAllEvents, TestSize.Level1)
     relayer_->OnAdminRemoved(admin, userId);
 
     EXPECT_EQ(relayer_->adminSubscriptionHandles_.count(key), 0u);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForBootCompleted
+ * @tc.desc: Test BOOT_COMPLETED factory returns a non-null strategy (not dispatches to admins).
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_BootCompleted, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::BOOT_COMPLETED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED)};
+    auto strategy = it->second(data);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsNullptrForBundleUpdatedWrongType
+ * @tc.desc: Test BUNDLE_UPDATED factory returns nullptr when type is not BUNDLE_UPDATE_EVENT.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsNullptr_BundleUpdatedWrongType, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::BUNDLE_UPDATED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED)};
+    auto strategy = it->second(data);
+    EXPECT_EQ(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsNullptrForStartupGuideNoFlags
+ * @tc.desc: Test STARTUP_GUIDE_COMPLETED factory returns nullptr when no startup flags are set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsNullptr_StartupGuideNoFlags, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::STARTUP_GUIDE_COMPLETED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED)};
+    auto strategy = it->second(data);
+    EXPECT_EQ(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForSystemUpdate
+ * @tc.desc: Test SYSTEM_UPDATE factory returns a non-null strategy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_SystemUpdate, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::SYSTEM_UPDATE);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE)};
+    auto strategy = it->second(data);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_MultipleAdminsEachDispatchedOnce
+ * @tc.desc: Test that when N admins subscribe to the same event, the factory is invoked
+ *           exactly N times (once per admin), not N*N. This verifies the direct-dispatch
+ *           fix: each subscription callback dispatches to only its own admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, MultipleAdmins_EachDispatchedOnce, TestSize.Level1)
+{
+    auto originalFactory = relayer_->strategyFactories_[ManagedEvent::BUNDLE_ADDED];
+    int strategyCreated = 0;
+    relayer_->strategyFactories_[ManagedEvent::BUNDLE_ADDED] =
+        [&strategyCreated](const EdmEventData &) -> std::shared_ptr<ICallbackStrategy> {
+            strategyCreated++;
+            return nullptr;
+        };
+
+    std::string adminA = "com.test.directA_" + std::to_string(std::rand());
+    std::string adminB = "com.test.directB_" + std::to_string(std::rand());
+    int32_t userId = 100;
+
+    relayer_->OnAdminSubscribe(adminA, userId, ManagedEvent::BUNDLE_ADDED);
+    relayer_->OnAdminSubscribe(adminB, userId, ManagedEvent::BUNDLE_ADDED);
+
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+    EventSubscriptionManager::GetInstance().DispatchEvent(data);
+
+    EXPECT_EQ(strategyCreated, 2);
+
+    relayer_->OnAdminUnsubscribe(adminA, userId, ManagedEvent::BUNDLE_ADDED);
+    relayer_->OnAdminUnsubscribe(adminB, userId, ManagedEvent::BUNDLE_ADDED);
+    relayer_->strategyFactories_[ManagedEvent::BUNDLE_ADDED] = originalFactory;
 }
 } // namespace TEST
 } // namespace EDM

@@ -29,22 +29,6 @@ namespace OHOS {
 namespace EDM {
 constexpr int32_t BUNDLE_UPDATE_EVENT = 2;
 
-
-using AdminCallback = std::function<void(const std::string &, const std::string &, int32_t)>;
-
-void DispatchToAdmins(ManagedEvent event, const EdmEventData &data, const AdminCallback &callback)
-{
-    std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> subAdmins;
-    AdminManager::GetInstance()->GetAdminBySubscribeEvent(event, subAdmins);
-    EDMLOGI("DispatchToAdmins event=%{public}u subAdmins size=%{public}zu",
-        static_cast<uint32_t>(event), subAdmins.size());
-    for (auto &[uid, admins] : subAdmins) {
-        for (auto &admin : admins) {
-            callback(admin->adminInfo_.packageName_, admin->adminInfo_.className_, uid);
-        }
-    }
-}
-
 MdmEventRelayer::MdmEventRelayer()
 {
     RegisterStrategyFactories();
@@ -59,82 +43,71 @@ MdmEventRelayer &MdmEventRelayer::GetInstance()
 
 void MdmEventRelayer::RegisterAppLifecycleStrategies()
 {
-    strategyFactories_[ManagedEvent::APP_START] = [](const EdmEventData &data) {
-        DispatchToAdmins(ManagedEvent::APP_START, data,
-            [&data](const std::string &pkg, const std::string &cls, int32_t uid) {
-                auto strategy = std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_START,
-                    data.appProcessData.bundleName);
-                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-            });
+    strategyFactories_[ManagedEvent::APP_START] = [](const EdmEventData &data)
+        -> std::shared_ptr<ICallbackStrategy> {
+        return std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_START,
+            data.appProcessData.bundleName);
     };
-    strategyFactories_[ManagedEvent::APP_STOP] = [](const EdmEventData &data) {
-        DispatchToAdmins(ManagedEvent::APP_STOP, data,
-            [&data](const std::string &pkg, const std::string &cls, int32_t uid) {
-                auto strategy = std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_STOP,
-                    data.appProcessData.bundleName);
-                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-            });
+    strategyFactories_[ManagedEvent::APP_STOP] = [](const EdmEventData &data)
+        -> std::shared_ptr<ICallbackStrategy> {
+        return std::make_shared<AppStrategy>(IEnterpriseAdmin::COMMAND_ON_APP_STOP,
+            data.appProcessData.bundleName);
     };
 }
 
 void MdmEventRelayer::RegisterBundleStrategies()
 {
-    auto makeBundleFactory = [](ManagedEvent event, int32_t command) {
-        return [event, command](const EdmEventData &data) {
+    auto makeBundleFactory = [](int32_t command) {
+        return [command](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
             std::string bundleName = data.commonEventData.GetWant().GetElement().GetBundleName();
             int32_t userId = data.commonEventData.GetWant().GetIntParam(
                 AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
-            DispatchToAdmins(event, data,
-                [bundleName, userId, command](const std::string &pkg, const std::string &cls, int32_t uid) {
-                    auto strategy = std::make_shared<BundleStrategy>(command, bundleName, userId);
-                    DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-                });
+            return std::make_shared<BundleStrategy>(command, bundleName, userId);
         };
     };
     strategyFactories_[ManagedEvent::BUNDLE_ADDED] =
-        makeBundleFactory(ManagedEvent::BUNDLE_ADDED, IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED);
+        makeBundleFactory(IEnterpriseAdmin::COMMAND_ON_BUNDLE_ADDED);
     strategyFactories_[ManagedEvent::BUNDLE_REMOVED] =
-        makeBundleFactory(ManagedEvent::BUNDLE_REMOVED, IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED);
-    strategyFactories_[ManagedEvent::BUNDLE_UPDATED] = [makeBundleFactory](const EdmEventData &data) {
+        makeBundleFactory(IEnterpriseAdmin::COMMAND_ON_BUNDLE_REMOVED);
+    strategyFactories_[ManagedEvent::BUNDLE_UPDATED] = [](const EdmEventData &data)
+        -> std::shared_ptr<ICallbackStrategy> {
         int32_t type = data.commonEventData.GetWant().GetIntParam("type", -1);
         if (type != BUNDLE_UPDATE_EVENT) {
             EDMLOGI("MdmEventRelayer BUNDLE_UPDATED skipped: type=%{public}d", type);
-            return;
+            return nullptr;
         }
-        makeBundleFactory(ManagedEvent::BUNDLE_UPDATED, IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED)(data);
+        std::string bundleName = data.commonEventData.GetWant().GetElement().GetBundleName();
+        int32_t userId = data.commonEventData.GetWant().GetIntParam(
+            AppExecFwk::Constants::USER_ID, AppExecFwk::Constants::INVALID_USERID);
+        return std::make_shared<BundleStrategy>(IEnterpriseAdmin::COMMAND_ON_BUNDLE_UPDATED,
+            bundleName, userId);
     };
 }
 
 void MdmEventRelayer::RegisterAccountStrategies()
 {
-    auto makeAccountFactory = [](ManagedEvent event, int32_t command) {
-        return [event, command](const EdmEventData &data) {
+    auto makeAccountFactory = [](int32_t command) {
+        return [command](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
             int32_t accountId = data.commonEventData.GetCode();
-            DispatchToAdmins(event, data,
-                [accountId, command](const std::string &pkg, const std::string &cls, int32_t uid) {
-                    auto strategy = std::make_shared<AccountStrategy>(command, accountId);
-                    DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-                });
+            return std::make_shared<AccountStrategy>(command, accountId);
         };
     };
     strategyFactories_[ManagedEvent::USER_ADDED] =
-        makeAccountFactory(ManagedEvent::USER_ADDED, IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED);
+        makeAccountFactory(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED);
     strategyFactories_[ManagedEvent::USER_SWITCHED] =
-        makeAccountFactory(ManagedEvent::USER_SWITCHED, IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED);
+        makeAccountFactory(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED);
     strategyFactories_[ManagedEvent::USER_REMOVED] =
-        makeAccountFactory(ManagedEvent::USER_REMOVED, IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED);
+        makeAccountFactory(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED);
 }
 
 void MdmEventRelayer::RegisterDeviceStrategies()
 {
-    strategyFactories_[ManagedEvent::BOOT_COMPLETED] = [](const EdmEventData &data) {
-        DispatchToAdmins(ManagedEvent::BOOT_COMPLETED, data,
-            [](const std::string &pkg, const std::string &cls, int32_t uid) {
-                auto strategy = std::make_shared<DeviceBootCompletedStrategy>();
-                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-            });
+    strategyFactories_[ManagedEvent::BOOT_COMPLETED] = [](const EdmEventData &data)
+        -> std::shared_ptr<ICallbackStrategy> {
+        return std::make_shared<DeviceBootCompletedStrategy>();
     };
-    strategyFactories_[ManagedEvent::STARTUP_GUIDE_COMPLETED] = [](const EdmEventData &data) {
+    strategyFactories_[ManagedEvent::STARTUP_GUIDE_COMPLETED] = [](const EdmEventData &data)
+        -> std::shared_ptr<ICallbackStrategy> {
         bool isOtaFinish = data.commonEventData.GetWant().GetBoolParam("ota", false);
         bool isFirstBoot = data.commonEventData.GetWant().GetBoolParam("firstBoot", false);
         bool isSubUserScene = data.commonEventData.GetWant().GetBoolParam("subUserScene", false);
@@ -149,39 +122,25 @@ void MdmEventRelayer::RegisterDeviceStrategies()
             type |= 1 << static_cast<uint32_t>(StartupScene::DEVICE_PROVISION);
         }
         if (type == 0) {
-            return;
+            return nullptr;
         }
-        DispatchToAdmins(ManagedEvent::STARTUP_GUIDE_COMPLETED, data,
-            [type](const std::string &pkg, const std::string &cls, int32_t uid) {
-                auto strategy = std::make_shared<StartupGuideCompletedStrategy>(type);
-                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-            });
+        return std::make_shared<StartupGuideCompletedStrategy>(type);
     };
-    strategyFactories_[ManagedEvent::SYSTEM_UPDATE] = [](const EdmEventData &data) {
+    strategyFactories_[ManagedEvent::SYSTEM_UPDATE] = [](const EdmEventData &data)
+        -> std::shared_ptr<ICallbackStrategy> {
         UpdateInfo updateInfo;
         updateInfo.version = data.commonEventData.GetWant().GetStringParam("version");
         updateInfo.firstReceivedTime = data.commonEventData.GetWant().GetLongParam("firstReceivedTime", 0);
         updateInfo.packageType = data.commonEventData.GetWant().GetStringParam("packageType");
-        DispatchToAdmins(ManagedEvent::SYSTEM_UPDATE, data,
-            [updateInfo](const std::string &pkg, const std::string &cls, int32_t uid) {
-                auto strategy = std::make_shared<SystemUpdateStrategy>(updateInfo);
-                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-            });
+        return std::make_shared<SystemUpdateStrategy>(updateInfo);
     };
 }
 
 void MdmEventRelayer::RegisterUnmountExternalStorageDeviceStrategies()
 {
-    strategyFactories_[ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE] = [](const EdmEventData &data) {
-        EDMLOGI("MdmEventRelayer::UNMOUNT_EXTERNAL_STORAGE_DEVICE strategy factory invoked");
-        DispatchToAdmins(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE, data,
-            [&data](const std::string &pkg, const std::string &cls, int32_t uid) {
-                EDMLOGI("MdmEventRelayer::UNMOUNT_EXTERNAL_STORAGE_DEVICE dispatch to admin=%{public}s cls=%{public}s",
-                    pkg.c_str(), cls.c_str());
-                auto strategy = std::make_shared<UnmountExternalStorageDeviceStrategy>(
-                    data.externalStorageDeviceInfo);
-                DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(pkg, cls, uid, strategy);
-            });
+    strategyFactories_[ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE] =
+        [](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
+        return std::make_shared<UnmountExternalStorageDeviceStrategy>(data.externalStorageDeviceInfo);
     };
 }
 
@@ -196,6 +155,12 @@ void MdmEventRelayer::RegisterStrategyFactories()
 
 void MdmEventRelayer::OnAdminSubscribe(const std::string &adminName, int32_t userId, ManagedEvent event)
 {
+    std::string className;
+    auto admin = AdminManager::GetInstance()->GetAdminByPkgName(adminName, userId);
+    if (admin != nullptr) {
+        className = admin->adminInfo_.className_;
+    }
+
     std::unique_lock<std::shared_mutex> lock(mutex_);
     std::string key = MakeAdminKey(adminName, userId);
     if (adminSubscriptionHandles_.count(key) && adminSubscriptionHandles_[key].count(event)) {
@@ -212,8 +177,12 @@ void MdmEventRelayer::OnAdminSubscribe(const std::string &adminName, int32_t use
     }
 
     auto &factory = it->second;
-    auto callback = [factory](const EdmEventData &data) {
-        factory(data);
+    auto callback = [factory, adminName, className, userId](const EdmEventData &data) {
+        auto strategy = factory(data);
+        if (strategy != nullptr) {
+            DelayedSingleton<EnterpriseConnManager>::GetInstance()->ExecuteCallback(
+                adminName, className, userId, strategy);
+        }
     };
 
     auto handle = EventSubscriptionManager::GetInstance().Subscribe(
