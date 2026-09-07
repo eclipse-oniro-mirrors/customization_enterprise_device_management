@@ -719,6 +719,28 @@ ErrCode EnterpriseDeviceMgrProxy::IsSelfSuperAdmin(bool &result)
     return mgrService->IsSelfSuperAdmin(result);
 }
 
+bool EnterpriseDeviceMgrProxy::IsFeatureSupported(int32_t feature)
+{
+    EDMLOGI("EnterpriseDeviceMgrProxy::IsFeatureSupported feature %{public}d", feature);
+    bool supported = false;
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        EDMLOGE("EnterpriseDeviceMgrProxy::IsFeatureSupported remote is null");
+        return false;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        EDMLOGE("EnterpriseDeviceMgrProxy::IsFeatureSupported mgrService is null");
+        return false;
+    }
+    ErrCode ret = mgrService->IsFeatureSupported(feature, supported);
+    if (FAILED(ret)) {
+        EDMLOGE("EnterpriseDeviceMgrProxy::IsFeatureSupported call fail. %{public}d", ret);
+        return false;
+    }
+    return supported;
+}
+
 sptr<IRemoteObject> EnterpriseDeviceMgrProxy::LoadAndGetEdmService()
 {
     std::lock_guard<std::mutex> lock(mutexLock_);

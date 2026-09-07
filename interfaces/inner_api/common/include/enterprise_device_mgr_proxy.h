@@ -81,6 +81,7 @@ public:
     void GetEnabledSuperAdmin(std::string &enabledAdmin);
     bool IsSuperAdminExist();
     ErrCode IsSelfSuperAdmin(bool &result);
+    bool IsFeatureSupported(int32_t feature);
     void GetEnabledAdmins(std::vector<std::string> &enabledAdminList);
     int32_t SetPolicyDisabled(const AppExecFwk::ElementName &admin, bool isDisabled, uint32_t policyCode,
         std::string permissionTag = WITHOUT_PERMISSION_TAG);
