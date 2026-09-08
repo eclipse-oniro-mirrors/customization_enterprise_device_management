@@ -124,13 +124,13 @@ HWTEST_F(DomainAccountPolicyTest, TestCheckParameterValidity, TestSize.Level1)
     bool ret = domainAccountPolicyTest->CheckParameterValidity();
     ASSERT_TRUE(ret);
 
-    DomainAccountPolicy domainAccountPolicyInValid1(-2, -2, -2);
+    DomainAccountPolicy domainAccountPolicyInValid1(-2, -2, -2, false);
     ASSERT_FALSE(domainAccountPolicyInValid1.CheckParameterValidity());
-    DomainAccountPolicy domainAccountPolicyInValid2(2, -2, -2);
+    DomainAccountPolicy domainAccountPolicyInValid2(2, -2, -2, false);
     ASSERT_FALSE(domainAccountPolicyInValid2.CheckParameterValidity());
-    DomainAccountPolicy domainAccountPolicyInValid3(-2, 2, -2);
+    DomainAccountPolicy domainAccountPolicyInValid3(-2, 2, -2, false);
     ASSERT_FALSE(domainAccountPolicyInValid3.CheckParameterValidity());
-    DomainAccountPolicy domainAccountPolicyInValid4(-2, -2, 2);
+    DomainAccountPolicy domainAccountPolicyInValid4(-2, -2, 2, false);
     ASSERT_FALSE(domainAccountPolicyInValid4.CheckParameterValidity());
 }
 } // namespace TEST
