@@ -25,9 +25,13 @@
 #include "parameters.h"
 #include "permission_checker.h"
 #include "security_report.h"
+#include "ipc_skeleton.h"
+#include "edm_constants.h"
 
 namespace OHOS {
 namespace EDM {
+
+constexpr const char *WITHOUT_PERMISSION_TAG = "";
 
 IPlugin::ApiType IPolicyQuery::GetApiType()
 {
@@ -118,6 +122,50 @@ ErrCode IPolicyQuery::GetPolicy(std::shared_ptr<PolicyManager> policyManager, ui
     ErrCode getRet = this->QueryPolicy(policyValue, data, reply, userId, isAdminNull);
     ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), reportInfo, true);
+    return getRet;
+}
+
+ErrCode IPolicyQuery::GetPolicyNew(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId, int32_t queryPolicy)
+{
+    EDMLOGW("IPolicyQuery: GetPolicy start");
+    std::string bundleName;
+    std::string abilityName;
+    if (queryPolicy == static_cast<int32_t>(QueryPolicy::SELF)) {
+        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+        int uid = IPCSkeleton::GetCallingUid();
+        bundleMgr->GetNameForUid(uid, bundleName);
+        std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
+            PermissionChecker::GetInstance()->GetCurrentUserId());
+        if (deviceAdmin == nullptr) {
+            return EdmReturnErrCode::ADMIN_INACTIVE;
+        }
+        IPlugin::PermissionType permissionType =
+            PermissionChecker::GetInstance()->AdminTypeToPermissionType(deviceAdmin->GetAdminType());
+        ErrCode ret = PermissionChecker::GetInstance()->CheckHandlePolicyPermission(FuncOperateType::GET,
+            deviceAdmin, this->GetPolicyName(), this->GetPermission(permissionType, WITHOUT_PERMISSION_TAG), userId);
+        if (FAILED(ret)) {
+            return ret;
+        }
+        abilityName = deviceAdmin->adminInfo_.className_;
+    } else {
+        if (!(PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
+            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG)) ||
+            PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
+            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG)))) {
+            EDMLOGE("IPolicyQuery: permission check failed");
+            return EdmReturnErrCode::PERMISSION_DENIED;
+        }
+    }
+
+    std::string policyName = this->GetPolicyName();
+    std::string policyValue;
+    if (this->IsPolicySaved()) {
+        policyManager->GetPolicy(bundleName, policyName, policyValue, userId);
+    }
+    ErrCode getRet = this->QueryPolicy(policyValue, data, reply, userId, queryPolicy);
+    ReportInfo reportInfo = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
+    SecurityReport::ReportSecurityInfo(bundleName, abilityName, reportInfo, true);
     return getRet;
 }
 

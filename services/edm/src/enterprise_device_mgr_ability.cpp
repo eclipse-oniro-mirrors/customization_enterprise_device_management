@@ -1721,6 +1721,76 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
     return ret;
 }
 
+ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
+{
+    std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
+    if (policyName.empty()) {
+        EDMLOGW("HandleDevicePolicyNew: get plugin failed, code:%{public}d", code);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    std::string bundleName;
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    int uid = IPCSkeleton::GetCallingUid();
+    bundleMgr->GetNameForUid(uid, bundleName);
+    EDMLOGI("HandleDevicePolicyNew: policyName=%{public}s, bundleName=%{public}s", policyName.c_str(),
+        bundleName.c_str());
+#ifndef EDM_FUZZ_TEST
+    bool isUserExist = false;
+    GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
+    if (!isUserExist) {
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    ErrCode systemCalling = GetPermissionChecker()->CheckSystemCalling(
+        PluginManager::GetInstance()->GetPluginType(code, FuncOperateType::SET), "");
+    if (FAILED(systemCalling)) {
+        return systemCalling;
+    }
+    EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
+    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+    ErrCode permissionRet = CheckHandleDevicePolicyNewPermission(code, bundleName, policyName, userId);
+    if (FAILED(permissionRet)) {
+        return permissionRet;
+    }
+#endif
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, bundleName, data, reply, userId);
+    std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
+    if (ret == ERR_OK && enterpriseConfigEnable == "false") {
+        system::SetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "true");
+    }
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ret));
+    SecurityReport::ReportSecurityInfo(bundleName, WITHOUT_PERMISSION_TAG, info, false);
+    return ret;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckHandleDevicePolicyNewPermission(uint32_t code,
+    const std::string &bundleName, const std::string &policyName, int32_t userId)
+{
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
+        return ERR_OK;
+    }
+    std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
+        GetCurrentUserId());
+    if (deviceAdmin == nullptr) {
+        EDMLOGE("CheckHandleDevicePolicyNewPermission: %{public}s is not activated", bundleName.c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    int uid = IPCSkeleton::GetCallingUid();
+    if (uid == EdmConstants::EDM_UID) {
+        return ERR_OK;
+    }
+    std::string setPermission = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::SET,
+        GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), WITHOUT_PERMISSION_TAG);
+    EDMLOGD("CheckHandleDevicePolicyNewPermission: GetPermission = %{public}s", setPermission.c_str());
+    ErrCode checkAdminPermission = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::SET,
+        deviceAdmin, policyName, setPermission, userId);
+    if (FAILED(checkAdminPermission)) {
+        return checkAdminPermission;
+    }
+    return ERR_OK;
+}
+
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId, int32_t hasUserId)
 {
@@ -1751,30 +1821,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     return errCode;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    int32_t userId)
-{
-    std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
-    if (policyName.empty()) {
-        EDMLOGW("HandleDevicePolicyNew: get plugin failed, code:%{public}d", code);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
-    std::string bundleName;
-    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    int uid = IPCSkeleton::GetCallingUid();
-    bundleMgr->GetNameForUid(uid, bundleName);
-    EDMLOGI("HandleDevicePolicyNew: policyName=%{public}s, bundleName=%{public}s", policyName.c_str(),
-        bundleName.c_str());
-    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(code, bundleName, data, reply, userId);
-    std::string enterpriseConfigEnable = system::GetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "false");
-    if (ret == ERR_OK && enterpriseConfigEnable == "false") {
-        system::SetParameter(PARAM_EDM_ENTERPRISE_CONFIG_ENABLE, "true");
-    }
-    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ret));
-    SecurityReport::ReportSecurityInfo(bundleName, std::string(), info, false);
-    return ret;
-}
-
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
@@ -1786,30 +1832,18 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
     }
     int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
     data.ReadInt32(queryPolicy);
-    std::string bundleName;
-    if (queryPolicy == static_cast<int32_t>(QueryPolicy::SELF)) {
-        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-        int uid = IPCSkeleton::GetCallingUid();
-        bundleMgr->GetNameForUid(uid, bundleName);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
+    ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCodeNew(policyMgr_, code, data, reply, userId,
+        queryPolicy);
+    if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+        EDMLOGW("GetDevicePolicy: GetPolicyByCode INTERFACE_UNSUPPORTED");
+        return errCode;
     }
-    std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
-    if (policyName.empty()) {
-        EDMLOGW("GetDevicePolicyNew: get plugin failed, code:%{public}d", code);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    if (errCode == ERR_CANNOT_FIND_QUERY_FAILED) {
+        return GetDevicePolicyFromPluginNew(code, data, reply, userId, queryPolicy);
     }
-    EDMLOGI("GetDevicePolicyNew: policyName=%{public}s, queryPolicy=%{public}d, bundleName=%{public}s",
-        policyName.c_str(), queryPolicy, bundleName.c_str());
-
-    std::string policyValue;
-    PolicyManager::GetInstance()->GetPolicy(bundleName, policyName, policyValue, userId);
-    reply.WriteInt32(ERR_OK);
-    std::vector<std::string> policyArray;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyValue, policyArray);
-    reply.WriteStringVector(policyArray);
-
-    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(ERR_OK));
-    SecurityReport::ReportSecurityInfo(bundleName, std::string(), info, true);
-    return ERR_OK;
+    EDMLOGI("policy query get finished");
+    return errCode;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::EnableSelfDeviceAdmin(const AppExecFwk::ElementName &admin,
@@ -1900,6 +1934,51 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
     ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, elementName.GetBundleName(), data, reply, userId);
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(elementName.GetBundleName(), elementName.GetAbilityName(), info, true);
+    return getRet;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId, int32_t queryPolicy)
+{
+    std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
+    if (policyName.empty()) {
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    std::string bundleName;
+    std::string abilityName;
+    if (queryPolicy == static_cast<int32_t>(QueryPolicy::SELF)) {
+        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+        int uid = IPCSkeleton::GetCallingUid();
+        bundleMgr->GetNameForUid(uid, bundleName);
+        std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
+            GetCurrentUserId());
+        if (deviceAdmin == nullptr) {
+            return EdmReturnErrCode::ADMIN_INACTIVE;
+        }
+#ifndef EDM_FUZZ_TEST
+        std::string getPermission = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
+            GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), WITHOUT_PERMISSION_TAG);
+        ErrCode ret = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::GET,
+            deviceAdmin, policyName, getPermission, userId);
+        if (FAILED(ret)) {
+            return ret;
+        }
+#endif
+        abilityName = deviceAdmin->adminInfo_.className_;
+    } else {
+        std::string getPermission = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
+            IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG);
+        std::string getPermissionByod = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
+            IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG);
+        if (!(PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code, getPermission) ||
+            PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code, getPermissionByod))) {
+            EDMLOGE("GetDevicePolicy: permission check failed");
+            return EdmReturnErrCode::PERMISSION_DENIED;
+        }
+    }
+    ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, bundleName, data, reply, userId);
+    ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
+    SecurityReport::ReportSecurityInfo(bundleName, abilityName, info, true);
     return getRet;
 }
 

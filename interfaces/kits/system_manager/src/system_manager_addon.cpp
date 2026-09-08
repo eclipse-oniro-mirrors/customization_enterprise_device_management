@@ -1683,13 +1683,13 @@ void SystemManagerAddon::NativeCreateTimerComplete(napi_env env, napi_status sta
 
 napi_value SystemManagerAddon::addAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_AddAllowedPrinterIPAddresses called");
+    EDMLOGI("NAPI_AddAllowedPrinterIPAddressesForDevice called");
     return AddOrRemoveAllowedPrinterIPAddresses(env, info, FuncOperateType::SET);
 }
 
 napi_value SystemManagerAddon::RemoveAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_RemoveAllowedPrinterIPAddresses called");
+    EDMLOGI("NAPI_RemoveAllowedPrinterIPAddressesForDevice called");
     return AddOrRemoveAllowedPrinterIPAddresses(env, info, FuncOperateType::REMOVE);
 }
 
@@ -1710,15 +1710,14 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
         return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
-    addonMethodSign.name = operateType == FuncOperateType::SET ? "AddAllowedPrinterIPAddresses" :
-        "RemoveAllowedPrinterIPAddresses";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::ARRAY_STRING};
-    addonMethodSign.argsConvert = {nullptr, convertIpList2Data};
+    addonMethodSign.name = operateType == FuncOperateType::SET ?
+        "AddAllowedPrinterIPAddressesForDevice" : "RemoveAllowedPrinterIPAddressesForDevice";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING};
+    addonMethodSign.argsConvert = {convertIpList2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_26;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1738,17 +1737,16 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
 
 napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetAllowedPrinterIPAddresses called");
+    EDMLOGI("NAPI_GetAllowedPrinterIPAddressesForDevice called");
 #ifdef FEATURE_PC_ONLY
     AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "GetAllowedPrinterIPAddresses";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL};
-    addonMethodSign.argsConvert = {nullptr};
+    addonMethodSign.name = "GetAllowedPrinterIPAddressesForDevice";
+    addonMethodSign.argsType = {EdmAddonCommonType::QUERY_POLICY};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
-    addonMethodSign.apiVersionTag = EdmConstants::PERMISSION_TAG_VERSION_26;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.defaultArgSize = 1;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1791,34 +1789,31 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddressesForAccount(na
 {
     EDMLOGI("NAPI_AddOrRemoveAllowedPrinterIPAddressesForAccount called");
 #ifdef FEATURE_PC_ONLY
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, hasAdmin, "The first parameter must be want.");
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter elementName error");
-    std::vector<std::string> ipLists;
-    int32_t ret = EdmParsePrinterIpArray(env, ipLists, argv[ARR_INDEX_ONE]);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
-        EDMLOGE("EdmParsePrinterIpArray failed!");
+    auto convertIpList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        std::vector<std::string> ipList;
+        int32_t ret = EdmParsePrinterIpArray(env, ipList, argv);
+        if (FAILED(ret)) {
+            napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+            EDMLOGE("EdmParsePrinterIpArray failed!");
+        }
+        data.WriteStringVector(ipList);
+        return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = operateType == FuncOperateType::SET ?
+        "AddAllowedPrinterIPAddressesForAccount" : "RemoveAllowedPrinterIPAddressesForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {convertIpList2Data, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
     }
-    int32_t userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(HAS_USERID);
-    parcelData.WriteInt32(userId);
-    parcelData.WriteParcelable(&elementName);
-    parcelData.WriteString(EdmConstants::PERMISSION_TAG_VERSION_26);
-    parcelData.WriteStringVector(ipLists);
-    ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddressesForAccount(
-        parcelData, operateType);
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddressesForAccount(
+        adapterAddonData.data, operateType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("NAPI_AddOrRemoveAllowedPrinterIPAddressesForAccount failed!");
@@ -1835,32 +1830,20 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
 {
     EDMLOGI("NAPI_GetAllowedPrinterIPAddressesForAccount called");
 #ifdef FEATURE_PC_ONLY
-    size_t argc = ARGS_SIZE_ONE;
-    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, argc >= ARGS_SIZE_ONE, "parameter count error");
-    MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    int32_t userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    parcelData.WriteInt32(HAS_USERID);
-    parcelData.WriteInt32(userId);
-    parcelData.WriteString(EdmConstants::PERMISSION_TAG_VERSION_26);
-    bool hasAdmin = false;
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR_AFTER_API24(env, CheckGetPolicyAdminParam(env, argv[ARR_INDEX_ZERO], hasAdmin,
-        elementName), "param admin need be null or want");
-    if (!hasAdmin) {
-        parcelData.WriteInt32(WITHOUT_ADMIN);
-    } else {
-        parcelData.WriteInt32(HAS_ADMIN);
-        parcelData.WriteParcelable(&elementName);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllowedPrinterIPAddressesForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID, EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.defaultArgSize = 1;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
     }
     std::vector<std::string> ipAddresses;
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetAllowedPrinterIPAddressesForAccount(
-        parcelData, ipAddresses);
+        adapterAddonData.data, ipAddresses);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;

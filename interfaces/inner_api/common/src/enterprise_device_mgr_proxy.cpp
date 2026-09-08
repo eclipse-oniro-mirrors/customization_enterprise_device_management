@@ -672,7 +672,7 @@ bool EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data,
     std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, (std::uint32_t)policyCode);
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
         return false;
     }
     MessageOption option;
