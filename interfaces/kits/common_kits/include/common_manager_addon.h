@@ -37,6 +37,7 @@ private:
     static void CreateStartupSceneObject(napi_env env, napi_value value);
     static void CreateManagedFeatureObject(napi_env env, napi_value value);
     static napi_value IsFeatureSupported(napi_env env, napi_callback_info info);
+    static void CreateQueryPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

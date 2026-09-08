@@ -49,6 +49,19 @@ ErrCode PluginPolicyReader::GetPolicyByCode(
     return GetPolicyByCodeInner(policyManager, code, data, reply, userId, permissionTag);
 }
 
+ErrCode PluginPolicyReader::GetPolicyByCodeNew(
+    std::shared_ptr<PolicyManager> policyManager, uint32_t funcCode,
+    MessageParcel &data, MessageParcel &reply, int32_t userId, int32_t queryPolicy)
+{
+    FuncCodeUtils::PrintFuncCode(funcCode);
+    FuncFlag flag = FuncCodeUtils::GetSystemFlag(funcCode);
+    if (flag != FuncFlag::POLICY_FLAG) {
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
+    return GetPolicyByCodeInnerNew(policyManager, code, data, reply, userId, queryPolicy);
+}
+
 ErrCode PluginPolicyReader::GetPolicyByCodeInner(
     std::shared_ptr<PolicyManager> policyManager, uint32_t code,
     MessageParcel &data, MessageParcel &reply, int32_t userId,
@@ -72,6 +85,30 @@ ErrCode PluginPolicyReader::GetPolicyByCodeInner(
     }
     
     return obj->GetPolicy(policyManager, code, data, reply, userId, permissionTag);
+}
+
+ErrCode PluginPolicyReader::GetPolicyByCodeInnerNew(
+    std::shared_ptr<PolicyManager> policyManager, uint32_t code,
+    MessageParcel &data, MessageParcel &reply, int32_t userId, int32_t queryPolicy)
+{
+    EDMLOGI("PluginPolicyReader query policy ::code %{public}u", code);
+    
+    ErrCode featureCheck = PolicyQueryFactory::CheckFeatureEnabled(code);
+    if (FAILED(featureCheck)) {
+        EDMLOGI("PluginPolicyReader: feature not enabled for code %{public}u", code);
+        return featureCheck;
+    }
+    
+    std::shared_ptr<IPolicyQuery> obj = PolicyQueryFactory::CreateQuery(code);
+    EDMLOGI("GetPolicyQuery errcode = %{public}d",
+        obj ? ERR_OK : EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    
+    if (obj == nullptr) {
+        EDMLOGI("GetPolicyQuery obj is null, query from plugin");
+        return ERR_CANNOT_FIND_QUERY_FAILED;
+    }
+    
+    return obj->GetPolicyNew(policyManager, code, data, reply, userId, queryPolicy);
 }
 
 ErrCode PluginPolicyReader::GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, uint32_t code)

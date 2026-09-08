@@ -33,6 +33,9 @@ public:
     ErrCode GetPolicy(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
         MessageParcel &reply, int32_t userId, const std::string &permissionTag);
 
+    ErrCode GetPolicyNew(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
+        MessageParcel &reply, int32_t userId, int32_t queryPolicy);
+
 protected:
     virtual IPlugin::ApiType GetApiType();
 

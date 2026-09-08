@@ -218,12 +218,16 @@ static bool UserIdArgToDataNew(napi_env env, napi_value *argv, const AddonMethod
 static void QueryPolicyArgToData(napi_env env, napi_value *argv, size_t argc,
     const AddonMethodSign &methodSign, MessageParcel &data)
 {
-    auto qpIt = std::find(methodSign.argsType.begin(), methodSign.argsType.end(),
-        EdmAddonCommonType::QUERY_POLICY);
-    if (qpIt == methodSign.argsType.end()) {
+    if (methodSign.methodAttribute != MethodAttribute::GET) {
         return;
     }
+    auto qpIt = std::find(methodSign.argsType.begin(), methodSign.argsType.end(),
+        EdmAddonCommonType::QUERY_POLICY);
     int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
+    if (qpIt == methodSign.argsType.end()) {
+        data.WriteInt32(queryPolicy);
+        return;
+    }
     size_t totalParamCount = methodSign.argsType.size();
     if (argc >= totalParamCount) {
         int32_t argvIndex = static_cast<int32_t>(totalParamCount) - 1;
@@ -393,7 +397,6 @@ napi_value JsObjectToDataNew(napi_env env, napi_callback_info info, const AddonM
         return nullptr;
     }
     QueryPolicyArgToData(env, argv, argc, methodSign, addonData->data);
-
     napi_value errorRes = JsParamsToData(env, argv, argc, methodSign, addonData->data);
     if (errorRes != nullptr) {
         napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, "parameter convert error",

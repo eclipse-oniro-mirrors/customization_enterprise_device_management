@@ -135,6 +135,10 @@ private:
         const std::vector<int32_t> &nonDefaultUserIds, AdminType adminType);
     ErrCode GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
         const std::string &permissionTag);
+    ErrCode GetDevicePolicyFromPluginNew(uint32_t code, MessageParcel &data, MessageParcel &reply, int32_t userId,
+        int32_t queryPolicy);
+    ErrCode CheckHandleDevicePolicyNewPermission(uint32_t code, const std::string &bundleName,
+        const std::string &policyName, int32_t userId);
     ErrCode EnableAdminWithPermission(const AppExecFwk::ElementName &admin, const EntInfo &entInfo,
         AdminType adminType, int32_t userId, const std::string &permission,
         EnableSource enableSource = EnableSource::DEPLOY);

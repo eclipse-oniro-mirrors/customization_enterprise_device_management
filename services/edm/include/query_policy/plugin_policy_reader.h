@@ -32,8 +32,14 @@ public:
     ErrCode GetPolicyByCode(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
         MessageParcel &reply, int32_t userId, const std::string &permissionTag);
 
+    ErrCode GetPolicyByCodeNew(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
+        MessageParcel &reply, int32_t userId, int32_t queryPolicy);
+
     ErrCode GetPolicyByCodeInner(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
         MessageParcel &reply, int32_t userId, const std::string &permissionTag);
+
+    ErrCode GetPolicyByCodeInnerNew(std::shared_ptr<PolicyManager> policyManager, uint32_t code, MessageParcel &data,
+        MessageParcel &reply, int32_t userId, int32_t queryPolicy);
 
     ErrCode GetPolicyQuery(std::shared_ptr<IPolicyQuery> &obj, uint32_t code);
 

@@ -21,6 +21,7 @@
 #include "managed_policy.h"
 #include "result.h"
 #include "startup_scene.h"
+#include "edm_constants.h"
 
 using namespace OHOS::EDM;
 
@@ -38,6 +39,9 @@ napi_value CommonManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nManagedFeature = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nManagedFeature));
     CreateManagedFeatureObject(env, nManagedFeature);
+    napi_value nQueryPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nQueryPolicy));
+    CreateQueryPolicyObject(env, nQueryPolicy);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("isFeatureSupported", IsFeatureSupported),
@@ -45,6 +49,7 @@ napi_value CommonManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("Result", nResult),
         DECLARE_NAPI_PROPERTY("StartupScene", nStartupScene),
         DECLARE_NAPI_PROPERTY("ManagedFeature", nManagedFeature),
+        DECLARE_NAPI_PROPERTY("QueryPolicy", nQueryPolicy),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -133,6 +138,18 @@ napi_value CommonManagerAddon::IsFeatureSupported(napi_env env, napi_callback_in
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, supported, &result));
     return result;
+}
+
+void CommonManagerAddon::CreateQueryPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nSelf;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(QueryPolicy::SELF), &nSelf));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SELF", nSelf));
+    napi_value nAll;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<int32_t>(QueryPolicy::ALL), &nAll));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ALL", nAll));
 }
 
 static napi_module g_commonManagerServiceModule = {

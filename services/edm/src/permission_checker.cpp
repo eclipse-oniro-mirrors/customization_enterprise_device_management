@@ -380,6 +380,23 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     return true;
 }
 
+bool PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName)
+{
+    std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
+    if (permissionName.empty()) {
+        return true;
+    }
+    if (CheckSpecialPolicyCallQuery(code)) {
+        return true;
+    }
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!VerifyCallingPermission(tokenId, permissionName)) {
+        EDMLOGE("PermissionChecker element null query no permission code is %{public}d", code);
+        return false;
+    }
+    return true;
+}
+
 bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
 {
     bool isSystemAppCall = GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppCall();
