@@ -928,11 +928,11 @@ napi_value UsbManagerAddon::GetUsbSerialNumber(napi_env env, napi_callback_info 
     EDMLOGI("UsbManagerAddon::GetUsbSerialNumber called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "getUsbSerialNumber";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }

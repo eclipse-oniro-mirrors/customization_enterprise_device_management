@@ -140,7 +140,7 @@ int32_t UsbManagerProxy::GetUsbSerialNumber(MessageParcel &data, std::string &re
     EDMLOGD("UsbManagerProxy::GetUsbSerialNumber");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicy(EdmInterfaceCode::GET_USB_SERIAL_NUMBER, data, reply);
+    proxy->GetPolicyNew(EdmInterfaceCode::GET_USB_SERIAL_NUMBER, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
