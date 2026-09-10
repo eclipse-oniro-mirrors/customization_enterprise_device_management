@@ -612,7 +612,7 @@ bool AccountManagerAddon::ParseDomainAccountPolicy(napi_env env, DomainAccountPo
     if (!JsObjectToInt(env, args, "authenticationValidityPeriod", false, authenticationValidityPeriod) ||
         !JsObjectToInt(env, args, "passwordValidityPeriod", false, passwordValidityPeriod) ||
         !JsObjectToInt(env, args, "passwordExpirationNotification", false, passwordExpirationNotification) ||
-        !JsObjectToBool(env, args, "supportUkeyAuthentication", false, supportUkeyAuthentication)) {
+        !JsObjectToBoolAllowUndefined(env, args, "supportUkeyAuthentication", false, supportUkeyAuthentication)) {
         EDMLOGE("AccountManagerAddon::ParseDomainAccountPolicy param error");
         return false;
     }
