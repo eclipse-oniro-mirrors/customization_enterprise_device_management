@@ -6576,6 +6576,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_QueryPolicyAll, 
 {
     PrepareBeforeHandleDevicePolicy();
     EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(true));
 
     uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, MAP_TESTPLUGIN_POLICYCODE);
     MessageParcel data;
