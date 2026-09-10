@@ -424,10 +424,30 @@ napi_value AddonMethodAdapter(napi_env env, napi_callback_info info, const Addon
         return nullptr;
     }
     adapterAddonData->errcodeType = methodSign.errcodeType;
-    std::unique_ptr<AdapterAddonData> adapterAddonDataPtr {adapterAddonData};
+    std::unique_ptr<AdapterAddonData> adapterAddonDataPtr{adapterAddonData};
     napi_value result = JsObjectToData(env, info, methodSign, adapterAddonData, true);
     if (result == nullptr) {
         EDMLOGE("AddonMethodAdapter JsObjectToData exec fail.");
+        return nullptr;
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, adapterAddonData, methodSign.name,
+        execute, complete);
+    adapterAddonDataPtr.release();
+    return asyncWorkReturn;
+}
+
+napi_value AddonMethodAdapterNew(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
+    napi_async_execute_callback execute, napi_async_complete_callback complete)
+{
+    auto adapterAddonData = new (std::nothrow) AdapterAddonData();
+    if (adapterAddonData == nullptr) {
+        return nullptr;
+    }
+    adapterAddonData->errcodeType = ErrcodeType::NUMBER;
+    std::unique_ptr<AdapterAddonData> adapterAddonDataPtr{adapterAddonData};
+    napi_value result = JsObjectToDataNew(env, info, methodSign, adapterAddonData);
+    if (result == nullptr) {
+        EDMLOGE("AddonMethodAdapterNew JsObjectToDataNew exec fail.");
         return nullptr;
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, adapterAddonData, methodSign.name,
