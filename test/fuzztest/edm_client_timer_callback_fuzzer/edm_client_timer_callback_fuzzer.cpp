@@ -60,7 +60,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     uint64_t insertTimerId = timerId % MAX_TIMER_ID;
 
     if (code % BINARY_DECISION_DIVISOR == 0) {
-        callback->InsertCallback(insertTimerId, nullptr, nullptr);
+        callback->InsertCallback(insertTimerId, nullptr, nullptr, {});
     }
 
     MessageParcel dataParcel;
@@ -74,8 +74,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     callback->RemoveCallback(insertTimerId);
 
     if (code % BINARY_DECISION_DIVISOR == 1) {
-        callback->InsertCallback(insertTimerId, nullptr, nullptr);
-        callback->InsertCallback((insertTimerId + 1) % MAX_TIMER_ID, nullptr, nullptr);
+        callback->InsertCallback(insertTimerId, nullptr, nullptr, {});
+        callback->InsertCallback((insertTimerId + 1) % MAX_TIMER_ID, nullptr, nullptr, {});
         callback->ClearAll();
     }
 

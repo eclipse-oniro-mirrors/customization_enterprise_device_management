@@ -326,6 +326,7 @@ enum class TimerOperationType : int32_t {
     START = 1,
     STOP = 2,
     DESTROY = 3,
+    RESYNC = 4,
 };
 
 namespace EdmPermission {

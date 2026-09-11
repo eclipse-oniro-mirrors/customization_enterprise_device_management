@@ -339,6 +339,74 @@ ErrCode SystemTimerManager::HandleCreateTimerOperation(const std::string &adminB
     return ERR_OK;
 }
 
+ErrCode SystemTimerManager::ResyncTimer(const TimerOptions &options,
+    const std::string &adminBundleName, uint64_t timerId, uint64_t triggerTime)
+{
+    EDMLOGI("SystemTimerManager::ResyncTimer timerId=%{public}llu admin=%{public}s",
+        static_cast<unsigned long long>(timerId), adminBundleName.c_str());
+    auto timer = MiscServices::TimeServiceClient::GetInstance();
+    if (timer == nullptr) {
+        EDMLOGE("SystemTimerManager::ResyncTimer TimeServiceClient is nullptr");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    // 1) Destroy orphan in Time SA (idempotent)
+    timer->DestroyTimerV9(timerId);
+    // 2) Recreate with preset timerId
+    auto timerInfo = std::make_shared<EdmTimerInfoSa>(timerId);
+    timerInfo->SetType(EdmConstants::SystemTimer::DEFAULT_TIMER_TYPE);
+    timerInfo->SetRepeat(options.repeat);
+    timerInfo->SetInterval(options.interval);
+    timerInfo->SetName(options.name);
+    timerInfo->SetTriggerCallback(
+        [this](uint64_t id) { OnTimerTriggered(id); });
+    uint64_t id = timerId;
+    int32_t ret = timer->CreateTimerV9(timerInfo, id);
+    if (ret != 0 || id != timerId) {
+        EDMLOGE("SystemTimerManager::ResyncTimer CreateTimerV9 failed ret=%{public}d id=%{public}llu",
+            ret, static_cast<unsigned long long>(id));
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    // 3) Rebuild timerMap_ + deathRecipient
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        TimerEntry entry;
+        entry.adminBundleName = adminBundleName;
+        entry.clientCallback = options.clientCallback;
+        timerMap_[timerId] = entry;
+        if (options.clientCallback != nullptr) {
+            GetOrCreateDeathRecipientLocked(options.clientCallback);
+        }
+    }
+    // 4) Restore schedule
+    if (triggerTime > 0) {
+        timer->StartTimerV9(timerId, triggerTime);
+    }
+    EDMLOGI("SystemTimerManager::ResyncTimer success timerId=%{public}llu",
+        static_cast<unsigned long long>(timerId));
+    return ERR_OK;
+}
+
+ErrCode SystemTimerManager::HandleResyncTimerOperation(const std::string &adminBundleName,
+    MessageParcel &data)
+{
+    uint64_t timerId = data.ReadUint64();
+    bool repeat = data.ReadBool();
+    uint64_t interval = data.ReadUint64();
+    std::string name = data.ReadString();
+    uint64_t triggerTime = data.ReadUint64();
+    auto clientCallback = data.ReadRemoteObject();
+    if (clientCallback == nullptr) {
+        EDMLOGE("HandleResyncTimerOperation: clientCallback is null");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    TimerOptions options;
+    options.repeat = repeat;
+    options.interval = interval;
+    options.name = name;
+    options.clientCallback = clientCallback;
+    return ResyncTimer(options, adminBundleName, timerId, triggerTime);
+}
+
 ErrCode SystemTimerManager::HandleTimerOperation(uint32_t funcCode, const std::string &adminBundleName,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
@@ -369,6 +437,8 @@ ErrCode SystemTimerManager::HandleTimerOperation(uint32_t funcCode, const std::s
             uint64_t timerId = data.ReadUint64();
             return DestroyTimer(timerId, adminBundleName);
         }
+        case TimerOperationType::RESYNC:
+            return HandleResyncTimerOperation(adminBundleName, data);
         default:
             EDMLOGE("HandleTimerOperation: unknown operationType=%{public}d", opTypeRaw);
             return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;

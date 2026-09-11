@@ -20,8 +20,11 @@
 #include "edm_log.h"
 #include "edm_utils.h"
 #include "func_code.h"
+#include "iservice_registry.h"
 #include "message_parcel.h"
 #include "print_policy_util.h"
+#include "system_ability_definition.h"
+#include "system_ability_status_change_stub.h"
 #include "update_policy_utils.h"
 #include "want.h"
 
@@ -35,18 +38,27 @@ public:
     ~EdmSaDeathRecipient() override = default;
     void OnRemoteDied(const wptr<IRemoteObject> &) override
     {
-        EDMLOGI("EdmSaDeathRecipient::OnRemoteDied edm SA died, clear client timer callbacks");
-        auto proxy = SystemManagerProxy::GetSystemManagerProxy();
-        if (proxy == nullptr) {
-            return;
-        }
-        auto cb = proxy->GetClientTimerCallback();
-        if (cb != nullptr) {
-            cb->ClearAll();
-        }
+        EDMLOGI("EdmSaDeathRecipient::OnRemoteDied edm SA died, keep client timer callbacks for resync");
     }
 };
 }
+
+class EdmSaStatusListener : public SystemAbilityStatusChangeStub {
+public:
+    EdmSaStatusListener() = default;
+    ~EdmSaStatusListener() override = default;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override
+    {
+        if (systemAbilityId == ENTERPRISE_DEVICE_MANAGER_SA_ID) {
+            EDMLOGI("EdmSaStatusListener::OnAddSystemAbility EDM SA restarted, start resync");
+            auto proxy = SystemManagerProxy::GetSystemManagerProxy();
+            if (proxy != nullptr) {
+                proxy->OnEdmSaRestart();
+            }
+        }
+    }
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override {}
+};
 #endif
 
 std::shared_ptr<SystemManagerProxy> SystemManagerProxy::instance_ = nullptr;
@@ -58,6 +70,8 @@ SystemManagerProxy::SystemManagerProxy()
 #ifndef FEATURE_PC_ONLY
     clientCallback_ = new (std::nothrow) EdmClientTimerCallback();
     edmDeathRecipient_ = new (std::nothrow) EdmSaDeathRecipient();
+    saListener_ = new (std::nothrow) EdmSaStatusListener();
+    SubscribeEdmSa();
 #endif
 }
 
@@ -541,23 +555,84 @@ void SystemManagerProxy::EnsureEdmSaDeathRecipient()
     registeredRemote_ = remote;
     EDMLOGI("SystemManagerProxy::EnsureEdmSaDeathRecipient registered on new remote");
 }
+
+bool SystemManagerProxy::SubscribeEdmSa()
+{
+    auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        EDMLOGE("SystemManagerProxy::SubscribeEdmSa get samgr failed");
+        return false;
+    }
+    if (saListener_ == nullptr) {
+        EDMLOGE("SystemManagerProxy::SubscribeEdmSa listener is null");
+        return false;
+    }
+    auto ret = samgr->SubscribeSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID, saListener_);
+    if (ret != 0) {
+        EDMLOGE("SystemManagerProxy::SubscribeEdmSA failed: %{public}d", ret);
+        return false;
+    }
+    EDMLOGI("SystemManagerProxy::SubscribeEdmSa success");
+    return true;
+}
+
+void SystemManagerProxy::OnEdmSaRestart()
+{
+    EDMLOGI("SystemManagerProxy::OnEdmSaRestart start resync timers");
+    auto cb = GetClientTimerCallback();
+    if (cb == nullptr) {
+        return;
+    }
+    auto items = cb->GetAllResyncItems();
+    for (const auto &item : items) {
+        ResyncTimer(item.timerId, item.meta.repeat, item.meta.interval, item.meta.name, item.lastTriggerTime);
+    }
+}
+
+int32_t SystemManagerProxy::ResyncTimer(uint64_t timerId, bool repeat, uint64_t interval,
+    const std::string &name, uint64_t triggerTime)
+{
+    EDMLOGI("SystemManagerProxy::ResyncTimer timerId=%{public}llu", static_cast<unsigned long long>(timerId));
+    EnsureEdmSaDeathRecipient();
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(TimerOperationType::RESYNC));
+    data.WriteUint64(timerId);
+    data.WriteBool(repeat);
+    data.WriteUint64(interval);
+    data.WriteString(name);
+    data.WriteUint64(triggerTime);
+    if (clientCallback_ != nullptr) {
+        data.WriteRemoteObject(clientCallback_->AsObject());
+    } else {
+        EDMLOGE("SystemManagerProxy::ResyncTimer clientCallback is null");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
+    MessageParcel reply;
+    return proxy->HandleDevicePolicyNew(funcCode, data, reply);
+}
 #endif
 
 #ifndef FEATURE_PC_ONLY
-int32_t SystemManagerProxy::CreateTimer(const AppExecFwk::ElementName &admin, bool repeat,
-    uint64_t interval, const std::string &name, uint64_t &timerId)
+int32_t SystemManagerProxy::CreateTimer(bool repeat, uint64_t interval,
+    const std::string &name, uint64_t &timerId)
 {
     EDMLOGI("SystemManagerProxy::CreateTimer");
     EnsureEdmSaDeathRecipient();
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(DEFAULT_USER_ID);
     data.WriteInt32(static_cast<int32_t>(TimerOperationType::CREATE));
     data.WriteBool(repeat);
     data.WriteUint64(interval);
@@ -566,12 +641,12 @@ int32_t SystemManagerProxy::CreateTimer(const AppExecFwk::ElementName &admin, bo
         data.WriteRemoteObject(clientCallback_->AsObject());
     } else {
         EDMLOGE("SystemManagerProxy::CreateTimer clientCallback is null");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
     MessageParcel reply;
-    int32_t ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    int32_t ret = proxy->HandleDevicePolicyNew(funcCode, data, reply);
     if (ret != ERR_OK) {
         EDMLOGE("SystemManagerProxy::CreateTimer failed ret=%{public}d", ret);
         return ret;
@@ -580,68 +655,62 @@ int32_t SystemManagerProxy::CreateTimer(const AppExecFwk::ElementName &admin, bo
     return ERR_OK;
 }
 
-int32_t SystemManagerProxy::StartTimer(const AppExecFwk::ElementName &admin, uint64_t timerId, uint64_t triggerTime)
+int32_t SystemManagerProxy::StartTimer(uint64_t timerId, uint64_t triggerTime)
 {
     EDMLOGI("SystemManagerProxy::StartTimer");
     EnsureEdmSaDeathRecipient();
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(DEFAULT_USER_ID);
     data.WriteInt32(static_cast<int32_t>(TimerOperationType::START));
     data.WriteUint64(timerId);
     data.WriteUint64(triggerTime);
-    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
     MessageParcel reply;
-    return proxy->HandleDevicePolicy(funcCode, data, reply);
+    return proxy->HandleDevicePolicyNew(funcCode, data, reply);
 }
 
-int32_t SystemManagerProxy::StopTimer(const AppExecFwk::ElementName &admin, uint64_t timerId)
+int32_t SystemManagerProxy::StopTimer(uint64_t timerId)
 {
     EDMLOGI("SystemManagerProxy::StopTimer");
     EnsureEdmSaDeathRecipient();
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(DEFAULT_USER_ID);
     data.WriteInt32(static_cast<int32_t>(TimerOperationType::STOP));
     data.WriteUint64(timerId);
-    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
     MessageParcel reply;
-    return proxy->HandleDevicePolicy(funcCode, data, reply);
+    return proxy->HandleDevicePolicyNew(funcCode, data, reply);
 }
 
-int32_t SystemManagerProxy::DestroyTimer(const AppExecFwk::ElementName &admin, uint64_t timerId)
+int32_t SystemManagerProxy::DestroyTimer(uint64_t timerId)
 {
     EDMLOGI("SystemManagerProxy::DestroyTimer");
     EnsureEdmSaDeathRecipient();
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(DEFAULT_USER_ID);
     data.WriteInt32(static_cast<int32_t>(TimerOperationType::DESTROY));
     data.WriteUint64(timerId);
-    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
     MessageParcel reply;
-    int32_t ret = proxy->HandleDevicePolicy(funcCode, data, reply);
+    int32_t ret = proxy->HandleDevicePolicyNew(funcCode, data, reply);
     if (ret == ERR_OK && clientCallback_ != nullptr) {
         clientCallback_->RemoveCallback(timerId);
     }

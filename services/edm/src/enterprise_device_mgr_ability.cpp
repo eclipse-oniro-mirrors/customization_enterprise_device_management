@@ -1661,11 +1661,6 @@ int32_t EnterpriseDeviceMgrAbility::GetCurrentUserId()
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-#ifndef FEATURE_PC_ONLY
-    if (IsSystemTimerFuncCode(code)) {
-        return HandleSystemTimerPolicy(code, admin, data, reply, userId);
-    }
-#endif
     std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
     if (policyName.empty()) {
         EDMLOGW("HandleDevicePolicy: get plugin failed, code:%{public}d", code);
@@ -1724,6 +1719,11 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
+#ifndef FEATURE_PC_ONLY
+    if (IsSystemTimerFuncCode(code)) {
+        return HandleSystemTimerPolicyNew(code, data, reply, userId);
+    }
+#endif
     std::string policyName = PluginManager::GetInstance()->GetPolicyName(code);
     if (policyName.empty()) {
         EDMLOGW("HandleDevicePolicyNew: get plugin failed, code:%{public}d", code);
@@ -2797,20 +2797,26 @@ bool EnterpriseDeviceMgrAbility::IsSystemTimerFuncCode(uint32_t code)
     return policyCode == static_cast<uint32_t>(EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
 }
 
-ErrCode EnterpriseDeviceMgrAbility::HandleSystemTimerPolicy(uint32_t code, AppExecFwk::ElementName &admin,
-    MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode EnterpriseDeviceMgrAbility::HandleSystemTimerPolicyNew(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
 {
-    EDMLOGI("HandleSystemTimerPolicy: code=%{public}u", code);
+    EDMLOGI("HandleSystemTimerPolicyNew: code=%{public}u", code);
+    std::string bundleName;
+    int uid = IPCSkeleton::GetCallingUid();
+    if (GetExternalManagerFactory()->CreateBundleManager()->GetNameForUid(uid, bundleName) != ERR_OK) {
+        EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
+        return ERR_EDM_PERMISSION_ERROR;
+    }
 #ifndef EDM_FUZZ_TEST
-    std::string permissionTag = data.ReadString();
+    EDMLOGI("HandleSystemTimerPolicyNew: bundleName=%{public}s", bundleName.c_str());
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    ErrCode permRet = GetPermissionChecker()->CheckSystemTimerPermission(admin, GetCurrentUserId());
+    ErrCode permRet = GetPermissionChecker()->CheckSystemTimerPermission(bundleName, GetCurrentUserId());
     if (FAILED(permRet)) {
         return permRet;
     }
 #endif
     return SystemTimerManager::GetInstance()->HandleTimerOperation(
-        code, admin.GetBundleName(), data, reply, userId);
+        code, bundleName, data, reply, userId);
 }
 #endif
 } // namespace EDM

@@ -1966,12 +1966,12 @@ napi_value ApplicationManagerAddon::RequestExemptionResource(napi_env env, napi_
     EDMLOGI("ApplicationManagerAddon::RequestExemptionResource called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "RequestExemptionResource";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32,
-                               EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::UINT32, EdmAddonCommonType::STRING,
+                               EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1995,12 +1995,11 @@ napi_value ApplicationManagerAddon::ReleaseExemptionResource(napi_env env, napi_
     EDMLOGI("ApplicationManagerAddon::ReleaseExemptionResource called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "ReleaseExemptionResource";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::UINT32,
-                               EdmAddonCommonType::STRING};
+    addonMethodSign.argsType = {EdmAddonCommonType::UINT32, EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
