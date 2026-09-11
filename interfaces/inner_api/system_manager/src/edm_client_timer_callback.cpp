@@ -90,6 +90,9 @@ void EdmClientTimerCallback::OnTimerTriggered(uint64_t timerId)
             return;
         }
         env = it->second.env;
+        if (!it->second.meta.repeat) {
+            it->second.lastTriggerTime = 0;
+        }
     }
     if (env == nullptr) {
         EDMLOGE("EdmClientTimerCallback::OnTimerTriggered env is null");
@@ -129,10 +132,14 @@ void EdmClientTimerCallback::OnTimerTriggered(uint64_t timerId)
     }
 }
 
-void EdmClientTimerCallback::InsertCallback(uint64_t timerId, napi_env env, napi_ref ref)
+void EdmClientTimerCallback::InsertCallback(uint64_t timerId, napi_env env, napi_ref ref, const TimerMeta &meta)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    callbackMap_[timerId] = {env, ref};
+    CallbackInfo info;
+    info.env = env;
+    info.ref = ref;
+    info.meta = meta;
+    callbackMap_[timerId] = info;
 }
 
 void EdmClientTimerCallback::RemoveCallback(uint64_t timerId)
@@ -158,6 +165,29 @@ void EdmClientTimerCallback::RemoveCallback(uint64_t timerId)
     if (status != napi_ok) {
         EDMLOGE("EdmClientTimerCallback::RemoveCallback napi_send_event failed");
     }
+}
+
+void EdmClientTimerCallback::UpdateTriggerTime(uint64_t timerId, uint64_t triggerTime)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = callbackMap_.find(timerId);
+    if (it != callbackMap_.end()) {
+        it->second.lastTriggerTime = triggerTime;
+    }
+}
+
+std::vector<ResyncItem> EdmClientTimerCallback::GetAllResyncItems()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::vector<ResyncItem> items;
+    for (const auto &[timerId, info] : callbackMap_) {
+        ResyncItem item;
+        item.timerId = timerId;
+        item.meta = info.meta;
+        item.lastTriggerTime = info.lastTriggerTime;
+        items.push_back(item);
+    }
+    return items;
 }
 } // namespace EDM
 } // namespace OHOS

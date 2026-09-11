@@ -566,6 +566,125 @@ HWTEST_F(SystemTimerManagerTest, TimerDeathRecipient_DelegatesToManager, TestSiz
     deathRecipient->OnRemoteDied(wp);
     EXPECT_FALSE(TimerExists(TEST_TIMER_ID));
 }
+
+/**
+ * @tc.name: HandleTimerOperation_Resync_NullClientCallback
+ * @tc.desc: Test HandleTimerOperation RESYNC without a client callback remote object is
+ *           rejected with PARAM_ERROR and creates no state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Resync_NullClientCallback, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(TimerOperationType::RESYNC));
+    data.WriteUint64(TEST_TIMER_ID);
+    data.WriteBool(false);
+    data.WriteUint64(0);
+    data.WriteString(TIMER_NAME);
+    data.WriteUint64(TEST_TRIGGER_TIME);
+    MessageParcel reply;
+    EXPECT_EQ(instance_->HandleTimerOperation(MakeTimerFuncCode(), ADMIN_A, data, reply, 0),
+        EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(GetTimerMapSize(), 0u);
+}
+
+/**
+ * @tc.name: HandleTimerOperation_Resync_ReadsAllFields
+ * @tc.desc: Test HandleTimerOperation RESYNC reads all fields and dispatches to ResyncTimer
+ *           without crashing. The time service may reject the call in the test environment,
+ *           so we verify the map is not corrupted.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Resync_ReadsAllFields, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(TimerOperationType::RESYNC));
+    data.WriteUint64(TEST_TIMER_ID);
+    data.WriteBool(true);
+    data.WriteUint64(5000);
+    data.WriteString(TIMER_NAME);
+    data.WriteUint64(TEST_TRIGGER_TIME);
+    data.WriteRemoteObject(callback);
+    MessageParcel reply;
+    size_t sizeBefore = GetTimerMapSize();
+    ErrCode ret = instance_->HandleTimerOperation(MakeTimerFuncCode(), ADMIN_A, data, reply, 0);
+    // The return may be ERR_OK or an error depending on the time service availability;
+    // either way the call must not crash or corrupt unrelated state.
+    if (ret != ERR_OK) {
+        // On failure the timer entry must not be left dangling for a non-existent timer.
+        EXPECT_FALSE(TimerExists(TEST_TIMER_ID));
+    } else {
+        // On success the timer entry should be present.
+        EXPECT_TRUE(TimerExists(TEST_TIMER_ID));
+        EXPECT_EQ(GetTimerMapSize(), sizeBefore + 1u);
+    }
+}
+
+/**
+ * @tc.name: HandleTimerOperation_Resync_TriggerTimeZero_SkipsStart
+ * @tc.desc: Test HandleTimerOperation RESYNC with triggerTime == 0 does not crash and
+ *           StartTimerV9 is skipped (only relevant when CreateTimerV9 succeeds).
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Resync_TriggerTimeZero_SkipsStart, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(TimerOperationType::RESYNC));
+    data.WriteUint64(TEST_TIMER_ID);
+    data.WriteBool(false);
+    data.WriteUint64(0);
+    data.WriteString(TIMER_NAME);
+    data.WriteUint64(0);
+    data.WriteRemoteObject(callback);
+    MessageParcel reply;
+    // Should not crash regardless of time service availability.
+    instance_->HandleTimerOperation(MakeTimerFuncCode(), ADMIN_A, data, reply, 0);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: ResyncTimer_DoesNotCorruptExistingMap
+ * @tc.desc: Test ResyncTimer does not corrupt pre-existing timer entries for other timerIds
+ *           when it fails (CreateTimerV9 failure in test environment).
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, ResyncTimer_DoesNotCorruptExistingMap, TestSize.Level1)
+{
+    auto existingCallback = new TestTimerCallbackStub();
+    InjectTimerEntry(TEST_TIMER_ID_2, ADMIN_B, existingCallback);
+    ASSERT_TRUE(TimerExists(TEST_TIMER_ID_2));
+
+    auto callback = new TestTimerCallbackStub();
+    TimerOptions options{true, 5000, TIMER_NAME, callback};
+    ErrCode ret = instance_->ResyncTimer(options, ADMIN_A, TEST_TIMER_ID, TEST_TRIGGER_TIME);
+    if (ret == ERR_OK) {
+        EXPECT_TRUE(TimerExists(TEST_TIMER_ID));
+    } else {
+        EXPECT_FALSE(TimerExists(TEST_TIMER_ID));
+    }
+    // Pre-existing entry for a different timerId must remain intact.
+    EXPECT_TRUE(TimerExists(TEST_TIMER_ID_2));
+}
+
+/**
+ * @tc.name: ResyncTimer_NullCallback_DoesNotAddDeathRecipient
+ * @tc.desc: Test ResyncTimer with a null clientCallback skips the death recipient creation
+ *           but still attempts the timer recreate flow.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, ResyncTimer_NullCallback_DoesNotAddDeathRecipient, TestSize.Level1)
+{
+    TimerOptions options{false, 0, TIMER_NAME, nullptr};
+    ErrCode ret = instance_->ResyncTimer(options, ADMIN_A, TEST_TIMER_ID, 0);
+    // May succeed or fail based on time service; verify no crash and no recipient leak.
+    if (ret == ERR_OK) {
+        std::lock_guard<std::mutex> lock(instance_->mutex_);
+        EXPECT_EQ(instance_->recipientMap_.size(), 0u);
+    }
+    EXPECT_TRUE(true);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

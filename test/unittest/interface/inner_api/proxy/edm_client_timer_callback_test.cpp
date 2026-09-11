@@ -89,11 +89,11 @@ protected:
  */
 HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_StoreAndOverwrite, TestSize.Level1)
 {
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
     EXPECT_TRUE(CallbackExists(TEST_TIMER_ID));
     EXPECT_EQ(GetCallbackMapSize(), 1u);
 
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
     EXPECT_EQ(GetCallbackMapSize(), 1u);
     EXPECT_TRUE(CallbackExists(TEST_TIMER_ID));
 }
@@ -105,10 +105,10 @@ HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_StoreAndOverwrite, TestSize.
  */
 HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_MultipleTimers, TestSize.Level1)
 {
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
     EXPECT_EQ(GetCallbackMapSize(), 1u);
 
-    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {});
     EXPECT_EQ(GetCallbackMapSize(), 2u);
     EXPECT_TRUE(CallbackExists(TEST_TIMER_ID));
     EXPECT_TRUE(CallbackExists(TEST_TIMER_ID_2));
@@ -121,7 +121,7 @@ HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_MultipleTimers, TestSize.Lev
  */
 HWTEST_F(EdmClientTimerCallbackTest, RemoveCallback_Existing, TestSize.Level1)
 {
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
     ASSERT_TRUE(CallbackExists(TEST_TIMER_ID));
 
     callback_->RemoveCallback(TEST_TIMER_ID);
@@ -141,7 +141,7 @@ HWTEST_F(EdmClientTimerCallbackTest, RemoveCallback_NonExistent_NoOp, TestSize.L
     callback_->RemoveCallback(TEST_TIMER_ID);
     EXPECT_EQ(GetCallbackMapSize(), 0u);
 
-    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {});
     callback_->RemoveCallback(TEST_TIMER_ID);
     EXPECT_TRUE(CallbackExists(TEST_TIMER_ID_2));
     EXPECT_EQ(GetCallbackMapSize(), 1u);
@@ -154,8 +154,8 @@ HWTEST_F(EdmClientTimerCallbackTest, RemoveCallback_NonExistent_NoOp, TestSize.L
  */
 HWTEST_F(EdmClientTimerCallbackTest, ClearAll_EmptiesMap, TestSize.Level1)
 {
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
-    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {});
     ASSERT_EQ(GetCallbackMapSize(), 2u);
 
     callback_->ClearAll();
@@ -200,13 +200,63 @@ HWTEST_F(EdmClientTimerCallbackTest, OnTimerTriggered_NotInMap_NoOp, TestSize.Le
  */
 HWTEST_F(EdmClientTimerCallbackTest, OnTimerTriggered_NullEnvNullRef_NoNapiCall, TestSize.Level1)
 {
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
     ASSERT_TRUE(CallbackExists(TEST_TIMER_ID));
     size_t sizeBefore = GetCallbackMapSize();
 
     callback_->OnTimerTriggered(TEST_TIMER_ID);
     EXPECT_TRUE(CallbackExists(TEST_TIMER_ID));
     EXPECT_EQ(GetCallbackMapSize(), sizeBefore);
+}
+
+/**
+ * @tc.name: OnTimerTriggered_NonRepeat_ClearsLastTriggerTime
+ * @tc.desc: Test OnTimerTriggered sets lastTriggerTime to 0 for a non-repeating timer
+ *           so that SA restart resync skips StartTimerV9 (no duplicate trigger).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, OnTimerTriggered_NonRepeat_ClearsLastTriggerTime, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {false, 0, "timer"});
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 99999);
+    {
+        std::lock_guard<std::mutex> lock(callback_->mutex_);
+        auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+        ASSERT_NE(it, callback_->callbackMap_.end());
+        ASSERT_EQ(it->second.lastTriggerTime, 99999u);
+    }
+    callback_->OnTimerTriggered(TEST_TIMER_ID);
+    {
+        std::lock_guard<std::mutex> lock(callback_->mutex_);
+        auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+        ASSERT_NE(it, callback_->callbackMap_.end());
+        EXPECT_EQ(it->second.lastTriggerTime, 0u);
+    }
+}
+
+/**
+ * @tc.name: OnTimerTriggered_Repeat_KeepsLastTriggerTime
+ * @tc.desc: Test OnTimerTriggered does NOT clear lastTriggerTime for a repeating timer
+ *           so that SA restart resync can restore the schedule.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, OnTimerTriggered_Repeat_KeepsLastTriggerTime, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "timer"});
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 99999);
+    {
+        std::lock_guard<std::mutex> lock(callback_->mutex_);
+        auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+        ASSERT_NE(it, callback_->callbackMap_.end());
+        ASSERT_EQ(it->second.lastTriggerTime, 99999u);
+    }
+    callback_->OnTimerTriggered(TEST_TIMER_ID);
+    {
+        std::lock_guard<std::mutex> lock(callback_->mutex_);
+        auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+        ASSERT_NE(it, callback_->callbackMap_.end());
+        EXPECT_EQ(it->second.lastTriggerTime, 99999u);
+    }
 }
 
 /**
@@ -251,7 +301,7 @@ HWTEST_F(EdmClientTimerCallbackTest, OnRemoteRequest_InvalidCode_DelegatesToBase
  */
 HWTEST_F(EdmClientTimerCallbackTest, OnRemoteRequest_NonEdmCaller_PermissionDenied, TestSize.Level1)
 {
-    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
     ASSERT_TRUE(CallbackExists(TEST_TIMER_ID));
 
     MessageParcel data;
@@ -271,8 +321,8 @@ HWTEST_F(EdmClientTimerCallbackTest, OnRemoteRequest_NonEdmCaller_PermissionDeni
 HWTEST_F(EdmClientTimerCallbackTest, Destructor_ClearsMap, TestSize.Level1)
 {
     sptr<EdmClientTimerCallback> cb = new EdmClientTimerCallback();
-    cb->InsertCallback(TEST_TIMER_ID, nullptr, nullptr);
-    cb->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr);
+    cb->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
+    cb->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {});
     {
         std::lock_guard<std::mutex> lock(cb->mutex_);
         ASSERT_EQ(cb->callbackMap_.size(), 2u);
@@ -280,6 +330,168 @@ HWTEST_F(EdmClientTimerCallbackTest, Destructor_ClearsMap, TestSize.Level1)
     // Dropping the last reference runs the destructor; it must not crash.
     cb = nullptr;
     EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: InsertCallback_WithResyncFields
+ * @tc.desc: Test InsertCallback stores repeat, interval and name for resync.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_WithResyncFields, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "resync_timer"});
+    ASSERT_TRUE(CallbackExists(TEST_TIMER_ID));
+    std::lock_guard<std::mutex> lock(callback_->mutex_);
+    auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+    ASSERT_NE(it, callback_->callbackMap_.end());
+    EXPECT_TRUE(it->second.meta.repeat);
+    EXPECT_EQ(it->second.meta.interval, 5000u);
+    EXPECT_EQ(it->second.meta.name, "resync_timer");
+    EXPECT_EQ(it->second.lastTriggerTime, 0u);
+}
+
+/**
+ * @tc.name: InsertCallback_OverwritePreservesNewFields
+ * @tc.desc: Test InsertCallback overwrites existing entry with new resync fields.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_OverwritePreservesNewFields, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {});
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 3000, "overwritten"});
+    EXPECT_EQ(GetCallbackMapSize(), 1u);
+    std::lock_guard<std::mutex> lock(callback_->mutex_);
+    auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+    ASSERT_NE(it, callback_->callbackMap_.end());
+    EXPECT_TRUE(it->second.meta.repeat);
+    EXPECT_EQ(it->second.meta.interval, 3000u);
+    EXPECT_EQ(it->second.meta.name, "overwritten");
+}
+
+/**
+ * @tc.name: UpdateTriggerTime_Existing
+ * @tc.desc: Test UpdateTriggerTime updates lastTriggerTime for an existing entry.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, UpdateTriggerTime_Existing, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "timer"});
+    {
+        std::lock_guard<std::mutex> lock(callback_->mutex_);
+        auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+        ASSERT_NE(it, callback_->callbackMap_.end());
+        EXPECT_EQ(it->second.lastTriggerTime, 0u);
+    }
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 12345);
+    {
+        std::lock_guard<std::mutex> lock(callback_->mutex_);
+        auto it = callback_->callbackMap_.find(TEST_TIMER_ID);
+        ASSERT_NE(it, callback_->callbackMap_.end());
+        EXPECT_EQ(it->second.lastTriggerTime, 12345u);
+    }
+}
+
+/**
+ * @tc.name: UpdateTriggerTime_NonExistent_NoOp
+ * @tc.desc: Test UpdateTriggerTime is a safe no-op for a non-existent timerId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, UpdateTriggerTime_NonExistent_NoOp, TestSize.Level1)
+{
+    EXPECT_EQ(GetCallbackMapSize(), 0u);
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 999);
+    EXPECT_EQ(GetCallbackMapSize(), 0u);
+    EXPECT_FALSE(CallbackExists(TEST_TIMER_ID));
+}
+
+/**
+ * @tc.name: GetAllResyncItems_EmptyMap
+ * @tc.desc: Test GetAllResyncItems returns an empty vector when no callbacks exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, GetAllResyncItems_EmptyMap, TestSize.Level1)
+{
+    auto items = callback_->GetAllResyncItems();
+    EXPECT_TRUE(items.empty());
+}
+
+/**
+ * @tc.name: GetAllResyncItems_ReturnsAllItems
+ * @tc.desc: Test GetAllResyncItems returns all inserted items with correct fields.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, GetAllResyncItems_ReturnsAllItems, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "timer_a"});
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {false, 0, "timer_b"});
+    auto items = callback_->GetAllResyncItems();
+    EXPECT_EQ(items.size(), 2u);
+    bool foundA = false;
+    bool foundB = false;
+    for (const auto &item : items) {
+        if (item.timerId == TEST_TIMER_ID) {
+            foundA = true;
+            EXPECT_TRUE(item.meta.repeat);
+            EXPECT_EQ(item.meta.interval, 5000u);
+            EXPECT_EQ(item.meta.name, "timer_a");
+            EXPECT_EQ(item.lastTriggerTime, 0u);
+        } else if (item.timerId == TEST_TIMER_ID_2) {
+            foundB = true;
+            EXPECT_FALSE(item.meta.repeat);
+            EXPECT_EQ(item.meta.interval, 0u);
+            EXPECT_EQ(item.meta.name, "timer_b");
+        }
+    }
+    EXPECT_TRUE(foundA);
+    EXPECT_TRUE(foundB);
+}
+
+/**
+ * @tc.name: GetAllResyncItems_ReflectsUpdateTriggerTime
+ * @tc.desc: Test GetAllResyncItems reflects the lastTriggerTime updated via UpdateTriggerTime.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, GetAllResyncItems_ReflectsUpdateTriggerTime, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "timer_a"});
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 88888);
+    auto items = callback_->GetAllResyncItems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].timerId, TEST_TIMER_ID);
+    EXPECT_EQ(items[0].lastTriggerTime, 88888u);
+    EXPECT_TRUE(items[0].meta.repeat);
+    EXPECT_EQ(items[0].meta.interval, 5000u);
+    EXPECT_EQ(items[0].meta.name, "timer_a");
+}
+
+/**
+ * @tc.name: GetAllResyncItems_AfterClearAll_Empty
+ * @tc.desc: Test GetAllResyncItems returns empty after ClearAll.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, GetAllResyncItems_AfterClearAll_Empty, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "timer_a"});
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {false, 0, "timer_b"});
+    ASSERT_EQ(GetCallbackMapSize(), 2u);
+    callback_->ClearAll();
+    auto items = callback_->GetAllResyncItems();
+    EXPECT_TRUE(items.empty());
+}
+
+/**
+ * @tc.name: GetAllResyncItems_AfterRemoveCallback
+ * @tc.desc: Test GetAllResyncItems excludes a removed callback but keeps the rest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, GetAllResyncItems_AfterRemoveCallback, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "timer_a"});
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {false, 0, "timer_b"});
+    callback_->RemoveCallback(TEST_TIMER_ID);
+    auto items = callback_->GetAllResyncItems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].timerId, TEST_TIMER_ID_2);
 }
 } // namespace TEST
 } // namespace EDM

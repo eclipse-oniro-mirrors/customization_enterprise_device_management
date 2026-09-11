@@ -76,6 +76,7 @@ ErrCode ExemptionResourcePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
             bundleName.c_str(), uid, duration);
         standbyRet = client.ApplyAllowResource(resourceRequest);
     }
+    client.ResetStandbyServiceClient();
     return ConvertStandbyErrCode(standbyRet);
 }
 

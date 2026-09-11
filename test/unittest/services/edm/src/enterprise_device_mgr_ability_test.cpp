@@ -6585,6 +6585,103 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_QueryPolicyAll, 
     ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(res, ERR_OK);
 }
+
+#ifndef FEATURE_PC_ONLY
+/**
+ * @tc.name: HandleSystemTimerPolicyNew_GetNameForUidFail_ReturnsPermissionError
+ * @tc.desc: Test HandleSystemTimerPolicyNew returns ERR_EDM_PERMISSION_ERROR when
+ *           GetNameForUid fails to resolve the calling uid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_GetNameForUidFail, TestSize.Level1)
+{
+    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(Return(ERR_EDM_PARAM_ERROR)));
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_EDM_PERMISSION_ERROR);
+}
+
+/**
+ * @tc.name: HandleSystemTimerPolicyNew_AdminInactive
+ * @tc.desc: Test HandleSystemTimerPolicyNew returns ADMIN_INACTIVE when the resolved
+ *           bundle name has no activated admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_AdminInactive, TestSize.Level1)
+{
+    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid)
+        .WillOnce(DoAll(SetArgReferee<1>(std::string("com.not.activated")), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds)
+        .WillOnce(DoAll(SetArgReferee<0>(std::vector<int32_t>{DEFAULT_USER_ID}), Return(ERR_OK)));
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: HandleSystemTimerPolicyNew_ByodDenied
+ * @tc.desc: Test HandleSystemTimerPolicyNew denies a BYOD admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_ByodDenied, TestSize.Level1)
+{
+    const std::string byodPkg = "com.edm.timer.byod";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "byod admin for timer";
+    AdminInfo adminInfo = {.packageName_ = byodPkg, .className_ = "ByodTimerAdmin",
+        .entInfo_ = entInfo, .adminType_ = AdminType::BYOD, .isDebug_ = false};
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, {std::make_shared<Admin>(adminInfo)});
+
+    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid)
+        .WillOnce(DoAll(SetArgReferee<1>(byodPkg), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds)
+        .WillOnce(DoAll(SetArgReferee<0>(std::vector<int32_t>{DEFAULT_USER_ID}), Return(ERR_OK)));
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: HandleSystemTimerPolicyNew_CheckCallingUidFail
+ * @tc.desc: Test HandleSystemTimerPolicyNew returns PERMISSION_DENIED when CheckCallingUid
+ *           fails (calling uid does not match the admin bundle name).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_CheckCallingUidFail, TestSize.Level1)
+{
+    const std::string timerPkg = "com.edm.timer.normal";
+    EntInfo entInfo;
+    entInfo.enterpriseName = "company";
+    entInfo.description = "normal admin for timer";
+    AdminInfo adminInfo = {.packageName_ = timerPkg, .className_ = "TimerAdmin",
+        .entInfo_ = entInfo, .adminType_ = AdminType::NORMAL, .isDebug_ = false};
+    edmMgr_->adminMgr_->InsertAdmins(DEFAULT_USER_ID, {std::make_shared<Admin>(adminInfo)});
+
+    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
+    // First GetNameForUid (in HandleSystemTimerPolicyNew) returns the admin's package name
+    // Second GetNameForUid (in CheckCallingUid) returns a different bundle → mismatch
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid)
+        .WillOnce(DoAll(SetArgReferee<1>(timerPkg), Return(ERR_OK)))
+        .WillOnce(DoAll(SetArgReferee<1>(std::string("com.other.bundle")), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds)
+        .WillOnce(DoAll(SetArgReferee<0>(std::vector<int32_t>{DEFAULT_USER_ID}), Return(ERR_OK)));
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
+}
+#endif // FEATURE_PC_ONLY
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
