@@ -87,12 +87,7 @@ ErrCode AllowedPrinterIpAddressesUtil::OnRemovePolicy(std::vector<std::string> &
 {
     EDMLOGI("AllowedPrinterIpAddressesUtil::OnRemovePolicy start, data.size=%{public}zu, type=%{public}u",
         data.size(), static_cast<uint32_t>(type));
-    
-    ErrCode conflictResult = CheckPolicyConflict(type);
-    if (FAILED(conflictResult)) {
-        return conflictResult;
-    }
- 
+
     if (data.empty()) {
         return ERR_OK;
     }

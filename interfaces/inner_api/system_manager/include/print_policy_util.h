@@ -31,7 +31,7 @@ public:
 private:
     static bool QueryDeviceLevelPolicy(std::vector<std::string> &ipAddresses);
     static bool QueryUserLevelPolicy(int32_t userId, std::vector<std::string> &ipAddresses);
-    static std::string BuildPrintPolicyJson(const std::vector<std::string> &ipAddresses);
+    static ErrCode BuildPrintPolicyJson(const std::vector<std::string> &ipAddresses, std::string &json);
 };
  
 } // namespace EDM

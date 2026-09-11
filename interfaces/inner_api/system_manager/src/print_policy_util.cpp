@@ -14,7 +14,8 @@
  */
  
 #include "print_policy_util.h"
- 
+
+#include "cJSON.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "enterprise_device_mgr_proxy.h"
@@ -47,7 +48,11 @@ ErrCode PrintPolicyUtil::GetPrintPolicy(int32_t userId, std::string &json)
  
     // Step 3: Build JSON result
     if (!ipAddresses.empty()) {
-        json = BuildPrintPolicyJson(ipAddresses);
+        ErrCode ret = BuildPrintPolicyJson(ipAddresses, json);
+        if (FAILED(ret)) {
+            EDMLOGE("GetPrintPolicy: BuildPrintPolicyJson failed");
+            return ret;
+        }
     }
  
     return ERR_OK;
@@ -92,17 +97,50 @@ bool PrintPolicyUtil::QueryUserLevelPolicy(int32_t userId, std::vector<std::stri
     return !ipAddresses.empty();
 }
  
-std::string PrintPolicyUtil::BuildPrintPolicyJson(const std::vector<std::string> &ipAddresses)
+ErrCode PrintPolicyUtil::BuildPrintPolicyJson(const std::vector<std::string> &ipAddresses, std::string &json)
 {
-    std::string json = "{\"printer_policies\":[";
-    for (size_t i = 0; i < ipAddresses.size(); ++i) {
-        if (i > 0) {
-            json += ",";
-        }
-        json += "{\"device_ip\":\"" + ipAddresses[i] + "\"}";
+    cJSON *root = cJSON_CreateObject();
+    if (root == nullptr) {
+        EDMLOGE("BuildPrintPolicyJson: cJSON_CreateObject failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    json += "]}";
-    return json;
+    cJSON *arr = cJSON_CreateArray();
+    if (arr == nullptr) {
+        EDMLOGE("BuildPrintPolicyJson: cJSON_CreateArray failed");
+        cJSON_Delete(root);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    cJSON_AddItemToObject(root, "printer_policies", arr);
+    for (const auto &ip : ipAddresses) {
+        cJSON *item = cJSON_CreateObject();
+        if (item == nullptr) {
+            EDMLOGE("BuildPrintPolicyJson: cJSON_CreateObject failed for ip");
+            cJSON_Delete(root);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        if (cJSON_AddStringToObject(item, "device_ip", ip.c_str()) == nullptr) {
+            EDMLOGE("BuildPrintPolicyJson: cJSON_AddStringToObject failed for ip");
+            cJSON_Delete(item);
+            cJSON_Delete(root);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        if (!cJSON_AddItemToArray(arr, item)) {
+            EDMLOGE("BuildPrintPolicyJson: cJSON_AddItemToArray failed for ip");
+            cJSON_Delete(item);
+            cJSON_Delete(root);
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+    char *jsonStr = cJSON_PrintUnformatted(root);
+    if (jsonStr == nullptr) {
+        EDMLOGE("BuildPrintPolicyJson: cJSON_PrintUnformatted failed");
+        cJSON_Delete(root);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    json = std::string(jsonStr);
+    cJSON_free(jsonStr);
+    cJSON_Delete(root);
+    return ERR_OK;
 }
  
 } // namespace EDM

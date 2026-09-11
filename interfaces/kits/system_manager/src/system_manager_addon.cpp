@@ -63,11 +63,11 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isOtaUpdateNonceEnable", IsOtaUpdateNonceEnable),
         DECLARE_NAPI_FUNCTION("setLocalHotaDomain", SetLocalHotaDomain),
         DECLARE_NAPI_FUNCTION("getLocalHotaDomain", GetLocalHotaDomain),
-        DECLARE_NAPI_FUNCTION("createExactTimer", CreateTimer),
-        DECLARE_NAPI_FUNCTION("startExactTimer", StartTimer),
-        DECLARE_NAPI_FUNCTION("stopExactTimer", StopTimer),
-        DECLARE_NAPI_FUNCTION("destroyExactTimer", DestroyTimer),
-        DECLARE_NAPI_FUNCTION("addAllowedPrinterIPAddressesForDevice", addAllowedPrinterIPAddressesForDevice),
+        DECLARE_NAPI_FUNCTION("createTimer", CreateTimer),
+        DECLARE_NAPI_FUNCTION("startTimer", StartTimer),
+        DECLARE_NAPI_FUNCTION("stopTimer", StopTimer),
+        DECLARE_NAPI_FUNCTION("destroyTimer", DestroyTimer),
+        DECLARE_NAPI_FUNCTION("addAllowedPrinterIPAddressesForDevice", AddAllowedPrinterIPAddressesForDevice),
         DECLARE_NAPI_FUNCTION("removeAllowedPrinterIPAddressesForDevice", RemoveAllowedPrinterIPAddressesForDevice),
         DECLARE_NAPI_FUNCTION("getAllowedPrinterIPAddressesForDevice", GetAllowedPrinterIPAddressesForDevice),
         DECLARE_NAPI_FUNCTION("addAllowedPrinterIPAddressesForAccount", AddAllowedPrinterIPAddressesForAccount),
@@ -1669,7 +1669,7 @@ void SystemManagerAddon::NativeCreateTimerComplete(napi_env env, napi_status sta
 }
 #endif
 
-napi_value SystemManagerAddon::addAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info)
+napi_value SystemManagerAddon::AddAllowedPrinterIPAddressesForDevice(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddAllowedPrinterIPAddressesForDevice called");
     return AddOrRemoveAllowedPrinterIPAddresses(env, info, FuncOperateType::SET);
@@ -1777,31 +1777,26 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddressesForAccount(na
 {
     EDMLOGI("NAPI_AddOrRemoveAllowedPrinterIPAddressesForAccount called");
 #ifdef FEATURE_PC_ONLY
-    auto convertIpList2Data = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) -> ErrCode {
-        std::vector<std::string> ipList;
-        int32_t ret = EdmParsePrinterIpArray(env, ipList, argv);
-        if (FAILED(ret)) {
-            napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
-            EDMLOGE("EdmParsePrinterIpArray failed!");
-        }
-        data.WriteStringVector(ipList);
-        return ERR_OK;
-    };
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = operateType == FuncOperateType::SET ?
-        "AddAllowedPrinterIPAddressesForAccount" : "RemoveAllowedPrinterIPAddressesForAccount";
-    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
-    addonMethodSign.argsConvert = {convertIpList2Data, nullptr};
-    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
-    AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
-    if (result == nullptr) {
-        return nullptr;
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "parameter count error", ErrcodeType::NUMBER);
+    std::vector<std::string> ipLists;
+    int32_t ret = EdmParsePrinterIpArray(env, ipLists, argv[ARR_INDEX_ZERO]);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("EdmParsePrinterIpArray failed!");
     }
-    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddressesForAccount(
-        adapterAddonData.data, operateType);
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(userId);
+    parcelData.WriteStringVector(ipLists);
+    ret = SystemManagerProxy::GetSystemManagerProxy()->AddOrRemoveAllowedPrinterIPAddressesForAccount(
+        parcelData, operateType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("NAPI_AddOrRemoveAllowedPrinterIPAddressesForAccount failed!");
@@ -1818,20 +1813,29 @@ napi_value SystemManagerAddon::GetAllowedPrinterIPAddressesForAccount(napi_env e
 {
     EDMLOGI("NAPI_GetAllowedPrinterIPAddressesForAccount called");
 #ifdef FEATURE_PC_ONLY
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "GetAllowedPrinterIPAddressesForAccount";
-    addonMethodSign.argsType = {EdmAddonCommonType::USERID, EdmAddonCommonType::QUERY_POLICY};
-    addonMethodSign.methodAttribute = MethodAttribute::GET;
-    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
-    addonMethodSign.defaultArgSize = 1;
-    AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
-    if (result == nullptr) {
-        return nullptr;
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
+    if (argc >= ARGS_SIZE_ONE) {
+        int32_t parsedValue = 0;
+        if (ParseInt(env, parsedValue, argv[ARR_INDEX_ZERO]) &&
+            (parsedValue == static_cast<int32_t>(QueryPolicy::SELF) ||
+             parsedValue == static_cast<int32_t>(QueryPolicy::ALL))) {
+            queryPolicy = parsedValue;
+        }
     }
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+    parcelData.WriteInt32(userId);
+    parcelData.WriteInt32(queryPolicy);
     std::vector<std::string> ipAddresses;
     int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetAllowedPrinterIPAddressesForAccount(
-        adapterAddonData.data, ipAddresses);
+        parcelData, ipAddresses);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
