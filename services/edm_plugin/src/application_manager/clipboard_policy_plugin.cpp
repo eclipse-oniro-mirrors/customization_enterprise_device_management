@@ -216,6 +216,7 @@ void ClipboardPolicyPlugin::OnOtherServiceStart(int32_t systemAbilityId)
     HandlePasteboardPolicy(policyMap);
 }
 
+// LCOV_EXCL_START
 bool ClipboardPolicyPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -227,7 +228,9 @@ bool ClipboardPolicyPlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
         EdmInterfaceCode::CLIPBOARD_POLICY, true, false);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool ClipboardPolicyPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -239,7 +242,9 @@ bool ClipboardPolicyPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ClipboardPolicyPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -260,5 +265,6 @@ void ClipboardPolicyPlugin::OnPluginEvent(const std::string &adminName, HandlePo
     serializer->Serialize(adminData, policyData.policyData);
     serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

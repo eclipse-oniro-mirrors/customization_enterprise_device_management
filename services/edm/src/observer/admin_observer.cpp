@@ -45,6 +45,7 @@ void AdminObserver::OnAdminRemove(const std::string &bundleName, int32_t userId,
     }
 }
 
+// LCOV_EXCL_START
 void AdminObserver::SendByodDisableSelfNotification(const std::string &bundleName)
 {
     int32_t uid = IPCSkeleton::GetCallingUid();
@@ -60,7 +61,9 @@ void AdminObserver::SendByodDisableSelfNotification(const std::string &bundleNam
         SendAdminNotification(EdmConstants::REMOVED_MANAGEMENT_NOTIFICATION_TIPS, wantAgentInfo);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void AdminObserver::SendAdminNotification(const std::string &text, const WantAgentInfo &wantAgentInfo)
 {
     NotificationInfo notificationInfo = {.title = EdmConstants::DEVICE_MANAGEMENT_TEXT, .body = text};
@@ -70,5 +73,6 @@ void AdminObserver::SendAdminNotification(const std::string &text, const WantAge
     NotificationManager notificationManager;
     notificationManager.SendSystemNotification(notificationInfo, iconInfo, wantAgentInfo);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

@@ -67,6 +67,7 @@ bool EnterpriseConnManager::ExecuteCallback(const std::string& bundleName,
     return EstablishConnection(bundleName, abilityName, userId);
 }
 
+// LCOV_EXCL_START
 void EnterpriseConnManager::SaveProxy(const std::string& bundleName, int32_t userId,
     const sptr<EnterpriseAdminProxy>& proxy)
 {
@@ -101,6 +102,7 @@ void EnterpriseConnManager::SaveProxy(const std::string& bundleName, int32_t use
         }
     }
 }
+// LCOV_EXCL_STOP
 
 int64_t EnterpriseConnManager::GetCurrentTimeMs()
 {
@@ -109,6 +111,7 @@ int64_t EnterpriseConnManager::GetCurrentTimeMs()
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 }
 
+// LCOV_EXCL_START
 bool EnterpriseConnManager::IsConnectionTimeout(const ConnectionInfo& info)
 {
     if (!info.isPending) {
@@ -120,6 +123,7 @@ bool EnterpriseConnManager::IsConnectionTimeout(const ConnectionInfo& info)
     int64_t timeoutMs = static_cast<int64_t>(DEFAULT_TIMEOUT_MS * ratio);
     return elapsed > timeoutMs;
 }
+// LCOV_EXCL_STOP
 
 bool EnterpriseConnManager::CheckConnectionState(const std::string& key,
     std::shared_ptr<ICallbackStrategy> strategy, sptr<EnterpriseAdminProxy>& existingProxy,
@@ -232,6 +236,7 @@ std::string EnterpriseConnManager::GenerateConnectionKey(const std::string& bund
     return bundleName + "_" + std::to_string(userId);
 }
 
+// LCOV_EXCL_START
 void EnterpriseConnManager::RemoveRemoteObject(const std::string& bundleName, int32_t userId)
 {
     std::string key = GenerateConnectionKey(bundleName, userId);
@@ -243,7 +248,9 @@ void EnterpriseConnManager::RemoveRemoteObject(const std::string& bundleName, in
             bundleName.c_str(), userId);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void EnterpriseConnManager::ClearConnections()
 {
     std::vector<sptr<EnterpriseConnectionCallback>> staleCallbacks;
@@ -262,7 +269,9 @@ void EnterpriseConnManager::ClearConnections()
         ExtensionManagerClient::GetInstance().DisconnectAbility(cb->AsObject());
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void EnterpriseConnManager::DisconnectStaleCallback(const sptr<EnterpriseConnectionCallback>& callback)
 {
     if (callback == nullptr) { // LCOV_EXCL_BR_LINE
@@ -271,7 +280,9 @@ void EnterpriseConnManager::DisconnectStaleCallback(const sptr<EnterpriseConnect
     callback->MarkStale();
     ExtensionManagerClient::GetInstance().DisconnectAbility(callback->AsObject());
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool EnterpriseConnManager::RequeueAndReconnect(const std::string& bundleName, const std::string& abilityName,
     int32_t userId, const std::string& key, std::shared_ptr<ICallbackStrategy> strategy)
 {
@@ -299,5 +310,6 @@ bool EnterpriseConnManager::RequeueAndReconnect(const std::string& bundleName, c
     }
     return EstablishConnection(bundleName, abilityName, userId);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

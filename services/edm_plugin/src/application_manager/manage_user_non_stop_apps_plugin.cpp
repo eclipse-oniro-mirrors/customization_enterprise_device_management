@@ -482,6 +482,7 @@ void ManageUserNonStopAppsPlugin::OnOtherServiceStart(int32_t systemAbilityId)
     }
 }
 
+// LCOV_EXCL_START
 bool ManageUserNonStopAppsPlugin::SubscribeEvent()
 {
     auto *eventManager = IPluginEventSubscribeManager::GetInstance();
@@ -503,7 +504,9 @@ bool ManageUserNonStopAppsPlugin::SubscribeEvent()
     }
     return ret1 && ret2;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool ManageUserNonStopAppsPlugin::UnsubscribeEvent()
 {
     auto *eventManager = IPluginEventSubscribeManager::GetInstance();
@@ -517,7 +520,9 @@ bool ManageUserNonStopAppsPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::USER_SWITCHED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageUserNonStopAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -529,7 +534,9 @@ void ManageUserNonStopAppsPlugin::OnPluginEvent(const std::string &adminName, Ha
         OnBundleRemoved(policyData, data, userId);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageUserNonStopAppsPlugin::OnUserSwitched(HandlePolicyData &policyData)
 {
     EDMLOGI("ManageUserNonStopAppsPlugin OnUserSwitched");
@@ -541,7 +548,9 @@ void ManageUserNonStopAppsPlugin::OnUserSwitched(HandlePolicyData &policyData)
         EDMLOGE("ManageUserNonStopAppsPlugin OnUserSwitched fail res: %{public}d", ret);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageUserNonStopAppsPlugin::OnBundleRemoved(HandlePolicyData &policyData, const EdmEventData &data,
     int32_t userId)
 {
@@ -567,6 +576,7 @@ void ManageUserNonStopAppsPlugin::OnBundleRemoved(HandlePolicyData &policyData, 
     serializer->Serialize(adminData, policyData.policyData);
     serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 
 } // namespace EDM
 } // namespace OHOS

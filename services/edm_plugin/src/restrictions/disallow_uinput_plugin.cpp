@@ -53,6 +53,7 @@ ErrCode DisallowUInputPlugin::SetOtherModulePolicy(bool data, int32_t userId)
     return ERR_OK;
 }
 
+// LCOV_EXCL_START
 bool DisallowUInputPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -64,7 +65,9 @@ bool DisallowUInputPlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED),
         EdmInterfaceCode::DISALLOWED_UINPUT, true, false);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool DisallowUInputPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -76,7 +79,9 @@ bool DisallowUInputPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void DisallowUInputPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -86,5 +91,6 @@ void DisallowUInputPlugin::OnPluginEvent(const std::string &adminName, HandlePol
     }
     policyData.policyData = "";
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

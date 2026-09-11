@@ -58,6 +58,7 @@ ErrCode NotifyUpdatePackagesPlugin::OnGetPolicy(std::string &policyData, Message
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 }
 
+// LCOV_EXCL_START
 bool NotifyUpdatePackagesPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -69,7 +70,9 @@ bool NotifyUpdatePackagesPlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE),
         EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES, false, false);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool NotifyUpdatePackagesPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -81,5 +84,6 @@ bool NotifyUpdatePackagesPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE));
     return true;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

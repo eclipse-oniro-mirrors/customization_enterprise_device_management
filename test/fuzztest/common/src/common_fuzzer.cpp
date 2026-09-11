@@ -56,6 +56,9 @@
 #include "install_local_enterprise_app_enabled_plugin.h"
 #include "disable_hdc_remote_plugin.h"
 #endif
+#ifdef ABILITY_FORM_FWK_EDM_ENABLE
+#include "publish_form_to_desktop_plugin.h"
+#endif
 #include "install_plugin.h"
 #include "iptables_rule_plugin.h"
 #include "is_wifi_active_plugin.h"
@@ -176,6 +179,10 @@ const bool REGISTER_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<InstallLocalEnterpriseAppEnabledPlugin>());
 const bool REGISTER_DISABLE_HDC_REMOTE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<DisableHdcRemotePlugin>());
+#endif
+#ifdef ABILITY_FORM_FWK_EDM_ENABLE
+const bool REGISTER_PUBLISH_FORM_TO_DESKTOP_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<PublishFormToDesktopPlugin>());
 #endif
 
 void CommonFuzzer::OnRemoteRequestFuzzerTest(uint32_t code, const uint8_t* data, size_t size, MessageParcel& parcel)

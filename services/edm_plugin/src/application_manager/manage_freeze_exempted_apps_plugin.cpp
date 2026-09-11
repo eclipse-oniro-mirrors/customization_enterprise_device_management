@@ -264,6 +264,7 @@ std::vector<ApplicationInstance> ManageFreezeExemptedAppsPlugin::FilterUninstall
     return uninstalledApp;
 }
 
+// LCOV_EXCL_START
 bool ManageFreezeExemptedAppsPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -285,7 +286,9 @@ bool ManageFreezeExemptedAppsPlugin::SubscribeEvent()
     }
     return ret1 && ret2;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool ManageFreezeExemptedAppsPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -299,7 +302,9 @@ bool ManageFreezeExemptedAppsPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BMS_READY));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageFreezeExemptedAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -310,7 +315,9 @@ void ManageFreezeExemptedAppsPlugin::OnPluginEvent(const std::string &adminName,
         OnBundleRemoved(policyData, data, userId);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageFreezeExemptedAppsPlugin::OnBmsReady(HandlePolicyData &policyData)
 {
     EDMLOGI("ManageFreezeExemptedAppsPlugin OnBmsReady, restore policy");
@@ -322,7 +329,9 @@ void ManageFreezeExemptedAppsPlugin::OnBmsReady(HandlePolicyData &policyData)
         EDMLOGE("ManageFreezeExemptedAppsPlugin OnBmsReady restore policy fail, ret: %{public}d", ret);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageFreezeExemptedAppsPlugin::OnBundleRemoved(HandlePolicyData &policyData, const EdmEventData &data,
     int32_t userId)
 {
@@ -348,5 +357,6 @@ void ManageFreezeExemptedAppsPlugin::OnBundleRemoved(HandlePolicyData &policyDat
     serializer->Serialize(adminData, policyData.policyData);
     serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

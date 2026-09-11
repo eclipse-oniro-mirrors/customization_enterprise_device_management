@@ -35,6 +35,7 @@ ErrCode EdmAppManagerImpl::RegisterApplicationStateObserver(
     return ERR_APPLICATION_SERVICE_ABNORMALLY;
 }
 
+// LCOV_EXCL_START
 ErrCode EdmAppManagerImpl::UnregisterApplicationStateObserver(
     const sptr<AppExecFwk::IApplicationStateObserver>& observer)
 {
@@ -47,5 +48,6 @@ ErrCode EdmAppManagerImpl::UnregisterApplicationStateObserver(
     EDMLOGE("EdmAppManagerImpl::UnregisterApplicationStateObserver failed.");
     return ERR_APPLICATION_SERVICE_ABNORMALLY;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

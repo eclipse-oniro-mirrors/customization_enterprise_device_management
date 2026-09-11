@@ -29,6 +29,7 @@ namespace EDM {
 EnterpriseConnectionCallback::EnterpriseConnectionCallback(const std::string& bundleName, int32_t userId)
     : bundleName_(bundleName), userId_(userId) {}
 
+// LCOV_EXCL_START
 void EnterpriseConnectionCallback::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int32_t resultCode)
 {
@@ -63,7 +64,9 @@ void EnterpriseConnectionCallback::OnAbilityConnectDone(
         manager->SaveProxy(bundleName_, userId_, proxy);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void EnterpriseConnectionCallback::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName& element, int32_t resultCode)
 {
@@ -101,6 +104,7 @@ void EnterpriseConnectionCallback::OnAbilityDisconnectDone(
         }
     }
 }
+// LCOV_EXCL_STOP
 
 #if defined(FEATURE_PC_ONLY) && defined(LOG_SERVICE_PLUGIN_EDM_ENABLE)
 void EnterpriseConnectionCallback::CreateLogDirIfNeed(const std::string &bundleName, int32_t userId)

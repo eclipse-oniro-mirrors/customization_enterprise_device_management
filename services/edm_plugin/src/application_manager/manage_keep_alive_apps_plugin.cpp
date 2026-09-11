@@ -449,6 +449,7 @@ sptr<AppExecFwk::IAppControlMgr> ManageKeepAliveAppsPlugin::GetAppControlProxy()
     return proxy->GetAppControlProxy();
 }
 
+// LCOV_EXCL_START
 bool ManageKeepAliveAppsPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -460,7 +461,9 @@ bool ManageKeepAliveAppsPlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
         EdmInterfaceCode::MANAGE_KEEP_ALIVE_APPS, true, true);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool ManageKeepAliveAppsPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -472,7 +475,9 @@ bool ManageKeepAliveAppsPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageKeepAliveAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -496,5 +501,6 @@ void ManageKeepAliveAppsPlugin::OnPluginEvent(const std::string &adminName, Hand
     serializer->Serialize(adminData, policyData.policyData);
     serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

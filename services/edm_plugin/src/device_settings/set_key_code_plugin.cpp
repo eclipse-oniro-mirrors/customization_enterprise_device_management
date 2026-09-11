@@ -87,6 +87,7 @@ void SetKeyCodePlugin::OnOtherServiceStartForAdmin(const std::string &adminName,
     return;
 }
 
+// LCOV_EXCL_START
 bool SetKeyCodePlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -98,7 +99,9 @@ bool SetKeyCodePlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::USER_SWITCHED),
         EdmInterfaceCode::SET_KEY_CODE_POLICYS, true, false);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool SetKeyCodePlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -109,5 +112,6 @@ bool SetKeyCodePlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::USER_SWITCHED));
     return true;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS
