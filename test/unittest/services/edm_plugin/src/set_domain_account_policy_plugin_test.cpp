@@ -197,7 +197,7 @@ HWTEST_F(SetDomainAccountPolicyPluginTest, TestOnHandlePolicyAndOnGetPolicyNorma
     MessageParcel data;
     OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
     domainAccountInfo.Marshalling(data);
-    DomainAccountPolicy domainAccountPolicy(300, 200, 100);
+    DomainAccountPolicy domainAccountPolicy(300, 200, 100, true);
     domainAccountPolicy.Marshalling(data);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"TestString", "", false};

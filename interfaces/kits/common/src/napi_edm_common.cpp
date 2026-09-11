@@ -550,6 +550,36 @@ bool JsObjectToBool(napi_env env, napi_value object, const char *filedStr, bool 
     return true;
 }
 
+bool JsObjectToBoolAllowUndefined(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
+    bool &result)
+{
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, filedStr, &hasProperty) != napi_ok) {
+        EDMLOGE("get js property failed.");
+        return false;
+    }
+    if (isNecessaryProp && !hasProperty) {
+        return false;
+    }
+    if (hasProperty) {
+        napi_value prop = nullptr;
+        if (napi_get_named_property(env, object, filedStr, &prop) != napi_ok) {
+            EDMLOGE("get js property value failed.");
+            return false;
+        }
+        napi_valuetype valueType = napi_undefined;
+        if (napi_typeof(env, prop, &valueType) != napi_ok) {
+            EDMLOGE("get js property type failed.");
+            return false;
+        }
+        if (valueType == napi_undefined) {
+            return true;
+        }
+        return ParseBool(env, result, prop);
+    }
+    return true;
+}
+
 bool JsObjectToString(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
     std::string &resultStr)
 {

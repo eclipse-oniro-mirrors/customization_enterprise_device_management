@@ -23,12 +23,13 @@ namespace EDM {
 struct DomainAccountPolicy {
     DomainAccountPolicy();
     DomainAccountPolicy(int32_t authenticationValidityPeriod, int32_t passwordValidityPeriod,
-        int32_t passwordExpirationNotification);
+        int32_t passwordExpirationNotification, bool supportUkeyAuthentication);
     ~DomainAccountPolicy();
 
     int32_t authenticationValidityPeriod = -1;
     int32_t passwordValidityPeriod = -1;
     int32_t passwordExpirationNotification = 0;
+    bool supportUkeyAuthentication = false;
 
     bool ReadFromParcel(MessageParcel &parcel);
     bool Marshalling(MessageParcel &parcel) const;

@@ -50,6 +50,8 @@ public:
     ErrCode StartTimer(uint64_t timerId, uint64_t triggerTime, const std::string &adminBundleName);
     ErrCode StopTimer(uint64_t timerId, const std::string &adminBundleName);
     ErrCode DestroyTimer(uint64_t timerId, const std::string &adminBundleName);
+    ErrCode ResyncTimer(const TimerOptions &options, const std::string &adminBundleName,
+        uint64_t timerId, uint64_t triggerTime);
     ErrCode HandleTimerOperation(uint32_t funcCode, const std::string &adminBundleName,
         MessageParcel &data, MessageParcel &reply, int32_t userId);
     void OnTimerTriggered(uint64_t timerId);
@@ -65,6 +67,7 @@ private:
     void ReleaseRecipientIfUnusedLocked(const sptr<IRemoteObject> &clientCallback);
     ErrCode HandleCreateTimerOperation(const std::string &adminBundleName,
         MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode HandleResyncTimerOperation(const std::string &adminBundleName, MessageParcel &data);
 
     std::mutex mutex_;
     std::map<uint64_t, TimerEntry> timerMap_;

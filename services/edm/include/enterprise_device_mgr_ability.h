@@ -126,8 +126,8 @@ private:
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
 #ifndef FEATURE_PC_ONLY
     bool IsSystemTimerFuncCode(uint32_t code);
-    ErrCode HandleSystemTimerPolicy(uint32_t code, AppExecFwk::ElementName &admin,
-        MessageParcel &data, MessageParcel &reply, int32_t userId);
+    ErrCode HandleSystemTimerPolicyNew(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, int32_t userId);
 #endif
     ErrCode RemoveSubSuperAdminAndAdminPolicy(const std::string &bundleName, AdminType adminType);
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);

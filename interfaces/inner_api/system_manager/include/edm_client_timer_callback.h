@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <map>
 #include <mutex>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -30,6 +31,18 @@
 
 namespace OHOS {
 namespace EDM {
+struct TimerMeta {
+    bool repeat = false;
+    uint64_t interval = 0;
+    std::string name;
+};
+
+struct ResyncItem {
+    uint64_t timerId = 0;
+    TimerMeta meta;
+    uint64_t lastTriggerTime = 0;
+};
+
 class EdmClientTimerCallback : public IRemoteStub<ITimerCallback> {
 public:
     EdmClientTimerCallback() = default;
@@ -38,14 +51,18 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     void OnTimerTriggered(uint64_t timerId) override;
 
-    void InsertCallback(uint64_t timerId, napi_env env, napi_ref ref);
+    void InsertCallback(uint64_t timerId, napi_env env, napi_ref ref, const TimerMeta &meta);
     void RemoveCallback(uint64_t timerId);
     void ClearAll();
+    void UpdateTriggerTime(uint64_t timerId, uint64_t triggerTime);
+    std::vector<ResyncItem> GetAllResyncItems();
 
 private:
     struct CallbackInfo {
         napi_env env = nullptr;
         napi_ref ref = nullptr;
+        TimerMeta meta;
+        uint64_t lastTriggerTime = 0;
     };
     std::map<uint64_t, CallbackInfo> callbackMap_;
     std::mutex mutex_;

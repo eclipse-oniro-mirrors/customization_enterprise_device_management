@@ -28,17 +28,19 @@
 
 namespace OHOS {
 namespace EDM {
+class EdmSaStatusListener;
+
 class SystemManagerProxy {
 public:
     SystemManagerProxy();
     static std::shared_ptr<SystemManagerProxy> GetSystemManagerProxy();
 #ifndef FEATURE_PC_ONLY
-    int32_t CreateTimer(const AppExecFwk::ElementName &admin, bool repeat, uint64_t interval,
-        const std::string &name, uint64_t &timerId);
-    int32_t StartTimer(const AppExecFwk::ElementName &admin, uint64_t timerId, uint64_t triggerTime);
-    int32_t StopTimer(const AppExecFwk::ElementName &admin, uint64_t timerId);
-    int32_t DestroyTimer(const AppExecFwk::ElementName &admin, uint64_t timerId);
+    int32_t CreateTimer(bool repeat, uint64_t interval, const std::string &name, uint64_t &timerId);
+    int32_t StartTimer(uint64_t timerId, uint64_t triggerTime);
+    int32_t StopTimer(uint64_t timerId);
+    int32_t DestroyTimer(uint64_t timerId);
     sptr<EdmClientTimerCallback> GetClientTimerCallback();
+    void OnEdmSaRestart();
 #endif
     int32_t SetNTPServer(MessageParcel &data);
     int32_t GetNTPServer(MessageParcel &data, std::string &value);
@@ -83,6 +85,9 @@ public:
 private:
 #ifndef FEATURE_PC_ONLY
     void EnsureEdmSaDeathRecipient();
+    bool SubscribeEdmSa();
+    int32_t ResyncTimer(uint64_t timerId, bool repeat, uint64_t interval,
+        const std::string &name, uint64_t triggerTime);
 #endif
     static std::shared_ptr<SystemManagerProxy> instance_;
     static std::once_flag flag_;
@@ -91,6 +96,7 @@ private:
     std::mutex drMutex_;
     sptr<IRemoteObject::DeathRecipient> edmDeathRecipient_;
     sptr<IRemoteObject> registeredRemote_;
+    sptr<EdmSaStatusListener> saListener_;
 #endif
 };
 } // namespace EDM

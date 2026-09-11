@@ -447,12 +447,12 @@ std::string PermissionChecker::GetHapTokenBundleName(Security::AccessToken::Acce
 }
 
 #ifndef FEATURE_PC_ONLY
-ErrCode PermissionChecker::CheckSystemTimerPermission(const AppExecFwk::ElementName &admin, int32_t userId)
+ErrCode PermissionChecker::CheckSystemTimerPermission(const std::string &bundleName, int32_t userId)
 {
     std::shared_ptr<Admin> deviceAdmin =
-        AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(), userId);
+        AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
     if (deviceAdmin == nullptr) {
-        EDMLOGE("CheckSystemTimerPermission: %{public}s is not activated", admin.GetBundleName().c_str());
+        EDMLOGE("CheckSystemTimerPermission: %{public}s is not activated", bundleName.c_str());
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     if (deviceAdmin->GetAdminType() == AdminType::BYOD) {

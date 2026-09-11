@@ -1387,8 +1387,8 @@ napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info
     return nullptr;
 #else
     EDMLOGI("NAPI_CreateTimer called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -1397,14 +1397,10 @@ napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info
         return nullptr;
     }
     std::unique_ptr<AsyncCreateTimerCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error", ErrcodeType::NUMBER);
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "Parameter admin error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
         "Parameter options error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseElementName(env, asyncCallbackInfo->elementName,
-        argv[ARR_INDEX_ZERO]), "Parameter admin parse error", ErrcodeType::NUMBER);
-    if (!ParseWakeupTimerOptions(env, argv[ARR_INDEX_ONE], asyncCallbackInfo)) {
+    if (!ParseWakeupTimerOptions(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo)) {
         return nullptr;
     }
     asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
@@ -1452,8 +1448,8 @@ napi_value SystemManagerAddon::StartTimer(napi_env env, napi_callback_info info)
     return nullptr;
 #else
     EDMLOGI("NAPI_StartTimer called");
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -1462,21 +1458,16 @@ napi_value SystemManagerAddon::StartTimer(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncTimerOperationCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_THREE, "Parameter count error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "Parameter admin error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number),
         "Parameter timerId error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
         "Parameter triggerTime error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
-        ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin parse error", ErrcodeType::NUMBER);
     int64_t timerId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, timerId, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, timerId, argv[ARR_INDEX_ZERO]),
         "Parameter timerId parse error", ErrcodeType::NUMBER);
     int64_t triggerTime = 0;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, triggerTime, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, triggerTime, argv[ARR_INDEX_ONE]),
         "Parameter triggerTime parse error", ErrcodeType::NUMBER);
     asyncCallbackInfo->timerId = static_cast<uint64_t>(timerId);
     asyncCallbackInfo->triggerTime = static_cast<uint64_t>(triggerTime);
@@ -1496,8 +1487,8 @@ napi_value SystemManagerAddon::StopTimer(napi_env env, napi_callback_info info)
     return nullptr;
 #else
     EDMLOGI("NAPI_StopTimer called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -1506,16 +1497,11 @@ napi_value SystemManagerAddon::StopTimer(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unique_ptr<AsyncTimerOperationCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "Parameter admin error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number),
         "Parameter timerId error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
-        ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin parse error", ErrcodeType::NUMBER);
     int64_t timerId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, timerId, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, timerId, argv[ARR_INDEX_ZERO]),
         "Parameter timerId parse error", ErrcodeType::NUMBER);
     asyncCallbackInfo->timerId = static_cast<uint64_t>(timerId);
     asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
@@ -1534,8 +1520,8 @@ napi_value SystemManagerAddon::DestroyTimer(napi_env env, napi_callback_info inf
     return nullptr;
 #else
     EDMLOGI("NAPI_DestroyTimer called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -1544,16 +1530,11 @@ napi_value SystemManagerAddon::DestroyTimer(napi_env env, napi_callback_info inf
         return nullptr;
     }
     std::unique_ptr<AsyncTimerOperationCallbackInfo> callbackPtr{asyncCallbackInfo};
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
-        "Parameter admin error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number),
         "Parameter timerId error", ErrcodeType::NUMBER);
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env,
-        ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO]),
-        "Parameter admin parse error", ErrcodeType::NUMBER);
     int64_t timerId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, timerId, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseLong(env, timerId, argv[ARR_INDEX_ZERO]),
         "Parameter timerId parse error", ErrcodeType::NUMBER);
     asyncCallbackInfo->timerId = static_cast<uint64_t>(timerId);
     asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
@@ -1579,7 +1560,7 @@ void SystemManagerAddon::NativeCreateTimer(napi_env env, void *data)
         asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         return;
     }
-    asyncCallbackInfo->ret = proxy->CreateTimer(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = proxy->CreateTimer(
         asyncCallbackInfo->repeat, asyncCallbackInfo->interval, asyncCallbackInfo->name, asyncCallbackInfo->timerId);
 }
 
@@ -1597,8 +1578,14 @@ void SystemManagerAddon::NativeStartTimer(napi_env env, void *data)
         asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         return;
     }
-    asyncCallbackInfo->ret = proxy->StartTimer(asyncCallbackInfo->elementName,
+    asyncCallbackInfo->ret = proxy->StartTimer(
         asyncCallbackInfo->timerId, asyncCallbackInfo->triggerTime);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        auto clientCallback = proxy->GetClientTimerCallback();
+        if (clientCallback != nullptr) {
+            clientCallback->UpdateTriggerTime(asyncCallbackInfo->timerId, asyncCallbackInfo->triggerTime);
+        }
+    }
 }
 
 void SystemManagerAddon::NativeStopTimer(napi_env env, void *data)
@@ -1615,7 +1602,7 @@ void SystemManagerAddon::NativeStopTimer(napi_env env, void *data)
         asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         return;
     }
-    asyncCallbackInfo->ret = proxy->StopTimer(asyncCallbackInfo->elementName, asyncCallbackInfo->timerId);
+    asyncCallbackInfo->ret = proxy->StopTimer(asyncCallbackInfo->timerId);
 }
 
 void SystemManagerAddon::NativeDestroyTimer(napi_env env, void *data)
@@ -1632,7 +1619,7 @@ void SystemManagerAddon::NativeDestroyTimer(napi_env env, void *data)
         asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         return;
     }
-    asyncCallbackInfo->ret = proxy->DestroyTimer(asyncCallbackInfo->elementName, asyncCallbackInfo->timerId);
+    asyncCallbackInfo->ret = proxy->DestroyTimer(asyncCallbackInfo->timerId);
 }
 
 void SystemManagerAddon::NativeCreateTimerComplete(napi_env env, napi_status status, void *data)
@@ -1645,8 +1632,9 @@ void SystemManagerAddon::NativeCreateTimerComplete(napi_env env, napi_status sta
     if (asyncCallbackInfo->ret == ERR_OK) {
         auto clientCallback = SystemManagerProxy::GetSystemManagerProxy()->GetClientTimerCallback();
         if (clientCallback != nullptr && asyncCallbackInfo->timerCallbackRef != nullptr) {
+            TimerMeta meta{asyncCallbackInfo->repeat, asyncCallbackInfo->interval, asyncCallbackInfo->name};
             clientCallback->InsertCallback(asyncCallbackInfo->timerId, env,
-                asyncCallbackInfo->timerCallbackRef);
+                asyncCallbackInfo->timerCallbackRef, meta);
             asyncCallbackInfo->timerCallbackRef = nullptr;
         }
     } else if (asyncCallbackInfo->timerCallbackRef != nullptr) {

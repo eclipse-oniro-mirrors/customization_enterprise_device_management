@@ -86,6 +86,7 @@ ErrCode SetDomainAccountPolicyPlugin::SetPolicy(MessageParcel &data)
         .Add("authenticationValidityPeriod", domainAccountPolicy.authenticationValidityPeriod)
         .Add("passwordValidityPeriod", domainAccountPolicy.passwordValidityPeriod)
         .Add("passwordExpirationNotification", domainAccountPolicy.passwordExpirationNotification)
+        .Add("supportUkeyAuthentication", domainAccountPolicy.supportUkeyAuthentication)
         .Build();
     std::string params = EdmJsonBuilder()
         .AddRawJson("domainAccountInfo", domainAccountInfoJson)
