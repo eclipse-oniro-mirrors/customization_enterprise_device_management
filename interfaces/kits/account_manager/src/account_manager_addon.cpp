@@ -591,6 +591,8 @@ napi_value AccountManagerAddon::ConvertDomainAccountPolicyToJs(napi_env env,
     NAPI_CALL(env, napi_set_named_property(env, result, "passwordValidityPeriod", value));
     NAPI_CALL(env, napi_create_int32(env, domainAccountPolicy.passwordExpirationNotification, &value));
     NAPI_CALL(env, napi_set_named_property(env, result, "passwordExpirationNotification", value));
+    NAPI_CALL(env, napi_get_boolean(env, domainAccountPolicy.supportUkeyAuthentication, &value));
+    NAPI_CALL(env, napi_set_named_property(env, result, "supportUkeyAuthentication", value));
     return result;
 }
 
@@ -606,15 +608,18 @@ bool AccountManagerAddon::ParseDomainAccountPolicy(napi_env env, DomainAccountPo
     int32_t authenticationValidityPeriod = -1;
     int32_t passwordValidityPeriod = -1;
     int32_t passwordExpirationNotification = 0;
+    bool supportUkeyAuthentication = false;
     if (!JsObjectToInt(env, args, "authenticationValidityPeriod", false, authenticationValidityPeriod) ||
         !JsObjectToInt(env, args, "passwordValidityPeriod", false, passwordValidityPeriod) ||
-        !JsObjectToInt(env, args, "passwordExpirationNotification", false, passwordExpirationNotification)) {
+        !JsObjectToInt(env, args, "passwordExpirationNotification", false, passwordExpirationNotification) ||
+        !JsObjectToBoolAllowUndefined(env, args, "supportUkeyAuthentication", false, supportUkeyAuthentication)) {
         EDMLOGE("AccountManagerAddon::ParseDomainAccountPolicy param error");
         return false;
     }
     domainAccountPolicy.authenticationValidityPeriod = authenticationValidityPeriod;
     domainAccountPolicy.passwordValidityPeriod = passwordValidityPeriod;
     domainAccountPolicy.passwordExpirationNotification = passwordExpirationNotification;
+    domainAccountPolicy.supportUkeyAuthentication = supportUkeyAuthentication;
     return true;
 }
 
