@@ -1730,9 +1730,8 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, Message
         return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     std::string bundleName;
-    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
     int uid = IPCSkeleton::GetCallingUid();
-    bundleMgr->GetNameForUid(uid, bundleName);
+    GetBundleMgr()->GetNameForUid(uid, bundleName);
     EDMLOGI("HandleDevicePolicyNew: policyName=%{public}s, bundleName=%{public}s", policyName.c_str(),
         bundleName.c_str());
 #ifndef EDM_FUZZ_TEST
@@ -1947,9 +1946,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, 
     std::string bundleName;
     std::string abilityName;
     if (queryPolicy == static_cast<int32_t>(QueryPolicy::SELF)) {
-        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
         int uid = IPCSkeleton::GetCallingUid();
-        bundleMgr->GetNameForUid(uid, bundleName);
+        GetBundleMgr()->GetNameForUid(uid, bundleName);
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
             GetCurrentUserId());
         if (deviceAdmin == nullptr) {

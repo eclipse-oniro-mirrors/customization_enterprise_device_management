@@ -137,10 +137,26 @@ void EnterpriseDeviceMgrAbilityTest::SetUp()
 
 void EnterpriseDeviceMgrAbilityTest::TearDown()
 {
-    edmMgr_->adminMgr_->ClearAdmins();
-    edmMgr_->policyMgr_.reset();
-    edmMgr_->instance_.clear();
-    edmMgr_.clear();
+    if (edmMgr_ != nullptr) {
+        Mock::VerifyAndClearExpectations(edmMgr_.GetRefPtr());
+        Mock::VerifyAndClearExpectations(permissionCheckerMock_.get());
+        Mock::VerifyAndClearExpectations(factoryMock_.get());
+        Mock::VerifyAndClearExpectations(bundleMgrMock_.get());
+        Mock::VerifyAndClearExpectations(appMgrMock_.get());
+        Mock::VerifyAndClearExpectations(osAccountMgrMock_.get());
+        Mock::VerifyAndClearExpectations(accessTokenMgrMock_.get());
+        edmMgr_->adminMgr_->ClearAdmins();
+        edmMgr_->policyMgr_.reset();
+        edmMgr_->instance_.clear();
+        edmMgr_.clear();
+    }
+    permissionCheckerMock_.reset();
+    factoryMock_.reset();
+    bundleMgrMock_.reset();
+    appMgrMock_.reset();
+    osAccountMgrMock_.reset();
+    accessTokenMgrMock_.reset();
+    plugin_.reset();
 }
 
 void EnterpriseDeviceMgrAbilityTest::SetUpTestSuite()
@@ -6436,6 +6452,138 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, CleanHapTempDirectory_FilesExist_AllFil
     // Verify files are removed
     EXPECT_EQ(access(testFile1.c_str(), F_OK), -1);
     EXPECT_EQ(access(testFile2.c_str(), F_OK), -1);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyNew_PolicyNameEmpty
+ * @tc.desc: Test HandleDevicePolicyNew when policy name is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_PolicyNameEmpty, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, INVALID_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyNew_Success
+ * @tc.desc: Test HandleDevicePolicyNew with valid input.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_Success, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_MANAGE_EDM_POLICY)))
+        .WillRepeatedly(Return(false));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyNew_UserNotExist
+ * @tc.desc: Test HandleDevicePolicyNew when user does not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_UserNotExist, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyNew_AdminInactive
+ * @tc.desc: Test HandleDevicePolicyNew when admin is not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_AdminInactive, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME_NOT_ACTIVE),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_PolicyNameEmpty
+ * @tc.desc: Test GetDevicePolicyNew when policy name is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_PolicyNameEmpty, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, INVALID_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0); // queryPolicy = SELF
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_UserNotExist
+ * @tc.desc: Test GetDevicePolicyNew when user does not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_UserNotExist, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0); // queryPolicy = SELF
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::UID_INVALID);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_QueryPolicyAll
+ * @tc.desc: Test GetDevicePolicyNew with queryPolicy = ALL (bundleName empty).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_QueryPolicyAll, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(true));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(1); // queryPolicy = ALL
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
