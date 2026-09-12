@@ -111,6 +111,8 @@ private:
         napi_value nDeviceSecurityLevelPolicy);
     static napi_value SetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info);
     static napi_value GetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info);
+    static napi_value SetWeakPinEnable(napi_env env, napi_callback_info info);
+    static napi_value IsWeakPinEnabled(napi_env env, napi_callback_info info);
     static void CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM

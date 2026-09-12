@@ -622,5 +622,40 @@ int32_t SecurityManagerProxy::GetDeviceSecurityLevelPolicy(MessageParcel &data, 
     policy = reply.ReadInt32();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::SetWeakPinEnable(bool isEnable, int32_t fd)
+{
+    EDMLOGD("SecurityManagerProxy::SetWeakPinEnable isEnable=%{public}d", isEnable);
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteBool(isEnable);
+    if (isEnable) {
+        data.WriteFileDescriptor(fd);
+    }
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::WEAK_PIN);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::IsWeakPinEnabled(bool &result)
+{
+    EDMLOGD("SecurityManagerProxy::IsWeakPinEnabled");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::WEAK_PIN, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    reply.ReadInt32(ret);
+    if (ret != ERR_OK) {
+        EDMLOGW("SecurityManagerProxy:IsWeakPinEnabled fail. %{public}d", ret);
+        return ret;
+    }
+    result = reply.ReadBool();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
