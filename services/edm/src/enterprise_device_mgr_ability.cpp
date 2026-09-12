@@ -1968,8 +1968,8 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, 
             IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG);
         std::string getPermissionByod = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
             IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG);
-        if (!(PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code, getPermission) ||
-            PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code, getPermissionByod))) {
+        if (!(GetPermissionChecker()->CheckElementNullPermissionNew(code, getPermission) ||
+            GetPermissionChecker()->CheckElementNullPermissionNew(code, getPermissionByod))) {
             EDMLOGE("GetDevicePolicy: permission check failed");
             return EdmReturnErrCode::PERMISSION_DENIED;
         }
