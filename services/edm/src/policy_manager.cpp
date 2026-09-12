@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace EDM {
-std::shared_timed_mutex PolicyManager::mutexLock_;
 
 std::shared_ptr<PolicyManager> PolicyManager::GetInstance()
 {
@@ -35,6 +34,7 @@ std::shared_ptr<PolicyManager> PolicyManager::GetInstance()
 ErrCode PolicyManager::GetAdminByPolicyName(const std::string &policyName, AdminValueItemsMap &adminValueItems,
     int32_t userId)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto userPolicyMgr = GetUserPolicyMgr(userId);
     return userPolicyMgr->GetAdminByPolicyName(policyName, adminValueItems);
 }
@@ -42,12 +42,14 @@ ErrCode PolicyManager::GetAdminByPolicyName(const std::string &policyName, Admin
 ErrCode PolicyManager::GetPolicy(const std::string &adminName, const std::string &policyName, std::string &policyValue,
     int32_t userId)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto userPolicyMgr = GetUserPolicyMgr(userId);
     return userPolicyMgr->GetPolicy(adminName, policyName, policyValue);
 }
 
 void PolicyManager::Init(std::vector<int32_t> userIds)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto userId : userIds) {
         EDMLOGI("PolicyManager::Init");
         if (userId == EdmConstants::DEFAULT_USER_ID) {
@@ -66,6 +68,7 @@ ErrCode PolicyManager::SetPolicy(const std::string &adminName, const std::string
     const std::string &adminPolicyValue, const std::string &mergedPolicyValue,
     int32_t userId)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto userPolicyMgr = GetUserPolicyMgr(userId);
     return userPolicyMgr->SetPolicy(adminName, policyName, adminPolicyValue, mergedPolicyValue);
 }
@@ -73,12 +76,14 @@ ErrCode PolicyManager::SetPolicy(const std::string &adminName, const std::string
 ErrCode PolicyManager::GetAllPolicyByAdmin(const std::string &adminName, PolicyItemsMap &allAdminPolicy,
     int32_t userId)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto userPolicyMgr = GetUserPolicyMgr(userId);
     return userPolicyMgr->GetAllPolicyByAdmin(adminName, allAdminPolicy);
 }
 
 ErrCode PolicyManager::ReplaceAllPolicy(int32_t userId, const std::string &adminName, const std::string &newAdminName)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto userPolicyMgr = GetUserPolicyMgr(userId);
     return userPolicyMgr->ReplacePolicyByAdminName(userId, adminName, newAdminName);
 }
@@ -107,6 +112,7 @@ std::shared_ptr<UserPolicyManager> PolicyManager::GetUserPolicyMgr(int32_t userI
 
 void PolicyManager::GetPolicyUserIds(std::vector<int32_t> &userIds)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (const auto& pair : policyMgrMap_) {
         userIds.push_back(pair.first);
     }
@@ -114,6 +120,7 @@ void PolicyManager::GetPolicyUserIds(std::vector<int32_t> &userIds)
 
 void PolicyManager::Dump()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto defaultUserPolicyMgr = GetUserPolicyMgr(EdmConstants::DEFAULT_USER_ID);
     defaultUserPolicyMgr->DumpAdminPolicy();
     defaultUserPolicyMgr->DumpAdminList();

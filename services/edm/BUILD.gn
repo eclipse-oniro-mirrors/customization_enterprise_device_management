@@ -105,6 +105,7 @@ ohos_shared_library("edmservice") {
       "./src/connection/icallback_strategy.cpp",
       "./src/database/edm_rdb_data_manager.cpp",
       "./src/database/edm_rdb_open_callback.cpp",
+      "./src/conflict_group_registry.cpp",
       "./src/device_policies_storage_rdb.cpp",
       "./src/edm_bluetooth_manager_impl.cpp",
       "./src/edm_timer_manager.cpp",
