@@ -71,6 +71,7 @@ enum class RestrictionsFeature : int32_t {
     OTA_UPDATE = 50,
     SYSTEM_ROLLBACK = 51,
     SATA_ODD_BURN = 52,
+    SUPER_PRIVACY = 53,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {

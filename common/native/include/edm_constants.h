@@ -169,6 +169,7 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_SECURE_ERASE = 39;
         constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
         constexpr uint32_t WEAK_PIN = 43;
+        constexpr uint32_t DISABLE_SUPER_PRIVACY = 44;
     }
 
     namespace KeepAlive {
