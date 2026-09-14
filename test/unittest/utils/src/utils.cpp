@@ -106,7 +106,7 @@ void Utils::SetNativeTokenTypeAndPermissions(const char* permissions[], int size
         .dcaps = nullptr,
         .perms = permissions,
         .acls = nullptr,
-        .aplStr = "system_basic",
+        .aplStr = "system_core",
     };
 
     infoInstance.processName = "edm";
