@@ -424,7 +424,10 @@ int32_t ApplicationManagerProxy::GetFreezeExemptedApps(MessageParcel &data,
         EDMLOGW("EnterpriseDeviceMgrProxy::GetFreezeExemptedApps GetPolicy failed. %{public}d", ret);
         return ret;
     }
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps);
+    if (!ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, freezeExemptedApps)) {
+        EDMLOGE("ApplicationManagerProxy::GetFreezeExemptedApps read freezeExemptedApps failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 
@@ -478,7 +481,10 @@ int32_t ApplicationManagerProxy::GetUserNonStopApps(MessageParcel &data,
         EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps);
+    if (!ApplicationInstanceHandle::ReadApplicationInstanceVector(reply, userNonStopApps)) {
+        EDMLOGE("ApplicationManagerProxy::GetUserNonStopApps read userNonStopApps failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 
@@ -723,7 +729,10 @@ int32_t ApplicationManagerProxy::GetApplicationWindowStates(const AppExecFwk::El
         EDMLOGW("EnterpriseDeviceMgrProxy::GetPolicy fail. %{public}d", ret);
         return ret;
     }
-    WindowStateInfoHandle::ReadWindowStateInfoVector(reply, windowStateInfos);
+    if (!WindowStateInfoHandle::ReadWindowStateInfoVector(reply, windowStateInfos)) {
+        EDMLOGE("ApplicationManagerProxy::GetApplicationWindowStates read windowStateInfos failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     return ERR_OK;
 }
 
