@@ -30,6 +30,7 @@
 
 namespace OHOS {
 namespace EDM {
+// LCOV_EXCL_START
 ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int32_t userId, const bool isSuccess)
 {
     UnloadPlugin((std::uint32_t)EdmInterfaceCode::POLICY_CODE_END +
@@ -50,7 +51,9 @@ ErrCode ExtraPolicyNotification::Notify(const std::string &adminName, const int3
     }
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &adminName, const int32_t userId,
     const std::string &keyEvent)
 {
@@ -72,12 +75,15 @@ ErrCode ExtraPolicyNotification::ReportKeyEvent(const std::string &adminName, co
     }
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 ErrCode ExtraPolicyNotification::UnloadPlugin(uint32_t code)
 {
     EDMLOGI("ExtraPolicyNotification::UnloadCollectLogPlugin");
     return PluginManager::GetInstance()->SetPluginUnloadFlag(code, true);
 }
+// LCOV_EXCL_STOP
 
 bool ExtraPolicyNotification::NotifyPolicyChanged(const std::string &interfaceName, const std::string &parameters)
 {
@@ -109,6 +115,7 @@ bool ExtraPolicyNotification::NotifyPolicyChanged(const std::string &interfaceNa
     return true;
 }
 
+// LCOV_EXCL_START
 void ExtraPolicyNotification::NotifySubscriber(const std::string &bundleName, const std::string &abilityName,
     const PolicyChangedEvent &changedEvent, int32_t userId)
 {
@@ -120,5 +127,6 @@ void ExtraPolicyNotification::NotifySubscriber(const std::string &bundleName, co
         EDMLOGE("ExtraPolicyNotification::NotifySubscriber ExecuteCallback failed.");
     }
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

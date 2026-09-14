@@ -15,21 +15,7 @@
  
 #ifndef ALLOWED_PRINTER_IP_ADDRESSES_PLUGIN_FUZZER_H
 #define ALLOWED_PRINTER_IP_ADDRESSES_PLUGIN_FUZZER_H
- 
-#include <cstdint>
- 
-namespace OHOS {
-namespace EDM {
-constexpr size_t MIN_SIZE = 8;
-constexpr int32_t WITHOUT_USERID = 0;
-constexpr int32_t HAS_ADMIN = 0;
-constexpr int32_t WITHOUT_ADMIN = 1;
-constexpr size_t MAX_SIZE = 100;
- 
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv);
- 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
- 
-} // namespace EDM
-} // namespace OHOS
+
+#define FUZZ_PROJECT_NAME "allowed_printer_ip_addresses_plugin_fuzzer"
+
 #endif

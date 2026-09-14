@@ -16,8 +16,9 @@
 #include "allowed_printer_ip_addresses_plugin_fuzzer.h"
  
 #include <system_ability_definition.h>
- 
+
 #include "common_fuzzer.h"
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "ienterprise_device_mgr.h"
 #include "func_code.h"
@@ -26,13 +27,17 @@
  
 namespace OHOS {
 namespace EDM {
+constexpr size_t MIN_SIZE = 84;
+constexpr size_t STRING_COUNT = 60;
+constexpr size_t INT32_COUNT = 6;
+constexpr size_t MAX_SIZE = 100;
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
     TEST::Utils::SetEdmPermissions();
     return 0;
 }
- 
+
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     if (data == nullptr) {
@@ -43,42 +48,31 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
  
     int32_t pos = 0;
-    int32_t stringSize = size / 8;
- 
+    int32_t stringSize = (size - sizeof(int32_t) * INT32_COUNT) / STRING_COUNT;
+
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t deviceCode = EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE;
         uint32_t userCode = EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT;
-        
+
         for (uint32_t code : {deviceCode, userCode}) {
-            uint32_t fullCode = POLICY_FUNC_CODE(operateType, code);
- 
-            AppExecFwk::ElementName admin;
-            admin.SetBundleName(CommonFuzzer::GetString(data, pos, stringSize, size));
-            admin.SetAbilityName(CommonFuzzer::GetString(data, pos, stringSize, size));
+            uint32_t fullCode = POLICY_FUNC_CODE_NEW(operateType, code);
+
             MessageParcel parcel;
             parcel.WriteInterfaceToken(IEnterpriseDeviceMgrIdl::GetDescriptor());
-            parcel.WriteInt32(WITHOUT_USERID);
-            
-            if (operateType != static_cast<uint32_t>(FuncOperateType::GET)) {
-                parcel.WriteParcelable(&admin);
+            parcel.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+
+            if (operateType == static_cast<uint32_t>(FuncOperateType::GET)) {
+                int32_t queryPolicy = CommonFuzzer::GetU32Data(data, pos, size);
+                parcel.WriteInt32(queryPolicy);
+            } else {
                 std::vector<std::string> ipAddresses;
                 uint32_t ipCount = CommonFuzzer::GetU32Data(data) % 10;
                 for (uint32_t i = 0; i < ipCount && ipAddresses.size() < MAX_SIZE; ++i) {
                     ipAddresses.push_back(CommonFuzzer::GetString(data, pos, stringSize, size));
                 }
                 parcel.WriteStringVector(ipAddresses);
-            } else {
-                parcel.WriteString("");
-                bool hasAdmin = CommonFuzzer::GetU32Data(data) % BINARY_DECISION_DIVISOR;
-                if (hasAdmin) {
-                    parcel.WriteInt32(HAS_ADMIN);
-                    parcel.WriteParcelable(&admin);
-                } else {
-                    parcel.WriteInt32(WITHOUT_ADMIN);
-                }
             }
- 
             CommonFuzzer::OnRemoteRequestFuzzerTest(fullCode, data, size, parcel);
         }
     }

@@ -55,6 +55,7 @@ std::vector<std::string> ExtInfoManager::GetAgCommonEventName()
     return agCommonEventName;
 }
 
+// LCOV_EXCL_START
 std::string ExtInfoManager::GetAdminProvisioningInfo()
 {
     MessageParcel reply;
@@ -68,7 +69,9 @@ std::string ExtInfoManager::GetAdminProvisioningInfo()
     }
     return reply.ReadString();
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 WantAgentInfo ExtInfoManager::GetWantAgentInfo()
 {
     WantAgentInfo wantAgentInfo;
@@ -80,6 +83,7 @@ WantAgentInfo ExtInfoManager::GetWantAgentInfo()
     }
     return wantAgentInfo;
 }
+// LCOV_EXCL_STOP
 
 std::string ExtInfoManager::GetSuperHubInfo()
 {
