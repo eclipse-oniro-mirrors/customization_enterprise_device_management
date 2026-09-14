@@ -191,6 +191,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     PermissionChecker::GetInstance()->GetCurrentUserId();
     PermissionChecker::GetInstance()->CheckSpecialPolicyCallQuery(userId);
 
+    MessageParcel parcelData;
+    MessageParcel parcelReply;
+    enterpriseDeviceMgrAbility->HandleDevicePolicyNew(code, parcelData, parcelReply, userId);
+    enterpriseDeviceMgrAbility->GetDevicePolicyNew(code, parcelData, parcelReply, userId);
+
     system::SetParameter(PARAM_EDM_ENABLE, "false");
     return 0;
 }

@@ -1741,7 +1741,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, Message
     bool isUserExist = false;
     GetOsAccountMgr()->IsOsAccountExists(userId, isUserExist);
     if (!isUserExist) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::UID_INVALID;
     }
     ErrCode systemCalling = GetPermissionChecker()->CheckSystemCalling(
         PluginManager::GetInstance()->GetPluginType(code, FuncOperateType::SET), "");

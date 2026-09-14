@@ -6508,7 +6508,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_UserNotExist,
     MessageParcel data;
     MessageParcel reply;
     ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(res, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(res, EdmReturnErrCode::UID_INVALID);
 }
 
 /**
@@ -6682,6 +6682,86 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_CheckCalling
     EXPECT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
 }
 #endif // FEATURE_PC_ONLY
+
+/**
+ * @tc.name: TestHandleDevicePolicyNew_PermissionCheckFailed
+ * @tc.desc: Test HandleDevicePolicyNew when admin permission check fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_PermissionCheckFailed, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(false));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_NE(res, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_SelfAdminInactive
+ * @tc.desc: Test GetDevicePolicyNew with queryPolicy=SELF when caller admin is not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_SelfAdminInactive, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME_NOT_ACTIVE),
+        Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0); // queryPolicy = SELF
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_SelfSuccess
+ * @tc.desc: Test GetDevicePolicyNew with queryPolicy=SELF and valid admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_SelfSuccess, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(true));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0); // queryPolicy = SELF
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_AllPermissionDenied
+ * @tc.desc: Test GetDevicePolicyNew with queryPolicy=ALL when permission is denied.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_AllPermissionDenied, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(false));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(1); // queryPolicy = ALL
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::PERMISSION_DENIED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

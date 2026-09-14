@@ -22,7 +22,9 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "func_code.h"
 #include "iplugin.h"
+#include "plugin_policy_reader.h"
 #include "policy_query_factory.h"
 #include "policy_query_config_table.h"
 #include "policy_query_config.h"
@@ -774,6 +776,48 @@ HWTEST_F(PluginPolicyQueryTest, TestGetDisplayVersionSystemApiIntegration, TestS
         EdmPermission::PERMISSION_ENTERPRISE_GET_DEVICE_INFO);
 }
 
+HWTEST_F(PluginPolicyQueryTest, TestGetPolicyByCodeNew_NonPolicyFlag, TestSize.Level1)
+{
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, 0);
+    funcCode &= ~(1 << 20);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = PluginPolicyReader::GetInstance()->GetPolicyByCodeNew(
+        nullptr, funcCode, data, reply, EdmConstants::DEFAULT_USER_ID, 0);
+    ASSERT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+HWTEST_F(PluginPolicyQueryTest, TestGetPolicyByCodeNew_CodeNotInConfigTable, TestSize.Level1)
+{
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, 9999);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = PluginPolicyReader::GetInstance()->GetPolicyByCodeNew(
+        nullptr, funcCode, data, reply, EdmConstants::DEFAULT_USER_ID, 0);
+    ASSERT_EQ(ret, ERR_CANNOT_FIND_QUERY_FAILED);
+}
+
+HWTEST_F(PluginPolicyQueryTest, TestGetPolicyByCodeNew_FeatureNotEnabled, TestSize.Level1)
+{
+    uint32_t disabledCode = 0;
+    auto entries = PolicyQueryConfigTable::GetAllEntries();
+    size_t count = PolicyQueryConfigTable::GetConfigCount();
+    for (size_t i = 0; i < count; i++) {
+        if (!entries[i].config.isFeatureEnabled) {
+            disabledCode = entries[i].code;
+            break;
+        }
+    }
+    if (disabledCode == 0) {
+        GTEST_SKIP() << "No disabled feature found in config table";
+    }
+    uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, disabledCode);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = PluginPolicyReader::GetInstance()->GetPolicyByCodeNew(
+        nullptr, funcCode, data, reply, EdmConstants::DEFAULT_USER_ID, 0);
+    ASSERT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
