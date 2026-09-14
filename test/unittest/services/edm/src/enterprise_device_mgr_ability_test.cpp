@@ -6508,7 +6508,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_UserNotExist,
     MessageParcel data;
     MessageParcel reply;
     ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(res, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(res, EdmReturnErrCode::UID_INVALID);
 }
 
 /**
