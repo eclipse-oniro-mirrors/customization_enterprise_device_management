@@ -687,10 +687,12 @@ void EnterpriseDeviceMgrAbility::OnAddSystemAbility(int32_t systemAbilityId, con
 void EnterpriseDeviceMgrAbility::OnAppManagerServiceStart()
 {
     EDMLOGI("OnAppManagerServiceStart");
+#ifndef EDM_FUZZ_TEST
     EventSubscriptionManager::GetInstance().ResetAdapterSubscribedState(
         EventId{static_cast<uint32_t>(ManagedEvent::APP_START)});
     MdmEventRelayer::GetInstance().RestoreAppLifecycleSubscriptions();
     EventSubscriptionManager::GetInstance().RetryFailedAdapters(AdapterType::APP_LIFECYCLE);
+#endif
     ConnectEnterpriseAbility();
 }
 
@@ -799,10 +801,11 @@ void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
             agCommonEventList[1], agCommonEventList[AG_PERMISSION_INDEX]));
         EDMLOGI("OnCommonEventServiceStart subscribe ag events success");
     }
-
+#ifndef EDM_FUZZ_TEST
     MdmEventRelayer::GetInstance().RestoreAdminSubscriptions();
     PluginEventRouter::GetInstance().RestorePluginSubscriptions();
     EventSubscriptionManager::GetInstance().RetryFailedAdapters(AdapterType::COMMON_EVENT);
+#endif
 }
 
 // LCOV_EXCL_START

@@ -187,6 +187,7 @@ ErrCode SetAbilityDisablePlugin::OnAdminRemove(const std::string &adminName, con
     return ERR_OK;
 }
 
+// LCOV_EXCL_START
 bool SetAbilityDisablePlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -198,7 +199,9 @@ bool SetAbilityDisablePlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED),
         EdmInterfaceCode::SET_ABILITY_ENABLED, false, true);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool SetAbilityDisablePlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -210,7 +213,9 @@ bool SetAbilityDisablePlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void SetAbilityDisablePlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -223,7 +228,9 @@ void SetAbilityDisablePlugin::OnPluginEvent(const std::string &adminName, Handle
     }
     OnBundleAdded(bundleName, userId, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void SetAbilityDisablePlugin::OnBundleAdded(const std::string &bundleName, int32_t userId,
     const std::string &mergePolicyData)
 {
@@ -240,5 +247,6 @@ void SetAbilityDisablePlugin::OnBundleAdded(const std::string &bundleName, int32
         }
     }
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

@@ -35,6 +35,7 @@ group("fuzztest") {
     "disablednetworkinterfaceplugin_fuzzer:DisabledNetworkInterfacePluginFuzzTest",
     "disableusbplugin_fuzzer:DisableUsbPluginFuzzTest",
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
+    "disallowxkeyplugin_fuzzer:DisallowXKeyPluginFuzzTest",
     "disallowedbluetoothdevicesplugin_fuzzer:DisallowedBluetoothDevicesPluginFuzzTest",
     "disallowedbluetoothprotocolsplugin_fuzzer:DisallowedBluetoothProtocolsPluginFuzzTest",
     "disallowedrunningbundlesplugin_fuzzer:DisallowedRunningBundlesPluginFuzzTest",
@@ -106,6 +107,12 @@ group("fuzztest") {
       "installlocalenterpriseappenabledplugin_fuzzer:InstallLocalEnterpriseAppEnabledPluginFuzzTest",
       "installlocalenterpriseappenabledforaccountplugin_fuzzer:InstallLocalEnterpriseAppEnabledForAccountPluginFuzzTest",
       "disablehdcremoteplugin_fuzzer:DisableHdcRemotePluginFuzzTest",
+    ]
+  }
+
+  if (ability_form_fwk_edm_enable) {
+    deps += [
+      "publishformtodesktopplugin_fuzzer:PublishFormToDesktopPluginFuzzTest",
     ]
   }
 

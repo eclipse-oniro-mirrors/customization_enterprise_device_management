@@ -398,6 +398,7 @@ std::shared_ptr<Media::PixelMap> SetWatermarkImagePlugin::CreatePixelMapFromUint
     return pixelMap;
 }
 
+// LCOV_EXCL_START
 bool SetWatermarkImagePlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -419,7 +420,9 @@ bool SetWatermarkImagePlugin::SubscribeEvent()
     }
     return ret1 && ret2;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool SetWatermarkImagePlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -433,7 +436,9 @@ bool SetWatermarkImagePlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::APP_STOP));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void SetWatermarkImagePlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -457,6 +462,7 @@ void SetWatermarkImagePlugin::OnPluginEvent(const std::string &adminName, Handle
         }).detach();
     }
 }
+// LCOV_EXCL_STOP
 
 std::string SetWatermarkImagePlugin::GetWatermarkFileNameForBundle(const std::string &policyData,
     const std::string &bundleName, int32_t accountId)

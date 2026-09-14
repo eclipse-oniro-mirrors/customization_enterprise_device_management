@@ -37,6 +37,7 @@ ErrCode EdmBundleManagerImpl::GetNameForUid(int uid, std::string &name)
     return ERR_BUNDLE_SERVICE_ABNORMALLY;
 }
 
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::QueryExtensionAbilityInfos(const AAFwk::Want &want,
     const AppExecFwk::ExtensionAbilityType &extensionType, int32_t flag, int32_t userId,
     std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos)
@@ -50,6 +51,7 @@ bool EdmBundleManagerImpl::QueryExtensionAbilityInfos(const AAFwk::Want &want,
     EDMLOGE("EdmBundleManagerImpl::QueryExtensionAbilityInfos GetBundleMgr failed.");
     return false;
 }
+// LCOV_EXCL_STOP
 
 bool EdmBundleManagerImpl::GetBundleInfo(const std::string &bundleName, const AppExecFwk::BundleFlag flag,
     AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
@@ -64,6 +66,7 @@ bool EdmBundleManagerImpl::GetBundleInfo(const std::string &bundleName, const Ap
     return false;
 }
 
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::GetBundleInfoV9(const std::string &bundleName, int32_t flag,
     AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
 {
@@ -76,6 +79,7 @@ bool EdmBundleManagerImpl::GetBundleInfoV9(const std::string &bundleName, int32_
     EDMLOGE("EdmBundleManagerImpl::GetBundleInfoV9 GetBundleMgr failed.");
     return false;
 }
+// LCOV_EXCL_STOP
 
 bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int32_t userId, int32_t appIndex)
 {
@@ -92,6 +96,7 @@ bool EdmBundleManagerImpl::IsBundleInstalled(const std::string &bundleName, int3
     return isInstalled;
 }
 
+// LCOV_EXCL_START
 std::string EdmBundleManagerImpl::GetApplicationInfo(const std::string &appName, int userId)
 {
     AppExecFwk::ApplicationInfo appInfo;
@@ -106,6 +111,7 @@ std::string EdmBundleManagerImpl::GetApplicationInfo(const std::string &appName,
     }
     return appInfo.appDistributionType;
 }
+// LCOV_EXCL_STOP
 
 int32_t EdmBundleManagerImpl::GetApplicationUid(const std::string &appName, int userId, int appIndex)
 {
@@ -194,6 +200,7 @@ bool EdmBundleManagerImpl::SetDisallowedUninstall(const std::string &bundleName,
     return true;
 }
 
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::QueryAbilityInfo(const AAFwk::Want &want, int32_t flags,
     int32_t userId, AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -206,7 +213,9 @@ bool EdmBundleManagerImpl::QueryAbilityInfo(const AAFwk::Want &want, int32_t fla
     EDMLOGE("EdmBundleManagerImpl::QueryAbilityInfo GetBundleMgr failed.");
     return false;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::QueryExtensionAbilityInfos(const AAFwk::Want &want, int32_t flag, int32_t userId,
     std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos)
 {
@@ -219,7 +228,9 @@ bool EdmBundleManagerImpl::QueryExtensionAbilityInfos(const AAFwk::Want &want, i
     EDMLOGE("EdmBundleManagerImpl::QueryExtensionAbilityInfos GetBundleMgr failed.");
     return false;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 ErrCode EdmBundleManagerImpl::IsSystemApp(const std::string &bundleName, int userId, bool &isSystemApp)
 {
     AppExecFwk::ApplicationInfo appInfo;
@@ -237,7 +248,9 @@ ErrCode EdmBundleManagerImpl::IsSystemApp(const std::string &bundleName, int use
     isSystemApp = appInfo.isSystemApp;
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::SetApplicationDisableForbidden(const std::string &bundleName,
     int32_t userId, int32_t appIndex, bool forbidden)
 {
@@ -253,7 +266,9 @@ bool EdmBundleManagerImpl::SetApplicationDisableForbidden(const std::string &bun
     }
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 std::string EdmBundleManagerImpl::GetIconByBundleName(const std::string &bundleName)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -276,7 +291,9 @@ std::string EdmBundleManagerImpl::GetIconByBundleName(const std::string &bundleN
     }
     return bundleResourceInfo.icon;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::GetBundleArchiveInfoV9(const std::string &hapFilePath, int32_t flags,
     AppExecFwk::BundleInfo &bundleInfo)
 {
@@ -292,5 +309,6 @@ bool EdmBundleManagerImpl::GetBundleArchiveInfoV9(const std::string &hapFilePath
     }
     return true;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

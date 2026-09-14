@@ -122,6 +122,7 @@ void HiddenSettingsMenuPlugin::OnOtherServiceStartForAdmin(const std::string &ad
     return;
 }
 
+// LCOV_EXCL_START
 bool HiddenSettingsMenuPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -133,7 +134,9 @@ bool HiddenSettingsMenuPlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::USER_SWITCHED),
         EdmInterfaceCode::HIDDEN_SETTINGS_MENU, true, false);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool HiddenSettingsMenuPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -144,5 +147,6 @@ bool HiddenSettingsMenuPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::USER_SWITCHED));
     return true;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

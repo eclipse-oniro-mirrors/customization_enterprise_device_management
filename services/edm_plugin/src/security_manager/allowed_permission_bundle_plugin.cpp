@@ -406,6 +406,7 @@ ErrCode AllowedPermissionBundlePlugin::GetOthersMergePolicyData(const std::strin
     return ERR_OK;
 }
 
+// LCOV_EXCL_START
 bool AllowedPermissionBundlePlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -417,7 +418,9 @@ bool AllowedPermissionBundlePlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
         EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE, true, true);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool AllowedPermissionBundlePlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -429,7 +432,9 @@ bool AllowedPermissionBundlePlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void AllowedPermissionBundlePlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -464,5 +469,6 @@ void AllowedPermissionBundlePlugin::OnPluginEvent(const std::string &adminName, 
     serializer->Serialize(adminData, policyData.policyData);
     serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

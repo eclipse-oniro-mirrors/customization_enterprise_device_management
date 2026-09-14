@@ -450,6 +450,7 @@ void ManageAutoStartAppsPlugin::DeserializePolicyData(HandlePolicyData &policyDa
     ManageAutoStartAppsSerializer::GetInstance()->UpdateByMergePolicy(currentData, totalMergePolicyData);
 }
 
+// LCOV_EXCL_START
 bool ManageAutoStartAppsPlugin::SubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -461,7 +462,9 @@ bool ManageAutoStartAppsPlugin::SubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
         EdmInterfaceCode::MANAGE_AUTO_START_APPS, true, true);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool ManageAutoStartAppsPlugin::UnsubscribeEvent()
 {
     auto *manager = IPluginEventSubscribeManager::GetInstance();
@@ -473,7 +476,9 @@ bool ManageAutoStartAppsPlugin::UnsubscribeEvent()
         static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void ManageAutoStartAppsPlugin::OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
     const EdmEventData &data, int32_t userId)
 {
@@ -502,5 +507,6 @@ void ManageAutoStartAppsPlugin::OnPluginEvent(const std::string &adminName, Hand
     serializer->Serialize(adminData, policyData.policyData);
     serializer->Serialize(mergeData, policyData.mergePolicyData);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

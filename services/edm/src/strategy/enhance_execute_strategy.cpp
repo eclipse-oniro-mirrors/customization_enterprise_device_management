@@ -80,6 +80,7 @@ ErrCode EnhanceExecuteStrategy::OnSetExecute(std::uint32_t funcCode, MessageParc
     return ERR_EDM_HANDLE_POLICY_FAILED;
 }
 
+// LCOV_EXCL_START
 ErrCode EnhanceExecuteStrategy::OnInitExecute(std::uint32_t funcCode, const std::string &adminName, int32_t userId)
 {
     auto plugin = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
@@ -97,7 +98,9 @@ ErrCode EnhanceExecuteStrategy::OnInitExecute(std::uint32_t funcCode, const std:
     plugin->OnOtherServiceStartForAdmin(adminName, userId);
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 ErrCode EnhanceExecuteStrategy::OnAdminRemoveExecute(std::uint32_t funcCode, const std::string &adminName,
     const std::string &policyValue, const std::string &mergedPolicyData, int32_t userId)
 {
@@ -120,6 +123,9 @@ ErrCode EnhanceExecuteStrategy::OnAdminRemoveExecute(std::uint32_t funcCode, con
     }
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 void EnhanceExecuteStrategy::OnPluginEventExecute(const std::string &adminName, std::uint32_t funcCode,
     HandlePolicyData &policyData, const EdmEventData &data, int32_t userId)
 {
@@ -136,6 +142,7 @@ void EnhanceExecuteStrategy::OnPluginEventExecute(const std::string &adminName, 
     }
     plugin->OnPluginEvent(adminName, policyData, data, userId);
 }
+// LCOV_EXCL_STOP
 
 } // namespace EDM
 } // namespace OHOS

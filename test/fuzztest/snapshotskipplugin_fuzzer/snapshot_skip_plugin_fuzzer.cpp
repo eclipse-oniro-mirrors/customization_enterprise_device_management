@@ -31,7 +31,9 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 24;
+constexpr size_t MIN_SIZE = 28;
+constexpr size_t STRING_COUNT = 13;
+constexpr size_t INT32_COUNT = 2;
 constexpr int32_t HAS_USERID = 1;
 constexpr int32_t USER_ID = 100;
 
@@ -50,7 +52,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 10;
+    int32_t stringSize = (size - sizeof(int32_t) * INT32_COUNT) / STRING_COUNT;
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::SNAPSHOT_SKIP;
@@ -85,6 +87,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     
     std::string adminName = CommonFuzzer::GetString(data, pos, stringSize, size);
     plugin.OnAdminRemove(adminName, currentData, mergeData, userId);
+
+    int32_t systemAbilityId = CommonFuzzer::GetU32Data(data, pos, size);
+    plugin.OnOtherServiceStart(systemAbilityId);
     return 0;
 }
 } // namespace EDM

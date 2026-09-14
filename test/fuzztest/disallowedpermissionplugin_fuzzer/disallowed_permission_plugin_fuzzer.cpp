@@ -32,7 +32,9 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 24;
+constexpr size_t MIN_SIZE = 34;
+constexpr size_t STRING_COUNT = 15;
+constexpr size_t INT32_COUNT = 3;
 constexpr int32_t USER_ID = 100;
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
@@ -51,7 +53,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     int32_t pos = 0;
-    int32_t stringSize = size / 13;
+    int32_t stringSize = (size - sizeof(int32_t) * INT32_COUNT) / STRING_COUNT;
 
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::GET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
@@ -85,6 +87,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::vector<std::string> failedData;
     plugin.SetOtherModulePolicy(permissions, userId, failedData);
     plugin.RemoveOtherModulePolicy(permissions, userId, failedData);
+
+    std::string permissionName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t userIdForGet = CommonFuzzer::GetU32Data(data, pos, size);
+    plugin.GetCombinedPolicy(permissionName, userIdForGet);
+    std::string combinePolicy = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t userIdForClean = CommonFuzzer::GetU32Data(data, pos, size);
+    plugin.CleanAdminAllowedPermissionBundle(permissionName, userIdForClean, combinePolicy);
     return 0;
 }
 } // namespace EDM

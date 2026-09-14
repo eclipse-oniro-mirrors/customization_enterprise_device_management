@@ -24,15 +24,38 @@
 #undef private
 #include "common_fuzzer.h"
 #include "edm_ipc_interface_code.h"
-#include "ienterprise_device_mgr.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "func_code.h"
+#include "handle_policy_data.h"
+#include "ienterprise_device_mgr.h"
 #include "message_parcel.h"
 #include "utils.h"
 
 namespace OHOS {
 namespace EDM {
 constexpr size_t MIN_SIZE = 48;
+constexpr size_t STRING_COUNT = 19;
+constexpr size_t INT32_COUNT = 7;
+
+ApplicationInstance GenerateAppInstance(const uint8_t* data, size_t size, int32_t& pos, int32_t stringSize)
+{
+    ApplicationInstance app;
+    app.appIdentifier = CommonFuzzer::GetString(data, pos, stringSize, size);
+    app.bundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    app.accountId = CommonFuzzer::GetU32Data(data, pos, size);
+    app.appIndex = CommonFuzzer::GetU32Data(data, pos, size);
+    return app;
+}
+
+std::map<std::string, std::vector<ApplicationInstance>> GeneratePolicyMap(
+    const uint8_t* data, size_t size, int32_t& pos, int32_t stringSize)
+{
+    std::map<std::string, std::vector<ApplicationInstance>> policyMap;
+    std::string permission = CommonFuzzer::GetString(data, pos, stringSize, size);
+    ApplicationInstance app = GenerateAppInstance(data, size, pos, stringSize);
+    policyMap[permission] = {app};
+    return policyMap;
+}
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
@@ -50,7 +73,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     int32_t pos = 0;
-    int32_t stringSize = size / 16;
+    int32_t stringSize = (size - sizeof(int32_t) * INT32_COUNT) / STRING_COUNT;
 
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::SET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
@@ -80,6 +103,19 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     std::string othersMergePolicyData;
     plugin.GetOthersMergePolicyData(adminName, userId, othersMergePolicyData);
     plugin.OnAdminRemove(adminName, policyData, mergeData, userId);
+
+    std::map<std::string, std::vector<ApplicationInstance>> policyMap = GeneratePolicyMap(data, size, pos, stringSize);
+    plugin.SetOtherModulePolicy(policyMap);
+    for (uint32_t scene = static_cast<uint32_t>(PolicyScene::POLICY_ADD);
+         scene <= static_cast<uint32_t>(PolicyScene::APP_UNINSTALL); scene++) {
+        plugin.RemoveOtherModulePolicy(policyMap, static_cast<PolicyScene>(scene));
+    }
+
+    std::map<std::string, std::vector<ApplicationInstance>> currentData;
+    std::map<std::string, std::vector<ApplicationInstance>> mergeDataMap;
+    std::string mergePolicyStr = CommonFuzzer::GetString(data, pos, stringSize, size);
+    HandlePolicyData handlePolicyData{"", "", false};
+    plugin.UpdatePolicyResult(handlePolicyData, currentData, mergeDataMap, mergePolicyStr);
     return 0;
 }
 } // namespace EDM

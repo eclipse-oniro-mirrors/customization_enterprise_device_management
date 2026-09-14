@@ -30,7 +30,9 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 48;
+constexpr size_t MIN_SIZE = 72;
+constexpr size_t STRING_COUNT = 12;
+constexpr size_t INT32_COUNT = 15;
 constexpr size_t WITHOUT_USERID = 0;
 
 void SetParcelContent(MessageParcel &parcel, const uint8_t* data, size_t size,
@@ -40,7 +42,7 @@ void SetParcelContent(MessageParcel &parcel, const uint8_t* data, size_t size,
     parcel.WriteInt32(WITHOUT_USERID);
     parcel.WriteParcelable(&admin);
     int32_t pos = 0;
-    int32_t stringSize = size / 8;
+    int32_t stringSize = (size - sizeof(int32_t) * INT32_COUNT) / STRING_COUNT;
     
     if (isSet) {
         parcel.WriteString(EdmConstants::SecurityManager::SET_SINGLE_WATERMARK_TYPE);
@@ -82,8 +84,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     int32_t pos = 0;
-    int32_t stringSize = size / 8;
-    
+    int32_t stringSize = (size - sizeof(int32_t) * INT32_COUNT) / STRING_COUNT;
+
     for (uint32_t operateType = static_cast<uint32_t>(FuncOperateType::SET);
         operateType <= static_cast<uint32_t>(FuncOperateType::REMOVE); operateType++) {
         uint32_t code = EdmInterfaceCode::WATERMARK_IMAGE;
@@ -111,6 +113,20 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     
     std::string othersMergePolicyData;
     plugin.GetOthersMergePolicyData(adminName, userId, othersMergePolicyData);
+
+    int32_t pid = CommonFuzzer::GetU32Data(data, pos, size);
+    std::string fileName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    bool enabled = CommonFuzzer::GetU32Data(data, pos, size) % 2;
+    plugin.SetProcessWatermarkByPid(pid, fileName, enabled);
+
+    int32_t row = CommonFuzzer::GetU32Data(data, pos, size);
+    int32_t col = CommonFuzzer::GetU32Data(data, pos, size);
+    plugin.IsRowColParamValid(row, col);
+
+    std::string policyDataForFile = CommonFuzzer::GetString(data, pos, stringSize, size);
+    std::string bundleNameForFile = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t accountId = CommonFuzzer::GetU32Data(data, pos, size);
+    plugin.GetWatermarkFileNameForBundle(policyDataForFile, bundleNameForFile, accountId);
 
     return 0;
 }

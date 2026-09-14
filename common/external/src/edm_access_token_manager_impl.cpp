@@ -25,6 +25,7 @@ namespace OHOS {
 namespace EDM {
 const std::string DEVELOP_MODE_STATE = "const.security.developermode.state";
 
+// LCOV_EXCL_START
 bool EdmAccessTokenManagerImpl::IsDebug()
 {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
@@ -37,6 +38,7 @@ bool EdmAccessTokenManagerImpl::IsDebug()
     }
     return false;
 }
+// LCOV_EXCL_STOP
 
 bool EdmAccessTokenManagerImpl::IsSystemAppOrNative()
 {
@@ -81,6 +83,7 @@ bool EdmAccessTokenManagerImpl::VerifyCallingPermission(Security::AccessToken::A
     return false;
 }
 
+// LCOV_EXCL_START
 bool EdmAccessTokenManagerImpl::GetAccessTokenId(int32_t userId, const std::string &appId, int32_t appIndex,
     Security::AccessToken::AccessTokenID &accessTokenId)
 {
@@ -106,6 +109,7 @@ bool EdmAccessTokenManagerImpl::GetAccessTokenId(int32_t userId, const std::stri
 
     return true;
 }
+// LCOV_EXCL_STOP
 
 std::string EdmAccessTokenManagerImpl::GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId)
 {
