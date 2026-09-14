@@ -1149,7 +1149,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"USB_SERIAL", static_cast<uint32_t>(RestrictionsFeature::USB_SERIAL)},
         {"SYSTEM_ROLLBACK", static_cast<uint32_t>(RestrictionsFeature::SYSTEM_ROLLBACK)},
         {"SATA_ODD_BURN", static_cast<uint32_t>(RestrictionsFeature::SATA_ODD_BURN)},
-        {"SUPER_PRIVACY_MODE", static_cast<uint32_t>(RestrictionsFeature::SUPER_PRIVACY)},
+        {"SUPER_PRIVACY", static_cast<uint32_t>(RestrictionsFeature::SUPER_PRIVACY)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

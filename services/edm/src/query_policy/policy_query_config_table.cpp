@@ -618,6 +618,16 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
         IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
+        EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY),
+        {PolicyName::POLICY_DISABLE_SUPER_PRIVACY_MODE, PolicyDataType::BOOL,
+        PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        false
+#else
+        true
+#endif
+    }},
+    {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION), true, IPlugin::ApiType::PUBLIC,
