@@ -27,6 +27,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
 
   sources = [
     "../../../../interfaces/inner_api/application_manager/src/net_stats_utils.cpp",
+    "../../../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
     "../../../../interfaces/inner_api/common/src/histograms_report.cpp",
     "../../common/mock/src/edm_sys_manager_mock.cpp",
     "../../../../interfaces/inner_api/system_manager/src/print_policy_util.cpp",
