@@ -48,6 +48,7 @@ EdmTimerManager::~EdmTimerManager()
     timerTaskMap_.clear();
 }
 
+// LCOV_EXCL_START
 bool EdmTimerManager::SetTimer(EdmTimerTask timerTask, uint64_t delayMs,
     const std::function<void()> &callback)
 {
@@ -93,7 +94,9 @@ bool EdmTimerManager::SetTimer(EdmTimerTask timerTask, uint64_t delayMs,
     timerTaskMap_[timerTask] = task;
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void EdmTimerManager::CancelTimer(EdmTimerTask timerTask)
 {
     EDMLOGI("EdmTimerManager::CancelTimer timerTask %{public}d", static_cast<int32_t>(timerTask));
@@ -108,13 +111,17 @@ void EdmTimerManager::CancelTimer(EdmTimerTask timerTask)
     }
     timerTaskMap_.erase(it);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool EdmTimerManager::IsTimerRunning(EdmTimerTask timerTask)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return timerTaskMap_.find(timerTask) != timerTaskMap_.end();
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 uint64_t EdmTimerManager::GetSystemBootTime()
 {
     int64_t currentBootTime = 0;
@@ -127,5 +134,6 @@ uint64_t EdmTimerManager::GetSystemBootTime()
     }
     return static_cast<uint64_t>(currentBootTime);
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

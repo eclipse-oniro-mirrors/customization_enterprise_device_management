@@ -253,6 +253,9 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/application_manager/manage_user_non_stop_apps_plugin.cpp",
       "../../../services/edm_plugin/src/datetime_manager/ntp_server_plugin.cpp",
       "../../../services/edm_plugin/src/system_manager/local_hota_domain_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_util.cpp",
       "../../../services/edm_plugin/src/device_control/operate_device_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
       "../../../services/edm_plugin/src/device_settings/power_policy_plugin.cpp",
@@ -410,6 +413,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
         "../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
+        "../../../services/edm_plugin/src/usb_manager/get_usb_serial_number_plugin.cpp",
         "../../../services/edm_plugin/src/usb_manager/external_storage_intercept_enable_plugin.cpp",
       ]
       defines += [ "USB_SERVICE_EDM_ENABLE" ]

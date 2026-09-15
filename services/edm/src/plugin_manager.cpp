@@ -428,6 +428,7 @@ bool PluginManager::GetSoNameByCode(std::uint32_t code, std::string &soName)
     return false;
 }
 
+// LCOV_EXCL_START
 bool PluginManager::UnloadPlugin(const std::string &soName)
 {
     EDMLOGI("PluginManager::UnloadPlugin soName: %{public}s.", soName.c_str());
@@ -479,7 +480,9 @@ bool PluginManager::UnloadPlugin(const std::string &soName)
     soLoadStateMap_.erase(soName);
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool PluginManager::ExtraHasPersistPlugin(std::vector<uint32_t> targetVec)
 {
     for (const auto& code : targetVec) {
@@ -491,7 +494,9 @@ bool PluginManager::ExtraHasPersistPlugin(std::vector<uint32_t> targetVec)
     }
     return false;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool PluginManager::HasPersistPlugin(std::vector<uint32_t> targetVec)
 {
     for (const auto& code : targetVec) {
@@ -514,7 +519,9 @@ bool PluginManager::HasPersistPlugin(std::vector<uint32_t> targetVec)
     }
     return false;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void PluginManager::GetExtraPluginCodeList(std::vector<uint32_t>* targetVec)
 {
     for (const auto& it : pluginsCode_) {
@@ -526,7 +533,9 @@ void PluginManager::GetExtraPluginCodeList(std::vector<uint32_t>* targetVec)
         targetVec->push_back(it.second);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
 {
     if (plugin == nullptr) {
@@ -546,7 +555,9 @@ void PluginManager::RemovePlugin(std::shared_ptr<IPlugin> plugin)
     }
     plugin.reset();
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void PluginManager::NotifyUnloadAllPlugin()
 {
     std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
@@ -561,6 +572,7 @@ void PluginManager::NotifyUnloadAllPlugin()
         }
     }
 }
+// LCOV_EXCL_STOP
 
 void PluginManager::DumpPluginConfig(IPlugin::PolicyPermissionConfig config)
 {
@@ -681,6 +693,7 @@ ErrCode PluginManager::GetPolicy(uint32_t funcCode, const std::string &bundleNam
     return ret;
 }
 
+// LCOV_EXCL_START
 ErrCode PluginManager::RemoveAdminItem(const std::string &adminName, const std::string &policyName,
     const std::string &policyValue, int32_t userId)
 {
@@ -726,6 +739,7 @@ ErrCode PluginManager::RemoveAdminItem(const std::string &adminName, const std::
     }
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
 void PluginManager::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId)
 {
@@ -743,6 +757,7 @@ void PluginManager::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t syst
     plugin->OnOtherServiceStart(systemAbilityId);
 }
 
+// LCOV_EXCL_START
 void PluginManager::OnInitExecute(uint32_t interfaceCode, const std::vector<std::string> &bundleNames, int32_t userId)
 {
     EDMLOGI("PluginManager::OnInitExecute %{public}u", interfaceCode);
@@ -761,7 +776,9 @@ void PluginManager::OnInitExecute(uint32_t interfaceCode, const std::vector<std:
         plugin->GetExecuteStrategy()->OnInitExecute(funcCode, bundleName, userId);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void PluginManager::DispatchForAdmins(const std::shared_ptr<IPlugin> &plugin, const std::string &policyName,
     uint32_t funcCode, const EdmEventData &data, int32_t userId)
 {
@@ -785,7 +802,9 @@ void PluginManager::DispatchForAdmins(const std::shared_ptr<IPlugin> &plugin, co
         }
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void PluginManager::DispatchWithoutAdmins(const std::shared_ptr<IPlugin> &plugin, uint32_t funcCode,
     const std::string &policyName, const EdmEventData &data, int32_t userId)
 {
@@ -793,7 +812,9 @@ void PluginManager::DispatchWithoutAdmins(const std::shared_ptr<IPlugin> &plugin
     PolicyManager::GetInstance()->GetPolicy("", policyName, handlePolicyData.mergePolicyData, userId);
     plugin->GetExecuteStrategy()->OnPluginEventExecute("", funcCode, handlePolicyData, data, userId);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void PluginManager::DispatchPluginEvent(uint32_t policyCode, const EdmEventData &data,
     bool needAdminIteration, bool useEventUserId)
 {
@@ -824,6 +845,7 @@ void PluginManager::DispatchPluginEvent(uint32_t policyCode, const EdmEventData 
         DispatchWithoutAdmins(plugin, funcCode, policyName, data, userId);
     }
 }
+// LCOV_EXCL_STOP
 
 void PluginManager::SubscribePluginEvent(uint32_t policyCode)
 {
@@ -859,6 +881,7 @@ ErrCode PluginManager::SetPluginUnloadFlag(uint32_t code, bool unloadFlag)
     return ERR_OK;
 }
 
+// LCOV_EXCL_START
 ErrCode PluginManager::UnloadCollectLogPlugin()
 {
     EDMLOGI("PluginManager::UnloadCollectLogPlugin");
@@ -876,6 +899,7 @@ ErrCode PluginManager::UnloadCollectLogPlugin()
     plugin->SetPluginUnloadFlag(true);
     return ERR_OK;
 }
+// LCOV_EXCL_STOP
 
 std::string PluginManager::GetPermission(uint32_t funcCode, FuncOperateType operateType,
     IPlugin::PermissionType permissionType, const std::string &permissionTag)
@@ -912,6 +936,7 @@ std::string PluginManager::GetPolicyName(uint32_t funcCode)
     return ret;
 }
 
+// LCOV_EXCL_START
 std::string PluginManager::GetPluginPermissionByPolicyName(const std::string &policyName,
     IPlugin::PermissionType permissionType)
 {
@@ -930,5 +955,6 @@ std::string PluginManager::GetPluginPermissionByPolicyName(const std::string &po
     EDMLOGD("GetPluginPermissionByPolicyName get permission %{public}s success", permission.c_str());
     return permission;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

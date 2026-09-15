@@ -245,12 +245,12 @@ std::string CommonFuzzer::GetString(const uint8_t* ptr, int32_t& pos, int32_t st
     if (size <= pos) {
         return "";
     }
+    if (size - static_cast<size_t>(pos) < static_cast<size_t>(stringSize)) {
+        pos = 0;
+    }
     stringSize = (stringSize > MAX_STRING_SIZE) ? MAX_STRING_SIZE : stringSize;
     std::string ret(reinterpret_cast<const char*>(ptr + pos), stringSize);
     pos += stringSize;
-    if (size - pos < stringSize) {
-        pos = 0;
-    }
     return ret;
 }
 } // namespace EDM

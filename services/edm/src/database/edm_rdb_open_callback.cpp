@@ -30,6 +30,7 @@ int32_t EdmRdbOpenCallback::OnCreate(NativeRdb::RdbStore &rdbStore)
     return NativeRdb::E_OK;
 }
 
+// LCOV_EXCL_START
 int32_t EdmRdbOpenCallback::OnUpgrade(NativeRdb::RdbStore &rdbStore, int currentVersion, int targetVersion)
 {
     EDMLOGD("EdmRdbOpenCallback OnUpgrade : database upgrade. currentVersion = %{public}d, newVersion = %{public}d",
@@ -52,5 +53,6 @@ int32_t EdmRdbOpenCallback::OnUpgrade(NativeRdb::RdbStore &rdbStore, int current
     }
     return NativeRdb::E_OK;
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS

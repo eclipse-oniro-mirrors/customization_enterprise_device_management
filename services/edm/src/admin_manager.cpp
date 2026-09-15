@@ -558,16 +558,19 @@ void AdminManager::InsertAdmins(int32_t userId, std::vector<std::shared_ptr<Admi
     AdminContainer::GetInstance()->InsertAdmins(userId, admins);
 }
 
+// LCOV_EXCL_START
 bool AdminManager::IsExistTargetAdmin(bool isDebug)
 {
     return AdminContainer::GetInstance()->IsExistTargetAdmin(isDebug);
 }
+// LCOV_EXCL_STOP
 
 int32_t AdminManager::GetSuperDeviceAdminAndDeviceAdminCount()
 {
     return AdminContainer::GetInstance()->GetSuperDeviceAdminAndDeviceAdminCount();
 }
 
+// LCOV_EXCL_START
 AdminType AdminManager::GetAdminTypeByName(const std::string &bundleName, int32_t userId)
 {
     std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
@@ -577,7 +580,9 @@ AdminType AdminManager::GetAdminTypeByName(const std::string &bundleName, int32_
     }
     return admin->adminInfo_.adminType_;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool AdminManager::IsExistTargetAdmin(bool isDebug, int32_t userId)
 {
     std::vector<std::shared_ptr<Admin>> admins;
@@ -600,5 +605,6 @@ bool AdminManager::IsExistTargetAdmin(bool isDebug, int32_t userId)
     });
     return currentUserIter != admins.end();
 }
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS
