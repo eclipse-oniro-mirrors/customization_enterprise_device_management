@@ -613,6 +613,18 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
+    {EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
+        {PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE, PolicyDataType::BOOL,
+        PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
+        IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOWED_PACKET_FILTERING, {PolicyName::POLICY_DISALLOWED_PACKET_FILTERING,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+        true
+#else
+        false
+#endif
+    }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
@@ -623,10 +635,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         true
 #endif
     }},
-    {EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
-        {PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE, PolicyDataType::BOOL,
-        PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
-        IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY),
         {PolicyName::POLICY_DISABLE_SUPER_PRIVACY_MODE, PolicyDataType::BOOL,

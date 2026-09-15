@@ -188,6 +188,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_USB_SERIAL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    map[EdmInterfaceCode::DISALLOWED_PACKET_FILTERING] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+#endif
     map[EdmInterfaceCode::IS_APP_KIOSK_ALLOWED] = "";
 #ifdef CAMERA_FRAMEWORK_EDM_ENABLE
     map[EdmInterfaceCode::DISABLE_CAMERA] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
@@ -408,6 +411,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #endif
 #ifdef NETMANAGER_EXT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_VPN);
+#endif
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_PACKET_FILTERING);
 #endif
 #ifdef WIFI_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);

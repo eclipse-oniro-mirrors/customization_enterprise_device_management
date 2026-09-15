@@ -396,6 +396,8 @@ ohos_unittest("EdmPluginTest") {
       "netmanager_ext:netfirewall_manager_if",
     ]
     sources += [
+      "../../../../services/edm_plugin/src/restrictions/disallowed_packet_filtering_plugin.cpp",
+      "./src/disallowed_packet_filtering_plugin_test.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
       "./src/disallowed_traffic_redirection_plugin_test.cpp",
     ]

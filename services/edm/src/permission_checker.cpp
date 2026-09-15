@@ -105,6 +105,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
     EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
+    EdmInterfaceCode::DISALLOWED_PACKET_FILTERING,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
     EdmInterfaceCode::DISALLOWED_P2P,
     EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY,

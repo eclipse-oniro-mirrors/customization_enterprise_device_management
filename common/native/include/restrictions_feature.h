@@ -22,6 +22,7 @@ enum class RestrictionsFeature : int32_t {
     WIFI_P2P = 0,
     X_KEY = 1,
     LOCAL_INPUT = 2,
+    PACKET_FILTERING = 3,
     SUDO = 4,
     TRAFFIC_REDIRECTION = 5,
     CORE_DUMP = 6,

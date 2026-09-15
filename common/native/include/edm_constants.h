@@ -591,6 +591,7 @@ namespace PolicyName {
     const char* const POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE = "external_storage_intercept_enable";
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY = "external_storage_device_mount_policy";
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
+    const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
