@@ -235,7 +235,7 @@ HWTEST_F(PermissionCheckerTest, TestCheckSystemTimerPermission_PermissionDenied,
     EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission)
         .WillOnce(DoAll(Return(false)));
     ErrCode ret = permissionChecker_->CheckSystemTimerPermission("com.edm.timer2", EdmConstants::DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+    ASSERT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
 
     adminMgr->DeleteAdmin("com.edm.timer2", EdmConstants::DEFAULT_USER_ID, AdminType::NORMAL);
 }

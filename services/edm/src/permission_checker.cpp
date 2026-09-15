@@ -466,7 +466,7 @@ ErrCode PermissionChecker::CheckSystemTimerPermission(const std::string &bundleN
     if (!VerifyCallingPermission(IPCSkeleton::GetCallingTokenID(),
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM)) {
         EDMLOGE("CheckSystemTimerPermission: permission denied");
-        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+        return EdmReturnErrCode::PERMISSION_DENIED;
     }
     return ERR_OK;
 }
