@@ -36,6 +36,12 @@ const std::string UPGRADE_VERSION = "version_1.0";
 constexpr int32_t UPGRADE_FAILED_CODE = -1;
 const std::string UPGRADE_FAILED_MESSAGE = "upgrade failed";
 const std::string AUTH_DATA = "auth data";
+const std::string TEST_APP_IDENTIFIER = "com.example.myapplication";
+const std::string TEST_BUNDLE_NAME = "com.edm.test.demo";
+const std::string TEST_WINDOW_NAME = "test_window";
+constexpr int32_t TEST_APP_ACCOUNT_ID = 100;
+constexpr int32_t TEST_APP_INDEX = 0;
+constexpr int32_t TEST_WINDOW_ID = 1;
 class EnterpriseDeviceMgrStubMock : public IRemoteStub<IEnterpriseDeviceMgrIdl> {
 public:
     EnterpriseDeviceMgrStubMock() = default;
@@ -145,6 +151,12 @@ public:
 
     int InvokeArrayEdmElementSendRequestGetPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
+
+    int InvokeAppInstanceVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeWindowStateVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);

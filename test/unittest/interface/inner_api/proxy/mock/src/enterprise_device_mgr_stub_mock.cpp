@@ -17,6 +17,7 @@
 
 #include <fcntl.h>
 
+#include "application_instance.h"
 #include "bundle_storage_info.h"
 #include "domain_filter_rule.h"
 #include "edm_bundle_info.h"
@@ -29,6 +30,7 @@
 #include "usb_device_id.h"
 #include "usb_interface_type.h"
 #include "wifi_id.h"
+#include "window_state_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -289,6 +291,38 @@ int EnterpriseDeviceMgrStubMock::InvokeArrayEdmElementSendRequestGetPolicy(uint3
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteStringVector(std::vector<std::string>{EDM_ELEMENT_STRING});
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeAppInstanceVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeAppInstanceVectorSendRequestGetPolicy code :" << code;
+    code_ = code;
+    std::vector<ApplicationInstance> appInstances{
+        ApplicationInstance{TEST_APP_IDENTIFIER, TEST_BUNDLE_NAME, TEST_APP_ACCOUNT_ID, TEST_APP_INDEX}
+    };
+    reply.WriteInt32(ERR_OK);
+    if (!ApplicationInstanceHandle::WriteApplicationInstanceVector(reply, appInstances)) {
+        GTEST_LOG_(INFO) << "mock InvokeAppInstanceVectorSendRequestGetPolicy write appInstances failed";
+        return ERR_PROXY_SENDREQUEST_FAIL;
+    }
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeWindowStateVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeWindowStateVectorSendRequestGetPolicy code :" << code;
+    code_ = code;
+    std::vector<WindowStateInfo> windowStateInfos{
+        WindowStateInfo{TEST_WINDOW_ID, WindowState::FOREGROUND, true, TEST_WINDOW_NAME}
+    };
+    reply.WriteInt32(ERR_OK);
+    if (!WindowStateInfoHandle::WriteWindowStateInfoVector(reply, windowStateInfos)) {
+        GTEST_LOG_(INFO) << "mock InvokeWindowStateVectorSendRequestGetPolicy write windowStateInfos failed";
+        return ERR_PROXY_SENDREQUEST_FAIL;
+    }
     return 0;
 }
 

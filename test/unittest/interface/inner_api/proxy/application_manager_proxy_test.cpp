@@ -453,10 +453,32 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsSuc, TestSize.Lev
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeAppInstanceVectorSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(data, freezeExemptedApps);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(freezeExemptedApps.size(), 1);
+    ASSERT_EQ(freezeExemptedApps[0].appIdentifier, TEST_APP_IDENTIFIER);
+    ASSERT_EQ(freezeExemptedApps[0].bundleName, TEST_BUNDLE_NAME);
+    ASSERT_EQ(freezeExemptedApps[0].accountId, TEST_APP_ACCOUNT_ID);
+    ASSERT_EQ(freezeExemptedApps[0].appIndex, TEST_APP_INDEX);
+}
+
+/**
+ * @tc.name: TestGetFreezeExemptedAppsReadFail
+ * @tc.desc: Test GetFreezeExemptedApps when reply content is not a valid app instance vector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetFreezeExemptedAppsReadFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<ApplicationInstance> freezeExemptedApps;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
     ErrCode ret = applicationManagerProxy_->GetFreezeExemptedApps(data, freezeExemptedApps);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(freezeExemptedApps.size() == 0);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**
@@ -1293,10 +1315,36 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetApplicationWindowStatesSuc, TestSiz
 
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeWindowStateVectorSendRequestGetPolicy));
     ErrCode ret = applicationManagerProxy_->GetApplicationWindowStates(admin, bundleName, appIndex,
         windowStateInfos);
     ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(windowStateInfos.size(), 1);
+    ASSERT_EQ(windowStateInfos[0].windowId, TEST_WINDOW_ID);
+    ASSERT_EQ(windowStateInfos[0].state, WindowState::FOREGROUND);
+    ASSERT_EQ(windowStateInfos[0].isOnDock, true);
+    ASSERT_EQ(windowStateInfos[0].name, TEST_WINDOW_NAME);
+}
+
+/**
+ * @tc.name: TestGetApplicationWindowStatesReadFail
+ * @tc.desc: Test GetApplicationWindowStates when reply content is not a valid window state vector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetApplicationWindowStatesReadFail, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::string bundleName = "com.test.app";
+    int32_t appIndex = 0;
+    std::vector<WindowStateInfo> windowStateInfos;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetApplicationWindowStates(admin, bundleName, appIndex,
+        windowStateInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**
@@ -1537,9 +1585,31 @@ HWTEST_F(ApplicationManagerProxyTest, GetUserNonStopApps_MessageParcel_Suc, Test
     std::vector<ApplicationInstance> userNonStopApps;
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeAppInstanceVectorSendRequestGetPolicy));
     int32_t ret = applicationManagerProxy_->GetUserNonStopApps(data, userNonStopApps);
     ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(userNonStopApps.size(), 1);
+    ASSERT_EQ(userNonStopApps[0].appIdentifier, TEST_APP_IDENTIFIER);
+    ASSERT_EQ(userNonStopApps[0].bundleName, TEST_BUNDLE_NAME);
+    ASSERT_EQ(userNonStopApps[0].accountId, TEST_APP_ACCOUNT_ID);
+    ASSERT_EQ(userNonStopApps[0].appIndex, TEST_APP_INDEX);
+}
+
+/**
+ * @tc.name: GetUserNonStopApps_MessageParcel_ReadFail
+ * @tc.desc: Test GetUserNonStopApps with MessageParcel when reply content is not a valid app instance vector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, GetUserNonStopApps_MessageParcel_ReadFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<ApplicationInstance> userNonStopApps;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayElementSendRequestGetPolicy));
+    int32_t ret = applicationManagerProxy_->GetUserNonStopApps(data, userNonStopApps);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 /**
