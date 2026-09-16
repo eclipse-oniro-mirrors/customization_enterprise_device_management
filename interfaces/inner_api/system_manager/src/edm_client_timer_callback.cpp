@@ -134,12 +134,38 @@ void EdmClientTimerCallback::OnTimerTriggered(uint64_t timerId)
 
 void EdmClientTimerCallback::InsertCallback(uint64_t timerId, napi_env env, napi_ref ref, const TimerMeta &meta)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    CallbackInfo info;
-    info.env = env;
-    info.ref = ref;
-    info.meta = meta;
-    callbackMap_[timerId] = info;
+    napi_env oldEnv = nullptr;
+    napi_ref oldRef = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        // time_service implicitly destroys any existing timer with the same name
+        // (same uid) via AddTimerName. Clean up the stale callback entry here to
+        // avoid leaking the napi_ref held by the old timerId.
+        if (!meta.name.empty()) {
+            for (auto it = callbackMap_.begin(); it != callbackMap_.end(); ++it) {
+                if (it->second.meta.name == meta.name) {
+                    oldEnv = it->second.env;
+                    oldRef = it->second.ref;
+                    callbackMap_.erase(it);
+                    break;
+                }
+            }
+        }
+        CallbackInfo info;
+        info.env = env;
+        info.ref = ref;
+        info.meta = meta;
+        callbackMap_[timerId] = info;
+    }
+    if (oldEnv != nullptr && oldRef != nullptr) {
+        auto task = [oldEnv, oldRef]() {
+            napi_delete_reference(oldEnv, oldRef);
+        };
+        napi_status status = napi_send_event(oldEnv, task, napi_eprio_immediate, "edm:systemTimer");
+        if (status != napi_ok) {
+            EDMLOGE("EdmClientTimerCallback::InsertCallback napi_send_event failed");
+        }
+    }
 }
 
 void EdmClientTimerCallback::RemoveCallback(uint64_t timerId)

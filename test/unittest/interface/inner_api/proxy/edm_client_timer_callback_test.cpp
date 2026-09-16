@@ -369,6 +369,54 @@ HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_OverwritePreservesNewFields,
 }
 
 /**
+ * @tc.name: InsertCallback_SameName_RemovesOldEntry
+ * @tc.desc: Test InsertCallback with a non-empty name removes the old entry that had
+ *           the same name (mirrors time_service AddTimerName same-name replacement).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_SameName_RemovesOldEntry, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {false, 0, "same_name"});
+    ASSERT_TRUE(CallbackExists(TEST_TIMER_ID));
+    ASSERT_EQ(GetCallbackMapSize(), 1u);
+
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {true, 5000, "same_name"});
+    EXPECT_FALSE(CallbackExists(TEST_TIMER_ID));
+    EXPECT_TRUE(CallbackExists(TEST_TIMER_ID_2));
+    EXPECT_EQ(GetCallbackMapSize(), 1u);
+}
+
+/**
+ * @tc.name: InsertCallback_DifferentNames_KeepsBoth
+ * @tc.desc: Test InsertCallback with different names keeps both entries.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_DifferentNames_KeepsBoth, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {false, 0, "name_a"});
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {true, 5000, "name_b"});
+    EXPECT_TRUE(CallbackExists(TEST_TIMER_ID));
+    EXPECT_TRUE(CallbackExists(TEST_TIMER_ID_2));
+    EXPECT_EQ(GetCallbackMapSize(), 2u);
+}
+
+/**
+ * @tc.name: InsertCallback_EmptyName_DoesNotRemoveOthers
+ * @tc.desc: Test InsertCallback with an empty name does not trigger same-name cleanup.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, InsertCallback_EmptyName_DoesNotRemoveOthers, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {false, 0, "named"});
+    ASSERT_TRUE(CallbackExists(TEST_TIMER_ID));
+
+    callback_->InsertCallback(TEST_TIMER_ID_2, nullptr, nullptr, {});
+    EXPECT_TRUE(CallbackExists(TEST_TIMER_ID));
+    EXPECT_TRUE(CallbackExists(TEST_TIMER_ID_2));
+    EXPECT_EQ(GetCallbackMapSize(), 2u);
+}
+
+/**
  * @tc.name: UpdateTriggerTime_Existing
  * @tc.desc: Test UpdateTriggerTime updates lastTriggerTime for an existing entry.
  * @tc.type: FUNC
@@ -462,6 +510,52 @@ HWTEST_F(EdmClientTimerCallbackTest, GetAllResyncItems_ReflectsUpdateTriggerTime
     EXPECT_TRUE(items[0].meta.repeat);
     EXPECT_EQ(items[0].meta.interval, 5000u);
     EXPECT_EQ(items[0].meta.name, "timer_a");
+}
+
+/**
+ * @tc.name: StopTimerClearsTriggerTime_ForResync
+ * @tc.desc: Test that clearing lastTriggerTime to 0 (as StopTimer does on success)
+ *           prevents resync from re-scheduling a stopped timer. After
+ *           InsertCallback + UpdateTriggerTime + UpdateTriggerTime(0),
+ *           GetAllResyncItems must return lastTriggerTime=0 so the SA-side
+ *           ResyncTimer skips StartTimerV9.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, StopTimerClearsTriggerTime_ForResync, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {true, 5000, "stopped_timer"});
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 99999);
+    {
+        auto items = callback_->GetAllResyncItems();
+        ASSERT_EQ(items.size(), 1u);
+        ASSERT_EQ(items[0].lastTriggerTime, 99999u);
+    }
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 0);
+    auto items = callback_->GetAllResyncItems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].timerId, TEST_TIMER_ID);
+    EXPECT_EQ(items[0].lastTriggerTime, 0u);
+    EXPECT_TRUE(items[0].meta.repeat);
+    EXPECT_EQ(items[0].meta.interval, 5000u);
+    EXPECT_EQ(items[0].meta.name, "stopped_timer");
+}
+
+/**
+ * @tc.name: StopThenRestart_RestoresTriggerTime
+ * @tc.desc: Test that after clearing lastTriggerTime (stop), a subsequent
+ *           UpdateTriggerTime (re-start) restores the value, so resync
+ *           re-schedules the timer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmClientTimerCallbackTest, StopThenRestart_RestoresTriggerTime, TestSize.Level1)
+{
+    callback_->InsertCallback(TEST_TIMER_ID, nullptr, nullptr, {false, 0, "one_shot"});
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 10000);
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 0);
+    callback_->UpdateTriggerTime(TEST_TIMER_ID, 20000);
+    auto items = callback_->GetAllResyncItems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].lastTriggerTime, 20000u);
 }
 
 /**

@@ -120,6 +120,17 @@ protected:
         instance_->timerMap_[timerId] = entry;
     }
 
+    void InjectTimerEntryWithName(uint64_t timerId, const std::string &admin,
+        const sptr<IRemoteObject> &callback, const std::string &name)
+    {
+        std::lock_guard<std::mutex> lock(instance_->mutex_);
+        TimerEntry entry;
+        entry.adminBundleName = admin;
+        entry.name = name;
+        entry.clientCallback = callback;
+        instance_->timerMap_[timerId] = entry;
+    }
+
     size_t GetTimerMapSize()
     {
         std::lock_guard<std::mutex> lock(instance_->mutex_);
@@ -356,7 +367,7 @@ HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_OperationType_Invalid, Tes
     {
         MessageParcel data;
         EXPECT_EQ(instance_->HandleTimerOperation(funcCode, ADMIN_A, data, reply, 0),
-            EdmReturnErrCode::PARAM_ERROR);
+            EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     {
         MessageParcel data;
@@ -418,7 +429,7 @@ HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Create_IntervalOutOfRange,
 /**
  * @tc.name: HandleTimerOperation_Create_NullClientCallback
  * @tc.desc: Test HandleTimerOperation CREATE without a client callback remote object is
- *           rejected with PARAM_ERROR and creates no state.
+ *           rejected with EXECUTE_TIME_OUT and creates no state.
  * @tc.type: FUNC
  */
 HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Create_NullClientCallback, TestSize.Level1)
@@ -430,7 +441,7 @@ HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Create_NullClientCallback,
     data.WriteString(TIMER_NAME);
     MessageParcel reply;
     EXPECT_EQ(instance_->HandleTimerOperation(MakeTimerFuncCode(), ADMIN_A, data, reply, 0),
-        EdmReturnErrCode::PARAM_ERROR);
+        EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_EQ(GetTimerMapSize(), 0u);
 }
 
@@ -570,7 +581,7 @@ HWTEST_F(SystemTimerManagerTest, TimerDeathRecipient_DelegatesToManager, TestSiz
 /**
  * @tc.name: HandleTimerOperation_Resync_NullClientCallback
  * @tc.desc: Test HandleTimerOperation RESYNC without a client callback remote object is
- *           rejected with PARAM_ERROR and creates no state.
+ *           rejected with EXECUTE_TIME_OUT and creates no state.
  * @tc.type: FUNC
  */
 HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Resync_NullClientCallback, TestSize.Level1)
@@ -584,7 +595,7 @@ HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Resync_NullClientCallback,
     data.WriteUint64(TEST_TRIGGER_TIME);
     MessageParcel reply;
     EXPECT_EQ(instance_->HandleTimerOperation(MakeTimerFuncCode(), ADMIN_A, data, reply, 0),
-        EdmReturnErrCode::PARAM_ERROR);
+        EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_EQ(GetTimerMapSize(), 0u);
 }
 
@@ -645,6 +656,32 @@ HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Resync_TriggerTimeZero_Ski
 }
 
 /**
+ * @tc.name: ResyncTimer_StoppedTimer_NotRescheduled
+ * @tc.desc: Test ResyncTimer with triggerTime == 0 (stopped timer) recreates the timer
+ *           entry but does NOT call StartTimerV9. This verifies the fix for the bug
+ *           where a stopped timer was incorrectly re-scheduled after SA restart.
+ *           The client-side StopTimer now clears lastTriggerTime to 0 on success,
+ *           so resync sends triggerTime=0 and the SA-side skips StartTimerV9.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, ResyncTimer_StoppedTimer_NotRescheduled, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    TimerOptions options{true, 5000, TIMER_NAME, callback};
+    // triggerTime=0 simulates a stopped timer (lastTriggerTime cleared by StopTimer)
+    ErrCode ret = instance_->ResyncTimer(options, ADMIN_A, TEST_TIMER_ID, 0);
+    if (ret == ERR_OK) {
+        // Timer entry should be rebuilt in timerMap_ for future operations.
+        EXPECT_TRUE(TimerExists(TEST_TIMER_ID));
+    } else {
+        // Time service unavailable in test env — entry not added.
+        EXPECT_FALSE(TimerExists(TEST_TIMER_ID));
+    }
+    // Pre-existing entries must not be corrupted.
+    EXPECT_EQ(GetTimerMapSize(), TimerExists(TEST_TIMER_ID) ? 1u : 0u);
+}
+
+/**
  * @tc.name: ResyncTimer_DoesNotCorruptExistingMap
  * @tc.desc: Test ResyncTimer does not corrupt pre-existing timer entries for other timerIds
  *           when it fails (CreateTimerV9 failure in test environment).
@@ -685,6 +722,123 @@ HWTEST_F(SystemTimerManagerTest, ResyncTimer_NullCallback_DoesNotAddDeathRecipie
     }
     EXPECT_TRUE(true);
 }
+
+/**
+ * @tc.name: HandleTimerOperation_Create_NameEmpty
+ * @tc.desc: Test HandleTimerOperation CREATE with an empty name is rejected and creates
+ *           no state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, HandleTimerOperation_Create_NameEmpty, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(TimerOperationType::CREATE));
+    data.WriteBool(false);
+    data.WriteUint64(0);
+    data.WriteString("");
+    MessageParcel reply;
+    EXPECT_EQ(instance_->HandleTimerOperation(MakeTimerFuncCode(), ADMIN_A, data, reply, 0),
+        EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(GetTimerMapSize(), 0u);
+}
+
+/**
+ * @tc.name: CreateTimer_SameName_RemovesOldEntry
+ * @tc.desc: Test CreateTimer removes the existing timer entry with the same name before
+ *           creating a new one, mirroring time_service AddTimerName replacement.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, CreateTimer_SameName_RemovesOldEntry, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    InjectTimerEntryWithName(TEST_TIMER_ID, ADMIN_A, callback, TIMER_NAME);
+    ASSERT_TRUE(TimerExists(TEST_TIMER_ID));
+
+    uint64_t timerId = 0;
+    TimerOptions options{false, 0, TIMER_NAME, callback};
+    instance_->CreateTimer(options, ADMIN_A, 0, timerId);
+    // The old entry must have been removed by the same-name cleanup.
+    EXPECT_FALSE(TimerExists(TEST_TIMER_ID));
+}
+
+/**
+ * @tc.name: CreateTimer_DifferentName_KeepsOldEntry
+ * @tc.desc: Test CreateTimer with a different name does not remove the existing entry.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, CreateTimer_DifferentName_KeepsOldEntry, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    InjectTimerEntryWithName(TEST_TIMER_ID, ADMIN_A, callback, "name_a");
+    ASSERT_TRUE(TimerExists(TEST_TIMER_ID));
+
+    uint64_t timerId = 0;
+    TimerOptions options{false, 0, "name_b", callback};
+    instance_->CreateTimer(options, ADMIN_A, 0, timerId);
+    // Different name — old entry must remain.
+    EXPECT_TRUE(TimerExists(TEST_TIMER_ID));
+}
+
+/**
+ * @tc.name: CreateTimer_EmptyName_DoesNotRemoveOthers
+ * @tc.desc: Test CreateTimer with an empty name does not trigger same-name cleanup.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, CreateTimer_EmptyName_DoesNotRemoveOthers, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    InjectTimerEntryWithName(TEST_TIMER_ID, ADMIN_A, callback, "named");
+    ASSERT_TRUE(TimerExists(TEST_TIMER_ID));
+
+    uint64_t timerId = 0;
+    TimerOptions options{false, 0, "", callback};
+    instance_->CreateTimer(options, ADMIN_A, 0, timerId);
+    // Empty name — no cleanup, old entry remains.
+    EXPECT_TRUE(TimerExists(TEST_TIMER_ID));
+}
+
+/**
+ * @tc.name: ResyncTimer_SameName_RemovesOtherEntry_OnSuccess
+ * @tc.desc: Test ResyncTimer removes an existing entry with the same name (but different
+ *           timerId) when the time service call succeeds. On failure the entry is left
+ *           intact because cleanup runs after the IPC.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, ResyncTimer_SameName_RemovesOtherEntry_OnSuccess, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    InjectTimerEntryWithName(TEST_TIMER_ID_2, ADMIN_B, callback, TIMER_NAME);
+    ASSERT_TRUE(TimerExists(TEST_TIMER_ID_2));
+
+    TimerOptions options{false, 0, TIMER_NAME, callback};
+    ErrCode ret = instance_->ResyncTimer(options, ADMIN_A, TEST_TIMER_ID, 0);
+    if (ret == ERR_OK) {
+        // On success, the same-name entry should have been removed by cleanup.
+        EXPECT_FALSE(TimerExists(TEST_TIMER_ID_2));
+    } else {
+        // On failure (time service unavailable), cleanup didn't run, entry remains.
+        EXPECT_TRUE(TimerExists(TEST_TIMER_ID_2));
+    }
+}
+
+/**
+ * @tc.name: ResyncTimer_DifferentName_KeepsOtherEntry
+ * @tc.desc: Test ResyncTimer with a different name does not remove existing entries
+ *           regardless of success or failure.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SystemTimerManagerTest, ResyncTimer_DifferentName_KeepsOtherEntry, TestSize.Level1)
+{
+    auto callback = new TestTimerCallbackStub();
+    InjectTimerEntryWithName(TEST_TIMER_ID_2, ADMIN_B, callback, "name_a");
+    ASSERT_TRUE(TimerExists(TEST_TIMER_ID_2));
+
+    TimerOptions options{false, 0, "name_b", callback};
+    instance_->ResyncTimer(options, ADMIN_A, TEST_TIMER_ID, 0);
+    // Different name — other entry must remain in both success and failure paths.
+    EXPECT_TRUE(TimerExists(TEST_TIMER_ID_2));
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

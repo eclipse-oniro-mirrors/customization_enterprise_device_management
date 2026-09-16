@@ -1557,7 +1557,7 @@ void SystemManagerAddon::NativeCreateTimer(napi_env env, void *data)
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get SystemManagerProxy");
-        asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
         return;
     }
     asyncCallbackInfo->ret = proxy->CreateTimer(
@@ -1575,7 +1575,7 @@ void SystemManagerAddon::NativeStartTimer(napi_env env, void *data)
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get SystemManagerProxy");
-        asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
         return;
     }
     asyncCallbackInfo->ret = proxy->StartTimer(
@@ -1599,7 +1599,7 @@ void SystemManagerAddon::NativeStopTimer(napi_env env, void *data)
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get SystemManagerProxy");
-        asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
         return;
     }
     asyncCallbackInfo->ret = proxy->StopTimer(asyncCallbackInfo->timerId);
@@ -1616,7 +1616,7 @@ void SystemManagerAddon::NativeDestroyTimer(napi_env env, void *data)
     auto proxy = SystemManagerProxy::GetSystemManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("can not get SystemManagerProxy");
-        asyncCallbackInfo->ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
         return;
     }
     asyncCallbackInfo->ret = proxy->DestroyTimer(asyncCallbackInfo->timerId);
