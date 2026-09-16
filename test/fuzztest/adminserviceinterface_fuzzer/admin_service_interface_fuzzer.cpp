@@ -15,6 +15,7 @@
 
 #include "admin_service_interface_fuzzer.h"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "common_fuzzer.h"
 #include "func_code.h"
@@ -50,7 +51,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
-        code == EdmInterfaceCode::DISABLED_HDC_REMOTE || code < MIN_INTERAFCE_CODE) {
+        code == EdmInterfaceCode::DISABLED_HDC_REMOTE || code < MIN_INTERAFCE_CODE ||
+        code == EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_NFC) {
         return 0;
     }
     uint32_t operateType = data[4] % OPERATE_TYPE_DIVISOR;

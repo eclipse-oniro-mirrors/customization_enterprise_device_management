@@ -14,6 +14,7 @@
  */
 #define FUZZ_PROJECT_NAME "enterprise_device_mgr_stub_mock_fuzzer"
 
+#include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "common_fuzzer.h"
 #include "func_code.h"
@@ -43,7 +44,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (code == EdmInterfaceCode::RESET_FACTORY || code == EdmInterfaceCode::SHUTDOWN ||
         code == EdmInterfaceCode::REBOOT || code == EdmInterfaceCode::USB_READ_ONLY ||
         code == EdmInterfaceCode::DISABLED_HDC || code == EdmInterfaceCode::DISABLE_USB ||
-        code == EdmInterfaceCode::DISABLED_HDC_REMOTE) {
+        code == EdmInterfaceCode::DISABLED_HDC_REMOTE ||
+        code == EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_NFC) {
         return 0;
     }
     uint32_t funcFlag = data[4] % BINARY_DECISION_DIVISOR;
