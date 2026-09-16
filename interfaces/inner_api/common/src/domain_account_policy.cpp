@@ -28,11 +28,11 @@ DomainAccountPolicy::DomainAccountPolicy()
 }
 
 DomainAccountPolicy::DomainAccountPolicy(int32_t authenticationValidityPeriod, int32_t passwordValidityPeriod,
-    int32_t passwordExpirationNotification, bool supportUkeyAuthentication)
+    int32_t passwordExpirationNotification, bool supportUKeyAuthentication)
     : authenticationValidityPeriod(authenticationValidityPeriod),
     passwordValidityPeriod(passwordValidityPeriod),
     passwordExpirationNotification(passwordExpirationNotification),
-    supportUkeyAuthentication(supportUkeyAuthentication)
+    supportUKeyAuthentication(supportUKeyAuthentication)
 {
     EDMLOGD("admin account policy instance is created with parameters");
 }
@@ -47,7 +47,7 @@ bool DomainAccountPolicy::Marshalling(MessageParcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, authenticationValidityPeriod);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, passwordValidityPeriod);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, passwordExpirationNotification);
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, supportUkeyAuthentication);
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, supportUKeyAuthentication);
     return true;
 }
 
@@ -61,7 +61,7 @@ bool DomainAccountPolicy::ReadFromParcel(MessageParcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, authenticationValidityPeriod);
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, passwordValidityPeriod);
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, passwordExpirationNotification);
-    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, supportUkeyAuthentication);
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, supportUKeyAuthentication);
     return true;
 }
 
@@ -82,7 +82,7 @@ bool DomainAccountPolicy::ConvertDomainAccountPolicyToJsonStr(std::string &jsonS
         cJSON_Delete(json);
         return false;
     }
-    if (cJSON_AddBoolToObject(json, "supportUkeyAuthentication", supportUkeyAuthentication) == NULL) {
+    if (cJSON_AddBoolToObject(json, "supportUKeyAuthentication", supportUKeyAuthentication) == NULL) {
         cJSON_Delete(json);
         return false;
     }
@@ -108,12 +108,12 @@ bool DomainAccountPolicy::JsonStrToDomainAccountPolicy(const std::string &jsonSt
     cJSON *itemAuthenticationValidityPeriod = cJSON_GetObjectItem(json, "authenticationValidityPeriod");
     cJSON *itemPasswordMaximumAge = cJSON_GetObjectItem(json, "passwordMaximumAge");
     cJSON *itemPasswordExpirationNotification = cJSON_GetObjectItem(json, "passwordExpirationNotification");
-    cJSON *itemSupportUkeyAuthentication = cJSON_GetObjectItem(json, "supportUkeyAuthentication");
+    cJSON *itemSupportUKeyAuthentication = cJSON_GetObjectItem(json, "supportUKeyAuthentication");
 
     bool ret1 = cJSON_IsNumber(itemAuthenticationValidityPeriod);
     bool ret2 = cJSON_IsNumber(itemPasswordMaximumAge);
     bool ret3 = cJSON_IsNumber(itemPasswordExpirationNotification);
-    bool ret4 = cJSON_IsBool(itemSupportUkeyAuthentication);
+    bool ret4 = cJSON_IsBool(itemSupportUKeyAuthentication);
 
     if (ret1) {
         domainAccountPolicy.authenticationValidityPeriod = itemAuthenticationValidityPeriod->valueint;
@@ -125,7 +125,7 @@ bool DomainAccountPolicy::JsonStrToDomainAccountPolicy(const std::string &jsonSt
         domainAccountPolicy.passwordExpirationNotification = itemPasswordExpirationNotification->valueint;
     }
     if (ret4) {
-        domainAccountPolicy.supportUkeyAuthentication = cJSON_IsTrue(itemSupportUkeyAuthentication);
+        domainAccountPolicy.supportUKeyAuthentication = cJSON_IsTrue(itemSupportUKeyAuthentication);
     }
     cJSON_Delete(json);
     return ret1 || ret2 || ret3 || ret4;
