@@ -1615,6 +1615,69 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetAdminInfosIpcFail, TestSize.Level1
     ErrCode errVal = enterpriseDeviceMgrProxyTest->GetAdminInfos(wants);
     EXPECT_TRUE(errVal == ERR_PROXY_SENDREQUEST_FAIL);
 }
+
+/**
+ * @tc.name: TestNotifyUnmountExternalStorageDeviceInfoSuc
+ * @tc.desc: Test NotifyUnmountExternalStorageDeviceInfo func success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestNotifyUnmountExternalStorageDeviceInfoSuc, TestSize.Level1)
+{
+    ExternalStorageDeviceInfo deviceInfo;
+    deviceInfo.type = static_cast<int32_t>(DiskType::USB_FLASH);
+    deviceInfo.devicePath = "/storage/usb0";
+    deviceInfo.volumeId = "vol-123";
+    deviceInfo.mountStatus = false;
+    deviceInfo.vendorId = 1001;
+    deviceInfo.productId = 2002;
+    deviceInfo.serial = "serial-001";
+    EXPECT_CALL(*object_, NotifyUnmountExternalStorageDeviceInfo(_))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->NotifyUnmountExternalStorageDeviceInfo(deviceInfo);
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestNotifyUnmountExternalStorageDeviceInfoFail
+ * @tc.desc: Test NotifyUnmountExternalStorageDeviceInfo func fail.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestNotifyUnmountExternalStorageDeviceInfoFail, TestSize.Level1)
+{
+    ExternalStorageDeviceInfo deviceInfo;
+    deviceInfo.type = static_cast<int32_t>(DiskType::SD_CARD);
+    deviceInfo.devicePath = "/storage/sdcard0";
+    deviceInfo.volumeId = "vol-456";
+    deviceInfo.mountStatus = true;
+    deviceInfo.vendorId = 3003;
+    deviceInfo.productId = 4004;
+    deviceInfo.serial = "serial-002";
+    EXPECT_CALL(*object_, NotifyUnmountExternalStorageDeviceInfo(_))
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->NotifyUnmountExternalStorageDeviceInfo(deviceInfo);
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestNotifyUnmountExternalStorageDeviceInfoSystemAbnormally
+ * @tc.desc: Test NotifyUnmountExternalStorageDeviceInfo func with system abnormally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestNotifyUnmountExternalStorageDeviceInfoSystemAbnormally, TestSize.Level1)
+{
+    ExternalStorageDeviceInfo deviceInfo;
+    deviceInfo.type = static_cast<int32_t>(DiskType::CD_DVD_BD);
+    deviceInfo.devicePath = "/storage/cdrom0";
+    deviceInfo.volumeId = "vol-789";
+    deviceInfo.mountStatus = false;
+    EXPECT_CALL(*object_, NotifyUnmountExternalStorageDeviceInfo(_))
+        .Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->NotifyUnmountExternalStorageDeviceInfo(deviceInfo);
+    EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
