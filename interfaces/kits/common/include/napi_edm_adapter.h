@@ -96,6 +96,9 @@ napi_value JsObjectToDataNew(napi_env env, napi_callback_info info, const AddonM
 
 napi_value AddonMethodAdapter(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
+
+napi_value AddonMethodAdapterNew(napi_env env, napi_callback_info info, const AddonMethodSign &methodSign,
+    napi_async_execute_callback execute, napi_async_complete_callback complete);
 } // namespace EDM
 } // namespace OHOS
 

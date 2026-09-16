@@ -536,38 +536,38 @@ int32_t SecurityManagerProxy::OpenSession(MessageParcel &data, MessageParcel &re
 {
     EDMLOGI("SecurityManagerProxy::OpenSession");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USER_EXT_SESSION);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USER_EXT_SESSION);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data, reply);
 }
 
 int32_t SecurityManagerProxy::CloseSession(MessageParcel &data)
 {
     EDMLOGI("SecurityManagerProxy::CloseSession");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::USER_EXT_SESSION);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::USER_EXT_SESSION);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t SecurityManagerProxy::AddUserExtCredential(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("SecurityManagerProxy::AddUserExtCredential");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USER_EXT_CREDENTIAL);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::USER_EXT_CREDENTIAL);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data, reply);
 }
 
 int32_t SecurityManagerProxy::RemoveUserExtCredential(MessageParcel &data)
 {
     EDMLOGI("SecurityManagerProxy::RemoveUserExtCredential");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::USER_EXT_CREDENTIAL);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::USER_EXT_CREDENTIAL);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t SecurityManagerProxy::GetUserExtCredential(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("SecurityManagerProxy::GetUserExtCredential");
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply);
     int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -581,15 +581,15 @@ int32_t SecurityManagerProxy::SetUnlockPolicy(MessageParcel &data)
 {
     EDMLOGI("SecurityManagerProxy::SetUnlockPolicy");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::UNLOCK_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::UNLOCK_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t SecurityManagerProxy::GetUnlockPolicy(MessageParcel &data, int32_t &policy)
 {
     EDMLOGI("SecurityManagerProxy::GetUnlockPolicy");
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::UNLOCK_POLICY, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::UNLOCK_POLICY, data, reply);
     int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -604,15 +604,15 @@ int32_t SecurityManagerProxy::SetDeviceSecurityLevelPolicy(MessageParcel &data)
 {
     EDMLOGD("SecurityManagerProxy::SetDeviceSecurityLevelPolicy");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t SecurityManagerProxy::GetDeviceSecurityLevelPolicy(MessageParcel &data, int32_t &policy)
 {
     EDMLOGD("SecurityManagerProxy::GetDeviceSecurityLevelPolicy");
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     reply.ReadInt32(ret);
     if (ret != ERR_OK) {

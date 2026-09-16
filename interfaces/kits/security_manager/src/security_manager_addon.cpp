@@ -94,9 +94,9 @@ std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value n
         DECLARE_NAPI_FUNCTION("getAllowedPermissionBundles", GetAllowedPermissionBundles),
         DECLARE_NAPI_FUNCTION("openSession", OpenSession),
         DECLARE_NAPI_FUNCTION("closeSession", CloseSession),
-        DECLARE_NAPI_FUNCTION("addUserExtCredential", AddUserExtCredential),
-        DECLARE_NAPI_FUNCTION("removeUserExtCredential", RemoveUserExtCredential),
-        DECLARE_NAPI_FUNCTION("getUserExtCredential", GetUserExtCredential),
+        DECLARE_NAPI_FUNCTION("addUserExtendCredential", AddUserExtCredential),
+        DECLARE_NAPI_FUNCTION("removeUserExtendCredential", RemoveUserExtCredential),
+        DECLARE_NAPI_FUNCTION("getUserExtendCredential", GetUserExtCredential),
         DECLARE_NAPI_FUNCTION("setUnlockPolicy", SetUnlockPolicy),
         DECLARE_NAPI_FUNCTION("getUnlockPolicy", GetUnlockPolicy),
         DECLARE_NAPI_PROPERTY("UnlockPolicy", nUnlockPolicy),
@@ -1478,10 +1478,10 @@ napi_value SecurityManagerAddon::OpenSession(napi_env env, napi_callback_info in
     EDMLOGI("NAPI_OpenSession called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "OpenSession";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
-    return AddonMethodAdapter(env, info, addonMethodSign, NativeOpenSession, NativeOpenSessionComplete);
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeOpenSession, NativeOpenSessionComplete);
 }
 
 void SecurityManagerAddon::NativeOpenSession(napi_env env, void *data)
@@ -1538,11 +1538,11 @@ napi_value SecurityManagerAddon::CloseSession(napi_env env, napi_callback_info i
     EDMLOGI("NAPI_CloseSession called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "CloseSession";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1574,11 +1574,11 @@ napi_value SecurityManagerAddon::AddUserExtCredential(napi_env env, napi_callbac
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "AddUserExtCredential";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
-    addonMethodSign.argsConvert = {nullptr, convertCredentialInfo, nullptr};
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+    addonMethodSign.argsConvert = {convertCredentialInfo, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
-    return AddonMethodAdapter(env, info, addonMethodSign, NativeAddUserExtCredential,
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeAddUserExtCredential,
         NativeAddUserExtCredentialComplete);
 }
 
@@ -1638,12 +1638,12 @@ napi_value SecurityManagerAddon::RemoveUserExtCredential(napi_env env, napi_call
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "RemoveUserExtCredential";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
-    addonMethodSign.argsConvert = {nullptr, convertRemoveInfo, nullptr};
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::INT32};
+    addonMethodSign.argsConvert = {convertRemoveInfo, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1663,10 +1663,10 @@ napi_value SecurityManagerAddon::GetUserExtCredential(napi_env env, napi_callbac
     EDMLOGI("NAPI_GetUserExtCredential called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetUserExtCredential";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
-    return AddonMethodAdapter(env, info, addonMethodSign, NativeGetUserExtCredential,
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetUserExtCredential,
         NativeGetUserExtCredentialComplete);
 }
 
@@ -1725,6 +1725,16 @@ void SecurityManagerAddon::NativeGetUserExtCredentialComplete(napi_env env, napi
                     CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
                         asyncCallbackInfo->errcodeType));
             }
+        } else if (asyncCallbackInfo->ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+            EDMLOGW("NativeGetUserExtCredentialComplete feature unsupported, return empty list.");
+            napi_value emptyList = nullptr;
+            if (napi_create_array(env, &emptyList) == napi_ok) {
+                napi_resolve_deferred(env, asyncCallbackInfo->deferred, emptyList);
+            } else {
+                napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                    CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
+                        asyncCallbackInfo->errcodeType));
+            }
         } else {
             std::string errMsg;
             asyncCallbackInfo->reply.ReadString(errMsg);
@@ -1741,12 +1751,11 @@ napi_value SecurityManagerAddon::SetUnlockPolicy(napi_env env, napi_callback_inf
     EDMLOGI("NAPI_SetUnlockPolicy called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetUnlockPolicy";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32,
-        EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1763,11 +1772,11 @@ napi_value SecurityManagerAddon::GetUnlockPolicy(napi_env env, napi_callback_inf
     EDMLOGI("NAPI_GetUnlockPolicy called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetUnlockPolicy";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
         return nullptr;
     }
     int32_t policy = 0;
@@ -1802,13 +1811,12 @@ napi_value SecurityManagerAddon::SetDeviceSecurityLevelPolicy(napi_env env, napi
 {
     EDMLOGI("NAPI_SetDeviceSecurityLevelPolicy called");
     AddonMethodSign addonMethodSign;
-    addonMethodSign.argsConvert = {nullptr, nullptr};
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
     addonMethodSign.name = "SetDeviceSecurityLevelPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1822,14 +1830,14 @@ napi_value SecurityManagerAddon::SetDeviceSecurityLevelPolicy(napi_env env, napi
 
 napi_value SecurityManagerAddon::GetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info)
 {
+    EDMLOGI("NAPI_GetDeviceSecurityLevelPolicy called");
     AddonMethodSign addonMethodSign;
-    addonMethodSign.argsConvert = {nullptr};
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {};
     addonMethodSign.name = "GetDeviceSecurityLevelPolicy";
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
