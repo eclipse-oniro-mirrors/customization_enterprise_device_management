@@ -79,7 +79,7 @@ HWTEST_F(SetDomainAccountPolicyPluginTest, TestOnHandlePolicyParamTypeError, Tes
     std::shared_ptr<SetDomainAccountPolicyPlugin> plugin = std::make_shared<SetDomainAccountPolicyPlugin>();
     MessageParcel data;
     data.WriteBool(false); // correct value should is DomainPolicyInfo
-    DomainAccountPolicy domainAccountPolicy(300, 200, 100);
+    DomainAccountPolicy domainAccountPolicy(300, 200, 100, false);
     domainAccountPolicy.Marshalling(data);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"TestString", "", false};
@@ -108,7 +108,7 @@ HWTEST_F(SetDomainAccountPolicyPluginTest, TestOnHandlePolicyDomainAccountPolicy
     MessageParcel data;
     OHOS::AccountSA::DomainAccountInfo domainAccountInfo;
     domainAccountInfo.Marshalling(data);
-    DomainAccountPolicy domainAccountPolicy(300, -2, 100); // -2 is error param
+    DomainAccountPolicy domainAccountPolicy(300, -2, 100, false); // -2 is error param
     domainAccountPolicy.Marshalling(data);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"TestString", "", false};
@@ -134,7 +134,7 @@ HWTEST_F(SetDomainAccountPolicyPluginTest, TestOnHandlePolicyDomainAccountInfoEr
     domainAccountInfo.domain_ = errValue;
     domainAccountInfo.serverConfigId_ = errValue;
     domainAccountInfo.Marshalling(data);
-    DomainAccountPolicy domainAccountPolicy(300, 200, 100);
+    DomainAccountPolicy domainAccountPolicy(300, 200, 100, false);
     domainAccountPolicy.Marshalling(data);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"TestString", "", false};

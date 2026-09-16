@@ -68,14 +68,14 @@ HWTEST_F(DomainAccountPolicyTest, TestMarshalling, TestSize.Level1)
     ASSERT_TRUE(domainAccountPolicy.authenticationValidityPeriod == AUTHENTICATIONVALIDITYPERIOD);
     ASSERT_TRUE(domainAccountPolicy.passwordValidityPeriod == PASSWORDVALIDITYPERIOD);
     ASSERT_TRUE(domainAccountPolicy.passwordExpirationNotification == PASSWORDEXPIRATIONNOTIFICATION);
-    ASSERT_TRUE(domainAccountPolicy.supportUkeyAuthentication == SUPPORTUKEYAUTHENTICATION);
+    ASSERT_TRUE(domainAccountPolicy.supportUKeyAuthentication == SUPPORTUKEYAUTHENTICATION);
     ASSERT_TRUE(domainAccountPolicy.authenticationValidityPeriod ==
         domainAccountPolicyTest->authenticationValidityPeriod);
     ASSERT_TRUE(domainAccountPolicy.passwordValidityPeriod == domainAccountPolicyTest->passwordValidityPeriod);
     ASSERT_TRUE(domainAccountPolicy.passwordExpirationNotification ==
         domainAccountPolicyTest->passwordExpirationNotification);
-    ASSERT_TRUE(domainAccountPolicy.supportUkeyAuthentication ==
-        domainAccountPolicyTest->supportUkeyAuthentication);
+    ASSERT_TRUE(domainAccountPolicy.supportUKeyAuthentication ==
+        domainAccountPolicyTest->supportUKeyAuthentication);
 
     MessageParcel parcelErrData;
     DomainAccountPolicy domainAccountPolicy2;
@@ -101,15 +101,15 @@ HWTEST_F(DomainAccountPolicyTest, TestConvertDomainAccountPolicyToJsonStr, TestS
     ASSERT_TRUE(domainAccountPolicy.passwordValidityPeriod == domainAccountPolicyTest->passwordValidityPeriod);
     ASSERT_TRUE(domainAccountPolicy.passwordExpirationNotification ==
         domainAccountPolicyTest->passwordExpirationNotification);
-    ASSERT_TRUE(domainAccountPolicy.supportUkeyAuthentication ==
-        domainAccountPolicyTest->supportUkeyAuthentication);
+    ASSERT_TRUE(domainAccountPolicy.supportUKeyAuthentication ==
+        domainAccountPolicyTest->supportUKeyAuthentication);
 
     std::string jsonStr2 = "{\"authenticationValidityPeriod\":-1}";
     DomainAccountPolicy domainAccountPolicy2;
     ASSERT_TRUE(DomainAccountPolicy::JsonStrToDomainAccountPolicy(jsonStr2, domainAccountPolicy2));
 
     std::string jsonStr3 = "{\"authenticationValidityPeriod\":\"errData\",\"passwordMaximumAge\":\"errData\","        \
-        "\"passwordExpirationNotification\":\"errData\",\"supportUkeyAuthentication\":\"errData\"}";
+        "\"passwordExpirationNotification\":\"errData\",\"supportUKeyAuthentication\":\"errData\"}";
     DomainAccountPolicy domainAccountPolicy3;
     ASSERT_FALSE(DomainAccountPolicy::JsonStrToDomainAccountPolicy(jsonStr3, domainAccountPolicy3));
 }
