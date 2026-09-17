@@ -691,7 +691,11 @@ int32_t SystemManagerProxy::StopTimer(uint64_t timerId)
     uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
     MessageParcel reply;
-    return proxy->HandleDevicePolicyNew(funcCode, data, reply);
+    int32_t ret = proxy->HandleDevicePolicyNew(funcCode, data, reply);
+    if (ret == ERR_OK && clientCallback_ != nullptr) {
+        clientCallback_->UpdateTriggerTime(timerId, 0);
+    }
+    return ret;
 }
 
 int32_t SystemManagerProxy::DestroyTimer(uint64_t timerId)

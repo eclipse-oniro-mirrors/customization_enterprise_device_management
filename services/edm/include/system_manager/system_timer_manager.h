@@ -38,6 +38,7 @@ struct TimerOptions {
 
 struct TimerEntry {
     std::string adminBundleName;
+    std::string name;
     sptr<IRemoteObject> clientCallback;
 };
 
@@ -63,6 +64,10 @@ private:
     SystemTimerManager() = default;
     ~SystemTimerManager();
     void CleanupTimerLocked(uint64_t timerId);
+    void CleanupSameNameTimerLocked(const std::string &name, uint64_t excludeTimerId);
+    uint32_t CountTimersByAdminLocked(const std::string &adminBundleName);
+    void InsertTimerEntryLocked(uint64_t timerId, const TimerOptions &options,
+        const std::string &adminBundleName);
     sptr<TimerDeathRecipient> GetOrCreateDeathRecipientLocked(const sptr<IRemoteObject> &clientCallback);
     void ReleaseRecipientIfUnusedLocked(const sptr<IRemoteObject> &clientCallback);
     ErrCode HandleCreateTimerOperation(const std::string &adminBundleName,

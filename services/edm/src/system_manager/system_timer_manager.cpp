@@ -54,44 +54,29 @@ ErrCode SystemTimerManager::CreateTimer(const TimerOptions &options,
 {
     EDMLOGI("SystemTimerManager::CreateTimer admin=%{public}s", adminBundleName.c_str());
     std::lock_guard<std::mutex> lock(mutex_);
-    uint32_t count = 0;
-    for (auto &[id, entry] : timerMap_) {
-        if (entry.adminBundleName == adminBundleName) {
-            count++;
-        }
-    }
-    if (count >= EdmConstants::SystemTimer::TIMER_MAX_COUNT_PER_ADMIN) {
+    if (CountTimersByAdminLocked(adminBundleName) >= EdmConstants::SystemTimer::TIMER_MAX_COUNT_PER_ADMIN) {
         EDMLOGE("SystemTimerManager::CreateTimer max count reached for %{public}s", adminBundleName.c_str());
         return EdmReturnErrCode::SYSTEM_TIMER_MAX_COUNT_REACHED;
     }
-
     auto timerInfo = std::make_shared<EdmTimerInfoSa>(0);
     timerInfo->SetType(EdmConstants::SystemTimer::DEFAULT_TIMER_TYPE);
     timerInfo->SetRepeat(options.repeat);
     timerInfo->SetInterval(options.interval);
     timerInfo->SetName(options.name);
-    timerInfo->SetTriggerCallback(
-        [this](uint64_t id) { OnTimerTriggered(id); });
-
+    timerInfo->SetTriggerCallback([this](uint64_t id) { OnTimerTriggered(id); });
     auto timer = MiscServices::TimeServiceClient::GetInstance();
     if (timer == nullptr) {
         EDMLOGE("SystemTimerManager::CreateTimer TimeServiceClient is nullptr");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     timerId = timer->CreateTimer(timerInfo);
     if (timerId == 0) {
         EDMLOGE("SystemTimerManager::CreateTimer CreateTimer failed");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     timerInfo->SetTimerId(timerId);
-
-    TimerEntry entry;
-    entry.adminBundleName = adminBundleName;
-    entry.clientCallback = options.clientCallback;
-    if (options.clientCallback != nullptr) {
-        GetOrCreateDeathRecipientLocked(options.clientCallback);
-    }
-    timerMap_[timerId] = entry;
+    CleanupSameNameTimerLocked(options.name, 0);
+    InsertTimerEntryLocked(timerId, options, adminBundleName);
     EDMLOGI("SystemTimerManager::CreateTimer success timerId=%{public}llu", static_cast<unsigned long long>(timerId));
     return ERR_OK;
 }
@@ -105,12 +90,12 @@ ErrCode SystemTimerManager::StartTimer(uint64_t timerId, uint64_t triggerTime,
     }
     auto timer = MiscServices::TimeServiceClient::GetInstance();
     if (timer == nullptr) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t ret = timer->StartTimerV9(timerId, triggerTime);
     if (ret != 0) {
         EDMLOGE("SystemTimerManager::StartTimer failed ret=%{public}d", ret);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
 }
@@ -123,12 +108,12 @@ ErrCode SystemTimerManager::StopTimer(uint64_t timerId, const std::string &admin
     }
     auto timer = MiscServices::TimeServiceClient::GetInstance();
     if (timer == nullptr) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t ret = timer->StopTimerV9(timerId);
     if (ret != 0) {
         EDMLOGE("SystemTimerManager::StopTimer failed ret=%{public}d", ret);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
 }
@@ -264,6 +249,45 @@ void SystemTimerManager::CleanupTimerLocked(uint64_t timerId)
     ReleaseRecipientIfUnusedLocked(clientCallback);
 }
 
+void SystemTimerManager::CleanupSameNameTimerLocked(const std::string &name, uint64_t excludeTimerId)
+{
+    if (name.empty()) {
+        return;
+    }
+    for (auto &[id, entry] : timerMap_) {
+        if (id != excludeTimerId && entry.name == name) {
+            EDMLOGI("CleanupSameNameTimerLocked replace timer=%{public}llu",
+                static_cast<unsigned long long>(id));
+            CleanupTimerLocked(id);
+            return;
+        }
+    }
+}
+
+uint32_t SystemTimerManager::CountTimersByAdminLocked(const std::string &adminBundleName)
+{
+    uint32_t count = 0;
+    for (auto &[id, entry] : timerMap_) {
+        if (entry.adminBundleName == adminBundleName) {
+            count++;
+        }
+    }
+    return count;
+}
+
+void SystemTimerManager::InsertTimerEntryLocked(uint64_t timerId, const TimerOptions &options,
+    const std::string &adminBundleName)
+{
+    TimerEntry entry;
+    entry.adminBundleName = adminBundleName;
+    entry.name = options.name;
+    entry.clientCallback = options.clientCallback;
+    if (options.clientCallback != nullptr) {
+        GetOrCreateDeathRecipientLocked(options.clientCallback);
+    }
+    timerMap_[timerId] = entry;
+}
+
 sptr<TimerDeathRecipient> SystemTimerManager::GetOrCreateDeathRecipientLocked(
     const sptr<IRemoteObject> &clientCallback)
 {
@@ -310,7 +334,7 @@ ErrCode SystemTimerManager::HandleCreateTimerOperation(const std::string &adminB
     bool repeat = data.ReadBool();
     uint64_t interval = data.ReadUint64();
     std::string name = data.ReadString();
-    if (name.length() > EdmConstants::SystemTimer::TIMER_NAME_MAX_LEN) {
+    if (name.empty() || name.length() > EdmConstants::SystemTimer::TIMER_NAME_MAX_LEN) {
         EDMLOGE("HandleCreateTimerOperation: name too long");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
@@ -322,7 +346,7 @@ ErrCode SystemTimerManager::HandleCreateTimerOperation(const std::string &adminB
     auto clientCallback = data.ReadRemoteObject();
     if (clientCallback == nullptr) {
         EDMLOGE("HandleCreateTimerOperation: clientCallback is null");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     TimerOptions options;
     options.repeat = repeat;
@@ -347,37 +371,27 @@ ErrCode SystemTimerManager::ResyncTimer(const TimerOptions &options,
     auto timer = MiscServices::TimeServiceClient::GetInstance();
     if (timer == nullptr) {
         EDMLOGE("SystemTimerManager::ResyncTimer TimeServiceClient is nullptr");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    // 1) Destroy orphan in Time SA (idempotent)
     timer->DestroyTimerV9(timerId);
-    // 2) Recreate with preset timerId
     auto timerInfo = std::make_shared<EdmTimerInfoSa>(timerId);
     timerInfo->SetType(EdmConstants::SystemTimer::DEFAULT_TIMER_TYPE);
     timerInfo->SetRepeat(options.repeat);
     timerInfo->SetInterval(options.interval);
     timerInfo->SetName(options.name);
-    timerInfo->SetTriggerCallback(
-        [this](uint64_t id) { OnTimerTriggered(id); });
+    timerInfo->SetTriggerCallback([this](uint64_t id) { OnTimerTriggered(id); });
     uint64_t id = timerId;
     int32_t ret = timer->CreateTimerV9(timerInfo, id);
     if (ret != 0 || id != timerId) {
         EDMLOGE("SystemTimerManager::ResyncTimer CreateTimerV9 failed ret=%{public}d id=%{public}llu",
             ret, static_cast<unsigned long long>(id));
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    // 3) Rebuild timerMap_ + deathRecipient
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        TimerEntry entry;
-        entry.adminBundleName = adminBundleName;
-        entry.clientCallback = options.clientCallback;
-        timerMap_[timerId] = entry;
-        if (options.clientCallback != nullptr) {
-            GetOrCreateDeathRecipientLocked(options.clientCallback);
-        }
+        CleanupSameNameTimerLocked(options.name, timerId);
+        InsertTimerEntryLocked(timerId, options, adminBundleName);
     }
-    // 4) Restore schedule
     if (triggerTime > 0) {
         timer->StartTimerV9(timerId, triggerTime);
     }
@@ -397,7 +411,7 @@ ErrCode SystemTimerManager::HandleResyncTimerOperation(const std::string &adminB
     auto clientCallback = data.ReadRemoteObject();
     if (clientCallback == nullptr) {
         EDMLOGE("HandleResyncTimerOperation: clientCallback is null");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     TimerOptions options;
     options.repeat = repeat;
@@ -413,7 +427,7 @@ ErrCode SystemTimerManager::HandleTimerOperation(uint32_t funcCode, const std::s
     int32_t opTypeRaw = static_cast<int32_t>(TimerOperationType::CREATE);
     if (!data.ReadInt32(opTypeRaw)) {
         EDMLOGE("HandleTimerOperation: read operationType failed");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     EDMLOGI("HandleTimerOperation funcCode=%{public}u opType=%{public}d admin=%{public}s",
         funcCode, opTypeRaw, adminBundleName.c_str());
