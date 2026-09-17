@@ -40,7 +40,7 @@ public:
     int32_t GetUsbSerialNumber(MessageParcel &data, std::string &result);
     int32_t AddAllowedOddBurnUsbDevices(MessageParcel &data);
     int32_t RemoveAllowedOddBurnUsbDevices(MessageParcel &data);
-    int32_t GetAllowedOddBurnUsbDevices(MessageParcel &data, std::vector<OddBurnUsbDevice> &result);
+    int32_t GetAllowedOddBurnUsbDevices(MessageParcel &data, MessageParcel &reply);
     bool IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial);
     int32_t SetExternalStorageInterceptEnable(MessageParcel &data);
     int32_t IsExternalStorageInterceptEnable(MessageParcel &data, bool &result);

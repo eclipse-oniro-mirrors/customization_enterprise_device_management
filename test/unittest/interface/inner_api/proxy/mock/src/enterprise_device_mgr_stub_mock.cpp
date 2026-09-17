@@ -18,6 +18,7 @@
 #include <fcntl.h>
 
 #include "application_instance.h"
+#include "array_odd_burn_usb_device_serializer.h"
 #include "bundle_storage_info.h"
 #include "domain_filter_rule.h"
 #include "edm_bundle_info.h"
@@ -26,6 +27,7 @@
 #include "http_proxy.h"
 #include "iptables_utils.h"
 #include "net_stats_utils.h"
+#include "odd_burn_usb_device.h"
 #include "os_account_info.h"
 #include "update_policy_utils.h"
 #include "usb_device_id.h"
@@ -392,6 +394,32 @@ int EnterpriseDeviceMgrStubMock::InvokeAllowedUsbDevicesSendRequestGetPolicy(uin
     std::for_each(usbDeviceIds.begin(), usbDeviceIds.end(), [&](const auto usbDeviceId) {
         usbDeviceId.Marshalling(reply);
     });
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeOddBurnUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOddBurnUsbDevicesSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<OddBurnUsbDevice> devices;
+    OddBurnUsbDevice device;
+    device.SetVendorId(1);
+    device.SetProductId(9); //产品ID
+    device.SetSerial("serial1");
+    devices.push_back(device);
+    ArrayOddBurnUsbDeviceSerializer::GetInstance()->WriteRawDataToParcel(reply, devices);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeBoolFalseSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolFalseSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(false);
     return 0;
 }
 

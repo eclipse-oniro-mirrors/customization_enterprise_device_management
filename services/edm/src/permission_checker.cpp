@@ -49,6 +49,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::USB_READ_ONLY,
     EdmInterfaceCode::ALLOWED_USB_DEVICES,
     EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES,
+    EdmInterfaceCode::IS_ALLOWED_ODD_BURN,
     EdmInterfaceCode::DISABLE_WIFI,
     EdmInterfaceCode::DISABLE_MTP_CLIENT,
     EdmInterfaceCode::DISABLE_MTP_SERVER,
