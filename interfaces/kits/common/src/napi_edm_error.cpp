@@ -133,6 +133,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::FORM_TYPE_NOT_SUPPORT, "The form type is not supported."},
     {EdmReturnErrCode::ADD_FORM_FAILED, "Failed to add the form to the desktop."},
     {EdmReturnErrCode::GET_USB_SERIAL_NUMBER_FAILED, "Failed to obtain the USB serial number."},
+    {EdmReturnErrCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY_INVALID,
+        "Invalid external storage mount policy."},
     {EdmReturnErrCode::POLICY_LIST_OVER_SIZE, "The policy list has exceeded the limit."},
 };
 

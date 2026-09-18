@@ -122,6 +122,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES,
     EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
     EdmInterfaceCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY,
+    EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

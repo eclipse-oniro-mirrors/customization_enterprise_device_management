@@ -507,6 +507,7 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/restrictions/disallow_external_storage_card_plugin.cpp",
         "./src/usb_manager/external_storage_device_mount_policy_plugin.cpp",
+        "./src/usb_manager/get_external_storage_device_infos_plugin.cpp",
       ]
       defines += [ "EXTERNAL_DISK_MANAGER_EDM_ENABLE" ]
     }

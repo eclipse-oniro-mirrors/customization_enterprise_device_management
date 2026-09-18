@@ -21,6 +21,7 @@
 #include "bundle_storage_info.h"
 #include "domain_filter_rule.h"
 #include "edm_bundle_info.h"
+#include "external_storage_device_info.h"
 #include "firewall_rule.h"
 #include "http_proxy.h"
 #include "iptables_utils.h"
@@ -673,6 +674,30 @@ int EnterpriseDeviceMgrStubMock::InvokeNetStatsInfoSendRequestOverMaxSize(uint32
         info.dataSize = TEST_DATA_SIZE * i;
         info.Marshalling(reply);
     }
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeExternalStorageDeviceInfosSendRequestGetPolicy(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) <<
+        "mock EnterpriseDeviceMgrStubMock InvokeExternalStorageDeviceInfosSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<ExternalStorageDeviceInfo> deviceInfos;
+    ExternalStorageDeviceInfo info;
+    info.type = static_cast<int32_t>(DiskType::USB_FLASH);
+    info.devicePath = "/dev/block/sda1";
+    info.volumeId = "volume_1";
+    info.mountStatus = true;
+    info.vendorId = 1;
+    info.productId = 9; //表示产品ID
+    info.serial = "serial_1";
+    deviceInfos.push_back(info);
+    reply.WriteUint32(deviceInfos.size());
+    std::for_each(deviceInfos.begin(), deviceInfos.end(), [&](const auto deviceInfo) {
+        deviceInfo.Marshalling(reply);
+    });
     return 0;
 }
 } // namespace EDM

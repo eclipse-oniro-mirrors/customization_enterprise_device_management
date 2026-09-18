@@ -114,6 +114,14 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
         return true;
     }
 
+    std::string externalStorageInterceptEnable;
+    policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
+        externalStorageInterceptEnable);
+    if (externalStorageInterceptEnable == "true") {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! externalStorageInterceptEnable.");
+        return true;
+    }
+
     std::string disableUsbSerial;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
     if (disableUsbSerial == "true") {
