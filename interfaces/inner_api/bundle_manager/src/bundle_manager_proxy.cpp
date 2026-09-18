@@ -16,6 +16,7 @@
 #include "bundle_manager_proxy.h"
 
 #include <fcntl.h>
+#include <cstdio>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -255,12 +256,14 @@ ErrCode BundleManagerProxy::WriteFileToInner(MessageParcel &reply, const std::st
         errMessage = "write file to stream failed due to invalid file descriptor";
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
+    fdsan_exchange_owner_tag(sharedFd, 0, EdmConstants::LOG_DOMAINID);
     int32_t outputFd = dup(sharedFd);
-    close(sharedFd);
+    fdsan_close_with_tag(sharedFd, EdmConstants::LOG_DOMAINID);
+    fdsan_exchange_owner_tag(outputFd, 0, EdmConstants::LOG_DOMAINID);
 
     int32_t inputFd = open(realPath.c_str(), O_RDONLY);
     if (inputFd < 0) {
-        close(outputFd);
+        fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
         EDMLOGE("write file to stream failed due to open the hap file");
         errMessage = "write file to stream failed due to open the hap file";
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
@@ -270,20 +273,20 @@ ErrCode BundleManagerProxy::WriteFileToInner(MessageParcel &reply, const std::st
     struct stat stat_buff;
     if (fstat(inputFd, &stat_buff) != 0) {
         EDMLOGE("fstat file failed!");
-        close(outputFd);
+        fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
         fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
 
     if (sendfile(outputFd, inputFd, &offset, stat_buff.st_size) == -1) {
         EDMLOGE("send file failed!");
-        close(outputFd);
+        fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
         fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
         return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
     }
 
     fsync(outputFd);
-    close(outputFd);
+    fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
     fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
     return ERR_OK;
 }
