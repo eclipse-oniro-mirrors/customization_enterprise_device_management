@@ -45,7 +45,10 @@ ohos_shared_library("wifimanager") {
 
   defines = []
   if (wifi_edm_enable) {
-    external_deps += [ "wifi:wifi_sdk" ]
+    external_deps += [
+      "wifi:wifi_sdk",
+      "samgr:samgr_proxy",
+    ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
 

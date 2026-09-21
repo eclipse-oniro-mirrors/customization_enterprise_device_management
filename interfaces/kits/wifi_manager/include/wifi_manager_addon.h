@@ -98,6 +98,7 @@ private:
     static bool ConvertEncryptionMode(int32_t securityType, Wifi::WifiDeviceConfig &config, WifiPassword &pwd);
     static bool ProcessIpType(int32_t ipType, napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
     static bool ConfigStaticIp(napi_env env, napi_value object, Wifi::WifiIpConfig &ipConfig);
+    static bool ProcessRandomMacAddress(napi_env env, napi_value object, Wifi::WifiDeviceConfig &config);
     static bool ProcessEapConfig(napi_env env, napi_value object,
         Wifi::WifiEapConfig &eapConfig, WifiPassword &pwd);
     static bool ProcessEapPeapConfig(napi_env env, napi_value object,
