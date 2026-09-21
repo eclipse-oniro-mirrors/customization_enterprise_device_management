@@ -399,8 +399,7 @@ napi_value JsObjectToDataNew(napi_env env, napi_callback_info info, const AddonM
     QueryPolicyArgToData(env, argv, argc, methodSign, addonData->data);
     napi_value errorRes = JsParamsToData(env, argv, argc, methodSign, addonData->data);
     if (errorRes != nullptr) {
-        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAM_ERROR, "parameter convert error",
-            ErrcodeType::NUMBER));
+        napi_throw(env, errorRes);
         return nullptr;
     }
 
