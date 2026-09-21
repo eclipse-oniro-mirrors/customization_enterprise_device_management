@@ -34,6 +34,7 @@ ohos_shared_library("adminManager_ani") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hilog:libhilog",
     "runtime_core:ani",
   ]

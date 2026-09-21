@@ -111,6 +111,7 @@ ohos_shared_library("enterprise_admin_extension_module") {
     "ability_base:configuration",
     "ability_runtime:abilitykit_native",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
     "ipc:ipc_napi",
