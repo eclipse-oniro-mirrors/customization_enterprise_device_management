@@ -28,7 +28,7 @@ namespace EDM {
 class EnterpriseDeviceMgrAbilityMock : public EnterpriseDeviceMgrAbility {
 public:
     MOCK_METHOD(std::shared_ptr<IExternalManagerFactory>, GetExternalManagerFactory, (), (override));
-    MOCK_METHOD(std::shared_ptr<PermissionChecker>, GetPermissionChecker, (), ());
+    MOCK_METHOD(std::shared_ptr<PermissionChecker>, GetPermissionChecker, (), (override));
 
     std::shared_ptr<AdminManager> adminMgr_;
 };
