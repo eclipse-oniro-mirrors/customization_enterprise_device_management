@@ -17,7 +17,7 @@
 #define SERVICES_EDM_INCLUDE_EDM_POLICY_MANAGER_H
 
 #include <memory>
-#include <shared_mutex>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -59,7 +59,7 @@ private:
 
     std::map<std::int32_t, std::shared_ptr<UserPolicyManager>> policyMgrMap_;
     std::shared_ptr<UserPolicyManager> defaultPolicyMgr_;
-    static std::shared_timed_mutex mutexLock_;
+    std::recursive_mutex mutex_;
 };
 } // namespace EDM
 } // namespace OHOS

@@ -1685,10 +1685,10 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
         return systemCalling;
     }
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
-    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     // 若PERMISSION_MANAGE_EDM_POLICY权限校验通过则直接进行业务处理；
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
+        std::shared_lock<std::shared_mutex> autoLock(adminLock_);
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
             GetCurrentUserId());
         if (deviceAdmin == nullptr) {
@@ -1749,7 +1749,6 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, Message
         return systemCalling;
     }
     EDMLOGI("HandleDevicePolicy: HandleDevicePolicy");
-    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     ErrCode permissionRet = CheckHandleDevicePolicyNewPermission(code, bundleName, policyName, userId);
     if (FAILED(permissionRet)) {
         return permissionRet;
@@ -1772,6 +1771,7 @@ ErrCode EnterpriseDeviceMgrAbility::CheckHandleDevicePolicyNewPermission(uint32_
     if (GetPermissionChecker()->VerifyCallingPermission(tokenId, EdmPermission::PERMISSION_MANAGE_EDM_POLICY)) {
         return ERR_OK;
     }
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
         GetCurrentUserId());
     if (deviceAdmin == nullptr) {
@@ -1809,7 +1809,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
         }
     }
 
-    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCode(policyMgr_, code, data, reply, userId,
         permissionTag);
     if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
@@ -1834,7 +1833,6 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
     }
     int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
     data.ReadInt32(queryPolicy);
-    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
     ErrCode errCode = PluginPolicyReader::GetInstance()->GetPolicyByCodeNew(policyMgr_, code, data, reply, userId,
         queryPolicy);
     if (errCode == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
@@ -1907,6 +1905,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, Mes
             return EdmReturnErrCode::PARAM_ERROR;
         }
 #ifndef EDM_FUZZ_TEST
+        std::shared_lock<std::shared_mutex> autoLock(adminLock_);
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin->GetBundleName(),
             GetCurrentUserId());
         if (deviceAdmin == nullptr) {
@@ -1951,6 +1950,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, 
     if (queryPolicy == static_cast<int32_t>(QueryPolicy::SELF)) {
         int uid = IPCSkeleton::GetCallingUid();
         GetBundleMgr()->GetNameForUid(uid, bundleName);
+        std::shared_lock<std::shared_mutex> autoLock(adminLock_);
         std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
             GetCurrentUserId());
         if (deviceAdmin == nullptr) {

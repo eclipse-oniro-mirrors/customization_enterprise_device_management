@@ -164,6 +164,7 @@ namespace EdmConstants {
         constexpr uint32_t GET_EXT_INFO = 29;
         constexpr uint32_t START_COLLECT_LOG = 30;
         constexpr uint32_t SET_KEY_EVENTS = 31;
+        constexpr uint32_t HIDDEN_SETTINGS_MENU = 34;
         constexpr uint32_t DISABLE_SUPERHUB = 36;
         constexpr uint32_t HIDE_LAUNCHER_ICON = 37;
         constexpr uint32_t DISABLE_SECURE_ERASE = 39;

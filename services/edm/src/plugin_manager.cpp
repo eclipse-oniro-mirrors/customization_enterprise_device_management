@@ -41,6 +41,7 @@ const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
 
 std::shared_ptr<PluginManager> PluginManager::instance_;
 std::shared_timed_mutex PluginManager::mutexLock_;
+std::shared_mutex PluginManager::soPinMutex_;
 constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
 
 std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
@@ -377,6 +378,7 @@ void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<
                 return loadStatePtr->notifySignal;
             });
         }
+        std::unique_lock<std::shared_mutex> pinLock(soPinMutex_);
         std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
@@ -640,11 +642,20 @@ void PluginManager::DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlu
 ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bundleName,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(code);
-    if (plugin == nullptr) {
-        EDMLOGW("UpdateDevicePolicy: get plugin by funcCode failed: %{public}d.", code);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    std::shared_ptr<IPlugin> plugin;
+    {
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        plugin = GetPluginByFuncCode(code);
+        if (plugin == nullptr) {
+            EDMLOGW("UpdateDevicePolicy: get plugin by funcCode failed: %{public}d.", code);
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+    }
+    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
+    std::unique_lock<std::mutex> codeLock;
+    if (plugin->NeedSavePolicy()) {
+        int32_t groupId = ConflictGroupRegistry::GetInstance().GetConflictGroupId(FuncCodeUtils::GetPolicyCode(code));
+        codeLock = std::unique_lock<std::mutex>(policyStripes_[groupId]);
     }
     std::string policyName = plugin->GetPolicyName();
     std::string oldCombinePolicy;
@@ -679,12 +690,16 @@ ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bund
 ErrCode PluginManager::GetPolicy(uint32_t funcCode, const std::string &bundleName, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(funcCode);
-    if (plugin == nullptr) {
-        EDMLOGE("PluginManager::GetPolicy get plugin by funcCode fail: %{public}u.", funcCode);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    std::shared_ptr<IPlugin> plugin;
+    {
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        plugin = GetPluginByFuncCode(funcCode);
+        if (plugin == nullptr) {
+            EDMLOGE("PluginManager::GetPolicy get plugin by funcCode fail: %{public}u.", funcCode);
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
     }
+    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
     std::string policyValue;
     if (plugin->NeedSavePolicy()) {
         PolicyManager::GetInstance()->GetPolicy(bundleName, plugin->GetPolicyName(), policyValue, userId);
