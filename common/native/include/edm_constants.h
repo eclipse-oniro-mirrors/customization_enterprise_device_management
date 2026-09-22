@@ -170,6 +170,7 @@ namespace EdmConstants {
         constexpr uint32_t DISABLE_SECURE_ERASE = 39;
         constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
         constexpr uint32_t WEAK_PIN = 43;
+        constexpr uint32_t DISABLE_SUPER_PRIVACY = 44;
     }
 
     namespace KeepAlive {
@@ -589,6 +590,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_SATA_ODD_BURN = "disable_sata_odd_burn";
     const char* const POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE = "external_storage_intercept_enable";
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY = "external_storage_device_mount_policy";
+    const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
