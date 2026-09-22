@@ -69,11 +69,9 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nServiceType));
     CreateServiceTypeObject(env, nServiceType);
 
-#ifndef FEATURE_PC_ONLY
     napi_value nStandbyResourceType = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nStandbyResourceType));
     CreateStandbyResourceTypeObject(env, nStandbyResourceType);
-#endif
     
     std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("addDisallowedRunningBundles", AddDisallowedRunningBundles),
@@ -107,9 +105,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeUserNonStopApps", RemoveUserNonStopApps),
         DECLARE_NAPI_FUNCTION("getUserNonStopApps", GetUserNonStopApps),
         DECLARE_NAPI_PROPERTY("ServiceType", nServiceType),
-#ifndef FEATURE_PC_ONLY
         DECLARE_NAPI_PROPERTY("StandbyResourceType", nStandbyResourceType),
-#endif
         DECLARE_NAPI_FUNCTION("publishFormToDesktop", PublishFormToDesktop),
         DECLARE_NAPI_FUNCTION("requestExemptionResource", RequestExemptionResource),
         DECLARE_NAPI_FUNCTION("releaseExemptionResource", ReleaseExemptionResource),
@@ -1947,14 +1943,12 @@ napi_value ApplicationManagerAddon::PublishFormToDesktop(napi_env env, napi_call
     return napiFormId;
 }
 
-#ifndef FEATURE_PC_ONLY
 void ApplicationManagerAddon::CreateStandbyResourceTypeObject(napi_env env, napi_value value)
 {
     napi_value nNetwork;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, 1, &nNetwork));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "NETWORK", nNetwork));
 }
-#endif
 
 napi_value ApplicationManagerAddon::RequestExemptionResource(napi_env env, napi_callback_info info)
 {

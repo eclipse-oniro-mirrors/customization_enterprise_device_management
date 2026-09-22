@@ -96,9 +96,7 @@ public:
     static napi_value PublishFormToDesktop(napi_env env, napi_callback_info info);
     static napi_value RequestExemptionResource(napi_env env, napi_callback_info info);
     static napi_value ReleaseExemptionResource(napi_env env, napi_callback_info info);
-#ifndef FEATURE_PC_ONLY
     static void CreateStandbyResourceTypeObject(napi_env env, napi_value value);
-#endif
 
 private:
     static napi_value AddOrRemoveDisallowedRunningBundles(napi_env env, napi_callback_info info,
