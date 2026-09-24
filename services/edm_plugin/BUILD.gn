@@ -419,6 +419,7 @@ ohos_shared_library("communication_plugin") {
         "netmanager_ext:netfirewall_manager_if",
       ]
       sources += [
+        "./src/restrictions/disallowed_packet_filtering_plugin.cpp",
         "./src/restrictions/disallowed_traffic_redirection_plugin.cpp",
       ]
     }
