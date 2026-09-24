@@ -19,11 +19,13 @@
 
 #include <atomic>
 #include <chrono>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
 
 #include "edm_event_data.h"
 #include "managed_event.h"
+#include "mock_event_source_adapter.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -215,7 +217,9 @@ HWTEST_F(EventSubscriptionManagerTest, DispatchEvent_CallbackThrows_NoCrash, Tes
  */
 HWTEST_F(EventSubscriptionManagerTest, Unsubscribe_UnknownHandle_NoCrash, TestSize.Level1)
 {
+    size_t beforeSize = manager_->subscriptions_.size();
     manager_->Unsubscribe(999999);
+    EXPECT_EQ(manager_->subscriptions_.size(), beforeSize);
 }
 
 /**
@@ -226,7 +230,9 @@ HWTEST_F(EventSubscriptionManagerTest, Unsubscribe_UnknownHandle_NoCrash, TestSi
 HWTEST_F(EventSubscriptionManagerTest, ResetAdapterSubscribedState_UnknownGroup_NoCrash, TestSize.Level1)
 {
     EventId unknownGroup{8888};
+    EXPECT_EQ(manager_->eventGroupStates_.count(unknownGroup), 0u);
     manager_->ResetAdapterSubscribedState(unknownGroup);
+    EXPECT_EQ(manager_->eventGroupStates_.count(unknownGroup), 0u);
 }
 
 /**
@@ -259,7 +265,9 @@ HWTEST_F(EventSubscriptionManagerTest, ResetAdapterSubscribedState_ResetsFlag, T
  */
 HWTEST_F(EventSubscriptionManagerTest, ResetCommonEventAdapterStates_NoCrash, TestSize.Level1)
 {
+    size_t beforeSize = manager_->eventGroupStates_.size();
     manager_->ResetCommonEventAdapterStates();
+    EXPECT_EQ(manager_->eventGroupStates_.size(), beforeSize);
 }
 
 /**
@@ -508,6 +516,409 @@ HWTEST_F(EventSubscriptionManagerTest, Subscribe_RecreatesAdapter_AfterReset, Te
 
     handle1->Release();
     handle2->Release();
+}
+
+/**
+ * @tc.name: Test_SubscribeUnknownEventNoNameReturnsNull
+ * @tc.desc: Test Subscribe with unknown event and empty eventName returns nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, Subscribe_UnknownEventNoName_ReturnsNull, TestSize.Level1)
+{
+    EventId unknownEvent{9999};
+    auto handle = manager_->Subscribe("unknown_event_test", SubscriberType::SA_CORE, unknownEvent,
+        [](const EdmEventData &) {});
+    EXPECT_EQ(handle, nullptr);
+}
+
+/**
+ * @tc.name: Test_EnsureGroupStateRecreateFails
+ * @tc.desc: Test EnsureGroupState re-create fails when adapter is null and groupId is unknown.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, EnsureGroupState_RecreateFails_ReturnsNull, TestSize.Level1)
+{
+    EventId unknownId{9999};
+    auto state = std::make_shared<EventSubscriptionManager::EventGroupState>();
+    state->adapter = nullptr;
+    state->eventName = "";
+    state->eventPermission = "";
+    manager_->eventGroupStates_[unknownId] = state;
+
+    auto handle = manager_->Subscribe("recreate_fail_test", SubscriberType::SA_CORE, unknownId,
+        [](const EdmEventData &) {});
+    EXPECT_EQ(handle, nullptr);
+    manager_->eventGroupStates_.erase(unknownId);
+}
+
+/**
+ * @tc.name: Test_SubscribeCancelsRunningDelayedUnsubscribe
+ * @tc.desc: Test Subscribe cancels a running delayed unsubscribe timer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, Subscribe_CancelsRunningDelayedUnsubscribe, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_ADDED)};
+    auto handle = manager_->Subscribe("cancel_timer_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    handle->Release();
+
+    auto &state = manager_->eventGroupStates_[eventId];
+    ASSERT_NE(state, nullptr);
+    ASSERT_NE(state->timer, nullptr);
+    EXPECT_TRUE(state->timer->IsRunning());
+
+    auto handle2 = manager_->Subscribe("cancel_timer_test_2", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle2, nullptr);
+    EXPECT_FALSE(state->timer->IsRunning());
+
+    handle2->Release();
+}
+
+/**
+ * @tc.name: Test_SubscribeAdapterSubscribeFails
+ * @tc.desc: Test Subscribe when adapter SubscribeEvent returns false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, Subscribe_AdapterSubscribeFails, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+    auto handle = manager_->Subscribe("sub_fail_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto &state = manager_->eventGroupStates_[eventId];
+    state->isSubscribed = false;
+    auto mockAdapter = std::make_shared<MockEventSourceAdapter>();
+    EXPECT_CALL(*mockAdapter, SubscribeEvent()).WillOnce(Return(false));
+    state->adapter = mockAdapter;
+
+    auto handle2 = manager_->Subscribe("sub_fail_test_2", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle2, nullptr);
+    EXPECT_FALSE(state->isSubscribed);
+
+    state->adapter.reset();
+    manager_->subscriptions_.erase(handle->GetHandleId());
+    manager_->subscriptions_.erase(handle2->GetHandleId());
+    manager_->eventGroupStates_.erase(eventId);
+}
+
+/**
+ * @tc.name: Test_StartDelayedUnsubscribeNullState
+ * @tc.desc: Test StartDelayedUnsubscribe with null state returns immediately.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, StartDelayedUnsubscribe_NullState_NoCrash, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)};
+    size_t beforeSize = manager_->eventGroupStates_.size();
+    manager_->StartDelayedUnsubscribe(eventId, nullptr);
+    EXPECT_EQ(manager_->eventGroupStates_.size(), beforeSize);
+}
+
+/**
+ * @tc.name: Test_ExecuteDelayedUnsubscribeGroupStateReplacedSkips
+ * @tc.desc: Test ExecuteDelayedUnsubscribe skips when group state was replaced.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ExecuteDelayedUnsubscribe_GroupStateReplaced_Skips, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_SWITCHED)};
+    auto handle = manager_->Subscribe("exec_skip_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    ASSERT_NE(groupIt, manager_->eventGroupStates_.end());
+    auto stateShared = groupIt->second;
+
+    manager_->eventGroupStates_[eventId] = std::make_shared<EventSubscriptionManager::EventGroupState>();
+    manager_->ExecuteDelayedUnsubscribe(eventId, stateShared);
+
+    manager_->eventGroupStates_[eventId] = stateShared;
+    handle->Release();
+}
+
+/**
+ * @tc.name: Test_ExecuteDelayedUnsubscribeRefCountNotZeroSkips
+ * @tc.desc: Test ExecuteDelayedUnsubscribe skips when refCount is not zero.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ExecuteDelayedUnsubscribe_RefCountNotZero_Skips, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_ADDED)};
+    auto handle1 = manager_->Subscribe("exec_rc_test1", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    auto handle2 = manager_->Subscribe("exec_rc_test2", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    auto stateShared = groupIt->second;
+    ASSERT_EQ(stateShared->refCount.load(), 2);
+
+    manager_->ExecuteDelayedUnsubscribe(eventId, stateShared);
+
+    handle1->Release();
+    handle2->Release();
+}
+
+/**
+ * @tc.name: Test_ExecuteDelayedUnsubscribeIsSubscribedFalseSkips
+ * @tc.desc: Test ExecuteDelayedUnsubscribe skips when isSubscribed is false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ExecuteDelayedUnsubscribe_IsSubscribedFalse_Skips, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)};
+    auto handle = manager_->Subscribe("exec_nosub_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    auto stateShared = groupIt->second;
+    stateShared->refCount = 0;
+    stateShared->isSubscribed = false;
+
+    manager_->ExecuteDelayedUnsubscribe(eventId, stateShared);
+    EXPECT_FALSE(stateShared->isSubscribed);
+
+    stateShared->refCount = 1;
+    handle->Release();
+}
+
+/**
+ * @tc.name: Test_ExecuteDelayedUnsubscribeUnsubscribeSucceeds
+ * @tc.desc: Test ExecuteDelayedUnsubscribe succeeds when adapter UnsubscribeEvent returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ExecuteDelayedUnsubscribe_UnsubscribeSucceeds, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_SWITCHED)};
+    auto handle = manager_->Subscribe("exec_ok_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    auto stateShared = groupIt->second;
+    stateShared->refCount = 0;
+    stateShared->isSubscribed = true;
+
+    auto mockAdapter = std::make_shared<MockEventSourceAdapter>();
+    EXPECT_CALL(*mockAdapter, UnsubscribeEvent()).WillOnce(Return(true));
+    stateShared->adapter = mockAdapter;
+
+    manager_->ExecuteDelayedUnsubscribe(eventId, stateShared);
+    EXPECT_FALSE(stateShared->isSubscribed);
+    EXPECT_EQ(stateShared->adapter, nullptr);
+
+    manager_->subscriptions_.erase(handle->GetHandleId());
+    manager_->eventGroupStates_.erase(eventId);
+}
+
+/**
+ * @tc.name: Test_ExecuteDelayedUnsubscribeUnsubscribeFails
+ * @tc.desc: Test ExecuteDelayedUnsubscribe when adapter UnsubscribeEvent returns false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ExecuteDelayedUnsubscribe_UnsubscribeFails, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED)};
+    auto handle = manager_->Subscribe("exec_fail_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    auto stateShared = groupIt->second;
+    stateShared->refCount = 0;
+    stateShared->isSubscribed = true;
+
+    auto mockAdapter = std::make_shared<MockEventSourceAdapter>();
+    EXPECT_CALL(*mockAdapter, UnsubscribeEvent()).WillOnce(Return(false));
+    stateShared->adapter = mockAdapter;
+
+    manager_->ExecuteDelayedUnsubscribe(eventId, stateShared);
+    EXPECT_FALSE(stateShared->isSubscribed);
+
+    manager_->subscriptions_.erase(handle->GetHandleId());
+    manager_->eventGroupStates_.erase(eventId);
+}
+
+/**
+ * @tc.name: Test_ExecuteDelayedUnsubscribeAdapterNull
+ * @tc.desc: Test ExecuteDelayedUnsubscribe when adapter is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ExecuteDelayedUnsubscribe_AdapterNull, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+    auto handle = manager_->Subscribe("exec_null_adapt_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    auto stateShared = groupIt->second;
+    stateShared->refCount = 0;
+    stateShared->isSubscribed = true;
+    stateShared->adapter.reset();
+
+    manager_->ExecuteDelayedUnsubscribe(eventId, stateShared);
+    EXPECT_FALSE(stateShared->isSubscribed);
+
+    manager_->subscriptions_.erase(handle->GetHandleId());
+    manager_->eventGroupStates_.erase(eventId);
+}
+
+/**
+ * @tc.name: Test_UnsubscribeGroupNotFoundNoCrash
+ * @tc.desc: Test Unsubscribe when group state was erased.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, Unsubscribe_GroupNotFound_NoCrash, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)};
+    auto handle = manager_->Subscribe("unsub_nogroup_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    manager_->eventGroupStates_.erase(eventId);
+    handle->Release();
+}
+
+/**
+ * @tc.name: Test_UnsubscribeTimerAlreadyExists
+ * @tc.desc: Test Unsubscribe reuses existing timer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, Unsubscribe_TimerAlreadyExists, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+    auto handle1 = manager_->Subscribe("timer_exist_test1", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    auto handle2 = manager_->Subscribe("timer_exist_test2", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+
+    auto &state = manager_->eventGroupStates_[eventId];
+    auto existingTimer = std::make_shared<DelayCancelTimer>();
+    state->timer = existingTimer;
+
+    handle1->Release();
+    EXPECT_EQ(state->timer, existingTimer);
+
+    handle2->Release();
+}
+
+/**
+ * @tc.name: Test_DispatchEventEmptySubscriptions
+ * @tc.desc: Test DispatchEvent with no subscriptions does not crash.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, DispatchEvent_EmptySubscriptions_NoCrash, TestSize.Level1)
+{
+    manager_->subscriptions_.clear();
+    EXPECT_TRUE(manager_->subscriptions_.empty());
+    EdmEventData data;
+    data.eventId = EventId{7777};
+    manager_->DispatchEvent(data);
+    EXPECT_TRUE(manager_->subscriptions_.empty());
+}
+
+/**
+ * @tc.name: Test_ResetCommonEventAdapterStatesEmptyMap
+ * @tc.desc: Test ResetCommonEventAdapterStates with empty map does not crash.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ResetCommonEventAdapterStates_EmptyMap_NoCrash, TestSize.Level1)
+{
+    manager_->eventGroupStates_.clear();
+    EXPECT_TRUE(manager_->eventGroupStates_.empty());
+    manager_->ResetCommonEventAdapterStates();
+    EXPECT_TRUE(manager_->eventGroupStates_.empty());
+}
+
+/**
+ * @tc.name: Test_ResetCommonEventAdapterStatesNullAdapter
+ * @tc.desc: Test ResetCommonEventAdapterStates skips entries with null adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, ResetCommonEventAdapterStates_NullAdapter_Skips, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_ADDED)};
+    auto handle = manager_->Subscribe("null_adapt_reset_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto &state = manager_->eventGroupStates_[eventId];
+    state->adapter.reset();
+
+    manager_->ResetCommonEventAdapterStates();
+
+    handle->Release();
+}
+
+/**
+ * @tc.name: Test_RetryFailedAdaptersEmptyMap
+ * @tc.desc: Test RetryFailedAdapters with empty map does not crash.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, RetryFailedAdapters_EmptyMap_NoCrash, TestSize.Level1)
+{
+    manager_->eventGroupStates_.clear();
+    EXPECT_TRUE(manager_->eventGroupStates_.empty());
+    manager_->RetryFailedAdapters(AdapterType::COMMON_EVENT);
+    EXPECT_TRUE(manager_->eventGroupStates_.empty());
+}
+
+/**
+ * @tc.name: Test_RetryFailedAdaptersWrongType
+ * @tc.desc: Test RetryFailedAdapters skips adapters of wrong type.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, RetryFailedAdapters_WrongType_Skips, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::APP_START)};
+    auto handle = manager_->Subscribe("wrong_type_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    ASSERT_NE(groupIt, manager_->eventGroupStates_.end());
+    groupIt->second->isSubscribed = false;
+
+    manager_->RetryFailedAdapters(AdapterType::COMMON_EVENT);
+    EXPECT_FALSE(groupIt->second->isSubscribed);
+
+    handle->Release();
+}
+
+/**
+ * @tc.name: Test_RetryFailedAdaptersRetryFails
+ * @tc.desc: Test RetryFailedAdapters when SubscribeEvent returns false on retry.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventSubscriptionManagerTest, RetryFailedAdapters_RetryFails, TestSize.Level1)
+{
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_SWITCHED)};
+    auto handle = manager_->Subscribe("retry_fail_test", SubscriberType::SA_CORE, eventId,
+        [](const EdmEventData &) {});
+    ASSERT_NE(handle, nullptr);
+
+    auto groupIt = manager_->eventGroupStates_.find(eventId);
+    ASSERT_NE(groupIt, manager_->eventGroupStates_.end());
+    groupIt->second->isSubscribed = false;
+    auto mockAdapter = std::make_shared<MockEventSourceAdapter>();
+    EXPECT_CALL(*mockAdapter, SubscribeEvent()).WillOnce(Return(false));
+    groupIt->second->adapter = mockAdapter;
+
+    manager_->RetryFailedAdapters(AdapterType::COMMON_EVENT);
+    EXPECT_FALSE(groupIt->second->isSubscribed);
+
+    groupIt->second->adapter.reset();
+    manager_->subscriptions_.erase(handle->GetHandleId());
+    manager_->eventGroupStates_.erase(eventId);
 }
 
 } // namespace TEST

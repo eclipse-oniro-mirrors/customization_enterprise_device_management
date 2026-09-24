@@ -75,6 +75,7 @@ private:
     EventSubscriptionManager() = default;
 
     void StartDelayedUnsubscribe(EventId groupId, std::shared_ptr<EventGroupState> state);
+    void ExecuteDelayedUnsubscribe(EventId groupId, std::shared_ptr<EventGroupState> state);
     bool EnsureGroupState(EventId groupId, const std::string &eventName,
         const std::string &eventPermission, std::shared_ptr<EventGroupState> &outState);
     std::shared_ptr<IEventSourceAdapter> CreateAdapter(EventId groupId,

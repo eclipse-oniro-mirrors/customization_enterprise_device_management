@@ -25,7 +25,7 @@
 #include <string>
 
 #include "managed_event.h"
-#include "managed_event.h"
+#include "null_event_adapter.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -344,6 +344,167 @@ HWTEST_F(ManagedEventTest, EnumValues_StartAt100, TestSize.Level1)
     EXPECT_EQ(static_cast<uint32_t>(ManagedEvent::KIOSK_MODE_ON), 102u);
     EXPECT_EQ(static_cast<uint32_t>(ManagedEvent::KIOSK_MODE_OFF), 103u);
     EXPECT_EQ(static_cast<uint32_t>(ManagedEvent::SIM_STATE_CHANGED), 104u);
+}
+
+/**
+ * @tc.name: Test_BundleRemovedReturnsAdapter
+ * @tc.desc: Test BUNDLE_REMOVED event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, BundleRemoved_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_BundleUpdatedReturnsAdapter
+ * @tc.desc: Test BUNDLE_UPDATED event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, BundleUpdated_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_UserSwitchedReturnsAdapter
+ * @tc.desc: Test USER_SWITCHED event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, UserSwitched_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::USER_SWITCHED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_UserRemovedReturnsAdapter
+ * @tc.desc: Test USER_REMOVED event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, UserRemoved_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_BootCompletedReturnsAdapter
+ * @tc.desc: Test BOOT_COMPLETED event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, BootCompleted_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_BmsReadyReturnsAdapter
+ * @tc.desc: Test BMS_READY event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, BmsReady_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::BMS_READY)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_KioskModeOffReturnsAdapter
+ * @tc.desc: Test KIOSK_MODE_OFF event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, KioskModeOff_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::KIOSK_MODE_OFF)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_SimStateChangedReturnsAdapter
+ * @tc.desc: Test SIM_STATE_CHANGED event creates an adapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, SimStateChanged_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::SIM_STATE_CHANGED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_UnmountExternalStorageDeviceReturnsNullAdapter
+ * @tc.desc: Test UNMOUNT_EXTERNAL_STORAGE_DEVICE returns a NullEventAdapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, UnmountExternalStorageDevice_ReturnsNullAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
+    ASSERT_NE(adapter, nullptr);
+    EXPECT_EQ(adapter->GetAdapterType(), AdapterType::COMMON_EVENT);
+    EXPECT_TRUE(adapter->SubscribeEvent());
+    EXPECT_TRUE(adapter->UnsubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_CreateCommonEventAdapterConvertFails
+ * @tc.desc: Test CreateCommonEventAdapter with unknown groupId and empty event returns nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, CreateCommonEventAdapter_ConvertFails_ReturnsNull, TestSize.Level1)
+{
+    EventId groupId{9999};
+    auto adapter = AdapterFactory::CreateCommonEventAdapter(*manager_, groupId, "", "");
+    EXPECT_EQ(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_CreateCommonEventAdapterWithPermission
+ * @tc.desc: Test CreateCommonEventAdapter with non-empty permission sets permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, CreateCommonEventAdapter_WithPermission_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId,
+        EDM_SYSTEM_UPDATE_FOR_POLICY, EDM_SYSTEM_UPDATE_PERMISSION);
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_CreateCommonEventAdapterEmptyPermission
+ * @tc.desc: Test CreateCommonEventAdapter with empty permission skips SetPermission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, CreateCommonEventAdapter_EmptyPermission_ReturnsAdapter, TestSize.Level1)
+{
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+    auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId, "", "");
+    ASSERT_NE(adapter, nullptr);
+}
+
+/**
+ * @tc.name: Test_CreateAppLifecycleAdapterDirectly
+ * @tc.desc: Test CreateAppLifecycleAdapter returns an AppLifecycleAdapter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AdapterFactoryCreateAdapterTest, CreateAppLifecycleAdapter_ReturnsAdapter, TestSize.Level1)
+{
+    auto adapter = AdapterFactory::CreateAdapter(*manager_,
+        EventId{static_cast<uint32_t>(ManagedEvent::APP_START)});
+    ASSERT_NE(adapter, nullptr);
+    EXPECT_EQ(adapter->GetAdapterType(), AdapterType::APP_LIFECYCLE);
 }
 
 } // namespace TEST

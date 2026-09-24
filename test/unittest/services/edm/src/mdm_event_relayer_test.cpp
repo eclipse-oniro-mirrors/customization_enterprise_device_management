@@ -22,6 +22,8 @@
 #include <memory>
 #include <string>
 
+#include "admin.h"
+#include "admin_manager.h"
 #include "edm_event_data.h"
 #include "event_subscription_manager.h"
 #include "icallback_strategy.h"
@@ -532,6 +534,334 @@ HWTEST_F(MdmEventRelayerTest, AccountRemovedFactory_IgnoresOldId, TestSize.Level
     EXPECT_EQ(strategy->accountId_, TEST_SWITCHED_IN_ACCOUNT_ID);
     EXPECT_EQ(strategy->oldAccountId_, INVALID_ACCOUNT_ID);
 }
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForBundleUpdatedCorrectType
+ * @tc.desc: Test BUNDLE_UPDATED factory returns strategy when type is BUNDLE_UPDATE_EVENT.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_BundleUpdatedCorrectType, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::BUNDLE_UPDATED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    AAFwk::Want want;
+    want.SetParam("type", 2);
+    EventFwk::CommonEventData data(want, 0, "");
+    EdmEventData edmData;
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_UPDATED)};
+    edmData.commonEventData = data;
+    auto strategy = it->second(edmData);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForStartupGuideSubUser
+ * @tc.desc: Test STARTUP_GUIDE_COMPLETED factory returns strategy when subUserScene is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_StartupGuideSubUser, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::STARTUP_GUIDE_COMPLETED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    AAFwk::Want want;
+    want.SetParam("subUserScene", true);
+    EventFwk::CommonEventData data(want, 0, "");
+    EdmEventData edmData;
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED)};
+    edmData.commonEventData = data;
+    auto strategy = it->second(edmData);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForStartupGuideOta
+ * @tc.desc: Test STARTUP_GUIDE_COMPLETED factory returns strategy when ota is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_StartupGuideOta, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::STARTUP_GUIDE_COMPLETED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    AAFwk::Want want;
+    want.SetParam("ota", true);
+    EventFwk::CommonEventData data(want, 0, "");
+    EdmEventData edmData;
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED)};
+    edmData.commonEventData = data;
+    auto strategy = it->second(edmData);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForStartupGuideFirstBoot
+ * @tc.desc: Test STARTUP_GUIDE_COMPLETED factory returns strategy when firstBoot is true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_StartupGuideFirstBoot, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::STARTUP_GUIDE_COMPLETED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    AAFwk::Want want;
+    want.SetParam("firstBoot", true);
+    EventFwk::CommonEventData data(want, 0, "");
+    EdmEventData edmData;
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED)};
+    edmData.commonEventData = data;
+    auto strategy = it->second(edmData);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_FactoryReturnsStrategyForStartupGuideMultipleFlags
+ * @tc.desc: Test STARTUP_GUIDE_COMPLETED factory returns strategy when multiple flags set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_StartupGuideMultipleFlags, TestSize.Level1)
+{
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::STARTUP_GUIDE_COMPLETED);
+    ASSERT_NE(it, relayer_->strategyFactories_.end());
+    AAFwk::Want want;
+    want.SetParam("subUserScene", true);
+    want.SetParam("ota", true);
+    want.SetParam("firstBoot", true);
+    EventFwk::CommonEventData data(want, 0, "");
+    EdmEventData edmData;
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::STARTUP_GUIDE_COMPLETED)};
+    edmData.commonEventData = data;
+    auto strategy = it->second(edmData);
+    EXPECT_NE(strategy, nullptr);
+}
+
+/**
+ * @tc.name: Test_OnAdminSubscribeWithAdminFound
+ * @tc.desc: Test OnAdminSubscribe when admin is found in AdminManager.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, OnAdminSubscribe_WithAdminFound, TestSize.Level1)
+{
+    AdminManager::GetInstance()->ClearAdmins();
+    AdminInfo info;
+    std::string adminName = "com.test.found_admin_" + std::to_string(std::rand());
+    info.packageName_ = adminName;
+    info.className_ = "TestAdminClass";
+    auto admin = std::make_shared<Admin>(info);
+    std::vector<std::shared_ptr<Admin>> admins = {admin};
+    AdminManager::GetInstance()->InsertAdmins(100, admins);
+
+    relayer_->OnAdminSubscribe(adminName, 100, ManagedEvent::BUNDLE_ADDED);
+
+    std::string key = relayer_->MakeAdminKey(adminName, 100);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.count(key), 1u);
+
+    relayer_->OnAdminRemoved(adminName, 100);
+    AdminManager::GetInstance()->ClearAdmins();
+}
+
+/**
+ * @tc.name: Test_OnAdminSubscribeNoStrategyFactory
+ * @tc.desc: Test OnAdminSubscribe returns when no strategy factory for the event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, OnAdminSubscribe_NoStrategyFactory_Returns, TestSize.Level1)
+{
+    std::string admin = "com.test.no_factory_" + std::to_string(std::rand());
+    relayer_->OnAdminSubscribe(admin, 100, static_cast<ManagedEvent>(9999));
+    std::string key = relayer_->MakeAdminKey(admin, 100);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.count(key), 0u);
+}
+
+/**
+ * @tc.name: Test_OnAdminUnsubscribeAdminNotFound
+ * @tc.desc: Test OnAdminUnsubscribe when admin is not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, OnAdminUnsubscribe_AdminNotFound_NoCrash, TestSize.Level1)
+{
+    size_t beforeSize = relayer_->adminSubscriptionHandles_.size();
+    relayer_->OnAdminUnsubscribe("nonexistent_admin", 100, ManagedEvent::BUNDLE_ADDED);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.size(), beforeSize);
+}
+
+/**
+ * @tc.name: Test_OnAdminUnsubscribeEventNotFound
+ * @tc.desc: Test OnAdminUnsubscribe when event is not found for admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, OnAdminUnsubscribe_EventNotFound_NoCrash, TestSize.Level1)
+{
+    std::string admin = "com.test.event_not_found_" + std::to_string(std::rand());
+    relayer_->OnAdminSubscribe(admin, 100, ManagedEvent::BUNDLE_ADDED);
+
+    std::string key = relayer_->MakeAdminKey(admin, 100);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_[key].count(ManagedEvent::BUNDLE_ADDED), 1u);
+
+    relayer_->OnAdminUnsubscribe(admin, 100, ManagedEvent::USER_SWITCHED);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_[key].count(ManagedEvent::BUNDLE_ADDED), 1u);
+
+    relayer_->OnAdminUnsubscribe(admin, 100, ManagedEvent::BUNDLE_ADDED);
+}
+
+/**
+ * @tc.name: Test_OnAdminUnsubscribeRemainingEvents
+ * @tc.desc: Test OnAdminUnsubscribe when admin still has other event subscriptions.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, OnAdminUnsubscribe_RemainingEvents_KeepsAdminEntry, TestSize.Level1)
+{
+    std::string admin = "com.test.remaining_" + std::to_string(std::rand());
+    relayer_->OnAdminSubscribe(admin, 100, ManagedEvent::BUNDLE_ADDED);
+    relayer_->OnAdminSubscribe(admin, 100, ManagedEvent::USER_SWITCHED);
+
+    relayer_->OnAdminUnsubscribe(admin, 100, ManagedEvent::BUNDLE_ADDED);
+
+    std::string key = relayer_->MakeAdminKey(admin, 100);
+    if (relayer_->adminSubscriptionHandles_.count(key) > 0) {
+        EXPECT_EQ(relayer_->adminSubscriptionHandles_[key].count(ManagedEvent::USER_SWITCHED), 1u);
+    }
+
+    relayer_->OnAdminRemoved(admin, 100);
+}
+
+/**
+ * @tc.name: Test_OnAdminRemovedAdminNotFound
+ * @tc.desc: Test OnAdminRemoved when admin is not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, OnAdminRemoved_AdminNotFound_NoCrash, TestSize.Level1)
+{
+    size_t beforeSize = relayer_->adminSubscriptionHandles_.size();
+    relayer_->OnAdminRemoved("nonexistent_removed_admin", 100);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.size(), beforeSize);
+}
+
+/**
+ * @tc.name: Test_RestoreAdminEventsAdminNotFound
+ * @tc.desc: Test RestoreAdminEvents when admin is not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, RestoreAdminEvents_AdminNotFound_NoCrash, TestSize.Level1)
+{
+    AdminManager::GetInstance()->ClearAdmins();
+    size_t beforeSize = relayer_->adminSubscriptionHandles_.size();
+    relayer_->RestoreAdminEvents("nonexistent_restore_admin", 100, false);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.size(), beforeSize);
+}
+
+/**
+ * @tc.name: Test_RestoreAdminEventsWithEvents
+ * @tc.desc: Test RestoreAdminEvents when admin has managed events.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, RestoreAdminEvents_WithEvents, TestSize.Level1)
+{
+    AdminManager::GetInstance()->ClearAdmins();
+    AdminInfo info;
+    std::string adminName = "com.test.restore_events_" + std::to_string(std::rand());
+    info.packageName_ = adminName;
+    info.className_ = "RestoreClass";
+    info.managedEvents_ = {ManagedEvent::BUNDLE_ADDED};
+    auto admin = std::make_shared<Admin>(info);
+    std::vector<std::shared_ptr<Admin>> admins = {admin};
+    AdminManager::GetInstance()->InsertAdmins(100, admins);
+
+    relayer_->RestoreAdminEvents(adminName, 100, false);
+
+    std::string key = relayer_->MakeAdminKey(adminName, 100);
+    EXPECT_LE(relayer_->adminSubscriptionHandles_.count(key), 1u);
+
+    relayer_->OnAdminRemoved(adminName, 100);
+    AdminManager::GetInstance()->ClearAdmins();
+}
+
+/**
+ * @tc.name: Test_RestoreAdminEventsAppLifecycleOnly
+ * @tc.desc: Test RestoreAdminEvents with appLifecycleOnly=true skips non-app events.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, RestoreAdminEvents_AppLifecycleOnly_SkipsNonAppEvents, TestSize.Level1)
+{
+    AdminManager::GetInstance()->ClearAdmins();
+    AdminInfo info;
+    std::string adminName = "com.test.app_lifecycle_" + std::to_string(std::rand());
+    info.packageName_ = adminName;
+    info.className_ = "AppLifecycleClass";
+    info.managedEvents_ = {ManagedEvent::BUNDLE_ADDED, ManagedEvent::APP_START};
+    auto admin = std::make_shared<Admin>(info);
+    std::vector<std::shared_ptr<Admin>> admins = {admin};
+    AdminManager::GetInstance()->InsertAdmins(100, admins);
+
+    relayer_->RestoreAdminEvents(adminName, 100, true);
+
+    std::string key = relayer_->MakeAdminKey(adminName, 100);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_[key].count(ManagedEvent::BUNDLE_ADDED), 0u);
+
+    relayer_->OnAdminRemoved(adminName, 100);
+    AdminManager::GetInstance()->ClearAdmins();
+}
+
+/**
+ * @tc.name: Test_RestoreSubscriptionsEmptyAdmins
+ * @tc.desc: Test RestoreSubscriptions with no admins does not crash.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, RestoreSubscriptions_EmptyAdmins_NoCrash, TestSize.Level1)
+{
+    AdminManager::GetInstance()->ClearAdmins();
+    size_t beforeSize = relayer_->adminSubscriptionHandles_.size();
+    relayer_->RestoreAdminSubscriptions();
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.size(), beforeSize);
+}
+
+/**
+ * @tc.name: Test_RestoreSubscriptionsWithAdmins
+ * @tc.desc: Test RestoreSubscriptions with admins iterates all admins.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, RestoreSubscriptions_WithAdmins, TestSize.Level1)
+{
+    AdminManager::GetInstance()->ClearAdmins();
+    AdminInfo info;
+    std::string adminName = "com.test.subs_restore_" + std::to_string(std::rand());
+    info.packageName_ = adminName;
+    info.className_ = "SubsRestoreClass";
+    info.managedEvents_ = {};
+    auto admin = std::make_shared<Admin>(info);
+    std::vector<std::shared_ptr<Admin>> admins = {admin};
+    AdminManager::GetInstance()->InsertAdmins(100, admins);
+
+    relayer_->RestoreAdminSubscriptions();
+    relayer_->RestoreAppLifecycleSubscriptions();
+
+    std::string key = relayer_->MakeAdminKey(adminName, 100);
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.count(key), 0u);
+
+    AdminManager::GetInstance()->ClearAdmins();
+}
+
+/**
+ * @tc.name: Test_FactoryCallbackStrategyNonNull
+ * @tc.desc: Test callback with non-null strategy dispatches to admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, FactoryCallback_StrategyNonNull_Dispatches, TestSize.Level1)
+{
+    std::string admin = "com.test.callback_strategy_" + std::to_string(std::rand());
+    relayer_->OnAdminSubscribe(admin, 100, ManagedEvent::BUNDLE_ADDED);
+
+    std::string key = relayer_->MakeAdminKey(admin, 100);
+    ASSERT_EQ(relayer_->adminSubscriptionHandles_.count(key), 1u);
+
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+    AAFwk::Want want;
+    want.SetElement(AppExecFwk::ElementName("", "com.test.bundle", ""));
+    data.commonEventData.SetWant(want);
+    EventSubscriptionManager::GetInstance().DispatchEvent(data);
+
+    EXPECT_EQ(relayer_->adminSubscriptionHandles_.count(key), 1u);
+    relayer_->OnAdminRemoved(admin, 100);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

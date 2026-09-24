@@ -130,25 +130,31 @@ void EventSubscriptionManager::StartDelayedUnsubscribe(EventId groupId,
     }
     stateShared->timer->Start(
         [this, groupId, stateShared]() {
-            std::unique_lock<std::shared_mutex> innerLock(mutex_);
-            auto it = eventGroupStates_.find(groupId);
-            if (it == eventGroupStates_.end() || it->second.get() != stateShared.get()) {
-                EDMLOGI("EventSubscriptionManager delayed unsubscribe: group state replaced, skip");
-                return;
-            }
-            if (stateShared->refCount.load() == 0 && stateShared->isSubscribed) {
-                if (stateShared->adapter && stateShared->adapter->UnsubscribeEvent()) {
-                    EDMLOGI("EventSubscriptionManager delayed unsubscribe success, group=%{public}u", groupId.code);
-                    stateShared->isSubscribed = false;
-                    stateShared->adapter.reset();
-                } else {
-                    EDMLOGE("EventSubscriptionManager delayed unsubscribe failed, group=%{public}u", groupId.code);
-                    stateShared->isSubscribed = false;
-                }
-            }
+            ExecuteDelayedUnsubscribe(groupId, stateShared);
         },
         std::chrono::seconds(DELAY_CANCEL_SECONDS));
     EDMLOGI("EventSubscriptionManager::Unsubscribe delay cancel started, group=%{public}u", groupId.code);
+}
+
+void EventSubscriptionManager::ExecuteDelayedUnsubscribe(EventId groupId,
+    std::shared_ptr<EventGroupState> stateShared)
+{
+    std::unique_lock<std::shared_mutex> innerLock(mutex_);
+    auto it = eventGroupStates_.find(groupId);
+    if (it == eventGroupStates_.end() || it->second.get() != stateShared.get()) {
+        EDMLOGI("EventSubscriptionManager delayed unsubscribe: group state replaced, skip");
+        return;
+    }
+    if (stateShared->refCount.load() == 0 && stateShared->isSubscribed) {
+        if (stateShared->adapter && stateShared->adapter->UnsubscribeEvent()) {
+            EDMLOGI("EventSubscriptionManager delayed unsubscribe success, group=%{public}u", groupId.code);
+            stateShared->isSubscribed = false;
+            stateShared->adapter.reset();
+        } else {
+            EDMLOGE("EventSubscriptionManager delayed unsubscribe failed, group=%{public}u", groupId.code);
+            stateShared->isSubscribed = false;
+        }
+    }
 }
 
 void EventSubscriptionManager::Unsubscribe(uint32_t handleId)
