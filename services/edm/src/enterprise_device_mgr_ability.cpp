@@ -16,6 +16,7 @@
 #include "enterprise_device_mgr_ability.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <string_ex.h>
@@ -546,6 +547,7 @@ int32_t EnterpriseDeviceMgrAbility::Dump(int32_t fd, const std::vector<std::u16s
 
 void EnterpriseDeviceMgrAbility::OnStart()
 {
+    fdsan_set_error_level(FDSAN_ERROR_LEVEL_FATAL);
     {
         std::unique_lock<std::shared_mutex> autoLock(adminLock_);
         EDMLOGD("EnterpriseDeviceMgrAbility::OnStart() Publish");
