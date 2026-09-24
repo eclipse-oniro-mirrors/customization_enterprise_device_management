@@ -377,7 +377,7 @@ int32_t ApplicationManagerProxy::IsModifyKeepAliveAppsDisallowed(const AppExecFw
 int32_t ApplicationManagerProxy::AddFreezeExemptedApps(const AppExecFwk::ElementName &admin,
     const std::vector<ApplicationInstance> &freezeExemptedApps)
 {
-    EDMLOGI("ApplicationManagerProxy:AddFreezeExemptedApps");
+    EDMLOGI("ApplicationManagerProxy::AddFreezeExemptedApps");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel data;
     MessageParcel reply;
