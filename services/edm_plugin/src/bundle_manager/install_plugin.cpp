@@ -15,7 +15,11 @@
 
 #include "install_plugin.h"
 
+#include <chrono>
+#include <climits>
 #include <fcntl.h>
+#include <random>
+#include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <system_ability_definition.h>
@@ -36,9 +40,12 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(InstallPlugin::GetPlugin());
-const std::string RELATIVE_PATH = "../";
-const std::string CURRENT_PATH = "./";
 const std::string SEPARATOR = "/";
+const std::string FILE_PREFIX = "edm_";
+constexpr int32_t RANDOM_NUM_MAX = 9999;
+constexpr int64_t MAX_HAP_FILE_SIZE = 4LL * 1024 * 1024 * 1024;
+// 临时目录"/data/service/el1/public/edm/stream_install/"，长度是44
+constexpr size_t TEMP_DIR_LEN = 44;
 constexpr int32_t EDM_UID = 3057;
 constexpr int32_t EDM_GID = 3057;
 
@@ -345,42 +352,74 @@ void InstallPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<InstallPlugin, In
     ptr->SetOnHandlePolicyListener(&InstallPlugin::OnSetPolicy, FuncOperateType::SET);
 }
 
-ErrCode InstallPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId)
+ErrCode InstallPlugin::CopyHapFile(int32_t inputFd, const std::string &hapFilePath, std::string &tempPath,
+    MessageParcel &reply)
 {
-    std::string fileName = data.ReadString();
-    std::string bundlePath = std::string(EdmConstants::BundleManager::HAP_DIRECTORY) + "/" + fileName;
-    if (bundlePath.length() > PATH_MAX) {
-        EDMLOGE("bundlePath length is error, the length is: [%{public}zu]", bundlePath.length());
+    // 保证优化前后，相同输入能返回相同错误码。修改前如果输入的hapFilePath以/结尾，抛APPLICATION_INSTALL_FAILED
+    size_t pos = hapFilePath.find_last_of(SEPARATOR);
+    if (pos == std::string::npos || pos == hapFilePath.size() - 1) {
+        EDMLOGE("invalid hap file path");
+        reply.WriteInt32(EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+        reply.WriteString("invalid hap file path");
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+    std::string fileName = hapFilePath.substr(pos + 1);
+    // PATH_MAX 4096
+    // 保证优化前后，长度校验一致
+    if (fileName.length() > (PATH_MAX - TEMP_DIR_LEN)) {
+        EDMLOGE("fileName length is error");
         reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-        reply.WriteString("invalid hapFilePath");
+        reply.WriteString("invalid hap file path");
         return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
-    if (fileName.find(RELATIVE_PATH) != std::string::npos || fileName.find(CURRENT_PATH) != std::string::npos ||
-        fileName.find(SEPARATOR) != std::string::npos) {
-        EDMLOGE("file path %{public}s invalid", bundlePath.c_str());
-        reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-        reply.WriteString("invalid hapFilePath");
-        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
+    std::string prefix = GenerateUniqueFilePrefix();
+    tempPath = std::string(EdmConstants::BundleManager::HAP_DIRECTORY) + SEPARATOR + prefix + fileName;
+    int32_t dupFd = dup(inputFd);
+    if (dupFd < 0) {
+        EDMLOGE("dup input fd failed");
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    if (!CreateDirectory()) {
+    fdsan_exchange_owner_tag(dupFd, 0, EdmConstants::LOG_DOMAINID);
+
+    int32_t outputFd = open(tempPath.c_str(), O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IROTH);
+    if (outputFd < 0) {
+        EDMLOGE("open temp hap file failed: %{public}s", tempPath.c_str());
+        fdsan_close_with_tag(dupFd, EdmConstants::LOG_DOMAINID);
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    fdsan_exchange_owner_tag(outputFd, 0, EdmConstants::LOG_DOMAINID);
+
+    ErrCode ret = CopyFileContent(dupFd, outputFd, reply);
+    fsync(outputFd);
+    fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(dupFd, EdmConstants::LOG_DOMAINID);
+    return ret;
+}
+
+ErrCode InstallPlugin::CopyFileContent(int32_t inputFd, int32_t outputFd, MessageParcel &reply)
+{
+    struct stat statBuff;
+    if (fstat(inputFd, &statBuff) != 0) {
+        EDMLOGE("fstat file failed");
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    int32_t fd = open(bundlePath.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IROTH);
-    if (fd < 0) {
-        EDMLOGE("open bundlePath %{public}s failed", bundlePath.c_str());
-        std::vector<std::string> files = { bundlePath };
-        DeleteFiles(files);
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    if (statBuff.st_size > MAX_HAP_FILE_SIZE) {
+        EDMLOGE("hap file too large, size: %{public}lld", static_cast<long long>(statBuff.st_size));
+        reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+        reply.WriteString("hap file too large");
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
     }
-    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
-    reply.WriteInt32(ERR_OK);
-    reply.WriteFileDescriptor(fd);
-    reply.WriteString(bundlePath);
-    fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
-    fd = -1;
+
+    off_t offset = 0;
+    if (sendfile(outputFd, inputFd, &offset, statBuff.st_size) == -1) {
+        EDMLOGE("sendfile failed");
+        reply.WriteInt32(EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
     return ERR_OK;
 }
 
@@ -402,6 +441,16 @@ bool InstallPlugin::CreateDirectory()
     return true;
 }
 
+std::string InstallPlugin::GenerateUniqueFilePrefix()
+{
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, RANDOM_NUM_MAX);
+    return FILE_PREFIX + std::to_string(timestamp) + "_" + std::to_string(dis(gen)) + "_";
+}
+
 bool InstallPlugin::DeleteFiles(const std::vector<std::string> &files)
 {
     bool res = true;
@@ -417,35 +466,79 @@ bool InstallPlugin::DeleteFiles(const std::vector<std::string> &files)
 ErrCode InstallPlugin::OnSetPolicy(InstallParam &param, MessageParcel &reply)
 {
     EDMLOGI("InstallPlugin OnSetPolicy");
-    AppExecFwk::InstallParam installParam;
-    std::vector<std::string> realPaths;
-    ErrCode initRet = InstallParamInit(param, reply, installParam, realPaths);
-    if (initRet != ERR_OK) {
-        return initRet;
+    std::vector<std::string> tempPaths;
+    ErrCode ret = PrepareTempFiles(param, tempPaths, reply);
+    if (ret != ERR_OK) {
+        return ret;
     }
+    return ExecuteStreamInstall(tempPaths, param, reply);
+}
+
+ErrCode InstallPlugin::PrepareTempFiles(const InstallParam &param, std::vector<std::string> &tempPaths,
+    MessageParcel &reply)
+{
+    if (!CreateDirectory()) {
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (param.hapFilePaths.size() != param.hapFds.size()) {
+        EDMLOGE("hapFilePaths size not match hapFds size");
+        for (auto const &fd : param.hapFds) {
+            fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
+        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    for (size_t i = 0; i < param.hapFds.size(); ++i) {
+        std::string tempPath;
+        ErrCode copyRet = CopyHapFile(param.hapFds[i], param.hapFilePaths[i], tempPath, reply);
+        fdsan_exchange_owner_tag(param.hapFds[i], 0, EdmConstants::LOG_DOMAINID);
+        fdsan_close_with_tag(param.hapFds[i], EdmConstants::LOG_DOMAINID);
+        if (copyRet != ERR_OK) {
+            for (size_t j = i + 1; j < param.hapFds.size(); ++j) {
+                fdsan_exchange_owner_tag(param.hapFds[j], 0, EdmConstants::LOG_DOMAINID);
+                fdsan_close_with_tag(param.hapFds[j], EdmConstants::LOG_DOMAINID);
+            }
+            DeleteFiles(tempPaths);
+            return copyRet;
+        }
+        tempPaths.emplace_back(tempPath);
+    }
+    return ERR_OK;
+}
+
+ErrCode InstallPlugin::ExecuteStreamInstall(const std::vector<std::string> &tempPaths, const InstallParam &param,
+    MessageParcel &reply)
+{
+    AppExecFwk::InstallParam installParam;
+    installParam.userId = param.userId;
+    installParam.installFlag = static_cast<AppExecFwk::InstallFlag>(param.installFlag);
+    installParam.parameters = param.parameters;
 
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (iBundleMgr == nullptr) {
         EDMLOGE("can not get iBundleMgr");
-        DeleteFiles(param.hapFilePaths);
+        DeleteFiles(tempPaths);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto iBundleInstaller = iBundleMgr->GetBundleInstaller();
     if ((iBundleInstaller == nullptr) || (iBundleInstaller->AsObject() == nullptr)) {
         EDMLOGE("can not get iBundleInstaller");
-        DeleteFiles(param.hapFilePaths);
+        DeleteFiles(tempPaths);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     sptr<InstallerCallback> callback = new (std::nothrow) InstallerCallback();
     if (callback == nullptr) {
-        DeleteFiles(param.hapFilePaths);
+        DeleteFiles(tempPaths);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    ErrCode ret = iBundleInstaller->StreamInstall(realPaths, installParam, callback);
+    ErrCode ret = iBundleInstaller->StreamInstall(tempPaths, installParam, callback);
     if (FAILED(ret)) {
-        if (!DeleteFiles(param.hapFilePaths)) {
+        if (!DeleteFiles(tempPaths)) {
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         EDMLOGE("StreamInstall resultCode %{public}d", ret);
@@ -455,7 +548,7 @@ ErrCode InstallPlugin::OnSetPolicy(InstallParam &param, MessageParcel &reply)
     }
     ret = callback->GetResultCode();
     std::string errorMessage = callback->GetResultMsg();
-    return HandleInstallResult(ret, errorMessage, reply, realPaths);
+    return HandleInstallResult(ret, errorMessage, reply, tempPaths);
 }
 
 ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string &errorMessage, MessageParcel &reply,
@@ -501,29 +594,6 @@ ErrCode InstallPlugin::HandleInstallResult(int32_t resultCode, const std::string
             adminName, bundleName, bundleType);
     }
 
-    return ERR_OK;
-}
-
-ErrCode InstallPlugin::InstallParamInit(InstallParam &param, MessageParcel &reply,
-    AppExecFwk::InstallParam &installParam, std::vector<std::string> &realPaths)
-{
-    installParam.userId = param.userId;
-    installParam.installFlag = static_cast<AppExecFwk::InstallFlag>(param.installFlag);
-    std::vector<std::string> hapFilePaths = param.hapFilePaths;
-
-    for (auto const &hapFilePath : hapFilePaths) {
-        std::string realPath = "";
-        if (!PathToRealPath(hapFilePath, realPath)) {
-            EDMLOGE("invalid hap file path");
-            std::string errMsg = "invalid hap file path";
-            reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-            reply.WriteString(errMsg);
-            DeleteFiles(hapFilePaths);
-            return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
-        }
-        realPaths.emplace_back(realPath);
-    }
-    installParam.parameters = param.parameters;
     return ERR_OK;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef TEST_FUZZTEST_POWER_POLICY_PLUGIN_FUZZER_H
-#define TEST_FUZZTEST_POWER_POLICY_PLUGIN_FUZZER_H
+#ifndef TEST_FUZZTEST_INSTALL_PLUGIN_FUZZER_H
+#define TEST_FUZZTEST_INSTALL_PLUGIN_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "power_policy_plugin_fuzzer"
+#define FUZZ_PROJECT_NAME "install_plugin_fuzzer"
 
-#endif // TEST_FUZZTEST_POWER_POLICY_PLUGIN_FUZZER_H
+#endif // TEST_FUZZTEST_INSTALL_PLUGIN_FUZZER_H

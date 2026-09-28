@@ -30,6 +30,10 @@ bool InstallParamSerializer::Serialize(const InstallParam &config, std::string &
 bool InstallParamSerializer::GetPolicy(MessageParcel &data, InstallParam &result)
 {
     data.ReadStringVector(&result.hapFilePaths);
+    int32_t fdCount = data.ReadInt32();
+    for (int32_t i = 0; i < fdCount; ++i) {
+        result.hapFds.emplace_back(data.ReadFileDescriptor());
+    }
     result.userId = data.ReadInt32();
     result.installFlag = data.ReadInt32();
     std::vector<std::string> keys;

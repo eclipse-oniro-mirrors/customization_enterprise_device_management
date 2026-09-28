@@ -18,8 +18,13 @@
 #include "install_plugin.h"
 #undef private
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "parameters.h"
 
+#include "edm_constants.h"
 #include "uninstall_plugin.h"
 #include "utils.h"
 
@@ -29,7 +34,6 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/right.hap";
-const std::string INVALID_HAP_FILE_PATH = "/data/test/resource/enterprise_device_management/hap/../right.hap";
 const std::string BOOT_OEM_MODE = "const.boot.oemmode";
 const std::string DEVELOP_PARAM = "rd";
 const std::string USER_MODE = "user";
@@ -56,7 +60,13 @@ HWTEST_F(InstallPluginTest, TestOnSetPolicySuc, TestSize.Level1)
     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
     if (developDeviceParam == DEVELOP_PARAM) {
         InstallPlugin plugin;
-        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+        InstallParam param;
+        param.hapFilePaths = {HAP_FILE_PATH};
+        param.userId = DEFAULT_USER_ID;
+        param.installFlag = 0;
+        int32_t fd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+        ASSERT_TRUE(fd >= 0);
+        param.hapFds = {fd};
         MessageParcel reply;
         ErrCode ret = plugin.OnSetPolicy(param, reply);
         ASSERT_TRUE(ret == ERR_OK);
@@ -69,113 +79,44 @@ HWTEST_F(InstallPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestOnSetPolicyFailWithInvalidFilePath
- * @tc.desc: Test InstallPlugin::OnSetPolicy when file path is invalid (contains relative path).
+ * @tc.name: TestOnSetPolicyFailWithInvalidHapPath
+ * @tc.desc: Test InstallPlugin::OnSetPolicy when hap file path has no separator (invalid for temp copy).
  * @tc.type: FUNC
  */
-HWTEST_F(InstallPluginTest, TestOnSetPolicyFailWithInvalidFilePath, TestSize.Level1)
+HWTEST_F(InstallPluginTest, TestOnSetPolicyFailWithInvalidHapPath, TestSize.Level1)
 {
     InstallPlugin plugin;
-    InstallParam param = {{INVALID_HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
+    InstallParam param;
+    param.hapFilePaths = {"aaa.hap"};
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    int32_t fd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    param.hapFds = {fd};
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
-    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
     int32_t replyCode = reply.ReadInt32();
-    ASSERT_TRUE(replyCode == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    ASSERT_TRUE(replyCode == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
     std::string errMsg = reply.ReadString();
     ASSERT_TRUE(errMsg == "invalid hap file path");
 }
 
 /**
- * @tc.name: TestOnGetPolicyFailWithLongName
- * @tc.desc: Test InstallPlugin::OnGetPolicy when file name is too long (exceeds PATH_MAX).
+ * @tc.name: TestOnSetPolicyFailWithFdsSizeMismatch
+ * @tc.desc: Test InstallPlugin::OnSetPolicy when hapFilePaths size not match hapFds size.
  * @tc.type: FUNC
  */
-HWTEST_F(InstallPluginTest, TestOnGetPolicyFailWithLongName, TestSize.Level1)
+HWTEST_F(InstallPluginTest, TestOnSetPolicyFailWithFdsSizeMismatch, TestSize.Level1)
 {
     InstallPlugin plugin;
-    std::string policyData;
+    InstallParam param;
+    param.hapFilePaths = {HAP_FILE_PATH};
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
     MessageParcel reply;
-    MessageParcel data;
-    int32_t userId = DEFAULT_USER_ID;
-    std::string strFileName(5000, 'a');
-    data.WriteString(strFileName);
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-    ASSERT_TRUE(reply.ReadString() == "invalid hapFilePath");
-}
-
-/**
- * @tc.name: TestOnGetPolicyFailWithRelativePath01
- * @tc.desc: Test InstallPlugin::OnGetPolicy when file path contains "../" relative path.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallPluginTest, TestOnGetPolicyFailWithRelativePath01, TestSize.Level1)
-{
-    InstallPlugin plugin;
-    std::string policyData;
-    MessageParcel reply;
-    MessageParcel data;
-    int32_t userId = DEFAULT_USER_ID;
-    std::string strFileName = "../aaa.hap";
-    data.WriteString(strFileName);
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-}
-
-/**
- * @tc.name: TestOnGetPolicyFailWithRelativePath02
- * @tc.desc: Test InstallPlugin::OnGetPolicy when file path contains "./" relative path.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallPluginTest, TestOnGetPolicyFailWithRelativePath02, TestSize.Level1)
-{
-    InstallPlugin plugin;
-    std::string policyData;
-    MessageParcel reply;
-    MessageParcel data;
-    int32_t userId = DEFAULT_USER_ID;
-    std::string strFileName = "./aaa.hap";
-    data.WriteString(strFileName);
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-}
-
-/**
- * @tc.name: TestOnGetPolicyFailWithAbsolutePath
- * @tc.desc: Test InstallPlugin::OnGetPolicy when file path contains "/" absolute path separator.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallPluginTest, TestOnGetPolicyFailWithAbsolutePath, TestSize.Level1)
-{
-    InstallPlugin plugin;
-    std::string policyData;
-    MessageParcel reply;
-    MessageParcel data;
-    int32_t userId = DEFAULT_USER_ID;
-    std::string strFileName = "/aaa.hap";
-    data.WriteString(strFileName);
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
-    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-}
-
-/**
- * @tc.name: TestOnGetPolicySuc
- * @tc.desc: Test InstallPlugin::OnGetPolicy success case with valid file name.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallPluginTest, TestOnGetPolicySuc, TestSize.Level1)
-{
-    InstallPlugin plugin;
-    std::string policyData;
-    MessageParcel reply;
-    MessageParcel data;
-    int32_t userId = DEFAULT_USER_ID;
-    std::string strFileName = "aaa.hap";
-    data.WriteString(strFileName);
-    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
-    ASSERT_TRUE(ret == ERR_OK);
+    ErrCode ret = plugin.OnSetPolicy(param, reply);
+    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
 HWTEST_F(InstallPluginTest, TestHandleInstallResultUserIdNotFound, TestSize.Level1)
@@ -571,6 +512,348 @@ HWTEST_F(InstallPluginTest, HandleInstallResult_FailWithMultipleRealPaths_Return
         realPaths);
     ASSERT_EQ(ret, EdmReturnErrCode::INSTALL_APP_SIGNATURE_VERIFY_FAILED);
     ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_SIGNATURE_VERIFY_FAILED);
+}
+
+/**
+ * @tc.name: CopyFileContent_InvalidInputFd_ReturnSystemAbnormally
+ * @tc.desc: Test InstallPlugin::CopyFileContent when inputFd is invalid (fstat fails).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyFileContent_InvalidInputFd_ReturnSystemAbnormally, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyFileContent(-1, -1, reply);
+    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: CopyFileContent_ValidFd_ReturnOk
+ * @tc.desc: Test InstallPlugin::CopyFileContent when fds are valid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyFileContent_ValidFd_ReturnOk, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string tempPath = "/data/test/resource/enterprise_device_management/temp_copy_content.hap";
+    int32_t outputFd = open(tempPath.c_str(), O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR);
+    ASSERT_TRUE(outputFd >= 0);
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyFileContent(inputFd, outputFd, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+    fdsan_exchange_owner_tag(outputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
+    remove(tempPath.c_str());
+}
+
+/**
+ * @tc.name: GenerateUniqueFilePrefix_FormatCorrect_ReturnNonEmpty
+ * @tc.desc: Test InstallPlugin::GenerateUniqueFilePrefix generates correct format string.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, GenerateUniqueFilePrefix_FormatCorrect_ReturnNonEmpty, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string filePrefix = plugin.GenerateUniqueFilePrefix();
+    EXPECT_FALSE(filePrefix.empty());
+    EXPECT_EQ(filePrefix.substr(0, 4), "edm_");
+    size_t firstUnderscore = filePrefix.find('_');
+    EXPECT_NE(firstUnderscore, std::string::npos);
+    size_t secondUnderscore = filePrefix.find('_', firstUnderscore + 1);
+    EXPECT_NE(secondUnderscore, std::string::npos);
+}
+
+/**
+ * @tc.name: GenerateUniqueFilePrefix_TwiceCalled_ReturnDifferent
+ * @tc.desc: Test InstallPlugin::GenerateUniqueFilePrefix generates different names when called twice.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, GenerateUniqueFilePrefix_TwiceCalled_ReturnDifferent, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string filePrefix1 = plugin.GenerateUniqueFilePrefix();
+    std::string filePrefix2 = plugin.GenerateUniqueFilePrefix();
+    EXPECT_NE(filePrefix1, filePrefix2);
+}
+
+/**
+ * @tc.name: CopyHapFile_InvalidHapPath_ReturnApplicationInstallFailed
+ * @tc.desc: Test InstallPlugin::CopyHapFile when hapFilePath has no separator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_InvalidHapPath_ReturnApplicationInstallFailed, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(inputFd, "aaa.hap", tempPath, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+}
+
+/**
+ * @tc.name: CopyHapFile_PathEndsWithSeparator_ReturnApplicationInstallFailed
+ * @tc.desc: Test InstallPlugin::CopyHapFile when hapFilePath ends with separator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_PathEndsWithSeparator_ReturnApplicationInstallFailed, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(inputFd, "/data/test/", tempPath, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+}
+
+/**
+ * @tc.name: CopyHapFile_InvalidInputFd_ReturnSystemAbnormally
+ * @tc.desc: Test InstallPlugin::CopyHapFile when inputFd is invalid (fstat fails in CopyFileContent).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_InvalidInputFd_ReturnSystemAbnormally, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(-1, "/data/test/right.hap", tempPath, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: CopyHapFile_ValidInput_ReturnOk
+ * @tc.desc: Test InstallPlugin::CopyHapFile when input is valid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_ValidInput_ReturnOk, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    ASSERT_TRUE(plugin.CreateDirectory());
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(inputFd, "/data/test/right.hap", tempPath, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_FALSE(tempPath.empty());
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+    plugin.DeleteFiles({tempPath});
+}
+
+/**
+ * @tc.name: PrepareTempFiles_FdsSizeMismatch_ReturnSystemAbnormally
+ * @tc.desc: Test InstallPlugin::PrepareTempFiles when hapFilePaths size not match hapFds size.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, PrepareTempFiles_FdsSizeMismatch_ReturnSystemAbnormally, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    InstallParam param;
+    param.hapFilePaths = {HAP_FILE_PATH};
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    std::vector<std::string> tempPaths;
+    MessageParcel reply;
+    ErrCode ret = plugin.PrepareTempFiles(param, tempPaths, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: PrepareTempFiles_InvalidHapPath_ReturnApplicationInstallFailed
+ * @tc.desc: Test InstallPlugin::PrepareTempFiles when hapFilePath has no separator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, PrepareTempFiles_InvalidHapPath_ReturnApplicationInstallFailed, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    InstallParam param;
+    param.hapFilePaths = {"aaa.hap"};
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    int32_t fd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(fd >= 0);
+    param.hapFds = {fd};
+    std::vector<std::string> tempPaths;
+    MessageParcel reply;
+    ErrCode ret = plugin.PrepareTempFiles(param, tempPaths, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+}
+
+/**
+ * @tc.name: PrepareTempFiles_ValidInput_ReturnOk
+ * @tc.desc: Test InstallPlugin::PrepareTempFiles when input is valid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, PrepareTempFiles_ValidInput_ReturnOk, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    InstallParam param;
+    param.hapFilePaths = {HAP_FILE_PATH};
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    int32_t fd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(fd >= 0);
+    param.hapFds = {fd};
+    std::vector<std::string> tempPaths;
+    MessageParcel reply;
+    ErrCode ret = plugin.PrepareTempFiles(param, tempPaths, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(tempPaths.size(), 1u);
+    plugin.DeleteFiles(tempPaths);
+}
+
+/**
+ * @tc.name: ExecuteStreamInstall_NullBundleMgr_ReturnSystemAbnormally
+ * @tc.desc: Test InstallPlugin::ExecuteStreamInstall when iBundleMgr is null (non-develop env).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, ExecuteStreamInstall_NullBundleMgr_ReturnSystemAbnormally, TestSize.Level1)
+{
+    std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
+    if (developDeviceParam != DEVELOP_PARAM) {
+        InstallPlugin plugin;
+        InstallParam param;
+        param.userId = DEFAULT_USER_ID;
+        param.installFlag = 0;
+        std::vector<std::string> tempPaths;
+        MessageParcel reply;
+        ErrCode ret = plugin.ExecuteStreamInstall(tempPaths, param, reply);
+        EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    }
+}
+
+/**
+ * @tc.name: CopyFileContent_FileTooLarge_ReturnInstallAppPathInvalid
+ * @tc.desc: Test InstallPlugin::CopyFileContent when file size exceeds MAX_HAP_FILE_SIZE (4GB).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyFileContent_FileTooLarge_ReturnInstallAppPathInvalid, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    std::string inputPath = "/data/test/resource/enterprise_device_management/temp_large_input.hap";
+    int32_t inputFd = open(inputPath.c_str(), O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR);
+    ASSERT_TRUE(inputFd >= 0);
+    int64_t largeSize = 4LL * 1024 * 1024 * 1024 + 1;
+    if (ftruncate(inputFd, largeSize) != 0) {
+        fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+        fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+        remove(inputPath.c_str());
+        GTEST_SKIP() << "ftruncate to 4GB+1 not supported in this environment";
+    }
+    std::string outputPath = "/data/test/resource/enterprise_device_management/temp_large_output.hap";
+    int32_t outputFd = open(outputPath.c_str(), O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR);
+    ASSERT_TRUE(outputFd >= 0);
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyFileContent(inputFd, outputFd, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadString(), "hap file too large");
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+    fdsan_exchange_owner_tag(outputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
+    remove(inputPath.c_str());
+    remove(outputPath.c_str());
+}
+
+/**
+ * @tc.name: CopyHapFile_TempPathTooLong_ReturnInstallAppPathInvalid
+ * @tc.desc: Test InstallPlugin::CopyHapFile when tempPath length exceeds PATH_MAX.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_TempPathTooLong_ReturnInstallAppPathInvalid, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string longFileName(static_cast<size_t>(PATH_MAX), 'x');
+    longFileName += ".hap";
+    std::string hapFilePath = "/data/test/" + longFileName;
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(inputFd, hapFilePath, tempPath, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+    EXPECT_TRUE(tempPath.empty());
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+}
+
+/**
+ * @tc.name: PrepareTempFiles_SecondFileFails_RemainingFdsClosedAndTempFilesDeleted
+ * @tc.desc: Test InstallPlugin::PrepareTempFiles when second CopyHapFile fails: verify fd and temp file cleanup.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, PrepareTempFiles_SecondFileFails_RemainingFdsClosedAndTempFilesDeleted, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    ASSERT_TRUE(plugin.CreateDirectory());
+    InstallParam param;
+    param.hapFilePaths = { HAP_FILE_PATH, "invalid_nopath.hap" };
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    int32_t fd1 = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(fd1 >= 0);
+    int32_t fd2 = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(fd2 >= 0);
+    param.hapFds = { fd1, fd2 };
+    std::vector<std::string> tempPaths;
+    MessageParcel reply;
+    ErrCode ret = plugin.PrepareTempFiles(param, tempPaths, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+    EXPECT_EQ(tempPaths.size(), 1u);
+    plugin.DeleteFiles(tempPaths);
+}
+
+/**
+ * @tc.name: PrepareTempFiles_ValidMultipleFiles_AllTempPathsCreated
+ * @tc.desc: Test InstallPlugin::PrepareTempFiles when multiple valid files are provided.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, PrepareTempFiles_ValidMultipleFiles_AllTempPathsCreated, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    ASSERT_TRUE(plugin.CreateDirectory());
+    InstallParam param;
+    param.hapFilePaths = { HAP_FILE_PATH, HAP_FILE_PATH };
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    int32_t fd1 = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(fd1 >= 0);
+    int32_t fd2 = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(fd2 >= 0);
+    param.hapFds = { fd1, fd2 };
+    std::vector<std::string> tempPaths;
+    MessageParcel reply;
+    ErrCode ret = plugin.PrepareTempFiles(param, tempPaths, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(tempPaths.size(), 2u);
+    EXPECT_FALSE(tempPaths[0].empty());
+    EXPECT_FALSE(tempPaths[1].empty());
+    plugin.DeleteFiles(tempPaths);
 }
 } // namespace TEST
 } // namespace EDM
