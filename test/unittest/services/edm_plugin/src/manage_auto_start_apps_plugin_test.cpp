@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <fcntl.h>
 #include <filesystem>
 
 #define protected public
@@ -71,6 +72,27 @@ void ManageAutoStartAppsPluginTest::TearDownTestSuite(void)
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
+}
+
+void InstallTestHap(ErrCode &ret)
+{
+    InstallPlugin installPlugin;
+    InstallParam param;
+    param.hapFilePaths = {HAP_FILE_PATH};
+    param.userId = DEFAULT_USER_ID;
+    param.installFlag = 0;
+    int32_t fd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    param.hapFds = {fd};
+    MessageParcel reply;
+    ret = installPlugin.OnSetPolicy(param, reply);
+}
+
+void UninstallTestHap(ErrCode &ret)
+{
+    UninstallPlugin uninstallPlugin;
+    UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
+    MessageParcel uninstallReply;
+    ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
 }
 
 /**
@@ -327,10 +349,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
 {
     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
     if (developDeviceParam == DEVELOP_PARAM) {
-        InstallPlugin installPlugin;
-        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-        MessageParcel reply;
-        ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+        ErrCode ret = ERR_OK;
+        InstallTestHap(ret);
         EXPECT_TRUE(ret == ERR_OK);
 
         ManageAutoStartAppsPlugin plugin;
@@ -371,10 +391,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnSetPolicySuc, TestSize.Level1)
         removeReply.ReadStringVector(&afterRemove);
         EXPECT_TRUE(afterRemove.size() == 0);
 
-        UninstallPlugin uninstallPlugin;
-        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-        MessageParcel uninstallReply;
-        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        UninstallTestHap(ret);
         EXPECT_TRUE(ret == ERR_OK);
     }
 }
@@ -437,10 +454,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
 {
     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
     if (developDeviceParam == DEVELOP_PARAM) {
-        InstallPlugin installPlugin;
-        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-        MessageParcel reply;
-        ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+        ErrCode ret = ERR_OK;
+        InstallTestHap(ret);
         EXPECT_TRUE(ret == ERR_OK);
 
         ManageAutoStartAppsPlugin plugin;
@@ -467,10 +482,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySuc, TestSize.Level1)
         ret = plugin.OnRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID, false);
         EXPECT_TRUE(ret == ERR_OK);
 
-        UninstallPlugin uninstallPlugin;
-        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-        MessageParcel uninstallReply;
-        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        UninstallTestHap(ret);
         EXPECT_TRUE(ret == ERR_OK);
     }
 }
@@ -484,10 +496,8 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
 {
     std::string developDeviceParam = system::GetParameter(BOOT_OEM_MODE, USER_MODE);
     if (developDeviceParam == DEVELOP_PARAM) {
-        InstallPlugin installPlugin;
-        InstallParam param = {{HAP_FILE_PATH}, DEFAULT_USER_ID, 0};
-        MessageParcel reply;
-        ErrCode ret = installPlugin.OnSetPolicy(param, reply);
+        ErrCode ret = ERR_OK;
+        InstallTestHap(ret);
         EXPECT_TRUE(ret == ERR_OK);
 
         ManageAutoStartAppsPlugin plugin;
@@ -499,10 +509,7 @@ HWTEST_F(ManageAutoStartAppsPluginTest, TestOnRemovePolicySucAlreadyUninstall, T
         ret = plugin.OnSetPolicy(data, disallowModify, currentData, mergeData, DEFAULT_USER_ID);
         EXPECT_TRUE(ret == ERR_OK);
 
-        UninstallPlugin uninstallPlugin;
-        UninstallParam uninstallParam = {"com.example.l3jsdemo", DEFAULT_USER_ID, false};
-        MessageParcel uninstallReply;
-        ret = uninstallPlugin.OnSetPolicy(uninstallParam, uninstallReply);
+        UninstallTestHap(ret);
         EXPECT_TRUE(ret == ERR_OK);
 
         data = {RIGHT_TEST_EDM_BUNDLE};

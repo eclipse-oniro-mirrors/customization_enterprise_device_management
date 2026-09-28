@@ -15,9 +15,9 @@
 
 #include "bundle_manager_proxy.h"
 
-#include <fcntl.h>
+#include <climits>
 #include <cstdio>
-#include <sys/sendfile.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -209,6 +209,31 @@ int32_t BundleManagerProxy::InstallMarketApps(MessageParcel &data, std::vector<s
     return ret;
 }
 
+ErrCode BundleManagerProxy::OpenHapFile(const std::string &hapFilePath, int32_t &fd, std::string &errMessage)
+{
+    std::string realPath;
+    if (!PathToRealPath(hapFilePath, realPath)) {
+        EDMLOGE("install failed due to invalid hapFilePaths");
+        errMessage = "install failed due to invalid hapFilePaths";
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
+    }
+    // find hap file name
+    size_t pos = realPath.find_last_of(SEPARATOR);
+    if (pos == std::string::npos || pos == realPath.size() - 1) {
+        EDMLOGE("write file to stream failed due to invalid file path");
+        errMessage = "write file to stream failed due to invalid file path";
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
+    }
+    fd = open(realPath.c_str(), O_RDONLY);
+    if (fd < 0) {
+        EDMLOGE("open hap file failed: %{public}s", realPath.c_str());
+        errMessage = "open hap file failed";
+        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
+    }
+    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
+    return ERR_OK;
+}
+
 int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<std::string> &hapFilePaths,
     AppExecFwk::InstallParam &installParam, std::string &errMessage)
 {
@@ -218,13 +243,18 @@ int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<
         EDMLOGE("install failed due to empty hapFilePaths");
         return EdmReturnErrCode::PARAM_ERROR;
     }
-    std::vector<std::string> realPaths;
+
+    std::vector<int32_t> fds;
     for (auto const &hapFilePath : hapFilePaths) {
-        ErrCode res = WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
-        if (res != ERR_OK) {
-            EDMLOGE("WriteFileToStream failed");
-            return res;
+        int32_t fd = -1;
+        ErrCode openRet = OpenHapFile(hapFilePath, fd, errMessage);
+        if (openRet != ERR_OK) {
+            for (auto const &openedFd : fds) {
+                fdsan_close_with_tag(openedFd, EdmConstants::LOG_DOMAINID);
+            }
+            return openRet;
         }
+        fds.emplace_back(fd);
     }
 
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
@@ -234,7 +264,12 @@ int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<
     data.WriteInt32(WITHOUT_USERID);
     data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteStringVector(realPaths);
+    data.WriteStringVector(hapFilePaths);
+    data.WriteInt32(static_cast<int32_t>(fds.size()));
+    for (auto const &fd : fds) {
+        data.WriteFileDescriptor(fd);
+        fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+    }
     MessageParcelUtils::WriteInstallParam(installParam, data);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
     ErrCode ret = proxy->HandleDevicePolicy(funcCode, data, reply);
@@ -244,115 +279,6 @@ int32_t BundleManagerProxy::Install(AppExecFwk::ElementName &admin, std::vector<
         EDMLOGE("Install failed. errMsg: %{public}s", errMessage.c_str());
     }
     return ret;
-}
-
-ErrCode BundleManagerProxy::WriteFileToInner(MessageParcel &reply, const std::string &realPath,
-    std::vector<std::string> &servicePaths, std::string &errMessage)
-{
-    int32_t sharedFd = reply.ReadFileDescriptor();
-    servicePaths.emplace_back(reply.ReadString());
-    if (sharedFd < 0) {
-        EDMLOGE("write file to stream failed due to invalid file descriptor");
-        errMessage = "write file to stream failed due to invalid file descriptor";
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
-    }
-    fdsan_exchange_owner_tag(sharedFd, 0, EdmConstants::LOG_DOMAINID);
-    int32_t outputFd = dup(sharedFd);
-    fdsan_close_with_tag(sharedFd, EdmConstants::LOG_DOMAINID);
-    fdsan_exchange_owner_tag(outputFd, 0, EdmConstants::LOG_DOMAINID);
-
-    int32_t inputFd = open(realPath.c_str(), O_RDONLY);
-    if (inputFd < 0) {
-        fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
-        EDMLOGE("write file to stream failed due to open the hap file");
-        errMessage = "write file to stream failed due to open the hap file";
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
-    }
-    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
-    off_t offset = 0;
-    struct stat stat_buff;
-    if (fstat(inputFd, &stat_buff) != 0) {
-        EDMLOGE("fstat file failed!");
-        fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
-        fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
-    }
-
-    if (sendfile(outputFd, inputFd, &offset, stat_buff.st_size) == -1) {
-        EDMLOGE("send file failed!");
-        fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
-        fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
-    }
-
-    fsync(outputFd);
-    fdsan_close_with_tag(outputFd, EdmConstants::LOG_DOMAINID);
-    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
-    return ERR_OK;
-}
-
-ErrCode BundleManagerProxy::WriteFileToStream(AppExecFwk::ElementName &admin, const std::string &hapFilePath,
-    std::vector<std::string> &servicePaths, std::string &errMessage)
-{
-    std::string fileName;
-    std::string realPath;
-    ErrCode checkRet = checkHapFilePath(hapFilePath, fileName, realPath, errMessage);
-    if (checkRet != ERR_OK) {
-        return checkRet;
-    }
-
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
-    data.WriteString(fileName);
-    proxy->GetPolicy(POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL), data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
-        EDMLOGW("BundleManagerProxy:WriteFileToStream fail. %{public}d", ret);
-        errMessage = reply.ReadString();
-        return ret;
-    }
-    if (WriteFileToInner(reply, realPath, servicePaths, errMessage) != ERR_OK) {
-        EDMLOGE("write file to stream failed");
-        return EdmReturnErrCode::APPLICATION_INSTALL_FAILED;
-    }
-    return ERR_OK;
-}
-
-ErrCode BundleManagerProxy::checkHapFilePath(const std::string &hapFilePath, std::string &fileName,
-    std::string &realPath, std::string &errMessage)
-{
-    if (!PathToRealPath(hapFilePath, realPath)) {
-        EDMLOGE("install failed due to invalid hapFilePaths");
-        errMessage = "install failed due to invalid hapFilePaths";
-        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
-    }
-
-    // find hap file name
-    size_t pos = realPath.find_last_of(SEPARATOR);
-    if (pos == std::string::npos || pos == realPath.size() - 1) {
-        EDMLOGE("write file to stream failed due to invalid file path");
-        errMessage = "write file to stream failed due to invalid file path";
-        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
-    }
-    fileName = realPath.substr(pos + 1);
-    if (fileName.empty()) {
-        EDMLOGE("write file to stream failed due to invalid file path");
-        errMessage = "write file to stream failed due to invalid file path";
-        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
-    }
-    std::string innerFilePath = EdmConstants::BundleManager::HAP_DIRECTORY + SEPARATOR + fileName;
-    if ((innerFilePath.length() > PATH_MAX)) {
-        errMessage = "invalid hap file path";
-        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
-    }
-    return ERR_OK;
 }
 
 int32_t BundleManagerProxy::GetInstalledBundleInfoList(AppExecFwk::ElementName &admin, int32_t userId,
