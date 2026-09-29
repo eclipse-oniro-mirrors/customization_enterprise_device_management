@@ -15,10 +15,10 @@
 
 #define FUZZ_PROJECT_NAME "system_timer_manager_fuzzer"
 
+#include "common_fuzzer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code.h"
-#include "get_data_template.h"
 #include "message_parcel.h"
 #include "utils.h"
 
@@ -30,12 +30,12 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr size_t MIN_SIZE = 32;
-constexpr int32_t FUZZ_MAX_STRING = 64;
+constexpr size_t STRING_COUNT = 4;
+constexpr size_t INT32_COUNT = 3;
+constexpr size_t LONG_COUNT = 4;
+constexpr size_t MIN_SIZE = sizeof(int32_t) * INT32_COUNT + sizeof(long) * LONG_COUNT + STRING_COUNT;
 constexpr int32_t TIMER_OP_TYPE_COUNT =
     static_cast<int32_t>(TimerOperationType::DESTROY) + 1;
-constexpr size_t OP_TYPE_SELECTOR_INDEX = 0;
-constexpr size_t INITIAL_POS_OFFSET = 1;
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
 {
@@ -43,22 +43,7 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
     return 0;
 }
 
-std::string GetFuzzString()
-{
-    if (g_data == nullptr || g_pos >= g_size) {
-        return "";
-    }
-    size_t remaining = g_size - g_pos;
-    size_t strLen = remaining < static_cast<size_t>(FUZZ_MAX_STRING) ? remaining : FUZZ_MAX_STRING;
-    std::string ret(reinterpret_cast<const char*>(g_data + g_pos), strLen);
-    g_pos += strLen;
-    if (g_pos > g_size) {
-        g_pos = 0;
-    }
-    return ret;
-}
-
-void DoFuzzHandleTimerOperation(const uint8_t* data, size_t size)
+void DoFuzzHandleTimerOperation(const uint8_t* data, int32_t& pos, int32_t stringSize, size_t size)
 {
     auto* manager = SystemTimerManager::GetInstance();
     if (manager == nullptr) {
@@ -66,20 +51,18 @@ void DoFuzzHandleTimerOperation(const uint8_t* data, size_t size)
     }
     uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::SYSTEM_TIMER_OPERATION);
-
-    int32_t opType = static_cast<int32_t>(data[OP_TYPE_SELECTOR_INDEX] % TIMER_OP_TYPE_COUNT);
-    std::string adminBundleName = GetFuzzString();
-    int32_t userId = GetData<int32_t>();
+    int32_t opType = CommonFuzzer::GetU32Data(data, pos, size) % TIMER_OP_TYPE_COUNT;
+    std::string adminBundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
+    int32_t userId = CommonFuzzer::GetU32Data(data, pos, size);
 
     MessageParcel dataParcel;
     MessageParcel reply;
-
     switch (opType) {
         case static_cast<int32_t>(TimerOperationType::CREATE): {
-            bool repeat = GetData<bool>();
-            uint64_t interval = GetData<uint64_t>();
-            std::string name = GetFuzzString();
-            dataParcel.WriteInt32(static_cast<int32_t>(TimerOperationType::CREATE));
+            bool repeat = CommonFuzzer::GetU32Data(data, pos, size) % 2;
+            uint64_t interval = static_cast<uint64_t>(CommonFuzzer::GetLong(data, pos, size));
+            std::string name = CommonFuzzer::GetString(data, pos, stringSize, size);
+            dataParcel.WriteInt32(opType);
             dataParcel.WriteBool(repeat);
             dataParcel.WriteUint64(interval);
             dataParcel.WriteString(name);
@@ -87,62 +70,56 @@ void DoFuzzHandleTimerOperation(const uint8_t* data, size_t size)
             break;
         }
         case static_cast<int32_t>(TimerOperationType::START): {
-            uint64_t timerId = GetData<uint64_t>();
-            uint64_t triggerTime = GetData<uint64_t>();
-            dataParcel.WriteInt32(static_cast<int32_t>(TimerOperationType::START));
+            uint64_t timerId = static_cast<uint64_t>(CommonFuzzer::GetLong(data, pos, size));
+            uint64_t triggerTime = static_cast<uint64_t>(CommonFuzzer::GetLong(data, pos, size));
+            dataParcel.WriteInt32(opType);
             dataParcel.WriteUint64(timerId);
             dataParcel.WriteUint64(triggerTime);
             break;
         }
-        case static_cast<int32_t>(TimerOperationType::STOP): {
-            uint64_t timerId = GetData<uint64_t>();
-            dataParcel.WriteInt32(static_cast<int32_t>(TimerOperationType::STOP));
-            dataParcel.WriteUint64(timerId);
-            break;
-        }
+        case static_cast<int32_t>(TimerOperationType::STOP):
         case static_cast<int32_t>(TimerOperationType::DESTROY): {
-            uint64_t timerId = GetData<uint64_t>();
-            dataParcel.WriteInt32(static_cast<int32_t>(TimerOperationType::DESTROY));
+            uint64_t timerId = static_cast<uint64_t>(CommonFuzzer::GetLong(data, pos, size));
+            dataParcel.WriteInt32(opType);
             dataParcel.WriteUint64(timerId);
             break;
         }
         default: {
-            int32_t unknownOp = GetData<int32_t>();
-            dataParcel.WriteInt32(unknownOp);
+            dataParcel.WriteInt32(CommonFuzzer::GetU32Data(data, pos, size));
             break;
         }
     }
     manager->HandleTimerOperation(funcCode, adminBundleName, dataParcel, reply, userId);
 }
 
-void DoFuzzOnTimerTriggered()
+void DoFuzzOnTimerTriggered(const uint8_t* data, int32_t& pos, size_t size)
 {
     auto* manager = SystemTimerManager::GetInstance();
     if (manager == nullptr) {
         return;
     }
-    uint64_t timerId = GetData<uint64_t>();
+    uint64_t timerId = static_cast<uint64_t>(CommonFuzzer::GetLong(data, pos, size));
     manager->OnTimerTriggered(timerId);
 }
 
-void DoFuzzOnAdminRemove()
+void DoFuzzOnAdminRemove(const uint8_t* data, int32_t& pos, int32_t stringSize, size_t size)
 {
     auto* manager = SystemTimerManager::GetInstance();
     if (manager == nullptr) {
         return;
     }
-    std::string adminBundleName = GetFuzzString();
+    std::string adminBundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
     manager->OnAdminRemove(adminBundleName);
 }
 
-void DoFuzzIsTimerOwner()
+void DoFuzzIsTimerOwner(const uint8_t* data, int32_t& pos, int32_t stringSize, size_t size)
 {
     auto* manager = SystemTimerManager::GetInstance();
     if (manager == nullptr) {
         return;
     }
-    uint64_t timerId = GetData<uint64_t>();
-    std::string adminBundleName = GetFuzzString();
+    uint64_t timerId = static_cast<uint64_t>(CommonFuzzer::GetLong(data, pos, size));
+    std::string adminBundleName = CommonFuzzer::GetString(data, pos, stringSize, size);
     manager->IsTimerOwner(timerId, adminBundleName);
 }
 
@@ -154,14 +131,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (size < MIN_SIZE) {
         return 0;
     }
-    g_data = data;
-    g_size = size;
-    g_pos = INITIAL_POS_OFFSET;
+    int32_t pos = 0;
+    int32_t stringSize = (static_cast<int32_t>(size) - sizeof(int32_t) * INT32_COUNT
+        - sizeof(long) * LONG_COUNT) / static_cast<int32_t>(STRING_COUNT);
 
-    DoFuzzHandleTimerOperation(data, size);
-    DoFuzzOnTimerTriggered();
-    DoFuzzOnAdminRemove();
-    DoFuzzIsTimerOwner();
+    DoFuzzHandleTimerOperation(data, pos, stringSize, size);
+    DoFuzzOnTimerTriggered(data, pos, size);
+    DoFuzzOnAdminRemove(data, pos, stringSize, size);
+    DoFuzzIsTimerOwner(data, pos, stringSize, size);
     return 0;
 }
 } // namespace EDM
