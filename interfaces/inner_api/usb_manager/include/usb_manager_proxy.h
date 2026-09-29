@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_USB_MANAGER_INCLUDE_USB_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "external_storage_device_info.h"
 #include "odd_burn_usb_device.h"
 #include "usb_device_id.h"
 #ifdef USB_EDM_ENABLE
@@ -44,6 +45,7 @@ public:
     int32_t SetExternalStorageInterceptEnable(MessageParcel &data);
     int32_t IsExternalStorageInterceptEnable(MessageParcel &data, bool &result);
     int32_t SetExternalStorageDeviceMountPolicy(MessageParcel &data);
+    int32_t GetExternalStorageDeviceInfos(MessageParcel &data, std::vector<ExternalStorageDeviceInfo> &result);
 #ifdef USB_EDM_ENABLE
     int32_t AddOrRemoveDisallowedUsbDevices(MessageParcel &data, bool isAdd, bool notPermissive = true);
     int32_t GetDisallowedUsbDevices(MessageParcel &data,

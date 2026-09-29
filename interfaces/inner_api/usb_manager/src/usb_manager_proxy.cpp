@@ -19,6 +19,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "external_storage_device_info.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
 #include "usb_device_id.h"
@@ -248,9 +249,9 @@ int32_t UsbManagerProxy::SetExternalStorageInterceptEnable(MessageParcel &data)
 {
     EDMLOGI("UsbManagerProxy::SetExternalStorageInterceptEnable");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t UsbManagerProxy::IsExternalStorageInterceptEnable(MessageParcel &data, bool &result)
@@ -258,7 +259,7 @@ int32_t UsbManagerProxy::IsExternalStorageInterceptEnable(MessageParcel &data, b
     EDMLOGI("UsbManagerProxy::IsExternalStorageInterceptEnable");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicy(EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE, data, reply);
+    proxy->GetPolicyNew(EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
@@ -273,9 +274,36 @@ int32_t UsbManagerProxy::SetExternalStorageDeviceMountPolicy(MessageParcel &data
 {
     EDMLOGI("UsbManagerProxy::SetExternalStorageDeviceMountPolicy");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY);
-    return proxy->HandleDevicePolicy(funcCode, data);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t UsbManagerProxy::GetExternalStorageDeviceInfos(MessageParcel &data,
+    std::vector<ExternalStorageDeviceInfo> &result)
+{
+    EDMLOGI("UsbManagerProxy::GetExternalStorageDeviceInfos");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicyNew(EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("UsbManagerProxy:GetExternalStorageDeviceInfos fail. %{public}d", ret);
+        return ret;
+    }
+    uint32_t size = reply.ReadUint32();
+    EDMLOGI("UsbManagerProxy:GetExternalStorageDeviceInfos return size:%{public}u", size);
+    for (uint32_t i = 0; i < size; i++) {
+        ExternalStorageDeviceInfo *info = ExternalStorageDeviceInfo::Unmarshalling(reply);
+        if (info == nullptr) {
+            EDMLOGE("UsbManagerProxy:GetExternalStorageDeviceInfos read parcel fail");
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
+        }
+        result.emplace_back(*info);
+        delete info;
+    }
+    return ERR_OK;
 }
 
 #ifdef USB_EDM_ENABLE

@@ -290,6 +290,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/utils/array_usb_device_id_serializer_test.cpp",
       "./src/utils/array_usb_device_type_serializer_base_test.cpp",
       "./src/utils/array_permissive_usb_device_type_serializer_test.cpp",
+      "./src/external_storage_intercept_enable_plugin_test.cpp",
     ]
   }
 
@@ -300,7 +301,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (enterprise_device_management_enable_disk_manager) {
-    sources += [ "./src/disallow_external_storage_card_plugin_test.cpp" ]
+    sources += [
+      "./src/disallow_external_storage_card_plugin_test.cpp",
+      "./src/external_storage_device_mount_policy_plugin_test.cpp",
+      "./src/get_external_storage_device_infos_plugin_test.cpp",
+    ]
   }
 
   if (audio_framework_edm_enable) {
@@ -938,6 +943,7 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
         "../../../../services/edm_plugin/src/restrictions/disallow_external_storage_card_plugin.cpp",
         "../../../../services/edm_plugin/src/usb_manager/external_storage_device_mount_policy_plugin.cpp",
+        "../../../../services/edm_plugin/src/usb_manager/get_external_storage_device_infos_plugin.cpp",
     ]
   }
 

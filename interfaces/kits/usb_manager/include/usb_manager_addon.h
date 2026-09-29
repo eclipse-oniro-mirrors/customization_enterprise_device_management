@@ -17,6 +17,7 @@
 #define INTERFACES_KITS_USB_MANAGER_INCLUDE_USB_MANAGER_ADDON_H
 
 #include "edm_constants.h"
+#include "external_storage_device_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -72,6 +73,8 @@ private:
     static napi_value IsExternalStorageInterceptEnable(napi_env env, napi_callback_info info);
     static napi_value SetExternalStorageDeviceMountPolicy(napi_env env, napi_callback_info info);
     static void CreateMountPolicyEnum(napi_env env, napi_value value);
+    static napi_value GetExternalStorageDeviceInfos(napi_env env, napi_callback_info info);
+    static napi_value ExternalStorageDeviceInfoToJsObj(napi_env env, const ExternalStorageDeviceInfo &deviceInfo);
 
     static void CreateDescriptorEnum(napi_env env, napi_value value);
     static napi_value AddDisallowedUsbDevices(napi_env env, napi_callback_info info);

@@ -243,6 +243,9 @@ public:
     int InvokeNetStatsInfoSendRequestOverMaxSize(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeExternalStorageDeviceInfosSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
     uint32_t code_ = 0;
 };
 } // namespace EDM
