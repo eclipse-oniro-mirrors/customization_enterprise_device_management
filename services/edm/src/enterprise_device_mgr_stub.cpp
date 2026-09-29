@@ -16,6 +16,7 @@
 #include "enterprise_device_mgr_stub.h"
 
 #include "admin.h"
+#include "delay_unload_manager.h"
 #include "edm_constants.h"
 #include "ent_info.h"
 #include "func_code_utils.h"
@@ -71,6 +72,20 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     MessageOption &option)
 {
 #ifdef EDM_SUPPORT_ALL_ENABLE
+    int32_t result = HandleOnRemoteRequest(code, data, reply, option);
+    DelayUnloadManager::GetInstance()->TryStartDelayUnload();
+    return result;
+#else
+    EDMLOGI("EnterpriseDeviceMgrStub edm unsupport.");
+    reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    return ERR_OK;
+#endif
+}
+
+#ifdef EDM_SUPPORT_ALL_ENABLE
+int32_t EnterpriseDeviceMgrStub::HandleOnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
+{
     if (SERVICE_FLAG(code)) {
         return OnRemoteRequestIdl(code, data, reply, option);
     }
@@ -108,12 +123,8 @@ int32_t EnterpriseDeviceMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &d
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-#else
-    EDMLOGI("EnterpriseDeviceMgrStub edm unsupport.");
-    reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-    return ERR_OK;
-#endif
 }
+#endif
 
 std::shared_ptr<IExternalManagerFactory> EnterpriseDeviceMgrStub::GetExternalManagerFactory()
 {
