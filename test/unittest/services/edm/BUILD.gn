@@ -198,6 +198,7 @@ ohos_static_library("edmservice_static") {
       enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm/src/query_policy/allowed_odd_burn_usb_devices_query.cpp",
+      "../../../../services/edm/src/query_policy/is_allowed_odd_burn_query.cpp",
     ]
     defines += ["FEATURE_PC_ONLY"]
   }
@@ -554,6 +555,11 @@ ohos_unittest("EdmServicesUnitTest") {
       "./src/plugin_event_router_test.cpp",
       "./src/subscription_handle_test.cpp",
     ]
+  }
+
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
+      enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/query_policy/allowed_odd_burn_usb_devices_query_test.cpp" ]
   }
 
   defines = [

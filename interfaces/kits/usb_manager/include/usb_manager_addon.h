@@ -89,7 +89,11 @@ private:
     static napi_value AddAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveAllowedOddBurnUsbDevices(napi_env env, napi_callback_info info, bool isAdd);
+    static void NativeAddAllowedOddBurnUsbDevices(napi_env env, void *data);
+    static void NativeRemoveAllowedOddBurnUsbDevices(napi_env env, void *data);
     static napi_value GetAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
+    static void NativeGetAllowedOddBurnUsbDevices(napi_env env, void *data);
+    static void NativeGetAllowedOddBurnUsbDevicesComplete(napi_env env, napi_status status, void *data);
     static int32_t ParseOddBurnUsbDevicesArray(napi_env env, std::vector<OddBurnUsbDevice> &usbDevices,
         napi_value object);
     static bool GetOddBurnUsbDeviceFromNAPI(napi_env env, napi_value value, OddBurnUsbDevice &usbDevice);

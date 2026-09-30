@@ -40,12 +40,12 @@ ErrCode AllowedOddBurnUsbDevicesQuery::QueryPolicy(std::string &policyData, Mess
     std::vector<OddBurnUsbDevice> usbDevices;
     if (!ArrayOddBurnUsbDeviceSerializer::GetInstance()->Deserialize(policyData, usbDevices)) {
         EDMLOGE("AllowedOddBurnUsbDevicesQuery Deserialize error");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     reply.WriteInt32(ERR_OK);
     if (!ArrayOddBurnUsbDeviceSerializer::GetInstance()->WriteRawDataToParcel(reply, usbDevices)) {
         EDMLOGE("AllowedOddBurnUsbDevicesQuery WriteRawDataToParcel failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     EDMLOGI("AllowedOddBurnUsbDevicesQuery QueryPolicy return %{public}zu devices", usbDevices.size());
     return ERR_OK;

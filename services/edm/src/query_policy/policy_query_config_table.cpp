@@ -625,6 +625,15 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
+    {EdmInterfaceCode::IS_ALLOWED_ODD_BURN, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        true
+#else
+        false
+#endif
+    }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

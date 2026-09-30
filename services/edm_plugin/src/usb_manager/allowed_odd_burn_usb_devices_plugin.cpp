@@ -49,7 +49,7 @@ ErrCode AllowedOddBurnUsbDevicesPlugin::OnSetPolicy(std::vector<OddBurnUsbDevice
     }
     if (data.size() > EdmConstants::ALLOWED_ODD_BURN_USB_DEVICES_MAX_SIZE) {
         EDMLOGE("AllowedOddBurnUsbDevicesPlugin OnSetPolicy data size=[%{public}zu] is too large", data.size());
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     }
 
     std::vector<OddBurnUsbDevice> afterHandle =
@@ -72,7 +72,7 @@ ErrCode AllowedOddBurnUsbDevicesPlugin::OnRemovePolicy(std::vector<OddBurnUsbDev
     }
     if (data.size() > EdmConstants::ALLOWED_ODD_BURN_USB_DEVICES_MAX_SIZE) {
         EDMLOGE("AllowedOddBurnUsbDevicesPlugin OnRemovePolicy data size=[%{public}zu] is too large", data.size());
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     }
 
     std::vector<OddBurnUsbDevice> afterHandle =
