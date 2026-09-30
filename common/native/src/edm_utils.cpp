@@ -16,6 +16,7 @@
 #include "edm_utils.h"
 
 #include <codecvt>
+#include <regex>
 #include <string_ex.h>
 #include "edm_constants.h"
 #include "edm_log.h"
@@ -25,6 +26,8 @@ namespace OHOS {
 namespace EDM {
 const std::string ERROR_STRING = "error";
 const std::u16string ERROR_USTRING = u"error";
+constexpr size_t CURRENT_DIR_SUFFIX_LEN = 2;   // "/."
+constexpr size_t PARENT_DIR_SUFFIX_LEN = 3;    // "/.."
 
 ErrCode EdmUtils::ParseStringToInt(const std::string &str, int32_t &result)
 {
@@ -86,6 +89,28 @@ bool EdmUtils::CheckRealPath(const std::string &path, const std::string &expectP
         return true;
     }
     return false;
+}
+
+bool EdmUtils::TrustedExternalPath(const std::string &filePath)
+{
+    if (filePath.empty()) {
+        EDMLOGE("EdmUtils::TrustedExternalPath path is empty");
+        return false;
+    }
+    std::regex pathTraversalPattern(R"((\.\/|\.\.\/|\.\\\.\\))", std::regex::icase);
+    if (std::regex_search(filePath, pathTraversalPattern) ||
+        filePath.find('\0') != std::string::npos || filePath.find("//") != std::string::npos) {
+        EDMLOGE("EdmUtils::TrustedExternalPath path has invalid pattern");
+        return false;
+    }
+    if ((filePath.size() >= CURRENT_DIR_SUFFIX_LEN &&
+        filePath.substr(filePath.size() - CURRENT_DIR_SUFFIX_LEN) == "/.") ||
+        (filePath.size() >= PARENT_DIR_SUFFIX_LEN &&
+        filePath.substr(filePath.size() - PARENT_DIR_SUFFIX_LEN) == "/..")) {
+        EDMLOGE("EdmUtils::TrustedExternalPath path has invalid pattern");
+        return false;
+    }
+    return true;
 }
 } // namespace EDM
 } // namespace OHOS

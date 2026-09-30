@@ -32,6 +32,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_sys_manager.h"
+#include "edm_utils.h"
 #include "hisysevent_adapter.h"
 #include "installer_callback.h"
 #include "ipc_skeleton.h"
@@ -374,6 +375,12 @@ ErrCode InstallPlugin::CopyHapFile(int32_t inputFd, const std::string &hapFilePa
     }
     std::string prefix = GenerateUniqueFilePrefix();
     tempPath = std::string(EdmConstants::BundleManager::HAP_DIRECTORY) + SEPARATOR + prefix + fileName;
+    if (!EdmUtils::TrustedExternalPath(tempPath)) {
+        EDMLOGE("tempPath invalid");
+        reply.WriteInt32(EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+        reply.WriteString("invalid hap file path");
+        return EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE;
+    }
     int32_t dupFd = dup(inputFd);
     if (dupFd < 0) {
         EDMLOGE("dup input fd failed");
