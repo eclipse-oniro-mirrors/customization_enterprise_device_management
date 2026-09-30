@@ -123,8 +123,6 @@ namespace EdmConstants {
 
     namespace BundleManager {
         const char* const HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
-        constexpr size_t TEMP_FILE_PREFIX_MAX_LEN = 32;
-        const char* const TEMP_FILE_NAME_SEPARATOR = "_";
     }
 
     namespace Browser {

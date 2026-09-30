@@ -855,6 +855,49 @@ HWTEST_F(InstallPluginTest, PrepareTempFiles_ValidMultipleFiles_AllTempPathsCrea
     EXPECT_FALSE(tempPaths[1].empty());
     plugin.DeleteFiles(tempPaths);
 }
+
+/**
+ * @tc.name: CopyHapFile_FileNameWithNullChar_ReturnInstallAppPathInvalid
+ * @tc.desc: Test InstallPlugin::CopyHapFile when fileName contains null char (tempPath fails TrustedExternalPath).
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_FileNameWithNullChar_ReturnInstallAppPathInvalid, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string hapFilePath = "/data/test/good.hap";
+    hapFilePath[12] = '\0';
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(inputFd, hapFilePath, tempPath, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+}
+
+/**
+ * @tc.name: CopyHapFile_FileNameWithBackslashPattern_ReturnInstallAppPathInvalid
+ * @tc.desc: Test InstallPlugin::CopyHapFile when fileName contains backslash traversal pattern.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallPluginTest, CopyHapFile_FileNameWithBackslashPattern_ReturnInstallAppPathInvalid, TestSize.Level1)
+{
+    InstallPlugin plugin;
+    int32_t inputFd = open(HAP_FILE_PATH.c_str(), O_RDONLY);
+    ASSERT_TRUE(inputFd >= 0);
+    std::string hapFilePath = R"(/data/test/file.\.\bad.hap)";
+    std::string tempPath;
+    MessageParcel reply;
+    ErrCode ret = plugin.CopyHapFile(inputFd, hapFilePath, tempPath, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    EXPECT_EQ(reply.ReadString(), "invalid hap file path");
+    fdsan_exchange_owner_tag(inputFd, 0, EdmConstants::LOG_DOMAINID);
+    fdsan_close_with_tag(inputFd, EdmConstants::LOG_DOMAINID);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
