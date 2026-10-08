@@ -779,7 +779,7 @@ int32_t UsbManagerAddon::ParseOddBurnUsbDevicesArray(napi_env env, std::vector<O
     bool isArray = false;
     napi_is_array(env, object, &isArray);
     if (!isArray) {
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     uint32_t arrayLength = 0;
     napi_get_array_length(env, object, &arrayLength);
@@ -794,7 +794,7 @@ int32_t UsbManagerAddon::ParseOddBurnUsbDevicesArray(napi_env env, std::vector<O
         napi_typeof(env, value, &valueType);
         if (valueType != napi_object) {
             usbDevices.clear();
-            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+            return EdmReturnErrCode::PARAM_ERROR;
         }
         OddBurnUsbDevice usbDevice;
         if (!GetOddBurnUsbDeviceFromNAPI(env, value, usbDevice)) {
