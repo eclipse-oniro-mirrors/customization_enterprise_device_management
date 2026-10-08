@@ -15,8 +15,6 @@
 
 #include "get_external_storage_device_infos_plugin.h"
 
-#include <cstdlib>
-
 #include "disk_manager_client.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -39,22 +37,6 @@ GetExternalStorageDeviceInfosPlugin::GetExternalStorageDeviceInfosPlugin()
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, IPlugin::ApiType::PUBLIC);
     needSave_ = false;
 }
-
-namespace {
-bool ConvertHexStrToInt32(const std::string &str, int32_t &value)
-{
-    if (str.empty()) {
-        return false;
-    }
-    char *endptr = nullptr;
-    long val = std::strtol(str.c_str(), &endptr, 16);
-    if (endptr == str.c_str() || *endptr != '\0' || val < 0 || val > 0x7FFFFFFF) {
-        return false;
-    }
-    value = static_cast<int32_t>(val);
-    return true;
-}
-} // namespace
 
 ErrCode GetExternalStorageDeviceInfosPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
@@ -91,14 +73,8 @@ ErrCode GetExternalStorageDeviceInfosPlugin::OnGetPolicy(std::string &policyData
         deviceInfo.devicePath = volume.GetPath();
         deviceInfo.volumeId = volume.GetId();
         deviceInfo.mountStatus = (volume.GetState() == OHOS::DiskManager::VolumeState::MOUNTED);
-        int32_t vid = -1;
-        if (ConvertHexStrToInt32(disk.GetVendorId(), vid)) {
-            deviceInfo.vendorId = vid;
-        }
-        int32_t pid = -1;
-        if (ConvertHexStrToInt32(disk.GetProductId(), pid)) {
-            deviceInfo.productId = pid;
-        }
+        deviceInfo.vendorId = disk.GetVendorId();
+        deviceInfo.productId = disk.GetProductId();
         deviceInfo.serial = disk.GetSerialNumber();
         deviceInfos.push_back(deviceInfo);
     }
