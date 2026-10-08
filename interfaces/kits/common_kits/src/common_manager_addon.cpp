@@ -118,6 +118,36 @@ void CommonManagerAddon::CreateManagedFeatureObject(napi_env env, napi_value val
         static_cast<uint32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY), &nPrinterIpAddressPolicy));
     NAPI_CALL_RETURN_VOID(env,
         napi_set_named_property(env, value, "PRINTER_IP_ADDRESS_POLICY", nPrinterIpAddressPolicy));
+    napi_value nOpticalDiscDriveBurn;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::OPTICAL_DISC_DRIVE_BURN), &nOpticalDiscDriveBurn));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "OPTICAL_DISC_DRIVE_BURN", nOpticalDiscDriveBurn));
+    napi_value nExactTimer;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::EXACT_TIMER), &nExactTimer));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "EXACT_TIMER", nExactTimer));
+    napi_value nExemptionResource;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::EXEMPTION_RESOURCE), &nExemptionResource));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "EXEMPTION_RESOURCE", nExemptionResource));
+    napi_value nXKey;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::X_KEY), &nXKey));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "X_KEY", nXKey));
+    napi_value nSystemRollback;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::SYSTEM_ROLLBACK), &nSystemRollback));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "SYSTEM_ROLLBACK", nSystemRollback));
+    napi_value nSuperPrivacy;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::SUPER_PRIVACY), &nSuperPrivacy));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "SUPER_PRIVACY", nSuperPrivacy));
 }
 
 napi_value CommonManagerAddon::IsFeatureSupported(napi_env env, napi_callback_info info)
