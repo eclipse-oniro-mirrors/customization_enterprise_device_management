@@ -70,12 +70,12 @@ ErrCode SetEyeComfortModePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
         std::string uri = SETTINGS_DATA_BASE_URI + userIdStr + SETTINGS_DATA_PREFIX;
+        EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_LAST_MODE, std::to_string(value));
         code = EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_MODE, std::to_string(value));
         if (FAILED(code)) {
             EDMLOGE("SetEyeComfortModePlugin::set eyecomfort failed : %{public}d.", code);
             return EdmReturnErrCode::SYSTEM_ABNORMALLY;
         }
-        EdmDataAbilityUtils::UpdateSettingsData(uri, KEY_EYE_COMFORT_LAST_MODE, std::to_string(value));
         std::string params = EdmJsonBuilder()
             .Add("item", "eyeComfort")
             .Add("value", handleData)
