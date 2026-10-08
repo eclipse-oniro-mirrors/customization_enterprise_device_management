@@ -120,6 +120,7 @@ private:
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
     void NotifyAdminEnabled(bool isEnabled);
+    void HandleEdmEnabled();
     void CheckAndUpdateByodSettingsData();
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);

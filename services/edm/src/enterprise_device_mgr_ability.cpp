@@ -57,6 +57,7 @@
 #include "edm_log.h"
 #include "edm_sys_manager.h"
 #include "edm_timer_manager.h"
+#include "delay_unload_manager.h"
 #include "admin_manager.h"
 #ifndef FEATURE_PC_ONLY
 #include "system_timer_manager.h"
@@ -349,6 +350,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
             if (!AdminManager::GetInstance()->IsAdminExist()) {
                 system::SetParameter(PARAM_EDM_ENABLE, "false");
                 NotifyAdminEnabled(false);
+                DelayUnloadManager::GetInstance()->TryStartDelayUnload();
             }
         }
     }
@@ -478,6 +480,13 @@ void EnterpriseDeviceMgrAbility::NotifyAdminEnabled(bool isEnabled)
     if (!EventFwk::CommonEventManager::PublishCommonEvent(eventData)) {
         EDMLOGE("EnterpriseDeviceMgrAbility notify admin enabled failed.");
     }
+}
+
+void EnterpriseDeviceMgrAbility::HandleEdmEnabled()
+{
+    system::SetParameter(PARAM_EDM_ENABLE, "true");
+    NotifyAdminEnabled(true);
+    DelayUnloadManager::GetInstance()->CancelDelayUnload();
 }
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::GetInstance()
@@ -866,6 +875,7 @@ void EnterpriseDeviceMgrAbility::OnDistributedKvDataServiceStart()
     if (isNeedRemoveSettigsMenu_ && !AdminManager::GetInstance()->IsAdminExist()) {
         system::SetParameter(PARAM_EDM_ENABLE, "false");
         NotifyAdminEnabled(false);
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
 }
@@ -874,6 +884,7 @@ void EnterpriseDeviceMgrAbility::OnRemoveSystemAbility(int32_t systemAbilityId, 
 
 void EnterpriseDeviceMgrAbility::OnStop()
 {
+    DelayUnloadManager::GetInstance()->CancelDelayUnload();
     PluginManager::GetInstance()->NotifyUnloadAllPlugin();
 }
 
@@ -1121,8 +1132,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
         }
     }
-    system::SetParameter(PARAM_EDM_ENABLE, "true");
-    NotifyAdminEnabled(true);
+    HandleEdmEnabled();
     OnAdminEnabled(newAdmin.GetBundleName(), newAdmin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED,
         EdmConstants::DEFAULT_USER_ID);
     EDMLOGI("EnableAdmin: SetAdminEnabled success %{public}s", newAdmin.GetBundleName().c_str());
@@ -1146,12 +1156,18 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(const AppExecFwk::ElementName &a
     AdminType adminType, int32_t userId, bool enableSelf, EnableSource enableSource)
 {
 #if defined(FEATURE_PC_ONLY)
+    ErrCode ret = ERR_OK;
     if (enableSelf) {
-        return EnableAdminWithPermission(admin, entInfo, adminType, userId,
+        ret = EnableAdminWithPermission(admin, entInfo, adminType, userId,
             EdmPermission::PERMISSION_ENTERPRISE_ACTIVATE_DEVICE_ADMIN, enableSource);
-    }
-    return EnableAdminWithPermission(admin, entInfo, adminType, userId,
+    } else {
+        ret = EnableAdminWithPermission(admin, entInfo, adminType, userId,
             EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, enableSource);
+    }
+    if (FAILED(ret)) {
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
+    }
+    return ret;
 #else
     EDMLOGW("EnterpriseDeviceMgrAbility::EnableAdmin self Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
@@ -1219,8 +1235,12 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
     const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType type, int32_t userId,
     EnableSource enableSource)
 {
-    return EnableAdminWithPermission(admin, entInfo, type, userId,
+    ErrCode ret = EnableAdminWithPermission(admin, entInfo, type, userId,
         EdmPermission::PERMISSION_MANAGE_ENTERPRISE_DEVICE_ADMIN, enableSource);
+    if (FAILED(ret)) {
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
+    }
+    return ret;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin)
@@ -1261,14 +1281,17 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
         EdmConstants::DEFAULT_USER_ID);
     if (superAdmin == nullptr) {
         EDMLOGE("EnableDeviceAdmin: the admin is not a super admin.");
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     if (!superAdmin->HasPermissionToCallServiceCode(EdmInterfaceCode::ENABLE_DEVICE_ADMIN)) {
         EDMLOGE("EnableDeviceAdmin the admin has no permission.");
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     ErrCode ret = CheckEnableDeviceAdmin(admin);
     if (FAILED(ret)) {
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         return ret;
     }
     std::shared_ptr<Admin> existAdmin = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
@@ -1279,6 +1302,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
             return ERR_OK;
         } else {
             EDMLOGE("EnableDeviceAdmin the admin has exist but is not a device admin.");
+            DelayUnloadManager::GetInstance()->TryStartDelayUnload();
             return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
         }
     }
@@ -1291,6 +1315,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableDeviceAdmin(const AppExecFwk::ElementN
         .permission_ = permissionList, .adminType_ = AdminType::NORMAL, .isDebug_ = superAdmin->adminInfo_.isDebug_,
         .enableSource_ = EnableSource::SUPER_ADMIN};
     if (FAILED(AdminManager::GetInstance()->SetAdminValue(EdmConstants::DEFAULT_USER_ID, adminInfo))) {
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
     }
     int32_t userId = GetCurrentUserId();
@@ -1316,8 +1341,7 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
     }
     CreateLogDirIfNeed(EDM_LOG_PATH + "/" + std::to_string(installUserId) + "/" + admin.GetBundleName());
 #endif
-    system::SetParameter(PARAM_EDM_ENABLE, "true");
-    NotifyAdminEnabled(true);
+    HandleEdmEnabled();
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
     OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
     // 如果是激活DA需要上报给SDA
@@ -1525,6 +1549,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
     if (!AdminManager::GetInstance()->IsAdminExist()) {
         system::SetParameter(PARAM_EDM_ENABLE, "false");
         NotifyAdminEnabled(false);
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
     OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
@@ -1857,6 +1882,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableSelfDeviceAdmin(const AppExecFwk::Elem
     if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
         EdmPermission::PERMISSION_ENTERPRISE_ACTIVATE_DEVICE_ADMIN)) {
         EDMLOGE("EnableSelfDeviceAdmin::VerifyCallingPermission check permission failed.");
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
     MessageParcel data;
@@ -1878,6 +1904,8 @@ ErrCode EnterpriseDeviceMgrAbility::EnableSelfDeviceAdmin(const AppExecFwk::Elem
         IconInfo iconInfo = {.icon = icon, .xAxis = ICON_AXIS, .yAxis = ICON_AXIS};
         NotificationManager notificationManager;
         notificationManager.SendSystemNotification(notificationInfo, iconInfo, wantAgentInfo);
+    } else {
+        DelayUnloadManager::GetInstance()->TryStartDelayUnload();
     }
     return ret;
 #else
@@ -2403,8 +2431,7 @@ ErrCode EnterpriseDeviceMgrAbility::SetDelegatedPolicies(const std::string &bund
     AdminInfo virtualAdminInfo = {.packageName_ = bundleName,
         .permission_ = permissionList, .parentAdminName_ = callingBundleName, .accessiblePolicies_ = setPolicies,
         .adminType_ = AdminType::VIRTUAL_ADMIN, .isDebug_ = false};
-    system::SetParameter(PARAM_EDM_ENABLE, "true");
-    NotifyAdminEnabled(true);
+    HandleEdmEnabled();
     return AdminManager::GetInstance()->SetAdminValue(userId, virtualAdminInfo);
 }
 

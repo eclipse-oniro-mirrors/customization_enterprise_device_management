@@ -51,6 +51,7 @@ private:
         userId);
     #ifdef EDM_SUPPORT_ALL_ENABLE
     ErrCode OnRemoteRequestIdl(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t HandleOnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     #endif
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
     void ReportFuncEvent(uint32_t code);
