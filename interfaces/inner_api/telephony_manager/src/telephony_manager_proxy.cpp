@@ -16,9 +16,12 @@
 #include "telephony_manager_proxy.h"
 
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
+#include "call_log_info.h"
+#include "ashmem.h"
 
 namespace OHOS {
 namespace EDM {
@@ -166,6 +169,111 @@ int32_t TelephonyManagerProxy::GetDefaultDataSim(MessageParcel &data, int32_t &s
         return ret;
     }
     reply.ReadInt32(simId);
+    return ERR_OK;
+}
+
+int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
+    const TelephonyQueryConfig &config, std::vector<CallLogInfo> &callLogs)
+{
+    EDMLOGD("TelephonyManagerProxy::GetCallLogs");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteParcelable(&admin);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt64(config.startTime);
+    data.WriteInt64(config.endTime);
+    data.WriteBool(config.hasTelephoneNumber);
+    if (config.hasTelephoneNumber) {
+        data.WriteString(config.telephoneNumber);
+    }
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_CALL_LOGS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!isSuccess) {
+        EDMLOGE("GetCallLogs:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    int32_t dataSize = reply.ReadInt32();
+    if (dataSize == 0) {
+        EDMLOGI("GetCallLogs: no data.");
+        return ERR_OK;
+    }
+    if (dataSize < 0 || dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
+        EDMLOGE("GetCallLogs: invalid dataSize %{public}d.", dataSize);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    void *buffer = nullptr;
+    if (dataSize > static_cast<int32_t>(EdmConstants::MAX_IPC_RAWDATA_SIZE)) {
+        EDMLOGI("GetCallLogs: read from ashmem, size = %{public}d", dataSize);
+        sptr<Ashmem> ashmem = reply.ReadAshmem();
+        if (ashmem == nullptr) {
+            EDMLOGE("GetCallLogs: ReadAshmem failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        if (!ashmem->MapReadOnlyAshmem()) {
+            EDMLOGE("GetCallLogs: MapReadOnlyAshmem failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        const void *ashData = ashmem->ReadFromAshmem(dataSize, 0);
+        if (ashData == nullptr) {
+            EDMLOGE("GetCallLogs: ReadFromAshmem failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        buffer = malloc(dataSize);
+        if (buffer == nullptr) {
+            EDMLOGE("GetCallLogs: malloc failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        if (memcpy_s(buffer, dataSize, ashData, dataSize) != EOK) {
+            free(buffer);
+            EDMLOGE("GetCallLogs: memcpy_s failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    } else {
+        const void *rawData = reply.ReadRawData(dataSize);
+        if (rawData == nullptr) {
+            EDMLOGE("GetCallLogs: ReadRawData failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        buffer = malloc(dataSize);
+        if (buffer == nullptr) {
+            EDMLOGE("GetCallLogs: malloc failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        if (memcpy_s(buffer, dataSize, rawData, dataSize) != EOK) {
+            free(buffer);
+            EDMLOGE("GetCallLogs: memcpy_s failed.");
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+    }
+    MessageParcel tempParcel;
+    if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
+        free(buffer);
+        EDMLOGE("GetCallLogs: ParseFrom failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t count = tempParcel.ReadInt32();
+    size_t readableDataSize = tempParcel.GetReadableBytes();
+    if (count < 0 || static_cast<size_t>(count) > readableDataSize ||
+        callLogs.max_size() < static_cast<size_t>(count)) {
+        free(buffer);
+        EDMLOGE("GetCallLogs: count security check failed, count=%{public}d, readable=%{public}zu",
+            count, readableDataSize);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (int32_t i = 0; i < count; ++i) {
+        CallLogInfo log;
+        log.startTime = tempParcel.ReadInt64();
+        log.endTime = tempParcel.ReadInt64();
+        log.isIncoming = tempParcel.ReadBool();
+        log.slotId = tempParcel.ReadInt32();
+        log.telephoneNumber = tempParcel.ReadString();
+        callLogs.push_back(log);
+    }
+    free(buffer);
+    EDMLOGD("GetCallLogs success, count = %{public}d", count);
     return ERR_OK;
 }
 } // namespace EDM

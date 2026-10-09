@@ -404,6 +404,8 @@ namespace EdmPermission {
     // api 26.1.0
     const char* const PERMISSION_ENTERPRISE_REQUEST_PUBLISH_FORM =
         "ohos.permission.ENTERPRISE_REQUEST_PUBLISH_FORM";
+    // api 26.2.0
+    const char* const PERMISSION_ENTERPRISE_READ_CALL_LOG = "ohos.permission.ENTERPRISE_READ_CALL_LOG";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -593,6 +595,7 @@ namespace PolicyName {
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_INFOS = "external_storage_device_infos";
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
+    const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

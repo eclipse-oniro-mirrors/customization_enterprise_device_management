@@ -17,6 +17,7 @@
 #define INTERFACES_INNER_API_TELEPHONY_MANAGER_INCLUDE_TELEPHONY_MANAGER_PROXY_H
 
 #include "enterprise_device_mgr_proxy.h"
+#include "call_log_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -38,6 +39,8 @@ public:
     int32_t DeactiveSim(MessageParcel &data);
     int32_t SetDefaultDataSim(MessageParcel &data);
     int32_t GetDefaultDataSim(MessageParcel &data, int32_t &simId);
+    int32_t GetCallLogs(const AppExecFwk::ElementName &admin, const TelephonyQueryConfig &config,
+        std::vector<CallLogInfo> &callLogs);
 private:
     static std::shared_ptr<TelephonyManagerProxy> instance_;
     static std::once_flag flag_;

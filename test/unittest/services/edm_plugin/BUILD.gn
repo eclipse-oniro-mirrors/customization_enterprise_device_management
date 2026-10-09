@@ -1096,6 +1096,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       "../../../../services/edm_plugin/src/network_manager/turnonoff_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
       "../../../../services/edm_plugin/src/telephony_manager/hang_up_calling_plugin.cpp",
+      "../../../../services/edm_plugin/src/telephony_manager/get_call_logs_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",

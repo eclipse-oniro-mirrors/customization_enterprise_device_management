@@ -20,12 +20,20 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "napi_edm_common.h"
 #include "napi_edm_error.h"
 #include "telephony_manager_proxy.h"
+#include "call_log_info.h"
 #include "want.h"
 
 namespace OHOS {
 namespace EDM {
+
+struct AsyncCallLogCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    TelephonyQueryConfig queryConfig;
+    std::vector<CallLogInfo> callLogs;
+};
 
 class TelephonyManagerAddon {
 public:
@@ -48,6 +56,11 @@ private:
     static napi_value DeactiveSim(napi_env env, napi_callback_info info);
     static napi_value SetDefaultDataSim(napi_env env, napi_callback_info info);
     static napi_value GetDefaultDataSim(napi_env env, napi_callback_info info);
+    static napi_value GetCallLogs(napi_env env, napi_callback_info info);
+    static void NativeGetCallLogs(napi_env env, void *data);
+    static void NativeGetCallLogsComplete(napi_env env, napi_status status, void *data);
+    static void ConvertVectorCallLogToJs(napi_env env, const std::vector<CallLogInfo> &callLogs,
+        napi_value &result);
     static bool CheckVectorStringLength(const std::vector<std::string> &array);
 };
 } // namespace EDM
