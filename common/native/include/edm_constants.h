@@ -593,6 +593,7 @@ namespace PolicyName {
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_INFOS = "external_storage_device_infos";
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
+    const char* const POLICY_VOLUME_DEGREE = "volume_degree";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

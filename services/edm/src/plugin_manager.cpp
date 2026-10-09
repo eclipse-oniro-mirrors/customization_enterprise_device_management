@@ -90,6 +90,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::EXEMPTION_RESOURCE,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
+    EdmInterfaceCode::VOLUME_DEGREE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

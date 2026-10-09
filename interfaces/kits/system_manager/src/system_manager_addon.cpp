@@ -63,6 +63,8 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isOtaUpdateNonceEnable", IsOtaUpdateNonceEnable),
         DECLARE_NAPI_FUNCTION("setLocalHotaDomain", SetLocalHotaDomain),
         DECLARE_NAPI_FUNCTION("getLocalHotaDomain", GetLocalHotaDomain),
+        DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SystemManager::SET_VOLUME_DEGREE, SetVolumeDegree),
+        DECLARE_NAPI_FUNCTION("getVolumeDegree", GetVolumeDegree),
         DECLARE_NAPI_FUNCTION("createExactTimer", CreateTimer),
         DECLARE_NAPI_FUNCTION("startExactTimer", StartTimer),
         DECLARE_NAPI_FUNCTION("stopExactTimer", StopTimer),
@@ -98,6 +100,11 @@ void SystemManagerAddon::AddEnumsToExports(napi_env env, napi_value exports)
     NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nProtocol));
     CreateProtocolObject(env, nProtocol);
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "NearLinkProtocol", nProtocol));
+
+    napi_value nAudioVolumeType = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nAudioVolumeType));
+    CreateAudioVolumeTypeObject(env, nAudioVolumeType);
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, exports, "AudioVolumeType", nAudioVolumeType));
 
     napi_value nKeyCode = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nKeyCode));
@@ -1039,6 +1046,14 @@ void SystemManagerAddon::CreateProtocolObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DATA_TRANSFER", nDataTransfer));
 }
 
+void SystemManagerAddon::CreateAudioVolumeTypeObject(napi_env env, napi_value value)
+{
+    napi_value nStreamMusic;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<uint32_t>(AudioVolumeType::STREAM_MUSIC),
+    &nStreamMusic));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "STREAM_MUSIC", nStreamMusic));
+}
+
 napi_value SystemManagerAddon::AddKeyEventPolicies(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddKeyEventPolicies called");
@@ -1377,6 +1392,53 @@ napi_value SystemManagerAddon::GetLocalHotaDomain(napi_env env, napi_callback_in
 #endif
     NAPI_CALL(env, napi_create_string_utf8(env, domain.c_str(), domain.size(), &domainString));
     return domainString;
+}
+
+napi_value SystemManagerAddon::SetVolumeDegree(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetVolumeDegree called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetVolumeDegree";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32,
+        EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->SetVolumeDegree(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("SystemManagerAddon::SetVolumeDegree failed!");
+    }
+    return nullptr;
+}
+
+napi_value SystemManagerAddon::GetVolumeDegree(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetVolumeDegree called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetVolumeDegree";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t degree = 0;
+    int32_t ret = SystemManagerProxy::GetSystemManagerProxy()->GetVolumeDegree(adapterAddonData.data, degree);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("SystemManagerAddon::GetVolumeDegree failed!");
+        return nullptr;
+    }
+    napi_value resultNumber = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, degree, &resultNumber));
+    return resultNumber;
 }
 
 napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info)
