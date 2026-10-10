@@ -567,10 +567,9 @@ int32_t SecurityManagerProxy::RemoveUserExtCredential(MessageParcel &data)
 int32_t SecurityManagerProxy::GetUserExtCredential(MessageParcel &data, MessageParcel &reply)
 {
     EDMLOGI("SecurityManagerProxy::GetUserExtCredential");
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply);
-    int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret =
+        EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::USER_EXT_CREDENTIAL, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("SecurityManagerProxy:GetUserExtCredential fail. %{public}d", ret);
         return ret;
     }
@@ -589,10 +588,9 @@ int32_t SecurityManagerProxy::GetUnlockPolicy(MessageParcel &data, int32_t &poli
 {
     EDMLOGI("SecurityManagerProxy::GetUnlockPolicy");
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::UNLOCK_POLICY, data, reply);
-    int32_t ret = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret =
+        EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::UNLOCK_POLICY, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("SecurityManagerProxy:GetUnlockPolicy fail. %{public}d", ret);
         return ret;
     }
@@ -612,9 +610,8 @@ int32_t SecurityManagerProxy::GetDeviceSecurityLevelPolicy(MessageParcel &data, 
 {
     EDMLOGD("SecurityManagerProxy::GetDeviceSecurityLevelPolicy");
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    reply.ReadInt32(ret);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY, data, reply);
     if (ret != ERR_OK) {
         EDMLOGW("SecurityManagerProxy:GetDeviceSecurityLevelPolicy fail. %{public}d", ret);
         return ret;
@@ -646,10 +643,8 @@ int32_t SecurityManagerProxy::IsWeakPinEnabled(bool &result)
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
     data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::WEAK_PIN, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    reply.ReadInt32(ret);
     if (ret != ERR_OK) {
         EDMLOGW("SecurityManagerProxy:IsWeakPinEnabled fail. %{public}d", ret);
         return ret;

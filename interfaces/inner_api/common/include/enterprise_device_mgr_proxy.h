@@ -96,7 +96,7 @@ public:
         int32_t userId = DEFAULT_USER_ID);
     bool GetPolicyData(AppExecFwk::ElementName *admin, int policyCode, int32_t userId, MessageParcel &reply);
     bool GetPolicy(int policyCode, MessageParcel &data, MessageParcel &reply);
-    bool GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply);
+    int32_t GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply);
     bool IsEdmEnabled();
     bool IsEdmExtEnabled();
     bool CheckDataInEdmDisabled(MessageParcel &data);
