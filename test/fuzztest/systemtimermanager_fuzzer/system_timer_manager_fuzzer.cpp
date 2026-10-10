@@ -33,7 +33,7 @@ namespace EDM {
 constexpr size_t STRING_COUNT = 4;
 constexpr size_t INT32_COUNT = 3;
 constexpr size_t LONG_COUNT = 4;
-constexpr size_t MIN_SIZE = sizeof(int32_t) * INT32_COUNT + sizeof(long) * LONG_COUNT + STRING_COUNT;
+constexpr size_t MIN_SIZE = sizeof(int32_t) * INT32_COUNT + sizeof(int64_t) * LONG_COUNT + STRING_COUNT;
 constexpr int32_t TIMER_OP_TYPE_COUNT =
     static_cast<int32_t>(TimerOperationType::DESTROY) + 1;
 
