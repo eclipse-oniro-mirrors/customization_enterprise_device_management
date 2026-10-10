@@ -401,8 +401,11 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicyNew(int32_t policyCode, Mess
         EDMLOGE("EnterpriseDeviceMgrProxy:HandleDevicePolicyNew send request fail. %{public}d", res);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    int32_t ret = ERR_INVALID_VALUE;
+    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
     reply.ReadInt32(ret);
+    if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+        ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
     return ret;
 }
 
@@ -684,6 +687,12 @@ bool EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data,
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew send request fail.");
         return false;
     }
+    int32_t ret = ERR_OK;
+    if (reply.ReadInt32(ret) && ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew got SYSTEM_ABNORMALLY, policyCode:%{public}d", policyCode);
+        return false;
+    }
+    reply.RewindRead(0);
     return true;
 }
 
