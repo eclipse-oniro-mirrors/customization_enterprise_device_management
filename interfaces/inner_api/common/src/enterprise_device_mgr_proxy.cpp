@@ -401,8 +401,11 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicyNew(int32_t policyCode, Mess
         EDMLOGE("EnterpriseDeviceMgrProxy:HandleDevicePolicyNew send request fail. %{public}d", res);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    int32_t ret = ERR_INVALID_VALUE;
+    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
     reply.ReadInt32(ret);
+    if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+        ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
     return ret;
 }
 
@@ -657,34 +660,37 @@ bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, Me
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply)
+int32_t EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply)
 {
     if (policyCode == EdmInterfaceCode::PASSWORD_POLICY) {
         if (!IsEdmExtEnabled() && !IsEdmEnabled()) {
-            reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
-            return false;
+            return EdmReturnErrCode::ADMIN_INACTIVE;
         }
     } else if (!IsEdmEnabled()) {
-        reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
-        return false;
+        return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     if (policyCode < 0) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew invalid policyCode:%{public}d", policyCode);
-        return false;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, (std::uint32_t)policyCode);
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
-        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
-        return false;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageOption option;
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetPolicyNew::sendRequest %{public}d", funcCode);
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew send request fail.");
-        return false;
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew send request fail. %{public}d", res);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    return true;
+    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    reply.ReadInt32(ret);
+    if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+        ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ret;
 }
 
 void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::vector<std::string> &enabledAdminList)

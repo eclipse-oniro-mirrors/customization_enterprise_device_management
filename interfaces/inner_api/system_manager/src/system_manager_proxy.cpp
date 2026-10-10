@@ -145,10 +145,8 @@ int32_t SystemManagerProxy::GetAllowedPrinterIPAddresses(MessageParcel &data, st
     EDMLOGD("SystemManagerProxy::GetAllowedPrinterIPAddresses");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew fail. %{public}d", ret);
         return ret;
     }
@@ -171,10 +169,8 @@ int32_t SystemManagerProxy::GetAllowedPrinterIPAddressesForAccount(MessageParcel
     EDMLOGD("SystemManagerProxy::GetAllowedPrinterIPAddressesForAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew fail. %{public}d", ret);
         return ret;
     }

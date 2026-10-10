@@ -141,10 +141,8 @@ int32_t UsbManagerProxy::GetUsbSerialNumber(MessageParcel &data, std::string &re
     EDMLOGD("UsbManagerProxy::GetUsbSerialNumber");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::GET_USB_SERIAL_NUMBER, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::GET_USB_SERIAL_NUMBER, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("UsbManagerProxy:GetUsbSerialNumber fail. %{public}d", ret);
         return ret;
     }
@@ -174,10 +172,8 @@ int32_t UsbManagerProxy::GetAllowedOddBurnUsbDevices(MessageParcel &data, Messag
 {
     EDMLOGI("UsbManagerProxy::GetAllowedOddBurnUsbDevices with reply");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGW("UsbManagerProxy:GetAllowedOddBurnUsbDevices fail. %{public}d", ret);
         return ret;
     }
@@ -205,13 +201,8 @@ bool UsbManagerProxy::IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t
     data.WriteInt32(vendorId);
     data.WriteInt32(productId);
     data.WriteString(serial);
-    if (!proxy->GetPolicyNew(EdmInterfaceCode::IS_ALLOWED_ODD_BURN, data, reply)) {
-        EDMLOGW("UsbManagerProxy:IsAllowedOddBurn GetPolicyNew fail, whitelist not exist");
-        return false;
-    }
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::IS_ALLOWED_ODD_BURN, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGW("UsbManagerProxy:IsAllowedOddBurn GetPolicyNew fail. %{public}d", ret);
         return false;
     }
@@ -235,10 +226,8 @@ int32_t UsbManagerProxy::IsExternalStorageInterceptEnable(MessageParcel &data, b
     EDMLOGI("UsbManagerProxy::IsExternalStorageInterceptEnable");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("UsbManagerProxy:IsExternalStorageInterceptEnable fail. %{public}d", ret);
         return ret;
     }
@@ -261,10 +250,8 @@ int32_t UsbManagerProxy::GetExternalStorageDeviceInfos(MessageParcel &data,
     EDMLOGI("UsbManagerProxy::GetExternalStorageDeviceInfos");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("UsbManagerProxy:GetExternalStorageDeviceInfos fail. %{public}d", ret);
         return ret;
     }
