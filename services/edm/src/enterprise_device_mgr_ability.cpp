@@ -2006,11 +2006,31 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, 
             EDMLOGE("GetDevicePolicy: permission check failed");
             return EdmReturnErrCode::PERMISSION_DENIED;
         }
+        ErrCode permRet = CheckAllQueryPermission(policyName);
+        if (FAILED(permRet)) {
+            return permRet;
+        }
     }
     ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, bundleName, data, reply, userId);
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(bundleName, abilityName, info, true);
     return getRet;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckAllQueryPermission(const std::string &policyName)
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    std::string callerBundle;
+    GetBundleMgr()->GetNameForUid(uid, callerBundle);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
+    std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(callerBundle,
+        GetCurrentUserId());
+    if (deviceAdmin != nullptr &&
+        !deviceAdmin->HasPermissionToHandlePolicy(policyName, FuncOperateType::GET)) {
+        EDMLOGE("GetDevicePolicy: admin does not have permission to get policy ALL");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
