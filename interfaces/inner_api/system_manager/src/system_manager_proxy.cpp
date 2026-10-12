@@ -499,8 +499,8 @@ int32_t SystemManagerProxy::SetLocalHotaDomain(MessageParcel &data)
 {
     EDMLOGD("SystemManagerProxy::SetLocalHotaDomain");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCAL_HOTA_DOMAIN);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCAL_HOTA_DOMAIN);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string &domain)
@@ -508,7 +508,7 @@ int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string 
     EDMLOGD("SystemManagerProxy::GetLocalHotaDomain");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicy(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
+    proxy->GetPolicyNew(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {
