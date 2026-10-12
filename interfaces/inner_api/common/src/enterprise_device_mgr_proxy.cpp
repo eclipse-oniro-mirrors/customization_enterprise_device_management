@@ -522,7 +522,7 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdminInfos(std::vector<std::shared_ptr<AAFw
     }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->GetAdminInfos(wants);
