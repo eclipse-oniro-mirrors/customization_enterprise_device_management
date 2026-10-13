@@ -1346,11 +1346,11 @@ napi_value SystemManagerAddon::SetLocalHotaDomain(napi_env env, napi_callback_in
     EDMLOGI("SetLocalHotaDomain Addon called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetLocalHotaDomain";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.argsType = {EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1375,11 +1375,11 @@ napi_value SystemManagerAddon::GetLocalHotaDomain(napi_env env, napi_callback_in
     EDMLOGI("GetLocalHotaDomain Addon called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetLocalHotaDomain";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
