@@ -532,10 +532,8 @@ int32_t SystemManagerProxy::GetVolumeDegree(MessageParcel &data, int32_t &degree
     EDMLOGD("SystemManagerProxy::GetVolumeDegree");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::VOLUME_DEGREE, data, reply);
-    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::VOLUME_DEGREE, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("SystemManagerProxy::GetVolumeDegree fail. %{public}d", ret);
         return ret;
     }
