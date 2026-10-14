@@ -38,6 +38,7 @@ namespace OverrideInterfaceName {
         const char* const SET_HOME_WALLPAPER = "setHomeWallpaper";
         const char* const SET_UNLOCK_WALLPAPER = "setUnlockWallpaper";
         const char* const SET_SWITCH_STATUS = "setSwitchStatus";
+        const char* const GET_SWITCH_STATUS = "getSwitchStatus";
     } // namespace DeviceSettings
 
     namespace NetworkManager {

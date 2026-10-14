@@ -697,6 +697,207 @@ HWTEST_F(DeviceSettingsProxyTest, TestRemoveHiddenSettingsMenuFail, TestSize.Lev
     int32_t ret = deviceSettingsProxy->RemoveHiddenSettingsMenu(admin, id, hiddenSettingsMenu);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetSwitchStatusFail
+ * @tc.desc: Test GetSwitchStatus func without edm service enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_EQ(status, SwitchStatus::UNKNOWN);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusSendRequestFail
+ * @tc.desc: Test GetSwitchStatus func when SendRequest fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusSendRequestFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_EQ(status, SwitchStatus::UNKNOWN);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusPolicyErr
+ * @tc.desc: Test GetSwitchStatus func when reply returns error code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusPolicyErr, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
+            return 0;
+        }));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_EQ(status, SwitchStatus::UNKNOWN);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusSuc
+ * @tc.desc: Test GetSwitchStatus func when switch status is ON.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeIntSendRequestGetPolicy));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::ON);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusOff
+ * @tc.desc: Test GetSwitchStatus func when switch status is OFF.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusOff, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(static_cast<int32_t>(SwitchStatus::OFF));
+            return 0;
+        }));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::OFF);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusForceOn
+ * @tc.desc: Test GetSwitchStatus func when switch status is FORCE_ON (upper boundary).
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusForceOn, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(static_cast<int32_t>(SwitchStatus::FORCE_ON));
+            return 0;
+        }));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::FORCE_ON);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusUnknown
+ * @tc.desc: Test GetSwitchStatus func when switch status is UNKNOWN (lower boundary).
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusUnknown, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(static_cast<int32_t>(SwitchStatus::UNKNOWN));
+            return 0;
+        }));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::ON;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::UNKNOWN);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusInvalidLower
+ * @tc.desc: Test GetSwitchStatus func when switch status is below UNKNOWN (invalid).
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusInvalidLower, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(static_cast<int32_t>(SwitchStatus::UNKNOWN) - 1);
+            return 0;
+        }));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_EQ(status, SwitchStatus::UNKNOWN);
+}
+
+/**
+ * @tc.name: TestGetSwitchStatusInvalidUpper
+ * @tc.desc: Test GetSwitchStatus func when switch status is above FORCE_ON (invalid).
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusInvalidUpper, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(static_cast<int32_t>(SwitchStatus::FORCE_ON) + 1);
+            return 0;
+        }));
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = deviceSettingsProxy->GetSwitchStatus(data, status);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_EQ(status, SwitchStatus::UNKNOWN);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

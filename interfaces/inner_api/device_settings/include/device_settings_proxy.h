@@ -21,6 +21,7 @@
 #include "power_policy.h"
 #include "setting_item_policy.h"
 #include "settings_menu_policy.h"
+#include "switch_param.h"
 
 namespace OHOS {
 namespace EDM {
@@ -60,6 +61,7 @@ public:
     int32_t RemoveHiddenSettingsMenu(const AppExecFwk::ElementName &admin, int32_t &userId,
         std::vector<int32_t> &hiddenSettingsMenu);
     int32_t SetSwitchStatus(MessageParcel &data);
+    int32_t GetSwitchStatus(MessageParcel &data, SwitchStatus &status);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

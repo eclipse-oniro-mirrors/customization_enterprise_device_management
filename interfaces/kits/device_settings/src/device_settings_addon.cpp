@@ -319,6 +319,7 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addHiddenSettingsMenu", AddHiddenSettingsMenu),
         DECLARE_NAPI_FUNCTION("removeHiddenSettingsMenu", RemoveHiddenSettingsMenu),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::DeviceSettings::SET_SWITCH_STATUS, SetSwitchStatus),
+        DECLARE_NAPI_FUNCTION(OverrideInterfaceName::DeviceSettings::GET_SWITCH_STATUS, GetSwitchStatus),
         DECLARE_NAPI_PROPERTY("SwitchKey", nSwitchKey),
         DECLARE_NAPI_PROPERTY("SwitchStatus", nSwitchStatus),
     };
@@ -883,6 +884,31 @@ napi_value DeviceSettingsAddon::SetSwitchStatus(napi_env env, napi_callback_info
         napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
     }
     return nullptr;
+}
+
+napi_value DeviceSettingsAddon::GetSwitchStatus(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetSwitchStatus called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetSwitchStatus";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetSwitchStatus(
+        adapterAddonData.data, status);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("GetSwitchStatus failed!");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(status), &result));
+    return result;
 }
 
 static napi_value ConvertInt32VectorToJs(napi_env env, const std::vector<int32_t> &int32Vector)

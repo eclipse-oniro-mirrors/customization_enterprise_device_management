@@ -21,6 +21,7 @@
 #include "parameters.h"
 #include "wifi_device.h"
 
+#include "edm_bluetooth_manager_impl.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_json_builder.h"
 #include "external_manager_factory.h"
@@ -121,6 +122,108 @@ ErrCode SetSwitchStatusPlugin::OnSetPolicy(std::vector<SwitchParam> &paramVec, M
     return ret;
 }
 
+ErrCode SetSwitchStatusPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
+{
+    int32_t key = data.ReadInt32();
+    if (key < static_cast<int32_t>(SwitchKey::NEARLINK) || key > static_cast<int32_t>(SwitchKey::NFC)) {
+        EDMLOGW("SetSwitchStatusPlugin::OnGetPolicy switchKey invalid");
+        reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
+    SwitchKey switchKey = static_cast<SwitchKey>(key);
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = ERR_OK;
+    switch (switchKey) {
+        case SwitchKey::BLUETOOTH:
+            ret = OnGetBluetoothStatus(status);
+            break;
+        case SwitchKey::WIFI:
+            ret = OnGetWifiStatus(status);
+            break;
+#ifdef NFC_EDM_ENABLE
+        case SwitchKey::NFC:
+            ret = OnGetNFCStatus(status);
+            break;
+#endif
+        default:
+            ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+            break;
+    }
+
+    reply.WriteInt32(ret);
+    if (ret == ERR_OK) {
+        reply.WriteInt32(static_cast<int32_t>(status));
+    }
+    return ret;
+}
+
+// LCOV_EXCL_START
+ErrCode SetSwitchStatusPlugin::OnGetBluetoothStatus(SwitchStatus &status)
+{
+    if (system::GetBoolParameter(MDM_BLUETOOTH_PROP, false)) {
+        status = SwitchStatus::OFF;
+        return ERR_OK;
+    }
+    if (system::GetBoolParameter(PARAM_FORCE_ENABLE_BLUETOOTH, false)) {
+        status = SwitchStatus::FORCE_ON;
+        return ERR_OK;
+    }
+    int32_t btState = IEdmBluetoothManager::GetInstance()->GetBtState();
+    if (btState == -1) {
+        EDMLOGE("SetSwitchStatusPlugin::OnGetBluetoothStatus get bt state failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    status = (btState == static_cast<int32_t>(EdmBluetoothState::TURN_ON)) ? SwitchStatus::ON : SwitchStatus::OFF;
+    return ERR_OK;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+ErrCode SetSwitchStatusPlugin::OnGetWifiStatus(SwitchStatus &status)
+{
+    if (system::GetBoolParameter(MDM_WIFI_PROP, false)) {
+        status = SwitchStatus::OFF;
+        return ERR_OK;
+    }
+    if (system::GetBoolParameter(PARAM_FORCE_OPEN_WIFI, false)) {
+        status = SwitchStatus::FORCE_ON;
+        return ERR_OK;
+    }
+    std::shared_ptr<Wifi::WifiDevice> devicePtr = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (devicePtr == nullptr) {
+        EDMLOGE("SetSwitchStatusPlugin::OnGetWifiStatus WifiDevice null");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    bool isActive = false;
+    devicePtr->IsWifiActive(isActive);
+    status = isActive ? SwitchStatus::ON : SwitchStatus::OFF;
+    return ERR_OK;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+ErrCode SetSwitchStatusPlugin::OnGetNFCStatus(SwitchStatus &status)
+{
+#ifdef NFC_EDM_ENABLE
+    EDMLOGI("SetSwitchStatusPlugin OnGetNFCStatus in");
+    if (system::GetBoolParameter(PARAM_EDM_NFC_DISABLE, false)) {
+        status = SwitchStatus::OFF;
+        return ERR_OK;
+    }
+    if (system::GetBoolParameter(PARAM_FORCE_ENABLE_NFC, false)) {
+        status = SwitchStatus::FORCE_ON;
+        return ERR_OK;
+    }
+    int32_t nfcState = NFC::KITS::NfcController::GetInstance().GetNfcState();
+    status = (nfcState == static_cast<int32_t>(NFC::KITS::NfcState::STATE_ON)) ? SwitchStatus::ON : SwitchStatus::OFF;
+    return ERR_OK;
+#else
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+// LCOV_EXCL_STOP
+
 // LCOV_EXCL_START
 ErrCode SetSwitchStatusPlugin::OnSetNFCStatus(SwitchStatus status)
 {
@@ -198,18 +301,24 @@ ErrCode SetSwitchStatusPlugin::OnSetWifiStatus(SwitchStatus status)
     }
     if (!system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false")) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetWifiStatus SetParameter fail. ");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::SWITCH_STATUS_FAILED;
     }
     std::shared_ptr<Wifi::WifiDevice> devicePtr = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
     if (devicePtr == nullptr) {
         EDMLOGE("SetSwitchStatusPlugin:OnSetWifiStatus WifiDevice null");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::SWITCH_STATUS_FAILED;
     }
     int32_t ret = Wifi::WIFI_OPT_SUCCESS;
     if (status == SwitchStatus::ON) {
         ret = devicePtr->EnableWifi();
     } else if (status == SwitchStatus::OFF) {
         ret = devicePtr->DisableWifi();
+    } else if (status == SwitchStatus::FORCE_ON) {
+        ret = devicePtr->EnableWifi();
+        if (ret != Wifi::WIFI_OPT_SUCCESS || !system::SetParameter(PARAM_FORCE_OPEN_WIFI, "true")) {
+            EDMLOGE("SetSwitchStatusPlugin:OnSetWifiStatus SetParameter fail or send request fail. %{public}d", ret);
+            return EdmReturnErrCode::SWITCH_STATUS_FAILED;
+        }
     } else {
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
