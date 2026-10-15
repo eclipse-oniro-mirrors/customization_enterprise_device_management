@@ -126,6 +126,10 @@ const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 
 const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
+const std::string PARAM_QUICKACCESS_FUNCTION_TYPE = "const.quickaccess.function_type";
+const std::string PARAM_SUPERPRIVACY_FEATUREENABLED = "const.appsecurityprivacy.superprivacy.feature_enabled";
+const std::string DEFAULT_QUICKACCESS_FUNCTION_TYPE = "0";
+const std::string DEFAULT_SUPERPRIVACY_FEATUREENABLED = "0";
 
 const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
 #if defined(FEATURE_PC_ONLY)
@@ -133,6 +137,14 @@ const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
     static_cast<int32_t>(ManagedFeature::USER_EXTEND_CREDENTIAL),
     static_cast<int32_t>(ManagedFeature::DEVICE_SECURITY_LEVEL),
     static_cast<int32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY),
+    static_cast<int32_t>(ManagedFeature::OPTICAL_DISC_DRIVE_BURN),
+    static_cast<int32_t>(ManagedFeature::X_KEY),
+#else
+    static_cast<int32_t>(ManagedFeature::EXACT_TIMER),
+    static_cast<int32_t>(ManagedFeature::EXEMPTION_RESOURCE),
+    static_cast<int32_t>(ManagedFeature::X_KEY),
+    static_cast<int32_t>(ManagedFeature::SYSTEM_ROLLBACK),
+    static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY),
 #endif
 };
 
@@ -1596,6 +1608,18 @@ ErrCode EnterpriseDeviceMgrAbility::IsFeatureSupported(int32_t feature, bool &su
     EDMLOGI("EnterpriseDeviceMgrAbility::IsFeatureSupported feature %{public}d", feature);
     supported = std::find(FEATURE_SUPPORTED_LIST.begin(), FEATURE_SUPPORTED_LIST.end(), feature)
         != FEATURE_SUPPORTED_LIST.end();
+    if (!supported) {
+        return false;
+    }
+    if (feature == static_cast<int32_t>(ManagedFeature::X_KEY)) {
+        std::string deviceType = system::GetParameter(PARAM_QUICKACCESS_FUNCTION_TYPE,
+            DEFAULT_QUICKACCESS_FUNCTION_TYPE);
+        supported = (deviceType != DEFAULT_QUICKACCESS_FUNCTION_TYPE);
+    } else if (feature == static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY)) {
+        std::string deviceType = system::GetParameter(PARAM_SUPERPRIVACY_FEATUREENABLED,
+            DEFAULT_QUICKACCESS_FUNCTION_TYPE);
+        supported = (deviceType != DEFAULT_SUPERPRIVACY_FEATUREENABLED);
+    }
     return ERR_OK;
 }
 
