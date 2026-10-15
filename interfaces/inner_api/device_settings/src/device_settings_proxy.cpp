@@ -405,5 +405,25 @@ int32_t DeviceSettingsProxy::SetSwitchStatus(MessageParcel &data)
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::SET_SWITCH_STATUS);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
 }
+
+int32_t DeviceSettingsProxy::GetSwitchStatus(MessageParcel &data, SwitchStatus &status)
+{
+    EDMLOGD("DeviceSettingsProxy::GetSwitchStatus");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::SET_SWITCH_STATUS, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("DeviceSettingsProxy::GetSwitchStatus fail. %{public}d", ret);
+        return ret;
+    }
+    int32_t switchStatus = reply.ReadInt32();
+    if (switchStatus < static_cast<int32_t>(SwitchStatus::UNKNOWN) ||
+        switchStatus > static_cast<int32_t>(SwitchStatus::FORCE_ON)) {
+        EDMLOGE("DeviceSettingsProxy::GetSwitchStatus fail. switchStatus invalid");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    status = static_cast<SwitchStatus>(switchStatus);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS
