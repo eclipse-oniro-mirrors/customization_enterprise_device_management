@@ -851,5 +851,29 @@ int32_t ApplicationManagerProxy::RemoveAllNotifications(MessageParcel &data)
         EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
+
+int32_t ApplicationManagerProxy::AddOrRemoveOptimizationBatteryExclusionApps(MessageParcel &data,
+    FuncOperateType operateType)
+{
+    EDMLOGD("ApplicationManagerProxy::AddOrRemoveOptimizationBatteryExclusionApps");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(operateType),
+        EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(MessageParcel &data,
+    std::vector<std::string> &apps)
+{
+    EDMLOGD("ApplicationManagerProxy::GetOptimizationBatteryExclusionApps");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadStringVector(&apps);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

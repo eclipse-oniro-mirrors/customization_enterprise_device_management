@@ -51,6 +51,7 @@ ohos_shared_library("edmservice_kits") {
     "./account_manager/src/account_manager_proxy.cpp",
     "./application_manager/src/allowed_notification_bundles_serializer.cpp",
     "./application_manager/src/application_manager_proxy.cpp",
+    "./application_manager/src/battery_optimization_util.cpp",
     "./application_manager/src/application_instance.cpp",
     "./application_manager/src/manage_apps_serializer.cpp",
     "./application_manager/src/manage_auto_start_app_info.cpp",

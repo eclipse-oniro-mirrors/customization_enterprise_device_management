@@ -137,6 +137,9 @@ std::vector<napi_property_descriptor> ApplicationManagerAddon::InitOne()
         DECLARE_NAPI_FUNCTION("addAllowedDistributeAbilityConnBundles", AddAllowedDistributeAbilityConnBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedDistributeAbilityConnBundles", RemoveAllowedDistributeAbilityConnBundles),
         DECLARE_NAPI_FUNCTION("getAllowedDistributeAbilityConnBundles", GetAllowedDistributeAbilityConnBundles),
+        DECLARE_NAPI_FUNCTION("addOptimizationBatteryExclusionApps", AddOptimizationBatteryExclusionApps),
+        DECLARE_NAPI_FUNCTION("removeOptimizationBatteryExclusionApps", RemoveOptimizationBatteryExclusionApps),
+        DECLARE_NAPI_FUNCTION("getOptimizationBatteryExclusionApps", GetOptimizationBatteryExclusionApps),
     };
     return property;
 }
@@ -2028,6 +2031,89 @@ napi_value ApplicationManagerAddon::RemoveAllNotifications(napi_env env, napi_ca
         EDMLOGE("ApplicationManagerAddon::RemoveAllNotifications failed!");
     }
     return nullptr;
+}
+
+napi_value ApplicationManagerAddon::AddOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddOptimizationBatteryExclusionApps called");
+    return AddOrRemoveOptimizationBatteryExclusionApps(env, info, FuncOperateType::SET);
+}
+
+napi_value ApplicationManagerAddon::RemoveOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveOptimizationBatteryExclusionApps called");
+    return AddOrRemoveOptimizationBatteryExclusionApps(env, info, FuncOperateType::REMOVE);
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveOptimizationBatteryExclusionApps(napi_env env,
+    napi_callback_info info, FuncOperateType operateType)
+{
+    EDMLOGI("NAPI_AddOrRemoveOptimizationBatteryExclusionApps called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "parameter count error", ErrcodeType::NUMBER);
+    std::vector<std::string> appIdentifiers;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseStringArray(env, appIdentifiers, argv[ARR_INDEX_ZERO]),
+        "Parameter appIdentifiers error", ErrcodeType::NUMBER);
+    int32_t accountId = EdmConstants::DEFAULT_USER_ID;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "Parameter accountId error", ErrcodeType::NUMBER);
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(accountId);
+    parcelData.WriteStringVector(appIdentifiers);
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    int32_t ret = applicationManagerProxy->AddOrRemoveOptimizationBatteryExclusionApps(parcelData, operateType);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("AddOrRemoveOptimizationBatteryExclusionApps failed!");
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetOptimizationBatteryExclusionApps called");
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "parameter count error", ErrcodeType::NUMBER);
+    int32_t accountId = EdmConstants::DEFAULT_USER_ID;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ZERO]),
+        "Parameter accountId error", ErrcodeType::NUMBER);
+    int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
+    if (argc >= ARGS_SIZE_TWO) {
+        int32_t parsedValue = 0;
+        if (ParseInt(env, parsedValue, argv[ARR_INDEX_ONE]) &&
+            (parsedValue == static_cast<int32_t>(QueryPolicy::SELF) ||
+             parsedValue == static_cast<int32_t>(QueryPolicy::ALL))) {
+            queryPolicy = parsedValue;
+        }
+    }
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(accountId);
+    parcelData.WriteInt32(queryPolicy);
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::vector<std::string> apps;
+    int32_t ret = applicationManagerProxy->GetOptimizationBatteryExclusionApps(parcelData, apps);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value appList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, apps.size(), &appList));
+    for (size_t i = 0; i < apps.size(); i++) {
+        napi_value item;
+        NAPI_CALL(env, napi_create_string_utf8(env, apps[i].c_str(), NAPI_AUTO_LENGTH, &item));
+        NAPI_CALL(env, napi_set_element(env, appList, i, item));
+    }
+    return appList;
 }
 
 static napi_module g_applicationManagerModule = {

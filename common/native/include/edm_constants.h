@@ -57,6 +57,7 @@ namespace EdmConstants {
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
     constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
     constexpr int32_t ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE = 100;
+    constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 200;
 
     constexpr int32_t EDM_UID = 3057;
 
@@ -615,6 +616,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
     const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
     const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
+    const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

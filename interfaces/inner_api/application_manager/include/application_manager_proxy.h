@@ -102,6 +102,8 @@ public:
     int32_t PublishFormToDesktop(MessageParcel &data, std::string &formId);
     int32_t ExemptionResource(MessageParcel &data, FuncOperateType operateType);
     int32_t RemoveAllNotifications(MessageParcel &data);
+    int32_t AddOrRemoveOptimizationBatteryExclusionApps(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetOptimizationBatteryExclusionApps(MessageParcel &data, std::vector<std::string> &apps);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

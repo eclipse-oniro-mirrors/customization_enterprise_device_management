@@ -149,6 +149,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+    EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY,
     EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
 };
