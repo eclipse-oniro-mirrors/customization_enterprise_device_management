@@ -508,10 +508,8 @@ int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string 
     EDMLOGD("SystemManagerProxy::GetLocalHotaDomain");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
+    if (FAILED(ret)) {
         EDMLOGE("SystemManagerProxy::GetLocalHotaDomain fail. %{public}d", ret);
         return ret;
     }
