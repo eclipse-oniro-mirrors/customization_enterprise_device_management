@@ -390,6 +390,11 @@ ohos_unittest("EdmPluginTest") {
     sources += [ "./src/security_manager/unlock_policy_plugin_test.cpp" ]
   }
 
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [ "./src/security_manager/password_last_changed_time_plugin_test.cpp" ]
+  }
+
   if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [
       "os_account:account_iam_innerkits",
@@ -1046,6 +1051,13 @@ ohos_static_library("edm_all_plugin_static") {
   if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
     sources += [ "../../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp" ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/security_manager/password_last_changed_time_plugin.cpp",
+    ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {

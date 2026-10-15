@@ -98,6 +98,7 @@ private:
     static napi_value AddUserExtCredential(napi_env env, napi_callback_info info);
     static napi_value RemoveUserExtCredential(napi_env env, napi_callback_info info);
     static napi_value GetUserExtCredential(napi_env env, napi_callback_info info);
+    static napi_value GetPasswordLastChangedTime(napi_env env, napi_callback_info info);
     static napi_value SetUnlockPolicy(napi_env env, napi_callback_info info);
     static napi_value GetUnlockPolicy(napi_env env, napi_callback_info info);
     static void CreateUnlockPolicyObject(napi_env env, napi_value value);

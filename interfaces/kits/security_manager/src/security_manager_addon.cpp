@@ -97,6 +97,7 @@ std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value n
         DECLARE_NAPI_FUNCTION("addUserExtendCredential", AddUserExtCredential),
         DECLARE_NAPI_FUNCTION("removeUserExtendCredential", RemoveUserExtCredential),
         DECLARE_NAPI_FUNCTION("getUserExtendCredential", GetUserExtCredential),
+        DECLARE_NAPI_FUNCTION("getPasswordLastChangedTime", GetPasswordLastChangedTime),
         DECLARE_NAPI_FUNCTION("setUnlockPolicy", SetUnlockPolicy),
         DECLARE_NAPI_FUNCTION("getUnlockPolicy", GetUnlockPolicy),
         DECLARE_NAPI_PROPERTY("UnlockPolicy", nUnlockPolicy),
@@ -1788,6 +1789,30 @@ napi_value SecurityManagerAddon::GetUnlockPolicy(napi_env env, napi_callback_inf
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_int32(env, policy, &result));
+    return result;
+}
+
+napi_value SecurityManagerAddon::GetPasswordLastChangedTime(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetPasswordLastChangedTime called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetPasswordLastChangedTime";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    uint64_t latestTime = 0;
+    int32_t ret = SecurityManagerProxy::GetSecurityManagerProxy()->GetPasswordLastChangedTime(
+        adapterAddonData.data, latestTime);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_int64(env, static_cast<int64_t>(latestTime), &result));
     return result;
 }
 

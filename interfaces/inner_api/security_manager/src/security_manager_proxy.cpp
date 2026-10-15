@@ -576,6 +576,20 @@ int32_t SecurityManagerProxy::GetUserExtCredential(MessageParcel &data, MessageP
     return ERR_OK;
 }
 
+int32_t SecurityManagerProxy::GetPasswordLastChangedTime(MessageParcel &data, uint64_t &latestTime)
+{
+    EDMLOGI("SecurityManagerProxy::GetPasswordLastChangedTime");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::PASSWORD_LAST_CHANGED_TIME, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetPasswordLastChangedTime fail. %{public}d", ret);
+        return ret;
+    }
+    latestTime = reply.ReadUint64();
+    return ERR_OK;
+}
+
 int32_t SecurityManagerProxy::SetUnlockPolicy(MessageParcel &data)
 {
     EDMLOGI("SecurityManagerProxy::SetUnlockPolicy");

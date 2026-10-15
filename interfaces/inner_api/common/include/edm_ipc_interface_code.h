@@ -240,6 +240,7 @@ enum EdmInterfaceCode : uint32_t {
     IS_ALLOWED_ODD_BURN = 1188,
     VOLUME_DEGREE = 1189,
     DEFAULT_APPLICATION = 1190,
+    PASSWORD_LAST_CHANGED_TIME = 1191,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
