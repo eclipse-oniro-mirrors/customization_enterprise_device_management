@@ -2695,6 +2695,16 @@ ErrCode EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo(
         "vendorId=%{public}d productId=%{public}d serial=%{public}s",
         deviceInfo.type, deviceInfo.devicePath.c_str(), deviceInfo.volumeId.c_str(),
         deviceInfo.mountStatus, deviceInfo.vendorId, deviceInfo.productId, deviceInfo.serial.c_str());
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        EDMLOGE("NotifyUnmountExternalStorageDeviceInfo: caller token is not native, permission denied");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (IPCSkeleton::GetCallingUid() != EdmConstants::DISK_MANAGER_UID) {
+        EDMLOGE("NotifyUnmountExternalStorageDeviceInfo: caller uid not disk_manager, permission denied");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     EdmEventData edmData;
     edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE)};
     edmData.externalStorageDeviceInfo = deviceInfo;
