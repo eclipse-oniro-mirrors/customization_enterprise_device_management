@@ -49,6 +49,8 @@ public:
     int32_t InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps, std::string &errMsg);
     int32_t GetInstalledBundleStorageStatsList(AppExecFwk::ElementName &admin, const std::vector<std::string> &bundles,
         int32_t userId, std::vector<BundleStorageInfo> &result);
+    int32_t SetDefaultApplication(MessageParcel &data);
+    int32_t GetDefaultApplicationBundleName(MessageParcel &data, std::string &bundleName);
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;

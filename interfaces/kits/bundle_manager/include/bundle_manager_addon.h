@@ -103,6 +103,8 @@ public:
     static napi_value GetInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info);
     static napi_value InstallMarketApps(napi_env env, napi_callback_info info);
     static napi_value GetInstalledBundleStorageStats(napi_env env, napi_callback_info info);
+    static napi_value SetDefaultApplication(napi_env env, napi_callback_info info);
+    static napi_value GetDefaultApplicationBundleName(napi_env env, napi_callback_info info);
 
 private:
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
@@ -129,6 +131,7 @@ private:
         AsyncUninstallCallbackInfo *asyncCallbackInfo);
     static void CreateAppDistributionTypeObject(napi_env env, napi_value value);
     static void CreateBundleInfoGetFlagObject(napi_env env, napi_value value);
+    static void CreateDefaultApplicationTypeObject(napi_env env, napi_value value);
     static void NativeGetInstalledBundleStorageStats(napi_env env, void *data);
     static void NativeGetInstalledBundleStorageStatsComplete(napi_env env, napi_status status, void *data);
     static void ConvertBundleStorageStatsToJs(napi_env env, const std::vector<BundleStorageInfo> &bundleStorageStats,

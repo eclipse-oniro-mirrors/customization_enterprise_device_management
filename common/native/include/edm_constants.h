@@ -594,6 +594,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
     const char* const POLICY_VOLUME_DEGREE = "volume_degree";
+    const char* const POLICY_DEFAULT_APPLICATION = "default_application";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

@@ -239,6 +239,7 @@ enum EdmInterfaceCode : uint32_t {
     GET_EXTERNAL_STORAGE_DEVICE_INFOS = 1187,
     IS_ALLOWED_ODD_BURN = 1188,
     VOLUME_DEGREE = 1189,
+    DEFAULT_APPLICATION = 1190,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
