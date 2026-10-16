@@ -100,6 +100,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     defines += [
       "OS_ACCOUNT_EDM_ENABLE",
       "NETMANAGER_BASE_EDM_ENABLE",
+      "NETMANAGER_EXT_EDM_ENABLE",
     ]
   }
 

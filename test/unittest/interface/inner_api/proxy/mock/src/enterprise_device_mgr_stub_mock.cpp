@@ -29,6 +29,7 @@
 #include "net_stats_utils.h"
 #include "odd_burn_usb_device.h"
 #include "os_account_info.h"
+#include "shared_path_info.h"
 #include "update_policy_utils.h"
 #include "usb_device_id.h"
 #include "usb_interface_type.h"
@@ -44,6 +45,7 @@ const int32_t PROTOCOL = 2;
 const int32_t TEST_BUNDLE_SIZE = 3;
 const int32_t TEST_APP_SIZE = 1024;
 const int32_t TEST_DATA_SIZE = 2048;
+const int32_t TEST_SHARE_LIMIT = 5;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
@@ -726,6 +728,48 @@ int EnterpriseDeviceMgrStubMock::InvokeExternalStorageDeviceInfosSendRequestGetP
     std::for_each(deviceInfos.begin(), deviceInfos.end(), [&](const auto deviceInfo) {
         deviceInfo.Marshalling(reply);
     });
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSharedPathListSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    PathSharedData sharedData;
+    sharedData.shareName = "share_test";
+    sharedData.shareUri = "file:///data/service/share_test";
+    sharedData.shareLimit = TEST_SHARE_LIMIT;
+    UserPathInfo user1;
+    user1.userName = "user1";
+    user1.userPermission = "readonly";
+    UserPathInfo user2;
+    user2.userName = "user2";
+    user2.userPermission = "readwrite";
+    sharedData.userPathInfoList = {user1, user2};
+    reply.WriteUint32(1);
+    sharedData.Marshalling(reply);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyFail(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSharedPathListSendRequestGetPolicyFail code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_PROXY_SENDREQUEST_FAIL);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyOverLimit(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSharedPathListSendRequestGetPolicyOverLimit code :"
+                     << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(SHARED_PATH_MAX_COUNT + 1);
     return 0;
 }
 } // namespace EDM

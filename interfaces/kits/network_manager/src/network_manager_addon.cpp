@@ -204,6 +204,7 @@ std::vector<napi_property_descriptor> NetworkManagerAddon::InitOne()
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::NetworkManager::SET_PREFERRED_APN, SetPreferApn),
         DECLARE_NAPI_FUNCTION("queryApn", QueryApn),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::NetworkManager::SET_ETHERNET_CONFIG, SetEthernetConfig),
+        DECLARE_NAPI_FUNCTION("getSharedList", GetSharedPathList),
     };
 
     return property;
@@ -1952,6 +1953,69 @@ napi_value NetworkManagerAddon::SetEthernetConfig(napi_env env, napi_callback_in
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
     return nullptr;
 #endif
+}
+
+napi_value NetworkManagerAddon::GetSharedPathList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NetworkManagerAddon::GetSharedPathList called");
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
+    if (networkManagerProxy == nullptr) {
+        EDMLOGE("can not get networkManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    std::vector<PathSharedData> result;
+    int32_t ret = networkManagerProxy->GetSharedPathList(result);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    return ConvertSharedPathListToJS(env, result);
+#else
+    EDMLOGI("NetworkManagerAddon::GetSharedPathList not supported on this build");
+    return ConvertSharedPathListToJS(env, {});
+#endif
+}
+
+napi_value NetworkManagerAddon::ConvertSharedPathListToJS(
+    napi_env env, const std::vector<PathSharedData> &result)
+{
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, result.size(), &jsList));
+    for (size_t i = 0; i < result.size(); ++i) {
+        napi_value entry = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &entry));
+        napi_value shareNameNapi = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, result[i].shareName.c_str(), NAPI_AUTO_LENGTH,
+            &shareNameNapi));
+        NAPI_CALL(env, napi_set_named_property(env, entry, "shareName", shareNameNapi));
+        napi_value shareUriNapi = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, result[i].shareUri.c_str(), NAPI_AUTO_LENGTH,
+            &shareUriNapi));
+        NAPI_CALL(env, napi_set_named_property(env, entry, "shareUri", shareUriNapi));
+        napi_value userArray = nullptr;
+        NAPI_CALL(env, napi_create_array_with_length(env, result[i].userPathInfoList.size(), &userArray));
+        for (size_t j = 0; j < result[i].userPathInfoList.size(); ++j) {
+            napi_value u = nullptr;
+            NAPI_CALL(env, napi_create_object(env, &u));
+            napi_value userNameNapi = nullptr;
+            NAPI_CALL(env, napi_create_string_utf8(env,
+                result[i].userPathInfoList[j].userName.c_str(), NAPI_AUTO_LENGTH, &userNameNapi));
+            NAPI_CALL(env, napi_set_named_property(env, u, "userName", userNameNapi));
+            napi_value userPermNapi = nullptr;
+            NAPI_CALL(env, napi_create_string_utf8(env,
+                result[i].userPathInfoList[j].userPermission.c_str(), NAPI_AUTO_LENGTH, &userPermNapi));
+            NAPI_CALL(env, napi_set_named_property(env, u, "userPermission", userPermNapi));
+            NAPI_CALL(env, napi_set_element(env, userArray, j, u));
+        }
+        NAPI_CALL(env, napi_set_named_property(env, entry, "userPathInfoList", userArray));
+        napi_value shareLimitNapi = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, result[i].shareLimit, &shareLimitNapi));
+        NAPI_CALL(env, napi_set_named_property(env, entry, "shareLimit", shareLimitNapi));
+        NAPI_CALL(env, napi_set_element(env, jsList, i, entry));
+    }
+    return jsList;
 }
 
 static napi_module g_networkManagerModule = {

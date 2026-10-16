@@ -47,6 +47,10 @@ ohos_shared_library("networkmanager") {
     defines += [ "NETMANAGER_BASE_EDM_ENABLE" ]
   }
 
+  if (netmanager_ext_edm_enable) {
+    defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
+  }
+
   if (enterprise_device_management_feature_pc_only) {
     defines += [ "FEATURE_PC_ONLY" ]
   }
