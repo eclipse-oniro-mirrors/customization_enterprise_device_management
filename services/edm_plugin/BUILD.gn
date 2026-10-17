@@ -679,6 +679,7 @@ ohos_shared_library("sys_service_plugin") {
       sources += [
         "./src/restrictions/fingerprint_auth_plugin.cpp",
         "./src/security_manager/password_policy_plugin.cpp",
+        "./src/security_manager/password_last_changed_time_plugin.cpp",
       ]
     }
 

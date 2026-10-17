@@ -596,6 +596,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
     const char* const POLICY_VOLUME_DEGREE = "volume_degree";
     const char* const POLICY_DEFAULT_APPLICATION = "default_application";
+    const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

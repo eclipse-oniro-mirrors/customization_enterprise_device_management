@@ -871,6 +871,57 @@ HWTEST_F(SecurityManagerProxyTest, TestGetUserExtCredentialFail, TestSize.Level1
 }
 
 /**
+ * @tc.name: TestGetPasswordLastChangedTimeSuc
+ * @tc.desc: Test GetPasswordLastChangedTime success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetPasswordLastChangedTimeSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(ACCOUTID_VALID_VALUE);
+    uint64_t latestTime = 0;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordLastChangedTime));
+    int32_t ret = proxy_->GetPasswordLastChangedTime(data, latestTime);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(latestTime, PASSWORD_LAST_CHANGED_TIME_VALUE);
+}
+
+/**
+ * @tc.name: TestGetPasswordLastChangedTimeFail
+ * @tc.desc: Test GetPasswordLastChangedTime without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetPasswordLastChangedTimeFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(ACCOUTID_VALID_VALUE);
+    uint64_t latestTime = 0;
+    int32_t ret = proxy_->GetPasswordLastChangedTime(data, latestTime);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetPasswordLastChangedTimeFail_01
+ * @tc.desc: Test GetPasswordLastChangedTime returns the error code replied by the policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetPasswordLastChangedTimeFail_01, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(ACCOUTID_VALID_VALUE);
+    uint64_t latestTime = 0;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
+    int32_t ret = proxy_->GetPasswordLastChangedTime(data, latestTime);
+    ASSERT_EQ(ret, ERR_PROXY_SENDREQUEST_FAIL);
+}
+
+/**
  * @tc.name: TestSetUnlockPolicySuc
  * @tc.desc: Test SetUnlockPolicy success func.
  * @tc.type: FUNC
