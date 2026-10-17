@@ -86,6 +86,7 @@ const std::string PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION =
 const std::string PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS = "ohos.permission.GET_LOCAL_ACCOUNT_IDENTIFIERS";
 const std::string PERMISSION_AGENT_REQUIRE_FORM = "ohos.permission.AGENT_REQUIRE_FORM";
 const std::string PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
+const std::string PERMISSION_MANAGE_AUDIO_CONFIG = "ohos.permission.MANAGE_AUDIO_CONFIG";
 
 void Utils::ExecCmdSync(const std::string &cmd)
 {
@@ -183,7 +184,8 @@ void Utils::SetEdmPermissions()
         PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION.c_str(),
         PERMISSION_GET_LOCAL_ACCOUNT_IDENTIFIERS.c_str(),
         PERMISSION_AGENT_REQUIRE_FORM.c_str(),
-        PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS.c_str()
+        PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS.c_str(),
+        PERMISSION_MANAGE_AUDIO_CONFIG.c_str()
     };
     Utils::SetNativeTokenTypeAndPermissions(permissions, sizeof(permissions) / sizeof(permissions[0]));
 }

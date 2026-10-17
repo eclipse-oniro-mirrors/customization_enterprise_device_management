@@ -456,6 +456,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/restrictions/disable_hdc_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_microphone_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_printer_plugin.cpp",
+        "../../../services/edm_plugin/src/system_manager/volume_degree_plugin.cpp",
       ]
       defines += [ "AUDIO_FRAMEWORK_EDM_ENABLE" ]
     }

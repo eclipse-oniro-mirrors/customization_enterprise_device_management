@@ -523,6 +523,30 @@ int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string 
     return ERR_OK;
 }
 
+int32_t SystemManagerProxy::SetVolumeDegree(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetVolumeDegree");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::VOLUME_DEGREE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetVolumeDegree(MessageParcel &data, int32_t &degree)
+{
+    EDMLOGD("SystemManagerProxy::GetVolumeDegree");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    proxy->GetPolicyNew(EdmInterfaceCode::VOLUME_DEGREE, data, reply);
+    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("SystemManagerProxy::GetVolumeDegree fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadInt32(degree);
+    return ERR_OK;
+}
+
 #ifndef FEATURE_PC_ONLY
 sptr<EdmClientTimerCallback> SystemManagerProxy::GetClientTimerCallback()
 {

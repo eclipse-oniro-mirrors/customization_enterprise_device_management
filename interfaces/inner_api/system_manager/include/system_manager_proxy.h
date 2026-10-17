@@ -82,6 +82,8 @@ public:
 #endif
     int32_t SetLocalHotaDomain(MessageParcel &data);
     int32_t GetLocalHotaDomain(MessageParcel &data, std::string &domain);
+    int32_t SetVolumeDegree(MessageParcel &data);
+    int32_t GetVolumeDegree(MessageParcel &data, int32_t &degree);
 private:
 #ifndef FEATURE_PC_ONLY
     void EnsureEdmSaDeathRecipient();

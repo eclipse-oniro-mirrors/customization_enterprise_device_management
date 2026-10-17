@@ -19,7 +19,6 @@
 #include "edm_log.h"
 #include "iptables_utils.h"
 #include "napi_edm_common.h"
-#include "call_log_info.h"
 
 using namespace OHOS::EDM;
 constexpr int32_t STRING_MAX_LEN = 100;
@@ -489,6 +488,48 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
 #endif
 }
 
+static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQueryConfig &config)
+{
+    napi_value startTimeValue = nullptr;
+    napi_get_named_property(env, argv, "startTime", &startTimeValue);
+    napi_valuetype startTimeType = napi_undefined;
+    napi_typeof(env, startTimeValue, &startTimeType);
+    if (startTimeType != napi_number) {
+        return false;
+    }
+    napi_get_value_int64(env, startTimeValue, &config.startTime);
+    napi_value endTimeValue = nullptr;
+    napi_get_named_property(env, argv, "endTime", &endTimeValue);
+    napi_valuetype endTimeType = napi_undefined;
+    napi_typeof(env, endTimeValue, &endTimeType);
+    if (endTimeType != napi_number) {
+        return false;
+    }
+    napi_get_value_int64(env, endTimeValue, &config.endTime);
+    bool hasTelephoneNumber = false;
+    napi_has_named_property(env, argv, "telephoneNumber", &hasTelephoneNumber);
+    config.hasTelephoneNumber = hasTelephoneNumber;
+    if (!hasTelephoneNumber) {
+        return true;
+    }
+    napi_value telValue = nullptr;
+    napi_get_named_property(env, argv, "telephoneNumber", &telValue);
+    napi_valuetype telType = napi_undefined;
+    napi_typeof(env, telValue, &telType);
+    if (telType == napi_string) {
+        size_t len = 0;
+        napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
+        if (len == 0) {
+            return false;
+        }
+        config.telephoneNumber.resize(len);
+        napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
+    } else if (telType != napi_undefined) {
+        return false;
+    }
+    return true;
+}
+
 napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetCallLogs called");
@@ -515,52 +556,10 @@ napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info i
         napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
         return nullptr;
     }
-    if (!MatchValueType(env, argv[ARR_INDEX_ONE], napi_object)) {
+    if (!MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) ||
+        !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->queryConfig)) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
         return nullptr;
-    }
-    napi_value startTimeValue = nullptr;
-    napi_get_named_property(env, argv[ARR_INDEX_ONE], "startTime", &startTimeValue);
-    napi_valuetype startTimeType = napi_undefined;
-    napi_typeof(env, startTimeValue, &startTimeType);
-    if (startTimeType != napi_number) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
-    }
-    napi_get_value_int64(env, startTimeValue, &asyncCallbackInfo->queryConfig.startTime);
-    napi_value endTimeValue = nullptr;
-    napi_get_named_property(env, argv[ARR_INDEX_ONE], "endTime", &endTimeValue);
-    napi_valuetype endTimeType = napi_undefined;
-    napi_typeof(env, endTimeValue, &endTimeType);
-    if (endTimeType != napi_number) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
-    }
-    napi_get_value_int64(env, endTimeValue, &asyncCallbackInfo->queryConfig.endTime);
-    bool hasTelephoneNumber = false;
-    napi_has_named_property(env, argv[ARR_INDEX_ONE], "telephoneNumber", &hasTelephoneNumber);
-    asyncCallbackInfo->queryConfig.hasTelephoneNumber = hasTelephoneNumber;
-    if (hasTelephoneNumber) {
-        napi_value telValue = nullptr;
-        napi_get_named_property(env, argv[ARR_INDEX_ONE], "telephoneNumber", &telValue);
-        napi_valuetype telType = napi_undefined;
-        napi_typeof(env, telValue, &telType);
-        if (telType == napi_string) {
-            size_t len = 0;
-            napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
-            if (len == 0) {
-                napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
-                    ErrcodeType::NUMBER));
-                return nullptr;
-            }
-            asyncCallbackInfo->queryConfig.telephoneNumber.resize(len);
-            napi_get_value_string_utf8(env, telValue, asyncCallbackInfo->queryConfig.telephoneNumber.data(),
-                len + 1, &len);
-        } else if (telType != napi_undefined) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
-                ErrcodeType::NUMBER));
-            return nullptr;
-        }
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetCallLogs",
         NativeGetCallLogs, NativeGetCallLogsComplete);

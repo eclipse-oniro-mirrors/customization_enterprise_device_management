@@ -15,6 +15,8 @@
 
 #include "get_call_logs_plugin.h"
 
+#include <mutex>
+
 #include "ashmem.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -23,11 +25,10 @@
 #include "func_code.h"
 #include "iplugin_manager.h"
 #include "int_serializer.h"
-#include <mutex>
 #ifdef TELEPHONY_EDM_ENABLE
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
-#include "datashare_values_bucket.h"
+#include "datashare_result_set.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "uri.h"
@@ -36,18 +37,6 @@
 namespace OHOS {
 namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(GetCallLogsPlugin::GetPlugin());
-
-constexpr const char *CALL_LOG_URI = "datashare:///com.ohos.calllogability/calls/calllog";
-constexpr const char *CALL_LOG_COLUMN_ID = "id";
-constexpr const char *CALL_LOG_COLUMN_PHONE_NUMBER = "phone_number";
-constexpr const char *CALL_LOG_COLUMN_BEGIN_TIME = "begin_time";
-constexpr const char *CALL_LOG_COLUMN_END_TIME = "end_time";
-constexpr const char *CALL_LOG_COLUMN_CALL_DIRECTION = "call_direction";
-constexpr const char *CALL_LOG_COLUMN_SLOT_ID = "slot_id";
-constexpr int32_t CALL_DIRECTION_IN = 0;
-constexpr size_t MAX_CALL_LOG_COUNT = 10000;
-constexpr int64_t MAX_TIME_RANGE_MILLIS = 31LL * 24 * 60 * 60 * 1000;
-constexpr const char *CALL_LOG_ASHMEM_NAME = "edm_call_logs_";
 
 void GetCallLogsPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetCallLogsPlugin, int32_t>> ptr)
 {
@@ -58,6 +47,27 @@ void GetCallLogsPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<GetCallLogsPl
 }
 
 #ifdef TELEPHONY_EDM_ENABLE
+constexpr const char *CALL_LOG_URI = "datashare:///com.ohos.calllogability/calls/calllog";
+constexpr const char *CALL_LOG_COLUMN_ID = "id";
+constexpr const char *CALL_LOG_COLUMN_PHONE_NUMBER = "phone_number";
+constexpr const char *CALL_LOG_COLUMN_BEGIN_TIME = "begin_time";
+constexpr const char *CALL_LOG_COLUMN_END_TIME = "end_time";
+constexpr const char *CALL_LOG_COLUMN_CALL_DIRECTION = "call_direction";
+constexpr const char *CALL_LOG_COLUMN_SLOT_ID = "slot_id";
+constexpr int32_t COLUMN_INDEX_PHONE_NUMBER = 1;
+constexpr int32_t COLUMN_INDEX_BEGIN_TIME = 2;
+constexpr int32_t COLUMN_INDEX_END_TIME = 3;
+constexpr int32_t COLUMN_INDEX_CALL_DIRECTION = 4;
+constexpr int32_t COLUMN_INDEX_SLOT_ID = 5;
+constexpr int32_t CALL_DIRECTION_IN = 0;
+constexpr int32_t ROW_FETCH_SUCCESS = 0;
+constexpr size_t MAX_CALL_LOG_COUNT = 10000;
+constexpr int64_t ONE_DAY_MILLIS = 24LL * 60 * 60 * 1000;
+constexpr int64_t MAX_TIME_RANGE_MILLIS = 31LL * ONE_DAY_MILLIS;
+constexpr const char *CALL_LOG_ASHMEM_NAME = "edm_call_logs_";
+constexpr int32_t DATASHARE_WAIT_TIME = 10;
+static int32_t ashmemNum_ = 0;
+static std::mutex ashmemMutex_;
 static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
 {
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -65,27 +75,23 @@ static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
         EDMLOGE("GetCallLogsPlugin: GetSystemAbilityManager failed.");
         return nullptr;
     }
-    auto remote = saManager->GetSystemAbility(TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID);
+    auto remote = saManager->GetSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     if (remote == nullptr) {
-        EDMLOGE("GetCallLogsPlugin: GetSystemAbility TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID failed.");
+        EDMLOGE("GetCallLogsPlugin: GetSystemAbility ENTERPRISE_DEVICE_MANAGER_SA_ID failed.");
         return nullptr;
     }
-    auto uri = AppExecFwk::Uri(std::string(CALL_LOG_URI));
-    return DataShare::DataShareHelper::Creator(remote, uri);
+    return DataShare::DataShareHelper::Creator(remote, std::string(CALL_LOG_URI), "", DATASHARE_WAIT_TIME);
 }
 
 static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig &config)
 {
     DataShare::DataSharePredicates predicates;
-    std::string timeCondition = std::string(CALL_LOG_COLUMN_BEGIN_TIME) + " >= " +
-        std::to_string(config.startTime) + " AND " +
-        std::string(CALL_LOG_COLUMN_BEGIN_TIME) + " <= " + std::to_string(config.endTime);
-    predicates.SetWhereClause(timeCondition);
+    predicates.GreaterThanOrEqualTo(CALL_LOG_COLUMN_BEGIN_TIME, std::to_string(config.startTime));
+    predicates.And()->LessThanOrEqualTo(CALL_LOG_COLUMN_BEGIN_TIME, std::to_string(config.endTime));
     if (config.hasTelephoneNumber && !config.telephoneNumber.empty()) {
-        predicates.And();
-        predicates.EqualTo(CALL_LOG_COLUMN_PHONE_NUMBER, config.telephoneNumber);
+        predicates.And()->EqualTo(CALL_LOG_COLUMN_PHONE_NUMBER, config.telephoneNumber);
     }
-    predicates.OrderBy(CALL_LOG_COLUMN_BEGIN_TIME, true);
+    predicates.OrderByDesc(CALL_LOG_COLUMN_BEGIN_TIME);
     return predicates;
 }
 
@@ -110,37 +116,66 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     }
     auto predicates = BuildPredicates(config);
     auto columns = BuildResultColumns();
-    DataShare::DataShareAbsResultSet *resultSet = helper->Query(predicates, columns);
+    Uri uri(CALL_LOG_URI);
+    auto resultSet = helper->Query(uri, predicates, columns);
     if (resultSet == nullptr) {
         EDMLOGE("GetCallLogsPlugin: Query call log failed.");
+        helper->Release();
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    while (resultSet->GoToNextRow() == 0 && callLogs.size() < MAX_CALL_LOG_COUNT) {
+    while (resultSet->GoToNextRow() == ROW_FETCH_SUCCESS && callLogs.size() < MAX_CALL_LOG_COUNT) {
         CallLogInfo log;
-        int32_t columnIndex = 0;
         int64_t beginTime = 0;
-        resultSet->GetLong(columnIndex + 2, beginTime);
+        resultSet->GetLong(COLUMN_INDEX_BEGIN_TIME, beginTime);
         log.startTime = beginTime;
         int64_t endTime = 0;
-        resultSet->GetLong(columnIndex + 3, endTime);
+        resultSet->GetLong(COLUMN_INDEX_END_TIME, endTime);
         log.endTime = endTime;
         int32_t callDirection = 1;
-        resultSet->GetInt(columnIndex + 4, callDirection);
+        resultSet->GetInt(COLUMN_INDEX_CALL_DIRECTION, callDirection);
         log.isIncoming = (callDirection == CALL_DIRECTION_IN);
         int32_t slotId = -1;
-        resultSet->GetInt(columnIndex + 5, slotId);
+        resultSet->GetInt(COLUMN_INDEX_SLOT_ID, slotId);
         log.slotId = slotId;
         std::string phoneNumber;
-        resultSet->GetString(columnIndex + 1, phoneNumber);
+        resultSet->GetString(COLUMN_INDEX_PHONE_NUMBER, phoneNumber);
         log.telephoneNumber = phoneNumber;
         callLogs.push_back(log);
     }
-    delete resultSet;
+    helper->Release();
     return ERR_OK;
 }
 
-static int32_t ashmemNum_ = 0;
-static std::mutex ashmemMutex_;
+static bool WriteToAshmem(MessageParcel &tempParcel, size_t dataSize, MessageParcel &reply)
+{
+    tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM);
+    EDMLOGI("GetCallLogsPlugin: data size too large, use ashmem");
+    std::string ashmemName;
+    {
+        std::lock_guard<std::mutex> lock(ashmemMutex_);
+        ashmemName = CALL_LOG_ASHMEM_NAME + std::to_string(ashmemNum_++);
+    }
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem(ashmemName.c_str(), dataSize);
+    if (ashmem == nullptr) {
+        EDMLOGE("GetCallLogsPlugin: CreateAshmem failed.");
+        return false;
+    }
+    if (!ashmem->MapReadAndWriteAshmem()) {
+        EDMLOGE("GetCallLogsPlugin: MapReadAndWriteAshmem failed.");
+        return false;
+    }
+    if (!ashmem->WriteToAshmem(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize, 0)) {
+        EDMLOGE("GetCallLogsPlugin: WriteToAshmem failed.");
+        return false;
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    if (!reply.WriteAshmem(ashmem)) {
+        EDMLOGE("GetCallLogsPlugin: WriteAshmem to reply failed.");
+        return false;
+    }
+    return true;
+}
 
 static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParcel &reply)
 {
@@ -159,41 +194,11 @@ static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParc
     }
     size_t dataSize = tempParcel.GetDataSize();
     if (dataSize > EdmConstants::MAX_IPC_RAWDATA_SIZE) {
-        tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM);
-        EDMLOGI("GetCallLogsPlugin: data size too large, use ashmem");
-        std::string ashmemName;
-        {
-            std::lock_guard<std::mutex> lock(ashmemMutex_);
-            ashmemName = CALL_LOG_ASHMEM_NAME + std::to_string(ashmemNum_++);
-        }
-        sptr<Ashmem> ashmem = Ashmem::CreateAshmem(ashmemName.c_str(), dataSize);
-        if (ashmem == nullptr) {
-            EDMLOGE("GetCallLogsPlugin: CreateAshmem failed.");
-            return false;
-        }
-        if (!ashmem->MapReadAndWriteAshmem()) {
-            EDMLOGE("GetCallLogsPlugin: MapReadAndWriteAshmem failed.");
-            return false;
-        }
-        if (!ashmem->WriteToAshmem(reinterpret_cast<uint8_t *>(tempParcel.GetData()), dataSize, 0)) {
-            EDMLOGE("GetCallLogsPlugin: WriteToAshmem failed.");
-            return false;
-        }
-        reply.WriteInt32(ERR_OK);
-        reply.WriteInt32(static_cast<int32_t>(dataSize));
-        if (!reply.WriteAshmem(ashmem)) {
-            EDMLOGE("GetCallLogsPlugin: WriteAshmem to reply failed.");
-            return false;
-        }
-    } else {
-        reply.WriteInt32(ERR_OK);
-        reply.WriteInt32(static_cast<int32_t>(dataSize));
-        if (!reply.WriteRawData(tempParcel.GetData(), dataSize)) {
-            EDMLOGE("GetCallLogsPlugin: WriteRawData failed.");
-            return false;
-        }
+        return WriteToAshmem(tempParcel, dataSize, reply);
     }
-    return true;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    return reply.WriteRawData(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize);
 }
 #endif
 

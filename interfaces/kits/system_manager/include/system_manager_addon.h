@@ -75,6 +75,8 @@ struct AsyncTimerOperationCallbackInfo : AsyncCallbackInfo {
 
 enum class NearlinkProtocol : uint32_t { SSAP = 0, DATA_TRANSFER = 1 };
 
+enum class AudioVolumeType : uint32_t { STREAM_MUSIC = 1 };
+
 class SystemManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -115,6 +117,7 @@ private:
     static napi_value AddOrRemoveDisallowedNearlinkProtocols(napi_env env, napi_callback_info info,
         FuncOperateType operateType);
     static void CreateProtocolObject(napi_env env, napi_value value);
+    static void CreateAudioVolumeTypeObject(napi_env env, napi_value value);
     static napi_value StartCollectLog(napi_env env, napi_callback_info info);
     static napi_value AddKeyEventPolicies(napi_env env, napi_callback_info info);
     static napi_value RemoveKeyEventPolicies(napi_env env, napi_callback_info info);
@@ -138,6 +141,8 @@ private:
     static napi_value IsOtaUpdateNonceEnable(napi_env env, napi_callback_info info);
     static napi_value SetLocalHotaDomain(napi_env env, napi_callback_info info);
     static napi_value GetLocalHotaDomain(napi_env env, napi_callback_info info);
+    static napi_value SetVolumeDegree(napi_env env, napi_callback_info info);
+    static napi_value GetVolumeDegree(napi_env env, napi_callback_info info);
     static napi_value CreateTimer(napi_env env, napi_callback_info info);
     static napi_value StartTimer(napi_env env, napi_callback_info info);
     static napi_value StopTimer(napi_env env, napi_callback_info info);

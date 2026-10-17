@@ -208,7 +208,9 @@ ohos_shared_library("device_core_plugin") {
 
     if (audio_framework_edm_enable) {
       external_deps += [ "audio_framework:audio_client" ]
-      sources += [ "./src/restrictions/disable_microphone_plugin.cpp" ]
+      sources += [ "./src/restrictions/disable_microphone_plugin.cpp",
+      "./src/system_manager/volume_degree_plugin.cpp",
+      ]
     }
 
     if (bluetooth_edm_enable) {

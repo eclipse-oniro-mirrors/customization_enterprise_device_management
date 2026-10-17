@@ -64,6 +64,7 @@ namespace OverrideInterfaceName {
     namespace SystemManager {
         const char* const SET_NTP_SERVER = "setNTPServer";
         const char* const SET_ACTIVATION_LOCK_DISABLED = "setActivationLockDisabled";
+        const char* const SET_VOLUME_DEGREE = "setVolumeDegree";
     } // namespace SystemManager
 
     namespace WifiManager {
