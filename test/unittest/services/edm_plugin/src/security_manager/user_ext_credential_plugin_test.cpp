@@ -460,6 +460,27 @@ HWTEST_F(UserExtCredentialPluginTest, TestRemoveCredentialBusyError, TestSize.Le
 
 // ========== OnGetPolicy tests ==========
 
+namespace {
+const std::string PLUGIN_INFO_JSON =
+    R"({"customAuthenticatorType":"HAP","customAuthenticatorBundleName":"com.demo.ca"})";
+
+uint64_t ReadCredId(MessageParcel &reply)
+{
+    std::vector<uint8_t> vec;
+    reply.ReadUInt8Vector(&vec);
+    uint64_t id = 0;
+    if (vec.size() == sizeof(uint64_t)) {
+        memcpy_s(&id, sizeof(uint64_t), vec.data(), sizeof(uint64_t));
+    }
+    return id;
+}
+
+std::string ReadPluginInfo(MessageParcel &reply)
+{
+    return reply.ReadString();
+}
+} // namespace
+
 HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoSuccess, TestSize.Level1)
 {
     UserExtCredentialPluginMock plugin;
@@ -481,16 +502,121 @@ HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoSuccess, TestSize.Lev
     ASSERT_EQ(replyRet, 0);
     int32_t count = reply.ReadInt32();
     ASSERT_EQ(count, 2);
-    std::vector<uint8_t> credIdVec1;
-    reply.ReadUInt8Vector(&credIdVec1);
-    uint64_t credId1 = 0;
-    memcpy_s(&credId1, sizeof(uint64_t), credIdVec1.data(), sizeof(uint64_t));
-    ASSERT_EQ(credId1, static_cast<uint64_t>(111));
-    std::vector<uint8_t> credIdVec2;
-    reply.ReadUInt8Vector(&credIdVec2);
-    uint64_t credId2 = 0;
-    memcpy_s(&credId2, sizeof(uint64_t), credIdVec2.data(), sizeof(uint64_t));
-    ASSERT_EQ(credId2, static_cast<uint64_t>(222));
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(111));
+    ASSERT_EQ(ReadPluginInfo(reply), std::string(""));
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(222));
+    ASSERT_EQ(ReadPluginInfo(reply), std::string(""));
+}
+
+HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoFillPluginInfoByTemplateId, TestSize.Level1)
+{
+    UserExtCredentialPluginMock plugin;
+    plugin.getCredInfoResult = 0;
+    AccountSA::CredentialInfo info1;
+    info1.credentialId = 111;
+    info1.templateId = 1;
+    AccountSA::CredentialInfo info2;
+    info2.credentialId = 222;
+    info2.templateId = 2;
+    plugin.credInfoList = {info1, info2};
+    plugin.sensorInfoJson =
+        "[{\"templateId\":\"1\",\"authenticatorInfo\":\"plainString\"},"
+        "{\"templateId\":\"2\",\"authenticatorInfo\":" + PLUGIN_INFO_JSON + "}]";
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(100);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(plugin.getPropertyCalled);
+    reply.RewindRead(0);
+    reply.ReadInt32();
+    ASSERT_EQ(reply.ReadInt32(), 2);
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(111));
+    ASSERT_EQ(ReadPluginInfo(reply), std::string("plainString"));
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(222));
+    ASSERT_EQ(ReadPluginInfo(reply), PLUGIN_INFO_JSON);
+}
+
+HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoOrphanKeepsEmptyPluginInfo, TestSize.Level1)
+{
+    UserExtCredentialPluginMock plugin;
+    plugin.getCredInfoResult = 0;
+    AccountSA::CredentialInfo info;
+    info.credentialId = 111;
+    info.templateId = 9;
+    plugin.credInfoList = {info};
+    plugin.sensorInfoJson = R"([{"templateId":"1","authenticatorInfo":"{}"}])";
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(100);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    reply.RewindRead(0);
+    reply.ReadInt32();
+    ASSERT_EQ(reply.ReadInt32(), 1);
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(111));
+    ASSERT_EQ(ReadPluginInfo(reply), std::string(""));
+}
+
+HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoGetPropertyFailedDegrades, TestSize.Level1)
+{
+    UserExtCredentialPluginMock plugin;
+    plugin.getCredInfoResult = 0;
+    plugin.getPropertyResult = UKEY_ERR_IAM_GENERAL_ERROR;
+    AccountSA::CredentialInfo info;
+    info.credentialId = 111;
+    info.templateId = 1;
+    plugin.credInfoList = {info};
+    plugin.sensorInfoJson = R"([{"templateId":"1","authenticatorInfo":"{}"}])";
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(100);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    reply.RewindRead(0);
+    ASSERT_EQ(reply.ReadInt32(), 0);
+    ASSERT_EQ(reply.ReadInt32(), 1);
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(111));
+    ASSERT_EQ(ReadPluginInfo(reply), std::string(""));
+}
+
+HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoBadSensorInfoIgnored, TestSize.Level1)
+{
+    UserExtCredentialPluginMock plugin;
+    plugin.getCredInfoResult = 0;
+    AccountSA::CredentialInfo info;
+    info.credentialId = 111;
+    info.templateId = 1;
+    plugin.credInfoList = {info};
+    plugin.sensorInfoJson = "not a json";
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(100);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    reply.RewindRead(0);
+    reply.ReadInt32();
+    ASSERT_EQ(reply.ReadInt32(), 1);
+    ASSERT_EQ(ReadCredId(reply), static_cast<uint64_t>(111));
+    ASSERT_EQ(ReadPluginInfo(reply), std::string(""));
+}
+
+HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoSkipsGetPropertyWhenNoCredential, TestSize.Level1)
+{
+    UserExtCredentialPluginMock plugin;
+    plugin.getCredInfoResult = 0;
+    plugin.credInfoList = {};
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(100);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_FALSE(plugin.getPropertyCalled);
 }
 
 HWTEST_F(UserExtCredentialPluginTest, TestGetCredentialInfoSuccessEmpty, TestSize.Level1)

@@ -15,6 +15,7 @@
 
 #include "user_ext_credential_plugin.h"
 #include "account_iam_client.h"
+#include "cJSON.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -23,8 +24,11 @@
 #include "securec.h"
 #include "ukey_iam_error_converter.h"
 
+#include <cerrno>
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
+#include <map>
 #include <mutex>
 
 namespace OHOS {
@@ -88,6 +92,83 @@ public:
     std::mutex mutex_;
     std::condition_variable cv_;
 };
+
+class SensorInfoCallback : public AccountSA::GetSetPropCallback {
+public:
+    virtual ~SensorInfoCallback() = default;
+    void OnResult(int32_t result, const AccountSA::Attributes &extraInfo) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        resultCode_ = result;
+        if (!extraInfo.GetStringValue(AccountSA::Attributes::ATTR_SENSOR_INFO, sensorInfo_)) {
+            sensorInfo_.clear();
+        }
+        done_ = true;
+        cv_.notify_one();
+    }
+
+    int32_t WaitResult(int32_t timeoutMs = 5000)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (cv_.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this] { return done_; })) {
+            return resultCode_;
+        }
+        return -1;
+    }
+
+    int32_t resultCode_ = 0;
+    bool done_ = false;
+    std::string sensorInfo_;
+    std::mutex mutex_;
+    std::condition_variable cv_;
+};
+
+void ParseSensorInfo(const std::string &sensorInfo, std::map<uint64_t, std::string> &pluginInfoMap)
+{
+    if (sensorInfo.empty()) {
+        return;
+    }
+    cJSON *root = cJSON_Parse(sensorInfo.c_str());
+    if (root == nullptr) {
+        EDMLOGE("UserExtCredentialPlugin ParseSensorInfo failed");
+        return;
+    }
+    cJSON *item = nullptr;
+    cJSON_ArrayForEach(item, root) {
+        cJSON *idNode = cJSON_GetObjectItemCaseSensitive(item, "templateId");
+        cJSON *infoNode = cJSON_GetObjectItemCaseSensitive(item, "authenticatorInfo");
+        if (idNode == nullptr || infoNode == nullptr) {
+            continue;
+        }
+        if (!cJSON_IsString(idNode) || idNode->valuestring == nullptr) {
+            EDMLOGW("UserExtCredentialPlugin ParseSensorInfo unexpected templateId type");
+            continue;
+        }
+        char *end = nullptr;
+        errno = 0;
+        unsigned long long parsedId = strtoull(idNode->valuestring, &end, EdmConstants::DECIMAL);
+        if (errno == ERANGE || end == idNode->valuestring || *end != '\0') {
+            EDMLOGE("UserExtCredentialPlugin ParseSensorInfo invalid templateId: %{public}s", idNode->valuestring);
+            continue;
+        }
+        uint64_t templateId = static_cast<uint64_t>(parsedId);
+        std::string pluginInfo;
+        if (cJSON_IsString(infoNode) && infoNode->valuestring != nullptr) {
+            pluginInfo = infoNode->valuestring;
+        } else if (cJSON_IsObject(infoNode)) {
+            char *jsonStr = cJSON_PrintUnformatted(infoNode);
+            if (jsonStr == nullptr) {
+                continue;
+            }
+            pluginInfo = jsonStr;
+            cJSON_free(jsonStr);
+        } else {
+            continue;
+        }
+        pluginInfoMap[templateId] = std::move(pluginInfo);
+    }
+    cJSON_Delete(root);
+}
 } // namespace
 
 const bool REGISTER_RESULT =
@@ -196,7 +277,7 @@ ErrCode UserExtCredentialPlugin::OnGetPolicy(std::string &policyData, MessagePar
     auto callback = std::make_shared<CredInfoCallback>();
     CallGetCredentialInfo(
         accountId, static_cast<int32_t>(AccountSA::AuthType::CUSTOM_AUTH), callback);
-    int32_t ret = callback->WaitResult();
+    int32_t ret = callback->WaitResult(3000);
     if (ret != ERR_OK) {
         std::string errMsg;
         ErrCode edmErrCode = ConvertIamError(ret, errMsg);
@@ -205,6 +286,10 @@ ErrCode UserExtCredentialPlugin::OnGetPolicy(std::string &policyData, MessagePar
         reply.WriteInt32(edmErrCode);
         reply.WriteString(errMsg);
         return edmErrCode;
+    }
+    std::map<uint64_t, std::string> pluginInfoMap;
+    if (!callback->infoList_.empty()) {
+        QueryPluginInfoByTemplate(accountId, pluginInfoMap);
     }
     reply.WriteInt32(ret);
     int32_t count = static_cast<int32_t>(callback->infoList_.size());
@@ -216,6 +301,12 @@ ErrCode UserExtCredentialPlugin::OnGetPolicy(std::string &policyData, MessagePar
             return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
         reply.WriteUInt8Vector(credIdVec);
+        std::string pluginInfo;
+        auto it = pluginInfoMap.find(info.templateId);
+        if (it != pluginInfoMap.end()) {
+            pluginInfo = it->second;
+        }
+        reply.WriteString(pluginInfo);
     }
     return ERR_OK;
 }
@@ -239,6 +330,29 @@ int32_t UserExtCredentialPlugin::CallGetCredentialInfo(int32_t accountId, int32_
 {
     return AccountSA::AccountIAMClient::GetInstance().GetCredentialInfo(
         accountId, static_cast<AccountSA::AuthType>(authType), callback);
+}
+
+void UserExtCredentialPlugin::CallGetProperty(int32_t accountId, const AccountSA::GetPropertyRequest &request,
+    const std::shared_ptr<AccountSA::GetSetPropCallback> &callback)
+{
+    AccountSA::AccountIAMClient::GetInstance().GetProperty(accountId, request, callback);
+}
+
+void UserExtCredentialPlugin::QueryPluginInfoByTemplate(int32_t accountId,
+    std::map<uint64_t, std::string> &pluginInfoMap)
+{
+    AccountSA::GetPropertyRequest request {};
+    request.authType = AccountSA::AuthType::CUSTOM_AUTH;
+    request.keys = { AccountSA::Attributes::ATTR_SENSOR_INFO };
+    auto callback = std::make_shared<SensorInfoCallback>();
+    CallGetProperty(accountId, request, callback);
+    int32_t ret = callback->WaitResult(2000);
+    if (ret != ERR_OK) {
+        EDMLOGW("UserExtCredentialPlugin GetProperty failed, ret: %{public}d, accountId: %{public}d, "
+            "pluginInfo is left empty", ret, accountId);
+        return;
+    }
+    ParseSensorInfo(callback->sensorInfo_, pluginInfoMap);
 }
 } // namespace EDM
 } // namespace OHOS
