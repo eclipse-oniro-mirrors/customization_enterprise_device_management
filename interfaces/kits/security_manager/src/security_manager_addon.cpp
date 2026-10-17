@@ -1578,6 +1578,7 @@ napi_value SecurityManagerAddon::AddUserExtCredential(napi_env env, napi_callbac
     addonMethodSign.argsConvert = {convertCredentialInfo, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeAddUserExtCredential,
         NativeAddUserExtCredentialComplete);
 }
@@ -1642,6 +1643,7 @@ napi_value SecurityManagerAddon::RemoveUserExtCredential(napi_env env, napi_call
     addonMethodSign.argsConvert = {convertRemoveInfo, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     AdapterAddonData adapterAddonData{};
     napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
@@ -1666,6 +1668,7 @@ napi_value SecurityManagerAddon::GetUserExtCredential(napi_env env, napi_callbac
     addonMethodSign.argsType = {EdmAddonCommonType::INT32};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetUserExtCredential,
         NativeGetUserExtCredentialComplete);
 }
