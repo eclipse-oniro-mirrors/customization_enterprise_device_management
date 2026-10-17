@@ -39,6 +39,7 @@ namespace EDM {
     std::pair<int32_t, std::string> GetMessageFromReturncode(ErrCode returnCode);
     std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode returnCode);
     bool IsEDMErrCode(ErrCode returnCode);
+    napi_value NapiThrowErrorAsync(napi_env env, ErrCode errorCode);
     #define ASSERT_AND_THROW_PARAM_ERROR(env, assertion, message)               \
     do {                                                                       \
         if (!(assertion)) {                                                    \

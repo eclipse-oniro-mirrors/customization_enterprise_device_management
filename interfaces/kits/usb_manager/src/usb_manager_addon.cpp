@@ -739,6 +739,7 @@ napi_value UsbManagerAddon::AddOrRemoveAllowedOddBurnUsbDevices(napi_env env, na
     addonMethodSign.argsConvert = {convertUsbDevices2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     addonMethodSign.name = (isAdd ? "addAllowedOpticalDiscDriveBurnUsbDevices" :
         "removeAllowedOpticalDiscDriveBurnUsbDevices");
     if (isAdd) {
@@ -840,6 +841,7 @@ napi_value UsbManagerAddon::GetAllowedOpticalDiscDriveBurnUsbDevices(napi_env en
     addonMethodSign.defaultArgSize = 1;
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetAllowedOddBurnUsbDevices,
         NativeGetAllowedOddBurnUsbDevicesComplete);
 }
