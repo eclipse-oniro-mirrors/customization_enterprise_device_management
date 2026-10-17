@@ -18,6 +18,7 @@
 #include <unordered_map>
 
 #include "app_distribution_type.h"
+#include "default_application_type.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "install_error_codes.h"
@@ -95,6 +96,9 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nBundleInfoGetFlag = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nBundleInfoGetFlag));
     CreateBundleInfoGetFlagObject(env, nBundleInfoGetFlag);
+    napi_value nDefaultApplicationType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nDefaultApplicationType));
+    CreateDefaultApplicationTypeObject(env, nDefaultApplicationType);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("addAllowedInstallBundles", AddAllowedInstallBundles),
@@ -127,8 +131,11 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
             GetInstallationAllowedAppDistributionTypes),
         DECLARE_NAPI_FUNCTION("installMarketApps", InstallMarketApps),
         DECLARE_NAPI_FUNCTION("getInstalledBundleStorageStats", GetInstalledBundleStorageStats),
+        DECLARE_NAPI_FUNCTION("setDefaultApplication", SetDefaultApplication),
+        DECLARE_NAPI_FUNCTION("getDefaultApplicationBundleName", GetDefaultApplicationBundleName),
         DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
         DECLARE_NAPI_PROPERTY("BundleInfoGetFlag", nBundleInfoGetFlag),
+        DECLARE_NAPI_PROPERTY("DefaultApplicationType", nDefaultApplicationType),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -845,6 +852,46 @@ void BundleManagerAddon::CreateBundleInfoGetFlagObject(napi_env env, napi_value 
         nGetBundleInfoWithIconData));
 }
 
+void BundleManagerAddon::CreateDefaultApplicationTypeObject(napi_env env, napi_value value)
+{
+    napi_value nBrowser;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::BROWSER), &nBrowser));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BROWSER", nBrowser));
+    napi_value nImage;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::IMAGE), &nImage));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "IMAGE", nImage));
+    napi_value nAudio;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::AUDIO), &nAudio));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "AUDIO", nAudio));
+    napi_value nVideo;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::VIDEO), &nVideo));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "VIDEO", nVideo));
+    napi_value nPdf;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::PDF), &nPdf));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PDF", nPdf));
+    napi_value nWord;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::WORD), &nWord));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "WORD", nWord));
+    napi_value nExcel;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::EXCEL), &nExcel));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "EXCEL", nExcel));
+    napi_value nPpt;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::PPT), &nPpt));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "PPT", nPpt));
+    napi_value nEmail;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(DefaultApplicationType::EMAIL), &nEmail));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "EMAIL", nEmail));
+}
+
 napi_value BundleManagerAddon::AddInstallationAllowedAppDistributionTypes(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_AddInstallationAllowedAppDistributionTypes called");
@@ -1418,6 +1465,62 @@ void BundleManagerAddon::ConvertBundleStorageStatsToJs(napi_env env,
         napi_set_element(env, result, idx, obj);
         idx++;
     }
+}
+
+napi_value BundleManagerAddon::SetDefaultApplication(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("BundleManagerAddon::SetDefaultApplication called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setDefaultApplication";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32, EdmAddonCommonType::STRING,
+        EdmAddonCommonType::STRING, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    int32_t retCode = bundleManagerProxy->SetDefaultApplication(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, addonMethodSign.errcodeType));
+        EDMLOGE("BundleManagerAddon::SetDefaultApplication failed!");
+    }
+    return nullptr;
+}
+
+napi_value BundleManagerAddon::GetDefaultApplicationBundleName(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("BundleManagerAddon::GetDefaultApplicationBundleName called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getDefaultApplicationBundleName";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32, EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    std::string bundleName;
+    int32_t retCode = bundleManagerProxy->GetDefaultApplicationBundleName(adapterAddonData.data, bundleName);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, bundleName.c_str(), NAPI_AUTO_LENGTH, &result));
+    return result;
 }
 
 static napi_module g_bundleManagerModule = {
