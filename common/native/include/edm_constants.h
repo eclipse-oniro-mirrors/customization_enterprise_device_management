@@ -172,6 +172,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
         constexpr uint32_t WEAK_PIN = 43;
         constexpr uint32_t DISABLE_SUPER_PRIVACY = 44;
+        constexpr uint32_t GET_SHARED_PATH_LIST = 47;
     }
 
     namespace KeepAlive {
@@ -597,6 +598,7 @@ namespace PolicyName {
     const char* const POLICY_VOLUME_DEGREE = "volume_degree";
     const char* const POLICY_DEFAULT_APPLICATION = "default_application";
     const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
+    const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

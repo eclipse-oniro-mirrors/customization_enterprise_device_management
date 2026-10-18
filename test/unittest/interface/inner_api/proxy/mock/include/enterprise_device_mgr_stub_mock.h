@@ -264,6 +264,15 @@ public:
     int InvokeExternalStorageDeviceInfosSendRequestGetPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
+    int InvokeSharedPathListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicyFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicyOverLimit(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

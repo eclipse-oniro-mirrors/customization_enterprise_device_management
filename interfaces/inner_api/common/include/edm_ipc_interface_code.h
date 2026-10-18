@@ -241,6 +241,7 @@ enum EdmInterfaceCode : uint32_t {
     VOLUME_DEGREE = 1189,
     DEFAULT_APPLICATION = 1190,
     PASSWORD_LAST_CHANGED_TIME = 1191,
+    GET_SHARED_PATH_LIST = 1192,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
