@@ -15,7 +15,9 @@
 
 #ifndef INTERFACES_INNER_API_DEVICE_INFO_INCLUDE_DEVICE_INFO_PROXY_H
 #define INTERFACES_INNER_API_DEVICE_INFO_INCLUDE_DEVICE_INFO_PROXY_H
+
 #include "enterprise_device_mgr_proxy.h"
+#include "patch_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -28,6 +30,7 @@ public:
     int32_t GetDisplayVersion(MessageParcel &data, std::string &info);
     int32_t GetDeviceName(MessageParcel &data, std::string &info);
     int32_t GetDeviceInfo(MessageParcel &data, const std::string &label, int policyCode, std::string &info);
+    int32_t GetPatchInfo(MessageParcel &data, MessageParcel &reply);
 private:
     static std::shared_ptr<DeviceInfoProxy> instance_;
     static std::once_flag flag_;

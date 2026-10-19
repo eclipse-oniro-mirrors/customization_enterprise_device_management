@@ -22,8 +22,11 @@
 #include "bundle_storage_info.h"
 #include "domain_filter_rule.h"
 #include "edm_bundle_info.h"
+#include "edm_constants.h"
+#include "edm_errors.h"
 #include "external_storage_device_info.h"
 #include "firewall_rule.h"
+#include "patch_info.h"
 #include "http_proxy.h"
 #include "iptables_utils.h"
 #include "net_stats_utils.h"
@@ -46,6 +49,7 @@ const int32_t TEST_BUNDLE_SIZE = 3;
 const int32_t TEST_APP_SIZE = 1024;
 const int32_t TEST_DATA_SIZE = 2048;
 const int32_t TEST_SHARE_LIMIT = 5;
+const int64_t TEST_PATCH_INSTALL_TIME = 1710000000000;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
@@ -728,6 +732,59 @@ int EnterpriseDeviceMgrStubMock::InvokeExternalStorageDeviceInfosSendRequestGetP
     std::for_each(deviceInfos.begin(), deviceInfos.end(), [&](const auto deviceInfo) {
         deviceInfo.Marshalling(reply);
     });
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokePatchInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokePatchInfoSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    PatchInfo info;
+    info.name = "patch_ut";
+    info.accountName = "system";
+    info.installTime = TEST_PATCH_INSTALL_TIME;
+    info.description.headers = {"Security"};
+    PatchDescriptionBody body;
+    body.title = "Critical Fix";
+    body.contents = {"Fix CVE-2026-0001"};
+    info.description.bodies = {body};
+    reply.WriteUint32(1);
+    info.Marshalling(reply);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) <<
+        "mock EnterpriseDeviceMgrStubMock InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokePatchInfoOverMaxSizeSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) <<
+        "mock EnterpriseDeviceMgrStubMock InvokePatchInfoOverMaxSizeSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(EdmConstants::PATCH_INFO_MAX_SIZE + 1);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokePatchInfoUnmarshallFailSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) <<
+        "mock EnterpriseDeviceMgrStubMock InvokePatchInfoUnmarshallFailSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(1);
+    reply.WriteString("incomplete_patch");
     return 0;
 }
 

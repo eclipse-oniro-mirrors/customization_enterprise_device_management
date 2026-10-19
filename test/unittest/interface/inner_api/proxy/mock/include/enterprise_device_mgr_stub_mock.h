@@ -264,6 +264,18 @@ public:
     int InvokeExternalStorageDeviceInfosSendRequestGetPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
+    int InvokePatchInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokePatchInfoOverMaxSizeSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokePatchInfoUnmarshallFailSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokeSharedPathListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 

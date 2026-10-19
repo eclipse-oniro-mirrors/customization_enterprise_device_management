@@ -18,11 +18,13 @@
 
 #include "device_info_proxy.h"
 #include "edm_errors.h"
+#include "napi_edm_adapter.h"
 #include "napi_edm_error.h"
 #include "napi_edm_common.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
+#include "patch_info.h"
 #include "want.h"
 
 namespace OHOS {
@@ -45,8 +47,16 @@ private:
     static napi_value GetDeviceInfoSync(napi_env env, napi_callback_info info);
     static napi_value GetDeviceInfo(napi_env env, napi_callback_info info, int code);
     static void NativeGetDeviceInfo(napi_env env, void *data);
+    static napi_value GetPatchInfo(napi_env env, napi_callback_info info);
+    static void NativeGetPatchInfo(napi_env env, void *data);
+    static void NativeGetPatchInfoComplete(napi_env env, napi_status status, void *data);
+    static napi_value PatchInfoToJsObj(napi_env env, const PatchInfo &patchInfo);
+    static napi_value PatchDescriptionToJsObj(napi_env env, const PatchDescription &description);
+    static napi_value PatchDescriptionBodyToJsObj(napi_env env, const PatchDescriptionBody &body);
+    static napi_value BuildPatchInfoArray(napi_env env, MessageParcel &reply);
 };
 } // namespace EDM
 } // namespace OHOS
+
 
 #endif // INTERFACES_KITS_DATETIME_MANAGER_INCLUDE_DEVICE_INFO_ADDON_H
