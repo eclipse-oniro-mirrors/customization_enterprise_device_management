@@ -52,6 +52,8 @@ struct EdmEventData {
     EventFwk::CommonEventData commonEventData;
     AppExecFwk::ProcessData appProcessData;
     ExternalStorageDeviceInfo externalStorageDeviceInfo;
+    int32_t passwordFailedCount{0};
+    int32_t userId{-1};
 };
 
 } // namespace EDM

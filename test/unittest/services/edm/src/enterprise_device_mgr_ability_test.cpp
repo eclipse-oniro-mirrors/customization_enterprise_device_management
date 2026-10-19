@@ -5221,11 +5221,12 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckManagedEventValid, TestSize.Le
 {
     EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)));
     EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::POLICIES_CHANGED)));
+    EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)));
 }
 
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckManagedEventInvalid, TestSize.Level1)
 {
-    EXPECT_FALSE(edmMgr_->CheckManagedEvent(12));
+    EXPECT_FALSE(edmMgr_->CheckManagedEvent(14));
     EXPECT_FALSE(edmMgr_->CheckManagedEvent(100));
 }
 
@@ -6761,6 +6762,17 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_AllPermissionDen
     data.WriteInt32(1); // queryPolicy = ALL
     ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(res, EdmReturnErrCode::PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: TestOnPinAuthServiceStartNoCrash
+ * @tc.desc: Test OnPinAuthServiceStart executes recovery steps without crash.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnPinAuthServiceStart_NoCrash, TestSize.Level1)
+{
+    edmMgr_->OnPinAuthServiceStart();
+    EXPECT_TRUE(true);
 }
 } // namespace TEST
 } // namespace EDM

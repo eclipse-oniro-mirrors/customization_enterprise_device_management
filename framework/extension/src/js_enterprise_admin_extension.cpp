@@ -596,6 +596,19 @@ void JsEnterpriseAdminExtension::OnUnmountExternalStorageDevice(const ExternalSt
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnPasswordFailed count=%{public}d userId=%{public}d",
+        cumulativeFailedCount, userId);
+    auto task = [cumulativeFailedCount, userId, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, cumulativeFailedCount),
+            AbilityRuntime::CreateJsValue(env, userId) };
+        CallObjectMethod("onPasswordFailed", argv, JS_NAPI_ARGC_TWO);
+    };
+    handler_->PostTask(task);
+}
+
 napi_value JsEnterpriseAdminExtension::CreateExternalStorageDeviceInfoObject(napi_env env,
     const ExternalStorageDeviceInfo &deviceInfo)
 {

@@ -60,6 +60,7 @@ private:
     bool OnDeviceBootCompletedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnAdminPolicyChangedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnUnmountExternalStorageDeviceInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnPasswordFailedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
 
     std::unordered_map<uint32_t, HandleFunc> handleFuncMap_;
 };

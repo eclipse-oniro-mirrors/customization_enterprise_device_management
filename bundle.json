@@ -99,6 +99,7 @@
         "nfc",
         "os_account",
         "pasteboard",
+        "pin_auth", 
         "power_manager",
         "relational_store",
         "runtime_core",

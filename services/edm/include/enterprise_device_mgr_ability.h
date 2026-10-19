@@ -179,6 +179,7 @@ public:
     void OnAppManagerServiceStart();
     void OnAbilityManagerServiceStart();
     void OnCommonEventServiceStart();
+    void OnPinAuthServiceStart();
     void OnDistributedKvDataServiceStart();
     bool CheckRunningMode(uint32_t runningMode);
     void ConnectEnterpriseAbility();

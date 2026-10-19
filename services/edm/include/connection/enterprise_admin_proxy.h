@@ -59,6 +59,8 @@ public:
 
     bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
 
+    bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override;
+
     bool IsValid();
 private:
     bool SendRequest(uint32_t code, MessageParcel &data);

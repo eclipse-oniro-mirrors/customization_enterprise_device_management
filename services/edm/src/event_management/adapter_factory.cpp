@@ -19,6 +19,7 @@
 #include "common_event_adapter.h"
 #include "edm_log.h"
 #include "null_event_adapter.h"
+#include "user_auth_event_adapter.h"
 
 namespace OHOS {
 namespace EDM {
@@ -48,6 +49,13 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
                 EDM_OOBE_FINISHED_EVENT, EDM_OOBE_FINISHED_PERMISSION);
         case ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE:
             return std::make_shared<NullEventAdapter>();
+        case ManagedEvent::ON_PASSWORD_FAILED:
+#ifdef USERIAM_EDM_ENABLE
+            return std::make_shared<UserAuthEventAdapter>(manager);
+#else
+            EDMLOGW("AdapterFactory::CreateAdapter ON_PASSWORD_FAILED unsupported without useriam");
+            return nullptr;
+#endif
         default:
             break;
     }

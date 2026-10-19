@@ -130,7 +130,6 @@ ohos_static_library("edmservice_static") {
   ]
 
   defines = [
-    "USERIAM_EDM_ENABLE",
     "EDM_SUPPORT_ALL_ENABLE",
     "EDM_UT_TEST"
   ]
@@ -167,7 +166,10 @@ ohos_static_library("edmservice_static") {
   if (useriam_edm_enable) {
     sources += [
       "../../../../services/edm/src/query_policy/fingerprint_auth_query.cpp",
+      "../../../../services/edm/src/event_management/edm_user_auth_listener.cpp",
+      "../../../../services/edm/src/event_management/user_auth_event_adapter.cpp",
     ]
+    defines += [ "USERIAM_EDM_ENABLE" ]
   }
 
   if (ability_runtime_edm_enable) {
@@ -292,6 +294,10 @@ ohos_static_library("edmservice_static") {
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
   }
 
+  if (useriam_edm_enable) {
+    external_deps += [ "pin_auth:pinauth_framework" ]
+  }
+
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
     external_deps += [
         "drivers_interface_usb:usb_idl_headers_1.1",
@@ -412,6 +418,10 @@ ohos_unittest("EnterpriseDeviceMgrAbilityUnitTest") {
     "window_manager:sms",
   ]
 
+  if (useriam_edm_enable) {
+    external_deps += [ "pin_auth:pinauth_framework" ]
+  }
+
   sanitize = {
     boundary_sanitize = true
     cfi = true
@@ -478,6 +488,10 @@ ohos_unittest("PluginManagerUnitTest") {
     "samgr:samgr_proxy",
     "window_manager:sms",
   ]
+
+  if (useriam_edm_enable) {
+    external_deps += [ "pin_auth:pinauth_framework" ]
+  }
 
   sanitize = {
     boundary_sanitize = true
@@ -555,7 +569,6 @@ ohos_unittest("EdmServicesUnitTest") {
   }
 
   defines = [
-    "USERIAM_EDM_ENABLE",
     "EDM_SUPPORT_ALL_ENABLE"
   ]
 
@@ -666,6 +679,15 @@ ohos_unittest("EdmServicesUnitTest") {
       "os_account:os_account_innerkits",
     ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "pin_auth:pinauth_framework" ]
+    defines += [ "USERIAM_EDM_ENABLE" ]
+    sources += [
+      "./src/edm_user_auth_listener_test.cpp",
+      "./src/user_auth_event_adapter_test.cpp",
+    ]
   }
 
   sanitize = {
