@@ -1755,7 +1755,7 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
         if (FAILED(ret)) {
             napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
             EDMLOGE("EdmParsePrinterIpArray failed!");
-            retrun ret;
+            return ret;
         }
         data.WriteStringVector(ipList);
         return ERR_OK;
