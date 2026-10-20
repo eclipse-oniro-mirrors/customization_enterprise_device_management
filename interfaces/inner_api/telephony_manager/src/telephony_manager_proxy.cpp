@@ -249,8 +249,9 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
     data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
     data.WriteInt64(config.startTime);
     data.WriteInt64(config.endTime);
     data.WriteBool(config.hasTelephoneNumber);

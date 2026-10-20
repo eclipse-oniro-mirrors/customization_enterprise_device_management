@@ -61,7 +61,7 @@ constexpr int32_t COLUMN_INDEX_CALL_DIRECTION = 4;
 constexpr int32_t COLUMN_INDEX_SLOT_ID = 5;
 constexpr int32_t CALL_DIRECTION_IN = 0;
 constexpr int32_t ROW_FETCH_SUCCESS = 0;
-constexpr size_t MAX_CALL_LOG_COUNT = 10000;
+constexpr size_t ESTIMATED_RECORD_SIZE = 64;
 constexpr int64_t ONE_DAY_MILLIS = 24LL * 60 * 60 * 1000;
 constexpr int64_t MAX_TIME_RANGE_MILLIS = 31LL * ONE_DAY_MILLIS;
 constexpr const char *CALL_LOG_ASHMEM_NAME = "edm_call_logs_";
@@ -123,7 +123,12 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
         helper->Release();
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    while (resultSet->GoToNextRow() == ROW_FETCH_SUCCESS && callLogs.size() < MAX_CALL_LOG_COUNT) {
+    while (resultSet->GoToNextRow() == ROW_FETCH_SUCCESS) {
+        if (callLogs.size() * ESTIMATED_RECORD_SIZE >= EdmConstants::MAX_PARCEL_CAPACITY) {
+            EDMLOGI("GetCallLogsPlugin: Estimated data size exceeds limit, stop at %{public}zu records.",
+                callLogs.size());
+            break;
+        }
         CallLogInfo log;
         int64_t beginTime = 0;
         resultSet->GetLong(COLUMN_INDEX_BEGIN_TIME, beginTime);
@@ -148,7 +153,6 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
 
 static bool WriteToAshmem(MessageParcel &tempParcel, size_t dataSize, MessageParcel &reply)
 {
-    tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM);
     EDMLOGI("GetCallLogsPlugin: data size too large, use ashmem");
     std::string ashmemName;
     {
@@ -168,8 +172,14 @@ static bool WriteToAshmem(MessageParcel &tempParcel, size_t dataSize, MessagePar
         EDMLOGE("GetCallLogsPlugin: WriteToAshmem failed.");
         return false;
     }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    if (!reply.WriteInt32(ERR_OK)) {
+        EDMLOGE("GetCallLogsPlugin: Write ERR_OK to reply failed.");
+        return false;
+    }
+    if (!reply.WriteInt32(static_cast<int32_t>(dataSize))) {
+        EDMLOGE("GetCallLogsPlugin: Write dataSize to reply failed.");
+        return false;
+    }
     if (!reply.WriteAshmem(ashmem)) {
         EDMLOGE("GetCallLogsPlugin: WriteAshmem to reply failed.");
         return false;
@@ -180,24 +190,43 @@ static bool WriteToAshmem(MessageParcel &tempParcel, size_t dataSize, MessagePar
 static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParcel &reply)
 {
     MessageParcel tempParcel;
-    tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY);
-    if (!tempParcel.WriteInt32(static_cast<int32_t>(callLogs.size()))) {
-        EDMLOGE("GetCallLogsPlugin: Write count failed.");
+    tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM);
+    if (!tempParcel.WriteInt32(0)) {
+        EDMLOGE("GetCallLogsPlugin: Write count placeholder failed.");
         return false;
     }
+    int32_t actualCount = 0;
     for (const auto &log : callLogs) {
-        tempParcel.WriteInt64(log.startTime);
-        tempParcel.WriteInt64(log.endTime);
-        tempParcel.WriteBool(log.isIncoming);
-        tempParcel.WriteInt32(log.slotId);
-        tempParcel.WriteString(log.telephoneNumber);
+        if (tempParcel.GetDataSize() > EdmConstants::MAX_PARCEL_CAPACITY) {
+            EDMLOGI("GetCallLogsPlugin: Data size exceeds limit, truncated at %{public}d records.", actualCount);
+            break;
+        }
+        if (!tempParcel.WriteInt64(log.startTime) ||
+            !tempParcel.WriteInt64(log.endTime) ||
+            !tempParcel.WriteBool(log.isIncoming) ||
+            !tempParcel.WriteInt32(log.slotId) ||
+            !tempParcel.WriteString(log.telephoneNumber)) {
+            EDMLOGE("GetCallLogsPlugin: Write record failed at index %{public}d.", actualCount);
+            break;
+        }
+        actualCount++;
+    }
+    uint8_t *dataPtr = reinterpret_cast<uint8_t *>(tempParcel.GetData());
+    if (dataPtr != nullptr) {
+        *(reinterpret_cast<int32_t *>(dataPtr)) = actualCount;
     }
     size_t dataSize = tempParcel.GetDataSize();
     if (dataSize > EdmConstants::MAX_IPC_RAWDATA_SIZE) {
         return WriteToAshmem(tempParcel, dataSize, reply);
     }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    if (!reply.WriteInt32(ERR_OK)) {
+        EDMLOGE("GetCallLogsPlugin: Write ERR_OK failed.");
+        return false;
+    }
+    if (!reply.WriteInt32(static_cast<int32_t>(dataSize))) {
+        EDMLOGE("GetCallLogsPlugin: Write dataSize failed.");
+        return false;
+    }
     return reply.WriteRawData(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize);
 }
 #endif
