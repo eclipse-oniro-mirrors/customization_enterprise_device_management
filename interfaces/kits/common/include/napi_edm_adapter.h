@@ -69,6 +69,7 @@ struct AddonMethodSign {
     int32_t defaultArgSize = 0;
     int32_t policyCode = 0;
     ErrcodeType errcodeType = ErrcodeType::STRING;
+    bool isAsync = false;
 };
 
 struct AsyncAddonData {

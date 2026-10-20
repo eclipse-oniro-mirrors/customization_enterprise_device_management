@@ -30,6 +30,7 @@ namespace EDM {
 constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 constexpr int EDM_MAXREQUESTSIZE = 99999;
 const std::string RETURN_STRING = "test_string";
+constexpr uint64_t PASSWORD_LAST_CHANGED_TIME_VALUE = 1722470400;
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 const std::string EDM_ELEMENT_STRING = "com.example.myapplication/MainAbility/true";
 const std::string UPGRADE_VERSION = "version_1.0";
@@ -224,6 +225,17 @@ public:
         return 0;
     }
 
+    int InvokeSendRequestGetPasswordLastChangedTime(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option)
+    {
+        GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetPasswordLastChangedTime code :"
+            << code;
+        code_ = code;
+        reply.WriteInt32(ERR_OK);
+        reply.WriteUint64(PASSWORD_LAST_CHANGED_TIME_VALUE);
+        return 0;
+    }
+
     int InvokeSendRequestFail(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
         GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestFail code :" << code;
@@ -251,6 +263,27 @@ public:
 
     int InvokeExternalStorageDeviceInfosSendRequestGetPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
+
+    int InvokePatchInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokePatchInfoOverMaxSizeSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokePatchInfoUnmarshallFailSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicyFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicyOverLimit(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     uint32_t code_ = 0;
 };

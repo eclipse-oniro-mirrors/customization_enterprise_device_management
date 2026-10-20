@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../common/config/common.gni")
 
 ohos_shared_library("deviceinfo") {
   include_dirs = [
@@ -38,6 +39,11 @@ ohos_shared_library("deviceinfo") {
     "napi:ace_napi",
     "node:node_header_notice",
   ]
+
+  defines = []
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
 
   relative_install_dir = "module/enterprise"
 

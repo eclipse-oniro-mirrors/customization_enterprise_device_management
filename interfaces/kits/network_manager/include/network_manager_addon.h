@@ -27,6 +27,7 @@
 #include "domain_filter_rule.h"
 #include "firewall_rule.h"
 #include "iptables_utils.h"
+#include "shared_path_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -126,6 +127,9 @@ private:
     static napi_value ConvertApnInfoToJS(napi_env env, const std::map<std::string, std::string> &apnInfo);
     static napi_value SetEthernetConfig(napi_env env, napi_callback_info info);
     static bool JsObjToInterfaceConfig(napi_env env, napi_value object, InterfaceConfig &config);
+    static napi_value GetSharedPathList(napi_env env, napi_callback_info info);
+    static napi_value ConvertSharedPathListToJS(
+        napi_env env, const std::vector<PathSharedData> &result);
 };
 } // namespace EDM
 } // namespace OHOS

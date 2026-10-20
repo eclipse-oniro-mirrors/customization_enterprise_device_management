@@ -91,6 +91,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::EXEMPTION_RESOURCE,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
     EdmInterfaceCode::VOLUME_DEGREE,
+    EdmInterfaceCode::DEFAULT_APPLICATION,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -139,6 +140,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES, EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS,
     EdmInterfaceCode::DISALLOWED_PERMISSION, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE,
     EdmInterfaceCode::USER_EXT_SESSION, EdmInterfaceCode::USER_EXT_CREDENTIAL,
+    EdmInterfaceCode::PASSWORD_LAST_CHANGED_TIME,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
 };
@@ -152,7 +154,9 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::SET_SWITCH_STATUS,
     EdmInterfaceCode::HIDDEN_SETTINGS_MENU, EdmInterfaceCode::ADD_DOCK_APP,
     EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE,
-    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN
+    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN,
+    EdmInterfaceCode::GET_PATCH_INFO,
+    EdmInterfaceCode::GET_SHARED_PATH_LIST
 };
 
 std::vector<uint32_t> PluginManager::watermarkSoCodes_ = {

@@ -620,5 +620,32 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
     return ERR_OK;
 }
 #endif
+
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+int32_t NetworkManagerProxy::GetSharedPathList(std::vector<PathSharedData> &sharedList)
+{
+    EDMLOGI("NetworkManagerProxy::GetSharedPathList");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()
+        ->GetPolicyNew(EdmInterfaceCode::GET_SHARED_PATH_LIST, data, reply);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    uint32_t size = reply.ReadUint32();
+    if (size > SHARED_PATH_MAX_COUNT) {
+        EDMLOGE("EnterpriseDeviceMgrProxy::GetSharedPathList size overlimit. size: %{public}u", size);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sharedList.reserve(size);
+    for (uint32_t i = 0; i < size; ++i) {
+        sharedList.push_back(PathSharedData::Unmarshalling(reply));
+    }
+    return ERR_OK;
+}
+#endif
 } // namespace EDM
 } // namespace OHOS

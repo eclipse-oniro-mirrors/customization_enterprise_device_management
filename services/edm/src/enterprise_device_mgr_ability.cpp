@@ -126,6 +126,10 @@ const std::string EDM_LOG_PATH = "/data/service/el1/public/edm/log";
 const std::string PARAM_DISABLE_SLOT = "persist.edm.disable_slot_";
 
 const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
+const std::string PARAM_QUICKACCESS_FUNCTION_TYPE = "const.quickaccess.function_type";
+const std::string PARAM_SUPERPRIVACY_FEATUREENABLED = "const.appsecurityprivacy.superprivacy.feature_enabled";
+const std::string DEFAULT_QUICKACCESS_FUNCTION_TYPE = "0";
+const std::string DEFAULT_SUPERPRIVACY_FEATUREENABLED = "0";
 
 const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
 #if defined(FEATURE_PC_ONLY)
@@ -133,6 +137,14 @@ const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
     static_cast<int32_t>(ManagedFeature::USER_EXTEND_CREDENTIAL),
     static_cast<int32_t>(ManagedFeature::DEVICE_SECURITY_LEVEL),
     static_cast<int32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY),
+    static_cast<int32_t>(ManagedFeature::OPTICAL_DISC_DRIVE_BURN),
+    static_cast<int32_t>(ManagedFeature::X_KEY),
+#else
+    static_cast<int32_t>(ManagedFeature::EXACT_TIMER),
+    static_cast<int32_t>(ManagedFeature::EXEMPTION_RESOURCE),
+    static_cast<int32_t>(ManagedFeature::X_KEY),
+    static_cast<int32_t>(ManagedFeature::SYSTEM_ROLLBACK),
+    static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY),
 #endif
 };
 
@@ -1596,6 +1608,18 @@ ErrCode EnterpriseDeviceMgrAbility::IsFeatureSupported(int32_t feature, bool &su
     EDMLOGI("EnterpriseDeviceMgrAbility::IsFeatureSupported feature %{public}d", feature);
     supported = std::find(FEATURE_SUPPORTED_LIST.begin(), FEATURE_SUPPORTED_LIST.end(), feature)
         != FEATURE_SUPPORTED_LIST.end();
+    if (!supported) {
+        return false;
+    }
+    if (feature == static_cast<int32_t>(ManagedFeature::X_KEY)) {
+        std::string deviceType = system::GetParameter(PARAM_QUICKACCESS_FUNCTION_TYPE,
+            DEFAULT_QUICKACCESS_FUNCTION_TYPE);
+        supported = (deviceType != DEFAULT_QUICKACCESS_FUNCTION_TYPE);
+    } else if (feature == static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY)) {
+        std::string deviceType = system::GetParameter(PARAM_SUPERPRIVACY_FEATUREENABLED,
+            DEFAULT_QUICKACCESS_FUNCTION_TYPE);
+        supported = (deviceType != DEFAULT_SUPERPRIVACY_FEATUREENABLED);
+    }
     return ERR_OK;
 }
 
@@ -2006,11 +2030,31 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, 
             EDMLOGE("GetDevicePolicy: permission check failed");
             return EdmReturnErrCode::PERMISSION_DENIED;
         }
+        ErrCode permRet = CheckAllQueryPermission(policyName);
+        if (FAILED(permRet)) {
+            return permRet;
+        }
     }
     ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, bundleName, data, reply, userId);
     ReportInfo info = ReportInfo(FuncCodeUtils::GetOperateType(code), policyName, std::to_string(getRet));
     SecurityReport::ReportSecurityInfo(bundleName, abilityName, info, true);
     return getRet;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckAllQueryPermission(const std::string &policyName)
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    std::string callerBundle;
+    GetBundleMgr()->GetNameForUid(uid, callerBundle);
+    std::shared_lock<std::shared_mutex> autoLock(adminLock_);
+    std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(callerBundle,
+        GetCurrentUserId());
+    if (deviceAdmin != nullptr &&
+        !deviceAdmin->HasPermissionToHandlePolicy(policyName, FuncOperateType::GET)) {
+        EDMLOGE("GetDevicePolicy: admin does not have permission to get policy ALL");
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    return ERR_OK;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckAndGetAdminProvisionInfo(uint32_t code, MessageParcel &data,
@@ -2675,6 +2719,16 @@ ErrCode EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo(
         "vendorId=%{public}d productId=%{public}d serial=%{public}s",
         deviceInfo.type, deviceInfo.devicePath.c_str(), deviceInfo.volumeId.c_str(),
         deviceInfo.mountStatus, deviceInfo.vendorId, deviceInfo.productId, deviceInfo.serial.c_str());
+    Security::AccessToken::ATokenTypeEnum tokenType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        EDMLOGE("NotifyUnmountExternalStorageDeviceInfo: caller token is not native, permission denied");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    if (IPCSkeleton::GetCallingUid() != EdmConstants::DISK_MANAGER_UID) {
+        EDMLOGE("NotifyUnmountExternalStorageDeviceInfo: caller uid not disk_manager, permission denied");
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
     EdmEventData edmData;
     edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE)};
     edmData.externalStorageDeviceInfo = deviceInfo;
@@ -2837,7 +2891,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSystemTimerPolicyNew(uint32_t code, Me
     int uid = IPCSkeleton::GetCallingUid();
     if (GetExternalManagerFactory()->CreateBundleManager()->GetNameForUid(uid, bundleName) != ERR_OK) {
         EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
-        return ERR_EDM_PERMISSION_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
 #ifndef EDM_FUZZ_TEST
     EDMLOGI("HandleSystemTimerPolicyNew: bundleName=%{public}s", bundleName.c_str());

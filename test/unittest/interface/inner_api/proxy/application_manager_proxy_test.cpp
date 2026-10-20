@@ -1955,7 +1955,7 @@ HWTEST_F(ApplicationManagerProxyTest, PublishFormToDesktop_ReplyFail, TestSize.L
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
     int32_t ret = applicationManagerProxy_->PublishFormToDesktop(data, formId);
-    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_TRUE(formId.empty());
 }
 

@@ -25,6 +25,7 @@
 #include "iptables_utils.h"
 #include "apn_password.h"
 #include "network_address.h"
+#include "shared_path_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -73,6 +74,9 @@ public:
     int32_t SetGlobalHttpProxy(MessageParcel &data);
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,
         int32_t accountId = -1);
+#endif
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    int32_t GetSharedPathList(std::vector<PathSharedData> &sharedList);
 #endif
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;

@@ -399,6 +399,14 @@ napi_value JsObjectToDataNew(napi_env env, napi_callback_info info, const AddonM
     QueryPolicyArgToData(env, argv, argc, methodSign, addonData->data);
     napi_value errorRes = JsParamsToData(env, argv, argc, methodSign, addonData->data);
     if (errorRes != nullptr) {
+        napi_value jsErrCode = nullptr;
+        napi_get_named_property(env, errorRes, "code", &jsErrCode);
+        int32_t errcode = EdmReturnErrCode::EXECUTE_TIME_OUT;
+        napi_get_value_int32(env, jsErrCode, &errcode);
+        if (methodSign.isAsync && errcode != EdmReturnErrCode::PARAM_ERROR) {
+            addonData->ret = errcode;
+            return NapiThrowErrorAsync(env, errcode);
+        }
         napi_throw(env, errorRes);
         return nullptr;
     }
@@ -443,11 +451,16 @@ napi_value AddonMethodAdapterNew(napi_env env, napi_callback_info info, const Ad
         return nullptr;
     }
     adapterAddonData->errcodeType = ErrcodeType::NUMBER;
+    adapterAddonData->ret = ERR_OK;
     std::unique_ptr<AdapterAddonData> adapterAddonDataPtr{adapterAddonData};
     napi_value result = JsObjectToDataNew(env, info, methodSign, adapterAddonData);
     if (result == nullptr) {
         EDMLOGE("AddonMethodAdapterNew JsObjectToDataNew exec fail.");
         return nullptr;
+    }
+    if (adapterAddonData->ret != ERR_OK) {
+        EDMLOGI("AddonMethodAdapterNew %{public}s param rejected, skip async work.", methodSign.name.c_str());
+        return result;
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, adapterAddonData, methodSign.name,
         execute, complete);

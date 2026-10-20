@@ -1346,11 +1346,11 @@ napi_value SystemManagerAddon::SetLocalHotaDomain(napi_env env, napi_callback_in
     EDMLOGI("SetLocalHotaDomain Addon called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetLocalHotaDomain";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING};
+    addonMethodSign.argsType = {EdmAddonCommonType::STRING};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1375,11 +1375,11 @@ napi_value SystemManagerAddon::GetLocalHotaDomain(napi_env env, napi_callback_in
     EDMLOGI("GetLocalHotaDomain Addon called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetLocalHotaDomain";
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT};
+    addonMethodSign.argsType = {};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -1445,8 +1445,7 @@ napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info
 {
 #ifdef FEATURE_PC_ONLY
     EDMLOGW("CreateTimer not supported on PC");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_CreateTimer called");
     size_t argc = ARGS_SIZE_ONE;
@@ -1456,7 +1455,7 @@ napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     auto asyncCallbackInfo = new (std::nothrow) AsyncCreateTimerCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     std::unique_ptr<AsyncCreateTimerCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error", ErrcodeType::NUMBER);
@@ -1506,8 +1505,7 @@ napi_value SystemManagerAddon::StartTimer(napi_env env, napi_callback_info info)
 {
 #ifdef FEATURE_PC_ONLY
     EDMLOGW("StartTimer not supported on PC");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_StartTimer called");
     size_t argc = ARGS_SIZE_TWO;
@@ -1517,7 +1515,7 @@ napi_value SystemManagerAddon::StartTimer(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     auto asyncCallbackInfo = new (std::nothrow) AsyncTimerOperationCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     std::unique_ptr<AsyncTimerOperationCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "Parameter count error", ErrcodeType::NUMBER);
@@ -1545,8 +1543,7 @@ napi_value SystemManagerAddon::StopTimer(napi_env env, napi_callback_info info)
 {
 #ifdef FEATURE_PC_ONLY
     EDMLOGW("StopTimer not supported on PC");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_StopTimer called");
     size_t argc = ARGS_SIZE_ONE;
@@ -1556,7 +1553,7 @@ napi_value SystemManagerAddon::StopTimer(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     auto asyncCallbackInfo = new (std::nothrow) AsyncTimerOperationCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     std::unique_ptr<AsyncTimerOperationCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error", ErrcodeType::NUMBER);
@@ -1578,8 +1575,7 @@ napi_value SystemManagerAddon::DestroyTimer(napi_env env, napi_callback_info inf
 {
 #ifdef FEATURE_PC_ONLY
     EDMLOGW("DestroyTimer not supported on PC");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_DestroyTimer called");
     size_t argc = ARGS_SIZE_ONE;
@@ -1589,7 +1585,7 @@ napi_value SystemManagerAddon::DestroyTimer(napi_env env, napi_callback_info inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     auto asyncCallbackInfo = new (std::nothrow) AsyncTimerOperationCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     std::unique_ptr<AsyncTimerOperationCallbackInfo> callbackPtr{asyncCallbackInfo};
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error", ErrcodeType::NUMBER);

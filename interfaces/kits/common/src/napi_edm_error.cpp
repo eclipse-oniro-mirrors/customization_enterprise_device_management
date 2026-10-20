@@ -221,5 +221,28 @@ bool IsEDMErrCode(ErrCode returnCode)
 {
     return errMessageMap.find(returnCode) != errMessageMap.end();
 }
+
+napi_value NapiThrowErrorAsync(napi_env env, ErrCode errorCode)
+{
+    napi_value promise = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_value jsErrCode = nullptr;
+    napi_value message = nullptr;
+    napi_value jsError = nullptr;
+    std::string errMessage;
+    auto iter = errMessageMap.find(errorCode);
+    if (iter != errMessageMap.end()) {
+        errMessage = iter->second;
+    }
+    napi_create_int32(env, errorCode, &jsErrCode);
+    napi_create_string_utf8(env, errMessage.c_str(), errMessage.size(), &message);
+    napi_create_error(env, nullptr, message, &jsError);
+    napi_set_named_property(env, jsError, "code", jsErrCode);
+    napi_status asyncStatus = napi_create_promise(env, &deferred, &promise);
+    if (asyncStatus == napi_ok) {
+        napi_reject_deferred(env, deferred, jsError);
+    }
+    return promise;
+}
 } // namespace EDM
 } // namespace OHOS

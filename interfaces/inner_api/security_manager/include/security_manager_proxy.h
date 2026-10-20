@@ -80,6 +80,7 @@ public:
     int32_t AddUserExtCredential(MessageParcel &data, MessageParcel &reply);
     int32_t RemoveUserExtCredential(MessageParcel &data);
     int32_t GetUserExtCredential(MessageParcel &data, MessageParcel &reply);
+    int32_t GetPasswordLastChangedTime(MessageParcel &data, uint64_t &latestTime);
     int32_t SetUnlockPolicy(MessageParcel &data);
     int32_t GetUnlockPolicy(MessageParcel &data, int32_t &policy);
     int32_t SetDeviceSecurityLevelPolicy(MessageParcel &data);

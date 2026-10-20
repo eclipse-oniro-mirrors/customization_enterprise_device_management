@@ -16,6 +16,8 @@
 #include "device_info_proxy.h"
 
 #include "edm_constants.h"
+#include "edm_errors.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code.h"
 
@@ -72,5 +74,22 @@ int32_t DeviceInfoProxy::GetDeviceInfo(MessageParcel &data, const std::string &l
     reply.ReadString(info);
     return ERR_OK;
 }
+
+int32_t DeviceInfoProxy::GetPatchInfo(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("DeviceInfoProxy::GetPatchInfo");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("DeviceInfoProxy::GetPatchInfo can not get EnterpriseDeviceMgrProxy");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::GET_PATCH_INFO, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("DeviceInfoProxy::GetPatchInfo fail. %{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
 }  // namespace EDM
 }  // namespace OHOS
+

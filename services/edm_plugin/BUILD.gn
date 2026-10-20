@@ -106,6 +106,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
       "./src/bundle_manager/allowed_install_bundles_plugin.cpp",
       "./src/bundle_manager/bundle_install_plugin.cpp",
+      "./src/bundle_manager/default_application_plugin.cpp",
       "./src/restrictions/disable_camera_plugin.cpp",
       "./src/restrictions/disable_hdc_plugin.cpp",
       "./src/restrictions/disable_app_clone_plugin.cpp",
@@ -679,6 +680,7 @@ ohos_shared_library("sys_service_plugin") {
       sources += [
         "./src/restrictions/fingerprint_auth_plugin.cpp",
         "./src/security_manager/password_policy_plugin.cpp",
+        "./src/security_manager/password_last_changed_time_plugin.cpp",
       ]
     }
 
@@ -818,6 +820,8 @@ ohos_shared_library("need_extra_plugin") {
         "./src/application_manager/add_dock_app_plugin.cpp",
         "./src/system_manager/local_hota_domain_plugin.cpp",
         "./src/system_manager/ota_update_nonce_plugin.cpp",
+        "./src/device_info/get_patch_info_plugin.cpp",
+        "./src/network_manager/get_shared_path_list_plugin.cpp",
       ]
     }
 

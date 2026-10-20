@@ -64,6 +64,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/allowed_app_distribution_types_plugin_test.cpp",
     "./src/allowed_collaboration_service_bundles_plugin_test.cpp",
     "./src/bundle_install_plugin_test.cpp",
+    "./src/default_application_plugin_test.cpp",
     "./src/device_info_plugin_test.cpp",
     "./src/disable_app_clone_plugin_test.cpp",
     "./src/disable_maintenance_mode_plugin_test.cpp",
@@ -367,6 +368,7 @@ ohos_unittest("EdmPluginTest") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "./src/add_dock_app_plugin_test.cpp",
+      "./src/get_shared_path_list_plugin_test.cpp",
       "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
       "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
       "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
@@ -378,6 +380,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_core_dump_plugin_test.cpp",
       "./src/disallow_rs232_plugin_test.cpp",
       "./src/ota_update_nonce_plugin_test.cpp",
+      "./src/get_patch_info_plugin_test.cpp",
       "./src/security_manager/device_security_level_policy_plugin_test.cpp",
       "./src/system_manager/allowed_printer_ip_addresses_plugin_test.cpp",
       "./src/plugin_utils/ip_utils_test.cpp",
@@ -387,6 +390,11 @@ ohos_unittest("EdmPluginTest") {
 
   if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
     sources += [ "./src/security_manager/unlock_policy_plugin_test.cpp" ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [ "./src/security_manager/password_last_changed_time_plugin_test.cpp" ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -638,6 +646,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_manager/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_manager/bundle_install_plugin.cpp",
+    "../../../../services/edm_plugin/src/bundle_manager/default_application_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disable_app_clone_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disable_backup_and_restore_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disable_maintenance_mode_plugin.cpp",
@@ -967,6 +976,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_util.cpp",
+      "../../../../services/edm_plugin/src/device_info/get_patch_info_plugin.cpp",
     ]
   }
 
@@ -1022,6 +1032,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm_plugin/src/application_manager/add_dock_app_plugin.cpp",
+      "../../../../services/edm_plugin/src/network_manager/get_shared_path_list_plugin.cpp",
       "../../../../services/edm_plugin/src/device_settings/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
       "../../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
@@ -1044,6 +1055,13 @@ ohos_static_library("edm_all_plugin_static") {
   if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
     sources += [ "../../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp" ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/security_manager/password_last_changed_time_plugin.cpp",
+    ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -1134,6 +1152,11 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp",
     ]
+  }
+
+  if (nfc_edm_enable) {
+    external_deps += ["nfc:nfc_inner_kits_controller"]
+    defines += [ "NFC_EDM_ENABLE" ]
   }
 
   sanitize = {

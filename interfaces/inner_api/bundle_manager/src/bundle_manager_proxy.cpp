@@ -354,6 +354,28 @@ int32_t BundleManagerProxy::GetInstallationAllowedAppDistributionTypes(MessagePa
     return ERR_OK;
 }
 
+int32_t BundleManagerProxy::SetDefaultApplication(MessageParcel &data)
+{
+    EDMLOGD("BundleManagerProxy::SetDefaultApplication");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::DEFAULT_APPLICATION);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t BundleManagerProxy::GetDefaultApplicationBundleName(MessageParcel &data, std::string &bundleName)
+{
+    EDMLOGD("BundleManagerProxy::GetDefaultApplicationBundleName");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::DEFAULT_APPLICATION,
+        data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("BundleManagerProxy:GetDefaultApplicationBundleName fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadString(bundleName);
+    return ERR_OK;
+}
+
 ErrCode BundleManagerProxy::InnerGetVectorFromParcelIntelligent(MessageParcel &reply,
     std::vector<EdmBundleInfo> &parcelableInfos)
 {

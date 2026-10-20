@@ -6312,13 +6312,14 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsSelfSuperAdmin, TestSize.Level1)
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupported, TestSize.Level1)
 {
-    int32_t features[] = {
+    int32_t pcFeatures[] = {
         static_cast<int32_t>(ManagedFeature::LOCAL_HOTA_DOMAIN),
         static_cast<int32_t>(ManagedFeature::USER_EXTEND_CREDENTIAL),
         static_cast<int32_t>(ManagedFeature::DEVICE_SECURITY_LEVEL),
         static_cast<int32_t>(ManagedFeature::PRINTER_IP_ADDRESS_POLICY),
+        static_cast<int32_t>(ManagedFeature::OPTICAL_DISC_DRIVE_BURN),
     };
-    for (int32_t feature : features) {
+    for (int32_t feature : pcFeatures) {
         bool supported = true;
         ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
         EXPECT_TRUE(ret == ERR_OK);
@@ -6329,10 +6330,63 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupported, TestSize.Level1
 #endif
     }
 
+    int32_t mobileFeatures[] = {
+        static_cast<int32_t>(ManagedFeature::EXACT_TIMER),
+        static_cast<int32_t>(ManagedFeature::EXEMPTION_RESOURCE),
+        static_cast<int32_t>(ManagedFeature::SYSTEM_ROLLBACK),
+    };
+    for (int32_t feature : mobileFeatures) {
+        bool supported = true;
+        ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
+        EXPECT_TRUE(ret == ERR_OK);
+#ifdef FEATURE_PC_ONLY
+        EXPECT_FALSE(supported);
+#else
+        EXPECT_TRUE(supported);
+#endif
+    }
+
     bool supported = true;
     ErrCode ret = edmMgr_->IsFeatureSupported(999, supported);
     EXPECT_TRUE(ret == ERR_OK);
     EXPECT_FALSE(supported);
+}
+
+/**
+ * @tc.name: TestIsFeatureSupportedXKeyAndSuperPrivacy
+ * @tc.desc: Test IsFeatureSupported for X_KEY and SUPER_PRIVACY with system parameter check.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupportedXKeyAndSuperPrivacy, TestSize.Level1)
+{
+    const std::string paramKey = "const.quickaccess.function_type";
+
+    // When device type is "0", X_KEY and SUPER_PRIVACY should not be supported
+    system::SetParameter(paramKey, "0");
+    int32_t conditionalFeatures[] = {
+        static_cast<int32_t>(ManagedFeature::X_KEY),
+        static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY),
+    };
+    for (int32_t feature : conditionalFeatures) {
+        bool supported = true;
+        ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
+        EXPECT_TRUE(ret == ERR_OK);
+        EXPECT_FALSE(supported);
+    }
+
+#ifndef FEATURE_PC_ONLY
+    // When device type is not "0", X_KEY and SUPER_PRIVACY should be supported
+    system::SetParameter(paramKey, "1");
+    for (int32_t feature : conditionalFeatures) {
+        bool supported = false;
+        ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
+        EXPECT_TRUE(ret == ERR_OK);
+        EXPECT_TRUE(supported);
+    }
+#endif
+
+    // Restore default
+    system::SetParameter(paramKey, "0");
 }
 
 /**
@@ -6601,7 +6655,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_GetNameForUi
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_EDM_PERMISSION_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 /**

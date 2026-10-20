@@ -234,6 +234,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/application_manager/allowed_notification_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_manager/bundle_install_plugin.cpp",
+      "../../../services/edm_plugin/src/bundle_manager/default_application_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_maintenance_mode_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disallow_random_mac_address_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_mtp_client_plugin.cpp",
@@ -546,6 +547,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_hdc_remote_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/device_security_level_policy_plugin.cpp",
+        "../../../services/edm_plugin/src/device_info/get_patch_info_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
