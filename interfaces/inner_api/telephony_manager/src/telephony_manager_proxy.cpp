@@ -219,7 +219,8 @@ static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vect
     MessageParcel tempParcel;
     if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
         EDMLOGE("GetCallLogs: ParseFrom failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        free(buffer);
+        return EdmReturnErrCode::SYSTEM_ABNOMALLY;
     }
     int32_t count = tempParcel.ReadInt32();
     size_t readableDataSize = tempParcel.GetReadableBytes();
@@ -279,7 +280,6 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
         return errCode;
     }
     errCode = ParseCallLogsFromBuffer(buffer, dataSize, callLogs);
-    free(buffer);
     return errCode;
 }
 } // namespace EDM
