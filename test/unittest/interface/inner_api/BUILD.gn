@@ -37,6 +37,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./common/install_param_serializer_test.cpp",
     "./common/iext_info_manager_test.cpp",
     "./common/json_builder_test.cpp",
+    "./common/patch_info_test.cpp",
     "./common/policy_changed_event_test.cpp",
     "./proxy/bundle_storage_info_test.cpp",
     "./proxy/common_manager_proxy_test.cpp",

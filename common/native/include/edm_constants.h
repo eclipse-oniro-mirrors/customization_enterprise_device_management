@@ -50,6 +50,7 @@ namespace EdmConstants {
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
     constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
+    constexpr uint32_t PATCH_INFO_MAX_SIZE = 200;
     constexpr uint32_t MANAGE_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
     constexpr uint32_t NOTIFICATION_BUNDLES_MAX_SIZE = 200;
@@ -172,6 +173,7 @@ namespace EdmConstants {
         constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
         constexpr uint32_t WEAK_PIN = 43;
         constexpr uint32_t DISABLE_SUPER_PRIVACY = 44;
+        constexpr uint32_t GET_PATCH_INFO = 46;
         constexpr uint32_t GET_SHARED_PATH_LIST = 47;
     }
 
@@ -467,6 +469,7 @@ namespace PolicyName {
     const char* const POLICY_GET_NETWORK_INTERFACES = "get_network_interfaces";
     const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
     const char* const POLICY_GET_DEVICE_INFO = "get_device_info";
+    const char* const POLICY_GET_PATCH_INFO = "get_patch_info";
     const char* const POLICY_GET_IP_OR_MAC_ADDRESS = "get_ip_or_mac_address";
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";

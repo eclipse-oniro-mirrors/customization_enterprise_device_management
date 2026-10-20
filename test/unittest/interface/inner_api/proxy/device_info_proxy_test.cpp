@@ -52,6 +52,9 @@ void DeviceInfoProxyTest::SetUp()
 
 void DeviceInfoProxyTest::TearDown()
 {
+    if (object_ != nullptr) {
+        Mock::VerifyAndClearExpectations(object_.GetRefPtr());
+    }
     deviceInfoProxy.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
@@ -210,6 +213,74 @@ HWTEST_F(DeviceInfoProxyTest, TestGetDeviceInfoSyncFail, TestSize.Level1)
     std::string info;
     int32_t ret = deviceInfoProxy->GetDeviceInfo(data, "device_name", EdmInterfaceCode::GET_DEVICE_INFO, info);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetPatchInfo_ValidReply_Success
+ * @tc.desc: Test GetPatchInfo success path returns ERR_OK and patch payload in reply.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_ValidReply_Success, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokePatchInfoSendRequestGetPolicy));
+    MessageParcel reply;
+    int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    uint32_t size = 0;
+    ASSERT_TRUE(reply.ReadUint32(size));
+    ASSERT_EQ(size, 1u);
+    PatchInfo patchInfo;
+    ASSERT_TRUE(PatchInfo::Unmarshalling(reply, patchInfo));
+    EXPECT_EQ(patchInfo.name, "patch_ut");
+    EXPECT_EQ(patchInfo.accountName, "system");
+    EXPECT_EQ(patchInfo.installTime, 1710000000000);
+    ASSERT_EQ(patchInfo.description.headers.size(), 1u);
+    EXPECT_EQ(patchInfo.description.headers[0], "Security");
+    ASSERT_EQ(patchInfo.description.bodies.size(), 1u);
+    EXPECT_EQ(patchInfo.description.bodies[0].title, "Critical Fix");
+}
+
+/**
+ * @tc.name: GetPatchInfo_ServiceDisabled_ReturnsAdminInactive
+ * @tc.desc: Test GetPatchInfo returns ADMIN_INACTIVE when edm service is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_ServiceDisabled_ReturnsAdminInactive, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    MessageParcel reply;
+    int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetPatchInfo_InterfaceUnsupported_ReturnsInterfaceUnsupported
+ * @tc.desc: Test GetPatchInfo returns INTERFACE_UNSUPPORTED from open-source stub reply.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_InterfaceUnsupported_ReturnsInterfaceUnsupported, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy));
+    MessageParcel reply;
+    int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 } // namespace TEST
 } // namespace EDM

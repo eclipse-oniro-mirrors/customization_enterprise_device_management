@@ -242,6 +242,7 @@ enum EdmInterfaceCode : uint32_t {
     DEFAULT_APPLICATION = 1190,
     PASSWORD_LAST_CHANGED_TIME = 1191,
     GET_SHARED_PATH_LIST = 1192,
+    GET_PATCH_INFO = 1193,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
