@@ -6655,7 +6655,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_GetNameForUi
     MessageParcel data;
     MessageParcel reply;
     ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_EDM_PERMISSION_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 /**

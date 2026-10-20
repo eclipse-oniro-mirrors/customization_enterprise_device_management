@@ -2891,7 +2891,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSystemTimerPolicyNew(uint32_t code, Me
     int uid = IPCSkeleton::GetCallingUid();
     if (GetExternalManagerFactory()->CreateBundleManager()->GetNameForUid(uid, bundleName) != ERR_OK) {
         EDMLOGW("CheckCallingUid failed: get bundleName for uid %{public}d fail.", uid);
-        return ERR_EDM_PERMISSION_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
 #ifndef EDM_FUZZ_TEST
     EDMLOGI("HandleSystemTimerPolicyNew: bundleName=%{public}s", bundleName.c_str());
