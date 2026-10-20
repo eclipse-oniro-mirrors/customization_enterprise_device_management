@@ -1703,8 +1703,9 @@ static napi_value BuildCredentialArray(napi_env env, OHOS::MessageParcel &reply)
             NAPI_CALL(env, napi_create_object(env, &credentialIdValue));
         }
         napi_set_named_property(env, obj, "credentialId", credentialIdValue);
+        std::string pluginInfo = reply.ReadString();
         napi_value pluginInfoValue = nullptr;
-        NAPI_CALL(env, napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &pluginInfoValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, pluginInfo.c_str(), pluginInfo.size(), &pluginInfoValue));
         napi_set_named_property(env, obj, "pluginInfo", pluginInfoValue);
         NAPI_CALL(env, napi_set_element(env, result, i, obj));
     }
