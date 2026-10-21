@@ -1751,6 +1751,7 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddresses(napi_env env
         if (FAILED(ret)) {
             napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
             EDMLOGE("EdmParsePrinterIpArray failed!");
+            return ret;
         }
         data.WriteStringVector(ipList);
         return ERR_OK;
@@ -1846,6 +1847,7 @@ napi_value SystemManagerAddon::AddOrRemoveAllowedPrinterIPAddressesForAccount(na
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("EdmParsePrinterIpArray failed!");
+        return nullptr;
     }
     int32_t userId = EdmConstants::DEFAULT_USER_ID;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
