@@ -634,6 +634,15 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
+    {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, {PolicyName::POLICY_DISALLOWED_FREE_WINDOW,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true,
+        IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        false
+#else
+        true
+#endif
+    }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
