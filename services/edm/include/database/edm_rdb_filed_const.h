@@ -60,7 +60,11 @@ const std::string EDM_RDB_NAME = "/edmdb.db";
 const std::string ADMIN_POLICIES_RDB_TABLE_NAME = "admin_policies";
 const std::string DEVICE_ADMIN_POLICIES_RDB_TABLE_NAME = "device_admin_policies";
 const std::string DEVICE_COMBINED_POLICIES_RDB_TABLE_NAME = "device_combined_policies";
-constexpr int32_t EDM_RDB_VERSION = 5;
+const std::string SENSITIVE_CALL_NOTIFIED_RDB_TABLE_NAME = "sensitive_call_notified";
+const std::string FILED_APP_INDEX = "app_index";
+const std::string FILED_SENSITIVE_ID = "sensitive_id";
+const std::string FILED_NOTIFIED_TIME = "notified_time";
+constexpr int32_t EDM_RDB_VERSION = 6;
 } // namespace EdmRdbFiledConst
 } // namespace EDM
 } // namespace OHOS

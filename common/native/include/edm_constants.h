@@ -88,6 +88,8 @@ namespace EdmConstants {
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
     const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";
+    const char* const SENSITIVE_CALL_NOTIFIED_TITLE = "sensitive_call_notification_title";
+    const char* const SENSITIVE_CALL_NOTIFIED_BODY = "sensitive_call_notification_body";
     const char* const APP_IDENTIFIER = "appIdentifier";
 
     // Install local enterprise app settings database

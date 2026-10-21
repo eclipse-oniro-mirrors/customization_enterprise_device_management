@@ -243,6 +243,8 @@ enum EdmInterfaceCode : uint32_t {
     PASSWORD_LAST_CHANGED_TIME = 1191,
     GET_SHARED_PATH_LIST = 1192,
     GET_PATCH_INFO = 1193,
+    GET_SMS_MESSAGES = 1199,
+    GET_CALL_LOGS = 1200,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM

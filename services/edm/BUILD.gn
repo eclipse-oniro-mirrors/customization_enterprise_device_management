@@ -333,6 +333,13 @@ ohos_shared_library("edmservice") {
   if (notification_edm_enable) {
     defines += [ "NOTIFICATION_EDM_ENABLE" ]
   }
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/sensitive_api_whitelist.cpp",
+      "./src/sensitive_call_notify_manager.cpp",
+      "./src/database/sensitive_call_notify_rdb.cpp",
+    ]
+  }
 
   if (netmanager_ext_edm_enable) {
     defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
