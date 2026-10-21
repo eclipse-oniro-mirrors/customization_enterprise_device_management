@@ -541,9 +541,6 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/generic_policy_query_test.cpp",
     "./src/replace_execute_strategy_test.cpp",
     "./src/single_execute_strategy_test.cpp",
-    "./src/sensitive_api_whitelist_test.cpp",
-    "./src/sensitive_call_notify_manager_test.cpp",
-    "./src/sensitive_call_notify_rdb_test.cpp",
     "./src/system_service_start_handler_test.cpp",
     "./src/update_policy_conflict_test.cpp",
     "./src/user_policy_manager_test.cpp",
@@ -551,6 +548,14 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/query_policy/disallowed_permission_query_test.cpp",
     "./src/query_policy/get_watermark_image_apps_query_test.cpp",
   ]
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/sensitive_api_whitelist_test.cpp",
+      "./src/sensitive_call_notify_manager_test.cpp",
+      "./src/sensitive_call_notify_rdb_test.cpp",
+    ]
+  }
 
   if (common_event_service_edm_enable) {
     sources += [
