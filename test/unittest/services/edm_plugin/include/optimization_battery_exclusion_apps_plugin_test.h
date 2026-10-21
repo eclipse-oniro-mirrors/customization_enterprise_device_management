@@ -18,7 +18,9 @@
 
 #include <gtest/gtest.h>
 #define private public
+#define protected public
 #include "optimization_battery_exclusion_apps_plugin.h"
+#undef protected
 #undef private
 
 namespace OHOS {
