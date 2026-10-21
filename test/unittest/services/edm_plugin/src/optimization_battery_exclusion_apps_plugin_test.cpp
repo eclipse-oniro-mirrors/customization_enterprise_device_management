@@ -13,6 +13,12 @@
  * limitations under the License.
  */
 
+#define private public
+#define protected public
+#include "optimization_battery_exclusion_apps_plugin.h"
+#undef protected
+#undef private
+
 #include "optimization_battery_exclusion_apps_plugin_test.h"
 
 #include "edm_constants.h"

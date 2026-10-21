@@ -17,11 +17,7 @@
 #define EDM_UNIT_TEST_OPTIMIZATION_BATTERY_EXCLUSION_APPS_PLUGIN_TEST_H
 
 #include <gtest/gtest.h>
-#define private public
-#define protected public
 #include "optimization_battery_exclusion_apps_plugin.h"
-#undef protected
-#undef private
 
 namespace OHOS {
 namespace EDM {
