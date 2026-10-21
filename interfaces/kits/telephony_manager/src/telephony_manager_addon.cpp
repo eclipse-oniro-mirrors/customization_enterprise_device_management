@@ -622,6 +622,9 @@ void TelephonyManagerAddon::ConvertVectorCallLogToJs(napi_env env,
     for (const auto &log : callLogs) {
         napi_value jsLog = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &jsLog));
+        napi_value jsCreateTime = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, log.createTime, &jsCreateTime));
+        napi_set_named_property(env, jsLog, "createTime", jsCreateTime);
         napi_value jsStartTime = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, log.startTime, &jsStartTime));
         napi_set_named_property(env, jsLog, "startTime", jsStartTime);

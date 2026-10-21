@@ -51,6 +51,7 @@ constexpr const char *CALL_LOG_BASE_URI = "datashare:///com.ohos.calllogability"
 constexpr const char *CALL_LOG_URI = "datashare:///com.ohos.calllogability/calls/calllog";
 constexpr const char *CALL_LOG_COLUMN_ID = "id";
 constexpr const char *CALL_LOG_COLUMN_PHONE_NUMBER = "phone_number";
+constexpr const char *CALL_LOG_COLUMN_CREATE_TIME = "create_time";
 constexpr const char *CALL_LOG_COLUMN_BEGIN_TIME = "begin_time";
 constexpr const char *CALL_LOG_COLUMN_END_TIME = "end_time";
 constexpr const char *CALL_LOG_COLUMN_CALL_DIRECTION = "call_direction";
@@ -58,8 +59,8 @@ constexpr const char *CALL_LOG_COLUMN_SLOT_ID = "slot_id";
 constexpr int32_t CALL_DIRECTION_IN = 0;
 constexpr int32_t ROW_FETCH_SUCCESS = 0;
 constexpr size_t ESTIMATED_RECORD_SIZE = 64;
-constexpr int64_t ONE_DAY_MILLIS = 24LL * 60 * 60 * 1000;
-constexpr int64_t MAX_TIME_RANGE_MILLIS = 31LL * ONE_DAY_MILLIS;
+constexpr int64_t ONE_DAY_SECONDS = 24LL * 60 * 60;
+constexpr int64_t MAX_TIME_RANGE_SECONDS = 31LL * ONE_DAY_SECONDS;
 constexpr const char *CALL_LOG_ASHMEM_NAME = "edm_call_logs_";
 constexpr int32_t DATASHARE_WAIT_TIME = 10;
 static int32_t ashmemNum_ = 0;
@@ -82,12 +83,12 @@ static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
 static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig &config)
 {
     DataShare::DataSharePredicates predicates;
-    predicates.GreaterThanOrEqualTo(CALL_LOG_COLUMN_BEGIN_TIME, std::to_string(config.startTime));
-    predicates.And()->LessThanOrEqualTo(CALL_LOG_COLUMN_BEGIN_TIME, std::to_string(config.endTime));
+    predicates.GreaterThanOrEqualTo(CALL_LOG_COLUMN_CREATE_TIME, std::to_string(config.startTime));
+    predicates.And()->LessThanOrEqualTo(CALL_LOG_COLUMN_CREATE_TIME, std::to_string(config.endTime));
     if (config.hasTelephoneNumber && !config.telephoneNumber.empty()) {
         predicates.And()->EqualTo(CALL_LOG_COLUMN_PHONE_NUMBER, config.telephoneNumber);
     }
-    predicates.OrderByDesc(CALL_LOG_COLUMN_BEGIN_TIME);
+    predicates.OrderByDesc(CALL_LOG_COLUMN_CREATE_TIME);
     return predicates;
 }
 
@@ -95,6 +96,7 @@ static std::vector<std::string> BuildResultColumns()
 {
     return {
         CALL_LOG_COLUMN_ID,
+        CALL_LOG_COLUMN_CREATE_TIME,
         CALL_LOG_COLUMN_PHONE_NUMBER,
         CALL_LOG_COLUMN_BEGIN_TIME,
         CALL_LOG_COLUMN_END_TIME,
@@ -136,6 +138,10 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
         }
         CallLogInfo log;
         int32_t columnIndex = 0;
+        int64_t createTime = 0;
+        resultSet->GetColumnIndex(CALL_LOG_COLUMN_CREATE_TIME, columnIndex);
+        resultSet->GetLong(columnIndex, createTime);
+        log.createTime = createTime;
         int64_t beginTime = 0;
         resultSet->GetColumnIndex(CALL_LOG_COLUMN_BEGIN_TIME, columnIndex);
         resultSet->GetLong(columnIndex, beginTime);
@@ -214,7 +220,8 @@ static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParc
             EDMLOGI("GetCallLogsPlugin: Data size exceeds limit, truncated at %{public}d records.", actualCount);
             break;
         }
-        if (!tempParcel.WriteInt64(log.startTime) ||
+        if (!tempParcel.WriteInt64(log.createTime) ||
+            !tempParcel.WriteInt64(log.startTime) ||
             !tempParcel.WriteInt64(log.endTime) ||
             !tempParcel.WriteBool(log.isIncoming) ||
             !tempParcel.WriteInt32(log.slotId) ||
@@ -261,7 +268,7 @@ ErrCode GetCallLogsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
         reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (config.endTime - config.startTime > MAX_TIME_RANGE_MILLIS) {
+    if (config.endTime - config.startTime > MAX_TIME_RANGE_SECONDS) {
         EDMLOGE("GetCallLogsPlugin: Time range exceeds 31 days.");
         reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;

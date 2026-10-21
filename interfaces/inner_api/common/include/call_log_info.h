@@ -23,6 +23,7 @@ namespace OHOS {
 namespace EDM {
 
 struct CallLogInfo {
+    int64_t createTime = 0;
     int64_t startTime = 0;
     int64_t endTime = 0;
     bool isIncoming = false;

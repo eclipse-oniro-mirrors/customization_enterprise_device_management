@@ -232,6 +232,7 @@ static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vect
     }
     for (int32_t i = 0; i < count; ++i) {
         CallLogInfo log;
+        log.createTime = tempParcel.ReadInt64();
         log.startTime = tempParcel.ReadInt64();
         log.endTime = tempParcel.ReadInt64();
         log.isIncoming = tempParcel.ReadBool();
