@@ -41,7 +41,7 @@ interface CallLogInfo {
 | 项 | 值 |
 |---|---|
 | 权限 | `ohos.permission.ENTERPRISE_READ_CALL_LOG` |
-| 管理员类型 | 超级管理员（SUPER_DEVICE_ADMIN） |
+| 管理员类型 | SUPER_DEVICE_ADMIN（仅系统级管理员可调用） |
 | 支持设备 | 手机、平板（不支持 PC） |
 | 时间范围上限 | 31 天 |
 
