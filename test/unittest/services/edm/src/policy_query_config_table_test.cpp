@@ -280,6 +280,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef MULTI_WINDOW_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_MULTI_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
+#ifndef FEATURE_PC_ONLY
+    map[EdmInterfaceCode::DISALLOWED_FREE_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+#endif
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
     map[EdmInterfaceCode::ALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
     map[EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
@@ -436,6 +439,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #ifdef MULTI_WINDOW_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MULTI_WINDOW);
 #endif
+#ifndef FEATURE_PC_ONLY
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_FREE_WINDOW);
+#endif
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
 #endif
@@ -572,6 +578,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
         {EdmInterfaceCode::DISALLOWED_MULTI_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif
 #ifndef FEATURE_PC_ONLY
+        {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
         {EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
             EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION},
 #endif

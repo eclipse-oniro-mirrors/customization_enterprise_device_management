@@ -87,6 +87,7 @@ enum class RestrictionsFeatureForAccount : int32_t {
     SUDO = 8,
     DISTRIBUTED_TRANSMISSION_OUTGOING = 9,
     OPEN_FILE_BOOST = 10,
+    FREE_WINDOW = 14,
 };
 
 enum class UserRestrictionForDevice : int32_t {
