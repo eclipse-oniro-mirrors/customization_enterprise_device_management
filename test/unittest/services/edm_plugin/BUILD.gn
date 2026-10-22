@@ -449,6 +449,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/utils/telephony_call_policy_serializer_test.cpp",
       "./src/hang_up_calling_plugin_test.cpp",
+      "./src/get_call_logs_plugin_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",

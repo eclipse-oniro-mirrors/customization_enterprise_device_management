@@ -214,6 +214,15 @@ public:
     int InvokeSendRequestGetInstalledBundleList(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
+    int InvokeSendRequestGetCallLogs(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestGetCallLogsEmpty(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestGetCallLogsInvalidSize(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
     int InvokeSendRequestGetBundleStatsInfos(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 

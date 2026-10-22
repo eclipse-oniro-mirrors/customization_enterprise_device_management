@@ -458,6 +458,107 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetDefaultDataSimFail, TestSize.Level1)
     int32_t ret = telephonyManagerProxy->GetDefaultDataSim(data, simId);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetCallLogsSuc
+ * @tc.desc: Test TelephonyManagerProxy::GetCallLogs when IPC returns valid call log data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs));
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = false;
+    std::vector<CallLogInfo> callLogs;
+    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(callLogs.size(), static_cast<size_t>(2));
+    EXPECT_EQ(callLogs[0].createTime, static_cast<int64_t>(1700000000));
+    EXPECT_EQ(callLogs[0].startTime, static_cast<int64_t>(1700000010));
+    EXPECT_EQ(callLogs[0].endTime, static_cast<int64_t>(1700000020));
+    EXPECT_TRUE(callLogs[0].isIncoming);
+    EXPECT_EQ(callLogs[0].slotId, 0);
+    EXPECT_EQ(callLogs[0].telephoneNumber, "13800138000");
+    EXPECT_FALSE(callLogs[1].isIncoming);
+    EXPECT_EQ(callLogs[1].slotId, 1);
+    EXPECT_EQ(callLogs[1].telephoneNumber, "13800138001");
+}
+
+/**
+ * @tc.name: TestGetCallLogsFail
+ * @tc.desc: Test TelephonyManagerProxy::GetCallLogs when IPC SendRequest fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = false;
+    std::vector<CallLogInfo> callLogs;
+    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    EXPECT_NE(ret, ERR_OK);
+    EXPECT_TRUE(callLogs.empty());
+}
+
+/**
+ * @tc.name: TestGetCallLogsEmpty
+ * @tc.desc: Test TelephonyManagerProxy::GetCallLogs when IPC returns empty result (dataSize=0).
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsEmpty, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsEmpty));
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = false;
+    std::vector<CallLogInfo> callLogs;
+    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(callLogs.empty());
+}
+
+/**
+ * @tc.name: TestGetCallLogsInvalidDataSize
+ * @tc.desc: Test TelephonyManagerProxy::GetCallLogs when IPC returns negative dataSize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsInvalidSize));
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = false;
+    std::vector<CallLogInfo> callLogs;
+    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNOMALLY);
+    EXPECT_TRUE(callLogs.empty());
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
