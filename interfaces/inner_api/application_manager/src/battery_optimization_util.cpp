@@ -19,6 +19,7 @@
 
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "edm_os_account_manager_impl.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "func_code.h"
 
@@ -29,15 +30,19 @@ namespace {
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 }
 
-ErrCode BatteryOptimizationUtil::GetOptimizationBatteryExclusionApps(int32_t accountId,
-    std::vector<std::string> &apps)
+ErrCode BatteryOptimizationUtil::GetOptimizationBatteryExclusionApps(std::vector<std::string> &apps)
 {
-    EDMLOGI("BatteryOptimizationUtil::GetOptimizationBatteryExclusionApps accountId=%{public}d", accountId);
-
     if (!EnterpriseDeviceMgrProxy::GetInstance()->IsEdmEnabled()) {
         EDMLOGI("BatteryOptimizationUtil: edm not enabled");
         return ERR_OK;
     }
+
+    int32_t accountId = std::make_shared<EdmOsAccountManagerImpl>()->GetCurrentUserId();
+    if (accountId < 0) {
+        EDMLOGE("BatteryOptimizationUtil: GetCurrentUserId failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    EDMLOGI("BatteryOptimizationUtil::GetOptimizationBatteryExclusionApps accountId=%{public}d", accountId);
 
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
@@ -55,13 +60,12 @@ ErrCode BatteryOptimizationUtil::GetOptimizationBatteryExclusionApps(int32_t acc
     return ERR_OK;
 }
 
-bool BatteryOptimizationUtil::IsOptimizationBatteryExcluded(const std::string &bundleName, int32_t accountId)
+bool BatteryOptimizationUtil::IsOptimizationBatteryExcluded(const std::string &bundleName)
 {
-    EDMLOGI("BatteryOptimizationUtil::IsOptimizationBatteryExcluded bundleName=%{public}s, accountId=%{public}d",
-        bundleName.c_str(), accountId);
+    EDMLOGI("BatteryOptimizationUtil::IsOptimizationBatteryExcluded bundleName=%{public}s", bundleName.c_str());
 
     std::vector<std::string> apps;
-    ErrCode ret = GetOptimizationBatteryExclusionApps(accountId, apps);
+    ErrCode ret = GetOptimizationBatteryExclusionApps(apps);
     if (ret != ERR_OK) {
         EDMLOGE("BatteryOptimizationUtil: GetOptimizationBatteryExclusionApps failed, ret=%{public}d", ret);
         return false;

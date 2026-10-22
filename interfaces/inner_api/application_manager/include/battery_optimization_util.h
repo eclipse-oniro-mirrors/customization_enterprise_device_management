@@ -25,8 +25,8 @@ namespace OHOS {
 namespace EDM {
 class BatteryOptimizationUtil {
 public:
-    static ErrCode GetOptimizationBatteryExclusionApps(int32_t accountId, std::vector<std::string> &apps);
-    static bool IsOptimizationBatteryExcluded(const std::string &bundleName, int32_t accountId);
+    static ErrCode GetOptimizationBatteryExclusionApps(std::vector<std::string> &apps);
+    static bool IsOptimizationBatteryExcluded(const std::string &bundleName);
 };
 } // namespace EDM
 } // namespace OHOS
