@@ -80,8 +80,7 @@ void SensitiveCallNotifyManager::CheckAndNotify(const std::string &sensitiveId,
         EDMLOGW("SensitiveCallNotifyManager::CheckAndNotify invalid param, skip.");
         return;
     }
-    std::lock_guard<std::mutex> lock(notifyMutex_);
-    // appIndex is not available at the hook signature; resolve from calling token.
+    // Resolve calling identity outside lock (thread-local IPC context, no shared state).
     std::string tokenBundleName;
     int32_t tokenUserId = userId;
     int32_t appIndex = 0;
@@ -90,11 +89,29 @@ void SensitiveCallNotifyManager::CheckAndNotify(const std::string &sensitiveId,
             sensitiveId.c_str());
         return;
     }
-    if (IsAlreadyNotified(adminName, userId, appIndex, sensitiveId)) {
-        EDMLOGD("SensitiveCallNotifyManager::CheckAndNotify already notified, skip. id=%{public}s",
-            sensitiveId.c_str());
-        return;
+    // Lock only protects atomic Query→Insert (two fast RDB operations).
+    // Notification (IPC + thread) happens outside lock to avoid blocking other threads.
+    {
+        std::lock_guard<std::mutex> lock(notifyMutex_);
+        if (IsAlreadyNotified(adminName, userId, appIndex, sensitiveId)) {
+            EDMLOGD("SensitiveCallNotifyManager::CheckAndNotify already notified, skip. id=%{public}s",
+                sensitiveId.c_str());
+            return;
+        }
+        SensitiveCallRecord record;
+        record.adminName = adminName;
+        record.userId = userId;
+        record.appIndex = appIndex;
+        record.sensitiveId = sensitiveId;
+        record.notifiedTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        auto rdb = SensitiveCallNotifyRdb::GetInstance();
+        if (rdb == nullptr || !rdb->Insert(record)) {
+            EDMLOGE("SensitiveCallNotifyManager insert record failed, id=%{public}s", sensitiveId.c_str());
+            return;
+        }
     }
+    // Lock released. Notification (IPC + thread) outside lock.
     NotifyAndRecord(adminName, userId, appIndex, sensitiveId);
 }
 
@@ -131,21 +148,6 @@ void SensitiveCallNotifyManager::NotifyAndRecord(const std::string &adminName, i
             EDMLOGE("SensitiveCallNotifyManager notify failed, id=%{public}s", sensitiveId.c_str());
         }
     }).detach();
-
-    // Write the record synchronously (local RDB is fast; safe under the lock).
-    // Notification failure does not roll back the record (RISK-A2): the record
-    // still counts as "notified" so we do not re-notify repeatedly.
-    SensitiveCallRecord record;
-    record.adminName = adminName;
-    record.userId = userId;
-    record.appIndex = appIndex;
-    record.sensitiveId = sensitiveId;
-    record.notifiedTime = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now().time_since_epoch()).count();
-    auto rdb = SensitiveCallNotifyRdb::GetInstance();
-    if (rdb == nullptr || !rdb->Insert(record)) {
-        EDMLOGE("SensitiveCallNotifyManager insert record failed, id=%{public}s", sensitiveId.c_str());
-    }
 }
 
 void SensitiveCallNotifyManager::ClearByAdmin(const std::string &adminName, int32_t userId)
