@@ -17,11 +17,10 @@
 
 #include <algorithm>
 
-#include "edm_ipc_interface_code.h"
+#include "application_manager_proxy.h"
 #include "edm_log.h"
 #include "edm_os_account_manager_impl.h"
 #include "enterprise_device_mgr_proxy.h"
-#include "func_code.h"
 
 namespace OHOS {
 namespace EDM {
@@ -48,16 +47,8 @@ ErrCode BatteryOptimizationUtil::GetOptimizationBatteryExclusionApps(std::vector
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(accountId);
     data.WriteInt32(0); // QueryPolicy::SELF
-
-    MessageParcel reply;
-    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
-        EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS, data, reply);
-    if (ret != ERR_OK) {
-        EDMLOGE("BatteryOptimizationUtil: GetPolicyNew failed, ret=%{public}d", ret);
-        return ret;
-    }
-    reply.ReadStringVector(&apps);
-    return ERR_OK;
+    return ApplicationManagerProxy::GetApplicationManagerProxy()->
+        GetOptimizationBatteryExclusionApps(data, apps);
 }
 
 bool BatteryOptimizationUtil::IsOptimizationBatteryExcluded(const std::string &bundleName)
