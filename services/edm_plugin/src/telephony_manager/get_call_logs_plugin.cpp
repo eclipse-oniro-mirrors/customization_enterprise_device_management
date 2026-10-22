@@ -15,9 +15,6 @@
 
 #include "get_call_logs_plugin.h"
 
-#include <mutex>
-
-#include "ashmem.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -63,10 +60,7 @@ constexpr size_t ESTIMATED_RECORD_SIZE = 64;
 constexpr int64_t ONE_DAY_SECONDS = 24LL * 60 * 60;
 constexpr int64_t MAX_TIME_RANGE_SECONDS = 31LL * ONE_DAY_SECONDS;
 constexpr int64_t MAX_CALL_LOG_RETURN_SIZE = 128LL * 1024 * 1024;
-constexpr const char *CALL_LOG_ASHMEM_NAME = "edm_call_logs_";
 constexpr int32_t DATASHARE_WAIT_TIME = 10;
-static int32_t ashmemNum_ = 0;
-static std::mutex ashmemMutex_;
 static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
 {
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -172,42 +166,6 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     return ERR_OK;
 }
 
-static bool WriteToAshmem(MessageParcel &tempParcel, size_t dataSize, MessageParcel &reply)
-{
-    EDMLOGI("GetCallLogsPlugin: data size too large, use ashmem");
-    std::string ashmemName;
-    {
-        std::lock_guard<std::mutex> lock(ashmemMutex_);
-        ashmemName = CALL_LOG_ASHMEM_NAME + std::to_string(ashmemNum_++);
-    }
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem(ashmemName.c_str(), dataSize);
-    if (ashmem == nullptr) {
-        EDMLOGE("GetCallLogsPlugin: CreateAshmem failed.");
-        return false;
-    }
-    if (!ashmem->MapReadAndWriteAshmem()) {
-        EDMLOGE("GetCallLogsPlugin: MapReadAndWriteAshmem failed.");
-        return false;
-    }
-    if (!ashmem->WriteToAshmem(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize, 0)) {
-        EDMLOGE("GetCallLogsPlugin: WriteToAshmem failed.");
-        return false;
-    }
-    if (!reply.WriteInt32(ERR_OK)) {
-        EDMLOGE("GetCallLogsPlugin: Write ERR_OK to reply failed.");
-        return false;
-    }
-    if (!reply.WriteInt32(static_cast<int32_t>(dataSize))) {
-        EDMLOGE("GetCallLogsPlugin: Write dataSize to reply failed.");
-        return false;
-    }
-    if (!reply.WriteAshmem(ashmem)) {
-        EDMLOGE("GetCallLogsPlugin: WriteAshmem to reply failed.");
-        return false;
-    }
-    return true;
-}
-
 static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParcel &reply)
 {
     MessageParcel tempParcel;
@@ -238,9 +196,6 @@ static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParc
         *(reinterpret_cast<int32_t *>(dataPtr)) = actualCount;
     }
     size_t dataSize = tempParcel.GetDataSize();
-    if (dataSize > EdmConstants::MAX_PARCEL_CAPACITY) {
-        return WriteToAshmem(tempParcel, dataSize, reply);
-    }
     if (!reply.WriteInt32(ERR_OK)) {
         EDMLOGE("GetCallLogsPlugin: Write ERR_OK failed.");
         return false;

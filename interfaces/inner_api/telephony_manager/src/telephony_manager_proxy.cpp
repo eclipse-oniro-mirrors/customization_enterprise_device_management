@@ -20,7 +20,6 @@
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
-#include "ashmem.h"
 
 namespace OHOS {
 namespace EDM {
@@ -193,23 +192,10 @@ static ErrCode AllocAndCopyBuffer(void *&buffer, int32_t size, const void *src)
 
 static ErrCode ReadBufferFromReply(MessageParcel &reply, int32_t dataSize, void *&buffer)
 {
-    const void *src = nullptr;
-    if (dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY)) {
-        EDMLOGI("GetCallLogs: read from ashmem, size = %{public}d", dataSize);
-        sptr<Ashmem> ashmem = reply.ReadAshmem();
-        if (ashmem == nullptr) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        if (!ashmem->MapReadOnlyAshmem()) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        src = ashmem->ReadFromAshmem(dataSize, 0);
-    } else {
-        src = reply.ReadRawData(dataSize);
-    }
+    const void *src = reply.ReadRawData(dataSize);
     if (src == nullptr) {
         EDMLOGE("GetCallLogs: read source data failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::SYSTEM_ABNOMALLY;
     }
     return AllocAndCopyBuffer(buffer, dataSize, src);
 }
