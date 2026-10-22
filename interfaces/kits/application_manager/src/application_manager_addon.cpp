@@ -2049,24 +2049,19 @@ napi_value ApplicationManagerAddon::AddOrRemoveOptimizationBatteryExclusionApps(
     napi_callback_info info, FuncOperateType operateType)
 {
     EDMLOGI("NAPI_AddOrRemoveOptimizationBatteryExclusionApps called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "parameter count error", ErrcodeType::NUMBER);
-    std::vector<std::string> appIdentifiers;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseStringArray(env, appIdentifiers, argv[ARR_INDEX_ZERO]),
-        "Parameter appIdentifiers error", ErrcodeType::NUMBER);
-    int32_t accountId = EdmConstants::DEFAULT_USER_ID;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
-        "Parameter accountId error", ErrcodeType::NUMBER);
-    MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(accountId);
-    parcelData.WriteStringVector(appIdentifiers);
-    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
-    int32_t ret = applicationManagerProxy->AddOrRemoveOptimizationBatteryExclusionApps(parcelData, operateType);
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = operateType == FuncOperateType::SET ?
+        "AddOptimizationBatteryExclusionApps" : "RemoveOptimizationBatteryExclusionApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        AddOrRemoveOptimizationBatteryExclusionApps(adapterAddonData.data, operateType);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("AddOrRemoveOptimizationBatteryExclusionApps failed!");
@@ -2077,31 +2072,20 @@ napi_value ApplicationManagerAddon::AddOrRemoveOptimizationBatteryExclusionApps(
 napi_value ApplicationManagerAddon::GetOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetOptimizationBatteryExclusionApps called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "parameter count error", ErrcodeType::NUMBER);
-    int32_t accountId = EdmConstants::DEFAULT_USER_ID;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ZERO]),
-        "Parameter accountId error", ErrcodeType::NUMBER);
-    int32_t queryPolicy = static_cast<int32_t>(QueryPolicy::SELF);
-    if (argc >= ARGS_SIZE_TWO) {
-        int32_t parsedValue = 0;
-        if (ParseInt(env, parsedValue, argv[ARR_INDEX_ONE]) &&
-            (parsedValue == static_cast<int32_t>(QueryPolicy::SELF) ||
-             parsedValue == static_cast<int32_t>(QueryPolicy::ALL))) {
-            queryPolicy = parsedValue;
-        }
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetOptimizationBatteryExclusionApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID, EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.defaultArgSize = 1;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
     }
-    MessageParcel parcelData;
-    parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(accountId);
-    parcelData.WriteInt32(queryPolicy);
-    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
     std::vector<std::string> apps;
-    int32_t ret = applicationManagerProxy->GetOptimizationBatteryExclusionApps(parcelData, apps);
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        GetOptimizationBatteryExclusionApps(adapterAddonData.data, apps);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
