@@ -23,7 +23,6 @@
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_log.h"
-#include "ext_info_manager.h"
 #include "ipc_skeleton.h"
 #include "language_manager.h"
 #include "notification_info.h"
@@ -135,16 +134,16 @@ void SensitiveCallNotifyManager::NotifyAndRecord(const std::string &adminName, i
     if (resolvedBody.empty()) {
         resolvedBody = appName + " is performing a sensitive management operation.";
     }
-    WantAgentInfo wantAgentInfo = ExtInfoManager::GetInstance()->GetWantAgentInfo();
 
     static std::atomic<int32_t> notifId{10000};
     int32_t notifIdVal = notifId.fetch_add(1);
-    std::thread([adminName, iconInfo, wantAgentInfo, resolvedBody, notifIdVal, sensitiveId]() {
+    std::thread([iconInfo, resolvedBody, notifIdVal, sensitiveId]() {
         NotificationInfo info = { .title = EdmConstants::SENSITIVE_CALL_NOTIFIED_TITLE,
                                   .body = resolvedBody,
                                   .notificationId = notifIdVal };
         NotificationManager notificationManager;
-        if (!notificationManager.SendSystemNotification(info, iconInfo, wantAgentInfo)) {
+        WantAgentInfo emptyWantAgent;
+        if (!notificationManager.SendSystemNotification(info, iconInfo, emptyWantAgent)) {
             EDMLOGE("SensitiveCallNotifyManager notify failed, id=%{public}s", sensitiveId.c_str());
         }
     }).detach();
