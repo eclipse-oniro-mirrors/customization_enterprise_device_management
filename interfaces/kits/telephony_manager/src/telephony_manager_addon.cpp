@@ -632,7 +632,7 @@ void TelephonyManagerAddon::ConvertVectorCallLogToJs(napi_env env,
         NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, log.endTime, &jsEndTime));
         napi_set_named_property(env, jsLog, "endTime", jsEndTime);
         napi_value jsIsIncoming = nullptr;
-        napi_get_boolean(env, log.isIncoming, &jsIsIncoming);
+        NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, log.isIncoming, &jsIsIncoming));
         napi_set_named_property(env, jsLog, "isIncoming", jsIsIncoming);
         napi_value jsSlotId = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, log.slotId, &jsSlotId));

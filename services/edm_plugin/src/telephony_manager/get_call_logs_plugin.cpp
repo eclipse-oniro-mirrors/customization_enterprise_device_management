@@ -57,6 +57,7 @@ constexpr const char *CALL_LOG_COLUMN_END_TIME = "end_time";
 constexpr const char *CALL_LOG_COLUMN_CALL_DIRECTION = "call_direction";
 constexpr const char *CALL_LOG_COLUMN_SLOT_ID = "slot_id";
 constexpr int32_t CALL_DIRECTION_IN = 0;
+constexpr int32_t CALL_DIRECTION_OUT = 1;
 constexpr int32_t ROW_FETCH_SUCCESS = 0;
 constexpr size_t ESTIMATED_RECORD_SIZE = 64;
 constexpr int64_t ONE_DAY_SECONDS = 24LL * 60 * 60;
@@ -150,7 +151,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
         int64_t endTime = 0;
         resultSet->GetLong(columnIndex, endTime);
         log.endTime = endTime;
-        int32_t callDirection = 1;
+        int32_t callDirection = CALL_DIRECTION_OUT;
         resultSet->GetColumnIndex(CALL_LOG_COLUMN_CALL_DIRECTION, columnIndex);
         resultSet->GetInt(columnIndex, callDirection);
         log.isIncoming = (callDirection == CALL_DIRECTION_IN);
