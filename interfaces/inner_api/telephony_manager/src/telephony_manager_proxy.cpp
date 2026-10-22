@@ -194,7 +194,7 @@ static ErrCode AllocAndCopyBuffer(void *&buffer, int32_t size, const void *src)
 static ErrCode ReadBufferFromReply(MessageParcel &reply, int32_t dataSize, void *&buffer)
 {
     const void *src = nullptr;
-    if (dataSize > static_cast<int32_t>(EdmConstants::MAX_IPC_RAWDATA_SIZE)) {
+    if (dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY)) {
         EDMLOGI("GetCallLogs: read from ashmem, size = %{public}d", dataSize);
         sptr<Ashmem> ashmem = reply.ReadAshmem();
         if (ashmem == nullptr) {
