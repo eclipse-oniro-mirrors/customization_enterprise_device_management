@@ -169,6 +169,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     }
     resultSet->Close();
     helper->Release();
+    EDMLOGI("GetCallLogsPlugin: QueryCallLogs success, count = %{public}zu.", callLogs.size());
     return ERR_OK;
 }
 
@@ -210,7 +211,11 @@ static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParc
         EDMLOGE("GetCallLogsPlugin: Write dataSize failed.");
         return false;
     }
-    return reply.WriteRawData(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize);
+    if (!reply.WriteRawData(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize)) {
+        EDMLOGE("GetCallLogsPlugin: WriteRawData failed, dataSize = %{public}zu.", dataSize);
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -244,10 +249,12 @@ ErrCode GetCallLogsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
     std::vector<CallLogInfo> callLogs;
     ErrCode queryRet = QueryCallLogs(config, callLogs);
     if (queryRet != ERR_OK) {
+        EDMLOGE("GetCallLogsPlugin: QueryCallLogs failed, ret = %{public}d.", queryRet);
         reply.WriteInt32(queryRet);
         return queryRet;
     }
     if (!WriteCallLogsToReply(callLogs, reply)) {
+        EDMLOGE("GetCallLogsPlugin: WriteCallLogsToReply failed.");
         reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }

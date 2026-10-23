@@ -255,6 +255,7 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     }
     int32_t dataSize = reply.ReadInt32();
     if (dataSize == 0) {
+        EDMLOGI("GetCallLogs: empty result, dataSize = 0.");
         return ERR_OK;
     }
     if (dataSize < 0 || dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
@@ -264,9 +265,15 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     void *buffer = nullptr;
     ErrCode errCode = ReadBufferFromReply(reply, dataSize, buffer);
     if (errCode != ERR_OK) {
+        EDMLOGE("GetCallLogs: ReadBufferFromReply failed, ret = %{public}d.", errCode);
         return errCode;
     }
     errCode = ParseCallLogsFromBuffer(buffer, dataSize, callLogs);
+    if (errCode != ERR_OK) {
+        EDMLOGE("GetCallLogs: ParseCallLogsFromBuffer failed, ret = %{public}d.", errCode);
+        return errCode;
+    }
+    EDMLOGI("GetCallLogs success, count = %{public}zu.", callLogs.size());
     return errCode;
 }
 } // namespace EDM
