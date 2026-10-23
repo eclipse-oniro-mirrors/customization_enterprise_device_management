@@ -471,7 +471,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsSuc, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs));
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
@@ -503,7 +503,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsFail, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
@@ -526,7 +526,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsEmpty, TestSize.Level1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsEmpty));
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
@@ -549,7 +549,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsInvalidSize));
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName(ADMIN_ABILITY_NAME);
+    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
