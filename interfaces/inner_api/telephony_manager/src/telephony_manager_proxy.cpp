@@ -195,7 +195,7 @@ static ErrCode ReadBufferFromReply(MessageParcel &reply, int32_t dataSize, void 
     const void *src = reply.ReadRawData(dataSize);
     if (src == nullptr) {
         EDMLOGE("GetCallLogs: read source data failed.");
-        return EdmReturnErrCode::SYSTEM_ABNOMALLY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     return AllocAndCopyBuffer(buffer, dataSize, src);
 }
@@ -206,7 +206,7 @@ static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vect
     if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
         EDMLOGE("GetCallLogs: ParseFrom failed.");
         free(buffer);
-        return EdmReturnErrCode::SYSTEM_ABNOMALLY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t count = tempParcel.ReadInt32();
     size_t readableDataSize = tempParcel.GetReadableBytes();

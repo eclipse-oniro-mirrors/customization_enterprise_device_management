@@ -556,7 +556,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
     int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNOMALLY);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     EXPECT_TRUE(callLogs.empty());
 }
 } // namespace TEST

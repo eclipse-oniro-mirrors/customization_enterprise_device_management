@@ -136,7 +136,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     auto helper = CreateCallLogHelper();
     if (helper == nullptr) {
         EDMLOGE("GetCallLogsPlugin: CreateCallLogHelper failed.");
-        return EdmReturnErrCode::SYSTEM_ABNOMALLY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     auto predicates = BuildPredicates(config);
     auto columns = BuildResultColumns();
@@ -145,7 +145,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     if (resultSet == nullptr) {
         EDMLOGE("GetCallLogsPlugin: Query call log failed.");
         helper->Release();
-        return EdmReturnErrCode::SYSTEM_ABNOMALLY;
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
     int32_t rowCount = 0;
     resultSet->GetRowCount(rowCount);
