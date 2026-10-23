@@ -186,6 +186,8 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_CORE_DUMP] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_RS232] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_CONTROL_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_USB_SERIAL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
@@ -383,6 +385,8 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
         EdmInterfaceCode::DISALLOW_CORE_DUMP,
         EdmInterfaceCode::DISALLOW_RS232,
         EdmInterfaceCode::DISALLOW_X_KEY,
+        EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
+        EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
         EdmInterfaceCode::DISALLOW_USB_SERIAL,
         EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,

@@ -148,6 +148,14 @@ HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdUpdatePolicyGroup, Tes
     EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES), groupId);
 }
 
+HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdControlNotificationCenterGroup, TestSize.Level1)
+{
+    auto &registry = ConflictGroupRegistry::GetInstance();
+    auto groupId = static_cast<int32_t>(ConflictGroupId::GROUP_CONTROL_NOTIFICATION_CENTER);
+    EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::DISALLOW_CONTROL_CENTER), groupId);
+    EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER), groupId);
+}
+
 HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdUnregisteredPolicy, TestSize.Level1)
 {
     auto &registry = ConflictGroupRegistry::GetInstance();

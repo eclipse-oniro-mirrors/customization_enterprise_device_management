@@ -284,6 +284,8 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
       "../../../services/edm_plugin/src/utils/permission_managed_state_serializer.cpp",
       "../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_control_center_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_notification_center_plugin.cpp",
     ]
 
     if (os_account_edm_enable) {

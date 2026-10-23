@@ -36,6 +36,7 @@ enum class ConflictGroupId {
     GROUP_FACTORY_RESET = 10,
     GROUP_SUPERHUB = 11,
     GROUP_UPDATE_POLICY = 12,
+    GROUP_CONTROL_NOTIFICATION_CENTER = 13,
     END
 };
 
@@ -58,6 +59,7 @@ private:
     void RegisterConflictGroupResetFactory();
     void RegisterConflictGroupSuperHub();
     void RegisterConflictGroupUpdatePolicy();
+    void RegisterConflictGroupControlNotificationCenter();
     std::unordered_map<uint32_t, int32_t> policyToGroup_;
 };
 } // namespace EDM
