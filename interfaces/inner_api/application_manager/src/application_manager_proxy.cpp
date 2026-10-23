@@ -19,6 +19,7 @@
 
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "edm_os_account_manager_impl.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
 
@@ -881,9 +882,14 @@ int32_t ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(MessageParc
 ErrCode ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(std::vector<std::string> &apps)
 {
     EDMLOGI("ApplicationManagerProxy::GetOptimizationBatteryExclusionApps (cross-module)");
+    int32_t userId = std::make_shared<EdmOsAccountManagerImpl>()->GetCurrentUserId();
+    if (userId < 0) {
+        EDMLOGE("GetOptimizationBatteryExclusionApps: GetCurrentUserId failed");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(userId);
     data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
     return GetOptimizationBatteryExclusionApps(data, apps);
 }
