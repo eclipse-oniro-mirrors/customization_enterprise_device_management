@@ -44,15 +44,23 @@ constexpr int64_t MAX_CALL_LOG_RETURN_SIZE = 128LL * 1024 * 1024;       // 128MB
 
 ```
 QueryCallLogs:
-  Line 136: if (callLogs.size() * ESTIMATED_RECORD_SIZE >= MAX_CALL_LOG_RETURN_SIZE)
+  Line 160: if (callLogs.size() * ESTIMATED_RECORD_SIZE >= MAX_CALL_LOG_RETURN_SIZE)
   → Layer 1: 估算截断（128MB），停止从 DataShare 读行
 
+  Line 104: static void ReadCallLogFromResultSet(...)
+  → 逐列读取一条记录（从 QueryCallLogs 循环中提取）
+
 WriteCallLogsToReply:
-  Line 221: if (tempParcel.GetDataSize() > MAX_CALL_LOG_RETURN_SIZE)
+  Line 186: if (tempParcel.GetDataSize() > MAX_CALL_LOG_RETURN_SIZE)
   → Layer 2: 实际截断（128MB），停止写入 tempParcel
 
-  Line 207: reply.WriteRawData(tempParcel.GetData(), dataSize)
+  Line 214: reply.WriteRawData(tempParcel.GetData(), dataSize)
   → 统一走 IPC raw data 传输（最大 128MB）
+
+Proxy GetCallLogs:
+  Line 257: if (dataSize == 0) → 空结果早返回
+  Line 266: ReadBufferFromReply → 读取 raw data
+  Line 271: ParseCallLogsFromBuffer → 解析记录
 ```
 
 ---
@@ -204,3 +212,48 @@ WriteCallLogsToReply:
 - [ ] 截断时不 crash、不 OOM
 - [ ] 空数据库时正常返回空数组
 - [ ] 截断后 proxy 解析不越界（count 安全校验 `count <= readableDataSize`）
+
+### 5.5 日志覆盖
+
+所有关键分支必须有日志输出（EDMLOGI/EDMLOGE/EDMLOGW）。
+
+**Plugin 侧（get_call_logs_plugin.cpp）：**
+
+| 分支 | 日志内容 | 级别 |
+|------|---------|------|
+| OnGetPolicy 入口 | `OnGetPolicy.` | EDMLOGI |
+| 时间范围无效 | `Invalid time range.` | EDMLOGE |
+| 时间范围超 31 天 | `Time range exceeds 31 days.` | EDMLOGE |
+| 号码为空 | `telephoneNumber is empty.` | EDMLOGE |
+| QueryCallLogs 失败 | `QueryCallLogs failed, ret = ...` | EDMLOGE |
+| WriteCallLogsToReply 失败 | `WriteCallLogsToReply failed.` | EDMLOGE |
+| 成功 | `OnGetPolicy success, count = ...` | EDMLOGI |
+| 不支持 | `Unsupported Capabilities.` | EDMLOGW |
+| CreateCallLogHelper 失败 | `CreateCallLogHelper failed.` | EDMLOGE |
+| Query 失败 | `Query call log failed.` | EDMLOGE |
+| rowCount 为 0 | `Query success, but rowCount is 0.` | EDMLOGI |
+| 估算大小超限 | `Estimated data size exceeds limit, stop at ...` | EDMLOGI |
+| QueryCallLogs 成功 | `QueryCallLogs success, count = ...` | EDMLOGI |
+| count 占位符写入失败 | `Write count placeholder failed.` | EDMLOGE |
+| 实际大小超限 | `Data size exceeds limit, truncated at ...` | EDMLOGI |
+| 记录写入失败 | `Write record failed at index ...` | EDMLOGE |
+| WriteRawData 失败 | `WriteRawData failed, dataSize = ...` | EDMLOGE |
+| Write ERR_OK 失败 | `Write ERR_OK failed.` | EDMLOGE |
+| Write dataSize 失败 | `Write dataSize failed.` | EDMLOGE |
+
+**Proxy 侧（telephony_manager_proxy.cpp）：**
+
+| 分支 | 日志内容 | 级别 |
+|------|---------|------|
+| 入口 | `TelephonyManagerProxy::GetCallLogs` | EDMLOGD |
+| GetPolicy 失败 | `GetPolicy fail. ...` | EDMLOGE |
+| 空结果 | `empty result, dataSize = 0.` | EDMLOGI |
+| dataSize 无效 | `invalid dataSize ...` | EDMLOGE |
+| ReadBufferFromReply 失败 | `ReadBufferFromReply failed, ret = ...` | EDMLOGE |
+| ParseFrom 失败 | `ParseFrom failed.` | EDMLOGE |
+| count 校验失败 | `count check failed, count=..., readable=...` | EDMLOGE |
+| ParseCallLogsFromBuffer 失败 | `ParseCallLogsFromBuffer failed, ret = ...` | EDMLOGE |
+| 成功 | `GetCallLogs success, count = ...` | EDMLOGI |
+| malloc 失败 | `malloc failed.` | EDMLOGE |
+| memcpy_s 失败 | `memcpy_s failed.` | EDMLOGE |
+| src 为空 | `read source data failed.` | EDMLOGE |
