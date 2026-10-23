@@ -436,6 +436,8 @@ bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
             return uid == EdmConstants::USB_SERVICE_UID;
         } else if (code == EdmInterfaceCode::INSTALL_MARKET_APPS) {
             return uid == EdmConstants::SAMGR_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS) {
+            return uid == EdmConstants::RESOURCE_SCHEDULE_UID;
         }
     }
     return false;
