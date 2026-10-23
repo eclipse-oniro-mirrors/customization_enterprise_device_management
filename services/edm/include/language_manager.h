@@ -26,6 +26,7 @@ class LanguageManager {
 public:
     static std::string GetEnterpriseManagedTips();
     static std::string GetSystemStringByName(const std::string &name);
+    static std::string GetSystemStringFormatByName(const std::string &name, const std::string &param);
 
 private:
     static bool GetValueFromCloudSettings(std::string &result);

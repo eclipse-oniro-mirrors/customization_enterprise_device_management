@@ -294,6 +294,31 @@ std::string EdmBundleManagerImpl::GetIconByBundleName(const std::string &bundleN
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+std::string EdmBundleManagerImpl::GetAppNameByBundleName(const std::string &bundleName)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetAppNameByBundleName getBundleProxy failed.");
+        return "";
+    }
+    auto bundleResourceProxy = proxy->GetBundleResourceProxy();
+    if (bundleResourceProxy == nullptr) {
+        EDMLOGE("EdmBundleManagerImpl::GetAppNameByBundleName GetBundleResourceProxy failed.");
+        return "";
+    }
+    AppExecFwk::BundleResourceInfo bundleResourceInfo;
+    ErrCode res = bundleResourceProxy->GetBundleResourceInfo(bundleName,
+        static_cast<uint32_t>(AppExecFwk::ResourceFlag::GET_RESOURCE_INFO_WITH_LABEL), bundleResourceInfo);
+    if (FAILED(res)) {
+        EDMLOGE("EdmBundleManagerImpl::GetAppNameByBundleName GetBundleResourceInfo failed.");
+        return "";
+    }
+    return bundleResourceInfo.label;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 bool EdmBundleManagerImpl::GetBundleArchiveInfoV9(const std::string &hapFilePath, int32_t flags,
     AppExecFwk::BundleInfo &bundleInfo)
 {

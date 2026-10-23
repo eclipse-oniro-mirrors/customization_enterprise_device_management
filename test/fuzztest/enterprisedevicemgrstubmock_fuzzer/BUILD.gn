@@ -134,6 +134,14 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
   ]
 
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../services/edm/src/sensitive_api_whitelist.cpp",
+      "../../../services/edm/src/sensitive_call_notify_manager.cpp",
+      "../../../services/edm/src/database/sensitive_call_notify_rdb.cpp",
+    ]
+  }
+
   sources += [
     "../../../services/edm_plugin/src/restrictions/disallowed_nearlink_protocols_plugin.cpp",
     "../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",

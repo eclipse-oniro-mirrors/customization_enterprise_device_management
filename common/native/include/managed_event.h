@@ -33,6 +33,7 @@ enum class ManagedEvent : uint32_t {
     BOOT_COMPLETED = 9,
     BUNDLE_UPDATED = 10,
     POLICIES_CHANGED = 11,
+    SMS_RECEIVED = 12,
     BMS_READY = 101,
     KIOSK_MODE_ON = 102,
     KIOSK_MODE_OFF = 103,

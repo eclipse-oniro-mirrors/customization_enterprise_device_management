@@ -15,6 +15,8 @@
 
 #include "notification_manager.h"
 
+#include <atomic>
+
 #include "media_errors.h"
 #include "image_source.h"
 #include "notification_constant.h"
@@ -24,6 +26,7 @@
 #include "edm_log.h"
 #include "edm_constants.h"
 #include "language_manager.h"
+#include <atomic>
 
 namespace OHOS {
 namespace EDM {
@@ -32,6 +35,9 @@ bool NotificationManager::SendSystemNotification(const NotificationInfo &notific
 {
     auto notificationContent = CreateNotificationNormalContent(notificationInfo);
     Notification::NotificationRequest request;
+    if (notificationInfo.notificationId > 0) {
+        request.SetNotificationId(notificationInfo.notificationId);
+    }
     request.SetCreatorUid(EdmConstants::EDM_UID);
     request.SetNotificationControlFlags(Notification::NotificationConstant::ReminderFlag::SA_SELF_BANNER_FLAG);
     request.SetContent(notificationContent);
@@ -61,8 +67,10 @@ std::shared_ptr<Notification::NotificationContent> NotificationManager::CreateNo
         EDMLOGE("NotificationManager::CreateNotificationNormalContent failed.");
         return nullptr;
     }
-    normalContent->SetTitle(LanguageManager::GetSystemStringByName(notificationInfo.title));
-    normalContent->SetText(LanguageManager::GetSystemStringByName(notificationInfo.body));
+    std::string title = LanguageManager::GetSystemStringByName(notificationInfo.title);
+    normalContent->SetTitle(title.empty() ? notificationInfo.title : title);
+    std::string text = LanguageManager::GetSystemStringByName(notificationInfo.body);
+    normalContent->SetText(text.empty() ? notificationInfo.body : text);
     return std::make_shared<Notification::NotificationContent>(normalContent);
 }
 

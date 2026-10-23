@@ -75,6 +75,10 @@
 #include "managed_feature.h"
 #include "notification_manager.h"
 #include "plugin_policy_reader.h"
+#ifndef FEATURE_PC_ONLY
+#include "sensitive_api_whitelist.h"
+#include "sensitive_call_notify_manager.h"
+#endif
 #include "policy_manager.h"
 #include "policy_type.h"
 #include "array_string_serializer.h"
@@ -343,6 +347,9 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
         return;
     }
+#ifndef FEATURE_PC_ONLY
+    SensitiveCallNotifyManager::GetInstance()->ClearByApp(bundleName, appIndex);
+#endif
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (appIndex == 0) {
         std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
@@ -1395,6 +1402,9 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
         EDMLOGE("Remove admin %{public}s fail.", adminName.c_str());
         return removeAdminRet;
     }
+#ifndef FEATURE_PC_ONLY
+    SensitiveCallNotifyManager::GetInstance()->ClearByAdmin(adminName, userId);
+#endif
     return ERR_OK;
 }
 
@@ -1891,8 +1901,20 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
         return errCode;
     }
     if (errCode == ERR_CANNOT_FIND_QUERY_FAILED) {
-        return GetDevicePolicyFromPluginNew(code, data, reply, userId, queryPolicy);
+        errCode = GetDevicePolicyFromPluginNew(code, data, reply, userId, queryPolicy);
     }
+#ifndef FEATURE_PC_ONLY
+    if (errCode == ERR_OK) {
+        int uid = IPCSkeleton::GetCallingUid();
+        std::string bundleName;
+        if (GetBundleMgr()->GetNameForUid(uid, bundleName) == ERR_OK && !bundleName.empty()) {
+            auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
+            if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
+                SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, bundleName, userId);
+            }
+        }
+    }
+#endif
     EDMLOGI("policy query get finished");
     return errCode;
 }
@@ -2243,19 +2265,29 @@ bool EnterpriseDeviceMgrAbility::CheckRunningMode(uint32_t runningMode)
 ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::ElementName &admin,
     const std::vector<uint32_t> &events)
 {
-    std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-    RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
     int32_t userId = EdmConstants::DEFAULT_USER_ID;
-    std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
-        GetCurrentUserId());
-    if (adminItem != nullptr && !adminItem->IsAllowedAcrossAccountSetPolicy()) {
-        userId = GetCurrentUserId();
+    {
+        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+        RETURN_IF_FAILED(VerifyManagedEvent(admin, events));
+        std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
+            GetCurrentUserId());
+        if (adminItem != nullptr && !adminItem->IsAllowedAcrossAccountSetPolicy()) {
+            userId = GetCurrentUserId();
+        }
+        AdminManager::GetInstance()->SaveSubscribeEvents(events, admin.GetBundleName(), userId);
+        for (uint32_t event : events) {
+            MdmEventRelayer::GetInstance().OnAdminSubscribe(admin.GetBundleName(), userId,
+                static_cast<ManagedEvent>(event));
+        }
     }
-    AdminManager::GetInstance()->SaveSubscribeEvents(events, admin.GetBundleName(), userId);
+#ifndef FEATURE_PC_ONLY
     for (uint32_t event : events) {
-        MdmEventRelayer::GetInstance().OnAdminSubscribe(admin.GetBundleName(), userId,
-            static_cast<ManagedEvent>(event));
+        auto sensitiveId = SensitiveApiWhitelist::MakeEventId(event);
+        if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
+            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName(), userId);
+        }
     }
+#endif
     return ERR_OK;
 }
 
