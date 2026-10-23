@@ -94,6 +94,7 @@ group("fuzztest") {
       "hiddensettingsmenuplugin_fuzzer:HiddenSettingsMenuPluginFuzzTest",
       "systemtimermanager_fuzzer:SystemTimerManagerFuzzTest",
       "edmclienttimercallback_fuzzer:EdmClientTimerCallbackFuzzTest",
+      "disallowfreewindowplugin_fuzzer:DisallowFreeWindowPluginFuzzTest",
     ]
   }
 

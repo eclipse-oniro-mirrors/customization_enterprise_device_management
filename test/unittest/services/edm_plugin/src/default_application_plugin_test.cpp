@@ -60,6 +60,7 @@ public:
         AppExecFwk::BundleInfo &bundleInfo) override
     {
         getCallCount++;
+        lastType = type;
         if (getRet == ERR_OK) {
             bundleInfo.name = readBackBundleName;
         }
