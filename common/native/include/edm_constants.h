@@ -604,6 +604,7 @@ namespace PolicyName {
     const char* const POLICY_DEFAULT_APPLICATION = "default_application";
     const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
+    const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

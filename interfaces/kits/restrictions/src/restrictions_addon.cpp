@@ -200,6 +200,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
     {static_cast<int32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING),
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST), EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::FREE_WINDOW), EdmInterfaceCode::DISALLOWED_FREE_WINDOW},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForDeviceEnum2CodeMap = {
@@ -1174,6 +1175,7 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
         {"DISTRIBUTED_TRANSMISSION_OUTGOING",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING)},
         {"OPEN_FILE_BOOST", static_cast<uint32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST)},
+        {"FREE_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::FREE_WINDOW)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

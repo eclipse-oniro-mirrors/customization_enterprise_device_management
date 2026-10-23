@@ -84,7 +84,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::UNLOCK_POLICY,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP,
-    EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
+    EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_X_KEY,
