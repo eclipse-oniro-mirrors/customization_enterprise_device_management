@@ -533,7 +533,11 @@ static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQuery
 napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetCallLogs called");
-#if defined(TELEPHONY_EDM_ENABLE)
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("TelephonyManagerAddon::GetCallLogs not supported on PC.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#elif defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;

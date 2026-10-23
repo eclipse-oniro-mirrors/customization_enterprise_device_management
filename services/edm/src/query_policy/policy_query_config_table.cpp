@@ -646,10 +646,10 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::GET_CALL_LOGS, {PolicyName::POLICY_GET_CALL_LOGS,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_READ_CALL_LOG), true, IPlugin::ApiType::PUBLIC,
-#ifdef TELEPHONY_EDM_ENABLE
-        true
-#else
+#ifdef FEATURE_PC_ONLY
         false
+#else
+        true
 #endif
     }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
