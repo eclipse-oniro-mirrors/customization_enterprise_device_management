@@ -699,12 +699,15 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs(uint32_t code, Mes
     code_ = code;
 
     const int32_t count = 2;
+    constexpr int64_t baseCreateTime = 1700000000;
+    constexpr int64_t baseBeginTime = 1700000010;
+    constexpr int64_t baseEndTime = 1700000020;
     MessageParcel tempParcel;
     tempParcel.WriteInt32(count);
     for (int32_t i = 0; i < count; ++i) {
-        tempParcel.WriteInt64(1700000000 + i);
-        tempParcel.WriteInt64(1700000010 + i);
-        tempParcel.WriteInt64(1700000020 + i);
+        tempParcel.WriteInt64(baseCreateTime + i);
+        tempParcel.WriteInt64(baseBeginTime + i);
+        tempParcel.WriteInt64(baseEndTime + i);
         tempParcel.WriteBool(i == 0);
         tempParcel.WriteInt32(i);
         tempParcel.WriteString("1380013800" + std::to_string(i));
