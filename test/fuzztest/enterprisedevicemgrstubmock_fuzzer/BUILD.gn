@@ -534,6 +534,7 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ 
         "../../../services/edm_plugin/src/device_settings/set_key_code_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallow_free_window_plugin.cpp",
         ]
     }
 

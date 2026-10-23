@@ -37,6 +37,9 @@ public:
     int32_t delCredResult = 0;
     int32_t getCredInfoResult = 0;
     std::vector<AccountSA::CredentialInfo> credInfoList;
+    int32_t getPropertyResult = 0;
+    std::string sensorInfoJson;
+    bool getPropertyCalled = false;
     int32_t lastAccountId = -1;
 
 protected:
@@ -64,6 +67,18 @@ protected:
         lastAccountId = accountId;
         callback->OnCredentialInfo(getCredInfoResult, credInfoList);
         return getCredInfoResult;
+    }
+
+    void CallGetProperty(int32_t accountId, const AccountSA::GetPropertyRequest &request,
+        const std::shared_ptr<AccountSA::GetSetPropCallback> &callback) override
+    {
+        lastAccountId = accountId;
+        getPropertyCalled = true;
+        AccountSA::Attributes extraInfo;
+        if (!sensorInfoJson.empty()) {
+            extraInfo.SetStringValue(AccountSA::Attributes::ATTR_SENSOR_INFO, sensorInfoJson);
+        }
+        callback->OnResult(getPropertyResult, extraInfo);
     }
 };
 } // namespace TEST

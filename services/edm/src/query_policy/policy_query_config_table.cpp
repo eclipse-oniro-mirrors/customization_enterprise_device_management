@@ -634,6 +634,15 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
+    {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, {PolicyName::POLICY_DISALLOWED_FREE_WINDOW,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true,
+        IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        false
+#else
+        true
+#endif
+    }},
     {EdmInterfaceCode::GET_CALL_LOGS, {PolicyName::POLICY_GET_CALL_LOGS,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_READ_CALL_LOG), true, IPlugin::ApiType::PUBLIC,
