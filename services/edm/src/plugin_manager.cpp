@@ -87,6 +87,8 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
+    EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
+    EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::EXEMPTION_RESOURCE,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,

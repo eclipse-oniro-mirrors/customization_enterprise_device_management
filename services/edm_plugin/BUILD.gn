@@ -140,6 +140,8 @@ ohos_shared_library("device_core_plugin") {
       "../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
       "./src/application_manager/get_application_window_states_plugin.cpp",
       "./src/restrictions/disallow_x_key_plugin.cpp",
+      "./src/restrictions/disallow_control_center_plugin.cpp",
+      "./src/restrictions/disallow_notification_center_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -950,4 +952,3 @@ ohos_shared_library("watermark_plugin") {
   subsystem_name = "customization"
   part_name = "enterprise_device_management"
 }
-
