@@ -237,8 +237,12 @@ ohos_static_library("edmservice_static") {
     defines += ["NET_MANAGER_BASE_EDM_ENABLE"]
   }
 
-  if (notification_edm_enable) {
-    defines += ["NOTIFICATION_EDM_ENABLE"]
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../../services/edm/src/sensitive_api_whitelist.cpp",
+      "../../../../services/edm/src/sensitive_call_notify_manager.cpp",
+      "../../../../services/edm/src/database/sensitive_call_notify_rdb.cpp",
+    ]
   }
 
   if (uinput_manager_edm_enable) {
@@ -544,6 +548,14 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/query_policy/disallowed_permission_query_test.cpp",
     "./src/query_policy/get_watermark_image_apps_query_test.cpp",
   ]
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/sensitive_api_whitelist_test.cpp",
+      "./src/sensitive_call_notify_manager_test.cpp",
+      "./src/sensitive_call_notify_rdb_test.cpp",
+    ]
+  }
 
   if (common_event_service_edm_enable) {
     sources += [

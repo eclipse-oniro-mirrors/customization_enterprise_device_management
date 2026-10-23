@@ -47,6 +47,7 @@ public:
     bool SetApplicationDisableForbidden(const std::string &bundleName,
         int32_t userId, int32_t appIndex, bool forbidden) override;
     std::string GetIconByBundleName(const std::string &bundleName) override;
+    std::string GetAppNameByBundleName(const std::string &bundleName) override;
     bool GetBundleArchiveInfoV9(const std::string &hapFilePath, int32_t flags,
         AppExecFwk::BundleInfo &bundleInfo) override;
 };
