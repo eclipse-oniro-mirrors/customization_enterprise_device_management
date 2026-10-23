@@ -50,7 +50,8 @@ public:
         const std::string &permission, int32_t userId);
 
     bool CheckElementNullPermission(uint32_t code, const std::string &permissionName);
-    bool CheckElementNullPermissionNew(uint32_t code, const std::string &permissionName);
+    ErrCode CheckElementNullPermissionNew(uint32_t code, const std::string &permissionName,
+        const std::string &policyName = "", bool checkAdmin = false);
 
     bool CheckIsDebug();
     bool CheckIsSystemAppOrNative();

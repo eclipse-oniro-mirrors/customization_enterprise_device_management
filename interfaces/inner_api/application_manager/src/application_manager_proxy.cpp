@@ -15,6 +15,8 @@
 
 #include "application_manager_proxy.h"
 
+#include <algorithm>
+
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
@@ -874,6 +876,28 @@ int32_t ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(MessageParc
     }
     reply.ReadStringVector(&apps);
     return ERR_OK;
+}
+
+ErrCode ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(std::vector<std::string> &apps)
+{
+    EDMLOGI("ApplicationManagerProxy::GetOptimizationBatteryExclusionApps (cross-module)");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
+    return GetOptimizationBatteryExclusionApps(data, apps);
+}
+
+bool ApplicationManagerProxy::IsOptimizationBatteryExcluded(const std::string &bundleName)
+{
+    EDMLOGI("ApplicationManagerProxy::IsOptimizationBatteryExcluded bundleName=%{public}s", bundleName.c_str());
+    std::vector<std::string> apps;
+    ErrCode ret = GetOptimizationBatteryExclusionApps(apps);
+    if (ret != ERR_OK) {
+        EDMLOGE("GetOptimizationBatteryExclusionApps failed, ret=%{public}d", ret);
+        return false;
+    }
+    return std::find(apps.begin(), apps.end(), bundleName) != apps.end();
 }
 } // namespace EDM
 } // namespace OHOS
