@@ -649,7 +649,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::GET_CALL_LOGS, {PolicyName::POLICY_GET_CALL_LOGS,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_READ_CALL_LOG), true, IPlugin::ApiType::PUBLIC,
+        EdmPermission::PERMISSION_ENTERPRISE_READ_CALL_LOG), false, IPlugin::ApiType::PUBLIC,
 #ifdef FEATURE_PC_ONLY
         false
 #else

@@ -535,8 +535,7 @@ napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info i
     EDMLOGI("NAPI_GetCallLogs called");
 #ifdef FEATURE_PC_ONLY
     EDMLOGW("TelephonyManagerAddon::GetCallLogs not supported on PC.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #elif defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
@@ -571,8 +570,7 @@ napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info i
     return asyncWorkReturn;
 #else
     EDMLOGW("TelephonyManagerAddon::GetCallLogs Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #endif
 }
 
@@ -607,8 +605,12 @@ void TelephonyManagerAddon::NativeGetCallLogsComplete(napi_env env, napi_status 
             ConvertVectorCallLogToJs(env, asyncCallbackInfo->callLogs, jsArray);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, jsArray);
         } else {
+            ErrCode ret = asyncCallbackInfo->ret;
+            if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+                ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+            }
             napi_reject_deferred(env, asyncCallbackInfo->deferred,
-                CreateError(env, asyncCallbackInfo->ret, ErrcodeType::NUMBER));
+                CreateError(env, ret, ErrcodeType::NUMBER));
         }
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
