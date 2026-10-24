@@ -42,6 +42,7 @@ ConflictGroupRegistry::ConflictGroupRegistry()
     RegisterConflictGroupResetFactory();
     RegisterConflictGroupSuperHub();
     RegisterConflictGroupUpdatePolicy();
+    RegisterConflictGroupControlNotificationCenter();
 }
 
 void ConflictGroupRegistry::RegisterConflictGroupUsb()
@@ -157,6 +158,15 @@ void ConflictGroupRegistry::RegisterConflictGroupUpdatePolicy()
         static_cast<int32_t>(ConflictGroupId::GROUP_UPDATE_POLICY);
     policyToGroup_[EdmInterfaceCode::NOTIFY_UPGRADE_PACKAGES] =
         static_cast<int32_t>(ConflictGroupId::GROUP_UPDATE_POLICY);
+}
+
+void ConflictGroupRegistry::RegisterConflictGroupControlNotificationCenter()
+{
+    // Group M: control center and notification center share one system parameter (read-modify-write)
+    policyToGroup_[EdmInterfaceCode::DISALLOW_CONTROL_CENTER] =
+        static_cast<int32_t>(ConflictGroupId::GROUP_CONTROL_NOTIFICATION_CENTER);
+    policyToGroup_[EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER] =
+        static_cast<int32_t>(ConflictGroupId::GROUP_CONTROL_NOTIFICATION_CENTER);
 }
 
 int32_t ConflictGroupRegistry::GetConflictGroupId(uint32_t policyCode) const

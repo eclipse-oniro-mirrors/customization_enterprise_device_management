@@ -112,6 +112,8 @@ ohos_unittest("EdmPluginTest") {
     "./src/security_manager/allowed_permission_bundle_plugin_test.cpp",
     "./src/security_manager/disallowed_permission_plugin_test.cpp",
     "./src/disallow_x_key_plugin_test.cpp",
+    "./src/disallow_control_center_plugin_test.cpp",
+    "./src/disallow_notification_center_plugin_test.cpp",
   ]
 
   configs = [
@@ -704,6 +706,8 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/application_manager/get_application_window_states_plugin.cpp",
     "../../../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
     "../../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
+    "../../../../services/edm_plugin/src/restrictions/disallow_control_center_plugin.cpp",
+    "../../../../services/edm_plugin/src/restrictions/disallow_notification_center_plugin.cpp",
   ]
 
   configs = [ "../../../../common/config:coverage_flags" ]

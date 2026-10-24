@@ -643,6 +643,10 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         true
 #endif
     }},
+    {EdmInterfaceCode::DISALLOW_CONTROL_CENTER, {PolicyName::POLICY_DISALLOW_CONTROL_CENTER, PolicyDataType::BOOL,
+        PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER, {PolicyName::POLICY_DISALLOW_NOTIFICATION_CENTER,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::GET_CALL_LOGS, {PolicyName::POLICY_GET_CALL_LOGS,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_READ_CALL_LOG), true, IPlugin::ApiType::PUBLIC,
