@@ -24,6 +24,13 @@ namespace OHOS {
 namespace EDM {
 class ManagedBrowserPolicyPlugin : public IPlugin {
 public:
+    struct ManagedBrowserPolicyRequest {
+        std::string bundleName;
+        std::string policyName;
+        std::string policyValue;
+        bool isForceOverride = false;
+    };
+
     ManagedBrowserPolicyPlugin();
 
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
@@ -62,8 +69,51 @@ private:
         std::string &url, std::string &tempUrl);
 
     ErrCode UpdateCurrentAndMergePolicy(std::map<std::string, ManagedBrowserPolicyType> &policies,
-        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const std::string &bundleName,
-        const std::string &policyName, const std::string &policyValue);
+        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const ManagedBrowserPolicyRequest &request,
+        const std::string &adminName);
+
+    ErrCode CheckPolicyOwnership(const ManagedBrowserPolicyType &mergedPolicy, const std::string &policyName,
+        const std::string &adminName, bool isForceOverride);
+
+    bool IsOwnedByAdmin(const ManagedBrowserPolicyType &mergedPolicy, const std::string &policyName,
+        const std::string &adminName);
+
+    void UpdatePolicyOwnership(ManagedBrowserPolicyType &mergedPolicy, const std::string &policyName,
+        const std::string &adminName, bool isForceOverride, bool isRemoved);
+
+    ErrCode ReadForceOverrideFlag(MessageParcel &data, bool &isForceOverride);
+
+    ErrCode PreparePolicyContext(MessageParcel &data, const HandlePolicyData &policyData,
+        ManagedBrowserPolicyRequest &request, std::map<std::string, ManagedBrowserPolicyType> &policies,
+        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, bool &isModifyOrRemove);
+
+    ErrCode DeserializeAndMigrate(const HandlePolicyData &policyData,
+        std::map<std::string, ManagedBrowserPolicyType> &policies,
+        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies);
+
+    ErrCode ApplyPolicyToBrowserFile(std::map<std::string, ManagedBrowserPolicyType> &policies,
+        const std::string &bundleName, const std::string &policyName, std::string policyValue, bool isModifyOrRemove);
+
+    void MigrateOwnershipIfNeeded(std::map<std::string, ManagedBrowserPolicyType> &mergePolicies);
+
+    void BackfillOwnership(std::map<std::string, ManagedBrowserPolicyType> &mergePolicies);
+
+    void CollectPolicyOwners(const AdminValueItemsMap &adminValues, std::map<std::string, std::string> &owners);
+
+    void CollectAdminPolicyOwners(const std::string &adminName,
+        const std::map<std::string, ManagedBrowserPolicyType> &adminPolicies,
+        std::map<std::string, std::string> &owners);
+
+    void RecordPolicyOwner(const std::string &bundleName, const std::string &policyName,
+        const std::string &adminName, std::map<std::string, std::string> &owners);
+
+    void ApplyPolicyOwners(const std::map<std::string, std::string> &owners,
+        std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, bool &hasBackfilled);
+
+    ErrCode MergeAdminPolicies(const AdminValueItemsMap &adminValues,
+        std::map<std::string, ManagedBrowserPolicyType> &mergeData);
+
+    ErrCode MergeCombinedOwnership(std::map<std::string, ManagedBrowserPolicyType> &mergeData);
 
     void PublishEventToBrowser();
 };

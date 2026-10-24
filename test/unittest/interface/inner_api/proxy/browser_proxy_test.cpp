@@ -19,6 +19,8 @@
 
 #include "browser_proxy.h"
 #include "bundle_mgr_host.h"
+#include "edm_ipc_interface_code.h"
+#include "func_code_utils.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "iservice_registry.h"
@@ -235,6 +237,62 @@ HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyFail, TestSize.Level1)
     MessageParcel data;
     ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicyUsesNewInterfaceCode
+ * @tc.desc: Test SetManagedBrowserPolicy sends the new interface code of the shared browser
+ *           policy interface, the force override flag travels in the parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyUsesNewInterfaceCode, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    MessageParcel data;
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_EQ(object_->code_, POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::MANAGED_BROWSER_POLICY));
+}
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicyForwardsForceOverrideFlag
+ * @tc.desc: Test SetManagedBrowserPolicy forwards the parcel of the request unchanged, so
+ *           the force override flag that the addon wrote at the end of the parcel reaches
+ *           the service and a takeover can be told from a plain set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyForwardsForceOverrideFlag, TestSize.Level1)
+{
+    bool forceOverrideSeen = false;
+    bool forceOverrideRead = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([&forceOverrideSeen, &forceOverrideRead](uint32_t code, MessageParcel &data,
+            MessageParcel &reply, MessageOption &option) {
+            GTEST_LOG_(INFO) << "mock BrowserProxyTest forward parcel";
+            reply.WriteInt32(ERR_OK);
+            data.ReadInt32();
+            data.ReadInt32();
+            data.ReadString();
+            data.ReadString();
+            data.ReadString();
+            forceOverrideRead = data.ReadBool(forceOverrideSeen);
+            return 0;
+        }));
+    MessageParcel data;
+    data.WriteInt32(0);
+    data.WriteInt32(0);
+    data.WriteString("com.example.bundle");
+    data.WriteString("policy_name");
+    data.WriteString("policy_value");
+    data.WriteBool(true);
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(forceOverrideRead);
+    ASSERT_TRUE(forceOverrideSeen);
 }
 
 /**

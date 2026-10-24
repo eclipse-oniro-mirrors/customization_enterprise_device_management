@@ -784,6 +784,168 @@ HWTEST_F(PluginManagerTest, TestGetPluginPermissionByPolicyName_WithRightPermiss
     EXPECT_EQ(permission,
         nonExistentPlugin->permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN]);
 }
+
+/**
+ * @tc.name: TestAddPluginRegistersOnlyPrimaryCode
+ * @tc.desc: A plugin is registered under its own interface code only, so the force override
+ *           request reaches the owning plugin through the shared browser policy code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestAddPluginRegistersOnlyPrimaryCode, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    auto byPrimaryCode = PluginManager::GetInstance()->GetPluginByCode(TEST_POLICY_CODE);
+    ASSERT_NE(byPrimaryCode, nullptr);
+    EXPECT_EQ(byPrimaryCode->GetPolicyName(), "TestPluginWithAdminName");
+    EXPECT_EQ(byPrimaryCode.get(), plugin.get());
+    EXPECT_EQ(PluginManager::GetInstance()->pluginsCode_.count(TEST_POLICY_CODE), 1);
+}
+
+/**
+ * @tc.name: TestGetPluginByFuncCodeResolvesPlugin
+ * @tc.desc: The plugin code is routed through the funcCode lookup as well, so an IPC request
+ *           carrying the interface code reaches the owning plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetPluginByFuncCodeResolvesPlugin, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    std::uint32_t funcCode = POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), TEST_POLICY_CODE);
+    auto resolved = PluginManager::GetInstance()->GetPluginByFuncCode(funcCode);
+    ASSERT_NE(resolved, nullptr);
+    EXPECT_EQ(resolved.get(), plugin.get());
+}
+
+/**
+ * @tc.name: TestUpdateDevicePolicyPassesBundleNameAsCurrentAdmin
+ * @tc.desc: UpdateDevicePolicy forwards the calling bundle name into HandlePolicyData as the
+ *           current admin, which ownership checks rely on to tell admins apart.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUpdateDevicePolicyPassesBundleNameAsCurrentAdmin, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    MessageParcel data;
+    MessageParcel reply;
+    const std::string adminName = "com.admin.owning";
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(
+        POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), TEST_POLICY_CODE),
+        adminName, data, reply, 0);
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_EQ(plugin->currentAdminNameSeen_, adminName);
+    EXPECT_EQ(plugin->othersMergePolicyDataAdmin_, adminName);
+    EXPECT_EQ(plugin->mergePolicyDataSeen_, plugin->othersMergePolicyData_);
+}
+
+/**
+ * @tc.name: TestUpdateDevicePolicyReportsFailureOfThePlugin
+ * @tc.desc: A plugin that rejects the request aborts the whole update, so the policy of the
+ *           admin is not written when the ownership check of the plugin refused it.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUpdateDevicePolicyReportsFailureOfThePlugin, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    plugin->onHandlePolicyRet_ = EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    MessageParcel data;
+    MessageParcel reply;
+    const std::string adminName = "com.admin.other";
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(
+        POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), TEST_POLICY_CODE),
+        adminName, data, reply, 0);
+    EXPECT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
+    EXPECT_EQ(plugin->currentAdminNameSeen_, adminName);
+}
+
+/**
+ * @tc.name: TestUpdateDevicePolicyPersistsPolicyOfTheAdmin
+ * @tc.desc: A successful request of an admin is stored under the bundle name of that admin,
+ *           so two admins that set the same policy keep their own private copy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUpdateDevicePolicyPersistsPolicyOfTheAdmin, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    plugin->changePolicy_ = true;
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    MessageParcel data;
+    MessageParcel reply;
+    const std::string adminName = "com.admin.owning";
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(
+        POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), TEST_POLICY_CODE),
+        adminName, data, reply, 0);
+    ASSERT_EQ(ret, ERR_OK);
+
+    EXPECT_EQ(plugin->onHandlePolicyDoneAdmin_, adminName);
+    EXPECT_EQ(plugin->currentAdminNameSeen_, adminName);
+}
+
+/**
+ * @tc.name: TestUpdateDevicePolicyKeepsPolicyOfAnotherAdminSeparate
+ * @tc.desc: The merged view of a request carries the admin name of the caller, so the
+ *           ownership records of two admins stay apart and neither of them is reported as
+ *           the owner of the items of the other one.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUpdateDevicePolicyKeepsPolicyOfAnotherAdminSeparate, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    MessageParcel data;
+    MessageParcel reply;
+    const std::string firstAdmin = "com.admin.first";
+    const std::string secondAdmin = "com.admin.second";
+    ASSERT_EQ(PluginManager::GetInstance()->UpdateDevicePolicy(
+        POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), TEST_POLICY_CODE),
+        firstAdmin, data, reply, 0), ERR_OK);
+    EXPECT_EQ(plugin->currentAdminNameSeen_, firstAdmin);
+
+    ASSERT_EQ(PluginManager::GetInstance()->UpdateDevicePolicy(
+        POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), TEST_POLICY_CODE),
+        secondAdmin, data, reply, 0), ERR_OK);
+    EXPECT_EQ(plugin->currentAdminNameSeen_, secondAdmin);
+    EXPECT_EQ(plugin->othersMergePolicyDataAdmin_, secondAdmin);
+}
+
+/**
+ * @tc.name: TestUpdateDevicePolicyRejectsUnknownFuncCode
+ * @tc.desc: A request whose interface code belongs to no plugin is rejected as an unsupported
+ *           interface, so a request never reaches an unrelated plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestUpdateDevicePolicyRejectsUnknownFuncCode, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode ret = PluginManager::GetInstance()->UpdateDevicePolicy(
+        POLICY_FUNC_CODE(static_cast<std::uint32_t>(FuncOperateType::SET), INVAILD_PLUGIN_CODE),
+        "com.admin.owning", data, reply, 0);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestGetSoNameByCodeResolvesManagedBrowserPolicy
+ * @tc.desc: The browser policy interface code is mapped to the communication plugin SO, so the
+ *           plugin can be loaded on demand for that code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestGetSoNameByCodeResolvesManagedBrowserPolicy, TestSize.Level1)
+{
+    std::string soName;
+    bool ret = PluginManager::GetInstance()->GetSoNameByCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY, soName);
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(soName, SONAME::COMMUNICATION_PLUGIN_SO);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

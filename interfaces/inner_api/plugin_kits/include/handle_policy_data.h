@@ -24,6 +24,7 @@ struct HandlePolicyData {
     std::string policyData;
     std::string mergePolicyData;
     bool isChanged = false;
+    std::string currentAdminName;
 };
 } // namespace EDM
 } // namespace OHOS

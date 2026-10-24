@@ -40,6 +40,11 @@ public:
 
     bool MergePolicy(std::vector<std::map<std::string, ManagedBrowserPolicyType>> &data,
         std::map<std::string, ManagedBrowserPolicyType> &result) override;
+
+private:
+    static void DeserializeOwnership(cJSON* mapItem, ManagedBrowserPolicyType &policyType);
+
+    static bool SerializeOwnership(const ManagedBrowserPolicyType &policyType, cJSON* policyObject);
 };
 } // namespace EDM
 } // namespace OHOS

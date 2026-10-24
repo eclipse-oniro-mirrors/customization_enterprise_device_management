@@ -23,7 +23,9 @@
 #include "admin_container.h"
 #include "admin_manager.h"
 #include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
 #include "enable_source.h"
+#include "func_code_utils.h"
 #include "ipc_skeleton.h"
 #include "tokenid_kit.h"
 
@@ -264,6 +266,67 @@ HWTEST_F(PermissionCheckerTest, TestCheckSystemTimerPermission_Success, TestSize
     ASSERT_EQ(ret, ERR_OK);
 
     adminMgr->DeleteAdmin("com.edm.timer3", EdmConstants::DEFAULT_USER_ID, AdminType::NORMAL);
+}
+
+/**
+ * @tc.name: TestCheckElementNullPermissionSupportsBrowserPolicy
+ * @tc.desc: The shared browser policy code is accepted for an element null query, otherwise a
+ *           browser query would be rejected before reaching the plugin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestCheckElementNullPermissionSupportsBrowserPolicy, TestSize.Level1)
+{
+    uint32_t browserPolicyFuncCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::GET),
+        EdmInterfaceCode::MANAGED_BROWSER_POLICY);
+    EXPECT_TRUE(permissionChecker_->CheckElementNullPermission(browserPolicyFuncCode, ""));
+}
+
+/**
+ * @tc.name: TestCheckElementNullPermissionRejectsUnlistedCode
+ * @tc.desc: An interface code that is not on the element null query list is still rejected, which
+ *           shows the check discriminates on the code rather than accepting everything.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestCheckElementNullPermissionRejectsUnlistedCode, TestSize.Level1)
+{
+    uint32_t unsupportedFuncCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::GET),
+        EdmInterfaceCode::ADD_DEVICE_ADMIN);
+    EXPECT_FALSE(permissionChecker_->CheckElementNullPermission(unsupportedFuncCode, ""));
+}
+
+/**
+ * @tc.name: TestCheckElementNullPermissionBrowserPolicyRequiresPermission
+ * @tc.desc: An element null query of the browser policy that carries a permission name is
+ *           only accepted when the caller holds that permission, so the empty permission
+ *           shortcut does not open the interface to every caller.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestCheckElementNullPermissionBrowserPolicyRequiresPermission, TestSize.Level1)
+{
+    uint32_t browserPolicyFuncCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::GET),
+        EdmInterfaceCode::MANAGED_BROWSER_POLICY);
+    EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall).WillRepeatedly(Return(false));
+    EXPECT_CALL(*accessTokenMgrMock_, IsNativeCall).WillRepeatedly(Return(false));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(true));
+    EXPECT_TRUE(permissionChecker_->CheckElementNullPermission(browserPolicyFuncCode,
+        "ohos.permission.MANAGE_EDM_POLICY"));
+}
+
+/**
+ * @tc.name: TestCheckElementNullPermissionBrowserPolicyRejectsMissingPermission
+ * @tc.desc: An element null query of the browser policy that carries a permission name is
+ *           rejected when the caller does not hold that permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestCheckElementNullPermissionBrowserPolicyRejectsMissingPermission, TestSize.Level1)
+{
+    uint32_t browserPolicyFuncCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::GET),
+        EdmInterfaceCode::MANAGED_BROWSER_POLICY);
+    EXPECT_CALL(*accessTokenMgrMock_, IsSystemAppCall).WillRepeatedly(Return(false));
+    EXPECT_CALL(*accessTokenMgrMock_, IsNativeCall).WillRepeatedly(Return(false));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(Return(false));
+    EXPECT_FALSE(permissionChecker_->CheckElementNullPermission(browserPolicyFuncCode,
+        "ohos.permission.MANAGE_EDM_POLICY"));
 }
 #endif
 } // namespace TEST
