@@ -236,10 +236,8 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     EDMLOGD("TelephonyManagerProxy::GetCallLogs");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
     data.WriteInt64(config.startTime);
     data.WriteInt64(config.endTime);
     data.WriteBool(config.hasTelephoneNumber);
