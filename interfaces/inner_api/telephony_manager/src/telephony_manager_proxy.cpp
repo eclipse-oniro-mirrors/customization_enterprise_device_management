@@ -16,6 +16,7 @@
 #include "telephony_manager_proxy.h"
 
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
@@ -167,6 +168,113 @@ int32_t TelephonyManagerProxy::GetDefaultDataSim(MessageParcel &data, int32_t &s
     }
     reply.ReadInt32(simId);
     return ERR_OK;
+}
+
+static ErrCode AllocAndCopyBuffer(void *&buffer, int32_t size, const void *src)
+{
+    if (size <= 0) {
+        EDMLOGE("GetCallLogs: invalid size %{public}d.", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    buffer = malloc(size);
+    if (buffer == nullptr) {
+        EDMLOGE("GetCallLogs: malloc failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (memcpy_s(buffer, size, src, size) != EOK) {
+        free(buffer);
+        buffer = nullptr;
+        EDMLOGE("GetCallLogs: memcpy_s failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+static ErrCode ReadBufferFromReply(MessageParcel &reply, int32_t dataSize, void *&buffer)
+{
+    const void *src = reply.ReadRawData(dataSize);
+    if (src == nullptr) {
+        EDMLOGE("GetCallLogs: read source data failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return AllocAndCopyBuffer(buffer, dataSize, src);
+}
+
+static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vector<CallLogInfo> &callLogs)
+{
+    MessageParcel tempParcel;
+    if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
+        EDMLOGE("GetCallLogs: ParseFrom failed.");
+        free(buffer);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t count = tempParcel.ReadInt32();
+    size_t readableDataSize = tempParcel.GetReadableBytes();
+    if (count < 0 || static_cast<size_t>(count) > readableDataSize ||
+        callLogs.max_size() < static_cast<size_t>(count)) {
+        EDMLOGE("GetCallLogs: count check failed, count=%{public}d, readable=%{public}zu",
+            count, readableDataSize);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (int32_t i = 0; i < count; ++i) {
+        CallLogInfo log;
+        log.createTime = tempParcel.ReadInt64();
+        log.startTime = tempParcel.ReadInt64();
+        log.endTime = tempParcel.ReadInt64();
+        log.isIncoming = tempParcel.ReadBool();
+        log.slotId = tempParcel.ReadInt32();
+        log.telephoneNumber = tempParcel.ReadString();
+        callLogs.push_back(log);
+    }
+    EDMLOGD("GetCallLogs success, count = %{public}d", count);
+    return ERR_OK;
+}
+
+int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
+    const TelephonyQueryConfig &config, std::vector<CallLogInfo> &callLogs)
+{
+    EDMLOGD("TelephonyManagerProxy::GetCallLogs");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteInt64(config.startTime);
+    data.WriteInt64(config.endTime);
+    data.WriteBool(config.hasTelephoneNumber);
+    if (config.hasTelephoneNumber) {
+        data.WriteString(config.telephoneNumber);
+    }
+    MessageParcel reply;
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_CALL_LOGS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        EDMLOGE("GetCallLogs:GetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    int32_t dataSize = reply.ReadInt32();
+    if (dataSize == 0) {
+        EDMLOGI("GetCallLogs: empty result, dataSize = 0.");
+        return ERR_OK;
+    }
+    if (dataSize < 0 || dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
+        EDMLOGE("GetCallLogs: invalid dataSize %{public}d.", dataSize);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    void *buffer = nullptr;
+    ErrCode errCode = ReadBufferFromReply(reply, dataSize, buffer);
+    if (errCode != ERR_OK) {
+        EDMLOGE("GetCallLogs: ReadBufferFromReply failed, ret = %{public}d.", errCode);
+        return errCode;
+    }
+    errCode = ParseCallLogsFromBuffer(buffer, dataSize, callLogs);
+    if (errCode != ERR_OK) {
+        EDMLOGE("GetCallLogs: ParseCallLogsFromBuffer failed, ret = %{public}d.", errCode);
+        return errCode;
+    }
+    EDMLOGI("GetCallLogs success, count = %{public}zu.", callLogs.size());
+    return errCode;
 }
 } // namespace EDM
 } // namespace OHOS

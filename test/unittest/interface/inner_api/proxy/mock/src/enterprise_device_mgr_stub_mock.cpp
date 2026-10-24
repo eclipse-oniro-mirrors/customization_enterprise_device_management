@@ -692,6 +692,53 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetBundleStatsInfos(uint32_t c
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetCallLogs code :" << code;
+    code_ = code;
+
+    const int32_t count = 2;
+    constexpr int64_t baseCreateTime = 1700000000;
+    constexpr int64_t baseBeginTime = 1700000010;
+    constexpr int64_t baseEndTime = 1700000020;
+    MessageParcel tempParcel;
+    tempParcel.WriteInt32(count);
+    for (int32_t i = 0; i < count; ++i) {
+        tempParcel.WriteInt64(baseCreateTime + i);
+        tempParcel.WriteInt64(baseBeginTime + i);
+        tempParcel.WriteInt64(baseEndTime + i);
+        tempParcel.WriteBool(i == 0);
+        tempParcel.WriteInt32(i);
+        tempParcel.WriteString("1380013800" + std::to_string(i));
+    }
+    size_t dataSize = tempParcel.GetDataSize();
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    reply.WriteRawData(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsEmpty(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetCallLogsEmpty code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(0);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsInvalidSize(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetCallLogsInvalidSize code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(-1);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeNetStatsInfoSendRequestOverMaxSize(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

@@ -402,6 +402,7 @@ ohos_shared_library("communication_plugin") {
         "./src/network_manager/turnonoff_mobile_data_plugin.cpp",
         "./src/utils/apn_utils.cpp",
         "./src/telephony_manager/hang_up_calling_plugin.cpp",
+        "./src/telephony_manager/get_call_logs_plugin.cpp",
       ]
       defines += [
         "CELLULAR_DATA_EDM_ENABLE",

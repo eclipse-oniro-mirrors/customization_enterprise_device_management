@@ -451,6 +451,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/utils/telephony_call_policy_serializer_test.cpp",
       "./src/hang_up_calling_plugin_test.cpp",
+      "./src/get_call_logs_plugin_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -1122,6 +1123,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       "../../../../services/edm_plugin/src/network_manager/turnonoff_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
       "../../../../services/edm_plugin/src/telephony_manager/hang_up_calling_plugin.cpp",
+      "../../../../services/edm_plugin/src/telephony_manager/get_call_logs_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",

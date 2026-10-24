@@ -410,6 +410,8 @@ namespace EdmPermission {
     // api 26.1.0
     const char* const PERMISSION_ENTERPRISE_REQUEST_PUBLISH_FORM =
         "ohos.permission.ENTERPRISE_REQUEST_PUBLISH_FORM";
+    // api 26.2.0
+    const char* const PERMISSION_ENTERPRISE_READ_CALL_LOG = "ohos.permission.ENTERPRISE_READ_CALL_LOG";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -607,6 +609,7 @@ namespace PolicyName {
     const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
     const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
+    const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

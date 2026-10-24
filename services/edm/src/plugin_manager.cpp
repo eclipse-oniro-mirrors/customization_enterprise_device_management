@@ -127,6 +127,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
     EdmInterfaceCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY,
     EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS,
+    EdmInterfaceCode::GET_CALL_LOGS,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

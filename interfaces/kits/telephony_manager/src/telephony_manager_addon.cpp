@@ -40,6 +40,7 @@ napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("deactiveSim", DeactiveSim),
         DECLARE_NAPI_FUNCTION("setDefaultData", SetDefaultDataSim),
         DECLARE_NAPI_FUNCTION("getDefaultData", GetDefaultDataSim),
+        DECLARE_NAPI_FUNCTION("getCallLogs", GetCallLogs),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -485,6 +486,172 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
+}
+
+#if defined(TELEPHONY_EDM_ENABLE)
+static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQueryConfig &config)
+{
+    napi_value startTimeValue = nullptr;
+    napi_get_named_property(env, argv, "startTime", &startTimeValue);
+    napi_valuetype startTimeType = napi_undefined;
+    napi_typeof(env, startTimeValue, &startTimeType);
+    if (startTimeType != napi_number) {
+        return false;
+    }
+    napi_get_value_int64(env, startTimeValue, &config.startTime);
+    napi_value endTimeValue = nullptr;
+    napi_get_named_property(env, argv, "endTime", &endTimeValue);
+    napi_valuetype endTimeType = napi_undefined;
+    napi_typeof(env, endTimeValue, &endTimeType);
+    if (endTimeType != napi_number) {
+        return false;
+    }
+    napi_get_value_int64(env, endTimeValue, &config.endTime);
+    bool hasTelephoneNumber = false;
+    napi_has_named_property(env, argv, "telephoneNumber", &hasTelephoneNumber);
+    config.hasTelephoneNumber = hasTelephoneNumber;
+    if (!hasTelephoneNumber) {
+        return true;
+    }
+    napi_value telValue = nullptr;
+    napi_get_named_property(env, argv, "telephoneNumber", &telValue);
+    napi_valuetype telType = napi_undefined;
+    napi_typeof(env, telValue, &telType);
+    if (telType == napi_string) {
+        size_t len = 0;
+        napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
+        if (len == 0) {
+            return false;
+        }
+        config.telephoneNumber.resize(len);
+        napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
+    } else if (telType != napi_undefined) {
+        return false;
+    }
+    return true;
+}
+#endif
+
+napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetCallLogs called");
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("TelephonyManagerAddon::GetCallLogs not supported on PC.");
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#elif defined(TELEPHONY_EDM_ENABLE)
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncCallLogCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncCallLogCallbackInfo> callbackPtr{asyncCallbackInfo};
+    if (argc < ARGS_SIZE_TWO) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    if (!MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) ||
+        !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->queryConfig)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetCallLogs",
+        NativeGetCallLogs, NativeGetCallLogsComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+#else
+    EDMLOGW("TelephonyManagerAddon::GetCallLogs Unsupported Capabilities.");
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#endif
+}
+
+void TelephonyManagerAddon::NativeGetCallLogs(napi_env env, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("NativeGetCallLogs: data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncCallLogCallbackInfo *>(data);
+    auto proxy = TelephonyManagerProxy::GetTelephonyManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("NativeGetCallLogs: proxy is nullptr");
+        asyncCallbackInfo->ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->GetCallLogs(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->queryConfig, asyncCallbackInfo->callLogs);
+}
+
+void TelephonyManagerAddon::NativeGetCallLogsComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("NativeGetCallLogsComplete: data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncCallLogCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value jsArray = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_array(env, &jsArray));
+            ConvertVectorCallLogToJs(env, asyncCallbackInfo->callLogs, jsArray);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, jsArray);
+        } else {
+            ErrCode ret = asyncCallbackInfo->ret;
+            if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+                ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+            }
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateError(env, ret, ErrcodeType::NUMBER));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+}
+
+void TelephonyManagerAddon::ConvertVectorCallLogToJs(napi_env env,
+    const std::vector<CallLogInfo> &callLogs, napi_value &result)
+{
+    if (callLogs.empty()) {
+        EDMLOGI("ConvertVectorCallLogToJs: empty");
+        return;
+    }
+    size_t index = 0;
+    for (const auto &log : callLogs) {
+        napi_value jsLog = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &jsLog));
+        napi_value jsCreateTime = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, log.createTime, &jsCreateTime));
+        napi_set_named_property(env, jsLog, "createTime", jsCreateTime);
+        napi_value jsStartTime = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, log.startTime, &jsStartTime));
+        napi_set_named_property(env, jsLog, "startTime", jsStartTime);
+        napi_value jsEndTime = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, log.endTime, &jsEndTime));
+        napi_set_named_property(env, jsLog, "endTime", jsEndTime);
+        napi_value jsIsIncoming = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, log.isIncoming, &jsIsIncoming));
+        napi_set_named_property(env, jsLog, "isIncoming", jsIsIncoming);
+        napi_value jsSlotId = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, log.slotId, &jsSlotId));
+        napi_set_named_property(env, jsLog, "slotId", jsSlotId);
+        napi_value jsTelNumber = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, log.telephoneNumber.c_str(),
+            NAPI_AUTO_LENGTH, &jsTelNumber));
+        napi_set_named_property(env, jsLog, "telephoneNumber", jsTelNumber);
+        NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, jsLog));
+        index++;
+    }
 }
 
 static napi_module g_telephonyManagerModule = {
