@@ -62,6 +62,12 @@ config("edm_config") {
   ]
 }
 
+config("edm_fuzz_pc_only_config") {
+  if (enterprise_device_management_feature_pc_only) {
+    defines = [ "FEATURE_PC_ONLY" ]
+  }
+}
+
 ohos_static_library("edmservice_fuzz_static") {
   testonly = true
   sources = [
@@ -155,6 +161,7 @@ ohos_static_library("edmservice_fuzz_static") {
   
   public_configs = [
     ":edm_config",
+    ":edm_fuzz_pc_only_config",
     "../../../common/config:coverage_flags",
   ]
 
