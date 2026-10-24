@@ -843,5 +843,13 @@ int32_t ApplicationManagerProxy::ExemptionResource(MessageParcel &data, FuncOper
         EdmInterfaceCode::EXEMPTION_RESOURCE);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
+
+int32_t ApplicationManagerProxy::RemoveAllNotifications(MessageParcel &data)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveAllNotifications");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

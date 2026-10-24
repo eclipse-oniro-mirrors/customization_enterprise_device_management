@@ -101,6 +101,7 @@ public:
         std::vector<std::string> &appIdentifiers);
     int32_t PublishFormToDesktop(MessageParcel &data, std::string &formId);
     int32_t ExemptionResource(MessageParcel &data, FuncOperateType operateType);
+    int32_t RemoveAllNotifications(MessageParcel &data);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

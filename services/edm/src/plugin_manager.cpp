@@ -94,6 +94,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
     EdmInterfaceCode::VOLUME_DEGREE,
     EdmInterfaceCode::DEFAULT_APPLICATION,
+    EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

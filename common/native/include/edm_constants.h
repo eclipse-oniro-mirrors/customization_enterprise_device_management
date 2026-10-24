@@ -412,6 +412,8 @@ namespace EdmPermission {
         "ohos.permission.ENTERPRISE_REQUEST_PUBLISH_FORM";
     // api 26.2.0
     const char* const PERMISSION_ENTERPRISE_READ_CALL_LOG = "ohos.permission.ENTERPRISE_READ_CALL_LOG";
+    const char* const PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION =
+        "ohos.permission.ENTERPRISE_MANAGE_NOTIFICATION";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -564,6 +566,7 @@ namespace PolicyName {
     const char* const POLICY_SYSTEM_TIMER = "system_timer";
     const char* const POLICY_EXEMPTION_RESOURCE = "exemption_resource";
     const char* const POLICY_PUBLISH_FORM_TO_DESKTOP = "publish_form_to_desktop";
+    const char* const POLICY_REMOVE_ALL_NOTIFICATIONS = "remove_all_notifications";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

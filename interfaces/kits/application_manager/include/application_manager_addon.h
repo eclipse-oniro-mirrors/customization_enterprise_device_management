@@ -96,6 +96,7 @@ public:
     static napi_value PublishFormToDesktop(napi_env env, napi_callback_info info);
     static napi_value RequestExemptionResource(napi_env env, napi_callback_info info);
     static napi_value ReleaseExemptionResource(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllNotifications(napi_env env, napi_callback_info info);
     static void CreateStandbyResourceTypeObject(napi_env env, napi_value value);
 
 private:

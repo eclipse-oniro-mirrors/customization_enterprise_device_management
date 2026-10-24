@@ -142,6 +142,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/restrictions/disallow_x_key_plugin.cpp",
       "./src/restrictions/disallow_control_center_plugin.cpp",
       "./src/restrictions/disallow_notification_center_plugin.cpp",
+      "./src/application_manager/remove_all_notifications_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
