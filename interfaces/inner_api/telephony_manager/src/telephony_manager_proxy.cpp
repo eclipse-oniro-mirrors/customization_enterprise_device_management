@@ -174,18 +174,18 @@ static ErrCode AllocAndCopyBuffer(void *&buffer, int32_t size, const void *src)
 {
     if (size <= 0) {
         EDMLOGE("GetCallLogs: invalid size %{public}d.", size);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     buffer = malloc(size);
     if (buffer == nullptr) {
         EDMLOGE("GetCallLogs: malloc failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     if (memcpy_s(buffer, size, src, size) != EOK) {
         free(buffer);
         buffer = nullptr;
         EDMLOGE("GetCallLogs: memcpy_s failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
 }
@@ -195,7 +195,7 @@ static ErrCode ReadBufferFromReply(MessageParcel &reply, int32_t dataSize, void 
     const void *src = reply.ReadRawData(dataSize);
     if (src == nullptr) {
         EDMLOGE("GetCallLogs: read source data failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return AllocAndCopyBuffer(buffer, dataSize, src);
 }
@@ -206,7 +206,7 @@ static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vect
     if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
         EDMLOGE("GetCallLogs: ParseFrom failed.");
         free(buffer);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t count = tempParcel.ReadInt32();
     size_t readableDataSize = tempParcel.GetReadableBytes();
@@ -214,7 +214,7 @@ static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vect
         callLogs.max_size() < static_cast<size_t>(count)) {
         EDMLOGE("GetCallLogs: count check failed, count=%{public}d, readable=%{public}zu",
             count, readableDataSize);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     for (int32_t i = 0; i < count; ++i) {
         CallLogInfo log;
@@ -247,10 +247,10 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
         data.WriteString(config.telephoneNumber);
     }
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::GET_CALL_LOGS, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
-        EDMLOGE("GetCallLogs:GetPolicy fail. %{public}d", ret);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::GET_CALL_LOGS, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("GetCallLogs:GetPolicyNew fail. %{public}d", ret);
         return ret;
     }
     int32_t dataSize = reply.ReadInt32();
@@ -260,7 +260,7 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     }
     if (dataSize < 0 || dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
         EDMLOGE("GetCallLogs: invalid dataSize %{public}d.", dataSize);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     void *buffer = nullptr;
     ErrCode errCode = ReadBufferFromReply(reply, dataSize, buffer);

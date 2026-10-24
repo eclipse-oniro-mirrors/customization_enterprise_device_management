@@ -136,7 +136,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     auto helper = CreateCallLogHelper();
     if (helper == nullptr) {
         EDMLOGE("GetCallLogsPlugin: CreateCallLogHelper failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     auto predicates = BuildPredicates(config);
     auto columns = BuildResultColumns();
@@ -145,7 +145,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     if (resultSet == nullptr) {
         EDMLOGE("GetCallLogsPlugin: Query call log failed.");
         helper->Release();
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t rowCount = 0;
     resultSet->GetRowCount(rowCount);
@@ -203,10 +203,6 @@ static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParc
         *(reinterpret_cast<int32_t *>(dataPtr)) = actualCount;
     }
     size_t dataSize = tempParcel.GetDataSize();
-    if (!reply.WriteInt32(ERR_OK)) {
-        EDMLOGE("GetCallLogsPlugin: Write ERR_OK failed.");
-        return false;
-    }
     if (!reply.WriteInt32(static_cast<int32_t>(dataSize))) {
         EDMLOGE("GetCallLogsPlugin: Write dataSize failed.");
         return false;
@@ -233,36 +229,30 @@ ErrCode GetCallLogsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &d
     }
     if (config.startTime < 0 || config.endTime < 0 || config.startTime > config.endTime) {
         EDMLOGE("GetCallLogsPlugin: Invalid time range.");
-        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (config.endTime - config.startTime > MAX_TIME_RANGE_SECONDS) {
         EDMLOGE("GetCallLogsPlugin: Time range exceeds 31 days.");
-        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (config.hasTelephoneNumber && config.telephoneNumber.empty()) {
         EDMLOGE("GetCallLogsPlugin: telephoneNumber is empty.");
-        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     std::vector<CallLogInfo> callLogs;
     ErrCode queryRet = QueryCallLogs(config, callLogs);
     if (queryRet != ERR_OK) {
         EDMLOGE("GetCallLogsPlugin: QueryCallLogs failed, ret = %{public}d.", queryRet);
-        reply.WriteInt32(queryRet);
         return queryRet;
     }
     if (!WriteCallLogsToReply(callLogs, reply)) {
         EDMLOGE("GetCallLogsPlugin: WriteCallLogsToReply failed.");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     EDMLOGI("GetCallLogsPlugin OnGetPolicy success, count = %{public}zu.", callLogs.size());
     return ERR_OK;
 #else
     EDMLOGW("GetCallLogsPlugin::OnGetPolicy Unsupported Capabilities.");
-    reply.WriteInt32(EdmReturnErrCode::INTERFACE_UNSUPPORTED);
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }
