@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <mutex>
 #include "bundle_manager_utils.h"
 #include "cjson_check.h"
 #include "cjson_serializer.h"
@@ -62,27 +63,29 @@ ErrCode ManagedBrowserPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
     HandlePolicyData &policyData, int32_t userId)
 {
     EDMLOGI("ManagedBrowserPolicyPlugin OnHandlePolicy.");
-    std::string bundleName = data.ReadString();
-    std::string policyName = data.ReadString();
-    std::string policyValue = data.ReadString();
-    if (bundleName.empty() || policyName.empty() || bundleName.find("..") != std::string::npos) {
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-
-    auto serializer = ManagedBrowserPolicySerializer::GetInstance();
+    ManagedBrowserPolicyRequest request;
     std::map<std::string, ManagedBrowserPolicyType> policies;
     std::map<std::string, ManagedBrowserPolicyType> mergePolicies;
-    if (!serializer->Deserialize(policyData.policyData, policies) ||
-        !serializer->Deserialize(policyData.mergePolicyData, mergePolicies)) {
-        EDMLOGE("ManagedBrowserPolicyPlugin::OnHandlePolicy Deserialize current policy and merge policy failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<std::string> policyNames = policies[bundleName].policyNames;
-    bool isModifyOrRemove = (std::find(policyNames.begin(), policyNames.end(), policyName) != policyNames.end());
-    ErrCode ret = UpdateCurrentAndMergePolicy(policies, mergePolicies, bundleName, policyName, policyValue);
+    bool isModifyOrRemove = false;
+    ErrCode ret = PreparePolicyContext(data, policyData, request, policies, mergePolicies, isModifyOrRemove);
     if (FAILED(ret)) {
         return ret;
     }
+
+    auto serializer = ManagedBrowserPolicySerializer::GetInstance();
+    const std::string &bundleName = request.bundleName;
+    const std::string &policyName = request.policyName;
+    const std::string &policyValue = request.policyValue;
+    const std::string &adminName = policyData.currentAdminName;
+
+    ret = UpdateCurrentAndMergePolicy(policies, mergePolicies, request, adminName);
+    if (FAILED(ret)) {
+        return ret;
+    }
+
+    UpdatePolicyOwnership(mergePolicies[bundleName], policyName, adminName, request.isForceOverride,
+        policyValue.empty());
+
     std::string afterHandle;
     std::string afterMerge;
     if (!serializer->Serialize(policies, afterHandle) || !serializer->Serialize(mergePolicies, afterMerge)) {
@@ -90,15 +93,7 @@ ErrCode ManagedBrowserPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 
-    size_t pos = 0;
-    while ((pos = policyValue.find("\n", pos)) != std::string::npos) {
-        policyValue.replace(pos, 1, "");
-    }
-    if (isModifyOrRemove) {
-        ret = ModifyOrRemoveManagedBrowserPolicy(policies, bundleName, policyName, policyValue);
-    } else {
-        ret = AddManagedBrowserPolicy(policies, bundleName, policyName, policyValue);
-    }
+    ret = ApplyPolicyToBrowserFile(policies, bundleName, policyName, policyValue, isModifyOrRemove);
     if (ret != ERR_OK) {
         return ret;
     }
@@ -109,16 +104,214 @@ ErrCode ManagedBrowserPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
     return ret;
 }
 
+ErrCode ManagedBrowserPolicyPlugin::PreparePolicyContext(MessageParcel &data, const HandlePolicyData &policyData,
+    ManagedBrowserPolicyRequest &request, std::map<std::string, ManagedBrowserPolicyType> &policies,
+    std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, bool &isModifyOrRemove)
+{
+    request.bundleName = data.ReadString();
+    request.policyName = data.ReadString();
+    request.policyValue = data.ReadString();
+    if (request.bundleName.empty() || request.policyName.empty() ||
+        request.bundleName.find("..") != std::string::npos) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+
+    ErrCode forceFlagRet = ReadForceOverrideFlag(data, request.isForceOverride);
+    if (FAILED(forceFlagRet)) {
+        return forceFlagRet;
+    }
+
+    ErrCode deserializeRet = DeserializeAndMigrate(policyData, policies, mergePolicies);
+    if (FAILED(deserializeRet)) {
+        return deserializeRet;
+    }
+
+    const std::vector<std::string> &policyNames = policies[request.bundleName].policyNames;
+    isModifyOrRemove = (std::find(policyNames.begin(), policyNames.end(), request.policyName) != policyNames.end());
+
+    return CheckPolicyOwnership(mergePolicies[request.bundleName], request.policyName,
+        policyData.currentAdminName, request.isForceOverride);
+}
+
+ErrCode ManagedBrowserPolicyPlugin::ApplyPolicyToBrowserFile(std::map<std::string, ManagedBrowserPolicyType> &policies,
+    const std::string &bundleName, const std::string &policyName, std::string policyValue, bool isModifyOrRemove)
+{
+    size_t pos = 0;
+    while ((pos = policyValue.find("\n", pos)) != std::string::npos) {
+        policyValue.replace(pos, 1, "");
+    }
+    if (isModifyOrRemove) {
+        return ModifyOrRemoveManagedBrowserPolicy(policies, bundleName, policyName, policyValue);
+    }
+    return AddManagedBrowserPolicy(policies, bundleName, policyName, policyValue);
+}
+
+ErrCode ManagedBrowserPolicyPlugin::ReadForceOverrideFlag(MessageParcel &data, bool &isForceOverride)
+{
+    if (!data.ReadBool(isForceOverride)) {
+        EDMLOGE("ManagedBrowserPolicyPlugin::OnHandlePolicy force override flag invalid.");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    return ERR_OK;
+}
+
+ErrCode ManagedBrowserPolicyPlugin::DeserializeAndMigrate(const HandlePolicyData &policyData,
+    std::map<std::string, ManagedBrowserPolicyType> &policies,
+    std::map<std::string, ManagedBrowserPolicyType> &mergePolicies)
+{
+    auto serializer = ManagedBrowserPolicySerializer::GetInstance();
+    if (!serializer->Deserialize(policyData.policyData, policies) ||
+        !serializer->Deserialize(policyData.mergePolicyData, mergePolicies)) {
+        EDMLOGE("ManagedBrowserPolicyPlugin::OnHandlePolicy Deserialize current policy and merge policy failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+
+    MigrateOwnershipIfNeeded(mergePolicies);
+    return ERR_OK;
+}
+
+bool ManagedBrowserPolicyPlugin::IsOwnedByAdmin(const ManagedBrowserPolicyType &mergedPolicy,
+    const std::string &policyName, const std::string &adminName)
+{
+    if (adminName.empty()) {
+        return false;
+    }
+    auto it = mergedPolicy.ownership.find(policyName);
+    if (it == mergedPolicy.ownership.end()) {
+        return false;
+    }
+    return it->second.adminBundleName == adminName;
+}
+
+ErrCode ManagedBrowserPolicyPlugin::CheckPolicyOwnership(const ManagedBrowserPolicyType &mergedPolicy,
+    const std::string &policyName, const std::string &adminName, bool isForceOverride)
+{
+    if (isForceOverride) {
+        return ERR_OK;
+    }
+    auto it = mergedPolicy.ownership.find(policyName);
+    if (it == mergedPolicy.ownership.end()) {
+        return ERR_OK;
+    }
+    if (!adminName.empty() && it->second.adminBundleName == adminName) {
+        return ERR_OK;
+    }
+    EDMLOGE("ManagedBrowserPolicyPlugin policy %{public}s is owned by admin %{public}s and cannot be changed here.",
+        policyName.c_str(), it->second.adminBundleName.c_str());
+    return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+}
+
+void ManagedBrowserPolicyPlugin::UpdatePolicyOwnership(ManagedBrowserPolicyType &mergedPolicy,
+    const std::string &policyName, const std::string &adminName, bool isForceOverride, bool isRemoved)
+{
+    if (isRemoved) {
+        mergedPolicy.ownership.erase(policyName);
+        return;
+    }
+    ManagedBrowserPolicyOwnership owner;
+    owner.adminBundleName = adminName;
+    owner.isForceOverride = isForceOverride;
+    mergedPolicy.ownership[policyName] = owner;
+}
+
+void ManagedBrowserPolicyPlugin::MigrateOwnershipIfNeeded(
+    std::map<std::string, ManagedBrowserPolicyType> &mergePolicies)
+{
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [this, &mergePolicies]() {
+        BackfillOwnership(mergePolicies);
+    });
+}
+
+void ManagedBrowserPolicyPlugin::CollectPolicyOwners(const AdminValueItemsMap &adminValues,
+    std::map<std::string, std::string> &owners)
+{
+    auto serializer = ManagedBrowserPolicySerializer::GetInstance();
+    for (const auto &entry : adminValues) {
+        std::map<std::string, ManagedBrowserPolicyType> adminPolicies;
+        if (entry.second.empty() || !serializer->Deserialize(entry.second, adminPolicies)) {
+            EDMLOGW("ManagedBrowserPolicyPlugin::MigrateOwnershipIfNeeded skip admin %{public}s",
+                entry.first.c_str());
+            continue;
+        }
+        CollectAdminPolicyOwners(entry.first, adminPolicies, owners);
+    }
+}
+
+void ManagedBrowserPolicyPlugin::CollectAdminPolicyOwners(const std::string &adminName,
+    const std::map<std::string, ManagedBrowserPolicyType> &adminPolicies,
+    std::map<std::string, std::string> &owners)
+{
+    for (const auto &policyIt : adminPolicies) {
+        for (const auto &policyName : policyIt.second.policyNames) {
+            RecordPolicyOwner(policyIt.first, policyName, adminName, owners);
+        }
+    }
+}
+
+void ManagedBrowserPolicyPlugin::RecordPolicyOwner(const std::string &bundleName, const std::string &policyName,
+    const std::string &adminName, std::map<std::string, std::string> &owners)
+{
+    std::string key = bundleName + "|" + policyName;
+    if (owners.find(key) != owners.end()) {
+        return;
+    }
+    owners[key] = adminName;
+}
+
+void ManagedBrowserPolicyPlugin::ApplyPolicyOwners(const std::map<std::string, std::string> &owners,
+    std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, bool &hasBackfilled)
+{
+    for (auto &mergeIt : mergePolicies) {
+        for (const auto &policyName : mergeIt.second.policyNames) {
+            if (mergeIt.second.ownership.find(policyName) != mergeIt.second.ownership.end()) {
+                continue;
+            }
+            auto ownerIt = owners.find(mergeIt.first + "|" + policyName);
+            if (ownerIt == owners.end()) {
+                continue;
+            }
+            ManagedBrowserPolicyOwnership owner;
+            owner.adminBundleName = ownerIt->second;
+            owner.isForceOverride = false;
+            mergeIt.second.ownership[policyName] = owner;
+            hasBackfilled = true;
+        }
+    }
+}
+
+void ManagedBrowserPolicyPlugin::BackfillOwnership(std::map<std::string, ManagedBrowserPolicyType> &mergePolicies)
+{
+    AdminValueItemsMap adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues);
+    if (adminValues.empty()) {
+        return;
+    }
+    std::map<std::string, std::string> owners;
+    CollectPolicyOwners(adminValues, owners);
+    bool hasBackfilled = false;
+    ApplyPolicyOwners(owners, mergePolicies, hasBackfilled);
+    if (hasBackfilled) {
+        EDMLOGI("ManagedBrowserPolicyPlugin::MigrateOwnershipIfNeeded backfilled ownership records.");
+    }
+}
+
 ErrCode ManagedBrowserPolicyPlugin::UpdateCurrentAndMergePolicy(
     std::map<std::string, ManagedBrowserPolicyType> &policies,
-    std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const std::string &bundleName,
-    const std::string &policyName, const std::string &policyValue)
+    std::map<std::string, ManagedBrowserPolicyType> &mergePolicies, const ManagedBrowserPolicyRequest &request,
+    const std::string &adminName)
 {
-    if (mergePolicies.find(bundleName) != mergePolicies.end() &&
-        std::find(mergePolicies[bundleName].policyNames.begin(),
-            mergePolicies[bundleName].policyNames.end(), policyName) != mergePolicies[bundleName].policyNames.end()) {
+    const std::string &bundleName = request.bundleName;
+    const std::string &policyName = request.policyName;
+    const std::string &policyValue = request.policyValue;
+
+    auto mergedIt = mergePolicies.find(bundleName);
+    if (!request.isForceOverride && mergedIt != mergePolicies.end() &&
+        !IsOwnedByAdmin(mergedIt->second, policyName, adminName) &&
+        std::find(mergedIt->second.policyNames.begin(),
+            mergedIt->second.policyNames.end(), policyName) != mergedIt->second.policyNames.end()) {
         EDMLOGE("ManagedBrowserPolicyPlugin another admin has already set this item policy for this application.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 
     std::vector<std::string> &policyNames = policies[bundleName].policyNames;
@@ -132,14 +325,20 @@ ErrCode ManagedBrowserPolicyPlugin::UpdateCurrentAndMergePolicy(
     }
     policies[bundleName].version++;
 
-    for (auto policy : policies) {
-        if (mergePolicies.find(policy.first) == mergePolicies.end()) {
+    for (auto &policy : policies) {
+        auto mergeIt = mergePolicies.find(policy.first);
+        if (mergeIt == mergePolicies.end()) {
             mergePolicies[policy.first] = policy.second;
             continue;
         }
-        mergePolicies[policy.first].version++;
-        mergePolicies[policy.first].policyNames.insert(mergePolicies[policy.first].policyNames.end(),
-            policy.second.policyNames.begin(), policy.second.policyNames.end());
+        mergeIt->second.version++;
+        std::vector<std::string> &mergedNames = mergeIt->second.policyNames;
+        for (const auto &name : policy.second.policyNames) {
+            if (std::find(mergedNames.begin(), mergedNames.end(), name) != mergedNames.end()) {
+                continue;
+            }
+            mergedNames.push_back(name);
+        }
     }
     return ERR_OK;
 }
@@ -161,31 +360,74 @@ ErrCode ManagedBrowserPolicyPlugin::GetOthersMergePolicyData(const std::string &
     if (adminValues.empty()) {
         return ERR_OK;
     }
-    std::map<std::string, ManagedBrowserPolicyType> mergeData;
+
     auto serializer = ManagedBrowserPolicySerializer::GetInstance();
-    for (const auto &item : adminValues) {
-        std::map<std::string, ManagedBrowserPolicyType> dataItem;
-        if (item.second.empty()) {
-            continue;
-        }
-        if (!serializer->Deserialize(item.second, dataItem)) {
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
-        for (auto item : dataItem) {
-            if (mergeData.find(item.first) == mergeData.end()) {
-                mergeData[item.first] = item.second;
-                continue;
-            }
-            mergeData[item.first].policyNames.insert(mergeData[item.first].policyNames.end(),
-                item.second.policyNames.begin(), item.second.policyNames.end());
-            if (item.second.version > mergeData[item.first].version) {
-                mergeData[item.first].version = item.second.version;
-            }
-        }
+    std::map<std::string, ManagedBrowserPolicyType> mergeData;
+    ErrCode ret = MergeAdminPolicies(adminValues, mergeData);
+    if (FAILED(ret)) {
+        return ret;
+    }
+
+    ret = MergeCombinedOwnership(mergeData);
+    if (FAILED(ret)) {
+        return ret;
     }
 
     if (!serializer->Serialize(mergeData, othersMergePolicyData)) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode ManagedBrowserPolicyPlugin::MergeAdminPolicies(const AdminValueItemsMap &adminValues,
+    std::map<std::string, ManagedBrowserPolicyType> &mergeData)
+{
+    auto serializer = ManagedBrowserPolicySerializer::GetInstance();
+    for (const auto &adminEntry : adminValues) {
+        std::map<std::string, ManagedBrowserPolicyType> adminPolicies;
+        if (adminEntry.second.empty()) {
+            continue;
+        }
+        if (!serializer->Deserialize(adminEntry.second, adminPolicies)) {
+            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        }
+        for (const auto &policyEntry : adminPolicies) {
+            auto mergeIt = mergeData.find(policyEntry.first);
+            if (mergeIt == mergeData.end()) {
+                mergeData[policyEntry.first] = policyEntry.second;
+                continue;
+            }
+            mergeIt->second.policyNames.insert(mergeIt->second.policyNames.end(),
+                policyEntry.second.policyNames.begin(), policyEntry.second.policyNames.end());
+            if (policyEntry.second.version > mergeIt->second.version) {
+                mergeIt->second.version = policyEntry.second.version;
+            }
+        }
+    }
+    return ERR_OK;
+}
+
+ErrCode ManagedBrowserPolicyPlugin::MergeCombinedOwnership(std::map<std::string, ManagedBrowserPolicyType> &mergeData)
+{
+    auto serializer = ManagedBrowserPolicySerializer::GetInstance();
+    std::string combinedPolicy;
+    IPolicyManager::GetInstance()->GetPolicy("", GetPolicyName(), combinedPolicy);
+    std::map<std::string, ManagedBrowserPolicyType> combinedData;
+    if (combinedPolicy.empty() || !serializer->Deserialize(combinedPolicy, combinedData)) {
+        return ERR_OK;
+    }
+    for (auto &combinedIt : combinedData) {
+        auto mergeIt = mergeData.find(combinedIt.first);
+        if (mergeIt == mergeData.end() || combinedIt.second.ownership.empty()) {
+            continue;
+        }
+        for (const auto &ownerIt : combinedIt.second.ownership) {
+            if (std::find(mergeIt->second.policyNames.begin(), mergeIt->second.policyNames.end(),
+                ownerIt.first) == mergeIt->second.policyNames.end()) {
+                continue;
+            }
+            mergeIt->second.ownership[ownerIt.first] = ownerIt.second;
+        }
     }
     return ERR_OK;
 }

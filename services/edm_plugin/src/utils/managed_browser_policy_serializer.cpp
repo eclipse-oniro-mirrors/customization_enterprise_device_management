@@ -23,6 +23,9 @@ namespace EDM {
 
 const char* const VERSION = "version";
 const char* const POLICY_NAMES = "policyNames";
+const char* const OWNERSHIP = "ownership";
+const char* const ADMIN_BUNDLE_NAME = "adminBundleName";
+const char* const IS_FORCE_OVERRIDE = "isForceOverride";
 
 bool ManagedBrowserPolicySerializer::Deserialize(const std::string &policy,
     std::map<std::string, ManagedBrowserPolicyType> &dataObj)
@@ -54,9 +57,33 @@ bool ManagedBrowserPolicySerializer::Deserialize(const std::string &policy,
         }
         dataObj[mapItem->string].policyNames = policyVector;
         dataObj[mapItem->string].version = version->valueint;
+        DeserializeOwnership(mapItem, dataObj[mapItem->string]);
     }
     cJSON_Delete(root);
     return true;
+}
+
+void ManagedBrowserPolicySerializer::DeserializeOwnership(cJSON* mapItem, ManagedBrowserPolicyType &policyType)
+{
+    cJSON* ownership = cJSON_GetObjectItem(mapItem, OWNERSHIP);
+    if (!cJSON_IsObject(ownership)) {
+        return;
+    }
+    cJSON* ownershipItem;
+    cJSON_ArrayForEach(ownershipItem, ownership) {
+        if (ownershipItem->string == nullptr) {
+            continue;
+        }
+        cJSON* adminName = cJSON_GetObjectItem(ownershipItem, ADMIN_BUNDLE_NAME);
+        cJSON* isForce = cJSON_GetObjectItem(ownershipItem, IS_FORCE_OVERRIDE);
+        if (!cJSON_IsString(adminName) || !cJSON_IsBool(isForce)) {
+            continue;
+        }
+        ManagedBrowserPolicyOwnership owner;
+        owner.adminBundleName = std::string(adminName->valuestring);
+        owner.isForceOverride = cJSON_IsTrue(isForce);
+        policyType.ownership[std::string(ownershipItem->string)] = owner;
+    }
 }
 
 bool ManagedBrowserPolicySerializer::Serialize(const std::map<std::string, ManagedBrowserPolicyType> &dataObj,
@@ -90,6 +117,11 @@ bool ManagedBrowserPolicySerializer::Serialize(const std::map<std::string, Manag
             cJSON_Delete(array);
             return false;
         }
+        if (!SerializeOwnership(mapIt.second, policyObject)) {
+            cJSON_Delete(root);
+            cJSON_Delete(policyObject);
+            return false;
+        }
         if (!cJSON_AddItemToObject(root, mapIt.first.c_str(), policyObject)) {
             cJSON_Delete(root);
             cJSON_Delete(array);
@@ -104,6 +136,37 @@ bool ManagedBrowserPolicySerializer::Serialize(const std::map<std::string, Manag
     policy = std::string(jsonStr);
     cJSON_free(jsonStr);
     cJSON_Delete(root);
+    return true;
+}
+
+bool ManagedBrowserPolicySerializer::SerializeOwnership(const ManagedBrowserPolicyType &policyType,
+    cJSON* policyObject)
+{
+    if (policyType.ownership.empty()) {
+        return true;
+    }
+    cJSON* ownership = cJSON_CreateObject();
+    if (ownership == nullptr) {
+        return false;
+    }
+    for (auto& ownerIt : policyType.ownership) {
+        cJSON* ownerObject = cJSON_CreateObject();
+        if (ownerObject == nullptr) {
+            cJSON_Delete(ownership);
+            return false;
+        }
+        cJSON_AddStringToObject(ownerObject, ADMIN_BUNDLE_NAME, ownerIt.second.adminBundleName.c_str());
+        cJSON_AddBoolToObject(ownerObject, IS_FORCE_OVERRIDE, ownerIt.second.isForceOverride);
+        if (!cJSON_AddItemToObject(ownership, ownerIt.first.c_str(), ownerObject)) {
+            cJSON_Delete(ownerObject);
+            cJSON_Delete(ownership);
+            return false;
+        }
+    }
+    if (!cJSON_AddItemToObject(policyObject, OWNERSHIP, ownership)) {
+        cJSON_Delete(ownership);
+        return false;
+    }
     return true;
 }
 

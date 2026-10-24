@@ -84,6 +84,76 @@ public:
     bool callOnOtherServiceStartForAdminFlag_ = false;
 };
 
+constexpr std::uint32_t TEST_POLICY_CODE = 20001;
+constexpr const char *POLICY_VALUE_AFTER_CHANGE = "policy_value_after_change";
+constexpr const char *MERGE_VALUE_AFTER_CHANGE = "merge_value_after_change";
+
+class TestPluginWithAdminName : public IPlugin {
+public:
+    TestPluginWithAdminName()
+    {
+        policyCode_ = TEST_POLICY_CODE;
+        policyName_ = "TestPluginWithAdminName";
+        permissionConfig_.typePermissions[IPlugin::PermissionType::NORMAL_DEVICE_ADMIN] =
+            "ohos.permission.EDM_TEST_PERMISSION";
+        permissionConfig_.apiType = IPlugin::ApiType::PUBLIC;
+        EDMLOGD("TestPluginWithAdminName constructor");
+    }
+
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override
+    {
+        currentAdminNameSeen_ = policyData.currentAdminName;
+        policyDataSeen_ = policyData.policyData;
+        mergePolicyDataSeen_ = policyData.mergePolicyData;
+        if (changePolicy_) {
+            policyData.isChanged = true;
+            policyData.policyData = POLICY_VALUE_AFTER_CHANGE;
+            policyData.mergePolicyData = MERGE_VALUE_AFTER_CHANGE;
+        }
+        return onHandlePolicyRet_;
+    }
+
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId, std::string &policyData) override
+    {
+        othersMergePolicyDataAdmin_ = adminName;
+        policyData = othersMergePolicyData_;
+        return ERR_OK;
+    }
+
+    void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
+        int32_t userId) override
+    {
+        onHandlePolicyDoneAdmin_ = adminName;
+        isGlobalChangedSeen_ = isGlobalChanged;
+    }
+
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData, const std::string &mergeData,
+        int32_t userId) override
+    {
+        return ERR_OK;
+    }
+
+    void OnAdminRemoveDone(const std::string &adminName, const std::string &policyData, int32_t userId) override {}
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override
+    {
+        return ERR_OK;
+    }
+
+    ~TestPluginWithAdminName() override = default;
+
+    std::string currentAdminNameSeen_;
+    std::string policyDataSeen_;
+    std::string mergePolicyDataSeen_;
+    std::string othersMergePolicyDataAdmin_;
+    std::string othersMergePolicyData_ = "others_merge_policy_data";
+    std::string onHandlePolicyDoneAdmin_;
+    bool isGlobalChangedSeen_ = false;
+    bool changePolicy_ = false;
+    ErrCode onHandlePolicyRet_ = ERR_OK;
+};
+
 class TestExtensionPlugin : public IPlugin {
 public:
     TestExtensionPlugin()

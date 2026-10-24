@@ -23,7 +23,55 @@
 #include "override_interface_name.h"
 #include "securec.h"
 
-using namespace OHOS::EDM;
+namespace OHOS {
+namespace EDM {
+namespace {
+ErrCode ConvertPolicyValue(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+{
+    std::string policyValue;
+    if (!ParseString(env, policyValue, argv)) {
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+    if (!policyValue.empty()) {
+        cJSON* root = cJSON_Parse(policyValue.c_str());
+        if (root == nullptr) {
+            return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+        }
+        cJSON_Delete(root);
+    }
+    data.WriteString(policyValue);
+    return ERR_OK;
+}
+
+ErrCode ConvertAdminElement(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
+{
+    AppExecFwk::ElementName elementName;
+    if (!ParseElementName(env, elementName, argv)) {
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+    return ERR_OK;
+}
+
+bool ParseForceOverrideFlag(napi_env env, const napi_value *argv, size_t argc, bool &isForceOverride)
+{
+    if (argc < ARGS_SIZE_FIVE) {
+        return true;
+    }
+    return ParseBool(env, isForceOverride, argv[ARR_INDEX_FOUR]);
+}
+
+AddonMethodSign BuildSetManagedBrowserPolicySign()
+{
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setManagedBrowserPolicy";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::STRING,
+        EdmAddonCommonType::STRING, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {ConvertAdminElement, nullptr, nullptr, ConvertPolicyValue};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return addonMethodSign;
+}
+} // namespace
 
 napi_value BrowserAddon::Init(napi_env env, napi_value exports)
 {
@@ -184,36 +232,25 @@ napi_value BrowserAddon::GetPoliciesSync(napi_env env, napi_callback_info info)
 napi_value BrowserAddon::SetManagedBrowserPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("BrowserAddon::SetManagedBrowserPolicy start");
-    auto convertPolicyValue = [](napi_env env, napi_value argv, MessageParcel &data,
-        const AddonMethodSign &methodSign) -> ErrCode {
-        std::string policyValue;
-        if (!ParseString(env, policyValue, argv)) {
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        if (policyValue.empty()) {
-            return ERR_OK;
-        }
-        cJSON* root = cJSON_Parse(policyValue.c_str());
-        if (root == nullptr) {
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-        cJSON_Delete(root);
-        data.WriteString(policyValue);
-        return ERR_OK;
-    };
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
-        EdmAddonCommonType::STRING, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, convertPolicyValue};
-    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
-    AdapterAddonData adapterAddonData{};
-    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    size_t argc = ARGS_SIZE_FIVE;
+    napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    bool isForceOverride = false;
+    if (!ParseForceOverrideFlag(env, argv, argc, isForceOverride)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, ErrcodeType::NUMBER));
         return nullptr;
     }
+
+    AddonMethodSign addonMethodSign = BuildSetManagedBrowserPolicySign();
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    adapterAddonData.data.WriteBool(isForceOverride);
+
     int32_t ret = BrowserProxy::GetBrowserProxy()->SetManagedBrowserPolicy(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 }
@@ -397,3 +434,5 @@ extern "C" __attribute__((constructor)) void BrowserRegister()
 {
     napi_module_register(&g_browserModule);
 }
+} // namespace EDM
+} // namespace OHOS

@@ -122,8 +122,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     handlePolicyData.policyData = fuzzString;
     handlePolicyData.mergePolicyData = fuzzString;
     handlePolicyData.isChanged = isGlobalChanged;
-    
-    plugin.UpdateCurrentAndMergePolicy(policies, mergePolicies, bundleName, policyName, policyValue);
+    handlePolicyData.currentAdminName = adminName;
+
+    bool isForceOverride = CommonFuzzer::GetU32Data(data, pos, size) % 2;
+    ManagedBrowserPolicyPlugin::ManagedBrowserPolicyRequest request{
+        bundleName, policyName, policyValue, isForceOverride};
+    plugin.UpdateCurrentAndMergePolicy(policies, mergePolicies, request, adminName);
     plugin.OnHandlePolicyDone(0, adminName, isGlobalChanged, userId);
     plugin.OnAdminRemove(adminName, fuzzString, fuzzString, userId);
     

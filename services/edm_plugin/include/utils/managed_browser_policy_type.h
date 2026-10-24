@@ -16,12 +16,22 @@
 #ifndef SERVICES_EDM_INCLUDE_UTILS_MANAGED_BROWSER_POLICY_TYPE_H
 #define SERVICES_EDM_INCLUDE_UTILS_MANAGED_BROWSER_POLICY_TYPE_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 namespace OHOS {
 namespace EDM {
+
+struct ManagedBrowserPolicyOwnership {
+    std::string adminBundleName;
+    bool isForceOverride = false;
+};
 
 struct ManagedBrowserPolicyType {
     std::vector<std::string> policyNames;
     uint16_t version = 0;
+    std::map<std::string, ManagedBrowserPolicyOwnership> ownership;
 };
 } // namespace EDM
 } // namespace OHOS

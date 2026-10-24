@@ -17,9 +17,11 @@
 #define EDM_UNIT_TEST_MANAGED_BROWSER_POLICY_PLUGIN_TEST_H
 
 #include <gtest/gtest.h>
+#include <memory>
 #define private public
 #include "managed_browser_policy_plugin.h"
 #undef private
+#include "policy_manager.h"
 
 namespace OHOS {
 namespace EDM {
@@ -29,6 +31,18 @@ protected:
     static void SetUpTestSuite(void);
 
     static void TearDownTestSuite(void);
+
+    void SetUp() override;
+
+    void TearDown() override;
+
+    std::shared_ptr<PolicyManager> AcquirePolicyManager();
+
+    static void ClearStoredBrowserPolicy();
+
+    static void RemovePolicyFiles();
+
+    ManagedBrowserPolicyPlugin plugin_;
 };
 } // namespace TEST
 } // namespace EDM

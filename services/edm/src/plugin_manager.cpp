@@ -671,7 +671,7 @@ ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bund
     std::string policyName = plugin->GetPolicyName();
     std::string oldCombinePolicy;
     PolicyManager::GetInstance()->GetPolicy("", policyName, oldCombinePolicy, userId);
-    HandlePolicyData handlePolicyData{"", "", false};
+    HandlePolicyData handlePolicyData{"", "", false, bundleName};
     PolicyManager::GetInstance()->GetPolicy(bundleName, policyName, handlePolicyData.policyData, userId);
     plugin->GetOthersMergePolicyData(bundleName, userId, handlePolicyData.mergePolicyData);
     ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(code, data, reply, handlePolicyData, userId);
