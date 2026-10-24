@@ -586,7 +586,7 @@ void TelephonyManagerAddon::NativeGetCallLogs(napi_env env, void *data)
     auto proxy = TelephonyManagerProxy::GetTelephonyManagerProxy();
     if (proxy == nullptr) {
         EDMLOGE("NativeGetCallLogs: proxy is nullptr");
-        asyncCallbackInfo->ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
         return;
     }
     asyncCallbackInfo->ret = proxy->GetCallLogs(asyncCallbackInfo->elementName,
@@ -607,12 +607,8 @@ void TelephonyManagerAddon::NativeGetCallLogsComplete(napi_env env, napi_status 
             ConvertVectorCallLogToJs(env, asyncCallbackInfo->callLogs, jsArray);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, jsArray);
         } else {
-            ErrCode ret = asyncCallbackInfo->ret;
-            if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
-                ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
-            }
             napi_reject_deferred(env, asyncCallbackInfo->deferred,
-                CreateError(env, ret, ErrcodeType::NUMBER));
+                CreateError(env, asyncCallbackInfo->ret, ErrcodeType::NUMBER));
         }
     }
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);

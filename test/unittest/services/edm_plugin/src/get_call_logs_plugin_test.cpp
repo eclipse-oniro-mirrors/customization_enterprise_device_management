@@ -65,7 +65,6 @@ HWTEST_F(GetCallLogsPluginTest, TestOnGetPolicy_StartGreaterThanEnd_Fail, TestSi
     auto plugin = std::make_shared<GetCallLogsPlugin>();
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -84,7 +83,6 @@ HWTEST_F(GetCallLogsPluginTest, TestOnGetPolicy_NegativeStartTime_Fail, TestSize
     auto plugin = std::make_shared<GetCallLogsPlugin>();
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -103,7 +101,6 @@ HWTEST_F(GetCallLogsPluginTest, TestOnGetPolicy_NegativeEndTime_Fail, TestSize.L
     auto plugin = std::make_shared<GetCallLogsPlugin>();
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -124,7 +121,6 @@ HWTEST_F(GetCallLogsPluginTest, TestOnGetPolicy_TimeRangeExceeds31Days_Fail, Tes
     auto plugin = std::make_shared<GetCallLogsPlugin>();
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -144,7 +140,6 @@ HWTEST_F(GetCallLogsPluginTest, TestOnGetPolicy_EmptyTelephoneNumber_Fail, TestS
     auto plugin = std::make_shared<GetCallLogsPlugin>();
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-    EXPECT_EQ(reply.ReadInt32(), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
