@@ -203,6 +203,10 @@ static bool WriteCallLogsToReply(std::vector<CallLogInfo> &callLogs, MessageParc
         *(reinterpret_cast<int32_t *>(dataPtr)) = actualCount;
     }
     size_t dataSize = tempParcel.GetDataSize();
+    if (!reply.WriteInt32(ERR_OK)) {
+        EDMLOGE("GetCallLogsPlugin: Write ERR_OK failed.");
+        return false;
+    }
     if (!reply.WriteInt32(static_cast<int32_t>(dataSize))) {
         EDMLOGE("GetCallLogsPlugin: Write dataSize failed.");
         return false;
