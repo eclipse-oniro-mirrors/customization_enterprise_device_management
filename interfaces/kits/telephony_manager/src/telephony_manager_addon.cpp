@@ -488,6 +488,7 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
 #endif
 }
 
+#if defined(TELEPHONY_EDM_ENABLE)
 static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQueryConfig &config)
 {
     napi_value startTimeValue = nullptr;
@@ -529,6 +530,7 @@ static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQuery
     }
     return true;
 }
+#endif
 
 napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info info)
 {
