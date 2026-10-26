@@ -61,6 +61,9 @@ private:
     static void NativeGetCallLogsComplete(napi_env env, napi_status status, void *data);
     static void ConvertVectorCallLogToJs(napi_env env, const std::vector<CallLogInfo> &callLogs,
         napi_value &result);
+    static void ConvertVectorSmsMessageToJs(napi_env env, const std::vector<SmsMessageInfo> &messages,
+        napi_value &result);
+    static napi_value GetSmsMessages(napi_env env, napi_callback_info info);
     static bool CheckVectorStringLength(const std::vector<std::string> &array);
 };
 } // namespace EDM

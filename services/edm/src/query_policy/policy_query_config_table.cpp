@@ -647,6 +647,24 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER, {PolicyName::POLICY_DISALLOW_NOTIFICATION_CENTER,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::GET_CALL_LOGS, {PolicyName::POLICY_GET_CALL_LOGS,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_READ_CALL_LOG), false, IPlugin::ApiType::PUBLIC,
+#ifdef FEATURE_PC_ONLY
+        false
+#else
+        true
+#endif
+    }},
+    {EdmInterfaceCode::GET_SMS_MESSAGES, {PolicyName::POLICY_GET_SMS_MESSAGES,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_READ_MESSAGES), false, IPlugin::ApiType::PUBLIC,
+#ifdef TELEPHONY_EDM_ENABLE
+        true
+#else
+        false
+#endif
+    }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

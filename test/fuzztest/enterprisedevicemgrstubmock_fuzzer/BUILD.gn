@@ -606,6 +606,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/restrictions/disallowed_telephony_call_plugin.cpp",
         "../../../services/edm_plugin/src/telephony_manager/telephony_call_policy_plugin.cpp",
         "../../../services/edm_plugin/src/telephony_manager/get_call_logs_plugin.cpp",
+        "../../../services/edm_plugin/src/telephony_manager/get_sms_messages_plugin.cpp",
         "../../../services/edm_plugin/src/network_manager/set_apn_plugin.cpp",
         "../../../services/edm_plugin/src/network_manager/turnonoff_mobile_data_plugin.cpp",
         "../../../services/edm_plugin/src/utils/apn_utils.cpp",

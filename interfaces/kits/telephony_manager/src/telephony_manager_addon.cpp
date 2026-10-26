@@ -19,6 +19,7 @@
 #include "edm_log.h"
 #include "iptables_utils.h"
 #include "napi_edm_common.h"
+#include "sms_message_info.h"
 
 using namespace OHOS::EDM;
 constexpr int32_t STRING_MAX_LEN = 100;
@@ -41,6 +42,7 @@ napi_value TelephonyManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setDefaultData", SetDefaultDataSim),
         DECLARE_NAPI_FUNCTION("getDefaultData", GetDefaultDataSim),
         DECLARE_NAPI_FUNCTION("getCallLogs", GetCallLogs),
+        DECLARE_NAPI_FUNCTION("getSmsMessages", GetSmsMessages),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -648,6 +650,100 @@ void TelephonyManagerAddon::ConvertVectorCallLogToJs(napi_env env,
         NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, jsLog));
         index++;
     }
+}
+
+#if defined(TELEPHONY_EDM_ENABLE)
+void TelephonyManagerAddon::ConvertVectorSmsMessageToJs(napi_env env,
+    const std::vector<SmsMessageInfo> &messages, napi_value &result)
+{
+    NAPI_CALL_RETURN_VOID(env, napi_create_array_with_length(env, messages.size(), &result));
+    for (size_t i = 0; i < messages.size(); ++i) {
+        napi_value jsItem = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &jsItem));
+
+        napi_value nSlotId = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, messages[i].slotId, &nSlotId));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, jsItem, "slotId", nSlotId));
+
+        napi_value nTelephoneNumber = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, messages[i].telephoneNumber.c_str(),
+            NAPI_AUTO_LENGTH, &nTelephoneNumber));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, jsItem, "telephoneNumber", nTelephoneNumber));
+
+        napi_value nContent = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, messages[i].content.c_str(),
+            NAPI_AUTO_LENGTH, &nContent));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, jsItem, "content", nContent));
+
+        napi_value nTime = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int64(env, messages[i].timer, &nTime));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, jsItem, "time", nTime));
+
+        napi_value nIsSender = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_boolean(env, messages[i].isSender, &nIsSender));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, jsItem, "isSender", nIsSender));
+
+        NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, static_cast<uint32_t>(i), jsItem));
+    }
+}
+
+static OHOS::ErrCode ParseSmsQueryConfigToData(napi_env env, napi_value argv, OHOS::MessageParcel &data,
+    const AddonMethodSign &methodSign)
+{
+    int64_t startTime = 0;
+    if (!JsObjectToLong(env, argv, "startTime", true, startTime)) {
+        EDMLOGE("NAPI_GetSmsMessages parse startTime faield");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    int64_t endTime = 0;
+    if (!JsObjectToLong(env, argv, "endTime", true, endTime)) {
+        EDMLOGE("NAPI_GetSmsMessages parse endTime faield");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    std::string telephoneNumber;
+    JsObjectToString(env, argv, "telephoneNumber", false, telephoneNumber);
+    if (startTime < 0 || endTime < 0 || startTime > endTime) {
+        EDMLOGE("NAPI_GetSmsMessages time is abnormally");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    data.WriteInt64(startTime);
+    data.WriteInt64(endTime);
+    data.WriteString(telephoneNumber);
+    return OHOS::ERR_OK;
+}
+#endif
+
+napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetSmsMessages called");
+#if defined(TELEPHONY_EDM_ENABLE)
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getSmsMessages";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {ParseSmsQueryConfigToData};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::vector<SmsMessageInfo> messages;
+    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetSmsMessages(
+        adapterAddonData.data, messages);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+
+    napi_value jsArray = nullptr;
+    ConvertVectorSmsMessageToJs(env, messages, jsArray);
+    return jsArray;
+#else
+    EDMLOGW("TelephonyManagerAddon::GetSmsMessages Unsupported Capabilities.");
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    return nullptr;
+#endif
 }
 
 static napi_module g_telephonyManagerModule = {

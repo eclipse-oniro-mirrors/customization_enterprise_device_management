@@ -414,6 +414,7 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_READ_CALL_LOG = "ohos.permission.ENTERPRISE_READ_CALL_LOG";
     const char* const PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION =
         "ohos.permission.ENTERPRISE_MANAGE_NOTIFICATION";
+    const char* const PERMISSION_ENTERPRISE_READ_MESSAGES = "ohos.permission.ENTERPRISE_READ_MESSAGES";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -476,6 +477,7 @@ namespace PolicyName {
     const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
     const char* const POLICY_GET_DEVICE_INFO = "get_device_info";
     const char* const POLICY_GET_PATCH_INFO = "get_patch_info";
+    const char* const POLICY_GET_SMS_MESSAGES = "get_sms_messages";
     const char* const POLICY_GET_IP_OR_MAC_ADDRESS = "get_ip_or_mac_address";
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";

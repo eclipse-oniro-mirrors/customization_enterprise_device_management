@@ -82,6 +82,7 @@ ohos_shared_library("edmservice_kits") {
     "./common/src/external_storage_device_info.cpp",
     "./common/src/patch_info.cpp",
     "./common/src/policy_changed_event.cpp",
+    "./common/src/sms_message_info.cpp",
     "./common_manager/src/common_manager_proxy.cpp",
     "./datetime_manager/src/datetime_manager_proxy.cpp",
     "./device_control/src/device_control_proxy.cpp",

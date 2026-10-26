@@ -34,6 +34,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "./basic_array_int_plugin_test.cpp",
     "./basic_array_string_plugin_test.cpp",
     "../../../../interfaces/inner_api/common/src/external_storage_device_info.cpp",
+    "../../../../interfaces/inner_api/common/src/sms_message_info.cpp",
   ]
 
   configs = [

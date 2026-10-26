@@ -30,6 +30,13 @@ const std::string SETTINGS_DATA_FIELD_VALUE = "VALUE";
 constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 const std::string SETTINGS_DATA_BASE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
+constexpr const char *SMS_MMS_INFO_URI = "datashare:///com.ohos.smsmmsability/sms_mms/sms_mms_info";
+constexpr const char *SMS_MMS_EXT_URI = "datashare:///com.ohos.smsmmsability";
+const std::string SMS_FIELD_TIME = "start_time";
+const std::string SMS_FIELD_IS_SENDER = "is_sender";
+const std::string SMS_FIELD_SLOT_ID = "slot_id";
+const std::string SMS_FIELD_CONTENT = "msg_content";
+const std::string SMS_FIELD_RECEIVER_NUMBER = "receiver_number";
 
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
@@ -147,5 +154,89 @@ ErrCode EdmDataAbilityUtils::UpdateSettingsData(
     return ERR_OK;
 }
 
+static std::shared_ptr<DataShare::DataShareHelper> CreateSmsDataShareHelper()
+{
+    sptr<IRemoteObject> remoteObject =
+        EdmSysManager::GetRemoteObjectOfSystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID);
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObject, SMS_MMS_INFO_URI, SMS_MMS_EXT_URI);
+    if (dataShareHelper == nullptr) {
+        EDMLOGE("EdmDataAbilityUtils::CreateSmsDataShareHelper acquire dataShareHelper failed.");
+    }
+    return dataShareHelper;
+}
+
+static DataShare::DataSharePredicates BuildSmsPredicates(int64_t startTime, int64_t endTime,
+    const std::string &telephoneNumber)
+{
+    DataShare::DataSharePredicates predicates;
+    predicates.GreaterThanOrEqualTo(SMS_FIELD_TIME, startTime)
+        ->And()
+        ->LessThanOrEqualTo(SMS_FIELD_TIME, endTime);
+    if (!telephoneNumber.empty()) {
+        predicates.And()->EqualTo(SMS_FIELD_RECEIVER_NUMBER, telephoneNumber);
+    }
+    return predicates;
+}
+
+static ErrCode ReadSmsMessagesFromResultSet(
+    const std::shared_ptr<DataShare::DataShareResultSet> &resultset, std::vector<SmsQueryResult> &messages)
+{
+    int timeColumn = -1;
+    int isSenderColumn = -1;
+    int slotIdColumn = -1;
+    int contentColumn = -1;
+    int receiverNumberColumn = -1;
+    resultset->GetColumnIndex(SMS_FIELD_TIME, timeColumn);
+    resultset->GetColumnIndex(SMS_FIELD_IS_SENDER, isSenderColumn);
+    resultset->GetColumnIndex(SMS_FIELD_SLOT_ID, slotIdColumn);
+    resultset->GetColumnIndex(SMS_FIELD_CONTENT, contentColumn);
+    resultset->GetColumnIndex(SMS_FIELD_RECEIVER_NUMBER, receiverNumberColumn);
+    int isSenderValue = 0;
+    int ret = resultset->GoToFirstRow();
+    while (ret == 0) {
+        SmsQueryResult info;
+        resultset->GetLong(timeColumn, info.timer);
+        resultset->GetInt(isSenderColumn, isSenderValue);
+        info.isSender = (isSenderValue != 0);
+        resultset->GetInt(slotIdColumn, info.slotId);
+        resultset->GetString(contentColumn, info.content);
+        resultset->GetString(receiverNumberColumn, info.telephoneNumber);
+        messages.push_back(info);
+        ret = resultset->GoToNextRow();
+    }
+    return ERR_OK;
+}
+
+ErrCode EdmDataAbilityUtils::GetSmsMessages(int64_t startTime, int64_t endTime,
+    const std::string &telephoneNumber, std::vector<SmsQueryResult> &messages)
+{
+    EDMLOGI("EdmDataAbilityUtils::GetSmsMessages enter.");
+    auto dataShareHelper = CreateSmsDataShareHelper();
+    if (dataShareHelper == nullptr) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    Uri uri(SMS_MMS_INFO_URI);
+    std::vector<std::string> columns{SMS_FIELD_TIME, SMS_FIELD_IS_SENDER, SMS_FIELD_SLOT_ID,
+        SMS_FIELD_CONTENT, SMS_FIELD_RECEIVER_NUMBER};
+    auto predicates = BuildSmsPredicates(startTime, endTime, telephoneNumber);
+    auto resultset = dataShareHelper->Query(uri, predicates, columns);
+    if (resultset == nullptr) {
+        EDMLOGE("EdmDataAbilityUtils::GetSmsMessages query fail.");
+        dataShareHelper->Release();
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t numRows = 0;
+    resultset->GetRowCount(numRows);
+    EDMLOGI("EdmDataAbilityUtils::GetSmsMessages row count=%{public}d", numRows);
+    if (numRows <= 0) {
+        resultset->Close();
+        dataShareHelper->Release();
+        return ERR_OK;
+    }
+    ErrCode ret = ReadSmsMessagesFromResultSet(resultset, messages);
+    resultset->Close();
+    dataShareHelper->Release();
+    return ret;
+}
 } // namespace EDM
 } // namespace OHOS
