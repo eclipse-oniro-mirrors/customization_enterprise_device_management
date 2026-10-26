@@ -453,6 +453,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/utils/telephony_call_policy_serializer_test.cpp",
       "./src/hang_up_calling_plugin_test.cpp",
       "./src/get_call_logs_plugin_test.cpp",
+      "./src/get_sms_messages_plugin_test.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",
@@ -1042,7 +1043,6 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
       "../../../../services/edm_plugin/src/application_manager/add_dock_app_plugin.cpp",
       "../../../../services/edm_plugin/src/network_manager/get_shared_path_list_plugin.cpp",
-      "../../../../services/edm_plugin/src/telephony_manager/get_sms_messages_plugin.cpp",
       "../../../../services/edm_plugin/src/device_settings/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
       "../../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
@@ -1127,6 +1127,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
       "../../../../services/edm_plugin/src/telephony_manager/hang_up_calling_plugin.cpp",
       "../../../../services/edm_plugin/src/telephony_manager/get_call_logs_plugin.cpp",
+      "../../../../services/edm_plugin/src/telephony_manager/get_sms_messages_plugin.cpp",
     ]
     defines += [ 
       "CELLULAR_DATA_EDM_ENABLE",

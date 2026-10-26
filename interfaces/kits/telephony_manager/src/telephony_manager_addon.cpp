@@ -701,7 +701,23 @@ static OHOS::ErrCode ParseSmsQueryConfigToData(napi_env env, napi_value argv, OH
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::string telephoneNumber;
-    JsObjectToString(env, argv, "telephoneNumber", false, telephoneNumber);
+    bool hasTelephoneNumber = false;
+    napi_has_named_property(env, argv, "telephoneNumber", &hasTelephoneNumber);
+    if (hasTelephoneNumber) {
+        napi_value telValue = nullptr;
+        napi_get_named_property(env, argv, "telephoneNumber", &telValue);
+        napi_valuetype telType = napi_undefined;
+        napi_typeof(env, telValue, &telType);
+        if (telType == napi_string) {
+            if (!GetStringFromNAPI(env, telValue, telephoneNumber)) {
+                EDMLOGE("NAPI_GetSmsMessages parse telephoneNumber failed");
+                return EdmReturnErrCode::PARAM_ERROR;
+            }
+        } else if (telType != napi_undefined) {
+            EDMLOGE("NAPI_GetSmsMessages telephoneNumber type error");
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+    }
     if (startTime < 0 || endTime < 0 || startTime > endTime) {
         EDMLOGE("NAPI_GetSmsMessages time is abnormally");
         return EdmReturnErrCode::PARAM_ERROR;
