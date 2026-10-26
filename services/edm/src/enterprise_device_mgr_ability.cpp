@@ -192,6 +192,17 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::TELEPHONY_CALL_POLICY);
         };
 #endif
+#ifdef USERIAM_EDM_ENABLE
+    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::PASSWORD_POLICY);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::FINGERPRINT_AUTH);
+        };
+    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_PINAUTH] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnPinAuthServiceStart();
+        };
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
@@ -241,13 +252,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
             that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLE_USB);
             that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_USB_DEVICES);
             that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_USB_DEVICES);
-        };
-#endif
-#ifdef USERIAM_EDM_ENABLE
-    addSystemAbilityFuncMap_[SUBSYS_USERIAM_SYS_ABILITY_USERAUTH] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::PASSWORD_POLICY);
-            that->CallOnOtherServiceStart(EdmInterfaceCode::FINGERPRINT_AUTH);
         };
 #endif
     addSystemAbilityFuncMap_[RENDER_SERVICE] =
@@ -684,6 +688,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
     AddSystemAbilityListener(ABILITY_MGR_SERVICE_ID);
     AddSystemAbilityListener(RES_SCHED_SYS_ABILITY_ID);
     AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
+#ifdef USERIAM_EDM_ENABLE
+    AddSystemAbilityListener(SUBSYS_USERIAM_SYS_ABILITY_PINAUTH);
+#endif
     AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
 #ifdef PASTEBOARD_EDM_ENABLE
@@ -774,6 +781,17 @@ void EnterpriseDeviceMgrAbility::CallOnOtherServiceStartForWatermark(uint32_t in
         return;
     }
     CallOnOtherServiceStart(interfaceCode, INVALID_SYSTEM_ABILITY_ID);
+}
+
+void EnterpriseDeviceMgrAbility::OnPinAuthServiceStart()
+{
+    EDMLOGI("OnPinAuthServiceStart");
+#ifndef EDM_FUZZ_TEST
+    EventSubscriptionManager::GetInstance().ResetAdapterSubscribedState(
+        EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)});
+    MdmEventRelayer::GetInstance().RestoreAdminSubscriptions();
+    EventSubscriptionManager::GetInstance().RetryFailedAdapters(AdapterType::USER_AUTH);
+#endif
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventServiceStart()
@@ -2342,7 +2360,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
 bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 {
     if (event >= static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED) &&
-        event <= static_cast<uint32_t>(ManagedEvent::POLICIES_CHANGED)) {
+        event <= static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)) {
         return true;
     }
     return false;

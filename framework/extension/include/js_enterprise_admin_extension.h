@@ -85,6 +85,8 @@ public:
 
     void OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo);
 
+    void OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId);
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 

@@ -66,6 +66,8 @@ public:
 
     bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override { return true; }
 
+    bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override { return true; }
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

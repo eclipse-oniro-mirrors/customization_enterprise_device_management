@@ -195,6 +195,22 @@ bool EnterpriseAdminProxy::OnUnmountExternalStorageDevice(const ExternalStorageD
     return SendRequest(COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE, data);
 }
 
+bool EnterpriseAdminProxy::OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId)
+{
+    EDMLOGI("EnterpriseAdminProxy::OnPasswordFailed count=%{public}d userId=%{public}d",
+        cumulativeFailedCount, userId);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::OnPasswordFailed write descriptor failed!");
+        return false;
+    }
+    if (!data.WriteInt32(cumulativeFailedCount) || !data.WriteInt32(userId)) {
+        EDMLOGE("EnterpriseAdminProxy::OnPasswordFailed write params failed!");
+        return false;
+    }
+    return SendRequest(COMMAND_ON_PASSWORD_FAILED, data);
+}
+
 bool EnterpriseAdminProxy::IsValid()
 {
     sptr<IRemoteObject> remoteObject = AsObject();

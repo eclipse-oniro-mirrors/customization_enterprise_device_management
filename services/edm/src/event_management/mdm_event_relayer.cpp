@@ -144,6 +144,19 @@ void MdmEventRelayer::RegisterUnmountExternalStorageDeviceStrategies()
     };
 }
 
+void MdmEventRelayer::RegisterPasswordFailedStrategies()
+{
+    strategyFactories_[ManagedEvent::ON_PASSWORD_FAILED] =
+        [](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
+        if (data.passwordFailedCount < 0 || data.userId < 0) {
+            EDMLOGE("MdmEventRelayer ON_PASSWORD_FAILED invalid count=%{public}d userId=%{public}d",
+                data.passwordFailedCount, data.userId);
+            return nullptr;
+        }
+        return std::make_shared<PasswordFailedStrategy>(data.passwordFailedCount, data.userId);
+    };
+}
+
 void MdmEventRelayer::RegisterStrategyFactories()
 {
     RegisterAppLifecycleStrategies();
@@ -151,6 +164,7 @@ void MdmEventRelayer::RegisterStrategyFactories()
     RegisterAccountStrategies();
     RegisterDeviceStrategies();
     RegisterUnmountExternalStorageDeviceStrategies();
+    RegisterPasswordFailedStrategies();
 }
 
 void MdmEventRelayer::OnAdminSubscribe(const std::string &adminName, int32_t userId, ManagedEvent event)

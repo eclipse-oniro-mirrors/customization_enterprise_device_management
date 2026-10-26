@@ -58,6 +58,7 @@ public:
 
     bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
     bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
+    bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

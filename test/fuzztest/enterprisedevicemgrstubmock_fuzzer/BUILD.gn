@@ -533,13 +533,18 @@ ohos_static_library("edmservice_fuzz_static") {
       ]
 
     if (useriam_edm_enable) {
-      external_deps += [ "user_auth_framework:userauth_client" ]
+      external_deps += [
+        "user_auth_framework:userauth_client",
+        "pin_auth:pinauth_framework",
+      ]
       defines += [ "USERIAM_EDM_ENABLE" ]
       sources += [
         "../../../services/edm/src/query_policy/fingerprint_auth_query.cpp",
         "../../../services/edm/src/query_policy/password_policy_query.cpp",
         "../../../services/edm_plugin/src/restrictions/fingerprint_auth_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/password_policy_plugin.cpp",
+        "../../../services/edm/src/event_management/edm_user_auth_listener.cpp",
+        "../../../services/edm/src/event_management/user_auth_event_adapter.cpp",
       ]
     }
 

@@ -138,6 +138,10 @@ void EnterpriseAdminStub::InitOtherHandleFuncs()
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnUnmountExternalStorageDeviceInner(code, data, reply);
         };
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_PASSWORD_FAILED] =
+        [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
+            return OnPasswordFailedInner(code, data, reply);
+        };
 }
 
 int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply,
@@ -250,6 +254,14 @@ bool EnterpriseAdminStub::OnUnmountExternalStorageDeviceInner(uint32_t code, Mes
         return false;
     }
     return OnUnmountExternalStorageDevice(*deviceInfo);
+}
+
+bool EnterpriseAdminStub::OnPasswordFailedInner(uint32_t code, MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnPasswordFailedInner");
+    int32_t cumulativeFailedCount = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    return OnPasswordFailed(cumulativeFailedCount, userId);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

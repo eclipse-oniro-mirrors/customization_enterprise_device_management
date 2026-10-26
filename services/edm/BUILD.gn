@@ -167,7 +167,9 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/fingerprint_auth_query.cpp",
       "./src/query_policy/password_policy_query.cpp",
+      "./src/event_management/edm_user_auth_listener.cpp",
     ]
+    external_deps += [ "pin_auth:pinauth_framework" ]
     defines += [ "USERIAM_EDM_ENABLE" ]
   }
 
@@ -284,6 +286,7 @@ ohos_shared_library("edmservice") {
     "./src/event_management/app_lifecycle_adapter.cpp",
     "./src/event_management/mdm_event_relayer.cpp",
     "./src/event_management/plugin_event_router.cpp",
+    "./src/event_management/user_auth_event_adapter.cpp",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {

@@ -101,5 +101,13 @@ bool UnmountExternalStorageDeviceStrategy::ExecuteImpl(const sptr<EnterpriseAdmi
     EDMLOGI("UnmountExternalStorageDeviceStrategy::ExecuteImpl");
     return proxy->OnUnmountExternalStorageDevice(deviceInfo_);
 }
+
+// PasswordFailed策略
+bool PasswordFailedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+{
+    EDMLOGI("PasswordFailedStrategy::ExecuteImpl count=%{public}d userId=%{public}d",
+        cumulativeFailedCount_, userId_);
+    return proxy->OnPasswordFailed(cumulativeFailedCount_, userId_);
+}
 } // namespace EDM
 } // namespace OHOS

@@ -159,5 +159,17 @@ bool EnterpriseAdminStubImpl::OnUnmountExternalStorageDevice(const ExternalStora
     extension->OnUnmountExternalStorageDevice(deviceInfo);
     return true;
 }
+
+bool EnterpriseAdminStubImpl::OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId)
+{
+    EDMLOGI("EnterpriseAdminStubImpl::OnPasswordFailed count=%{public}d userId=%{public}d",
+        cumulativeFailedCount, userId);
+    auto extension = extension_.lock();
+    if (extension == nullptr) {
+        return false;
+    }
+    extension->OnPasswordFailed(cumulativeFailedCount, userId);
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

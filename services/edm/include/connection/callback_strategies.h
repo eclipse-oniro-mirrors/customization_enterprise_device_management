@@ -170,6 +170,18 @@ private:
     ExternalStorageDeviceInfo deviceInfo_;
 };
 
+class PasswordFailedStrategy : public ICallbackStrategy {
+public:
+    PasswordFailedStrategy(int32_t cumulativeFailedCount, int32_t userId)
+        : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_PASSWORD_FAILED),
+          cumulativeFailedCount_(cumulativeFailedCount), userId_(userId) {}
+
+private:
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    int32_t cumulativeFailedCount_;
+    int32_t userId_;
+};
+
 } // namespace EDM
 } // namespace OHOS
 #endif // SERVICES_EDM_INCLUDE_CONNECTION_CALLBACK_STRATEGIES_H

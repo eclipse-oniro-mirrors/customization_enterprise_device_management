@@ -137,6 +137,14 @@ public:
     virtual bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) = 0;
 
     /**
+     * @brief 处理密码认证失败事件。
+     * @param cumulativeFailedCount 密码认证累计失败次数。
+     * @param userId 发生密码认证失败的用户ID。
+     * @return 处理成功返回true，失败返回false。
+     */
+    virtual bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) = 0;
+
+    /**
      * @brief IPC命令码枚举，定义了所有事件通知的命令码。
      */
     enum {
@@ -183,7 +191,9 @@ public:
         /** 管理员策略变更事件 */
         COMMAND_ON_POLICIES_CHANGED = 21,
         /** 外置存储设备卸载事件 */
-        COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE = 22
+        COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE = 22,
+        /** 密码认证失败事件 */
+        COMMAND_ON_PASSWORD_FAILED = 23
     };
 };
 } // namespace EDM
