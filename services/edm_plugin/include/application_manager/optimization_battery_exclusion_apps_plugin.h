@@ -20,16 +20,19 @@
 #include <vector>
 
 #include "basic_array_string_plugin.h"
-#include "plugin_singleton.h"
+#include "iplugin.h"
 
 namespace OHOS {
 namespace EDM {
-class OptimizationBatteryExclusionAppsPlugin :
-    public PluginSingleton<OptimizationBatteryExclusionAppsPlugin,
-    std::vector<std::string>>, public BasicArrayStringPlugin {
+class OptimizationBatteryExclusionAppsPlugin : public BasicArrayStringPlugin, public IPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<OptimizationBatteryExclusionAppsPlugin,
-        std::vector<std::string>>> ptr) override;
+    OptimizationBatteryExclusionAppsPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
+        int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeJsonData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
