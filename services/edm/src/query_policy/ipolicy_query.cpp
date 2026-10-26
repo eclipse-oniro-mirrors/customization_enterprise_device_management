@@ -148,16 +148,22 @@ ErrCode IPolicyQuery::GetPolicyNew(std::shared_ptr<PolicyManager> policyManager,
         }
         abilityName = deviceAdmin->adminInfo_.className_;
     } else {
-        std::string policyNameForCheck = this->GetPolicyName();
         ErrCode superRet = PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
-            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG),
-            policyNameForCheck, false);
+            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG));
         ErrCode byodRet = PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
-            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG),
-            policyNameForCheck, true);
+            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG));
         if (FAILED(superRet) && FAILED(byodRet)) {
             EDMLOGE("IPolicyQuery: permission check failed");
             return superRet;
+        }
+        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+        bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), bundleName);
+        std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
+            PermissionChecker::GetInstance()->GetCurrentUserId());
+        if (deviceAdmin != nullptr &&
+            !deviceAdmin->HasPermissionToHandlePolicy(this->GetPolicyName(), FuncOperateType::GET)) {
+            EDMLOGE("IPolicyQuery: admin does not have permission to get policy ALL");
+            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
         }
     }
     std::string policyName = this->GetPolicyName();

@@ -388,8 +388,7 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     return true;
 }
 
-ErrCode PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName,
-    const std::string &policyName, bool checkAdmin)
+ErrCode PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName)
 {
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
     if (permissionName.empty()) {
@@ -402,18 +401,6 @@ ErrCode PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, cons
     if (!VerifyCallingPermission(tokenId, permissionName)) {
         EDMLOGE("PermissionChecker element null query no permission code is %{public}d", code);
         return EdmReturnErrCode::PERMISSION_DENIED;
-    }
-    if (checkAdmin && !policyName.empty()) {
-        int uid = IPCSkeleton::GetCallingUid();
-        std::string callerBundle;
-        GetExternalManagerFactory()->CreateBundleManager()->GetNameForUid(uid, callerBundle);
-        std::shared_ptr<Admin> deviceAdmin =
-            AdminManager::GetInstance()->GetAdminByPkgName(callerBundle, GetCurrentUserId());
-        if (deviceAdmin != nullptr &&
-            !deviceAdmin->HasPermissionToHandlePolicy(policyName, FuncOperateType::GET)) {
-            EDMLOGE("PermissionChecker: admin does not have permission to get policy ALL");
-            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
-        }
     }
     return ERR_OK;
 }

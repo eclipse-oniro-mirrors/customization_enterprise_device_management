@@ -2065,13 +2065,15 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPluginNew(uint32_t code, 
             IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG);
         std::string getPermissionByod = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::GET,
             IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG);
-        ErrCode superRet = GetPermissionChecker()->CheckElementNullPermissionNew(code, getPermission,
-            policyName, false);
-        ErrCode byodRet = GetPermissionChecker()->CheckElementNullPermissionNew(code, getPermissionByod,
-            policyName, true);
+        ErrCode superRet = GetPermissionChecker()->CheckElementNullPermissionNew(code, getPermission);
+        ErrCode byodRet = GetPermissionChecker()->CheckElementNullPermissionNew(code, getPermissionByod);
         if (FAILED(superRet) && FAILED(byodRet)) {
             EDMLOGE("GetDevicePolicy: permission check failed");
             return superRet;
+        }
+        ErrCode permRet = CheckAllQueryPermission(policyName);
+        if (FAILED(permRet)) {
+            return permRet;
         }
     }
     ErrCode getRet = PluginManager::GetInstance()->GetPolicy(code, bundleName, data, reply, userId);
