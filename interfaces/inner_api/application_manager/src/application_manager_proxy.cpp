@@ -885,7 +885,7 @@ ErrCode ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(std::vector
     int32_t userId = std::make_shared<EdmOsAccountManagerImpl>()->GetCurrentUserId();
     if (userId < 0) {
         EDMLOGE("GetOptimizationBatteryExclusionApps: GetCurrentUserId failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
