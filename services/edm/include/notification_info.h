@@ -24,6 +24,7 @@ struct NotificationInfo {
     std::string title;
     std::string body;
     int32_t notificationId = 0;
+    bool userDeletableOnly = false;
 };
 
 struct IconInfo {
