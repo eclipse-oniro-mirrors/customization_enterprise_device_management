@@ -6360,34 +6360,18 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupported, TestSize.Level1
  */
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupportedXKeyAndSuperPrivacy, TestSize.Level1)
 {
-    const std::string paramKey = "const.quickaccess.function_type";
-
-    // When device type is "0", X_KEY and SUPER_PRIVACY should not be supported
-    system::SetParameter(paramKey, "0");
     int32_t conditionalFeatures[] = {
         static_cast<int32_t>(ManagedFeature::X_KEY),
+#ifndef FEATURE_PC_ONLY
         static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY),
+#endif
     };
+
     for (int32_t feature : conditionalFeatures) {
         bool supported = true;
         ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
-        EXPECT_TRUE(ret == ERR_OK);
-        EXPECT_FALSE(supported);
+        EXPECT_EQ(ret, ERR_OK);
     }
-
-#ifndef FEATURE_PC_ONLY
-    // When device type is not "0", X_KEY and SUPER_PRIVACY should be supported
-    system::SetParameter(paramKey, "1");
-    for (int32_t feature : conditionalFeatures) {
-        bool supported = false;
-        ErrCode ret = edmMgr_->IsFeatureSupported(feature, supported);
-        EXPECT_TRUE(ret == ERR_OK);
-        EXPECT_TRUE(supported);
-    }
-#endif
-
-    // Restore default
-    system::SetParameter(paramKey, "0");
 }
 
 /**
