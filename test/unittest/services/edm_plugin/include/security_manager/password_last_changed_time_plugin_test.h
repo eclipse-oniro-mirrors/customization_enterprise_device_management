@@ -37,6 +37,10 @@ public:
     int32_t lastAccountId = -1;
     int32_t lastAuthType = -1;
     int callCount = 0;
+    ErrCode isAccountExistResult = ERR_OK;
+    bool isAccountExist = true;
+    int32_t lastExistsAccountId = -1;
+    int existsCallCount = 0;
 
 protected:
     int32_t CallGetLatestEnrollmentTime(int32_t accountId, int32_t authType, uint64_t &latestTime) override
@@ -46,6 +50,14 @@ protected:
         lastAuthType = authType;
         latestTime = latestEnrollmentTime;
         return getLatestEnrollmentResult;
+    }
+
+    ErrCode CallIsOsAccountExists(int32_t accountId, bool &isExist) override
+    {
+        existsCallCount++;
+        lastExistsAccountId = accountId;
+        isExist = isAccountExist;
+        return isAccountExistResult;
     }
 };
 } // namespace TEST

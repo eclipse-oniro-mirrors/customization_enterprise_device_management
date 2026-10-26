@@ -37,6 +37,7 @@ public:
 
 protected:
     virtual int32_t CallGetLatestEnrollmentTime(int32_t accountId, int32_t authType, uint64_t &latestTime);
+    virtual ErrCode CallIsOsAccountExists(int32_t accountId, bool &isExist);
 };
 } // namespace EDM
 } // namespace OHOS

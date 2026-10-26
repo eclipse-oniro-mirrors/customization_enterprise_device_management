@@ -19,6 +19,7 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "edm_os_account_manager_impl.h"
 #include "iam_common_defines.h"
 #include "iplugin_manager.h"
 #include "user_idm_client.h"
@@ -62,16 +63,23 @@ ErrCode PasswordLastChangedTimePlugin::OnGetPolicy(std::string &policyData, Mess
     EDMLOGI("PasswordLastChangedTimePlugin::OnGetPolicy accountId: %{public}d", accountId);
     if (accountId < 0) {
         EDMLOGE("PasswordLastChangedTimePlugin invalid accountId: %{public}d", accountId);
-        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    bool isExist = false;
+    ErrCode ret = CallIsOsAccountExists(accountId, isExist);
+    if (FAILED(ret) || !isExist) {
+        EDMLOGE("PasswordLastChangedTimePlugin accountId is not exist: %{public}d", accountId);
+        reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
+        return EdmReturnErrCode::UID_INVALID;
     }
     uint64_t latestTime = 0;
-    int32_t ret = CallGetLatestEnrollmentTime(accountId,
+    int32_t iamRet = CallGetLatestEnrollmentTime(accountId,
         static_cast<int32_t>(UserIam::UserAuth::AuthType::PIN), latestTime);
-    if (ret != ERR_OK && ret != IAM_CAPABILITY_NOT_SUPPORTED) {
+    if (iamRet != ERR_OK && iamRet != IAM_CAPABILITY_NOT_SUPPORTED) {
         ErrCode errCode = EdmReturnErrCode::EXECUTE_TIME_OUT;
         EDMLOGE("PasswordLastChangedTimePlugin GetLatestEnrollmentTime failed, ret: %{public}d, "
-            "accountId: %{public}d, errCode: %{public}d", ret, accountId, errCode);
+            "accountId: %{public}d, errCode: %{public}d", iamRet, accountId, errCode);
         reply.WriteInt32(errCode);
         return errCode;
     }
@@ -85,6 +93,11 @@ int32_t PasswordLastChangedTimePlugin::CallGetLatestEnrollmentTime(int32_t accou
 {
     return UserIam::UserAuth::UserIdmClient::GetInstance().GetLatestEnrollmentTime(
         accountId, static_cast<UserIam::UserAuth::AuthType>(authType), latestTime);
+}
+
+ErrCode PasswordLastChangedTimePlugin::CallIsOsAccountExists(int32_t accountId, bool &isExist)
+{
+    return std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(accountId, isExist);
 }
 } // namespace EDM
 } // namespace OHOS
