@@ -17,6 +17,7 @@
 #define INTERFACES_KITS_USB_MANAGER_INCLUDE_USB_MANAGER_ADDON_H
 
 #include "edm_constants.h"
+#include "external_storage_device_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -72,6 +73,8 @@ private:
     static napi_value IsExternalStorageInterceptEnable(napi_env env, napi_callback_info info);
     static napi_value SetExternalStorageDeviceMountPolicy(napi_env env, napi_callback_info info);
     static void CreateMountPolicyEnum(napi_env env, napi_value value);
+    static napi_value GetExternalStorageDeviceInfos(napi_env env, napi_callback_info info);
+    static napi_value ExternalStorageDeviceInfoToJsObj(napi_env env, const ExternalStorageDeviceInfo &deviceInfo);
 
     static void CreateDescriptorEnum(napi_env env, napi_value value);
     static napi_value AddDisallowedUsbDevices(napi_env env, napi_callback_info info);
@@ -86,7 +89,11 @@ private:
     static napi_value AddAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveAllowedOddBurnUsbDevices(napi_env env, napi_callback_info info, bool isAdd);
+    static void NativeAddAllowedOddBurnUsbDevices(napi_env env, void *data);
+    static void NativeRemoveAllowedOddBurnUsbDevices(napi_env env, void *data);
     static napi_value GetAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
+    static void NativeGetAllowedOddBurnUsbDevices(napi_env env, void *data);
+    static void NativeGetAllowedOddBurnUsbDevicesComplete(napi_env env, napi_status status, void *data);
     static int32_t ParseOddBurnUsbDevicesArray(napi_env env, std::vector<OddBurnUsbDevice> &usbDevices,
         napi_value object);
     static bool GetOddBurnUsbDeviceFromNAPI(napi_env env, napi_value value, OddBurnUsbDevice &usbDevice);

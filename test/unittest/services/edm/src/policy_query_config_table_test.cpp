@@ -188,6 +188,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_USB_SERIAL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    map[EdmInterfaceCode::DISALLOWED_PACKET_FILTERING] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+#endif
     map[EdmInterfaceCode::IS_APP_KIOSK_ALLOWED] = "";
 #ifdef CAMERA_FRAMEWORK_EDM_ENABLE
     map[EdmInterfaceCode::DISABLE_CAMERA] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
@@ -276,6 +279,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #endif
 #ifdef MULTI_WINDOW_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_MULTI_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+#endif
+#ifndef FEATURE_PC_ONLY
+    map[EdmInterfaceCode::DISALLOWED_FREE_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
     map[EdmInterfaceCode::ALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
@@ -409,6 +415,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #ifdef NETMANAGER_EXT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_VPN);
 #endif
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_PACKET_FILTERING);
+#endif
 #ifdef WIFI_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_RANDOM_MAC_ADDRESS);
 #endif
@@ -429,6 +438,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #endif
 #ifdef MULTI_WINDOW_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MULTI_WINDOW);
+#endif
+#ifndef FEATURE_PC_ONLY
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_FREE_WINDOW);
 #endif
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
@@ -566,6 +578,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
         {EdmInterfaceCode::DISALLOWED_MULTI_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif
 #ifndef FEATURE_PC_ONLY
+        {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
         {EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
             EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION},
 #endif

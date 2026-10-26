@@ -49,6 +49,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::USB_READ_ONLY,
     EdmInterfaceCode::ALLOWED_USB_DEVICES,
     EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES,
+    EdmInterfaceCode::IS_ALLOWED_ODD_BURN,
     EdmInterfaceCode::DISABLE_WIFI,
     EdmInterfaceCode::DISABLE_MTP_CLIENT,
     EdmInterfaceCode::DISABLE_MTP_SERVER,
@@ -105,6 +106,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
     EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
+    EdmInterfaceCode::DISALLOWED_PACKET_FILTERING,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
     EdmInterfaceCode::DISALLOWED_P2P,
     EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY,
@@ -144,6 +146,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+    EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY,
+    EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

@@ -190,6 +190,119 @@ HWTEST_F(EdmUtilsTest, Test_CheckRealPath_TooLong, TestSize.Level1)
     bool result = EdmUtils::CheckRealPath(path, expectPath);
     ASSERT_FALSE(result);
 }
+
+/**
+ * @tc.name: Test_TrustedExternalPath_Empty
+ * @tc.desc: Test TrustedExternalPath function with empty path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_Empty, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("");
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_NormalAbsolutePath
+ * @tc.desc: Test TrustedExternalPath function with normal absolute path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_NormalAbsolutePath, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("/data/test/file.hap");
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_NormalRelativePath
+ * @tc.desc: Test TrustedExternalPath function with normal relative path.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_NormalRelativePath, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("file.hap");
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_WithDotSlash
+ * @tc.desc: Test TrustedExternalPath function with path containing "./".
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_WithDotSlash, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("/data/./test/file.hap");
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_WithDotDotSlash
+ * @tc.desc: Test TrustedExternalPath function with path containing "../".
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_WithDotDotSlash, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("/data/../test/file.hap");
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_WithNullChar
+ * @tc.desc: Test TrustedExternalPath function with path containing null character.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_WithNullChar, TestSize.Level1)
+{
+    std::string path = "/data/test/file.hap";
+    path[5] = '\0';
+    bool result = EdmUtils::TrustedExternalPath(path);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_WithDoubleSlash
+ * @tc.desc: Test TrustedExternalPath function with path containing "//".
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_WithDoubleSlash, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("/data//test/file.hap");
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_EndsWithSlashDot
+ * @tc.desc: Test TrustedExternalPath function with path ending with "/.".
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_EndsWithSlashDot, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("/data/test/.");
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_EndsWithSlashDotDot
+ * @tc.desc: Test TrustedExternalPath function with path ending with "/..".
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_EndsWithSlashDotDot, TestSize.Level1)
+{
+    bool result = EdmUtils::TrustedExternalPath("/data/test/..");
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: Test_TrustedExternalPath_WithBackslashPattern
+ * @tc.desc: Test TrustedExternalPath function with path containing backslash traversal pattern.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_WithBackslashPattern, TestSize.Level1)
+{
+    std::string path = R"(/data/.\.\test/file.hap)";
+    bool result = EdmUtils::TrustedExternalPath(path);
+    ASSERT_FALSE(result);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

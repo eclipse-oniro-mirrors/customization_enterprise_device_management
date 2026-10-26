@@ -23,6 +23,7 @@
 #include <shared_mutex>
 #include <thread>
 
+#include "conflict_group_registry.h"
 #include "enhance_execute_strategy.h"
 #include "iplugin.h"
 #include "iplugin_execute_strategy.h"
@@ -76,10 +77,6 @@ public:
     void DispatchPluginEvent(uint32_t policyCode, const EdmEventData &data,
         bool needAdminIteration, bool useEventUserId);
     void SubscribePluginEvent(uint32_t policyCode);
-    void DispatchForAdmins(const std::shared_ptr<IPlugin> &plugin, const std::string &policyName,
-        uint32_t funcCode, const EdmEventData &data, int32_t userId);
-    void DispatchWithoutAdmins(const std::shared_ptr<IPlugin> &plugin, uint32_t funcCode,
-        const std::string &policyName, const EdmEventData &data, int32_t userId);
     virtual ~PluginManager();
 
     void DumpPlugin();
@@ -98,6 +95,8 @@ private:
     static std::vector<uint32_t> watermarkSoCodes_;
 
     static std::shared_timed_mutex mutexLock_;
+    static std::shared_mutex soPinMutex_;
+    inline static std::mutex policyStripes_[static_cast<size_t>(ConflictGroupId::END)];
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
     std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);
@@ -119,6 +118,10 @@ private:
     void DumpPluginConfig(IPlugin::PolicyPermissionConfig config);
     bool ExtraHasPersistPlugin(std::vector<uint32_t> targetVec);
     bool HasPersistPlugin(std::vector<uint32_t> targetVec);
+    void DispatchForAdmins(const std::shared_ptr<IPlugin> &plugin, const std::string &policyName,
+        uint32_t funcCode, const EdmEventData &data, int32_t userId);
+    void DispatchWithoutAdmins(const std::shared_ptr<IPlugin> &plugin, uint32_t funcCode,
+        const std::string &policyName, const EdmEventData &data, int32_t userId);
     std::shared_ptr<IPluginExecuteStrategy> CreateExecuteStrategy(ExecuteStrategy strategy);
     std::shared_ptr<IPluginExecuteStrategy> enhanceStrategy_ = std::make_shared<EnhanceExecuteStrategy>();
     std::shared_ptr<IPluginExecuteStrategy> singleStrategy_ = std::make_shared<SingleExecuteStrategy>();

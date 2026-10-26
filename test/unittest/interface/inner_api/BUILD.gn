@@ -34,8 +34,10 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./application_manager/src/net_stats_utils_test.cpp",
     "./common/domain_account_policy_test.cpp",
     "./common/ent_info_test.cpp",
+    "./common/install_param_serializer_test.cpp",
     "./common/iext_info_manager_test.cpp",
     "./common/json_builder_test.cpp",
+    "./common/patch_info_test.cpp",
     "./common/policy_changed_event_test.cpp",
     "./proxy/bundle_storage_info_test.cpp",
     "./proxy/common_manager_proxy_test.cpp",
@@ -60,6 +62,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
+    "access_token:libnativetoken_shared",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -98,6 +101,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     defines += [
       "OS_ACCOUNT_EDM_ENABLE",
       "NETMANAGER_BASE_EDM_ENABLE",
+      "NETMANAGER_EXT_EDM_ENABLE",
     ]
   }
 

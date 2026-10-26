@@ -23,6 +23,12 @@ enum class ManagedFeature : int32_t {
     USER_EXTEND_CREDENTIAL = 1,
     DEVICE_SECURITY_LEVEL = 2,
     PRINTER_IP_ADDRESS_POLICY = 3,
+    OPTICAL_DISC_DRIVE_BURN = 4,
+    EXACT_TIMER = 5,
+    EXEMPTION_RESOURCE = 6,
+    X_KEY = 7,
+    SYSTEM_ROLLBACK = 8,
+    SUPER_PRIVACY = 9,
 };
 } // namespace EDM
 } // namespace OHOS

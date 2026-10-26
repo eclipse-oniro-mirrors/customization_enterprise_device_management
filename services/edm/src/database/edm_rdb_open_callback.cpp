@@ -24,6 +24,7 @@ constexpr int32_t EDM_RDB_VERSION_TWO = 2;
 constexpr int32_t EDM_RDB_VERSION_THREE = 3;
 constexpr int32_t EDM_RDB_VERSION_FOUR = 4;
 constexpr int32_t EDM_RDB_VERSION_FIVE = 5;
+constexpr int32_t EDM_RDB_VERSION_SIX = 6;
 int32_t EdmRdbOpenCallback::OnCreate(NativeRdb::RdbStore &rdbStore)
 {
     EDMLOGD("EdmRdbOpenCallback OnCreate : database create.");
@@ -50,6 +51,17 @@ int32_t EdmRdbOpenCallback::OnUpgrade(NativeRdb::RdbStore &rdbStore, int current
     if (currentVersion < EDM_RDB_VERSION_FIVE && targetVersion >= EDM_RDB_VERSION_FIVE) {
         rdbStore.ExecuteSql("ALTER TABLE " + EdmRdbFiledConst::ADMIN_POLICIES_RDB_TABLE_NAME + " ADD COLUMN " +
             EdmRdbFiledConst::FILED_ENABLE_SOURCE + " INTEGER DEFAULT 0;");
+    }
+    if (currentVersion < EDM_RDB_VERSION_SIX && targetVersion >= EDM_RDB_VERSION_SIX) {
+        rdbStore.ExecuteSql("CREATE TABLE IF NOT EXISTS " + EdmRdbFiledConst::SENSITIVE_CALL_NOTIFIED_RDB_TABLE_NAME +
+            " (" + EdmRdbFiledConst::FILED_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+            EdmRdbFiledConst::FILED_USER_ID + " INTEGER NOT NULL," +
+            EdmRdbFiledConst::FILED_ADMIN_NAME + " TEXT NOT NULL," +
+            EdmRdbFiledConst::FILED_APP_INDEX + " INTEGER NOT NULL," +
+            EdmRdbFiledConst::FILED_SENSITIVE_ID + " TEXT NOT NULL," +
+            EdmRdbFiledConst::FILED_NOTIFIED_TIME + " INTEGER NOT NULL," +
+            "UNIQUE(" + EdmRdbFiledConst::FILED_USER_ID + "," + EdmRdbFiledConst::FILED_ADMIN_NAME + "," +
+            EdmRdbFiledConst::FILED_APP_INDEX + "," + EdmRdbFiledConst::FILED_SENSITIVE_ID + "));");
     }
     return NativeRdb::E_OK;
 }

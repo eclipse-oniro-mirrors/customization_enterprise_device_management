@@ -76,6 +76,7 @@ private:
     static void CreateSwitchKeyObject(napi_env env, napi_value value);
     static void CreateSwitchStatusObject(napi_env env, napi_value value);
     static napi_value SetSwitchStatus(napi_env env, napi_callback_info info);
+    static napi_value GetSwitchStatus(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

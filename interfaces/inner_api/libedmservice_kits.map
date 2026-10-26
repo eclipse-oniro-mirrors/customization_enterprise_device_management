@@ -24,6 +24,12 @@
             "virtual thunk to OHOS::EDM::ExternalStorageDeviceInfo::~ExternalStorageDeviceInfo()";
             VTT?for?OHOS::EDM::ExternalStorageDeviceInfo;
             vtable?for?OHOS::EDM::ExternalStorageDeviceInfo;
+            OHOS::EDM::PatchInfo::*;
+            "virtual thunk to OHOS::EDM::PatchInfo::~PatchInfo()";
+            VTT?for?OHOS::EDM::PatchInfo;
+            vtable?for?OHOS::EDM::PatchInfo;
+            OHOS::EDM::PatchDescription::*;
+            OHOS::EDM::PatchDescriptionBody::*;
             OHOS::EDM::PowerPolicy::*;
             "virtual thunk to OHOS::EDM::PowerPolicy::~PowerPolicy()";
             VTT?for?OHOS::EDM::PowerPolicy;

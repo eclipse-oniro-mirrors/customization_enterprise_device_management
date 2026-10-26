@@ -30,6 +30,10 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
     std::make_shared<ExternalStorageDeviceMountPolicyPlugin>());
 
+constexpr int32_t DISK_MANAGER_PARAM_ERROR = 13600004;
+constexpr int32_t DISK_MANAGER_MOUNT_POLICY_INVALID = 13601702;
+constexpr int32_t DISK_MANAGER_UNMOUNT_NOT_NEEDED = 13601703;
+
 ExternalStorageDeviceMountPolicyPlugin::ExternalStorageDeviceMountPolicyPlugin()
 {
     EDMLOGI("ExternalStorageDeviceMountPolicyPlugin InitPlugin...");
@@ -76,14 +80,26 @@ ErrCode ExternalStorageDeviceMountPolicyPlugin::ExecuteMountPolicy(const std::st
         ret = OHOS::DiskManager::DiskManagerClient::GetInstance().Mount(volumeId, mountParam);
         if (ret != ERR_OK) {
             EDMLOGE("Mount failed, volumeId: %{public}s, ret: %{public}d", volumeId.c_str(), ret);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            if (ret == DISK_MANAGER_PARAM_ERROR) {
+                return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+            }
+            if (ret == DISK_MANAGER_MOUNT_POLICY_INVALID) {
+                return EdmReturnErrCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY_INVALID;
+            }
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
         }
     } else if (policy == static_cast<int32_t>(MountPolicy::UNMOUNT)) {
         EDMLOGI("Unmount volumeId: %{public}s", volumeId.c_str());
         ret = OHOS::DiskManager::DiskManagerClient::GetInstance().Unmount(volumeId);
         if (ret != ERR_OK) {
             EDMLOGE("Unmount failed, volumeId: %{public}s, ret: %{public}d", volumeId.c_str(), ret);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            if (ret == DISK_MANAGER_UNMOUNT_NOT_NEEDED) {
+                return ERR_OK;
+            }
+            if (ret == DISK_MANAGER_PARAM_ERROR) {
+                return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+            }
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
         }
     } else {
         EDMLOGE("Invalid mount policy: %{public}d", policy);

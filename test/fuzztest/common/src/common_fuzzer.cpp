@@ -38,6 +38,9 @@
 #include "disallow_add_local_account_plugin.h"
 #include "disallow_add_os_account_by_user_plugin.h"
 #endif
+#ifndef FEATURE_PC_ONLY
+#include "disallow_free_window_plugin.h"
+#endif
 #include "disallow_modify_datetime_plugin.h"
 #include "disallowed_install_bundles_plugin.h"
 #include "disallowed_running_bundles_plugin.h"
@@ -117,6 +120,10 @@ const bool REGISTER_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowAddLocalAccountPlugin>());
 const bool REGISTER_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
+#endif
+#ifndef FEATURE_PC_ONLY
+const bool REGISTER_DISALLOW_FREE_WINDOW_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowFreeWindowPlugin>());
 #endif
 const bool REGISTER_DISALL_MODIFY_DATE_TIME_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallModifyDateTimePlugin>());

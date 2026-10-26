@@ -124,6 +124,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
     {static_cast<int32_t>(RestrictionsFeature::X_KEY), EdmInterfaceCode::DISALLOW_X_KEY},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
+    {static_cast<int32_t>(RestrictionsFeature::PACKET_FILTERING), EdmInterfaceCode::DISALLOWED_PACKET_FILTERING},
     {static_cast<int32_t>(RestrictionsFeature::SUDO), EdmInterfaceCode::DISALLOWED_DEVICE_SUDO},
     {static_cast<int32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION), EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION},
     {static_cast<int32_t>(RestrictionsFeature::CORE_DUMP), EdmInterfaceCode::DISALLOW_CORE_DUMP},
@@ -177,6 +178,8 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::SYSTEM_ROLLBACK),
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISALLOWED_SYSTEM_ROLLBACK},
     {static_cast<int32_t>(RestrictionsFeature::SATA_ODD_BURN), EdmInterfaceCode::DISABLE_SATA_ODD_BURN},
+    {static_cast<int32_t>(RestrictionsFeature::SUPER_PRIVACY),
+        EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -197,6 +200,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
     {static_cast<int32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING),
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST), EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::FREE_WINDOW), EdmInterfaceCode::DISALLOWED_FREE_WINDOW},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForDeviceEnum2CodeMap = {
@@ -1089,6 +1093,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
         {"X_KEY", static_cast<uint32_t>(RestrictionsFeature::X_KEY)},
         {"SUDO", static_cast<uint32_t>(RestrictionsFeature::SUDO)},
         {"LOCAL_INPUT", static_cast<uint32_t>(RestrictionsFeature::LOCAL_INPUT)},
+        {"PACKET_FILTERING", static_cast<uint32_t>(RestrictionsFeature::PACKET_FILTERING)},
         {"TRAFFIC_REDIRECTION", static_cast<uint32_t>(RestrictionsFeature::TRAFFIC_REDIRECTION)},
         {"CORE_DUMP", static_cast<uint32_t>(RestrictionsFeature::CORE_DUMP)},
         {"DISK_ERASURE", static_cast<uint32_t>(RestrictionsFeature::SECURE_ERASE)},
@@ -1147,6 +1152,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"USB_SERIAL", static_cast<uint32_t>(RestrictionsFeature::USB_SERIAL)},
         {"SYSTEM_ROLLBACK", static_cast<uint32_t>(RestrictionsFeature::SYSTEM_ROLLBACK)},
         {"SATA_ODD_BURN", static_cast<uint32_t>(RestrictionsFeature::SATA_ODD_BURN)},
+        {"SUPER_PRIVACY", static_cast<uint32_t>(RestrictionsFeature::SUPER_PRIVACY)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);
@@ -1169,6 +1175,7 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
         {"DISTRIBUTED_TRANSMISSION_OUTGOING",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING)},
         {"OPEN_FILE_BOOST", static_cast<uint32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST)},
+        {"FREE_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::FREE_WINDOW)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

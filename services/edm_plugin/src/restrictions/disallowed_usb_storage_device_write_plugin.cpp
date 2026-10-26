@@ -109,6 +109,14 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::CheckConflictPolicy(int32_t userI
                 "isStorageUsbDisallowed: %{public}d", isStorageUsbDisallowed);
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
+    std::string externalStorageInterceptEnable;
+    policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
+        externalStorageInterceptEnable);
+    if (externalStorageInterceptEnable == "true") {
+        EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
+            "externalStorageInterceptEnable: %{public}s", externalStorageInterceptEnable.c_str());
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
 
     EDMLOGI("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy end, no conflict");
     return ERR_OK;

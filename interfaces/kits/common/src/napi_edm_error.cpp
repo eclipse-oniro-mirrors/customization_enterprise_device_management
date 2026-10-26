@@ -133,6 +133,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::FORM_TYPE_NOT_SUPPORT, "The form type is not supported."},
     {EdmReturnErrCode::ADD_FORM_FAILED, "Failed to add the form to the desktop."},
     {EdmReturnErrCode::GET_USB_SERIAL_NUMBER_FAILED, "Failed to obtain the USB serial number."},
+    {EdmReturnErrCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY_INVALID,
+        "Invalid external storage mount policy."},
     {EdmReturnErrCode::POLICY_LIST_OVER_SIZE, "The policy list has exceeded the limit."},
 };
 
@@ -218,6 +220,29 @@ std::pair<int32_t, std::string> GetMessageWithUnknownCodeFromReturncode(ErrCode 
 bool IsEDMErrCode(ErrCode returnCode)
 {
     return errMessageMap.find(returnCode) != errMessageMap.end();
+}
+
+napi_value NapiThrowErrorAsync(napi_env env, ErrCode errorCode)
+{
+    napi_value promise = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_value jsErrCode = nullptr;
+    napi_value message = nullptr;
+    napi_value jsError = nullptr;
+    std::string errMessage;
+    auto iter = errMessageMap.find(errorCode);
+    if (iter != errMessageMap.end()) {
+        errMessage = iter->second;
+    }
+    napi_create_int32(env, errorCode, &jsErrCode);
+    napi_create_string_utf8(env, errMessage.c_str(), errMessage.size(), &message);
+    napi_create_error(env, nullptr, message, &jsError);
+    napi_set_named_property(env, jsError, "code", jsErrCode);
+    napi_status asyncStatus = napi_create_promise(env, &deferred, &promise);
+    if (asyncStatus == napi_ok) {
+        napi_reject_deferred(env, deferred, jsError);
+    }
+    return promise;
 }
 } // namespace EDM
 } // namespace OHOS

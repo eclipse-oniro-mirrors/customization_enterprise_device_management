@@ -31,6 +31,7 @@ public:
     static void ClearString(std::string &str);
     static void ClearCharArray(char* &str, size_t size);
     static bool CheckRealPath(const std::string &path, const std::string &expectPath);
+    static bool TrustedExternalPath(const std::string &filePath);
 };
 } // namespace EDM
 } // namespace OHOS

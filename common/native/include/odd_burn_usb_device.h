@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_INNER_API_INCLUDE_ODD_BURN_USB_DEVICE_H
-#define INTERFACES_INNER_API_INCLUDE_ODD_BURN_USB_DEVICE_H
+#ifndef COMMON_NATIVE_INCLUDE_ODD_BURN_USB_DEVICE_H
+#define COMMON_NATIVE_INCLUDE_ODD_BURN_USB_DEVICE_H
 
 #include <string>
 #include "message_parcel.h"
@@ -58,4 +58,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // INTERFACES_INNER_API_INCLUDE_ODD_BURN_USB_DEVICE_H
+#endif // COMMON_NATIVE_INCLUDE_ODD_BURN_USB_DEVICE_H

@@ -19,6 +19,7 @@
 | 文件/目录 | 关联任务 | 路由文档 |
 |-----------|---------|---------|
 | `services/edm/src/plugin_manager.cpp` | 插件加载与执行 | `plugin-architecture.md` |
+| `services/edm/src/conflict_group_registry.cpp` | 策略冲突分组注册 | `concurrency-lock-model.md` |
 | `services/edm/src/query_policy/policy_query_config_table.cpp` | 策略查询配置 | `ipc-and-funccode.md` |
 | `services/edm/src/event_management/` | 事件订阅/分发 | `event-management.md` |
 | `services/edm_plugin/src/` | 策略插件实现 | `plugin-architecture.md` |
@@ -33,8 +34,9 @@
 | 类 | 职责 | 核心方法 | 代码路径 |
 |---|------|---------|---------|
 | `AdminManager` | 管理员生命周期管理 | GetInstance, GetAdminByPkgName, EnableAdmin, DisableAdmin | `services/edm/src/admin_manager.cpp` |
-| `PolicyManager` | 策略增删改查 | GetInstance, GetPolicy, SetPolicy | `services/edm/src/policy_manager.cpp` |
-| `PluginManager` | 插件加载与执行 | GetPluginByFuncCode, UpdateDevicePolicy, LoadPlugin | `services/edm/src/plugin_manager.cpp` |
+| `PolicyManager` | 策略增删改查，`recursive_mutex` 保护 map 访问 | GetInstance, GetPolicy, SetPolicy | `services/edm/src/policy_manager.cpp` |
+| `PluginManager` | 插件加载与执行，三锁模型（`mutexLock_`/`soPinMutex_`/`policyStripes_`） | GetPluginByFuncCode, UpdateDevicePolicy, LoadPlugin | `services/edm/src/plugin_manager.cpp` |
+| `ConflictGroupRegistry` | 策略冲突分组注册，按组串行化 `OnSetExecute` | GetInstance, GetConflictGroupId | `services/edm/src/conflict_group_registry.cpp` |
 | `EnterpriseDeviceMgrAbility` | 主Ability，IPC服务入口 | HandleDevicePolicy, GetDevicePolicy | `services/edm/src/enterprise_device_mgr_ability.cpp` |
 | `EnterpriseDeviceMgrStub` | IPC消息分发 | OnRemoteRequest | `services/edm/src/enterprise_device_mgr_stub.cpp` |
 
@@ -87,6 +89,7 @@
 | 改 Addon / Proxy 层（新旧写法）、序列化器、RDB 存储格式与数据库表 | `interfaces/kits/`、`interfaces/inner_api/`、`services/edm/src/database/` | `docs/knowledge/architecture/addon-and-storage.md` |
 | 改 BUILD.gn 构建配置（5 个文件、5 个 SO 目标、条件编译规则） | 5 个 `BUILD.gn`（见路由文档） | `docs/knowledge/architecture/build-gn-rules.md` |
 | 改事件订阅 / 分发 / Adapter / Subscriber / 回调策略 / 服务重启恢复 / 线程锁模型 / 新增事件 | `services/edm/src/event_management/`、`services/edm/include/event_management/` | `docs/knowledge/architecture/event-management.md` |
+| 改并发锁模型 / `UpdateDevicePolicy` 三阶段 / `soPinMutex_` / `policyStripes_` / `ConflictGroupRegistry` | `services/edm/src/plugin_manager.cpp`、`conflict_group_registry.cpp`、`policy_manager.cpp` | `concurrency-lock-model.md` |
 
 ### 域术语速查
 
@@ -100,6 +103,11 @@
 | SO | 策略插件动态库（device_core/communication/sys_service/need_extra/watermark） | `plugin-architecture.md` |
 | SubscriberType | 事件订阅者类型（SA_CORE/MDM_RELAY/POLICY_BOUND） | `event-management.md` |
 | AddonMethodAdapter | NAPI 异步调用适配器框架（推荐新写法） | `addon-and-storage.md` |
+| mutexLock_ | `std::shared_timed_mutex`，保护 `pluginsCode_`/`pluginsName_`/`soLoadStateMap_` map 读写 | `concurrency-lock-model.md` |
+| soPinMutex_ | `std::shared_mutex`，SO pinning 锁，防止 `dlclose` 期间插件使用 | `concurrency-lock-model.md` |
+| policyStripes_ | `std::mutex[]`，按冲突组串行化同组 `OnSetExecute` | `concurrency-lock-model.md` |
+| ConflictGroupRegistry | 策略冲突分组注册表，映射 policyCode → ConflictGroupId | `concurrency-lock-model.md` |
+| CheckConflictPolicy | 插件检查其他插件策略值的方法，跨插件冲突的插件须注册到同一冲突组 | `concurrency-lock-model.md` |
 
 ### 路径路由（按目录）
 
@@ -115,6 +123,8 @@
 | `interfaces/inner_api/` | `addon-and-storage.md`、`ipc-and-funccode.md` |
 | `services/edm/src/database/` | `addon-and-storage.md` |
 | 5 个 `BUILD.gn` | `build-gn-rules.md` |
+| `services/edm/src/conflict_group_registry.cpp`、`plugin_manager.cpp`、`policy_manager.cpp` | `concurrency-lock-model.md` |
+| `services/edm/src/enterprise_device_mgr_ability.cpp`（adminLock_ 并发改动） | `concurrency-lock-model.md` |
 
 ---
 
@@ -131,6 +141,8 @@
 | 不得削弱权限/信任边界 | 禁止绕过权限校验、削弱 admin 授权校验或 `PermissionConfig` 映射一致性 | 跳过 admin 授权校验 → 保持 `PermissionConfig` 与 Plugin `permissionConfig_` 一致 | `services/edm/src/admin_manager.cpp`、`policy_query_config_table.cpp`（见 `ipc-and-funccode.md`） |
 | 不得移除 DFX 埋点 | 禁止删除日志/HiSysEvent/HiAppEvent 等可观测性与故障归因埋点 | 删 HiSysEvent 调用 → 保留日志/事件埋点 | 全局 |
 | 不得违反模块分层依赖方向 | 禁止 services 反向依赖 interfaces/kits、edm_plugin 不得跨层直接调用非 inner_api 接口；依赖方向：common ← inner_api ← services | services 引用 interfaces/kits → 遵循 common ← inner_api ← services 分层 | 全局分层 |
+| 不得破坏并发锁模型 | 禁止删除 `soPinMutex_`/`policyStripes_`/`PolicyManager::mutex_` 或改变锁类型，禁止将 `shared_lock(soPinMutex_)` 改回 `unique_lock(mutexLock_)` 全程持有 | 删除 `soPinMutex_` 导致 UAF → 保留三锁架构，见"并发锁模型" | `services/edm/src/plugin_manager.cpp`、`policy_manager.cpp` |
+| 不得遗漏跨插件冲突组注册 | 插件通过 `CheckConflictPolicy` 检查其他插件策略值的，须将所有冲突插件注册到 `ConflictGroupRegistry` 同一冲突组 | 新增冲突插件未注册 `ConflictGroupRegistry` → 注册到同组，见"并发锁模型" | `services/edm/src/conflict_group_registry.cpp`、`services/edm_plugin/src/` |
 
 ### Ask before（须确认/升级评审）
 
@@ -154,7 +166,7 @@
 | 编写或修改 IPC/MessageParcel 读写代码 | `docs/knowledge/coding-rules/04-ipc-and-parcel.md` |
 | 新增策略（Plugin + Query）或修改权限配置 | `docs/knowledge/coding-rules/05-policy-and-permission-config.md` |
 | 编写或修改 cJSON/JSON 序列化反序列化代码 | `docs/knowledge/coding-rules/06-data-parsing-and-validation.md` |
-| 编写或修改涉及线程/锁/并发的代码 | `docs/knowledge/coding-rules/02-concurrency-and-threading.md` |
+| 编写或修改涉及线程/锁/并发的代码 | `docs/knowledge/coding-rules/02-concurrency-and-threading.md`、`concurrency-lock-model.md` |
 | 编写或修改涉及内存分配/指针的代码 | `docs/knowledge/coding-rules/01-memory-and-pointer-safety.md` |
 | 新增或修改错误码 | `docs/knowledge/coding-rules/07-error-code-conventions.md` |
 | 代码检视（通用） | `docs/knowledge/coding-rules/08-return-value-checking.md` |

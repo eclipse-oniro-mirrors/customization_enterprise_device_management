@@ -17,7 +17,9 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstdio>
 
+#include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
@@ -40,7 +42,8 @@ ErrCode SetWallPaperPlugin::OnSetPolicy(WallPaperParam &data)
 {
     EDMLOGD("SetWallPaperPlugin start set wall paper.");
     if (data.fd >= 0 && fcntl(data.fd, F_GETFL) != -1) {
-        close(data.fd);
+        fdsan_exchange_owner_tag(data.fd, 0, EdmConstants::LOG_DOMAINID);
+        fdsan_close_with_tag(data.fd, EdmConstants::LOG_DOMAINID);
         data.fd = -1;
     }
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;

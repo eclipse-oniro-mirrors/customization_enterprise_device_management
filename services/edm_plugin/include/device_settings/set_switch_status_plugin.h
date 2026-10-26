@@ -25,9 +25,13 @@ class SetSwitchStatusPlugin : public PluginSingleton<SetSwitchStatusPlugin, std:
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<SetSwitchStatusPlugin, std::vector<SwitchParam>>> ptr) override;
     ErrCode OnSetPolicy(std::vector<SwitchParam> &param, MessageParcel &reply);
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode OnSetBluetoothStatus(SwitchStatus status);
     ErrCode OnSetWifiStatus(SwitchStatus status);
     ErrCode OnSetNFCStatus(SwitchStatus status);
+    ErrCode OnGetBluetoothStatus(SwitchStatus &status);
+    ErrCode OnGetWifiStatus(SwitchStatus &status);
+    ErrCode OnGetNFCStatus(SwitchStatus &status);
     ErrCode OnAdminRemove(const std::string &adminName, std::vector<SwitchParam> &data,
         std::vector<SwitchParam> &mergeData, int32_t userId);
 

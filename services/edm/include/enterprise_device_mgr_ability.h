@@ -120,6 +120,7 @@ private:
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
     void NotifyAdminEnabled(bool isEnabled);
+    void HandleEdmEnabled();
     void CheckAndUpdateByodSettingsData();
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);
@@ -139,6 +140,7 @@ private:
         int32_t queryPolicy);
     ErrCode CheckHandleDevicePolicyNewPermission(uint32_t code, const std::string &bundleName,
         const std::string &policyName, int32_t userId);
+    ErrCode CheckAllQueryPermission(const std::string &policyName);
     ErrCode EnableAdminWithPermission(const AppExecFwk::ElementName &admin, const EntInfo &entInfo,
         AdminType adminType, int32_t userId, const std::string &permission,
         EnableSource enableSource = EnableSource::DEPLOY);

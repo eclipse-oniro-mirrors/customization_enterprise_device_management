@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <algorithm>
+#include <cstdio>
 #include <sys/stat.h>
 #include <system_ability_definition.h>
 
@@ -121,39 +122,56 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::InstallEnterpriseReSignat
     std::string certificateAlias = data.ReadString();
     int32_t fd = data.ReadFileDescriptor();
     int32_t accountId = data.ReadInt32();
+    if (fd >= 0) {
+        fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
+    }
     if (CheckParamVaild(certificateAlias, fd, accountId) != ERR_OK) {
-        close(fd);
+        if (fd >= 0) {
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
     ErrCode ret = GetBundleInstaller(iBundleInstaller, __func__);
     if (ret != ERR_OK) {
-        close(fd);
+        if (fd >= 0) {
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
         return ret;
     }
     std::vector<std::string> certificateAliasList;
     if (iBundleInstaller->GetEnterpriseReSignatureCert(accountId, certificateAliasList) != ERR_OK) {
         EDMLOGE("InstallEnterpriseReSignatureCertificate: failed to get certificateAliasList");
-        close(fd);
+        if (fd >= 0) {
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
         return EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT;
     }
     if (certificateAliasList.size() >= MAX_CERTIFICATE_COUNT) {
         EDMLOGE("InstallEnterpriseReSignatureCertificate: certificate alias list size >= 10, cannot install more");
-        close(fd);
+        if (fd >= 0) {
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
         return EdmReturnErrCode::CERTIFICATE_REACHED_LIMIT;
     }
     if (std::find(certificateAliasList.begin(), certificateAliasList.end(), certificateAlias) !=
         certificateAliasList.end()) {
         EDMLOGE("InstallEnterpriseReSignatureCertificate: certificate alias already exists");
-        close(fd);
+        if (fd >= 0) {
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
         return EdmReturnErrCode::CERTIFICATE_IS_INVALID;
     }
     if (iBundleInstaller->InstallEnterpriseReSignatureCert(certificateAlias, fd, accountId) != ERR_OK) {
         EDMLOGE("InstallEnterpriseReSignatureCertificate: failed to install certificate");
-        close(fd);
+        if (fd >= 0) {
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
         return EdmReturnErrCode::CERTIFICATE_IS_INVALID;
     }
-    close(fd);
+    if (fd >= 0) {
+        fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+    }
     std::string params = EdmJsonBuilder()
         .Add("certificateAlias", certificateAlias)
         .Add("accountId", accountId)

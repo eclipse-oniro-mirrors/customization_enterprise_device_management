@@ -16,11 +16,13 @@
 #include <gtest/gtest.h>
 
 #include "os_account_manager.h"
+#include "parameters.h"
 
 #define private public
 #include "iedm_bluetooth_manager.h"
 #undef private
 
+#include "edm_bluetooth_manager_impl.h"
 #include "edm_bluetooth_manager_mock.h"
 #include "edm_ipc_interface_code.h"
 #include "set_switch_status_plugin.h"
@@ -33,6 +35,14 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+const std::string MDM_BLUETOOTH_PROP = "persist.edm.prohibit_bluetooth";
+const std::string MDM_WIFI_PROP = "persist.edm.wifi_enable";
+const std::string PARAM_FORCE_OPEN_WIFI = "persist.edm.force_open_wifi";
+const std::string PARAM_FORCE_ENABLE_BLUETOOTH = "persist.edm.force_enable_bluetooth";
+#ifdef NFC_EDM_ENABLE
+const std::string PARAM_FORCE_ENABLE_NFC = "persist.edm.force_enable_nfc";
+const std::string PARAM_EDM_NFC_DISABLE = "persist.edm.nfc_disable";
+#endif
 class SetSwitchStatusPluginTest : public testing::Test {
 public:
     static void SetUpTestSuite(void);
@@ -65,6 +75,14 @@ void SetSwitchStatusPluginTest::SetUp()
 
 void SetSwitchStatusPluginTest::TearDown()
 {
+    system::SetParameter(MDM_BLUETOOTH_PROP, "false");
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+    system::SetParameter(MDM_WIFI_PROP, "false");
+    system::SetParameter(PARAM_FORCE_OPEN_WIFI, "false");
+#ifdef NFC_EDM_ENABLE
+    system::SetParameter(PARAM_FORCE_ENABLE_NFC, "false");
+    system::SetParameter(PARAM_EDM_NFC_DISABLE, "false");
+#endif
     bluetoothManagerMock_.reset();
 }
 
@@ -226,6 +244,241 @@ HWTEST_F(SetSwitchStatusPluginTest, TestOnSetPolicyEmptyParam, TestSize.Level1)
     MessageParcel reply;
     ErrCode ret = plugin.OnSetPolicy(param, reply);
     ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyInvalidKeySmall
+ * @tc.desc: Test OnGetPolicy with switch key below valid range.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetPolicyInvalidKeySmall, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyData;
+    data.WriteInt32(-1);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyInvalidKeyLarge
+ * @tc.desc: Test OnGetPolicy with switch key above valid range.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetPolicyInvalidKeyLarge, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyData;
+    data.WriteInt32(static_cast<int32_t>(SwitchKey::NFC) + 1);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyNearlinkDefault
+ * @tc.desc: Test OnGetPolicy with Nearlink key falls to default case.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetPolicyNearlinkDefault, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyData;
+    data.WriteInt32(static_cast<int32_t>(SwitchKey::NEARLINK));
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyBluetoothForceOn
+ * @tc.desc: Test OnGetPolicy with Bluetooth key when force enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetPolicyBluetoothForceOn, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_BLUETOOTH_PROP, "false");
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "true");
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyData;
+    data.WriteInt32(static_cast<int32_t>(SwitchKey::BLUETOOTH));
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(SwitchStatus::FORCE_ON));
+}
+
+/**
+ * @tc.name: TestOnGetPolicyWifiForceOn
+ * @tc.desc: Test OnGetPolicy with WiFi key when force enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetPolicyWifiForceOn, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_WIFI_PROP, "false");
+    system::SetParameter(PARAM_FORCE_OPEN_WIFI, "true");
+    MessageParcel data;
+    MessageParcel reply;
+    std::string policyData;
+    data.WriteInt32(static_cast<int32_t>(SwitchKey::WIFI));
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(SwitchStatus::FORCE_ON));
+}
+
+/**
+ * @tc.name: TestOnGetBluetoothStatusMdmDisabled
+ * @tc.desc: Test OnGetBluetoothStatus when bluetooth disabled by MDM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetBluetoothStatusMdmDisabled, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_BLUETOOTH_PROP, "true");
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetBluetoothStatus(status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::OFF);
+}
+
+/**
+ * @tc.name: TestOnGetBluetoothStatusForceOn
+ * @tc.desc: Test OnGetBluetoothStatus when bluetooth force enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetBluetoothStatusForceOn, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_BLUETOOTH_PROP, "false");
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "true");
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetBluetoothStatus(status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::FORCE_ON);
+}
+
+/**
+ * @tc.name: TestOnGetBluetoothStatusGetBtStateFailed
+ * @tc.desc: Test OnGetBluetoothStatus when GetBtState returns -1.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetBluetoothStatusGetBtStateFailed, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_BLUETOOTH_PROP, "false");
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+    EXPECT_CALL(*bluetoothManagerMock_, GetBtState).WillOnce(Return(-1));
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetBluetoothStatus(status);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestOnGetBluetoothStatusTurnOn
+ * @tc.desc: Test OnGetBluetoothStatus when bluetooth state is TURN_ON.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetBluetoothStatusTurnOn, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_BLUETOOTH_PROP, "false");
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+    EXPECT_CALL(*bluetoothManagerMock_, GetBtState)
+        .WillOnce(Return(static_cast<int32_t>(EdmBluetoothState::TURN_ON)));
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetBluetoothStatus(status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::ON);
+}
+
+/**
+ * @tc.name: TestOnGetBluetoothStatusTurnOff
+ * @tc.desc: Test OnGetBluetoothStatus when bluetooth state is TURN_OFF.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetBluetoothStatusTurnOff, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_BLUETOOTH_PROP, "false");
+    system::SetParameter(PARAM_FORCE_ENABLE_BLUETOOTH, "false");
+    EXPECT_CALL(*bluetoothManagerMock_, GetBtState)
+        .WillOnce(Return(static_cast<int32_t>(EdmBluetoothState::TURN_OFF)));
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetBluetoothStatus(status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::OFF);
+}
+
+/**
+ * @tc.name: TestOnGetWifiStatusMdmDisabled
+ * @tc.desc: Test OnGetWifiStatus when wifi disabled by MDM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetWifiStatusMdmDisabled, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_WIFI_PROP, "true");
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetWifiStatus(status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::OFF);
+}
+
+/**
+ * @tc.name: TestOnGetWifiStatusForceOn
+ * @tc.desc: Test OnGetWifiStatus when wifi force enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetWifiStatusForceOn, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    system::SetParameter(MDM_WIFI_PROP, "false");
+    system::SetParameter(PARAM_FORCE_OPEN_WIFI, "true");
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetWifiStatus(status);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(status, SwitchStatus::FORCE_ON);
+}
+
+/**
+ * @tc.name: TestOnGetNFCStatusUnsupported
+ * @tc.desc: Test OnGetNFCStatus when NFC is not supported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnGetNFCStatusUnsupported, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    SwitchStatus status = SwitchStatus::UNKNOWN;
+    ErrCode ret = plugin.OnGetNFCStatus(status);
+#ifdef NFC_EDM_ENABLE
+    EXPECT_EQ(ret, ERR_OK);
+#else
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+#endif
+}
+
+/**
+ * @tc.name: TestOnSetWifiStatusForceOn
+ * @tc.desc: Test OnSetPolicy with WiFi FORCE_ON status.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetSwitchStatusPluginTest, TestOnSetWifiStatusForceOn, TestSize.Level1)
+{
+    SetSwitchStatusPlugin plugin;
+    std::vector<SwitchParam> param;
+    SwitchParam paramItem{SwitchKey::WIFI, SwitchStatus::FORCE_ON};
+    param.push_back(paramItem);
+    MessageParcel reply;
+    ErrCode ret = plugin.OnSetPolicy(param, reply);
+    EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

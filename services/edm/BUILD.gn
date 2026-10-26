@@ -66,6 +66,7 @@ ohos_shared_library("edmservice") {
     "cJSON:cjson",
     "c_utils:utils",
     "distributed_notification_service:ans_innerkits",
+    "eventhandler:libeventhandler",
     "file_api:securitylabel",
     "hilog:libhilog",
     "i18n:intl_util",
@@ -105,6 +106,8 @@ ohos_shared_library("edmservice") {
       "./src/connection/icallback_strategy.cpp",
       "./src/database/edm_rdb_data_manager.cpp",
       "./src/database/edm_rdb_open_callback.cpp",
+      "./src/conflict_group_registry.cpp",
+      "./src/delay_unload_manager.cpp",
       "./src/device_policies_storage_rdb.cpp",
       "./src/edm_bluetooth_manager_impl.cpp",
       "./src/edm_timer_manager.cpp",
@@ -211,7 +214,10 @@ ohos_shared_library("edmservice") {
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
       enterprise_device_management_feature_pc_only) {
-    sources += [ "./src/query_policy/allowed_odd_burn_usb_devices_query.cpp" ]
+    sources += [
+      "./src/query_policy/allowed_odd_burn_usb_devices_query.cpp",
+      "./src/query_policy/is_allowed_odd_burn_query.cpp",
+    ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
@@ -329,6 +335,13 @@ ohos_shared_library("edmservice") {
 
   if (notification_edm_enable) {
     defines += [ "NOTIFICATION_EDM_ENABLE" ]
+  }
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "./src/sensitive_api_whitelist.cpp",
+      "./src/sensitive_call_notify_manager.cpp",
+      "./src/database/sensitive_call_notify_rdb.cpp",
+    ]
   }
 
   if (netmanager_ext_edm_enable) {

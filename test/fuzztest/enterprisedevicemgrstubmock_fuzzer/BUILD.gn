@@ -85,6 +85,8 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/connection/icallback_strategy.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
+    "../../../services/edm/src/conflict_group_registry.cpp",
+    "../../../services/edm/src/delay_unload_manager.cpp",
     "../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../services/edm/src/edm_bluetooth_manager_impl.cpp",
     "../../../services/edm/src/edm_timer_manager.cpp",
@@ -131,6 +133,14 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
   ]
+
+  if (!enterprise_device_management_feature_pc_only) {
+    sources += [
+      "../../../services/edm/src/sensitive_api_whitelist.cpp",
+      "../../../services/edm/src/sensitive_call_notify_manager.cpp",
+      "../../../services/edm/src/database/sensitive_call_notify_rdb.cpp",
+    ]
+  }
 
   sources += [
     "../../../services/edm_plugin/src/restrictions/disallowed_nearlink_protocols_plugin.cpp",
@@ -189,6 +199,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "cJSON:cjson",
     "c_utils:utils",
     "distributed_notification_service:ans_innerkits",
+    "eventhandler:libeventhandler",
     "file_api:securitylabel",
     "graphic_2d:librender_service_client",
     "graphic_2d:librender_service_base",
@@ -231,6 +242,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm_plugin/src/application_manager/allowed_notification_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_manager/bundle_install_plugin.cpp",
+      "../../../services/edm_plugin/src/bundle_manager/default_application_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_maintenance_mode_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disallow_random_mac_address_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_mtp_client_plugin.cpp",
@@ -424,6 +436,7 @@ ohos_static_library("edmservice_fuzz_static") {
       external_deps += [ "usb_manager:usbsrv_client" ]
       sources += [
         "../../../services/edm/src/query_policy/allowed_odd_burn_usb_devices_query.cpp",
+        "../../../services/edm/src/query_policy/is_allowed_odd_burn_query.cpp",
         "../../../services/edm_plugin/src/usb_manager/allowed_odd_burn_usb_devices_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
@@ -452,6 +465,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/restrictions/disable_hdc_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_microphone_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_printer_plugin.cpp",
+        "../../../services/edm_plugin/src/system_manager/volume_degree_plugin.cpp",
       ]
       defines += [ "AUDIO_FRAMEWORK_EDM_ENABLE" ]
     }
@@ -533,6 +547,7 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ 
         "../../../services/edm_plugin/src/device_settings/set_key_code_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallow_free_window_plugin.cpp",
         ]
     }
 
@@ -546,6 +561,7 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_hdc_remote_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/device_security_level_policy_plugin.cpp",
+        "../../../services/edm_plugin/src/device_info/get_patch_info_plugin.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }

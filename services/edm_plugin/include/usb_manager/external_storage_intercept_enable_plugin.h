@@ -28,6 +28,9 @@ public:
         bool isGlobalChanged, int32_t userId) override;
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
         int32_t userId) override;
+
+private:
+    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

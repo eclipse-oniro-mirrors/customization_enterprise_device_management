@@ -16,8 +16,10 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_SECURITY_MANAGER_USER_EXT_CREDENTIAL_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_SECURITY_MANAGER_USER_EXT_CREDENTIAL_PLUGIN_H
 
-#include <vector>
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 #include "account_iam_client.h"
 #include "iplugin.h"
 
@@ -45,10 +47,13 @@ protected:
         const std::vector<uint8_t> &authToken, const std::shared_ptr<AccountSA::IDMCallback> &callback);
     virtual int32_t CallGetCredentialInfo(int32_t accountId, int32_t authType,
         const std::shared_ptr<AccountSA::GetCredInfoCallback> &callback);
+    virtual void CallGetProperty(int32_t accountId, const AccountSA::GetPropertyRequest &request,
+        const std::shared_ptr<AccountSA::GetSetPropCallback> &callback);
 
 private:
     ErrCode HandleAddCredential(MessageParcel &data, MessageParcel &reply);
     ErrCode HandleRemoveCredential(MessageParcel &data, MessageParcel &reply);
+    void QueryPluginInfoByTemplate(int32_t accountId, std::map<uint64_t, std::string> &pluginInfoMap);
 };
 } // namespace EDM
 } // namespace OHOS

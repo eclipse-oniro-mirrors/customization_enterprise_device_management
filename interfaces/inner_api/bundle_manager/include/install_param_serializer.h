@@ -24,6 +24,7 @@ namespace OHOS {
 namespace EDM {
 struct InstallParam {
     std::vector<std::string> hapFilePaths;
+    std::vector<int32_t> hapFds;
     int32_t userId = 0;
     int32_t installFlag = 0;
     std::map<std::string, std::string> parameters;

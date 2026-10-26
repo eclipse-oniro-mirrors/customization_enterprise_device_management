@@ -41,6 +41,7 @@ const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
 
 std::shared_ptr<PluginManager> PluginManager::instance_;
 std::shared_timed_mutex PluginManager::mutexLock_;
+std::shared_mutex PluginManager::soPinMutex_;
 constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
 
 std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
@@ -83,12 +84,14 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::UNLOCK_POLICY,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP,
-    EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT,
+    EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::EXEMPTION_RESOURCE,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
+    EdmInterfaceCode::VOLUME_DEGREE,
+    EdmInterfaceCode::DEFAULT_APPLICATION,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -115,11 +118,13 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::MANAGE_SIM, EdmInterfaceCode::SET_DEFAULT_DATA_SIM,
     EdmInterfaceCode::DISALLOWED_P2P, EdmInterfaceCode::QUERY_TRAFFIC_STATS,
     EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
+    EdmInterfaceCode::DISALLOWED_PACKET_FILTERING,
     EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES,
     EdmInterfaceCode::GET_USB_SERIAL_NUMBER,
     EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES,
     EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
     EdmInterfaceCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY,
+    EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -134,6 +139,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES, EdmInterfaceCode::QUERY_BUNDLE_STATS_INFOS,
     EdmInterfaceCode::DISALLOWED_PERMISSION, EdmInterfaceCode::ALLOWED_PERMISSION_BUNDLE,
     EdmInterfaceCode::USER_EXT_SESSION, EdmInterfaceCode::USER_EXT_CREDENTIAL,
+    EdmInterfaceCode::PASSWORD_LAST_CHANGED_TIME,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
 };
@@ -147,7 +153,9 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::DISABLED_ACTIVATION_LOCK, EdmInterfaceCode::SET_SWITCH_STATUS,
     EdmInterfaceCode::HIDDEN_SETTINGS_MENU, EdmInterfaceCode::ADD_DOCK_APP,
     EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE,
-    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN
+    EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN,
+    EdmInterfaceCode::GET_PATCH_INFO,
+    EdmInterfaceCode::GET_SHARED_PATH_LIST
 };
 
 std::vector<uint32_t> PluginManager::watermarkSoCodes_ = {
@@ -377,6 +385,7 @@ void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<
                 return loadStatePtr->notifySignal;
             });
         }
+        std::unique_lock<std::shared_mutex> pinLock(soPinMutex_);
         std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
@@ -640,11 +649,20 @@ void PluginManager::DumpPluginInner(std::map<std::uint32_t, std::shared_ptr<IPlu
 ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bundleName,
     MessageParcel &data, MessageParcel &reply, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(code);
-    if (plugin == nullptr) {
-        EDMLOGW("UpdateDevicePolicy: get plugin by funcCode failed: %{public}d.", code);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    std::shared_ptr<IPlugin> plugin;
+    {
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        plugin = GetPluginByFuncCode(code);
+        if (plugin == nullptr) {
+            EDMLOGW("UpdateDevicePolicy: get plugin by funcCode failed: %{public}d.", code);
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
+    }
+    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
+    std::unique_lock<std::mutex> codeLock;
+    if (plugin->NeedSavePolicy()) {
+        int32_t groupId = ConflictGroupRegistry::GetInstance().GetConflictGroupId(FuncCodeUtils::GetPolicyCode(code));
+        codeLock = std::unique_lock<std::mutex>(policyStripes_[groupId]);
     }
     std::string policyName = plugin->GetPolicyName();
     std::string oldCombinePolicy;
@@ -679,12 +697,16 @@ ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bund
 ErrCode PluginManager::GetPolicy(uint32_t funcCode, const std::string &bundleName, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-    std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
-    std::shared_ptr<IPlugin> plugin = GetPluginByFuncCode(funcCode);
-    if (plugin == nullptr) {
-        EDMLOGE("PluginManager::GetPolicy get plugin by funcCode fail: %{public}u.", funcCode);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    std::shared_ptr<IPlugin> plugin;
+    {
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        plugin = GetPluginByFuncCode(funcCode);
+        if (plugin == nullptr) {
+            EDMLOGE("PluginManager::GetPolicy get plugin by funcCode fail: %{public}u.", funcCode);
+            return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        }
     }
+    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
     std::string policyValue;
     if (plugin->NeedSavePolicy()) {
         PolicyManager::GetInstance()->GetPolicy(bundleName, plugin->GetPolicyName(), policyValue, userId);

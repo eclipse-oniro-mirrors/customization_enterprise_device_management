@@ -145,10 +145,8 @@ int32_t SystemManagerProxy::GetAllowedPrinterIPAddresses(MessageParcel &data, st
     EDMLOGD("SystemManagerProxy::GetAllowedPrinterIPAddresses");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew fail. %{public}d", ret);
         return ret;
     }
@@ -171,10 +169,8 @@ int32_t SystemManagerProxy::GetAllowedPrinterIPAddressesForAccount(MessageParcel
     EDMLOGD("SystemManagerProxy::GetAllowedPrinterIPAddressesForAccount");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew fail. %{public}d", ret);
         return ret;
     }
@@ -503,8 +499,8 @@ int32_t SystemManagerProxy::SetLocalHotaDomain(MessageParcel &data)
 {
     EDMLOGD("SystemManagerProxy::SetLocalHotaDomain");
     std::uint32_t funcCode =
-        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCAL_HOTA_DOMAIN);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCAL_HOTA_DOMAIN);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string &domain)
@@ -512,14 +508,34 @@ int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string 
     EDMLOGD("SystemManagerProxy::GetLocalHotaDomain");
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     MessageParcel reply;
-    proxy->GetPolicy(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::LOCAL_HOTA_DOMAIN, data, reply);
+    if (FAILED(ret)) {
         EDMLOGE("SystemManagerProxy::GetLocalHotaDomain fail. %{public}d", ret);
         return ret;
     }
     reply.ReadString(domain);
+    return ERR_OK;
+}
+
+int32_t SystemManagerProxy::SetVolumeDegree(MessageParcel &data)
+{
+    EDMLOGD("SystemManagerProxy::SetVolumeDegree");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::VOLUME_DEGREE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t SystemManagerProxy::GetVolumeDegree(MessageParcel &data, int32_t &degree)
+{
+    EDMLOGD("SystemManagerProxy::GetVolumeDegree");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::VOLUME_DEGREE, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("SystemManagerProxy::GetVolumeDegree fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadInt32(degree);
     return ERR_OK;
 }
 

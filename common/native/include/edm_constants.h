@@ -27,6 +27,7 @@ namespace EdmConstants {
     constexpr int32_t BLUETOOTH_SERVICE_UID = 1002;
     constexpr int32_t USERIAM_SERVICE_UID = 1088;
     constexpr int32_t USB_SERVICE_UID = 1018;
+    constexpr int32_t DISK_MANAGER_UID = 1091;
     constexpr int32_t SAMGR_SERVICE_UID = 5555;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
@@ -49,6 +50,7 @@ namespace EdmConstants {
     constexpr int32_t DISALLOW_LIST_FOR_ACCOUNT_MAX_SIZE = 1000;
     constexpr int32_t DEFAULT_LOOP_MAX_SIZE = 10000;
     constexpr uint32_t POLICIES_MAX_SIZE = 200;
+    constexpr uint32_t PATCH_INFO_MAX_SIZE = 200;
     constexpr uint32_t MANAGE_APPS_MAX_SIZE = 10;
     constexpr uint32_t AUTH_INFO_MAX_SIZE = 65535;
     constexpr uint32_t NOTIFICATION_BUNDLES_MAX_SIZE = 200;
@@ -86,6 +88,8 @@ namespace EdmConstants {
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
     const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";
+    const char* const SENSITIVE_CALL_NOTIFIED_TITLE = "sensitive_call_notification_title";
+    const char* const SENSITIVE_CALL_NOTIFIED_BODY = "sensitive_call_notification_body";
     const char* const APP_IDENTIFIER = "appIdentifier";
 
     // Install local enterprise app settings database
@@ -164,11 +168,15 @@ namespace EdmConstants {
         constexpr uint32_t GET_EXT_INFO = 29;
         constexpr uint32_t START_COLLECT_LOG = 30;
         constexpr uint32_t SET_KEY_EVENTS = 31;
+        constexpr uint32_t HIDDEN_SETTINGS_MENU = 34;
         constexpr uint32_t DISABLE_SUPERHUB = 36;
         constexpr uint32_t HIDE_LAUNCHER_ICON = 37;
         constexpr uint32_t DISABLE_SECURE_ERASE = 39;
         constexpr uint32_t DISALLOWED_SYSTEM_ROLLBACK = 42;
         constexpr uint32_t WEAK_PIN = 43;
+        constexpr uint32_t DISABLE_SUPER_PRIVACY = 44;
+        constexpr uint32_t GET_PATCH_INFO = 46;
+        constexpr uint32_t GET_SHARED_PATH_LIST = 47;
     }
 
     namespace KeepAlive {
@@ -463,6 +471,7 @@ namespace PolicyName {
     const char* const POLICY_GET_NETWORK_INTERFACES = "get_network_interfaces";
     const char* const POLICY_GET_BLUETOOTH_INFO = "get_bluetooth_info";
     const char* const POLICY_GET_DEVICE_INFO = "get_device_info";
+    const char* const POLICY_GET_PATCH_INFO = "get_patch_info";
     const char* const POLICY_GET_IP_OR_MAC_ADDRESS = "get_ip_or_mac_address";
     const char* const POLICY_GLOBAL_PROXY = "global_proxy";
     const char* const POLICY_INACTIVE_USER_FREEZE = "inactive_user_freeze";
@@ -588,6 +597,14 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_SATA_ODD_BURN = "disable_sata_odd_burn";
     const char* const POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE = "external_storage_intercept_enable";
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY = "external_storage_device_mount_policy";
+    const char* const POLICY_EXTERNAL_STORAGE_DEVICE_INFOS = "external_storage_device_infos";
+    const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
+    const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
+    const char* const POLICY_VOLUME_DEGREE = "volume_degree";
+    const char* const POLICY_DEFAULT_APPLICATION = "default_application";
+    const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
+    const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
+    const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

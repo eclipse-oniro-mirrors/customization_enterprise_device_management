@@ -401,8 +401,11 @@ int32_t EnterpriseDeviceMgrProxy::HandleDevicePolicyNew(int32_t policyCode, Mess
         EDMLOGE("EnterpriseDeviceMgrProxy:HandleDevicePolicyNew send request fail. %{public}d", res);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    int32_t ret = ERR_INVALID_VALUE;
+    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
     reply.ReadInt32(ret);
+    if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+        ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
     return ret;
 }
 
@@ -514,9 +517,12 @@ ErrCode EnterpriseDeviceMgrProxy::GetAdmins(std::vector<std::shared_ptr<AAFwk::W
 ErrCode EnterpriseDeviceMgrProxy::GetAdminInfos(std::vector<std::shared_ptr<AAFwk::Want>> &wants)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::GetAdminInfos");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     return mgrService->GetAdminInfos(wants);
@@ -654,34 +660,37 @@ bool EnterpriseDeviceMgrProxy::GetPolicy(int policyCode, MessageParcel &data, Me
     return true;
 }
 
-bool EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply)
+int32_t EnterpriseDeviceMgrProxy::GetPolicyNew(int policyCode, MessageParcel &data, MessageParcel &reply)
 {
     if (policyCode == EdmInterfaceCode::PASSWORD_POLICY) {
         if (!IsEdmExtEnabled() && !IsEdmEnabled()) {
-            reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
-            return false;
+            return EdmReturnErrCode::ADMIN_INACTIVE;
         }
     } else if (!IsEdmEnabled()) {
-        reply.WriteInt32(EdmReturnErrCode::ADMIN_INACTIVE);
-        return false;
+        return EdmReturnErrCode::ADMIN_INACTIVE;
     }
     if (policyCode < 0) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew invalid policyCode:%{public}d", policyCode);
-        return false;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET, (std::uint32_t)policyCode);
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
-        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
-        return false;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     MessageOption option;
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetPolicyNew::sendRequest %{public}d", funcCode);
     ErrCode res = remote->SendRequest(funcCode, data, reply, option);
     if (FAILED(res)) {
-        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew send request fail.");
-        return false;
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetPolicyNew send request fail. %{public}d", res);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    return true;
+    int32_t ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    reply.ReadInt32(ret);
+    if (ret == EdmReturnErrCode::SYSTEM_ABNORMALLY) {
+        ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ret;
 }
 
 void EnterpriseDeviceMgrProxy::GetEnabledAdmins(std::vector<std::string> &enabledAdminList)
@@ -708,6 +717,9 @@ bool EnterpriseDeviceMgrProxy::IsSuperAdminExist()
 ErrCode EnterpriseDeviceMgrProxy::IsSelfSuperAdmin(bool &result)
 {
     result = false;
+    if (!IsEdmEnabled()) {
+        return ERR_OK;
+    }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -722,6 +734,9 @@ ErrCode EnterpriseDeviceMgrProxy::IsSelfSuperAdmin(bool &result)
 bool EnterpriseDeviceMgrProxy::IsFeatureSupported(int32_t feature)
 {
     EDMLOGI("EnterpriseDeviceMgrProxy::IsFeatureSupported feature %{public}d", feature);
+    if (!IsEdmEnabled()) {
+        return false;
+    }
     bool supported = false;
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
@@ -759,6 +774,10 @@ sptr<IRemoteObject> EnterpriseDeviceMgrProxy::LoadAndGetEdmService()
 
 sptr<IRemoteObject> EnterpriseDeviceMgrProxy::GetEdmRemoteObject()
 {
+    if (!IsEdmEnabled()) {
+        EDMLOGD("EnterpriseDeviceMgrProxy::GetEdmRemoteObject edm is disabled");
+        return nullptr;
+    }
     return LoadAndGetEdmService();
 }
 
@@ -803,7 +822,13 @@ ErrCode EnterpriseDeviceMgrProxy::SetBundleInstallPolicies(std::vector<std::stri
     int32_t policyType)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::SetBundleInstallPolicies");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
     if (!mgrService) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
@@ -829,6 +854,9 @@ ErrCode EnterpriseDeviceMgrProxy::NotifyUnmountExternalStorageDeviceInfo(
     const ExternalStorageDeviceInfo &deviceInfo)
 {
     EDMLOGI("EnterpriseDeviceMgrProxy::NotifyUnmountExternalStorageDeviceInfo");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
     sptr<IRemoteObject> remote = LoadAndGetEdmService();
     if (!remote) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;

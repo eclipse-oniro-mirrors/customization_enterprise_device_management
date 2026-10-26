@@ -22,6 +22,7 @@ enum class RestrictionsFeature : int32_t {
     WIFI_P2P = 0,
     X_KEY = 1,
     LOCAL_INPUT = 2,
+    PACKET_FILTERING = 3,
     SUDO = 4,
     TRAFFIC_REDIRECTION = 5,
     CORE_DUMP = 6,
@@ -71,6 +72,7 @@ enum class RestrictionsFeature : int32_t {
     OTA_UPDATE = 50,
     SYSTEM_ROLLBACK = 51,
     SATA_ODD_BURN = 52,
+    SUPER_PRIVACY = 53,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {
@@ -85,6 +87,7 @@ enum class RestrictionsFeatureForAccount : int32_t {
     SUDO = 8,
     DISTRIBUTED_TRANSMISSION_OUTGOING = 9,
     OPEN_FILE_BOOST = 10,
+    FREE_WINDOW = 14,
 };
 
 enum class UserRestrictionForDevice : int32_t {

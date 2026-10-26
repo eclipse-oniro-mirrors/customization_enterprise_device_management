@@ -16,8 +16,10 @@
 #include <fcntl.h>
 #include <gtest/gtest.h>
 #include <string>
-#include <system_ability_definition.h>
 #include <sys/stat.h>
+#include <sys/sysmacros.h>
+#include <system_ability_definition.h>
+#include <unistd.h>
 #include <vector>
 
 #define private public
@@ -282,55 +284,53 @@ HWTEST_F(BundleManagerProxyTest, TestUninstallSuc, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToStreamFailWithPathNull
- * @tc.desc: Test WriteFileToStream method when file path is null.
+ * @tc.name: TestOpenHapFileFailWithEmptyPath
+ * @tc.desc: Test OpenHapFile method when file path is empty.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFailWithPathNull, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestOpenHapFileFailWithEmptyPath, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
     std::string hapFilePath;
-    std::vector<std::string> realPaths;
-    string errMessage;
-    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
+    int32_t fd = -1;
+    std::string errMessage;
+    ErrCode ret = bundleManagerProxy->OpenHapFile(hapFilePath, fd, errMessage);
     ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
     ASSERT_TRUE(errMessage == "install failed due to invalid hapFilePaths");
+    ASSERT_TRUE(fd == -1);
 }
 
 /**
- * @tc.name: TestWriteFileToStreamSuc
- * @tc.desc: Test WriteFileToStream method when file path is valid.
+ * @tc.name: TestOpenHapFileFailWithInvalidPath
+ * @tc.desc: Test OpenHapFile method when file path does not exist.
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamSuc, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestOpenHapFileFailWithInvalidPath, TestSize.Level1)
 {
-    OHOS::AppExecFwk::ElementName admin;
-    std::string hapFilePath  = TEST_PACKAGE_PATH;
-    std::vector<std::string> realPaths;
-    string errMessage;
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
-        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream));
-    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
+    std::string hapFilePath = "/invalid/path/that/does/not/exist.hap";
+    int32_t fd = -1;
+    std::string errMessage;
+    ErrCode ret = bundleManagerProxy->OpenHapFile(hapFilePath, fd, errMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    ASSERT_TRUE(errMessage == "install failed due to invalid hapFilePaths");
+    ASSERT_TRUE(fd == -1);
+}
+
+/**
+ * @tc.name: TestOpenHapFileSuc
+ * @tc.desc: Test OpenHapFile method when file path is valid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestOpenHapFileSuc, TestSize.Level1)
+{
+    std::string hapFilePath = TEST_PACKAGE_PATH;
+    int32_t fd = -1;
+    std::string errMessage;
+    ErrCode ret = bundleManagerProxy->OpenHapFile(hapFilePath, fd, errMessage);
     ASSERT_TRUE(ret == ERR_OK);
-}
-
-/**
- * @tc.name: TestWriteFileToStreamFailWithGetPolicyErr
- * @tc.desc: Test WriteFileToStream method when file path is valid.
- * @tc.type: FUNC
- */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToStreamFailWithGetPolicyErr, TestSize.Level1)
-{
-    OHOS::AppExecFwk::ElementName admin;
-    std::string hapFilePath  = TEST_PACKAGE_PATH;
-    std::vector<std::string> realPaths;
-    string errMessage;
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
-    ErrCode ret = bundleManagerProxy->WriteFileToStream(admin, hapFilePath, realPaths, errMessage);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(fd >= 0);
+    if (fd >= 0) {
+        fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+    }
 }
 
 /**
@@ -359,11 +359,7 @@ HWTEST_F(BundleManagerProxyTest, TestInstallSuc, TestSize.Level1)
     std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH };
     AppExecFwk::InstallParam installParam;
     std::string retMsg;
-    std::uint32_t funcCodeGet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL);
     std::uint32_t funcCodeSet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
-    EXPECT_CALL(*object_, SendRequest(funcCodeGet, _, _, _))
-        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
-        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream));
     EXPECT_CALL(*object_, SendRequest(funcCodeSet, _, _, _))
         .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
         &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
@@ -382,11 +378,7 @@ HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
     std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH };
     AppExecFwk::InstallParam installParam;
     std::string retMsg;
-    std::uint32_t funcCodeGet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET, EdmInterfaceCode::INSTALL);
     std::uint32_t funcCodeSet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
-    EXPECT_CALL(*object_, SendRequest(funcCodeGet, _, _, _))
-        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
-        &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicyForWriteFileToStream));
     EXPECT_CALL(*object_, SendRequest(funcCodeSet, _, _, _))
         .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
         &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyInstallFail));
@@ -395,36 +387,90 @@ HWTEST_F(BundleManagerProxyTest, TestInstallFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestWriteFileToInnerFail
- * @tc.desc: Test Insatll method with invalid hap file paths.
+ * @tc.name: TestOpenHapFileFailWithRootPath
+ * @tc.desc: Test OpenHapFile method when path is root "/" (pos == size - 1).
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerFail, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestOpenHapFileFailWithRootPath, TestSize.Level1)
 {
-    MessageParcel reply;
-    reply.WriteFileDescriptor(-1);
-    std::string hapFilePaths;
-    std::vector<std::string> realPaths;
-    std::string retMsg;
-    ErrCode ret = bundleManagerProxy->WriteFileToInner(reply, hapFilePaths, realPaths, retMsg);
-    ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
-    ASSERT_TRUE(retMsg == "write file to stream failed due to invalid file descriptor");
+    std::string hapFilePath = "/";
+    int32_t fd = -1;
+    std::string errMessage;
+    ErrCode ret = bundleManagerProxy->OpenHapFile(hapFilePath, fd, errMessage);
+    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+    ASSERT_TRUE(fd == -1);
 }
 
 /**
- * @tc.name: TestWriteFileToInnerSuc
- * @tc.desc: Test Insatll method with hap file paths.
+ * @tc.name: TestOpenHapFileFailWithOpenError
+ * @tc.desc: Test OpenHapFile method when open() returns fd < 0 (device node with invalid major number).
  * @tc.type: FUNC
  */
-HWTEST_F(BundleManagerProxyTest, TestWriteFileToInnerSuc, TestSize.Level1)
+HWTEST_F(BundleManagerProxyTest, TestOpenHapFileFailWithOpenError, TestSize.Level1)
 {
-    int32_t fd = open(TEST_TARGET_PATH.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    MessageParcel reply;
-    reply.WriteFileDescriptor(fd);
-    std::string hapFilePaths = { TEST_PACKAGE_PATH };
-    std::vector<std::string> realPaths;
+    std::string devicePath = "/data/test/resource/enterprise_device_management/test_device_node";
+    unlink(devicePath.c_str());
+    int32_t mknodRet = mknod(devicePath.c_str(), S_IFCHR | 0666, makedev(256, 0));
+    if (mknodRet != 0) {
+        std::string noPermPath = "/data/test/resource/enterprise_device_management/test_no_read_perm";
+        int32_t fd = open(noPermPath.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+        if (fd >= 0) {
+            fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
+            fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+        }
+        chmod(noPermPath.c_str(), 0000);
+        int32_t hapFd = -1;
+        std::string errMessage;
+        ErrCode ret = bundleManagerProxy->OpenHapFile(noPermPath, hapFd, errMessage);
+        if (hapFd < 0) {
+            ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+            ASSERT_TRUE(errMessage == "open hap file failed");
+            ASSERT_TRUE(hapFd == -1);
+        }
+        chmod(noPermPath.c_str(), 0600);
+        unlink(noPermPath.c_str());
+    } else {
+        int32_t fd = -1;
+        std::string errMessage;
+        ErrCode ret = bundleManagerProxy->OpenHapFile(devicePath, fd, errMessage);
+        ASSERT_TRUE(ret == EdmReturnErrCode::APPLICATION_INSTALL_FAILED);
+        ASSERT_TRUE(errMessage == "open hap file failed");
+        ASSERT_TRUE(fd == -1);
+        unlink(devicePath.c_str());
+    }
+}
+
+/**
+ * @tc.name: TestInstallFailWithSecondFileInvalid
+ * @tc.desc: Test Install method when second hap file path is invalid (cleanup opened fds).
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallFailWithSecondFileInvalid, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH, "/invalid/path/nonexist.hap" };
+    AppExecFwk::InstallParam installParam;
     std::string retMsg;
-    ErrCode ret = bundleManagerProxy->WriteFileToInner(reply, hapFilePaths, realPaths, retMsg);
+    ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
+    ASSERT_TRUE(ret == EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
+}
+
+/**
+ * @tc.name: TestInstallSucWithMultipleFiles
+ * @tc.desc: Test Install method with multiple hap file paths.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleManagerProxyTest, TestInstallSucWithMultipleFiles, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    std::vector<std::string> hapFilePaths = { TEST_PACKAGE_PATH, TEST_PACKAGE_PATH };
+    AppExecFwk::InstallParam installParam;
+    std::string retMsg;
+    std::uint32_t funcCodeSet = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL);
+    EXPECT_CALL(*object_, SendRequest(funcCodeSet, _, _, _))
+        .Times(1).WillOnce(Invoke(object_.GetRefPtr(),
+        &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    ErrCode ret = bundleManagerProxy->Install(admin, hapFilePaths, installParam, retMsg);
     ASSERT_TRUE(ret == ERR_OK);
 }
 
@@ -855,37 +901,6 @@ HWTEST_F(BundleManagerProxyTest, ContainerSecurityVerify_ReadSizeOverReadable_Re
     std::vector<EdmBundleInfo> parcelables;
     bool ret = bundleManagerProxy->ContainerSecurityVerify(parcel, infoSize, parcelables);
     ASSERT_FALSE(ret);
-}
-
-/**
- * @tc.name: checkHapFilePath_PathNotFound_ReturnApplicationInstallFailed
- * @tc.desc: Test checkHapFilePath when PathToRealPath fails.
- * @tc.type: FUNC
- */
-HWTEST_F(BundleManagerProxyTest, checkHapFilePath_PathNotFound_ReturnApplicationInstallFailed, TestSize.Level1)
-{
-    std::string hapFilePath = "/invalid/path/that/does/not/exist.hap";
-    std::string fileName;
-    std::string realPath;
-    std::string errMessage;
-    ErrCode ret = bundleManagerProxy->checkHapFilePath(hapFilePath, fileName, realPath, errMessage);
-    ASSERT_EQ(ret, EdmReturnErrCode::INSTALL_APP_PATH_INVALID_OR_TOO_LARGE);
-    ASSERT_EQ(errMessage, "install failed due to invalid hapFilePaths");
-}
-
-/**
- * @tc.name: checkHapFilePath_EmptyFileName_ReturnApplicationInstallFailed
- * @tc.desc: Test checkHapFilePath when resulting fileName is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(BundleManagerProxyTest, checkHapFilePath_EmptyFileName_ReturnApplicationInstallFailed, TestSize.Level1)
-{
-    std::string hapFilePath = "/data/test/";
-    std::string fileName;
-    std::string realPath;
-    std::string errMessage;
-    ErrCode ret = bundleManagerProxy->checkHapFilePath(hapFilePath, fileName, realPath, errMessage);
-    ASSERT_EQ(ret, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

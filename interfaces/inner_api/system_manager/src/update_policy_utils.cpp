@@ -16,6 +16,7 @@
 #include "update_policy_utils.h"
 
 #include <fcntl.h>
+#include <cstdio>
 #include <unistd.h>
 
 #include "securec.h"
@@ -121,6 +122,9 @@ void UpdatePolicyUtils::ReadUpgradePackageInfo(MessageParcel &data, UpgradePacka
         ProcessPackageType(data.ReadInt32(), package.type);
         data.ReadString(package.path);
         package.fd = data.ReadFileDescriptor();
+        if (package.fd >= 0) {
+            fdsan_exchange_owner_tag(package.fd, 0, EdmConstants::LOG_DOMAINID);
+        }
         packageInfo.packages.push_back(package);
     }
     data.ReadString(packageInfo.description.notify.installTips);
@@ -166,7 +170,7 @@ void UpdatePolicyUtils::ClosePackagesFileHandle(std::vector<Package> &packages)
 {
     for (auto &package : packages) {
         if (package.fd >= 0 && fcntl(package.fd, F_GETFL) != -1) {
-            if (close(package.fd) != 0) {
+            if (fdsan_close_with_tag(package.fd, EdmConstants::LOG_DOMAINID) != 0) {
                 EDMLOGW("ClosePackagesFileHandle failed");
             }
             package.fd = -1;

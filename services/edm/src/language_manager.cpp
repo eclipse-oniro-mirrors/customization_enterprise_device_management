@@ -126,6 +126,28 @@ std::string LanguageManager::GetSystemStringByName(const std::string &name)
     return "";
 }
 
+std::string LanguageManager::GetSystemStringFormatByName(const std::string &name, const std::string &param)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager(false));
+    if (resMgr == nullptr) {
+        return "";
+    }
+    if (!InitResourceManager(resMgr)) {
+        return "";
+    }
+    AddDataToResourceManager(resMgr);
+    std::vector<std::tuple<Global::Resource::ResourceManager::NapiValueType, std::string>> jsParams;
+    jsParams.emplace_back(
+        std::make_tuple(Global::Resource::ResourceManager::NapiValueType::NAPI_STRING, param));
+    std::string resultValue;
+    Global::Resource::RState res = resMgr->GetStringFormatByName(name.c_str(), resultValue, jsParams);
+    if (res == Global::Resource::RState::SUCCESS) {
+        return resultValue;
+    }
+    EDMLOGE("GetSystemStringFormatByName failed. %{public}d", res);
+    return "";
+}
+
 std::string LanguageManager::GetTargetLanguageValue(const std::string& jsonStr, const std::string& language)
 {
     if (jsonStr.empty() || language.empty()) {

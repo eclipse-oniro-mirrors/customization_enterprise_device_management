@@ -64,6 +64,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/allowed_app_distribution_types_plugin_test.cpp",
     "./src/allowed_collaboration_service_bundles_plugin_test.cpp",
     "./src/bundle_install_plugin_test.cpp",
+    "./src/default_application_plugin_test.cpp",
     "./src/device_info_plugin_test.cpp",
     "./src/disable_app_clone_plugin_test.cpp",
     "./src/disable_maintenance_mode_plugin_test.cpp",
@@ -290,7 +291,13 @@ ohos_unittest("EdmPluginTest") {
       "./src/utils/array_usb_device_id_serializer_test.cpp",
       "./src/utils/array_usb_device_type_serializer_base_test.cpp",
       "./src/utils/array_permissive_usb_device_type_serializer_test.cpp",
+      "./src/external_storage_intercept_enable_plugin_test.cpp",
     ]
+  }
+
+  if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
+      enterprise_device_management_feature_pc_only) {
+    sources += [ "./src/allowed_odd_burn_usb_devices_plugin_test.cpp" ]
   }
 
   if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
@@ -300,7 +307,11 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (enterprise_device_management_enable_disk_manager) {
-    sources += [ "./src/disallow_external_storage_card_plugin_test.cpp" ]
+    sources += [
+      "./src/disallow_external_storage_card_plugin_test.cpp",
+      "./src/external_storage_device_mount_policy_plugin_test.cpp",
+      "./src/get_external_storage_device_infos_plugin_test.cpp",
+    ]
   }
 
   if (audio_framework_edm_enable) {
@@ -309,6 +320,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_hdc_plugin_test.cpp",
       "./src/disable_microphone_plugin_test.cpp",
       "./src/disable_printer_plugin_test.cpp",
+      "./src/system_manager/volume_degree_plugin_test.cpp",
     ]
   }
 
@@ -356,6 +368,7 @@ ohos_unittest("EdmPluginTest") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "./src/add_dock_app_plugin_test.cpp",
+      "./src/get_shared_path_list_plugin_test.cpp",
       "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
       "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
       "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
@@ -367,6 +380,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disallow_core_dump_plugin_test.cpp",
       "./src/disallow_rs232_plugin_test.cpp",
       "./src/ota_update_nonce_plugin_test.cpp",
+      "./src/get_patch_info_plugin_test.cpp",
       "./src/security_manager/device_security_level_policy_plugin_test.cpp",
       "./src/system_manager/allowed_printer_ip_addresses_plugin_test.cpp",
       "./src/plugin_utils/ip_utils_test.cpp",
@@ -376,6 +390,11 @@ ohos_unittest("EdmPluginTest") {
 
   if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
     sources += [ "./src/security_manager/unlock_policy_plugin_test.cpp" ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [ "./src/security_manager/password_last_changed_time_plugin_test.cpp" ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -396,6 +415,8 @@ ohos_unittest("EdmPluginTest") {
       "netmanager_ext:netfirewall_manager_if",
     ]
     sources += [
+      "../../../../services/edm_plugin/src/restrictions/disallowed_packet_filtering_plugin.cpp",
+      "./src/disallowed_packet_filtering_plugin_test.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallowed_traffic_redirection_plugin.cpp",
       "./src/disallowed_traffic_redirection_plugin_test.cpp",
     ]
@@ -443,6 +464,8 @@ ohos_unittest("EdmPluginTest") {
       "../../../../services/edm_plugin/src/device_settings/set_key_code_plugin.cpp",
       "./src/disallow_multi_window_test_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
+      "./src/disallow_free_window_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disallow_free_window_plugin.cpp",
       "./src/hidden_settings_menu_plugin_test.cpp",
       "../../../../services/edm_plugin/src/device_settings/hidden_settings_menu_plugin.cpp",
       "./src/manage_normal_os_account_plugin_test.cpp",
@@ -613,6 +636,7 @@ ohos_static_library("edm_all_plugin_static") {
   sources = [
     "../../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../../services/edm/src/database/edm_rdb_open_callback.cpp",
+    "../../../../services/edm/src/conflict_group_registry.cpp",
     "../../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../../services/edm/src/plugin_manager.cpp",
     "../../../../services/edm/src/policy_manager.cpp",
@@ -624,6 +648,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_manager/allowed_install_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/bundle_manager/bundle_install_plugin.cpp",
+    "../../../../services/edm_plugin/src/bundle_manager/default_application_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disable_app_clone_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disable_backup_and_restore_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disable_maintenance_mode_plugin.cpp",
@@ -916,7 +941,6 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
       enterprise_device_management_feature_pc_only) {
-    external_deps += [ "usb_manager:usbsrv_client" ]
     sources += [
       "../../../../services/edm_plugin/src/usb_manager/allowed_odd_burn_usb_devices_plugin.cpp",
     ]
@@ -935,6 +959,7 @@ ohos_static_library("edm_all_plugin_static") {
     sources += [
         "../../../../services/edm_plugin/src/restrictions/disallow_external_storage_card_plugin.cpp",
         "../../../../services/edm_plugin/src/usb_manager/external_storage_device_mount_policy_plugin.cpp",
+        "../../../../services/edm_plugin/src/usb_manager/get_external_storage_device_infos_plugin.cpp",
     ]
   }
 
@@ -944,6 +969,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disable_hdc_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disable_microphone_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disable_printer_plugin.cpp",
+      "../../../../services/edm_plugin/src/system_manager/volume_degree_plugin.cpp",
     ]
   }
 
@@ -952,6 +978,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
       "../../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_util.cpp",
+      "../../../../services/edm_plugin/src/device_info/get_patch_info_plugin.cpp",
     ]
   }
 
@@ -1007,6 +1034,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm_plugin/src/application_manager/add_dock_app_plugin.cpp",
+      "../../../../services/edm_plugin/src/network_manager/get_shared_path_list_plugin.cpp",
       "../../../../services/edm_plugin/src/device_settings/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
       "../../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
@@ -1029,6 +1057,13 @@ ohos_static_library("edm_all_plugin_static") {
   if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
     external_deps += [ "screenlock_mgr:screenlock_client" ]
     sources += [ "../../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp" ]
+  }
+
+  if (useriam_edm_enable) {
+    external_deps += [ "user_auth_framework:userauth_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/security_manager/password_last_changed_time_plugin.cpp",
+    ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -1118,6 +1153,11 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp",
     ]
+  }
+
+  if (nfc_edm_enable) {
+    external_deps += ["nfc:nfc_inner_kits_controller"]
+    defines += [ "NFC_EDM_ENABLE" ]
   }
 
   sanitize = {

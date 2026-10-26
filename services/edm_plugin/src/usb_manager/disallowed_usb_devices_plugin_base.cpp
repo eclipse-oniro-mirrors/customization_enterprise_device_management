@@ -216,6 +216,14 @@ ErrCode DisallowedUsbDevicesPluginBase::HasConflictPolicy(bool &hasConflict,
         hasConflict = true;
         return ERR_OK;
     }
+    std::string externalStorageInterceptEnable;
+    policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
+        externalStorageInterceptEnable);
+    if (externalStorageInterceptEnable == "true") {
+        EDMLOGE("%{public}s policy conflict! externalStorageInterceptEnable.", GetPluginName().c_str());
+        hasConflict = true;
+        return ERR_OK;
+    }
 #ifdef FEATURE_PC_ONLY
     bool isDisallowed = false;
     if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {

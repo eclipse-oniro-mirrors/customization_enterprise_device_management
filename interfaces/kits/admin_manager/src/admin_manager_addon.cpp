@@ -1032,7 +1032,7 @@ napi_value AdminManager::GetAdminInfos(napi_env env, napi_callback_info info)
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     ErrCode ret = EnterpriseDeviceMgrProxy::GetInstance()->GetAdminInfos(wants);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
     return ConvertAdminInfoToJs(env, wants);
@@ -1416,7 +1416,7 @@ napi_value AdminManager::ConvertAdminInfoToJs(napi_env env,
         std::string abilityName = want->GetStringParam("abilityName");
         int32_t adminType = want->GetIntParam("adminType", -1);
         if (bundleName.empty() || abilityName.empty() || adminType == -1) {
-            napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+            napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
             return nullptr;
         }
         napi_value adminInfo = nullptr;

@@ -27,17 +27,21 @@ class InstallPlugin : public PluginSingleton<InstallPlugin, InstallParam> {
 public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<InstallPlugin, InstallParam>> ptr) override;
 
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
-
     ErrCode OnSetPolicy(InstallParam &param, MessageParcel &reply);
 
 private:
     bool CreateDirectory();
+    std::string GenerateUniqueFilePrefix();
 
     bool DeleteFiles(const std::vector<std::string> &files);
 
-    ErrCode InstallParamInit(InstallParam &param, MessageParcel &reply, AppExecFwk::InstallParam &installParam,
-        std::vector<std::string> &realPaths);
+    ErrCode CopyHapFile(int32_t inputFd, const std::string &hapFilePath, std::string &tempPath, MessageParcel &reply);
+    ErrCode CopyFileContent(int32_t inputFd, int32_t outputFd, MessageParcel &reply);
+    ErrCode PrepareTempFiles(const InstallParam &param, std::vector<std::string> &tempPaths,
+        MessageParcel &reply);
+    ErrCode ExecuteStreamInstall(const std::vector<std::string> &tempPaths, const InstallParam &param,
+        MessageParcel &reply);
+
     ErrCode HandleInstallResult(int32_t resultCode, const std::string &errorMessage, MessageParcel &reply,
         std::vector<std::string> realPaths = {});
     bool GetCallingBundleName(std::string &bundleName);

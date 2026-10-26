@@ -49,17 +49,14 @@ public:
     int32_t InstallMarketApps(MessageParcel &data, std::vector<std::string> &apps, std::string &errMsg);
     int32_t GetInstalledBundleStorageStatsList(AppExecFwk::ElementName &admin, const std::vector<std::string> &bundles,
         int32_t userId, std::vector<BundleStorageInfo> &result);
+    int32_t SetDefaultApplication(MessageParcel &data);
+    int32_t GetDefaultApplicationBundleName(MessageParcel &data, std::string &bundleName);
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;
     static std::once_flag flag_;
     std::map<int32_t, uint32_t> policyTypeMap_;
-    ErrCode WriteFileToInner(MessageParcel &reply, const std::string &realPath, std::vector<std::string> &servicePaths,
-        std::string &errMessage);
-    ErrCode WriteFileToStream(AppExecFwk::ElementName &admin, const std::string &path,
-        std::vector<std::string> &servicePaths, std::string &errMessage);
-    ErrCode checkHapFilePath(const std::string &hapFilePath, std::string &fileName, std::string &realPath,
-        std::string &errMessage);
+    ErrCode OpenHapFile(const std::string &hapFilePath, int32_t &fd, std::string &errMessage);
 
     ErrCode InnerGetVectorFromParcelIntelligent(MessageParcel &reply, std::vector<EdmBundleInfo> &parcelableInfos);
     ErrCode GetParcelInfoFromAshMem(MessageParcel &reply, void *&data);
