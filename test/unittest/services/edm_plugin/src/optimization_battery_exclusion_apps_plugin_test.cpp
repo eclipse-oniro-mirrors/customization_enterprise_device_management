@@ -84,6 +84,7 @@ HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestSetExceedMaxSize, TestS
 {
     OptimizationBatteryExclusionAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
+    plugin.overMaxReturnErrCode_ = EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     std::vector<std::string> data(EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE + 1);
     for (size_t i = 0; i < data.size(); ++i) {
         data[i] = "com.example.app" + std::to_string(i);
@@ -121,6 +122,7 @@ HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestSetCurrentDataFull, Tes
 {
     OptimizationBatteryExclusionAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
+    plugin.overMaxReturnErrCode_ = EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     std::vector<std::string> currentData;
     for (int32_t i = 0; i < EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE; ++i) {
         currentData.push_back("com.example.app" + std::to_string(i));
@@ -192,6 +194,7 @@ HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestRemoveExceedMaxSize, Te
 {
     OptimizationBatteryExclusionAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
+    plugin.overMaxReturnErrCode_ = EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     std::vector<std::string> data(EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE + 1);
     for (size_t i = 0; i < data.size(); ++i) {
         data[i] = "com.example.app" + std::to_string(i);
