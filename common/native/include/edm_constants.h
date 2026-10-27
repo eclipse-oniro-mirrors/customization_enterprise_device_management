@@ -58,7 +58,7 @@ namespace EdmConstants {
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
     constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
     constexpr int32_t ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE = 100;
-    constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 200;
+    constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 10;
 
     constexpr int32_t EDM_UID = 3057;
 
