@@ -42,8 +42,7 @@ public:
     int32_t GetDefaultDataSim(MessageParcel &data, int32_t &simId);
     int32_t GetCallLogs(const AppExecFwk::ElementName &admin, const TelephonyQueryConfig &config,
         std::vector<CallLogInfo> &callLogs);
-    int32_t GetSmsMessages(const AppExecFwk::ElementName &admin, const TelephonyQueryConfig &config,
-        std::vector<SmsMessageInfo> &messages);
+    int32_t GetSmsMessages(const TelephonyQueryConfig &config, std::vector<SmsMessageInfo> &messages);
 private:
     static std::shared_ptr<TelephonyManagerProxy> instance_;
     static std::once_flag flag_;

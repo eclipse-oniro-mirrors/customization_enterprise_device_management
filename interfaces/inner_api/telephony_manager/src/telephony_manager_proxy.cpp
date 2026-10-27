@@ -303,8 +303,8 @@ static ErrCode ParseSmsMessagesFromBuffer(void *buffer, int32_t dataSize, std::v
     return ERR_OK;
 }
 
-int32_t TelephonyManagerProxy::GetSmsMessages(const AppExecFwk::ElementName &admin,
-    const TelephonyQueryConfig &config, std::vector<SmsMessageInfo> &messages)
+int32_t TelephonyManagerProxy::GetSmsMessages(const TelephonyQueryConfig &config,
+    std::vector<SmsMessageInfo> &messages)
 {
     EDMLOGI("TelephonyManagerProxy::GetSmsMessages");
     MessageParcel data;

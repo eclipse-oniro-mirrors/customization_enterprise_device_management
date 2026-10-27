@@ -36,7 +36,6 @@ struct AsyncCallLogCallbackInfo : AsyncCallbackInfo {
 };
 
 struct AsyncSmsMessageCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
     TelephonyQueryConfig queryConfig;
     std::vector<SmsMessageInfo> messages;
 };

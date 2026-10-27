@@ -693,8 +693,8 @@ void TelephonyManagerAddon::ConvertVectorSmsMessageToJs(napi_env env,
 napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSmsMessages called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
@@ -703,20 +703,12 @@ napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_inf
         return nullptr;
     }
     std::unique_ptr<AsyncSmsMessageCallbackInfo> callbackPtr{asyncCallbackInfo};
-    if (argc < ARGS_SIZE_TWO) {
+    if (argc < ARGS_SIZE_ONE) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
         return nullptr;
     }
-    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
-    }
-    if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
-    }
-    if (!MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) ||
-        !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->queryConfig)) {
+    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) ||
+        !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo->queryConfig)) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
         return nullptr;
     }
@@ -745,8 +737,7 @@ void TelephonyManagerAddon::NativeGetSmsMessages(napi_env env, void *data)
         asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
         return;
     }
-    asyncCallbackInfo->ret = proxy->GetSmsMessages(asyncCallbackInfo->elementName,
-        asyncCallbackInfo->queryConfig, asyncCallbackInfo->messages);
+    asyncCallbackInfo->ret = proxy->GetSmsMessages(asyncCallbackInfo->queryConfig, asyncCallbackInfo->messages);
 }
 
 void TelephonyManagerAddon::NativeGetSmsMessagesComplete(napi_env env, napi_status status, void *data)
