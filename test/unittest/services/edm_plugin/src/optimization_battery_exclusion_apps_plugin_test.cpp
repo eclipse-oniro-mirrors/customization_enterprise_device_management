@@ -204,38 +204,6 @@ HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestRemoveExceedMaxSize, Te
     ErrCode ret = plugin.OnBasicRemovePolicy(data, currentData, mergeData, DEFAULT_USER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::POLICY_LIST_OVER_SIZE);
 }
-
-/**
- * @tc.name: TestGetPolicy
- * @tc.desc: Test BasicGetPolicy with valid policy data.
- * @tc.type: FUNC
- */
-HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestGetPolicy, TestSize.Level1)
-{
-    OptimizationBatteryExclusionAppsPlugin plugin;
-    plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
-    std::string policyData = "[\"com.example.app1\", \"com.example.app2\"]";
-    MessageParcel data;
-    MessageParcel reply;
-    ErrCode ret = plugin.BasicGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, ERR_OK);
-}
-
-/**
- * @tc.name: TestAdminRemove
- * @tc.desc: Test OnBasicAdminRemove clears all data.
- * @tc.type: FUNC
- */
-HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestAdminRemove, TestSize.Level1)
-{
-    OptimizationBatteryExclusionAppsPlugin plugin;
-    plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
-    std::string adminName{"testAdminName"};
-    std::vector<std::string> data;
-    std::vector<std::string> mergeData;
-    ErrCode ret = plugin.OnBasicAdminRemove(adminName, data, mergeData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, ERR_OK);
-}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

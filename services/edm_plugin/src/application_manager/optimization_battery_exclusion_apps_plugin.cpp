@@ -69,31 +69,5 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::OnHandlePolicy(std::uint32_t fun
     }
     return ret;
 }
-
-ErrCode OptimizationBatteryExclusionAppsPlugin::OnGetPolicy(std::string &policyDataStr, MessageParcel &data,
-    MessageParcel &reply, int32_t userId)
-{
-    std::vector<std::string> result;
-    ArrayStringSerializer::GetInstance()->Deserialize(policyDataStr, result);
-    ArrayStringSerializer::GetInstance()->WritePolicy(reply, result);
-    return ERR_OK;
-}
-
-ErrCode OptimizationBatteryExclusionAppsPlugin::OnAdminRemove(const std::string &adminName,
-    const std::string &policyDataStr, const std::string &mergeJsonData, int32_t userId)
-{
-    std::vector<std::string> currentData;
-    std::vector<std::string> mergeData;
-    auto serializer = ArrayStringSerializer::GetInstance();
-    serializer->Deserialize(policyDataStr, currentData);
-    serializer->Deserialize(mergeJsonData, mergeData);
-    ErrCode ret = OnBasicAdminRemove(currentData, mergeData, userId);
-    if (ret == ERR_OK) {
-        currentData.clear();
-        serializer->Serialize(currentData, const_cast<std::string &>(policyDataStr));
-        serializer->Serialize(mergeData, const_cast<std::string &>(mergeJsonData));
-    }
-    return ret;
-}
 } // namespace EDM
 } // namespace OHOS
