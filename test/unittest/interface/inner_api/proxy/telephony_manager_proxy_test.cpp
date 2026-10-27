@@ -568,18 +568,19 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
 {
-    MessageParcel data;
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    data.WriteParcelable(&admin);
-    data.WriteInt64(1000);
-    data.WriteInt64(2000);
-    data.WriteString("13800000000");
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy));
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    TelephonyQueryConfig config;
+    config.startTime = 1000;
+    config.endTime = 2000;
+    config.hasTelephoneNumber = true;
+    config.telephoneNumber = "13800000000";
     std::vector<SmsMessageInfo> messages;
-    int32_t ret = telephonyManagerProxy->GetSmsMessages(data, messages);
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(admin, config, messages);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(messages.empty());
     ASSERT_TRUE(messages[0].slotId == 0);
@@ -597,15 +598,14 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    MessageParcel data;
     OHOS::AppExecFwk::ElementName admin;
     admin.SetBundleName(ADMIN_PACKAGENAME);
-    data.WriteParcelable(&admin);
-    data.WriteInt64(1000);
-    data.WriteInt64(2000);
-    data.WriteString("13800000000");
+    TelephonyQueryConfig config;
+    config.startTime = 1000;
+    config.endTime = 2000;
+    config.telephoneNumber = "13800000000";
     std::vector<SmsMessageInfo> messages;
-    int32_t ret = telephonyManagerProxy->GetSmsMessages(data, messages);
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(admin, config, messages);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(messages.empty());
 }
@@ -617,18 +617,18 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesIpcFail, TestSize.Level1)
 {
-    MessageParcel data;
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    data.WriteParcelable(&admin);
-    data.WriteInt64(1000);
-    data.WriteInt64(2000);
-    data.WriteString("13800000000");
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail));
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName("com.edm.test.demo.Ability");
+    TelephonyQueryConfig config;
+    config.startTime = 1000;
+    config.endTime = 2000;
+    config.telephoneNumber = "13800000000";
     std::vector<SmsMessageInfo> messages;
-    int32_t ret = telephonyManagerProxy->GetSmsMessages(data, messages);
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(admin, config, messages);
     ASSERT_TRUE(ret != ERR_OK);
     ASSERT_TRUE(messages.empty());
 }

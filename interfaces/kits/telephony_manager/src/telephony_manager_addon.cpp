@@ -687,78 +687,88 @@ void TelephonyManagerAddon::ConvertVectorSmsMessageToJs(napi_env env,
     }
 }
 
-static OHOS::ErrCode ParseSmsQueryConfigToData(napi_env env, napi_value argv, OHOS::MessageParcel &data,
-    const AddonMethodSign &methodSign)
-{
-    int64_t startTime = 0;
-    if (!JsObjectToLong(env, argv, "startTime", true, startTime)) {
-        EDMLOGE("NAPI_GetSmsMessages parse startTime faield");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    int64_t endTime = 0;
-    if (!JsObjectToLong(env, argv, "endTime", true, endTime)) {
-        EDMLOGE("NAPI_GetSmsMessages parse endTime faield");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    std::string telephoneNumber;
-    bool hasTelephoneNumber = false;
-    napi_has_named_property(env, argv, "telephoneNumber", &hasTelephoneNumber);
-    if (hasTelephoneNumber) {
-        napi_value telValue = nullptr;
-        napi_get_named_property(env, argv, "telephoneNumber", &telValue);
-        napi_valuetype telType = napi_undefined;
-        napi_typeof(env, telValue, &telType);
-        if (telType == napi_string) {
-            if (!GetStringFromNAPI(env, telValue, telephoneNumber)) {
-                EDMLOGE("NAPI_GetSmsMessages parse telephoneNumber failed");
-                return EdmReturnErrCode::PARAM_ERROR;
-            }
-        } else if (telType != napi_undefined) {
-            EDMLOGE("NAPI_GetSmsMessages telephoneNumber type error");
-            return EdmReturnErrCode::PARAM_ERROR;
-        }
-    }
-    if (startTime < 0 || endTime < 0 || startTime > endTime) {
-        EDMLOGE("NAPI_GetSmsMessages time is abnormally");
-        return EdmReturnErrCode::PARAM_ERROR;
-    }
-    data.WriteInt64(startTime);
-    data.WriteInt64(endTime);
-    data.WriteString(telephoneNumber);
-    return OHOS::ERR_OK;
-}
 #endif
 
+#if defined(TELEPHONY_EDM_ENABLE)
 napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSmsMessages called");
-#if defined(TELEPHONY_EDM_ENABLE)
-    AddonMethodSign addonMethodSign;
-    addonMethodSign.name = "getSmsMessages";
-    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
-    addonMethodSign.argsConvert = {ParseSmsQueryConfigToData};
-    addonMethodSign.methodAttribute = MethodAttribute::GET;
-    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
-    AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
-    if (result == nullptr) {
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    auto asyncCallbackInfo = new (std::nothrow) AsyncSmsMessageCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
         return nullptr;
     }
-    std::vector<SmsMessageInfo> messages;
-    int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->GetSmsMessages(
-        adapterAddonData.data, messages);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    std::unique_ptr<AsyncSmsMessageCallbackInfo> callbackPtr{asyncCallbackInfo};
+    if (argc < ARGS_SIZE_TWO) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
         return nullptr;
     }
-
-    napi_value jsArray = nullptr;
-    ConvertVectorSmsMessageToJs(env, messages, jsArray);
-    return jsArray;
+    if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    if (!MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) ||
+        !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->queryConfig)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetSmsMessages",
+        NativeGetSmsMessages, NativeGetSmsMessagesComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
 #else
+napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_info info)
+{
     EDMLOGW("TelephonyManagerAddon::GetSmsMessages Unsupported Capabilities.");
     return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #endif
+}
+
+void TelephonyManagerAddon::NativeGetSmsMessages(napi_env env, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("NativeGetSmsMessages: data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncSmsMessageCallbackInfo *>(data);
+    auto proxy = TelephonyManagerProxy::GetTelephonyManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("NativeGetSmsMessages: proxy is nullptr");
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->GetSmsMessages(asyncCallbackInfo->elementName,
+        asyncCallbackInfo->queryConfig, asyncCallbackInfo->messages);
+}
+
+void TelephonyManagerAddon::NativeGetSmsMessagesComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("NativeGetSmsMessagesComplete: data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncSmsMessageCallbackInfo *>(data);
+    if (asyncCallbackInfo->deferred != nullptr) {
+        if (asyncCallbackInfo->ret == ERR_OK) {
+            napi_value jsArray = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_create_array(env, &jsArray));
+            ConvertVectorSmsMessageToJs(env, asyncCallbackInfo->messages, jsArray);
+            napi_resolve_deferred(env, asyncCallbackInfo->deferred, jsArray);
+        } else {
+            napi_reject_deferred(env, asyncCallbackInfo->deferred,
+                CreateError(env, asyncCallbackInfo->ret, ErrcodeType::NUMBER));
+        }
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
 }
 
 static napi_module g_telephonyManagerModule = {

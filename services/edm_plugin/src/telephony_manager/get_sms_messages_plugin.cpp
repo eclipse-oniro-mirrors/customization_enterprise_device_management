@@ -105,8 +105,8 @@ ErrCode GetSmsMessagesPlugin::OnGetPolicy(std::string &policyData, MessageParcel
 
     if (!WriteSmsMessagesToReply(messages, reply)) {
         EDMLOGE("GetSmsMessagesPlugin WriteSmsMessagesToReply failed.");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     EDMLOGI("GetSmsMessagesPlugin OnGetPolicy success, count = %{public}zu.", messages.size());
     return ERR_OK;

@@ -35,6 +35,12 @@ struct AsyncCallLogCallbackInfo : AsyncCallbackInfo {
     std::vector<CallLogInfo> callLogs;
 };
 
+struct AsyncSmsMessageCallbackInfo : AsyncCallbackInfo {
+    OHOS::AppExecFwk::ElementName elementName;
+    TelephonyQueryConfig queryConfig;
+    std::vector<SmsMessageInfo> messages;
+};
+
 class TelephonyManagerAddon {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -64,6 +70,8 @@ private:
     static void ConvertVectorSmsMessageToJs(napi_env env, const std::vector<SmsMessageInfo> &messages,
         napi_value &result);
     static napi_value GetSmsMessages(napi_env env, napi_callback_info info);
+    static void NativeGetSmsMessages(napi_env env, void *data);
+    static void NativeGetSmsMessagesComplete(napi_env env, napi_status status, void *data);
     static bool CheckVectorStringLength(const std::vector<std::string> &array);
 };
 } // namespace EDM

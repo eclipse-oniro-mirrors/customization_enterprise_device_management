@@ -281,7 +281,7 @@ static ErrCode ParseSmsMessagesFromBuffer(void *buffer, int32_t dataSize, std::v
     if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
         EDMLOGE("GetSmsMessages: ParseFrom failed.");
         free(buffer);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t count = tempParcel.ReadInt32();
     size_t readableDataSize = tempParcel.GetReadableBytes();
@@ -289,13 +289,13 @@ static ErrCode ParseSmsMessagesFromBuffer(void *buffer, int32_t dataSize, std::v
         messages.max_size() < static_cast<size_t>(count)) {
         EDMLOGE("GetSmsMessages: count check failed, count=%{public}d, readable=%{public}zu",
             count, readableDataSize);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     for (int32_t i = 0; i < count; ++i) {
         std::unique_ptr<SmsMessageInfo> info(SmsMessageInfo::Unmarshalling(tempParcel));
         if (info == nullptr) {
             EDMLOGE("GetSmsMessages: Unmarshalling fail at index=%{public}d", i);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
         }
         messages.push_back(*info);
     }
@@ -303,9 +303,17 @@ static ErrCode ParseSmsMessagesFromBuffer(void *buffer, int32_t dataSize, std::v
     return ERR_OK;
 }
 
-int32_t TelephonyManagerProxy::GetSmsMessages(MessageParcel &data, std::vector<SmsMessageInfo> &messages)
+int32_t TelephonyManagerProxy::GetSmsMessages(const AppExecFwk::ElementName &admin,
+    const TelephonyQueryConfig &config, std::vector<SmsMessageInfo> &messages)
 {
     EDMLOGI("TelephonyManagerProxy::GetSmsMessages");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    data.WriteInt64(config.startTime);
+    data.WriteInt64(config.endTime);
+    data.WriteString(config.telephoneNumber);
     MessageParcel reply;
     auto ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::GET_SMS_MESSAGES, data, reply);
     if (ret != ERR_OK) {
@@ -319,7 +327,7 @@ int32_t TelephonyManagerProxy::GetSmsMessages(MessageParcel &data, std::vector<S
     }
     if (dataSize < 0 || dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
         EDMLOGE("GetSmsMessages: invalid dataSize %{public}d.", dataSize);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     void *buffer = nullptr;
     ErrCode errCode = ReadBufferFromReply(reply, dataSize, buffer);
