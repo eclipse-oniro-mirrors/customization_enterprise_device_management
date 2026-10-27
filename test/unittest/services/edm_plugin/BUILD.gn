@@ -371,7 +371,6 @@ ohos_unittest("EdmPluginTest") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "./src/add_dock_app_plugin_test.cpp",
-      "./src/get_shared_path_list_plugin_test.cpp",
       "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
       "./src/disallow_modify_ethernet_ip_plugin_test.cpp",
       "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
@@ -389,6 +388,12 @@ ohos_unittest("EdmPluginTest") {
       "./src/plugin_utils/ip_utils_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (netmanager_ext_edm_enable) {
+    sources += [
+      "./src/get_shared_path_list_plugin_test.cpp",
+    ]
   }
 
   if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
@@ -1042,7 +1047,6 @@ ohos_static_library("edm_all_plugin_static") {
   if (enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm_plugin/src/application_manager/add_dock_app_plugin.cpp",
-      "../../../../services/edm_plugin/src/network_manager/get_shared_path_list_plugin.cpp",
       "../../../../services/edm_plugin/src/device_settings/set_auto_unlock_after_reboot_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_modify_ethernet_ip_plugin.cpp",
       "../../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
@@ -1148,6 +1152,7 @@ if (os_account_edm_enable && enterprise_device_management_feature_pc_only) {
     ]
     sources += [
       "../../../../services/edm_plugin/src/restrictions/disallow_vpn_plugin.cpp",
+      "../../../../services/edm_plugin/src/network_manager/get_shared_path_list_plugin.cpp",
     ]
   }
 

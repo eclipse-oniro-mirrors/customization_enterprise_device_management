@@ -39,14 +39,19 @@ GetSharedPathListPlugin::GetSharedPathListPlugin()
 ErrCode GetSharedPathListPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
     HandlePolicyData &policyData, int32_t userId)
 {
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    EDMLOGI("GetSharedPathListPlugin OnHandlePolicy feature not enable on this platform, return empty list");
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(0);
+    return ERR_OK;
 }
 
 ErrCode GetSharedPathListPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
-    EDMLOGI("GetSharedPathListPlugin OnGetPolicy.");
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    EDMLOGI("GetSharedPathListPlugin OnGetPolicy feature not enable on this platform, return empty list");
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(0);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

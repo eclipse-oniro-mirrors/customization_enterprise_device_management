@@ -621,7 +621,6 @@ int32_t NetworkManagerProxy::GetGlobalHttpProxy(const AppExecFwk::ElementName *a
 }
 #endif
 
-#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
 int32_t NetworkManagerProxy::GetSharedPathList(std::vector<PathSharedData> &sharedList)
 {
     EDMLOGI("NetworkManagerProxy::GetSharedPathList");
@@ -646,6 +645,5 @@ int32_t NetworkManagerProxy::GetSharedPathList(std::vector<PathSharedData> &shar
     }
     return ERR_OK;
 }
-#endif
 } // namespace EDM
 } // namespace OHOS
