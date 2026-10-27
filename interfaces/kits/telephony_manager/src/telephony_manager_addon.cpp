@@ -652,7 +652,6 @@ void TelephonyManagerAddon::ConvertVectorCallLogToJs(napi_env env,
     }
 }
 
-#if defined(TELEPHONY_EDM_ENABLE)
 void TelephonyManagerAddon::ConvertVectorSmsMessageToJs(napi_env env,
     const std::vector<SmsMessageInfo> &messages, napi_value &result)
 {
@@ -687,9 +686,6 @@ void TelephonyManagerAddon::ConvertVectorSmsMessageToJs(napi_env env,
     }
 }
 
-#endif
-
-#if defined(TELEPHONY_EDM_ENABLE)
 napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetSmsMessages called");
@@ -704,24 +700,16 @@ napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_inf
     }
     std::unique_ptr<AsyncSmsMessageCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (argc < ARGS_SIZE_ONE) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAM_ERROR);
     }
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) ||
         !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo->queryConfig)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAM_ERROR);
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetSmsMessages",
         NativeGetSmsMessages, NativeGetSmsMessagesComplete);
     callbackPtr.release();
     return asyncWorkReturn;
-#else
-napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_info info)
-{
-    EDMLOGW("TelephonyManagerAddon::GetSmsMessages Unsupported Capabilities.");
-    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-#endif
 }
 
 void TelephonyManagerAddon::NativeGetSmsMessages(napi_env env, void *data)
