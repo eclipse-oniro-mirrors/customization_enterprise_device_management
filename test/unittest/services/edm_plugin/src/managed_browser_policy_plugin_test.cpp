@@ -1407,7 +1407,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestDeserializeAndMigrateKeepsExistingO
  */
 HWTEST_F(ManagedBrowserPolicyPluginTest, TestDeserializeAndMigrateFailWithBrokenCurrentPolicy, TestSize.Level1)
 {
-    AcquirePolicyManager();
+    auto policyManager = AcquirePolicyManager();
     ManagedBrowserPolicyPlugin plugin;
     HandlePolicyData policyData;
     policyData.policyData = "broken";
@@ -1426,7 +1426,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestDeserializeAndMigrateFailWithBroken
  */
 HWTEST_F(ManagedBrowserPolicyPluginTest, TestDeserializeAndMigrateEmptyInputStaysEmpty, TestSize.Level1)
 {
-    AcquirePolicyManager();
+    auto policyManager = AcquirePolicyManager();
     ManagedBrowserPolicyPlugin plugin;
     HandlePolicyData policyData;
     std::map<std::string, ManagedBrowserPolicyType> policies;
@@ -1576,7 +1576,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestGetOthersMergePolicyDataFailWithBro
  */
 HWTEST_F(ManagedBrowserPolicyPluginTest, TestGetOthersMergePolicyDataEmptyWhenNoAdminData, TestSize.Level1)
 {
-    AcquirePolicyManager();
+    auto policyManager = AcquirePolicyManager();
     ManagedBrowserPolicyPlugin plugin;
     std::string othersMergePolicyData;
     ASSERT_EQ(plugin.GetOthersMergePolicyData(TEST_ADMIN_B, DEFAULT_USER_ID, othersMergePolicyData), ERR_OK);
@@ -2235,7 +2235,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestApplyPolicyOwnersBackfillsEveryList
  */
 HWTEST_F(ManagedBrowserPolicyPluginTest, TestBackfillOwnershipWithoutStoredAdminIsNoop, TestSize.Level1)
 {
-    AcquirePolicyManager();
+    auto policyManager = AcquirePolicyManager();
     std::map<std::string, ManagedBrowserPolicyType> mergePolicies;
     mergePolicies[TEST_BUNDLE_NAME].version = 1;
     mergePolicies[TEST_BUNDLE_NAME].policyNames.push_back(TEST_POLICY_NAME);
@@ -2633,7 +2633,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestMergeCombinedOwnershipSkipsUnlisted
  */
 HWTEST_F(ManagedBrowserPolicyPluginTest, TestMergeCombinedOwnershipToleratesEmptyCombinedPolicy, TestSize.Level1)
 {
-    AcquirePolicyManager();
+    auto policyManager = AcquirePolicyManager();
     std::map<std::string, ManagedBrowserPolicyType> mergeData;
     mergeData[TEST_BUNDLE_NAME].version = 1;
     mergeData[TEST_BUNDLE_NAME].policyNames.push_back(TEST_POLICY_NAME);
@@ -2762,7 +2762,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestMergeCombinedOwnershipRestoresEvery
  */
 HWTEST_F(ManagedBrowserPolicyPluginTest, TestMigrateOwnershipIfNeededNeverOverwritesRecordedOwnership, TestSize.Level1)
 {
-    AcquirePolicyManager();
+    auto policyManager = AcquirePolicyManager();
     std::map<std::string, ManagedBrowserPolicyType> mergePolicies;
     mergePolicies[TEST_BUNDLE_NAME].version = 1;
     mergePolicies[TEST_BUNDLE_NAME].policyNames.push_back(TEST_POLICY_NAME);
