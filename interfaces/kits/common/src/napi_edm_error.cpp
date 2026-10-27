@@ -27,7 +27,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::COMPONENT_INVALID, "The administrator ability component is invalid."},
     {EdmReturnErrCode::ADMIN_INACTIVE, "The application is not an administrator application of the device."},
     {EdmReturnErrCode::DISABLE_ADMIN_FAILED, "Failed to deactivate the administrator application of the device."},
-    {EdmReturnErrCode::UID_INVALID, "The specified user ID is invalid."},
+    {EdmReturnErrCode::UID_INVALID, "The specified account ID is invalid."},
     {EdmReturnErrCode::INTERFACE_UNSUPPORTED,
         "Capability not supported. Failed to call the API due to limited device capabilities."},
     {EdmReturnErrCode::PARAM_ERROR, "Parameter error."},

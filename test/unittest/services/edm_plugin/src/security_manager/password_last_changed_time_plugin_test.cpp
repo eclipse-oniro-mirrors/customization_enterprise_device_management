@@ -195,7 +195,7 @@ HWTEST_F(PasswordLastChangedTimePluginTest, TestOnGetPolicyUnknownError, TestSiz
 
 /**
  * @tc.name: TestOnGetPolicyInvalidAccountIdError
- * @tc.desc: Test OnGetPolicy returns PARAMETER_VERIFICATION_FAILED(9200012) and skips the IAM call when
+ * @tc.desc: Test OnGetPolicy returns UID_INVALID(9200006) and skips the IAM call when
  * accountId is negative.
  * @tc.type: FUNC
  */
@@ -207,11 +207,35 @@ HWTEST_F(PasswordLastChangedTimePluginTest, TestOnGetPolicyInvalidAccountIdError
     MessageParcel reply;
     data.WriteInt32(-1);
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
     ASSERT_EQ(plugin.callCount, 0);
     reply.RewindRead(0);
     int32_t replyRet = reply.ReadInt32();
-    ASSERT_EQ(replyRet, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_EQ(replyRet, EdmReturnErrCode::UID_INVALID);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyAccountNotExists
+ * @tc.desc: Test OnGetPolicy returns UID_INVALID(9200006) and skips the IAM call when
+ *     the accountId does not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasswordLastChangedTimePluginTest, TestOnGetPolicyAccountNotExists, TestSize.Level1)
+{
+    PasswordLastChangedTimePluginMock plugin;
+    plugin.isAccountExist = false;
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(DEFAULT_USER_ID);
+    ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
+    ASSERT_EQ(plugin.existsCallCount, 1);
+    ASSERT_EQ(plugin.lastExistsAccountId, DEFAULT_USER_ID);
+    ASSERT_EQ(plugin.callCount, 0);
+    reply.RewindRead(0);
+    int32_t replyRet = reply.ReadInt32();
+    ASSERT_EQ(replyRet, EdmReturnErrCode::UID_INVALID);
 }
 } // namespace TEST
 } // namespace EDM
