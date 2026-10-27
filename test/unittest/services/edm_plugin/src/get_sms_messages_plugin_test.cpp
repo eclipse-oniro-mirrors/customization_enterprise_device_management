@@ -79,7 +79,8 @@ HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicySuc, TestSize.Level1)
     const void *buffer = reply.ReadRawData(dataSize);
     ASSERT_TRUE(buffer != nullptr);
     MessageParcel tempParcel;
-    ASSERT_TRUE(tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize));
+    ASSERT_TRUE(tempParcel.WriteUnpadBuffer(buffer, dataSize));
+    tempParcel.RewindRead(0);
     ASSERT_TRUE(tempParcel.ReadInt32() == 0);
 }
 
@@ -106,7 +107,8 @@ HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicyEmptyNumber, TestSize.Level1)
     const void *buffer = reply.ReadRawData(dataSize);
     ASSERT_TRUE(buffer != nullptr);
     MessageParcel tempParcel;
-    ASSERT_TRUE(tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize));
+    ASSERT_TRUE(tempParcel.WriteUnpadBuffer(buffer, dataSize));
+    tempParcel.RewindRead(0);
     ASSERT_TRUE(tempParcel.ReadInt32() == 0);
 }
 
@@ -133,7 +135,8 @@ HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicyEqualTime, TestSize.Level1)
     const void *buffer = reply.ReadRawData(dataSize);
     ASSERT_TRUE(buffer != nullptr);
     MessageParcel tempParcel;
-    ASSERT_TRUE(tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize));
+    ASSERT_TRUE(tempParcel.WriteUnpadBuffer(buffer, dataSize));
+    tempParcel.RewindRead(0);
     ASSERT_TRUE(tempParcel.ReadInt32() == 0);
 }
 

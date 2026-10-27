@@ -51,6 +51,7 @@ const int32_t TEST_APP_SIZE = 1024;
 const int32_t TEST_DATA_SIZE = 2048;
 const int32_t TEST_SHARE_LIMIT = 5;
 const int64_t TEST_PATCH_INSTALL_TIME = 1710000000000;
+const int64_t TEST_TIMER = 1722470500;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
@@ -890,7 +891,7 @@ int EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy(uint32_t 
     smsInfo.slotId = 0;
     smsInfo.telephoneNumber = "13800000000";
     smsInfo.content = "hello";
-    smsInfo.timer = 1722470500;
+    smsInfo.timer = TEST_TIMER;
     smsInfo.isSender = true;
     smsInfo.Marshalling(tempParcel);
     size_t dataSize = tempParcel.GetDataSize();
