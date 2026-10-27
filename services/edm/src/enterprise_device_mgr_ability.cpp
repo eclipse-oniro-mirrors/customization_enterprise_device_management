@@ -788,7 +788,7 @@ void EnterpriseDeviceMgrAbility::OnPinAuthServiceStart()
     EDMLOGI("OnPinAuthServiceStart");
 #ifndef EDM_FUZZ_TEST
     EventSubscriptionManager::GetInstance().ResetAdapterSubscribedState(
-        EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)});
+        EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)});
     MdmEventRelayer::GetInstance().RestoreAdminSubscriptions();
     EventSubscriptionManager::GetInstance().RetryFailedAdapters(AdapterType::USER_AUTH);
 #endif
@@ -2360,7 +2360,7 @@ ErrCode EnterpriseDeviceMgrAbility::VerifyManagedEvent(const AppExecFwk::Element
 bool EnterpriseDeviceMgrAbility::CheckManagedEvent(uint32_t event)
 {
     if (event >= static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED) &&
-        event <= static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)) {
+        event <= static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)) {
         return true;
     }
     return false;

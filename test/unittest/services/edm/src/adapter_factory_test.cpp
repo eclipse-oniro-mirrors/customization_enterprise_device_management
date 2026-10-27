@@ -304,12 +304,12 @@ HWTEST_F(AdapterFactoryCreateAdapterTest, CustomEventName_ReturnsAdapter, TestSi
 
 /**
  * @tc.name: Test_PasswordFailedReturnsAdapter
- * @tc.desc: Test ON_PASSWORD_FAILED event creates correct adapter type.
+ * @tc.desc: Test PASSWORD_FAILED event creates correct adapter type.
  * @tc.type: FUNC
  */
 HWTEST_F(AdapterFactoryCreateAdapterTest, PasswordFailed_ReturnsAdapter, TestSize.Level1)
 {
-    EventId groupId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)};
+    EventId groupId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)};
     auto adapter = AdapterFactory::CreateAdapter(*manager_, groupId);
 #ifdef USERIAM_EDM_ENABLE
     ASSERT_NE(adapter, nullptr);

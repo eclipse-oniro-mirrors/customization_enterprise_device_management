@@ -218,15 +218,15 @@ HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_SystemUpdate, TestSize.Lev
 
 /**
  * @tc.name: Test_FactoryReturnsStrategyForPasswordFailed
- * @tc.desc: Test ON_PASSWORD_FAILED factory returns a non-null strategy when count is valid.
+ * @tc.desc: Test PASSWORD_FAILED factory returns a non-null strategy when count is valid.
  * @tc.type: FUNC
  */
 HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_PasswordFailed, TestSize.Level1)
 {
-    auto it = relayer_->strategyFactories_.find(ManagedEvent::ON_PASSWORD_FAILED);
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::PASSWORD_FAILED);
     ASSERT_NE(it, relayer_->strategyFactories_.end());
     EdmEventData data;
-    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)};
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)};
     data.passwordFailedCount = 3;
     data.userId = 100;
     auto strategy = it->second(data);
@@ -235,15 +235,15 @@ HWTEST_F(MdmEventRelayerTest, Factory_ReturnsStrategy_PasswordFailed, TestSize.L
 
 /**
  * @tc.name: Test_FactoryReturnsNullptrForPasswordFailedInvalidCount
- * @tc.desc: Test ON_PASSWORD_FAILED factory returns nullptr when count is negative.
+ * @tc.desc: Test PASSWORD_FAILED factory returns nullptr when count is negative.
  * @tc.type: FUNC
  */
 HWTEST_F(MdmEventRelayerTest, Factory_ReturnsNullptr_PasswordFailedInvalidCount, TestSize.Level1)
 {
-    auto it = relayer_->strategyFactories_.find(ManagedEvent::ON_PASSWORD_FAILED);
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::PASSWORD_FAILED);
     ASSERT_NE(it, relayer_->strategyFactories_.end());
     EdmEventData data;
-    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)};
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)};
     data.passwordFailedCount = -1;
     data.userId = 100;
     auto strategy = it->second(data);
@@ -252,15 +252,15 @@ HWTEST_F(MdmEventRelayerTest, Factory_ReturnsNullptr_PasswordFailedInvalidCount,
 
 /**
  * @tc.name: Test_FactoryReturnsNullptrForPasswordFailedInvalidUserId
- * @tc.desc: Test ON_PASSWORD_FAILED factory returns nullptr when userId is negative.
+ * @tc.desc: Test PASSWORD_FAILED factory returns nullptr when userId is negative.
  * @tc.type: FUNC
  */
 HWTEST_F(MdmEventRelayerTest, Factory_ReturnsNullptr_PasswordFailedInvalidUserId, TestSize.Level1)
 {
-    auto it = relayer_->strategyFactories_.find(ManagedEvent::ON_PASSWORD_FAILED);
+    auto it = relayer_->strategyFactories_.find(ManagedEvent::PASSWORD_FAILED);
     ASSERT_NE(it, relayer_->strategyFactories_.end());
     EdmEventData data;
-    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)};
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)};
     data.passwordFailedCount = 1;
     data.userId = -1;
     auto strategy = it->second(data);
@@ -270,15 +270,15 @@ HWTEST_F(MdmEventRelayerTest, Factory_ReturnsNullptr_PasswordFailedInvalidUserId
 #ifdef USERIAM_EDM_ENABLE
 /**
  * @tc.name: Test_PasswordFailedEventBroadcastToAllSubscribers
- * @tc.desc: Test ON_PASSWORD_FAILED event is broadcast to all subscribed admins
+ * @tc.desc: Test PASSWORD_FAILED event is broadcast to all subscribed admins
  *           (userId distinguishes the failed user in callback params).
  * @tc.type: FUNC
  */
 HWTEST_F(MdmEventRelayerTest, PasswordFailedEvent_BroadcastToAllSubscribers, TestSize.Level1)
 {
-    auto originalFactory = relayer_->strategyFactories_[ManagedEvent::ON_PASSWORD_FAILED];
+    auto originalFactory = relayer_->strategyFactories_[ManagedEvent::PASSWORD_FAILED];
     int dispatched = 0;
-    relayer_->strategyFactories_[ManagedEvent::ON_PASSWORD_FAILED] =
+    relayer_->strategyFactories_[ManagedEvent::PASSWORD_FAILED] =
         [&dispatched](const EdmEventData &) -> std::shared_ptr<ICallbackStrategy> {
         dispatched++;
         return nullptr;
@@ -289,19 +289,19 @@ HWTEST_F(MdmEventRelayerTest, PasswordFailedEvent_BroadcastToAllSubscribers, Tes
     constexpr int32_t userIdA = 100;
     constexpr int32_t userIdB = 101;
 
-    relayer_->OnAdminSubscribe(adminA, userIdA, ManagedEvent::ON_PASSWORD_FAILED);
-    relayer_->OnAdminSubscribe(adminB, userIdB, ManagedEvent::ON_PASSWORD_FAILED);
+    relayer_->OnAdminSubscribe(adminA, userIdA, ManagedEvent::PASSWORD_FAILED);
+    relayer_->OnAdminSubscribe(adminB, userIdB, ManagedEvent::PASSWORD_FAILED);
 
     EdmEventData data;
-    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)};
+    data.eventId = EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)};
     data.userId = userIdB;
     data.passwordFailedCount = 2;
     EventSubscriptionManager::GetInstance().DispatchEvent(data);
     EXPECT_EQ(dispatched, 2);
 
-    relayer_->OnAdminUnsubscribe(adminA, userIdA, ManagedEvent::ON_PASSWORD_FAILED);
-    relayer_->OnAdminUnsubscribe(adminB, userIdB, ManagedEvent::ON_PASSWORD_FAILED);
-    relayer_->strategyFactories_[ManagedEvent::ON_PASSWORD_FAILED] = originalFactory;
+    relayer_->OnAdminUnsubscribe(adminA, userIdA, ManagedEvent::PASSWORD_FAILED);
+    relayer_->OnAdminUnsubscribe(adminB, userIdB, ManagedEvent::PASSWORD_FAILED);
+    relayer_->strategyFactories_[ManagedEvent::PASSWORD_FAILED] = originalFactory;
 }
 #endif
 

@@ -5221,7 +5221,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckManagedEventValid, TestSize.Le
 {
     EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)));
     EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::POLICIES_CHANGED)));
-    EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)));
+    EXPECT_TRUE(edmMgr_->CheckManagedEvent(static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)));
 }
 
 HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestCheckManagedEventInvalid, TestSize.Level1)
