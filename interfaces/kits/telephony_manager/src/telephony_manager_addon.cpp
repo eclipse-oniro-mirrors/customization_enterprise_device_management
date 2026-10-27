@@ -757,8 +757,7 @@ napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_inf
     return jsArray;
 #else
     EDMLOGW("TelephonyManagerAddon::GetSmsMessages Unsupported Capabilities.");
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    return nullptr;
+    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #endif
 }
 
