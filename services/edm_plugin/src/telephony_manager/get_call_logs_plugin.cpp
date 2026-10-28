@@ -22,6 +22,7 @@
 #include "func_code.h"
 #include "iplugin_manager.h"
 #include "int_serializer.h"
+#include <mutex>
 #ifdef TELEPHONY_EDM_ENABLE
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
@@ -61,8 +62,15 @@ constexpr int64_t ONE_DAY_SECONDS = 24LL * 60 * 60;
 constexpr int64_t MAX_TIME_RANGE_SECONDS = 31LL * ONE_DAY_SECONDS;
 constexpr int64_t MAX_CALL_LOG_RETURN_SIZE = 128LL * 1024 * 1024;
 constexpr int32_t DATASHARE_WAIT_TIME = 10;
+static std::mutex g_callLogHelperMutex;
+static std::shared_ptr<DataShare::DataShareHelper> g_callLogHelper = nullptr;
+
 static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
 {
+    std::lock_guard<std::mutex> lock(g_callLogHelperMutex);
+    if (g_callLogHelper != nullptr) {
+        return g_callLogHelper;
+    }
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
         EDMLOGE("GetCallLogsPlugin: GetSystemAbilityManager failed.");
@@ -73,7 +81,15 @@ static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
         EDMLOGE("GetCallLogsPlugin: GetSystemAbility ENTERPRISE_DEVICE_MANAGER_SA_ID failed.");
         return nullptr;
     }
-    return DataShare::DataShareHelper::Creator(remote, std::string(CALL_LOG_BASE_URI), "", DATASHARE_WAIT_TIME);
+    g_callLogHelper = DataShare::DataShareHelper::Creator(remote, std::string(CALL_LOG_BASE_URI), "",
+        DATASHARE_WAIT_TIME);
+    return g_callLogHelper;
+}
+
+static void InvalidateCallLogHelper()
+{
+    std::lock_guard<std::mutex> lock(g_callLogHelperMutex);
+    g_callLogHelper.reset();
 }
 
 static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig &config)
@@ -86,6 +102,25 @@ static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig
     }
     predicates.OrderByDesc(CALL_LOG_COLUMN_CREATE_TIME);
     return predicates;
+}
+
+struct CallLogColumnIndices {
+    int32_t createTime = 0;
+    int32_t beginTime = 0;
+    int32_t endTime = 0;
+    int32_t callDirection = 0;
+    int32_t slotId = 0;
+    int32_t phoneNumber = 0;
+};
+
+static void InitColumnIndices(std::shared_ptr<DataShare::DataShareResultSet> resultSet, CallLogColumnIndices &indices)
+{
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CREATE_TIME, indices.createTime);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_BEGIN_TIME, indices.beginTime);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_END_TIME, indices.endTime);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CALL_DIRECTION, indices.callDirection);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_SLOT_ID, indices.slotId);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_PHONE_NUMBER, indices.phoneNumber);
 }
 
 static std::vector<std::string> BuildResultColumns()
@@ -101,33 +136,20 @@ static std::vector<std::string> BuildResultColumns()
     };
 }
 
-static void ReadCallLogFromResultSet(
-    std::shared_ptr<DataShare::DataShareResultSet> resultSet, CallLogInfo &log)
+static void ReadCallLogFromResultSet(std::shared_ptr<DataShare::DataShareResultSet> resultSet,
+    const CallLogColumnIndices &indices, CallLogInfo &log)
 {
-    int32_t columnIndex = 0;
-    int64_t createTime = 0;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CREATE_TIME, columnIndex);
-    resultSet->GetLong(columnIndex, createTime);
-    log.createTime = createTime;
-    int64_t beginTime = 0;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_BEGIN_TIME, columnIndex);
-    resultSet->GetLong(columnIndex, beginTime);
-    log.startTime = beginTime;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_END_TIME, columnIndex);
-    int64_t endTime = 0;
-    resultSet->GetLong(columnIndex, endTime);
-    log.endTime = endTime;
+    resultSet->GetLong(indices.createTime, log.createTime);
+    resultSet->GetLong(indices.beginTime, log.startTime);
+    resultSet->GetLong(indices.endTime, log.endTime);
     int32_t callDirection = CALL_DIRECTION_OUT;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CALL_DIRECTION, columnIndex);
-    resultSet->GetInt(columnIndex, callDirection);
+    resultSet->GetInt(indices.callDirection, callDirection);
     log.isIncoming = (callDirection == CALL_DIRECTION_IN);
     int32_t slotId = -1;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_SLOT_ID, columnIndex);
-    resultSet->GetInt(columnIndex, slotId);
+    resultSet->GetInt(indices.slotId, slotId);
     log.slotId = slotId;
     std::string phoneNumber;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_PHONE_NUMBER, columnIndex);
-    resultSet->GetString(columnIndex, phoneNumber);
+    resultSet->GetString(indices.phoneNumber, phoneNumber);
     log.telephoneNumber = phoneNumber;
 }
 
@@ -144,7 +166,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     auto resultSet = helper->Query(uri, predicates, columns);
     if (resultSet == nullptr) {
         EDMLOGE("GetCallLogsPlugin: Query call log failed.");
-        helper->Release();
+        InvalidateCallLogHelper();
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t rowCount = 0;
@@ -152,9 +174,13 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     if (rowCount == 0) {
         EDMLOGI("GetCallLogsPlugin: Query success, but rowCount is 0.");
         resultSet->Close();
-        helper->Release();
         return ERR_OK;
     }
+    if (rowCount > 0) {
+        callLogs.reserve(static_cast<size_t>(rowCount));
+    }
+    CallLogColumnIndices indices;
+    InitColumnIndices(resultSet, indices);
     int32_t operationResult = resultSet->GoToFirstRow();
     while (operationResult == ROW_FETCH_SUCCESS) {
         if (callLogs.size() * ESTIMATED_RECORD_SIZE >= MAX_CALL_LOG_RETURN_SIZE) {
@@ -163,12 +189,11 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
             break;
         }
         CallLogInfo log;
-        ReadCallLogFromResultSet(resultSet, log);
+        ReadCallLogFromResultSet(resultSet, indices, log);
         callLogs.push_back(log);
         operationResult = resultSet->GoToNextRow();
     }
     resultSet->Close();
-    helper->Release();
     EDMLOGI("GetCallLogsPlugin: QueryCallLogs success, count = %{public}zu.", callLogs.size());
     return ERR_OK;
 }
