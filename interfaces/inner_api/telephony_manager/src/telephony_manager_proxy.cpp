@@ -234,6 +234,10 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     const TelephonyQueryConfig &config, std::vector<CallLogInfo> &callLogs)
 {
     EDMLOGD("TelephonyManagerProxy::GetCallLogs");
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("TelephonyManagerProxy::GetCallLogs not supported on pc");
+    return ERR_OK;
+#endif
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
@@ -306,7 +310,11 @@ static ErrCode ParseSmsMessagesFromBuffer(void *buffer, int32_t dataSize, std::v
 int32_t TelephonyManagerProxy::GetSmsMessages(const TelephonyQueryConfig &config,
     std::vector<SmsMessageInfo> &messages)
 {
-    EDMLOGI("TelephonyManagerProxy::GetSmsMessages");
+    EDMLOGD("TelephonyManagerProxy::GetSmsMessages");
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("TelephonyManagerProxy::GetCallLogs not supported on pc");
+    return ERR_OK;
+#endif
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(EdmConstants::DEFAULT_USER_ID);

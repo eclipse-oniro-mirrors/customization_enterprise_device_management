@@ -490,7 +490,6 @@ napi_value TelephonyManagerAddon::GetDefaultDataSim(napi_env env, napi_callback_
 #endif
 }
 
-#if defined(TELEPHONY_EDM_ENABLE)
 static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQueryConfig &config)
 {
     napi_value startTimeValue = nullptr;
@@ -522,25 +521,20 @@ static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQuery
     if (telType == napi_string) {
         size_t len = 0;
         napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
-        if (len == 0) {
-            return false;
+        if (len > 0) {
+            config.telephoneNumber.resize(len);
+            napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
         }
-        config.telephoneNumber.resize(len);
-        napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
+        // 空字符串视为不过滤号码，保持默认空串
     } else if (telType != napi_undefined) {
         return false;
     }
     return true;
 }
-#endif
 
 napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_GetCallLogs called");
-#ifdef FEATURE_PC_ONLY
-    EDMLOGW("TelephonyManagerAddon::GetCallLogs not supported on PC.");
-    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-#elif defined(TELEPHONY_EDM_ENABLE)
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -572,10 +566,6 @@ napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info i
         NativeGetCallLogs, NativeGetCallLogsComplete);
     callbackPtr.release();
     return asyncWorkReturn;
-#else
-    EDMLOGW("TelephonyManagerAddon::GetCallLogs Unsupported Capabilities.");
-    return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-#endif
 }
 
 void TelephonyManagerAddon::NativeGetCallLogs(napi_env env, void *data)
