@@ -260,7 +260,8 @@ HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_EmptyList_Success, TestSize.Level1)
     data.WriteParcelable(&admin);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokePatchInfoEmptyListSendRequestGetPolicy));
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokePatchInfoEmptyListSendRequestGetPolicy));
     MessageParcel reply;
     int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
     EXPECT_EQ(ret, ERR_OK);
