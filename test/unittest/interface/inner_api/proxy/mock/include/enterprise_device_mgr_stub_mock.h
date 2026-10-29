@@ -276,6 +276,9 @@ public:
     int InvokePatchInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokePatchInfoEmptyListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
