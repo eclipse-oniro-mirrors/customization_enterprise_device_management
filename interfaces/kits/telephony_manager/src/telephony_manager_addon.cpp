@@ -686,8 +686,7 @@ napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     auto asyncCallbackInfo = new (std::nothrow) AsyncSmsMessageCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     std::unique_ptr<AsyncSmsMessageCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (argc < ARGS_SIZE_ONE) {
