@@ -95,18 +95,5 @@ ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &baseUri, cons
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test Success";
     return ERR_OK;
 }
-
-ErrCode EdmDataAbilityUtils::GetSmsMessages(int64_t startTime, int64_t endTime,
-    const std::string &telephoneNumber, std::vector<SmsQueryResult> &messages)
-{
-    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetSmsMessages start: " << result_.c_str();
-    if (result_ == "SYSTEM_ABNORMALLY") {
-        GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils result SYSTEM_ABNORMALLY";
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils GetSmsMessages test Success";
-    messages.clear();
-    return ERR_OK;
-}
 } // namespace EDM
 } // namespace OHOS

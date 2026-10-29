@@ -213,7 +213,7 @@ ErrCode EdmDataAbilityUtils::GetSmsMessages(int64_t startTime, int64_t endTime,
     EDMLOGI("EdmDataAbilityUtils::GetSmsMessages enter.");
     auto dataShareHelper = CreateSmsDataShareHelper();
     if (dataShareHelper == nullptr) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     Uri uri(SMS_MMS_INFO_URI);
     std::vector<std::string> columns{SMS_FIELD_TIME, SMS_FIELD_IS_SENDER, SMS_FIELD_SLOT_ID,
@@ -223,7 +223,7 @@ ErrCode EdmDataAbilityUtils::GetSmsMessages(int64_t startTime, int64_t endTime,
     if (resultset == nullptr) {
         EDMLOGE("EdmDataAbilityUtils::GetSmsMessages query fail.");
         dataShareHelper->Release();
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t numRows = 0;
     resultset->GetRowCount(numRows);
