@@ -528,7 +528,8 @@ static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQuery
     size_t len = 0;
     napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
     if (len == 0) {
-        return false;
+        config.hasTelephoneNumber = false;
+        return true;
     }
     config.telephoneNumber.resize(len);
     napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
