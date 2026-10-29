@@ -33,6 +33,7 @@
 #include "odd_burn_usb_device.h"
 #include "os_account_info.h"
 #include "shared_path_info.h"
+#include "sms_message_info.h"
 #include "update_policy_utils.h"
 #include "usb_device_id.h"
 #include "usb_interface_type.h"
@@ -50,6 +51,7 @@ const int32_t TEST_APP_SIZE = 1024;
 const int32_t TEST_DATA_SIZE = 2048;
 const int32_t TEST_SHARE_LIMIT = 5;
 const int64_t TEST_PATCH_INSTALL_TIME = 1710000000000;
+const int64_t TEST_TIMER = 1722470500;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
@@ -874,6 +876,37 @@ int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyOverLim
     code_ = code;
     reply.WriteInt32(ERR_OK);
     reply.WriteUint32(SHARED_PATH_MAX_COUNT + 1);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSmsMessagesSendRequestGetPolicy code :" << code;
+    code_ = code;
+    const int32_t count = 1;
+    MessageParcel tempParcel;
+    tempParcel.WriteInt32(count);
+    SmsMessageInfo smsInfo;
+    smsInfo.slotId = 0;
+    smsInfo.telephoneNumber = "13800000000";
+    smsInfo.content = "hello";
+    smsInfo.timer = TEST_TIMER;
+    smsInfo.isSender = true;
+    smsInfo.Marshalling(tempParcel);
+    size_t dataSize = tempParcel.GetDataSize();
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(dataSize));
+    reply.WriteRawData(reinterpret_cast<const void *>(tempParcel.GetData()), dataSize);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSmsMessagesSendRequestGetPolicyFail code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_PROXY_SENDREQUEST_FAIL);
     return 0;
 }
 } // namespace EDM

@@ -234,6 +234,10 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
     const TelephonyQueryConfig &config, std::vector<CallLogInfo> &callLogs)
 {
     EDMLOGD("TelephonyManagerProxy::GetCallLogs");
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("TelephonyManagerProxy::GetCallLogs not supported on pc");
+    return ERR_OK;
+#endif
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
@@ -272,6 +276,79 @@ int32_t TelephonyManagerProxy::GetCallLogs(const AppExecFwk::ElementName &admin,
         return errCode;
     }
     EDMLOGI("GetCallLogs success, count = %{public}zu.", callLogs.size());
+    return errCode;
+}
+
+static ErrCode ParseSmsMessagesFromBuffer(void *buffer, int32_t dataSize, std::vector<SmsMessageInfo> &messages)
+{
+    MessageParcel tempParcel;
+    if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
+        EDMLOGE("GetSmsMessages: ParseFrom failed.");
+        free(buffer);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    int32_t count = tempParcel.ReadInt32();
+    size_t readableDataSize = tempParcel.GetReadableBytes();
+    if (count < 0 || static_cast<size_t>(count) > readableDataSize ||
+        messages.max_size() < static_cast<size_t>(count)) {
+        EDMLOGE("GetSmsMessages: count check failed, count=%{public}d, readable=%{public}zu",
+            count, readableDataSize);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    for (int32_t i = 0; i < count; ++i) {
+        std::unique_ptr<SmsMessageInfo> info(SmsMessageInfo::Unmarshalling(tempParcel));
+        if (info == nullptr) {
+            EDMLOGE("GetSmsMessages: Unmarshalling fail at index=%{public}d", i);
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
+        }
+        messages.push_back(*info);
+    }
+    EDMLOGD("GetSmsMessages success, count = %{public}d", count);
+    return ERR_OK;
+}
+
+int32_t TelephonyManagerProxy::GetSmsMessages(const TelephonyQueryConfig &config,
+    std::vector<SmsMessageInfo> &messages)
+{
+    EDMLOGD("TelephonyManagerProxy::GetSmsMessages");
+#ifdef FEATURE_PC_ONLY
+    EDMLOGW("TelephonyManagerProxy::GetCallLogs not supported on pc");
+    return ERR_OK;
+#endif
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    data.WriteInt64(config.startTime);
+    data.WriteInt64(config.endTime);
+    data.WriteString(config.telephoneNumber);
+    MessageParcel reply;
+    auto ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::GET_SMS_MESSAGES, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("GetSmsMessages:GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    int32_t dataSize = reply.ReadInt32();
+    if (dataSize == 0) {
+        EDMLOGI("GetSmsMessages: empty result, dataSize = 0.");
+        return ERR_OK;
+    }
+    if (dataSize < 0 || dataSize > static_cast<int32_t>(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM)) {
+        EDMLOGE("GetSmsMessages: invalid dataSize %{public}d.", dataSize);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    void *buffer = nullptr;
+    ErrCode errCode = ReadBufferFromReply(reply, dataSize, buffer);
+    if (errCode != ERR_OK) {
+        EDMLOGE("GetSmsMessages: ReadBufferFromReply failed, ret = %{public}d.", errCode);
+        return errCode;
+    }
+    errCode = ParseSmsMessagesFromBuffer(buffer, dataSize, messages);
+    if (errCode != ERR_OK) {
+        EDMLOGE("GetSmsMessages: ParseSmsMessagesFromBuffer failed, ret = %{public}d.", errCode);
+        return errCode;
+    }
+    EDMLOGI("GetSmsMessages success, count = %{public}zu.", messages.size());
     return errCode;
 }
 } // namespace EDM

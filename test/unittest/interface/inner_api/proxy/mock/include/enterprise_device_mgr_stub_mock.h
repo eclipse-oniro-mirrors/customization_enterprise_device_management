@@ -294,6 +294,12 @@ public:
     int InvokeSharedPathListSendRequestGetPolicyOverLimit(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeSmsMessagesSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSmsMessagesSendRequestGetPolicyFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

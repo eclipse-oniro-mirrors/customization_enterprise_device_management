@@ -19,10 +19,19 @@
 #include <gmock/gmock.h>
 #include <iostream>
 #include <string>
+#include <vector>
 #include "edm_errors.h"
 
 namespace OHOS {
 namespace EDM {
+struct SmsQueryResult {
+    int32_t slotId = 0;
+    std::string telephoneNumber;
+    std::string content;
+    int64_t timer = 0;
+    bool isSender = false;
+};
+
 class EdmDataAbilityUtils {
 public:
     static ErrCode GetStringFromSettingsDataShare(const std::string &key, std::string &value);
@@ -32,6 +41,8 @@ public:
     static ErrCode GetIntFromSettingsDataShare(const std::string &strUri, const std::string &key, int32_t &value);
     static void SetResult(const std::string &result);
     static ErrCode UpdateSettingsData(const std::string &baseUri, const std::string &key, const std::string &value);
+    static ErrCode GetSmsMessages(int64_t startTime, int64_t endTime, const std::string &telephoneNumber,
+        std::vector<SmsQueryResult> &messages);
 private:
     static std::string result_;
 };

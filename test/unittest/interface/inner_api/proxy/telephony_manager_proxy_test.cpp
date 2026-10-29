@@ -23,6 +23,7 @@
 
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "sms_message_info.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -558,6 +559,70 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
     int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
     EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_TRUE(callLogs.empty());
+}
+
+/**
+ * @tc.name: TestGetSmsMessagesSuc
+ * @tc.desc: Test GetSmsMessages func success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy));
+    TelephonyQueryConfig config;
+    config.startTime = 1000;
+    config.endTime = 2000;
+    config.hasTelephoneNumber = true;
+    config.telephoneNumber = "13800000000";
+    std::vector<SmsMessageInfo> messages;
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_FALSE(messages.empty());
+    ASSERT_TRUE(messages[0].slotId == 0);
+    ASSERT_TRUE(messages[0].telephoneNumber == "13800000000");
+    ASSERT_TRUE(messages[0].content == "hello");
+    ASSERT_TRUE(messages[0].timer == 1722470500);
+    ASSERT_TRUE(messages[0].isSender == true);
+}
+
+/**
+ * @tc.name: TestGetSmsMessagesFail
+ * @tc.desc: Test GetSmsMessages func without enabled edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    TelephonyQueryConfig config;
+    config.startTime = 1000;
+    config.endTime = 2000;
+    config.telephoneNumber = "13800000000";
+    std::vector<SmsMessageInfo> messages;
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(messages.empty());
+}
+
+/**
+ * @tc.name: TestGetSmsMessagesIpcFail
+ * @tc.desc: Test GetSmsMessages func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail));
+    TelephonyQueryConfig config;
+    config.startTime = 1000;
+    config.endTime = 2000;
+    config.telephoneNumber = "13800000000";
+    std::vector<SmsMessageInfo> messages;
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
+    ASSERT_TRUE(ret != ERR_OK);
+    ASSERT_TRUE(messages.empty());
 }
 } // namespace TEST
 } // namespace EDM

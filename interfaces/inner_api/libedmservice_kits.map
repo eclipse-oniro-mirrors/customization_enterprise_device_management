@@ -30,6 +30,10 @@
             vtable?for?OHOS::EDM::PatchInfo;
             OHOS::EDM::PatchDescription::*;
             OHOS::EDM::PatchDescriptionBody::*;
+            OHOS::EDM::SmsMessageInfo::*;
+            "virtual thunk to OHOS::EDM::SmsMessageInfo::~SmsMessageInfo()";
+            VTT?for?OHOS::EDM::SmsMessageInfo;
+            vtable?for?OHOS::EDM::SmsMessageInfo;
             OHOS::EDM::PowerPolicy::*;
             "virtual thunk to OHOS::EDM::PowerPolicy::~PowerPolicy()";
             VTT?for?OHOS::EDM::PowerPolicy;
