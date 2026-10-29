@@ -17,9 +17,12 @@
 
 #include "array_string_serializer.h"
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "external_manager_factory.h"
 #include "func_code_utils.h"
+#include "iedm_bundle_manager.h"
 #include "iplugin_manager.h"
 
 namespace OHOS {
@@ -68,6 +71,19 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::OnHandlePolicy(std::uint32_t fun
         policyData.isChanged = true;
     }
     return ret;
+}
+
+ErrCode OptimizationBatteryExclusionAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &data,
+    int32_t userId, std::vector<std::string> &failedData)
+{
+    auto bundleMgr = std::make_shared<ExternalManagerFactory>()->CreateBundleManager();
+    for (const auto &bundleName : data) {
+        if (!bundleMgr->IsBundleInstalled(bundleName, userId)) {
+            EDMLOGE("SetOtherModulePolicy: %{public}s is not installed", bundleName.c_str());
+            return EdmReturnErrCode::DOCK_APP_NOT_INSTALLED;
+        }
+    }
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

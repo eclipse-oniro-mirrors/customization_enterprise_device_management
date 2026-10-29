@@ -29,6 +29,10 @@ public:
     OptimizationBatteryExclusionAppsPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
+
+protected:
+    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
+        std::vector<std::string> &failedData) override;
 };
 } // namespace EDM
 } // namespace OHOS
