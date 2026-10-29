@@ -22,7 +22,6 @@
 #include "func_code.h"
 #include "iplugin_manager.h"
 #include "int_serializer.h"
-#include <mutex>
 #ifdef TELEPHONY_EDM_ENABLE
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
@@ -62,15 +61,8 @@ constexpr int64_t ONE_DAY_SECONDS = 24LL * 60 * 60;
 constexpr int64_t MAX_TIME_RANGE_SECONDS = 31LL * ONE_DAY_SECONDS;
 constexpr int64_t MAX_CALL_LOG_RETURN_SIZE = 128LL * 1024 * 1024;
 constexpr int32_t DATASHARE_WAIT_TIME = 10;
-static std::mutex g_callLogHelperMutex;
-static std::shared_ptr<DataShare::DataShareHelper> g_callLogHelper = nullptr;
-
 static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
 {
-    std::lock_guard<std::mutex> lock(g_callLogHelperMutex);
-    if (g_callLogHelper != nullptr) {
-        return g_callLogHelper;
-    }
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
         EDMLOGE("GetCallLogsPlugin: GetSystemAbilityManager failed.");
@@ -81,15 +73,7 @@ static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
         EDMLOGE("GetCallLogsPlugin: GetSystemAbility ENTERPRISE_DEVICE_MANAGER_SA_ID failed.");
         return nullptr;
     }
-    g_callLogHelper = DataShare::DataShareHelper::Creator(remote, std::string(CALL_LOG_BASE_URI), "",
-        DATASHARE_WAIT_TIME);
-    return g_callLogHelper;
-}
-
-static void InvalidateCallLogHelper()
-{
-    std::lock_guard<std::mutex> lock(g_callLogHelperMutex);
-    g_callLogHelper.reset();
+    return DataShare::DataShareHelper::Creator(remote, std::string(CALL_LOG_BASE_URI), "", DATASHARE_WAIT_TIME);
 }
 
 static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig &config)
@@ -166,7 +150,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     auto resultSet = helper->Query(uri, predicates, columns);
     if (resultSet == nullptr) {
         EDMLOGE("GetCallLogsPlugin: Query call log failed.");
-        InvalidateCallLogHelper();
+        helper->Release();
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     int32_t rowCount = 0;
@@ -174,6 +158,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
     if (rowCount == 0) {
         EDMLOGI("GetCallLogsPlugin: Query success, but rowCount is 0.");
         resultSet->Close();
+        helper->Release();
         return ERR_OK;
     }
     if (rowCount > 0) {
@@ -194,6 +179,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
         operationResult = resultSet->GoToNextRow();
     }
     resultSet->Close();
+    helper->Release();
     EDMLOGI("GetCallLogsPlugin: QueryCallLogs success, count = %{public}zu.", callLogs.size());
     return ERR_OK;
 }
