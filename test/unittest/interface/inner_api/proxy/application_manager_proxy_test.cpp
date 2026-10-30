@@ -1365,6 +1365,60 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetApplicationWindowStatesFail, TestSi
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestGetAllMainWindowStatesSuc
+ * @tc.desc: Test GetAllMainWindowStates success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<MainWindowStates> mainWindowStates;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesVectorSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAllMainWindowStates(data, mainWindowStates);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(mainWindowStates.size(), 1);
+    ASSERT_EQ(mainWindowStates[0].pid, TEST_WINDOW_ID);
+    ASSERT_EQ(mainWindowStates[0].bundleName, TEST_WINDOW_NAME);
+    ASSERT_EQ(mainWindowStates[0].state, WindowState::ACTIVE);
+}
+
+/**
+ * @tc.name: TestGetAllMainWindowStatesReadFail
+ * @tc.desc: Test GetAllMainWindowStates when reply content is not a valid main window states vector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesReadFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<MainWindowStates> mainWindowStates;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAllMainWindowStates(data, mainWindowStates);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestGetAllMainWindowStatesFail
+ * @tc.desc: Test GetAllMainWindowStates without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    std::vector<MainWindowStates> mainWindowStates;
+
+    ErrCode ret = applicationManagerProxy_->GetAllMainWindowStates(data, mainWindowStates);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
 #ifndef FEATURE_PC_ONLY
 /**
  * @tc.name: TestAddHideLauncherIconSuc

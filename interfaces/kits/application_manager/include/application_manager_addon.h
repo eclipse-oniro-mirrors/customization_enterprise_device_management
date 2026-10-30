@@ -90,6 +90,7 @@ public:
     static napi_value RemoveHideLauncherIcon(napi_env env, napi_callback_info info);
     static napi_value GetHideLauncherIcon(napi_env env, napi_callback_info info);
     static napi_value GetApplicationWindowStates(napi_env env, napi_callback_info info);
+    static napi_value GetAllMainWindowStates(napi_env env, napi_callback_info info);
     static napi_value AddAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info);
     static napi_value RemoveAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info);
     static napi_value GetAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info);
@@ -133,6 +134,7 @@ private:
     static bool ParseNetworkInfo(napi_env env, NetStatsNetwork &networkInfo, napi_value args);
     static void ConvertWindowStateInfoVectorToJs(napi_env env, const std::vector<WindowStateInfo> &windowStateInfos,
         napi_value &nWindowStateInfos);
+    static napi_value MainWindowStatesToJsObj(napi_env env, const MainWindowStates &mainWindowState);
     static void NativeQueryTrafficStats(napi_env env, void *data);
     static void NativeQueryTrafficStatsComplete(napi_env env, napi_status status, void *data);
 #ifdef FEATURE_PC_ONLY

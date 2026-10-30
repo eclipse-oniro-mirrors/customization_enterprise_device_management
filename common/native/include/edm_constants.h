@@ -564,6 +564,7 @@ namespace PolicyName {
     const char* const POLICY_SET_SWITCH_STATUS = "set_switch_status";
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
+    const char* const POLICY_GET_ALL_MAIN_WINDOW_STATES = "get_all_main_window_states";
     const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     const char* const POLICY_SYSTEM_TIMER = "system_timer";
     const char* const POLICY_EXEMPTION_RESOURCE = "exemption_resource";

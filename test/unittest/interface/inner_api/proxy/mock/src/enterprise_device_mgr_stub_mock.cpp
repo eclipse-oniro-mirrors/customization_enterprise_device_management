@@ -39,6 +39,7 @@
 #include "usb_interface_type.h"
 #include "wifi_id.h"
 #include "window_state_info.h"
+#include "main_window_states.h"
 
 namespace OHOS {
 namespace EDM {
@@ -332,6 +333,23 @@ int EnterpriseDeviceMgrStubMock::InvokeWindowStateVectorSendRequestGetPolicy(uin
     reply.WriteInt32(ERR_OK);
     if (!WindowStateInfoHandle::WriteWindowStateInfoVector(reply, windowStateInfos)) {
         GTEST_LOG_(INFO) << "mock InvokeWindowStateVectorSendRequestGetPolicy write windowStateInfos failed";
+        return ERR_PROXY_SENDREQUEST_FAIL;
+    }
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeMainWindowStatesVectorSendRequestGetPolicy code :"
+                     << code;
+    code_ = code;
+    std::vector<MainWindowStates> mainWindowStates{
+        MainWindowStates{TEST_WINDOW_ID, TEST_WINDOW_NAME, WindowState::ACTIVE}
+    };
+    reply.WriteInt32(ERR_OK);
+    if (!MainWindowStatesHandle::WriteMainWindowStatesVector(reply, mainWindowStates)) {
+        GTEST_LOG_(INFO) << "mock InvokeMainWindowStatesVectorSendRequestGetPolicy write mainWindowStates failed";
         return ERR_PROXY_SENDREQUEST_FAIL;
     }
     return 0;

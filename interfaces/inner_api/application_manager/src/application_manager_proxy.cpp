@@ -736,6 +736,24 @@ int32_t ApplicationManagerProxy::GetApplicationWindowStates(const AppExecFwk::El
     return ERR_OK;
 }
 
+int32_t ApplicationManagerProxy::GetAllMainWindowStates(MessageParcel &data,
+    std::vector<MainWindowStates> &mainWindowStates)
+{
+    EDMLOGI("ApplicationManagerProxy::GetAllMainWindowStates");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::GET_ALL_MAIN_WINDOW_STATES, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("ApplicationManagerProxy::GetAllMainWindowStates fail. %{public}d", ret);
+        return ret;
+    }
+    if (!MainWindowStatesHandle::ReadMainWindowStatesVector(reply, mainWindowStates)) {
+        EDMLOGE("ApplicationManagerProxy::GetAllMainWindowStates read mainWindowStates failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
+
 #ifndef FEATURE_PC_ONLY
 int32_t ApplicationManagerProxy::AddOrRemoveHideLauncherIcon(const AppExecFwk::ElementName &admin, int32_t userId,
     const std::vector<std::string> &bundleNames, bool isAdd)
