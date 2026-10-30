@@ -18,17 +18,20 @@
 #include <algorithm>
 
 #include "array_string_serializer.h"
+#include "bundle_mgr_interface.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "edm_sys_manager.h"
 #include "external_manager_factory.h"
 #include "func_code_utils.h"
 #include "iedm_bundle_manager.h"
 #include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "managed_event.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace EDM {
@@ -81,8 +84,21 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::OnHandlePolicy(std::uint32_t fun
 ErrCode OptimizationBatteryExclusionAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &data,
     int32_t userId, std::vector<std::string> &failedData)
 {
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (iBundleMgr == nullptr) {
+        EDMLOGE("SetOtherModulePolicy: cannot get IBundleMgr");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
     auto bundleMgr = std::make_shared<ExternalManagerFactory>()->CreateBundleManager();
-    for (const auto &bundleName : data) {
+    for (const auto &appIdentifier : data) {
+        std::string bundleName;
+        int32_t ret = iBundleMgr->GetBundleNameByAppId(appIdentifier, bundleName);
+        if (FAILED(ret)) {
+            EDMLOGE("SetOtherModulePolicy: GetBundleNameByAppId failed for %{public}s, ret=%{public}d",
+                appIdentifier.c_str(), ret);
+            return EdmReturnErrCode::DOCK_APP_NOT_INSTALLED;
+        }
         if (!bundleMgr->IsBundleInstalled(bundleName, userId)) {
             EDMLOGE("SetOtherModulePolicy: %{public}s is not installed", bundleName.c_str());
             return EdmReturnErrCode::DOCK_APP_NOT_INSTALLED;
