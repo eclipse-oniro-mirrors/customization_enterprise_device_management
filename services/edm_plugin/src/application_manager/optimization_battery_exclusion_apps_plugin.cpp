@@ -15,15 +15,20 @@
 
 #include "optimization_battery_exclusion_apps_plugin.h"
 
+#include <algorithm>
+
 #include "array_string_serializer.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
+#include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "external_manager_factory.h"
 #include "func_code_utils.h"
 #include "iedm_bundle_manager.h"
+#include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {
@@ -84,6 +89,56 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::SetOtherModulePolicy(const std::
         }
     }
     return ERR_OK;
+}
+
+bool OptimizationBatteryExclusionAppsPlugin::SubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("OptimizationBatteryExclusionAppsPlugin SubscribeEvent manager is nullptr");
+        return false;
+    }
+    return manager->SubscribeEvent(PolicyName::POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED),
+        EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS, true, true);
+}
+
+bool OptimizationBatteryExclusionAppsPlugin::UnsubscribeEvent()
+{
+    auto *manager = IPluginEventSubscribeManager::GetInstance();
+    if (manager == nullptr) {
+        EDMLOGE("OptimizationBatteryExclusionAppsPlugin UnsubscribeEvent manager is nullptr");
+        return false;
+    }
+    manager->UnsubscribeEvent(PolicyName::POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS,
+        static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED));
+    return true;
+}
+
+void OptimizationBatteryExclusionAppsPlugin::OnPluginEvent(const std::string &adminName,
+    HandlePolicyData &policyData, const EdmEventData &data, int32_t userId)
+{
+    auto want = data.commonEventData.GetWant();
+    std::string bundleName = want.GetElement().GetBundleName();
+
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<std::string> apps;
+    serializer->Deserialize(policyData.policyData, apps);
+    auto iter = std::find(apps.begin(), apps.end(), bundleName);
+    if (iter == apps.end()) {
+        return;
+    }
+    apps.erase(iter);
+    std::vector<std::string> mergeApps;
+    serializer->Deserialize(policyData.mergePolicyData, mergeApps);
+    auto mergeIter = std::find(mergeApps.begin(), mergeApps.end(), bundleName);
+    if (mergeIter != mergeApps.end()) {
+        mergeApps.erase(mergeIter);
+    }
+    serializer->Serialize(apps, policyData.policyData);
+    serializer->Serialize(mergeApps, policyData.mergePolicyData);
+    EDMLOGI("OnPluginEvent: removed %{public}s from optimization battery exclusion list",
+        bundleName.c_str());
 }
 } // namespace EDM
 } // namespace OHOS
