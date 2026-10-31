@@ -260,6 +260,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/firewall_rule_plugin_test.cpp",
       "./src/global_proxy_plugin_test.cpp",
       "./src/iptables_rule_plugin_test.cpp",
+      "./src/clear_dns_cache_plugin_test.cpp",
       "./src/network/executer/domain_executer_test.cpp",
       "./src/network/executer/executer_factory_test.cpp",
       "./src/network/executer/executer_utils_test.cpp",
