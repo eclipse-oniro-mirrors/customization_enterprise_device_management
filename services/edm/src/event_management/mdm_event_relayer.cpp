@@ -146,10 +146,10 @@ void MdmEventRelayer::RegisterUnmountExternalStorageDeviceStrategies()
 
 void MdmEventRelayer::RegisterPasswordFailedStrategies()
 {
-    strategyFactories_[ManagedEvent::ON_PASSWORD_FAILED] =
+    strategyFactories_[ManagedEvent::PASSWORD_FAILED] =
         [](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
         if (data.passwordFailedCount < 0 || data.userId < 0) {
-            EDMLOGE("MdmEventRelayer ON_PASSWORD_FAILED invalid count=%{public}d userId=%{public}d",
+            EDMLOGE("MdmEventRelayer PASSWORD_FAILED invalid count=%{public}d userId=%{public}d",
                 data.passwordFailedCount, data.userId);
             return nullptr;
         }
