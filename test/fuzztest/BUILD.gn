@@ -91,6 +91,7 @@ group("fuzztest") {
       "apnutils_fuzzer:ApnUtilsFuzzTest",
       "turnonoffmobiledataplugin_fuzzer:TurnOnOffMobileDataPluginFuzzTest",
       "telephonycallpolicyplugin_fuzzer:TelephonyCallPolicyPluginFuzzTest",
+      "getcalllogsplugin_fuzzer:GetCallLogsPluginFuzzTest",
       "hiddensettingsmenuplugin_fuzzer:HiddenSettingsMenuPluginFuzzTest",
       "systemtimermanager_fuzzer:SystemTimerManagerFuzzTest",
       "edmclienttimercallback_fuzzer:EdmClientTimerCallbackFuzzTest",

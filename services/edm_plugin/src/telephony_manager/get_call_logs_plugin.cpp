@@ -88,6 +88,25 @@ static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig
     return predicates;
 }
 
+struct CallLogColumnIndices {
+    int32_t createTime = 0;
+    int32_t beginTime = 0;
+    int32_t endTime = 0;
+    int32_t callDirection = 0;
+    int32_t slotId = 0;
+    int32_t phoneNumber = 0;
+};
+
+static void InitColumnIndices(std::shared_ptr<DataShare::DataShareResultSet> resultSet, CallLogColumnIndices &indices)
+{
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CREATE_TIME, indices.createTime);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_BEGIN_TIME, indices.beginTime);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_END_TIME, indices.endTime);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CALL_DIRECTION, indices.callDirection);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_SLOT_ID, indices.slotId);
+    resultSet->GetColumnIndex(CALL_LOG_COLUMN_PHONE_NUMBER, indices.phoneNumber);
+}
+
 static std::vector<std::string> BuildResultColumns()
 {
     return {
@@ -101,33 +120,20 @@ static std::vector<std::string> BuildResultColumns()
     };
 }
 
-static void ReadCallLogFromResultSet(
-    std::shared_ptr<DataShare::DataShareResultSet> resultSet, CallLogInfo &log)
+static void ReadCallLogFromResultSet(std::shared_ptr<DataShare::DataShareResultSet> resultSet,
+    const CallLogColumnIndices &indices, CallLogInfo &log)
 {
-    int32_t columnIndex = 0;
-    int64_t createTime = 0;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CREATE_TIME, columnIndex);
-    resultSet->GetLong(columnIndex, createTime);
-    log.createTime = createTime;
-    int64_t beginTime = 0;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_BEGIN_TIME, columnIndex);
-    resultSet->GetLong(columnIndex, beginTime);
-    log.startTime = beginTime;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_END_TIME, columnIndex);
-    int64_t endTime = 0;
-    resultSet->GetLong(columnIndex, endTime);
-    log.endTime = endTime;
+    resultSet->GetLong(indices.createTime, log.createTime);
+    resultSet->GetLong(indices.beginTime, log.startTime);
+    resultSet->GetLong(indices.endTime, log.endTime);
     int32_t callDirection = CALL_DIRECTION_OUT;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_CALL_DIRECTION, columnIndex);
-    resultSet->GetInt(columnIndex, callDirection);
+    resultSet->GetInt(indices.callDirection, callDirection);
     log.isIncoming = (callDirection == CALL_DIRECTION_IN);
     int32_t slotId = -1;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_SLOT_ID, columnIndex);
-    resultSet->GetInt(columnIndex, slotId);
+    resultSet->GetInt(indices.slotId, slotId);
     log.slotId = slotId;
     std::string phoneNumber;
-    resultSet->GetColumnIndex(CALL_LOG_COLUMN_PHONE_NUMBER, columnIndex);
-    resultSet->GetString(columnIndex, phoneNumber);
+    resultSet->GetString(indices.phoneNumber, phoneNumber);
     log.telephoneNumber = phoneNumber;
 }
 
@@ -155,6 +161,11 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
         helper->Release();
         return ERR_OK;
     }
+    if (rowCount > 0) {
+        callLogs.reserve(static_cast<size_t>(rowCount));
+    }
+    CallLogColumnIndices indices;
+    InitColumnIndices(resultSet, indices);
     int32_t operationResult = resultSet->GoToFirstRow();
     while (operationResult == ROW_FETCH_SUCCESS) {
         if (callLogs.size() * ESTIMATED_RECORD_SIZE >= MAX_CALL_LOG_RETURN_SIZE) {
@@ -163,7 +174,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
             break;
         }
         CallLogInfo log;
-        ReadCallLogFromResultSet(resultSet, log);
+        ReadCallLogFromResultSet(resultSet, indices, log);
         callLogs.push_back(log);
         operationResult = resultSet->GoToNextRow();
     }
