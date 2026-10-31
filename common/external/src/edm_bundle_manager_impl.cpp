@@ -335,5 +335,27 @@ bool EdmBundleManagerImpl::GetBundleArchiveInfoV9(const std::string &hapFilePath
     return true;
 }
 // LCOV_EXCL_STOP
+
+std::string EdmBundleManagerImpl::GetAppIdByBundleName(const std::string &bundleName, int32_t userId)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("EdmBundleManagerImpl::GetAppIdByBundleName GetBundleMgr failed.");
+        return "";
+    }
+    return proxy->GetAppIdByBundleName(bundleName, userId);
+}
+
+ErrCode EdmBundleManagerImpl::GetBundleNameByAppId(const std::string &appIdentifier, std::string &bundleName)
+{
+    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (proxy == nullptr) { // LCOV_EXCL_BR_LINE
+        EDMLOGE("EdmBundleManagerImpl::GetBundleNameByAppId GetBundleMgr failed.");
+        return ERR_BUNDLE_SERVICE_ABNORMALLY;
+    }
+    return proxy->GetBundleNameByAppId(appIdentifier, bundleName);
+}
 } // namespace EDM
 } // namespace OHOS

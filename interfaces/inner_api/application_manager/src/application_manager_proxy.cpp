@@ -17,6 +17,7 @@
 
 #include <algorithm>
 
+#include "edm_bundle_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_os_account_manager_impl.h"
@@ -897,13 +898,25 @@ ErrCode ApplicationManagerProxy::GetOptimizationBatteryExclusionApps(std::vector
 bool ApplicationManagerProxy::IsOptimizationBatteryExcluded(const std::string &bundleName)
 {
     EDMLOGI("ApplicationManagerProxy::IsOptimizationBatteryExcluded bundleName=%{public}s", bundleName.c_str());
+    auto osAccountMgr = std::make_shared<EdmOsAccountManagerImpl>();
+    int32_t userId = osAccountMgr->GetCurrentUserId();
+    if (userId < 0) {
+        EDMLOGE("IsOptimizationBatteryExcluded: GetCurrentUserId failed");
+        return false;
+    }
+    auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+    std::string appId = bundleMgr->GetAppIdByBundleName(bundleName, userId);
+    if (appId.empty()) {
+        EDMLOGE("IsOptimizationBatteryExcluded: GetAppIdByBundleName failed for %{public}s", bundleName.c_str());
+        return false;
+    }
     std::vector<std::string> apps;
     ErrCode ret = GetOptimizationBatteryExclusionApps(apps);
     if (ret != ERR_OK) {
         EDMLOGE("GetOptimizationBatteryExclusionApps failed, ret=%{public}d", ret);
         return false;
     }
-    return std::find(apps.begin(), apps.end(), bundleName) != apps.end();
+    return std::find(apps.begin(), apps.end(), appId) != apps.end();
 }
 } // namespace EDM
 } // namespace OHOS

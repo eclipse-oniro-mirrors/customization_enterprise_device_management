@@ -20,6 +20,8 @@
 #include <vector>
 
 #include "basic_array_string_plugin.h"
+#include "external_manager_factory.h"
+#include "iexternal_manager_factory.h"
 #include "iplugin.h"
 
 namespace OHOS {
@@ -29,6 +31,8 @@ public:
     OptimizationBatteryExclusionAppsPlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
+    ErrCode GetOthersMergePolicyData(const std::string &adminName, int32_t userId,
+        std::string &othersMergePolicyData) override;
     bool SubscribeEvent() override;
     bool UnsubscribeEvent() override;
     void OnPluginEvent(const std::string &adminName, HandlePolicyData &policyData,
@@ -37,6 +41,7 @@ public:
 protected:
     ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
         std::vector<std::string> &failedData) override;
+    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM
 } // namespace OHOS

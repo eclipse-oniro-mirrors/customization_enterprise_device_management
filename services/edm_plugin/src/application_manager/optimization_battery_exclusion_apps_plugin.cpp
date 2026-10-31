@@ -18,20 +18,16 @@
 #include <algorithm>
 
 #include "array_string_serializer.h"
-#include "bundle_mgr_interface.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
-#include "edm_sys_manager.h"
-#include "external_manager_factory.h"
 #include "func_code_utils.h"
-#include "iedm_bundle_manager.h"
+#include "ipolicy_manager.h"
 #include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "managed_event.h"
-#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace EDM {
@@ -84,16 +80,14 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::OnHandlePolicy(std::uint32_t fun
 ErrCode OptimizationBatteryExclusionAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &data,
     int32_t userId, std::vector<std::string> &failedData)
 {
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (iBundleMgr == nullptr) {
-        EDMLOGE("SetOtherModulePolicy: cannot get IBundleMgr");
+    auto bundleMgr = externalManagerFactory_->CreateBundleManager();
+    if (bundleMgr == nullptr) {
+        EDMLOGE("SetOtherModulePolicy: cannot get bundle manager");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    auto bundleMgr = std::make_shared<ExternalManagerFactory>()->CreateBundleManager();
     for (const auto &appIdentifier : data) {
         std::string bundleName;
-        int32_t ret = iBundleMgr->GetBundleNameByAppId(appIdentifier, bundleName);
+        ErrCode ret = bundleMgr->GetBundleNameByAppId(appIdentifier, bundleName);
         if (FAILED(ret)) {
             EDMLOGE("SetOtherModulePolicy: GetBundleNameByAppId failed for %{public}s, ret=%{public}d",
                 appIdentifier.c_str(), ret);
@@ -104,6 +98,32 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::SetOtherModulePolicy(const std::
             return EdmReturnErrCode::DOCK_APP_NOT_INSTALLED;
         }
     }
+    return ERR_OK;
+}
+
+ErrCode OptimizationBatteryExclusionAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
+    int32_t userId, std::string &othersMergePolicyData)
+{
+    std::unordered_map<std::string, std::string> adminValues;
+    IPolicyManager::GetInstance()->GetAdminByPolicyName(GetPolicyName(), adminValues, userId);
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    adminValues.erase(adminName);
+    if (adminValues.empty()) {
+        return ERR_OK;
+    }
+    auto serializer = ArrayStringSerializer::GetInstance();
+    std::vector<std::vector<std::string>> dataList;
+    for (const auto &item : adminValues) {
+        std::vector<std::string> dataItem;
+        if (!item.second.empty() && serializer->Deserialize(item.second, dataItem)) {
+            dataList.push_back(dataItem);
+        }
+    }
+    std::vector<std::string> result;
+    serializer->MergePolicy(dataList, result);
+    serializer->Serialize(result, othersMergePolicyData);
     return ERR_OK;
 }
 
@@ -135,26 +155,30 @@ void OptimizationBatteryExclusionAppsPlugin::OnPluginEvent(const std::string &ad
     HandlePolicyData &policyData, const EdmEventData &data, int32_t userId)
 {
     auto want = data.commonEventData.GetWant();
-    std::string bundleName = want.GetElement().GetBundleName();
+    std::string removedAppId = want.GetStringParam(EdmConstants::APP_IDENTIFIER);
+    if (removedAppId.empty()) {
+        EDMLOGE("OnPluginEvent: APP_IDENTIFIER is empty");
+        return;
+    }
 
     auto serializer = ArrayStringSerializer::GetInstance();
     std::vector<std::string> apps;
     serializer->Deserialize(policyData.policyData, apps);
-    auto iter = std::find(apps.begin(), apps.end(), bundleName);
+    auto iter = std::find(apps.begin(), apps.end(), removedAppId);
     if (iter == apps.end()) {
         return;
     }
     apps.erase(iter);
     std::vector<std::string> mergeApps;
     serializer->Deserialize(policyData.mergePolicyData, mergeApps);
-    auto mergeIter = std::find(mergeApps.begin(), mergeApps.end(), bundleName);
+    auto mergeIter = std::find(mergeApps.begin(), mergeApps.end(), removedAppId);
     if (mergeIter != mergeApps.end()) {
         mergeApps.erase(mergeIter);
     }
     serializer->Serialize(apps, policyData.policyData);
     serializer->Serialize(mergeApps, policyData.mergePolicyData);
     EDMLOGI("OnPluginEvent: removed %{public}s from optimization battery exclusion list",
-        bundleName.c_str());
+        removedAppId.c_str());
 }
 } // namespace EDM
 } // namespace OHOS
