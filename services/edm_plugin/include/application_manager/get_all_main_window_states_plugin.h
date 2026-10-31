@@ -16,7 +16,10 @@
 #ifndef SERVICES_EDM_PLUGIN_INCLUDE_GET_ALL_MAIN_WINDOW_STATES_PLUGIN_H
 #define SERVICES_EDM_PLUGIN_INCLUDE_GET_ALL_MAIN_WINDOW_STATES_PLUGIN_H
 
+#include <vector>
+
 #include "iplugin.h"
+#include "main_window_states.h"
 
 namespace OHOS {
 namespace EDM {
@@ -24,6 +27,9 @@ class GetAllMainWindowStatesPlugin : public IPlugin {
 public:
     GetAllMainWindowStatesPlugin();
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+private:
+    ErrCode QueryMainWindowStates(int32_t userId, std::vector<MainWindowStates> &mainWindowStates);
 };
 } // namespace EDM
 } // namespace OHOS
