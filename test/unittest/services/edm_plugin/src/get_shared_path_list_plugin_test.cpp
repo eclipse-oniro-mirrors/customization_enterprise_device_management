@@ -57,7 +57,14 @@ HWTEST_F(GetSharedPathListPluginTest, TestOnHandlePolicy, TestSize.Level1)
     int32_t userId = 0;
 
     ErrCode ret = plugin.OnHandlePolicy(EdmInterfaceCode::GET_SHARED_PATH_LIST, data, reply, policyData, userId);
-    ASSERT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    ASSERT_EQ(ret, ERR_OK);
+    int32_t replyCode = ERR_OK;
+    ASSERT_TRUE(reply.ReadInt32(replyCode));
+    ASSERT_EQ(replyCode, ERR_OK);
+
+    uint32_t size = 1;
+    ASSERT_TRUE(reply.ReadUint32(size));
+    ASSERT_EQ(size, 0u);
 }
 
 HWTEST_F(GetSharedPathListPluginTest, TestOnGetPolicy, TestSize.Level1)
@@ -69,7 +76,15 @@ HWTEST_F(GetSharedPathListPluginTest, TestOnGetPolicy, TestSize.Level1)
     int32_t userId = 0;
 
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, userId);
-    ASSERT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+    ASSERT_EQ(ret, ERR_OK);
+
+    int32_t replyCode = ERR_OK;
+    ASSERT_TRUE(reply.ReadInt32(replyCode));
+    ASSERT_EQ(replyCode, ERR_OK);
+
+    uint32_t size = 1;
+    ASSERT_TRUE(reply.ReadUint32(size));
+    ASSERT_EQ(size, 0u);
 }
 
 HWTEST_F(GetSharedPathListPluginTest, TestPluginCode, TestSize.Level1)
