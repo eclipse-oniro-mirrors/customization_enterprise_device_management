@@ -24,9 +24,9 @@
 namespace OHOS {
 namespace EDM {
 struct MainWindowStates {
-    int32_t pid;
+    int32_t pid = 0;
     std::string bundleName;
-    WindowState state;
+    WindowState state = WindowState::DISCONNECT;
 };
 
 class MainWindowStatesHandle {
