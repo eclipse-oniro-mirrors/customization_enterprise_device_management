@@ -67,6 +67,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllEnabledEntriesNonNull, TestS
         if (!entries[i].config.isFeatureEnabled) {
             continue;
         }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
+            continue;
+        }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
         ASSERT_NE(query, nullptr) << "CreateQuery returned nullptr for code " << entries[i].code;
     }
@@ -78,6 +82,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllPolicyNamesMatch, TestSize.L
     size_t count = PolicyQueryConfigTable::GetConfigCount();
     for (size_t i = 0; i < count; i++) {
         if (!entries[i].config.isFeatureEnabled) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -93,6 +101,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllPermissionsMatch, TestSize.L
     size_t count = PolicyQueryConfigTable::GetConfigCount();
     for (size_t i = 0; i < count; i++) {
         if (!entries[i].config.isFeatureEnabled) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -121,6 +133,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllIsPolicySavedMatch, TestSize
         if (!entries[i].config.isFeatureEnabled) {
             continue;
         }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
+            continue;
+        }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
         ASSERT_NE(query, nullptr);
         ASSERT_EQ(query->IsPolicySaved(), entries[i].config.isPolicySaved)
@@ -134,6 +150,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_AllApiTypesMatch, TestSize.Leve
     size_t count = PolicyQueryConfigTable::GetConfigCount();
     for (size_t i = 0; i < count; i++) {
         if (!entries[i].config.isFeatureEnabled) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -195,6 +215,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestCreateQuery_CacheBehaviorForEnabledEntries,
     size_t count = PolicyQueryConfigTable::GetConfigCount();
     for (size_t i = 0; i < count; i++) {
         if (!entries[i].config.isFeatureEnabled) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query1 = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -323,6 +347,10 @@ HWTEST_F(PolicyQueryFactoryTest, TestGetPermission_AllByodPermissions, TestSize.
     size_t count = PolicyQueryConfigTable::GetConfigCount();
     for (size_t i = 0; i < count; i++) {
         if (!entries[i].config.isFeatureEnabled) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);

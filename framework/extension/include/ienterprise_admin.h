@@ -22,6 +22,7 @@
 #include "policy_struct.h"
 #include "policy_changed_event.h"
 #include "external_storage_device_info.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -136,6 +137,8 @@ public:
 
     virtual bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) = 0;
 
+    virtual bool OnSmsReceived(const SmsReceiveInfo &smsInfo) = 0;
+
     /**
      * @brief 处理密码认证失败事件。
      * @param cumulativeFailedCount 密码认证累计失败次数。
@@ -193,7 +196,9 @@ public:
         /** 外置存储设备卸载事件 */
         COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE = 22,
         /** 密码认证失败事件 */
-        COMMAND_ON_PASSWORD_FAILED = 23
+        COMMAND_ON_PASSWORD_FAILED = 23,
+        /** 短信接收事件 */
+        COMMAND_ON_SMS_RECEIVED = 24
     };
 };
 } // namespace EDM

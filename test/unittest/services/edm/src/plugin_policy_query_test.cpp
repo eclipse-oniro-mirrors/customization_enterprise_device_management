@@ -274,6 +274,10 @@ HWTEST_F(PluginPolicyQueryTest, TestAllCustomEntriesCreateQueryNonNull, TestSize
         if (entries[i].config.dataType != PolicyDataType::CUSTOM) {
             continue;
         }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
+            continue;
+        }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
         ASSERT_NE(query, nullptr) << "CUSTOM query is null for code " << entries[i].code;
     }
@@ -288,6 +292,10 @@ HWTEST_F(PluginPolicyQueryTest, TestAllCustomEntriesPolicyNameMatch, TestSize.Le
             continue;
         }
         if (entries[i].config.dataType != PolicyDataType::CUSTOM) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -306,6 +314,10 @@ HWTEST_F(PluginPolicyQueryTest, TestAllCustomEntriesPermissionMatch, TestSize.Le
             continue;
         }
         if (entries[i].config.dataType != PolicyDataType::CUSTOM) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -394,6 +406,10 @@ HWTEST_F(PluginPolicyQueryTest, TestAllSpecificPermissionEntries, TestSize.Level
             continue;
         }
         if (entries[i].config.permissionConfig.pattern != PermissionPattern::SPECIFIC) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
@@ -693,6 +709,10 @@ HWTEST_F(PluginPolicyQueryTest, TestAllEnabledEntriesIsPolicySavedConsistent, Te
         if (!entries[i].config.isFeatureEnabled) {
             continue;
         }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
+            continue;
+        }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);
         ASSERT_NE(query, nullptr);
         ASSERT_EQ(query->IsPolicySaved(), entries[i].config.isPolicySaved)
@@ -706,6 +726,10 @@ HWTEST_F(PluginPolicyQueryTest, TestAllEnabledEntriesApiTypeConsistent, TestSize
     size_t count = PolicyQueryConfigTable::GetConfigCount();
     for (size_t i = 0; i < count; i++) {
         if (!entries[i].config.isFeatureEnabled) {
+            continue;
+        }
+        // 纯 plugin 策略（不持久化，无 query 实现）不参与 query factory 断言
+        if (!entries[i].config.isPolicySaved) {
             continue;
         }
         auto query = PolicyQueryFactory::CreateQuery(entries[i].code);

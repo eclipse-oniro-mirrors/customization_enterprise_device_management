@@ -51,6 +51,8 @@ private:
     void RegisterDeviceStrategies();
     void RegisterUnmountExternalStorageDeviceStrategies();
     void RegisterPasswordFailedStrategies();
+    void RegisterSmsReceivedStrategies();
+    void ParseSmsContent(const EventFwk::Want &want, std::string &content);
     void RestoreSubscriptions(bool appLifecycleOnly);
     void RestoreAdminEvents(const std::string &adminName, int32_t userId, bool appLifecycleOnly);
     std::string MakeAdminKey(const std::string &adminName, int32_t userId);

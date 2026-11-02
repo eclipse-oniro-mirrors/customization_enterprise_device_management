@@ -239,7 +239,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::DISALLOWED_SMS, {PolicyName::POLICY_DISALLOWED_SMS, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
-#ifdef SMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
         true
 #else
         false
@@ -247,7 +247,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::DISALLOWED_MMS, {PolicyName::POLICY_DISALLOWED_MMS, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
-#ifdef MMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
         true
 #else
         false

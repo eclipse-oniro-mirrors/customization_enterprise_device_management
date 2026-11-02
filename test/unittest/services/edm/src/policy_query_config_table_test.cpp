@@ -242,10 +242,8 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef NETMANAGER_EXT_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_VPN] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
-#ifdef SMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_SMS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
-#endif
-#ifdef MMS_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_MMS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
 #ifdef TELEPHONY_EDM_ENABLE
@@ -407,10 +405,8 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
     superOnlyEntries.push_back(EdmInterfaceCode::DISABLED_HDC_REMOTE);
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE);
 #endif
-#ifdef SMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_SMS);
-#endif
-#ifdef MMS_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MMS);
 #endif
 #ifdef TELEPHONY_EDM_ENABLE

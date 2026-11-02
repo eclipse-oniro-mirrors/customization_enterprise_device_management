@@ -15,19 +15,36 @@
 
 #include "mdm_event_relayer.h"
 
+#include <vector>
+
 #include "admin_manager.h"
 #include "callback_strategies.h"
 #include "edm_constants.h"
 #include "edm_log.h"
+#include "edm_utils.h"
 #include "enterprise_conn_manager.h"
 #include "event_subscription_manager.h"
 #include "icallback_strategy.h"
 #include "ienterprise_admin.h"
+#include "sms_receive_info.h"
 #include "startup_scene.h"
+#ifdef SMS_MMS_EDM_ENABLE
+#include "short_message.h"
+#include "sms_service_manager_client.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
+namespace {
 constexpr int32_t BUNDLE_UPDATE_EVENT = 2;
+constexpr const char *SMS_BROADCAST_SLOTID_KEY = "slotId";
+constexpr const char *SMS_BROADCAST_ADDRESS_KEY = "addr";
+constexpr const char *SMS_BROADCAST_MSG_COUNT_KEY = "msgCount";
+#ifdef SMS_MMS_EDM_ENABLE
+constexpr const char *SMS_BROADCAST_PDU_KEY = "pdus";
+constexpr const char *SMS_BROADCAST_SMS_TYPE_KEY = "isCdma";
+#endif
+} // namespace
 
 MdmEventRelayer::MdmEventRelayer()
 {
@@ -157,6 +174,51 @@ void MdmEventRelayer::RegisterPasswordFailedStrategies()
     };
 }
 
+void MdmEventRelayer::RegisterSmsReceivedStrategies()
+{
+    strategyFactories_[ManagedEvent::SMS_RECEIVED] =
+        [this](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
+        const auto &want = data.commonEventData.GetWant();
+        SmsReceiveInfo smsInfo;
+        smsInfo.slotId = want.GetIntParam(SMS_BROADCAST_SLOTID_KEY, -1);
+        smsInfo.telephoneNumber = want.GetStringParam(SMS_BROADCAST_ADDRESS_KEY);
+        smsInfo.count = want.GetIntParam(SMS_BROADCAST_MSG_COUNT_KEY, 0);
+        ParseSmsContent(want, smsInfo.content);
+        return std::make_shared<SmsReceivedStrategy>(smsInfo);
+    };
+}
+
+void MdmEventRelayer::ParseSmsContent(const EventFwk::Want &want, std::string &content)
+{
+#ifdef SMS_MMS_EDM_ENABLE
+    std::vector<std::string> pdus = want.GetStringArrayParam(SMS_BROADCAST_PDU_KEY);
+    if (pdus.empty()) {
+        EDMLOGW("MdmEventRelayer::ParseSmsContent pdus empty");
+        return;
+    }
+    bool isCdma = want.GetBoolParam(SMS_BROADCAST_SMS_TYPE_KEY, false);
+    std::string specification = isCdma ? "3gpp2" : "3gpp";
+    std::string messageBody;
+    for (const auto &pdu : pdus) {
+        if (pdu.empty()) {
+            continue;
+        }
+        EDMLOGI("MdmEventRelayer::ParseSmsContent, PDUS content: %{public}s", pdu.c_str());
+        Telephony::ShortMessage message;
+        int32_t ret = Singleton<Telephony::SmsServiceManagerClient>::GetInstance().
+            CreateMessage(pdu, specification, message);
+        if (ret != 0) {
+            EDMLOGE("MdmEventRelayer::ParseSmsContent CreateMessage failed ret=%{public}d", ret);
+            continue;
+        }
+        messageBody.append(EdmUtils::Utf16ToUtf8(message.GetVisibleMessageBody()));
+    }
+    content = messageBody;
+#else
+    EDMLOGW("MdmEventRelayer::ParseSmsContent sms_mms not enabled");
+#endif
+}
+
 void MdmEventRelayer::RegisterStrategyFactories()
 {
     RegisterAppLifecycleStrategies();
@@ -165,6 +227,7 @@ void MdmEventRelayer::RegisterStrategyFactories()
     RegisterDeviceStrategies();
     RegisterUnmountExternalStorageDeviceStrategies();
     RegisterPasswordFailedStrategies();
+    RegisterSmsReceivedStrategies();
 }
 
 void MdmEventRelayer::OnAdminSubscribe(const std::string &adminName, int32_t userId, ManagedEvent event)

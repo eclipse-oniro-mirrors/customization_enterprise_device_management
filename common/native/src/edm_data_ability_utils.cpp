@@ -37,6 +37,7 @@ const std::string SMS_FIELD_IS_SENDER = "is_sender";
 const std::string SMS_FIELD_SLOT_ID = "slot_id";
 const std::string SMS_FIELD_CONTENT = "msg_content";
 const std::string SMS_FIELD_RECEIVER_NUMBER = "receiver_number";
+const std::string SMS_FIELD_SENDER_NUMBER = "sender_number";
 
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
 {
@@ -173,7 +174,12 @@ static DataShare::DataSharePredicates BuildSmsPredicates(int64_t startTime, int6
         ->And()
         ->LessThanOrEqualTo(SMS_FIELD_TIME, endTime);
     if (!telephoneNumber.empty()) {
-        predicates.And()->EqualTo(SMS_FIELD_RECEIVER_NUMBER, telephoneNumber);
+        predicates.And()
+            ->BeginWrap()
+            ->EqualTo(SMS_FIELD_RECEIVER_NUMBER, telephoneNumber)
+            ->Or()
+            ->EqualTo(SMS_FIELD_SENDER_NUMBER, telephoneNumber)
+            ->EndWrap();
     }
     return predicates;
 }

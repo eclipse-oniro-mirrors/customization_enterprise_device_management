@@ -298,10 +298,8 @@ ohos_shared_library("edmservice") {
   }
 
   if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
-    defines += [ 
-      "SMS_EDM_ENABLE",
-      "MMS_EDM_ENABLE",
-    ]
+    external_deps += [ "sms_mms:tel_sms_mms_api" ]
+    defines += [ "SMS_MMS_EDM_ENABLE" ]
   }
 
   if (!enterprise_device_management_feature_pc_only) {

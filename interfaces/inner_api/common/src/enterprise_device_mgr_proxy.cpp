@@ -252,6 +252,34 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
     }
 }
 
+ErrCode EnterpriseDeviceMgrProxy::SubscribeSmsEvent()
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SubscribeSmsEvent");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->SubscribeSmsEvent();
+}
+
+ErrCode EnterpriseDeviceMgrProxy::UnsubscribeSmsEvent()
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::UnsubscribeSmsEvent");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->UnsubscribeSmsEvent();
+}
+
 ErrCode EnterpriseDeviceMgrProxy::IsSuperAdmin(const std::string &bundleName, bool &result)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::IsSuperAdmin");

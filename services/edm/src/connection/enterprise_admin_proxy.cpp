@@ -15,6 +15,7 @@
 
 #include "enterprise_admin_proxy.h"
 #include "edm_log.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -209,6 +210,18 @@ bool EnterpriseAdminProxy::OnPasswordFailed(int32_t cumulativeFailedCount, int32
         return false;
     }
     return SendRequest(COMMAND_ON_PASSWORD_FAILED, data);
+}
+
+bool EnterpriseAdminProxy::OnSmsReceived(const SmsReceiveInfo &smsInfo)
+{
+    EDMLOGI("EnterpriseAdminProxy::OnSmsReceived");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::OnSmsReceived write descriptor failed!");
+        return false;
+    }
+    smsInfo.Marshalling(data);
+    return SendRequest(COMMAND_ON_SMS_RECEIVED, data);
 }
 
 bool EnterpriseAdminProxy::IsValid()
