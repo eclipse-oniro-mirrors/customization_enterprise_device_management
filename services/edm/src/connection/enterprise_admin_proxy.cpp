@@ -127,7 +127,7 @@ bool EnterpriseAdminProxy::OnMarketAppsInstallStatusChanged(const std::string &b
     return SendRequest(COMMAND_ON_MARKET_INSTALL_STATUS_CHANGED, data);
 }
 
-bool EnterpriseAdminProxy::OnAccount(uint32_t code, const int32_t accountId)
+bool EnterpriseAdminProxy::OnAccount(uint32_t code, const int32_t accountId, const int32_t oldAccountId)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
@@ -135,6 +135,8 @@ bool EnterpriseAdminProxy::OnAccount(uint32_t code, const int32_t accountId)
         return false;
     }
     data.WriteInt32(accountId);
+    // 追加切出账号ID，旧版本Stub仅读取accountId，新增字段不影响旧版本解析
+    data.WriteInt32(oldAccountId);
     return SendRequest(code, data);
 }
 

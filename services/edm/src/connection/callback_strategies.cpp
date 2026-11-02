@@ -52,7 +52,7 @@ bool SystemUpdateStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 // Account策略
 bool AccountStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {
-    return proxy->OnAccount(code_, accountId_);
+    return proxy->OnAccount(code_, accountId_, oldAccountId_);
 }
 
 // Kiosk策略

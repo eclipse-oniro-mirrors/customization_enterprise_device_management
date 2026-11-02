@@ -28,6 +28,11 @@ namespace OHOS {
 namespace EDM {
 
 /**
+ * @brief 无效账号ID，表示切出账号不可用（例如本次切换前不存在切出账号）。
+ */
+constexpr int32_t INVALID_ACCOUNT_ID = -1;
+
+/**
  * @brief 企业管理员IPC接口，定义了EDM系统与企业管理应用之间的通信协议。
  *
  * 该接口通过IRemoteBroker实现跨进程通信，企业管理应用需实现此接口以接收
@@ -71,10 +76,12 @@ public:
     /**
      * @brief 处理账号添加/切换/移除事件。
      * @param code 事件码，取值为COMMAND_ON_ACCOUNT_ADDED、COMMAND_ON_ACCOUNT_SWITCHED或COMMAND_ON_ACCOUNT_REMOVED。
-     * @param accountId 账号ID。
+     * @param accountId 账号ID，账号切换场景下为切入账号ID。
+     * @param oldAccountId 切出账号ID，仅账号切换场景有效；取值为INVALID_ACCOUNT_ID时表示切出账号不可用。
      * @return 处理成功返回true，失败返回false。
      */
-    virtual bool OnAccount(uint32_t code, const int32_t accountId) = 0;
+    virtual bool OnAccount(uint32_t code, const int32_t accountId,
+        const int32_t oldAccountId = INVALID_ACCOUNT_ID) = 0;
 
     /**
      * @brief 处理Kiosk模式进入/退出事件。

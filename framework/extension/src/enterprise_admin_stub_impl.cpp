@@ -69,13 +69,13 @@ bool EnterpriseAdminStubImpl::OnSystemUpdate(const UpdateInfo &updateInfo)
     return true;
 }
 
-bool EnterpriseAdminStubImpl::OnAccount(uint32_t code, const int32_t accountId)
+bool EnterpriseAdminStubImpl::OnAccount(uint32_t code, const int32_t accountId, const int32_t oldAccountId)
 {
     auto extension = extension_.lock();
     if (extension == nullptr) {
         return false;
     }
-    extension->OnAccount(code, accountId);
+    extension->OnAccount(code, accountId, oldAccountId);
     return true;
 }
 
