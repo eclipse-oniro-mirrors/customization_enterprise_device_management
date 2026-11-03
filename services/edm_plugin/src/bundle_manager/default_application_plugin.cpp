@@ -249,7 +249,7 @@ ErrCode DefaultApplicationPlugin::CheckAccountId(int32_t accountId)
     ErrCode ret = externalManagerFactory_->CreateOsAccountManager()->IsOsAccountExists(accountId, isExist);
     if (FAILED(ret) || !isExist) {
         EDMLOGE("DefaultApplicationPlugin: accountId %{public}d does not exist", accountId);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        return EdmReturnErrCode::UID_INVALID;
     }
     return ERR_OK;
 }

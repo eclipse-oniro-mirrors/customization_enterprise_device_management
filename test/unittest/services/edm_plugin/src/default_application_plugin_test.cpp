@@ -199,7 +199,7 @@ HWTEST_F(DefaultApplicationPluginTest, TestOnHandlePolicyAccountNotExist, TestSi
     BuildSetParcel(data, TYPE_BROWSER, BUNDLE_NAME, ABILITY_NAME, ACCOUNT_ID);
 
     ErrCode ret = plugin.OnHandlePolicy(EdmInterfaceCode::DEFAULT_APPLICATION, data, reply, policyData, ACCOUNT_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(ret, EdmReturnErrCode::UID_INVALID);
     EXPECT_EQ(plugin.defaultApp_->setCallCount, 0);
 }
 
@@ -344,7 +344,7 @@ HWTEST_F(DefaultApplicationPluginTest, TestOnGetPolicyAccountNotExist, TestSize.
 
     std::string policyData;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, ACCOUNT_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(ret, EdmReturnErrCode::UID_INVALID);
     EXPECT_EQ(plugin.defaultApp_->getCallCount, 0);
 }
 
