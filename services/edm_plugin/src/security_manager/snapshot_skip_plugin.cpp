@@ -37,6 +37,7 @@ void SnapshotSkipPlugin::InitPlugin(std::shared_ptr<IPluginTemplate<SnapshotSkip
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnSetPolicy, FuncOperateType::SET);
     ptr->SetOnHandlePolicyListener(&SnapshotSkipPlugin::OnRemovePolicy, FuncOperateType::REMOVE);
     ptr->SetOtherServiceStartListener(&SnapshotSkipPlugin::OnOtherServiceStart);
+    ptr->SetOnAdminRemoveListener(&SnapshotSkipPlugin::OnAdminRemove);
 }
 
 ErrCode SnapshotSkipPlugin::OnSetPolicy(std::vector<std::string> &data,
@@ -80,7 +81,7 @@ ErrCode SnapshotSkipPlugin::OnRemovePolicy(std::vector<std::string> &data, std::
         return EdmReturnErrCode::PARAM_ERROR;
     }
     auto afterHandle = ArrayStringSerializer::GetInstance()->SetDifferencePolicyData(data, currentData);
-    auto afterMerge = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, currentData);
+    auto afterMerge = ArrayStringSerializer::GetInstance()->SetUnionPolicyData(mergeData, afterHandle);
 
     int32_t ret = SetSnapshotSkipByUserIdAndBundleNameList(userId, afterMerge);
     if (FAILED(ret)) {
