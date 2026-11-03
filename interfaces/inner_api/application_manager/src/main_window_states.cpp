@@ -23,11 +23,11 @@ namespace EDM {
 bool MainWindowStatesHandle::ReadMainWindowStatesVector(MessageParcel &data,
     std::vector<MainWindowStates> &mainWindowStates)
 {
+    mainWindowStates.clear();
     uint32_t size = data.ReadUint32();
     if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         return false;
     }
-    mainWindowStates.clear();
     mainWindowStates.reserve(size);
 
     for (uint32_t i = 0; i < size; i++) {

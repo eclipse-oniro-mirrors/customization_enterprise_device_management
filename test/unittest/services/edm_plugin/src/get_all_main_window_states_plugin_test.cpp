@@ -61,11 +61,13 @@ HWTEST_F(GetAllMainWindowStatesPluginTest, TestOnGetPolicy, TestSize.Level1)
     GetAllMainWindowStatesPlugin plugin;
     ErrCode ret = plugin.OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::EXECUTE_TIME_OUT);
+    int32_t replyCode = 0;
+    ASSERT_TRUE(reply.ReadInt32(replyCode));
     if (ret == ERR_OK) {
-        int32_t replyCode = 0;
-        ASSERT_TRUE(reply.ReadInt32(replyCode));
         ASSERT_EQ(replyCode, ERR_OK);
         ASSERT_TRUE(MainWindowStatesHandle::ReadMainWindowStatesVector(reply, mainWindowStates));
+    } else {
+        ASSERT_EQ(replyCode, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
 }
 } // namespace TEST

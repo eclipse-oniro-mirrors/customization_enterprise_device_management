@@ -60,7 +60,6 @@ ErrCode GetAllMainWindowStatesPlugin::OnGetPolicy(std::string &policyData, Messa
 ErrCode GetAllMainWindowStatesPlugin::QueryMainWindowStates(int32_t userId,
     std::vector<MainWindowStates> &mainWindowStates)
 {
-    // GetInstance returns a reference. Do not check it against nullptr and call it with '.'.
     auto &windowManagerLite = Rosen::WindowManagerLite::GetInstance(userId);
     std::vector<Rosen::MainWindowInfo> mainWindowInfos;
     Rosen::WMError ret = windowManagerLite.GetAllMainWindowInfos(mainWindowInfos);

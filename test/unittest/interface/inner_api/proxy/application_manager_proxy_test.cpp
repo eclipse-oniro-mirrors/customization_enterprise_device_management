@@ -1419,6 +1419,44 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesFail, TestSize.L
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
+/**
+ * @tc.name: TestGetAllMainWindowStatesOversizeFail
+ * @tc.desc: Test GetAllMainWindowStates when reply vector size exceeds the limit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesOversizeFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<MainWindowStates> mainWindowStates;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAllMainWindowStates(data, mainWindowStates);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    ASSERT_TRUE(mainWindowStates.empty());
+}
+
+/**
+ * @tc.name: TestGetAllMainWindowStatesInvalidStateFail
+ * @tc.desc: Test GetAllMainWindowStates when reply contains an invalid window state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesInvalidStateFail, TestSize.Level1)
+{
+    MessageParcel data;
+    std::vector<MainWindowStates> mainWindowStates;
+
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesInvalidStateSendRequestGetPolicy));
+    ErrCode ret = applicationManagerProxy_->GetAllMainWindowStates(data, mainWindowStates);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    ASSERT_TRUE(mainWindowStates.empty());
+}
+
 #ifndef FEATURE_PC_ONLY
 /**
  * @tc.name: TestAddHideLauncherIconSuc

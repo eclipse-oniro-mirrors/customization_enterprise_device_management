@@ -355,6 +355,31 @@ int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesVectorSendRequestGetPolic
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy"
+                     << " code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(EdmConstants::DEFAULT_LOOP_MAX_SIZE + 1);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesInvalidStateSendRequestGetPolicy(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeMainWindowStatesInvalidStateSendRequestGetPolicy"
+                     << " code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(1);
+    reply.WriteInt32(TEST_WINDOW_ID);
+    reply.WriteString(TEST_WINDOW_NAME);
+    reply.WriteUint32(static_cast<uint32_t>(WindowState::BACKGROUND) + 1);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestParamError(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
