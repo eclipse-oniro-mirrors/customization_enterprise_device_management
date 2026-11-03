@@ -36,6 +36,7 @@ void DisallowAddOsAccountByUserPlugin::InitPlugin(
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, true);
     ptr->SetSerializer(MapStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&DisallowAddOsAccountByUserPlugin::OnSetPolicy, FuncOperateType::SET);
+    ptr->SetOnAdminRemoveListener(&DisallowAddOsAccountByUserPlugin::OnAdminRemove);
 }
 
 ErrCode DisallowAddOsAccountByUserPlugin::OnSetPolicy(std::map<std::string, std::string> &data,
