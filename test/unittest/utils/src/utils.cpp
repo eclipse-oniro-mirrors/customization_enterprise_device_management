@@ -233,6 +233,16 @@ void Utils::SetEdmServiceDisable()
     system::SetParameter(SET_EDM_SERVICE, "false");
 }
 
+void Utils::SetEdmExtServiceEnable()
+{
+    system::SetParameter(SET_EDC_SERVICE, "true");
+}
+
+void Utils::SetEdmExtServiceDisable()
+{
+    system::SetParameter(SET_EDC_SERVICE, "false");
+}
+
 void Utils::SetBluetoothEnable()
 {
     system::SetParameter(PERSIST_BLUETOOTH_CONTROL, "false");
