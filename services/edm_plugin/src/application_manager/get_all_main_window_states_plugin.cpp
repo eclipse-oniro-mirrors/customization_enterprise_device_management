@@ -89,9 +89,9 @@ ErrCode GetAllMainWindowStatesPlugin::QueryMainWindowStates(int32_t userId,
         for (const auto &windowState : windowStates) {
             uint32_t state = static_cast<uint32_t>(windowState.state_);
             if (state > static_cast<uint32_t>(WindowState::BACKGROUND)) { // LCOV_EXCL_BR_LINE
-                EDMLOGE("GetAllMainWindowStatesPlugin invalid window state: %{public}d, pid: %{public}d",
+                EDMLOGW("GetAllMainWindowStatesPlugin skip invalid window state: %{public}d, pid: %{public}d",
                     state, pidToBundleName.first);
-                return EdmReturnErrCode::EXECUTE_TIME_OUT;
+                continue;
             }
             MainWindowStates mainWindowState;
             mainWindowState.pid = pidToBundleName.first;
