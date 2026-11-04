@@ -806,6 +806,16 @@ int EnterpriseDeviceMgrStubMock::InvokePatchInfoSendRequestGetPolicy(uint32_t co
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokePatchInfoEmptyListSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokePatchInfoEmptyListSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(0);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
