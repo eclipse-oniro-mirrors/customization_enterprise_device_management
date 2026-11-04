@@ -39,6 +39,9 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
         case ManagedEvent::KIOSK_MODE_OFF:
         case ManagedEvent::SIM_STATE_CHANGED:
             return CreateCommonEventAdapter(manager, groupId, "", "");
+        case ManagedEvent::SMS_RECEIVED:
+            return CreateCommonEventAdapter(manager, groupId,
+                EDM_SMS_RECEIVE_COMPLETED_EVENT, EDM_SYSTEM_RECEIVE_SMS_PERMISSION);
         case ManagedEvent::APP_START:
             return CreateAppLifecycleAdapter(manager);
         case ManagedEvent::SYSTEM_UPDATE:

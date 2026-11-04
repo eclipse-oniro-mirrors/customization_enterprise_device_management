@@ -156,6 +156,10 @@
             VTT?for?OHOS::EDM::EdmClientTimerCallback;
             vtable?for?OHOS::EDM::EdmClientTimerCallback;
             OHOS::EDM::InstalledBundleInfoUtil::*;
+            OHOS::EDM::SmsReceiveInfo::*;
+            "virtual thunk to OHOS::EDM::SmsReceiveInfo::~SmsReceiveInfo()";
+            VTT?for?OHOS::EDM::SmsReceiveInfo;
+            vtable?for?OHOS::EDM::SmsReceiveInfo;
         };
     local:
         *;

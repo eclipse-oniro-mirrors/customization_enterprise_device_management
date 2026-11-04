@@ -417,6 +417,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION =
         "ohos.permission.ENTERPRISE_MANAGE_NOTIFICATION";
     const char* const PERMISSION_ENTERPRISE_READ_MESSAGES = "ohos.permission.ENTERPRISE_READ_MESSAGES";
+    const char* const PERMISSION_RECEIVE_SMS = "ohos.permission.RECEIVE_SMS";
+    const char* const PERMISSION_ENTERPRISE_RECEIVE_SMS = "ohos.permission.ENTERPRISE_RECEIVE_SMS";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source

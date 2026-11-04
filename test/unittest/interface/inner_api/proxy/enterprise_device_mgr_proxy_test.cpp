@@ -821,6 +821,62 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestHandleManagedEventSuc, TestSize.Level
 }
 
 /**
+ * @tc.name: TestSubscribeSmsEventSuc
+ * @tc.desc: Test no-param SubscribeSmsEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSubscribeSmsEventSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SubscribeSmsEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SubscribeSmsEvent();
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSubscribeSmsEventReturnFail
+ * @tc.desc: Test SubscribeSmsEvent func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSubscribeSmsEventReturnFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SubscribeSmsEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SubscribeSmsEvent();
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestUnsubscribeSmsEventSuc
+ * @tc.desc: Test no-param UnsubscribeSmsEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUnsubscribeSmsEventSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, UnsubscribeSmsEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UnsubscribeSmsEvent();
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestUnsubscribeSmsEventReturnFail
+ * @tc.desc: Test UnsubscribeSmsEvent func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUnsubscribeSmsEventReturnFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, UnsubscribeSmsEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UnsubscribeSmsEvent();
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
  * @tc.name: TestAuthorizeAdminEdmDisable
  * @tc.desc: Test AuthorizeAdmin without enable edm service func.
  * @tc.type: FUNC

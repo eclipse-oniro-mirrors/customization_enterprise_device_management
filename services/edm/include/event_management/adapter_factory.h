@@ -28,6 +28,8 @@ namespace OHOS {
 namespace EDM {
 const std::string EDM_SYSTEM_UPDATE_FOR_POLICY = "usual.event.DUE_SA_FIRMWARE_UPDATE_FOR_POLICY";
 const std::string EDM_SYSTEM_UPDATE_PERMISSION = "ohos.permission.UPDATE_SYSTEM";
+const std::string EDM_SMS_RECEIVE_COMPLETED_EVENT = "usual.event.SMS_RECEIVE_COMPLETED";
+const std::string EDM_SYSTEM_RECEIVE_SMS_PERMISSION = "ohos.permission.RECEIVE_SMS";
 const std::string EDM_OOBE_FINISHED_EVENT = "custom.event.OOBE.HWSTARTUPGUIDE.FINISHED";
 const std::string EDM_OOBE_FINISHED_PERMISSION = "ohos.permission.ACCESS_STARTUPGUIDE";
 

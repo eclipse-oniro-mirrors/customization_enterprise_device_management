@@ -171,5 +171,16 @@ bool EnterpriseAdminStubImpl::OnPasswordFailed(int32_t cumulativeFailedCount, in
     extension->OnPasswordFailed(cumulativeFailedCount, userId);
     return true;
 }
+
+bool EnterpriseAdminStubImpl::OnSmsReceived(const SmsReceiveInfo &smsInfo)
+{
+    EDMLOGI("EnterpriseAdminStubImpl::OnSmsReceived");
+    auto extension = extension_.lock();
+    if (extension == nullptr) {
+        return false;
+    }
+    extension->OnSmsReceived(smsInfo);
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS

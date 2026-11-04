@@ -251,6 +251,13 @@ ohos_static_library("edmservice_static") {
     defines += [ "UINPUT_MANAGER_EDM_ENABLE" ]
   }
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    sources += [
+      "../../../../services/edm/src/query_policy/telephony_call_policy_query.cpp",
+    ]
+    defines += [ "TELEPHONY_EDM_ENABLE" ]
+  }
+
   if (!enterprise_device_management_feature_pc_only) {
     sources += [
       "../../../../services/edm/src/query_policy/hide_launcher_icon_query.cpp",
@@ -342,6 +349,11 @@ ohos_static_library("edmservice_static") {
     external_deps += [ "form_fwk:fmskit_native" ]
     sources += [ "../../../../services/edm/src/edm_form_manager_impl.cpp" ]
     defines += [ "ABILITY_FORM_FWK_EDM_ENABLE" ]
+  }
+
+  if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
+    external_deps += [ "sms_mms:tel_sms_mms_api" ]
+    defines += [ "SMS_MMS_EDM_ENABLE" ]
   }
 
   deps = [

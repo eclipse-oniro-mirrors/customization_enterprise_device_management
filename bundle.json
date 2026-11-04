@@ -108,6 +108,7 @@
         "samgr",
         "screenlock_mgr",
         "security_guard",
+        "sms_mms",
         "disk_manager",
         "telephony_data",
         "time_service",

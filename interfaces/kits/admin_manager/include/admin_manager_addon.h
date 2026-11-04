@@ -116,6 +116,8 @@ private:
     static napi_value CreateAdminTypeObject(napi_env env);
     static napi_value SubscribeManagedEvent(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEvent(napi_env env, napi_callback_info info);
+    static napi_value SubscribeSmsEvent(napi_env env, napi_callback_info info);
+    static napi_value UnsubscribeSmsEvent(napi_env env, napi_callback_info info);
     static napi_value AuthorizeAdmin(napi_env env, napi_callback_info info);
     static napi_value SubscribeManagedEventSync(napi_env env, napi_callback_info info);
     static napi_value UnsubscribeManagedEventSync(napi_env env, napi_callback_info info);
@@ -171,6 +173,7 @@ private:
         bool &hasUserId);
     static napi_value HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe);
     static napi_value HandleManagedEventSync(napi_env env, napi_callback_info info, bool subscribe);
+    static napi_value HandleSmsEvent(napi_env env, napi_callback_info info, bool subscribe);
     static int32_t JsAdminTypeToAdminType(int32_t jsAdminType);
     static int32_t AdminTypeToJsAdminType(int32_t AdminType);
     static bool JsAdminEnableSourceToEnableSource(int32_t jsAdminEnableSource);
