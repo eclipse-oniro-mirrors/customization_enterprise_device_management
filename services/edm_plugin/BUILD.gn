@@ -631,6 +631,7 @@ ohos_shared_library("sys_service_plugin") {
   if (enterprise_device_management_support_all) {
     sources += [
       "./src/application_manager/allowed_notification_bundles_plugin.cpp",
+      "./src/application_manager/optimization_battery_exclusion_apps_plugin.cpp",
       "./src/application_manager/clear_up_application_data_plugin.cpp",
       "./src/utils/clear_up_application_data_param_serializer.cpp",
       "./src/application_manager/manage_user_non_stop_apps_plugin.cpp",

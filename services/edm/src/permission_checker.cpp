@@ -149,6 +149,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+    EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY,
     EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
 };
@@ -387,21 +388,21 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     return true;
 }
 
-bool PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName)
+ErrCode PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName)
 {
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
     if (permissionName.empty()) {
-        return true;
+        return ERR_OK;
     }
     if (CheckSpecialPolicyCallQuery(code)) {
-        return true;
+        return ERR_OK;
     }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!VerifyCallingPermission(tokenId, permissionName)) {
         EDMLOGE("PermissionChecker element null query no permission code is %{public}d", code);
-        return false;
+        return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    return true;
+    return ERR_OK;
 }
 
 bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
@@ -422,6 +423,8 @@ bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
             return uid == EdmConstants::USB_SERVICE_UID;
         } else if (code == EdmInterfaceCode::INSTALL_MARKET_APPS) {
             return uid == EdmConstants::SAMGR_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS) {
+            return uid == EdmConstants::RESOURCE_SCHEDULE_UID;
         }
     }
     return false;

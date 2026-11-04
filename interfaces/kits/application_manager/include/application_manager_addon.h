@@ -97,6 +97,9 @@ public:
     static napi_value RequestExemptionResource(napi_env env, napi_callback_info info);
     static napi_value ReleaseExemptionResource(napi_env env, napi_callback_info info);
     static napi_value RemoveAllNotifications(napi_env env, napi_callback_info info);
+    static napi_value AddOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info);
+    static napi_value RemoveOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info);
+    static napi_value GetOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info);
     static void CreateStandbyResourceTypeObject(napi_env env, napi_value value);
 
 private:
@@ -111,6 +114,8 @@ private:
     static napi_value AddOrRemoveDockApp(napi_env env, napi_callback_info info, std::string function);
     static napi_value AddOrRemoveHideLauncherIcon(napi_env env, napi_callback_info info, bool isAdd);
     static napi_value AddOrRemoveAllowedDistributeAbilityConnBundles(napi_env env, napi_callback_info info, bool isAdd);
+    static napi_value AddOrRemoveOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info,
+        FuncOperateType operateType);
     static bool EdmParseElementName(napi_env env, OHOS::EDM::EdmElementName &elementName, napi_value args);
     static napi_value EdmParseElementArray(napi_env env, std::vector<OHOS::EDM::EdmElementName> &elementArray,
         napi_value args);
