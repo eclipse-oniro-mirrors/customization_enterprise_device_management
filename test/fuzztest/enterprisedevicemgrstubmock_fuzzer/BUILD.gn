@@ -84,19 +84,19 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/admin_container.cpp",
     "../../../services/edm/src/admin_manager.cpp",
     "../../../services/edm/src/admin_policies_storage_rdb.cpp",
+    "../../../services/edm/src/conflict_group_registry.cpp",
     "../../../services/edm/src/connection/callback_strategies.cpp",
+    "../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../../services/edm/src/connection/enterprise_conn_manager.cpp",
     "../../../services/edm/src/connection/enterprise_connection_callback.cpp",
-    "../../../services/edm/src/connection/enterprise_admin_proxy.cpp",
     "../../../services/edm/src/connection/icallback_strategy.cpp",
     "../../../services/edm/src/database/edm_rdb_data_manager.cpp",
     "../../../services/edm/src/database/edm_rdb_open_callback.cpp",
-    "../../../services/edm/src/conflict_group_registry.cpp",
     "../../../services/edm/src/delay_unload_manager.cpp",
     "../../../services/edm/src/device_policies_storage_rdb.cpp",
     "../../../services/edm/src/edm_bluetooth_manager_impl.cpp",
-    "../../../services/edm/src/edm_timer_manager.cpp",
     "../../../services/edm/src/edm_timer_info.cpp",
+    "../../../services/edm/src/edm_timer_manager.cpp",
     "../../../services/edm/src/enterprise_device_mgr_ability.cpp",
     "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../services/edm/src/ext_info_manager.cpp",
@@ -107,58 +107,59 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/permission_checker.cpp",
     "../../../services/edm/src/plugin_manager.cpp",
     "../../../services/edm/src/policy_manager.cpp",
+    "../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../services/edm/src/query_policy/allowed_notification_bundles_query.cpp",
+    "../../../services/edm/src/query_policy/device_security_level_policy_query.cpp",
+    "../../../services/edm/src/query_policy/enterprise_reset_policy_query.cpp",
     "../../../services/edm/src/query_policy/generic_policy_query.cpp",
-    "../../../services/edm/src/query_policy/get_installed_bundle_storage_stats_query.cpp",
     "../../../services/edm/src/query_policy/get_auto_unlock_after_reboot_query.cpp",
     "../../../services/edm/src/query_policy/get_device_encryption_status_query.cpp",
     "../../../services/edm/src/query_policy/get_display_version_query.cpp",
+    "../../../services/edm/src/query_policy/get_installed_bundle_storage_stats_query.cpp",
     "../../../services/edm/src/query_policy/get_security_patch_tag_query.cpp",
     "../../../services/edm/src/query_policy/get_watermark_image_apps_query.cpp",
     "../../../services/edm/src/query_policy/hide_launcher_icon_query.cpp",
-    "../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
     "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_for_account_query.cpp",
+    "../../../services/edm/src/query_policy/installed_bundle_info_list_query.cpp",
     "../../../services/edm/src/query_policy/ipolicy_query.cpp",
     "../../../services/edm/src/query_policy/is_app_kiosk_allowed_query.cpp",
-    "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
     "../../../services/edm/src/query_policy/ntp_server_query.cpp",
+    "../../../services/edm/src/query_policy/plugin_policy_reader.cpp",
     "../../../services/edm/src/query_policy/policy_query_config.cpp",
     "../../../services/edm/src/query_policy/policy_query_config_table.cpp",
     "../../../services/edm/src/query_policy/policy_query_factory.cpp",
-    "../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../services/edm/src/query_policy/query_bundle_stats_infos_query.cpp",
-    "../../../services/edm/src/query_policy/device_security_level_policy_query.cpp",
     "../../../services/edm/src/strategy/enhance_execute_strategy.cpp",
     "../../../services/edm/src/strategy/replace_execute_strategy.cpp",
     "../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../services/edm/src/system_service_start_handler.cpp",
     "../../../services/edm/src/user_policy_manager.cpp",
+    "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/installer_callback.cpp",
+    "../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
     "../../../services/edm_plugin/src/utils/operate_device_param_serializer.cpp",
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
-    "../../../services/edm_plugin/src/utils/clear_up_application_data_param_serializer.cpp",
-    "../../../services/edm_plugin/src/utils/managed_browser_policy_serializer.cpp",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {
     sources += [
+      "../../../services/edm/src/database/sensitive_call_notify_rdb.cpp",
       "../../../services/edm/src/sensitive_api_whitelist.cpp",
       "../../../services/edm/src/sensitive_call_notify_manager.cpp",
-      "../../../services/edm/src/database/sensitive_call_notify_rdb.cpp",
     ]
   }
 
   sources += [
+    "../../../services/edm_plugin/src/bluetooth_manager/disallowed_bluetooth_protocols_plugin.cpp",
+    "../../../services/edm_plugin/src/browser/managed_browser_policy_plugin.cpp",
     "../../../services/edm_plugin/src/restrictions/disallowed_nearlink_protocols_plugin.cpp",
+    "../../../services/edm_plugin/src/security_manager/set_watermark_image_plugin.cpp",
+    "../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin.cpp",
+    "../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
     "../../../services/edm_plugin/src/utils/nearlink_config_utils.cpp",
     "../../../services/edm_plugin/src/utils/nearlink_protocol_utils.cpp",
-    "../../../services/edm_plugin/src/browser/managed_browser_policy_plugin.cpp",
-    "../../../services/edm_plugin/src/security_manager/set_watermark_image_plugin.cpp",
-    "../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
-    "../../../services/edm_plugin/src/usb_manager/disallowed_usb_devices_plugin.cpp",
-    "../../../services/edm_plugin/src/bluetooth_manager/disallowed_bluetooth_protocols_plugin.cpp",
   ]
-  
+
   public_configs = [
     ":edm_config",
     ":edm_fuzz_pc_only_config",
@@ -192,25 +193,26 @@ ohos_static_library("edmservice_fuzz_static") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_connect_callback_stub",
-    "ability_runtime:app_manager",
     "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
-    "access_token:libtokenid_sdk",
     "access_token:libnativetoken_shared",
+    "access_token:libtokenid_sdk",
     "bluetooth:btframework",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
     "cJSON:cjson",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "device_usage_statistics:usagestatsinner",
     "distributed_notification_service:ans_innerkits",
     "eventhandler:libeventhandler",
     "file_api:securitylabel",
-    "graphic_2d:librender_service_client",
     "graphic_2d:librender_service_base",
-    "common_event_service:cesfwk_innerkits",
+    "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "i18n:intl_util",
@@ -219,83 +221,82 @@ ohos_static_library("edmservice_fuzz_static") {
     "ipc:ipc_core",
     "json:nlohmann_json_static",
     "netmanager_base:net_policy_manager_if",
-    "netmanager_base:netsys_controller",
     "netmanager_base:net_stats_manager_if",
+    "netmanager_base:netsys_controller",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
     "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "time_service:time_client",
-    "window_manager:sms",
     "window_manager:libwm",
     "window_manager:session_manager_lite",
-    "device_usage_statistics:usagestatsinner",
+    "window_manager:sms",
   ]
 
   deps = [
     "../../../common/external:edm_external_adapters",
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
-    "../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../../interfaces/inner_api/plugin_kits",
     "../../../services/idl:enterprise_device_mgr_idl_stub",
   ]
 
   if (enterprise_device_management_support_all) {
     defines += [ "EDM_SUPPORT_ALL_ENABLE" ]
     sources += [
+      "../../../services/edm_plugin/src/application_manager/allowed_notification_bundles_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/clear_up_application_data_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/manage_user_non_stop_apps_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/optimization_battery_exclusion_apps_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/set_ability_disable_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/set_allowed_kiosk_apps_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_manager/allowed_app_distribution_types_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_manager/allowed_install_bundles_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/allowed_notification_bundles_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/optimization_battery_exclusion_apps_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_manager/bundle_install_plugin.cpp",
       "../../../services/edm_plugin/src/bundle_manager/default_application_plugin.cpp",
+      "../../../services/edm_plugin/src/bundle_manager/disallowed_install_bundles_plugin.cpp",
+      "../../../services/edm_plugin/src/bundle_manager/disallowed_uninstall_bundles_plugin.cpp",
+      "../../../services/edm_plugin/src/bundle_manager/install_plugin.cpp",
+      "../../../services/edm_plugin/src/bundle_manager/uninstall_plugin.cpp",
+      "../../../services/edm_plugin/src/datetime_manager/disallow_modify_datetime_plugin.cpp",
+      "../../../services/edm_plugin/src/datetime_manager/ntp_server_plugin.cpp",
+      "../../../services/edm_plugin/src/device_control/operate_device_plugin.cpp",
+      "../../../services/edm_plugin/src/device_info/get_device_info_plugin.cpp",
+      "../../../services/edm_plugin/src/device_settings/power_policy_plugin.cpp",
+      "../../../services/edm_plugin/src/device_settings/screen_off_time_plugin.cpp",
+      "../../../services/edm_plugin/src/device_settings/set_device_name_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_maintenance_mode_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_random_mac_address_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_mtp_server_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disable_user_mtp_client_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_running_binary_app_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_samba_client_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_samba_server_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_set_biometrics_and_screenLock_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disable_set_device_name_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_export_recovery_key_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_open_file_boost_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disable_user_mtp_client_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_control_center_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disallow_distributed_transmission_full_plugin.cpp",
       "../../../services/edm_plugin/src/restrictions/disallow_distributed_transmission_plugin.cpp",
-      "../../../services/edm_plugin/src/datetime_manager/disallow_modify_datetime_plugin.cpp",
-      "../../../services/edm_plugin/src/bundle_manager/disallowed_install_bundles_plugin.cpp",
-      "../../../services/edm_plugin/src/bundle_manager/disallowed_uninstall_bundles_plugin.cpp",
-      "../../../services/edm_plugin/src/device_info/get_device_info_plugin.cpp",
-      "../../../services/edm_plugin/src/bundle_manager/install_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/manage_user_non_stop_apps_plugin.cpp",
-      "../../../services/edm_plugin/src/datetime_manager/ntp_server_plugin.cpp",
-      "../../../services/edm_plugin/src/system_manager/local_hota_domain_plugin.cpp",
-      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
-      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
-      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_util.cpp",
-      "../../../services/edm_plugin/src/device_control/operate_device_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
-      "../../../services/edm_plugin/src/device_settings/power_policy_plugin.cpp",
-      "../../../services/edm_plugin/src/device_settings/screen_off_time_plugin.cpp",
-      "../../../services/edm_plugin/src/device_settings/set_device_name_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/set_ability_disable_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_export_recovery_key_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_notification_center_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_open_file_boost_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_random_mac_address_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_recent_tasks_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
+      "../../../services/edm_plugin/src/restrictions/disallowed_advanced_message_plugin.cpp",
       "../../../services/edm_plugin/src/security_manager/allowed_permission_bundle_plugin.cpp",
       "../../../services/edm_plugin/src/security_manager/disallowed_permission_plugin.cpp",
       "../../../services/edm_plugin/src/security_manager/set_permission_managed_state_plugin.cpp",
-      "../../../services/edm_plugin/src/bundle_manager/uninstall_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/set_allowed_kiosk_apps_plugin.cpp",
       "../../../services/edm_plugin/src/security_manager/snapshot_skip_plugin.cpp",
-      "../../../services/edm_plugin/src/application_manager/clear_up_application_data_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_for_account_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_plugin.cpp",
+      "../../../services/edm_plugin/src/system_manager/allowed_printer_ip_addresses_util.cpp",
+      "../../../services/edm_plugin/src/system_manager/local_hota_domain_plugin.cpp",
       "../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",
       "../../../services/edm_plugin/src/utils/permission_managed_state_serializer.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_x_key_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_recent_tasks_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_control_center_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallow_notification_center_plugin.cpp",
-      "../../../services/edm_plugin/src/restrictions/disallowed_advanced_message_plugin.cpp",
     ]
 
     if (os_account_edm_enable) {
@@ -317,8 +318,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "os_account:os_account_innerkits",
       ]
       sources += [
-        "../../../services/edm_plugin/src/restrictions/disallowed_device_sudo_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_sudo_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallowed_device_sudo_plugin.cpp",
       ]
       defines += [ "SUDO_EDM_ENABLE" ]
     }
@@ -328,7 +329,8 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ "../../../services/edm_plugin/src/device_control/lock_screen_plugin.cpp" ]
     }
 
-    if (screenlock_mgr_edm_enable && !enterprise_device_management_feature_pc_only) {
+    if (screenlock_mgr_edm_enable &&
+        !enterprise_device_management_feature_pc_only) {
       sources += [ "../../../services/edm_plugin/src/device_settings/disable_screen_lock_plugin.cpp" ]
     }
 
@@ -348,18 +350,18 @@ ohos_static_library("edmservice_fuzz_static") {
     if (wifi_edm_enable) {
       external_deps += [ "wifi:wifi_sdk" ]
       sources += [
-        "../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
         "../../../services/edm/src/query_policy/allowed_hotspot_client_list_query.cpp",
+        "../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
         "../../../services/edm/src/query_policy/disallowed_wifi_list_query.cpp",
         "../../../services/edm/src/query_policy/is_allowed_hotspot_client_connect_query.cpp",
+        "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
+        "../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
         "../../../services/edm_plugin/src/wifi_manager/allowed_hotspot_client_list_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/allowed_wifi_list_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/disallowed_wifi_list_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/is_wifi_active_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/set_wifi_disabled_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/set_wifi_profile_plugin.cpp",
-        "../../../services/edm_plugin/src/utils/wifi_device_config_serializer.cpp",
-        "../../../services/edm_plugin/src/utils/wifi_policy_utils.cpp",
       ]
       defines += [ "WIFI_EDM_ENABLE" ]
     }
@@ -374,13 +376,6 @@ ohos_static_library("edmservice_fuzz_static") {
         "netmanager_ext:net_vpn_manager_if",
       ]
       sources += [
-        "../../../services/edm_plugin/src/network_manager/disabled_network_interface_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/domain_filter_rule_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/firewall_rule_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/get_all_network_interfaces_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/get_ip_or_mac_address_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/global_proxy_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/iptables_rule_plugin.cpp",
         "../../../services/edm_plugin/src/network/executer/domain_executer.cpp",
         "../../../services/edm_plugin/src/network/executer/executer_factory.cpp",
         "../../../services/edm_plugin/src/network/executer/executer_utils.cpp",
@@ -394,11 +389,18 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/network/rule/domain_chain_rule.cpp",
         "../../../services/edm_plugin/src/network/rule/firewall_chain_rule.cpp",
         "../../../services/edm_plugin/src/network/rule/rule_utils.cpp",
+        "../../../services/edm_plugin/src/network_manager/disabled_network_interface_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/domain_filter_rule_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/firewall_rule_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/get_all_network_interfaces_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/get_ip_or_mac_address_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/global_proxy_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/iptables_rule_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallow_vpn_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallowed_airplane_mode_plugin.cpp",
         "../../../services/edm_plugin/src/utils/domain_filter_rule_serializer.cpp",
         "../../../services/edm_plugin/src/utils/firewall_rule_serializer.cpp",
         "../../../services/edm_plugin/src/utils/http_proxy_serializer.cpp",
-        "../../../services/edm_plugin/src/restrictions/disallowed_airplane_mode_plugin.cpp",
-        "../../../services/edm_plugin/src/restrictions/disallow_vpn_plugin.cpp",
       ]
       defines += [ "NET_MANAGER_BASE_EDM_ENABLE" ]
       defines += [ "NETMANAGER_EXT_EDM_ENABLE" ]
@@ -410,19 +412,21 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/application_manager/allowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/application_manager/disallowed_running_bundles_plugin.cpp",
         "../../../services/edm_plugin/src/application_manager/manage_auto_start_apps_plugin.cpp",
-        "../../../services/edm_plugin/src/application_manager/manage_keep_alive_apps_plugin.cpp",
         "../../../services/edm_plugin/src/application_manager/manage_freeze_exempted_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/application_manager/manage_keep_alive_apps_plugin.cpp",
+        "../../../services/edm_plugin/src/bundle_manager/install_enterprise_re_signature_certificate_plugin.cpp",
         "../../../services/edm_plugin/src/utils/bms_utils.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_info.cpp",
         "../../../services/edm_plugin/src/utils/manage_keep_alive_apps_serializer.cpp",
-        "../../../services/edm_plugin/src/bundle_manager/install_enterprise_re_signature_certificate_plugin.cpp",
       ]
       defines += [ "ABILITY_RUNTIME_EDM_ENABLE" ]
     }
 
     if (certificate_manager_edm_enable) {
       external_deps += [ "certificate_manager:cert_manager_sdk" ]
-      sources += [ "../../../services/edm_plugin/src/device_settings/user_cert_plugin.cpp" ]
+      sources += [
+        "../../../services/edm_plugin/src/device_settings/user_cert_plugin.cpp",
+      ]
     }
 
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
@@ -434,14 +438,14 @@ ohos_static_library("edmservice_fuzz_static") {
       ]
       sources += [
         "../../../services/edm/src/query_policy/allowed_usb_devices_query.cpp",
-        "../../../services/edm_plugin/src/usb_manager/allowed_usb_devices_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disable_usb_plugin.cpp",
+        "../../../services/edm_plugin/src/usb_manager/allowed_usb_devices_plugin.cpp",
+        "../../../services/edm_plugin/src/usb_manager/external_storage_intercept_enable_plugin.cpp",
+        "../../../services/edm_plugin/src/usb_manager/get_usb_serial_number_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
-        "../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
         "../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
-        "../../../services/edm_plugin/src/usb_manager/get_usb_serial_number_plugin.cpp",
-        "../../../services/edm_plugin/src/usb_manager/external_storage_intercept_enable_plugin.cpp",
       ]
       defines += [ "USB_SERVICE_EDM_ENABLE" ]
     }
@@ -457,7 +461,8 @@ ohos_static_library("edmservice_fuzz_static") {
       defines += [ "FEATURE_PC_ONLY" ]
     }
 
-    if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
+    if (drivers_interface_usb_edm_enable &&
+        enterprise_device_management_enable_disk_manager &&
         usb_manager_edm_enable) {
       external_deps += [ "disk_manager:disk_manager_innerkits" ]
       sources += [
@@ -465,7 +470,7 @@ ohos_static_library("edmservice_fuzz_static") {
       ]
       defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
     }
-    
+
     if (enterprise_device_management_enable_disk_manager) {
       external_deps += [ "disk_manager:disk_manager_innerkits" ]
       sources += [
@@ -487,17 +492,17 @@ ohos_static_library("edmservice_fuzz_static") {
 
     external_deps += [ "common_event_service:cesfwk_innerkits" ]
     sources += [
-      "../../../services/edm/src/query_policy/set_browser_policies_query.cpp",
-      "../../../services/edm/src/event_management/delay_cancel_timer.cpp",
-      "../../../services/edm/src/event_management/event_subscription_manager.cpp",
-      "../../../services/edm/src/event_management/subscription_handle.cpp",
-      "../../../services/edm/src/event_management/edm_common_event_subscriber.cpp",
-      "../../../services/edm/src/event_management/common_event_adapter.cpp",
       "../../../services/edm/src/event_management/adapter_factory.cpp",
-      "../../../services/edm/src/event_management/edm_app_state_subscriber.cpp",
       "../../../services/edm/src/event_management/app_lifecycle_adapter.cpp",
+      "../../../services/edm/src/event_management/common_event_adapter.cpp",
+      "../../../services/edm/src/event_management/delay_cancel_timer.cpp",
+      "../../../services/edm/src/event_management/edm_app_state_subscriber.cpp",
+      "../../../services/edm/src/event_management/edm_common_event_subscriber.cpp",
+      "../../../services/edm/src/event_management/event_subscription_manager.cpp",
       "../../../services/edm/src/event_management/mdm_event_relayer.cpp",
       "../../../services/edm/src/event_management/plugin_event_router.cpp",
+      "../../../services/edm/src/event_management/subscription_handle.cpp",
+      "../../../services/edm/src/query_policy/set_browser_policies_query.cpp",
       "../../../services/edm_plugin/src/browser/set_browser_policies_plugin.cpp",
     ]
 
@@ -534,23 +539,23 @@ ohos_static_library("edmservice_fuzz_static") {
     }
 
     sources += [
-         "../../../services/edm/src/query_policy/permission_managed_state_query.cpp",
-         "../../../services/edm/src/query_policy/allowed_permission_bundle_query.cpp",
-      ]
+      "../../../services/edm/src/query_policy/allowed_permission_bundle_query.cpp",
+      "../../../services/edm/src/query_policy/permission_managed_state_query.cpp",
+    ]
 
     if (useriam_edm_enable) {
       external_deps += [
-        "user_auth_framework:userauth_client",
         "pin_auth:pinauth_framework",
+        "user_auth_framework:userauth_client",
       ]
       defines += [ "USERIAM_EDM_ENABLE" ]
       sources += [
+        "../../../services/edm/src/event_management/edm_user_auth_listener.cpp",
+        "../../../services/edm/src/event_management/user_auth_event_adapter.cpp",
         "../../../services/edm/src/query_policy/fingerprint_auth_query.cpp",
         "../../../services/edm/src/query_policy/password_policy_query.cpp",
         "../../../services/edm_plugin/src/restrictions/fingerprint_auth_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/password_policy_plugin.cpp",
-        "../../../services/edm/src/event_management/edm_user_auth_listener.cpp",
-        "../../../services/edm/src/event_management/user_auth_event_adapter.cpp",
       ]
     }
 
@@ -559,45 +564,45 @@ ohos_static_library("edmservice_fuzz_static") {
     }
 
     if (!enterprise_device_management_feature_pc_only) {
-      sources += [ 
+      sources += [
         "../../../services/edm_plugin/src/device_settings/set_key_code_plugin.cpp",
-        "../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_free_window_plugin.cpp",
-        ]
+        "../../../services/edm_plugin/src/restrictions/disallow_multi_window_plugin.cpp",
+      ]
     }
 
     if (enterprise_device_management_feature_pc_only) {
       sources += [
-        "../../../services/edm_plugin/src/application_manager/add_dock_app_plugin.cpp",
-        "../../../services/edm_plugin/src/restrictions/disallowed_usb_storage_device_write_plugin.cpp",
-        "../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
-        "../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_for_account_plugin.cpp",
-        "../../../services/edm_plugin/src/utils/install_local_enterprise_app_policy_utils.cpp",
         "../../../services/edm/src/query_policy/install_local_enterprise_app_enabled_query.cpp",
-        "../../../services/edm_plugin/src/restrictions/disable_hdc_remote_plugin.cpp",
-        "../../../services/edm_plugin/src/security_manager/device_security_level_policy_plugin.cpp",
+        "../../../services/edm_plugin/src/application_manager/add_dock_app_plugin.cpp",
+        "../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_for_account_plugin.cpp",
+        "../../../services/edm_plugin/src/bundle_manager/install_local_enterprise_app_enabled_plugin.cpp",
         "../../../services/edm_plugin/src/device_info/get_patch_info_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disable_hdc_remote_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallowed_usb_storage_device_write_plugin.cpp",
+        "../../../services/edm_plugin/src/security_manager/device_security_level_policy_plugin.cpp",
+        "../../../services/edm_plugin/src/utils/install_local_enterprise_app_policy_utils.cpp",
       ]
       defines += [ "FEATURE_PC_ONLY" ]
     }
 
-    if (useriam_edm_enable && os_account_edm_enable && enterprise_device_management_feature_pc_only) {
+    if (useriam_edm_enable && os_account_edm_enable &&
+        enterprise_device_management_feature_pc_only) {
       external_deps += [
-        "user_auth_framework:userauth_client",
         "os_account:account_iam_innerkits",
-        "os_account:os_account_innerkits",
         "os_account:domain_account_innerkits",
+        "os_account:os_account_innerkits",
+        "user_auth_framework:userauth_client",
       ]
       sources += [
-        "../../../services/edm_plugin/src/security_manager/user_ext_session_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/user_ext_credential_plugin.cpp",
+        "../../../services/edm_plugin/src/security_manager/user_ext_session_plugin.cpp",
       ]
     }
 
-    if (screenlock_mgr_edm_enable && enterprise_device_management_feature_pc_only) {
-      sources += [
-        "../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp",
-      ]
+    if (screenlock_mgr_edm_enable &&
+        enterprise_device_management_feature_pc_only) {
+      sources += [ "../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp" ]
     }
 
     if (!enterprise_device_management_feature_pc_only &&
@@ -611,15 +616,15 @@ ohos_static_library("edmservice_fuzz_static") {
       ]
       sources += [
         "../../../services/edm/src/edm_cellular_data_manager_impl.cpp",
+        "../../../services/edm_plugin/src/network_manager/set_apn_plugin.cpp",
+        "../../../services/edm_plugin/src/network_manager/turnonoff_mobile_data_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_mobile_data_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_modify_apn_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallowed_sim_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallowed_telephony_call_plugin.cpp",
-        "../../../services/edm_plugin/src/telephony_manager/telephony_call_policy_plugin.cpp",
         "../../../services/edm_plugin/src/telephony_manager/get_call_logs_plugin.cpp",
         "../../../services/edm_plugin/src/telephony_manager/get_sms_messages_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/set_apn_plugin.cpp",
-        "../../../services/edm_plugin/src/network_manager/turnonoff_mobile_data_plugin.cpp",
+        "../../../services/edm_plugin/src/telephony_manager/telephony_call_policy_plugin.cpp",
         "../../../services/edm_plugin/src/utils/apn_utils.cpp",
       ]
       defines += [ "CELLULAR_DATA_EDM_ENABLE" ]
@@ -649,7 +654,8 @@ ohos_static_library("edmservice_fuzz_static") {
       defines += [ "SMS_MMS_EDM_ENABLE" ]
     }
 
-    if (device_standby_edm_enable && !enterprise_device_management_feature_pc_only) {
+    if (device_standby_edm_enable &&
+        !enterprise_device_management_feature_pc_only) {
       external_deps += [ "device_standby:standby_innerkits" ]
       sources += [ "../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp" ]
     }
@@ -697,7 +703,7 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     "../../../common/external:edm_external_adapters",
     "../../../common/native:edm_commom",
     "../../../interfaces/inner_api:edmservice_kits",
-    "../../../interfaces/inner_api/plugin_kits:plugin_kits",
+    "../../../interfaces/inner_api/plugin_kits",
     "../../unittest/utils:edm_unittest_utils",
   ]
 
@@ -707,8 +713,8 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
-    "access_token:libtoken_setproc",
     "access_token:libnativetoken_shared",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
@@ -742,7 +748,8 @@ ohos_fuzztest("EnterpriseDeviceMgrStubMockFuzzTest") {
         "usb_manager:usbsrv_client",
       ]
     }
-    if (drivers_interface_usb_edm_enable && enterprise_device_management_enable_disk_manager &&
+    if (drivers_interface_usb_edm_enable &&
+        enterprise_device_management_enable_disk_manager &&
         usb_manager_edm_enable) {
       external_deps += [ "disk_manager:disk_manager_innerkits" ]
     }

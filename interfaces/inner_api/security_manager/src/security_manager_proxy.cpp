@@ -634,6 +634,28 @@ int32_t SecurityManagerProxy::GetDeviceSecurityLevelPolicy(MessageParcel &data, 
     return ERR_OK;
 }
 
+int32_t SecurityManagerProxy::SetEnterpriseResetPolicy(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::SetEnterpriseResetPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ENTERPRISE_RESET_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetEnterpriseResetPolicy(MessageParcel &data, int32_t &policy)
+{
+    EDMLOGD("SecurityManagerProxy::GetEnterpriseResetPolicy");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::ENTERPRISE_RESET_POLICY, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("SecurityManagerProxy:GetEnterpriseResetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    policy = reply.ReadInt32();
+    return ERR_OK;
+}
+
 int32_t SecurityManagerProxy::SetWeakPinEnable(bool isEnable, int32_t fd)
 {
     EDMLOGD("SecurityManagerProxy::SetWeakPinEnable isEnable=%{public}d", isEnable);
