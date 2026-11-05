@@ -598,20 +598,20 @@ void EnterpriseDeviceMgrAbility::OnStart()
         CheckAndUpdateByodSettingsData();
         std::shared_ptr<IAdminObserver> observer = std::make_shared<AdminObserver>();
         AdminManager::GetInstance()->Register(observer);
+        EdmBluetoothManagerImpl::GetInstance();
+#ifdef MOBILE_DATA_ENABLE
+        EdmCellularDataManagerImpl::GetInstance();
+#endif
+        EdmTimerManager::GetInstance();
+#ifdef ABILITY_FORM_FWK_EDM_ENABLE
+        EdmFormManagerImpl::GetInstance();
+#endif
     }
     ExtInfoManager::GetInstance()->GetSuperHubInfo();
     ExtInfoManager::GetInstance()->GetAppUidMap();
-    EdmBluetoothManagerImpl::GetInstance();
-#ifdef MOBILE_DATA_ENABLE
-    EdmCellularDataManagerImpl::GetInstance();
-#endif
     InitAgTask();
-    EdmTimerManager::GetInstance();
     CheckAndReportInstalledBundleInfoOnStart();
     CleanHapTempDirectory();
-#ifdef ABILITY_FORM_FWK_EDM_ENABLE
-    EdmFormManagerImpl::GetInstance();
-#endif
 }
 
 void EnterpriseDeviceMgrAbility::CheckAndUpdateByodSettingsData()
