@@ -636,13 +636,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, {PolicyName::POLICY_DISALLOWED_FREE_WINDOW,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true,
-        IPlugin::ApiType::PUBLIC,
-#ifdef FEATURE_PC_ONLY
-        false
-#else
-        true
-#endif
-    }},
+        IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_CONTROL_CENTER, {PolicyName::POLICY_DISALLOW_CONTROL_CENTER, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER, {PolicyName::POLICY_DISALLOW_NOTIFICATION_CENTER,
