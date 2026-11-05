@@ -232,6 +232,7 @@ ohos_unittest("EdmPluginTest") {
   if (wifi_edm_enable) {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
+      "./src/allowed_hotspot_client_list_plugin_test.cpp",
       "./src/allowed_wifi_list_plugin_test.cpp",
       "./src/disallowed_wifi_list_plugin_test.cpp",
       "./src/is_wifi_active_plugin_test.cpp",
@@ -858,6 +859,7 @@ ohos_static_library("edm_all_plugin_static") {
     external_deps += [ "wifi:wifi_sdk" ]
     sources += [
       "../../../../common/native/src/plugin_utils/message_parcel_utils.cpp",
+      "../../../../services/edm_plugin/src/wifi_manager/allowed_hotspot_client_list_plugin.cpp",
       "../../../../services/edm_plugin/src/wifi_manager/allowed_wifi_list_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallowed_p2p_plugin.cpp",
       "../../../../services/edm_plugin/src/wifi_manager/disallowed_wifi_list_plugin.cpp",

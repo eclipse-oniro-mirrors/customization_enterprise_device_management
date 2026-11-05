@@ -656,6 +656,12 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         {PolicyName::POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS,
         PolicyDataType::ARRAY_STRING, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

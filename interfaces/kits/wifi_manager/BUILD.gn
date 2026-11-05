@@ -29,6 +29,7 @@ ohos_shared_library("wifimanager") {
   deps = [
     "../../../common/native:edm_commom",
     "../../inner_api:edmservice_kits",
+    "../../inner_api/plugin_kits:plugin_kits",
     "../common:napi_edm_common",
   ]
 
@@ -37,6 +38,7 @@ ohos_shared_library("wifimanager") {
     "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "cJSON:cjson",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",

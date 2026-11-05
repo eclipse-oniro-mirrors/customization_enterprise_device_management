@@ -15,6 +15,8 @@
 
 #include "wifi_manager_proxy.h"
 
+#include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "message_parcel_utils.h"
@@ -125,6 +127,65 @@ int32_t WifiManagerProxy::TurnOffWifi(MessageParcel &data)
     EDMLOGI("WifiManagerProxy::TurnOffWifi");
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::SWITCH_WIFI);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t WifiManagerProxy::AddAllowedHotspotClientList(MessageParcel &data)
+{
+    EDMLOGI("WifiManagerProxy::AddAllowedHotspotClientList");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t WifiManagerProxy::RemoveAllowedHotspotClientList(MessageParcel &data)
+{
+    EDMLOGI("WifiManagerProxy::RemoveAllowedHotspotClientList");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t WifiManagerProxy::GetAllowedHotspotClientList(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("WifiManagerProxy::GetAllowedHotspotClientList");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("WifiManagerProxy:GetAllowedHotspotClientList fail. %{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
+
+bool WifiManagerProxy::IsAllowedHotspotClientConnect(const std::string &macAddress)
+{
+    EDMLOGI("WifiManagerProxy::IsAllowedHotspotClientConnect");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return false;
+    }
+    if (!proxy->IsEdmEnabled()) {
+        EDMLOGI("The device is not under control.");
+        return true;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
+    data.WriteString(macAddress);
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("WifiManagerProxy:IsAllowedHotspotClientConnect GetPolicyNew fail. %{public}d", ret);
+        return false;
+    }
+    bool isAllowed = false;
+    reply.ReadBool(isAllowed);
+    EDMLOGI("WifiManagerProxy:IsAllowedHotspotClientConnect result=%{public}d", isAllowed);
+    return isAllowed;
 }
 } // namespace EDM
 } // namespace OHOS

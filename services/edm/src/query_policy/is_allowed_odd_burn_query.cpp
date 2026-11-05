@@ -39,13 +39,12 @@ ErrCode IsAllowedOddBurnQuery::QueryPolicy(std::string &policyData, MessageParce
     int32_t vendorId = data.ReadInt32();
     int32_t productId = data.ReadInt32();
     std::string serial = data.ReadString();
-    EDMLOGI("IsAllowedOddBurnQuery::QueryPolicy vendorId=%{public}d, productId=%{public}d, serial=%{public}s",
-        vendorId, productId, serial.c_str());
+    EDMLOGI("IsAllowedOddBurnQuery::QueryPolicy vendorId=%{public}d, productId=%{public}d", vendorId, productId);
     std::vector<OddBurnUsbDevice> usbDevices;
     if (!ArrayOddBurnUsbDeviceSerializer::GetInstance()->Deserialize(policyData, usbDevices)) {
         EDMLOGE("IsAllowedOddBurnQuery::QueryPolicy Deserialize failed");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     bool isAllowed = true;
     if (!usbDevices.empty()) {
