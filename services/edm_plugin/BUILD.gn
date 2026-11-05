@@ -478,7 +478,6 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/network_manager/get_all_network_interfaces_plugin.cpp",
         "./src/network_manager/get_ip_or_mac_address_plugin.cpp",
-        "./src/network_manager/get_shared_path_list_plugin.cpp",
         "./src/restrictions/disallow_vpn_plugin.cpp"
       ]
     }
@@ -801,6 +800,7 @@ ohos_shared_library("need_extra_plugin") {
       "./src/device_info/get_device_info_plugin.cpp",
       "./src/device_info/get_ext_info_plugin.cpp",
       "./src/bundle_manager/install_market_apps_plugin.cpp",
+      "./src/network_manager/get_shared_path_list_plugin.cpp",
       "./src/system_manager/notify_update_packages_plugin.cpp",
       "./src/system_manager/set_update_policy_plugin.cpp",
       "./src/device_settings/set_wall_paper_plugin.cpp",
