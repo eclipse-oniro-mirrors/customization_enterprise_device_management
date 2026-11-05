@@ -66,6 +66,8 @@ public:
         (override));
     MOCK_METHOD(int, UnsubscribeManagedEvent, (const AppExecFwk::ElementName &, (const std::vector<uint32_t> &)),
         (override));
+    MOCK_METHOD(int, SubscribeSmsEvent, (), (override));
+    MOCK_METHOD(int, UnsubscribeSmsEvent, (), (override));
     MOCK_METHOD(int, AuthorizeAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
     MOCK_METHOD(int, GetSuperAdmin, (std::string &, std::string &), (override));
     MOCK_METHOD(int, SetDelegatedPolicies,
@@ -285,6 +287,9 @@ public:
     int InvokePatchInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokePatchInfoEmptyListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
 
@@ -307,6 +312,12 @@ public:
         MessageOption &option);
 
     int InvokeSmsMessagesSendRequestGetPolicyFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicyEmpty(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSharedPathListSendRequestGetPolicyMaxCount(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
     uint32_t code_ = 0;

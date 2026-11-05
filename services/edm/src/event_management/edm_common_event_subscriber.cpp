@@ -16,6 +16,7 @@
 #include "edm_common_event_subscriber.h"
 
 #include "edm_log.h"
+#include "managed_event.h"
 
 namespace OHOS {
 namespace EDM {

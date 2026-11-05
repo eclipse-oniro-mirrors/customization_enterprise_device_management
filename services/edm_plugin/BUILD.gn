@@ -481,6 +481,7 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/network_manager/get_all_network_interfaces_plugin.cpp",
         "./src/network_manager/get_ip_or_mac_address_plugin.cpp",
+        "./src/network_manager/get_shared_path_list_plugin.cpp",
         "./src/restrictions/disallow_vpn_plugin.cpp"
       ]
     }
@@ -633,6 +634,7 @@ ohos_shared_library("sys_service_plugin") {
   if (enterprise_device_management_support_all) {
     sources += [
       "./src/application_manager/allowed_notification_bundles_plugin.cpp",
+      "./src/application_manager/optimization_battery_exclusion_apps_plugin.cpp",
       "./src/application_manager/clear_up_application_data_plugin.cpp",
       "./src/utils/clear_up_application_data_param_serializer.cpp",
       "./src/application_manager/manage_user_non_stop_apps_plugin.cpp",
@@ -829,7 +831,6 @@ ohos_shared_library("need_extra_plugin") {
         "./src/system_manager/local_hota_domain_plugin.cpp",
         "./src/system_manager/ota_update_nonce_plugin.cpp",
         "./src/device_info/get_patch_info_plugin.cpp",
-        "./src/network_manager/get_shared_path_list_plugin.cpp",
       ]
     }
 

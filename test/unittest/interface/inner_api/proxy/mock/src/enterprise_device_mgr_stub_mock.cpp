@@ -17,6 +17,8 @@
 
 #include <fcntl.h>
 
+#include <string>
+
 #include "application_instance.h"
 #include "array_odd_burn_usb_device_serializer.h"
 #include "bundle_storage_info.h"
@@ -847,6 +849,16 @@ int EnterpriseDeviceMgrStubMock::InvokePatchInfoSendRequestGetPolicy(uint32_t co
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokePatchInfoEmptyListSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokePatchInfoEmptyListSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(0);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -950,6 +962,35 @@ int EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail(uint3
     GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSmsMessagesSendRequestGetPolicyFail code :" << code;
     code_ = code;
     reply.WriteInt32(ERR_PROXY_SENDREQUEST_FAIL);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyEmpty(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSharedPathListSendRequestGetPolicyEmpty code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(0);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyMaxCount(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSharedPathListSendRequestGetPolicyMaxCount code :"
+                     << code;
+    code_ = code;
+    (void)reply.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY);
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(SHARED_PATH_MAX_COUNT);
+    for (uint32_t i = 0; i < SHARED_PATH_MAX_COUNT; ++i) {
+        PathSharedData sharedData;
+        sharedData.shareName = "s" + std::to_string(i);
+        sharedData.shareUri = "u" + std::to_string(i);
+        sharedData.shareLimit = TEST_SHARE_LIMIT;
+        sharedData.Marshalling(reply);
+    }
     return 0;
 }
 } // namespace EDM

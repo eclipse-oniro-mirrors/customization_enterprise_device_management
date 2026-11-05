@@ -39,6 +39,9 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
         case ManagedEvent::KIOSK_MODE_OFF:
         case ManagedEvent::SIM_STATE_CHANGED:
             return CreateCommonEventAdapter(manager, groupId, "", "");
+        case ManagedEvent::SMS_RECEIVED:
+            return CreateCommonEventAdapter(manager, groupId,
+                EDM_SMS_RECEIVE_COMPLETED_EVENT, EDM_SYSTEM_RECEIVE_SMS_PERMISSION);
         case ManagedEvent::APP_START:
             return CreateAppLifecycleAdapter(manager);
         case ManagedEvent::SYSTEM_UPDATE:
@@ -49,11 +52,11 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
                 EDM_OOBE_FINISHED_EVENT, EDM_OOBE_FINISHED_PERMISSION);
         case ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE:
             return std::make_shared<NullEventAdapter>();
-        case ManagedEvent::ON_PASSWORD_FAILED:
+        case ManagedEvent::PASSWORD_FAILED:
 #ifdef USERIAM_EDM_ENABLE
             return std::make_shared<UserAuthEventAdapter>(manager);
 #else
-            EDMLOGW("AdapterFactory::CreateAdapter ON_PASSWORD_FAILED unsupported without useriam");
+            EDMLOGW("AdapterFactory::CreateAdapter PASSWORD_FAILED unsupported without useriam");
             return nullptr;
 #endif
         default:

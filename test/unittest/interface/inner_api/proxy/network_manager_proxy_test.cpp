@@ -1052,7 +1052,6 @@ HWTEST_F(NetworkManagerProxyTest, TestSetEthernetConfigFail, TestSize.Level1)
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
-#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
 /**
  * @tc.name: TestGetSharedPathListSuc
  * @tc.desc: Test GetSharedPathList func when service returns shared list successfully.
@@ -1125,7 +1124,65 @@ HWTEST_F(NetworkManagerProxyTest, TestGetSharedPathListServiceDisable, TestSize.
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(sharedList.empty());
 }
-#endif
+
+/**
+ * @tc.name: TestGetSharedPathListEmpty
+ * @tc.desc: Test GetSharedPathList func when service returns an empty shared list.
+ *           The mobile build must return an empty list instead of failing the request.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetSharedPathListEmpty, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyEmpty));
+    std::vector<PathSharedData> sharedList;
+    int32_t ret = networkManagerProxy->GetSharedPathList(sharedList);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(sharedList.empty());
+}
+
+/**
+ * @tc.name: TestGetSharedPathListAccumulate
+ * @tc.desc: Test GetSharedPathList func appends the result into the passed-in vector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetSharedPathListAccumulate, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicy));
+    PathSharedData exist;
+    exist.shareName = "exist_share";
+    exist.shareUri = "file:///data/service/exist_share";
+    std::vector<PathSharedData> sharedList{exist};
+    int32_t ret = networkManagerProxy->GetSharedPathList(sharedList);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(sharedList.size(), 2u);
+    ASSERT_EQ(sharedList[0].shareName, "exist_share");
+    ASSERT_EQ(sharedList[1].shareName, "share_test");
+}
+
+/**
+ * @tc.name: TestGetSharedPathListMaxCount
+ * @tc.desc: Test GetSharedPathList func when reply size equals SHARED_PATH_MAX_COUNT.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NetworkManagerProxyTest, TestGetSharedPathListMaxCount, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyMaxCount));
+    std::vector<PathSharedData> sharedList;
+    int32_t ret = networkManagerProxy->GetSharedPathList(sharedList);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(sharedList.size(), SHARED_PATH_MAX_COUNT);
+    ASSERT_EQ(sharedList[0].shareName, "s0");
+    ASSERT_EQ(sharedList[SHARED_PATH_MAX_COUNT - 1].shareName, "s9999");
+}
 
 } // namespace TEST
 } // namespace EDM

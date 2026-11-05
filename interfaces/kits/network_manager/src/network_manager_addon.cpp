@@ -1958,7 +1958,6 @@ napi_value NetworkManagerAddon::SetEthernetConfig(napi_env env, napi_callback_in
 napi_value NetworkManagerAddon::GetSharedPathList(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NetworkManagerAddon::GetSharedPathList called");
-#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
     auto networkManagerProxy = NetworkManagerProxy::GetNetworkManagerProxy();
     if (networkManagerProxy == nullptr) {
         EDMLOGE("can not get networkManagerProxy");
@@ -1972,10 +1971,6 @@ napi_value NetworkManagerAddon::GetSharedPathList(napi_env env, napi_callback_in
         return nullptr;
     }
     return ConvertSharedPathListToJS(env, result);
-#else
-    EDMLOGI("NetworkManagerAddon::GetSharedPathList not supported on this build");
-    return ConvertSharedPathListToJS(env, {});
-#endif
 }
 
 napi_value NetworkManagerAddon::ConvertSharedPathListToJS(

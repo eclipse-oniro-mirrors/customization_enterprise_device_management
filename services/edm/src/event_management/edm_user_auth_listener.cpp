@@ -28,7 +28,7 @@ void EdmUserAuthListener::OnAuthFailureCountChanged(int32_t userId, int32_t fail
         return;
     }
     EdmEventData edmData;
-    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)};
+    edmData.eventId = EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)};
     edmData.userId = userId;
     edmData.passwordFailedCount = failCount;
     manager_.DispatchEvent(edmData);

@@ -28,6 +28,7 @@ namespace EdmConstants {
     constexpr int32_t USERIAM_SERVICE_UID = 1088;
     constexpr int32_t USB_SERVICE_UID = 1018;
     constexpr int32_t DISK_MANAGER_UID = 1091;
+    constexpr int32_t RESOURCE_SCHEDULE_UID = 1096;
     constexpr int32_t SAMGR_SERVICE_UID = 5555;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
@@ -57,6 +58,7 @@ namespace EdmConstants {
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
     constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
     constexpr int32_t ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE = 100;
+    constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 10;
 
     constexpr int32_t EDM_UID = 3057;
 
@@ -415,6 +417,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION =
         "ohos.permission.ENTERPRISE_MANAGE_NOTIFICATION";
     const char* const PERMISSION_ENTERPRISE_READ_MESSAGES = "ohos.permission.ENTERPRISE_READ_MESSAGES";
+    const char* const PERMISSION_RECEIVE_SMS = "ohos.permission.RECEIVE_SMS";
+    const char* const PERMISSION_ENTERPRISE_RECEIVE_SMS = "ohos.permission.ENTERPRISE_RECEIVE_SMS";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -616,6 +620,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
     const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
     const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
+    const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

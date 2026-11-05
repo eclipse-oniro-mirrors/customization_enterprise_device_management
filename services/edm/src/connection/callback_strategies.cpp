@@ -14,6 +14,7 @@
  */
 
 #include "callback_strategies.h"
+
 #include "edm_log.h"
 
 namespace OHOS {
@@ -108,6 +109,12 @@ bool PasswordFailedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy
     EDMLOGI("PasswordFailedStrategy::ExecuteImpl count=%{public}d userId=%{public}d",
         cumulativeFailedCount_, userId_);
     return proxy->OnPasswordFailed(cumulativeFailedCount_, userId_);
+}
+
+bool SmsReceivedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+{
+    EDMLOGI("SmsReceivedStrategy::ExecuteImpl");
+    return proxy->OnSmsReceived(smsInfo_);
 }
 } // namespace EDM
 } // namespace OHOS

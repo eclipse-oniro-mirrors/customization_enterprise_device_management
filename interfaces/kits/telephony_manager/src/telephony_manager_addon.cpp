@@ -508,27 +508,32 @@ static bool ParseQueryConfigFromJs(napi_env env, napi_value argv, TelephonyQuery
         return false;
     }
     napi_get_value_int64(env, endTimeValue, &config.endTime);
-    bool hasTelephoneNumber = false;
-    napi_has_named_property(env, argv, "telephoneNumber", &hasTelephoneNumber);
-    config.hasTelephoneNumber = hasTelephoneNumber;
-    if (!hasTelephoneNumber) {
+    bool hasProperty = false;
+    napi_has_named_property(env, argv, "telephoneNumber", &hasProperty);
+    if (!hasProperty) {
+        config.hasTelephoneNumber = false;
         return true;
     }
     napi_value telValue = nullptr;
     napi_get_named_property(env, argv, "telephoneNumber", &telValue);
     napi_valuetype telType = napi_undefined;
     napi_typeof(env, telValue, &telType);
-    if (telType == napi_string) {
-        size_t len = 0;
-        napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
-        if (len > 0) {
-            config.telephoneNumber.resize(len);
-            napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
-        }
-        // 空字符串视为不过滤号码，保持默认空串
-    } else if (telType != napi_undefined) {
+    if (telType == napi_undefined) {
+        config.hasTelephoneNumber = false;
+        return true;
+    }
+    if (telType != napi_string) {
         return false;
     }
+    size_t len = 0;
+    napi_get_value_string_utf8(env, telValue, nullptr, 0, &len);
+    if (len == 0) {
+        config.hasTelephoneNumber = false;
+        return true;
+    }
+    config.telephoneNumber.resize(len);
+    napi_get_value_string_utf8(env, telValue, config.telephoneNumber.data(), len + 1, &len);
+    config.hasTelephoneNumber = true;
     return true;
 }
 
@@ -542,25 +547,21 @@ napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info i
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     auto asyncCallbackInfo = new (std::nothrow) AsyncCallLogCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     std::unique_ptr<AsyncCallLogCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (argc < ARGS_SIZE_TWO) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     }
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     }
     if (!ParseElementName(env, asyncCallbackInfo->elementName, argv[ARR_INDEX_ZERO])) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     }
     if (!MatchValueType(env, argv[ARR_INDEX_ONE], napi_object) ||
         !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ONE], asyncCallbackInfo->queryConfig)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetCallLogs",
         NativeGetCallLogs, NativeGetCallLogsComplete);

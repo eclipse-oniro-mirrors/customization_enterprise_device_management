@@ -57,7 +57,7 @@ HWTEST_F(EdmUserAuthListenerTest, OnAuthFailureCountChanged_ValidParams_Dispatch
     int32_t receivedCount = -1;
     int32_t receivedUserId = -1;
     handle_ = EventSubscriptionManager::GetInstance().Subscribe("test_listener_valid",
-        SubscriberType::MDM_RELAY, EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)},
+        SubscriberType::MDM_RELAY, EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)},
         [&callCount, &receivedCount, &receivedUserId](const EdmEventData &data) {
             callCount++;
             receivedCount = data.passwordFailedCount;
@@ -82,7 +82,7 @@ HWTEST_F(EdmUserAuthListenerTest, OnAuthFailureCountChanged_InvalidUserId_NotDis
 {
     int callCount = 0;
     handle_ = EventSubscriptionManager::GetInstance().Subscribe("test_listener_invalid_user",
-        SubscriberType::MDM_RELAY, EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)},
+        SubscriberType::MDM_RELAY, EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)},
         [&callCount](const EdmEventData &) {
             callCount++;
         });
@@ -103,7 +103,7 @@ HWTEST_F(EdmUserAuthListenerTest, OnAuthFailureCountChanged_InvalidFailCount_Not
 {
     int callCount = 0;
     handle_ = EventSubscriptionManager::GetInstance().Subscribe("test_listener_invalid_count",
-        SubscriberType::MDM_RELAY, EventId{static_cast<uint32_t>(ManagedEvent::ON_PASSWORD_FAILED)},
+        SubscriberType::MDM_RELAY, EventId{static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED)},
         [&callCount](const EdmEventData &) {
             callCount++;
         });

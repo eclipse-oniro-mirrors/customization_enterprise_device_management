@@ -138,6 +138,9 @@ std::vector<napi_property_descriptor> ApplicationManagerAddon::InitOne()
         DECLARE_NAPI_FUNCTION("addAllowedDistributeAbilityConnBundles", AddAllowedDistributeAbilityConnBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedDistributeAbilityConnBundles", RemoveAllowedDistributeAbilityConnBundles),
         DECLARE_NAPI_FUNCTION("getAllowedDistributeAbilityConnBundles", GetAllowedDistributeAbilityConnBundles),
+        DECLARE_NAPI_FUNCTION("addOptimizationBatteryExclusionApps", AddOptimizationBatteryExclusionApps),
+        DECLARE_NAPI_FUNCTION("removeOptimizationBatteryExclusionApps", RemoveOptimizationBatteryExclusionApps),
+        DECLARE_NAPI_FUNCTION("getOptimizationBatteryExclusionApps", GetOptimizationBatteryExclusionApps),
     };
     return property;
 }
@@ -2085,6 +2088,73 @@ napi_value ApplicationManagerAddon::RemoveAllNotifications(napi_env env, napi_ca
         EDMLOGE("ApplicationManagerAddon::RemoveAllNotifications failed!");
     }
     return nullptr;
+}
+
+napi_value ApplicationManagerAddon::AddOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddOptimizationBatteryExclusionApps called");
+    return AddOrRemoveOptimizationBatteryExclusionApps(env, info, FuncOperateType::SET);
+}
+
+napi_value ApplicationManagerAddon::RemoveOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveOptimizationBatteryExclusionApps called");
+    return AddOrRemoveOptimizationBatteryExclusionApps(env, info, FuncOperateType::REMOVE);
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveOptimizationBatteryExclusionApps(napi_env env,
+    napi_callback_info info, FuncOperateType operateType)
+{
+    EDMLOGI("NAPI_AddOrRemoveOptimizationBatteryExclusionApps called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = operateType == FuncOperateType::SET ?
+        "AddOptimizationBatteryExclusionApps" : "RemoveOptimizationBatteryExclusionApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        AddOrRemoveOptimizationBatteryExclusionApps(adapterAddonData.data, operateType);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("AddOrRemoveOptimizationBatteryExclusionApps failed!");
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetOptimizationBatteryExclusionApps called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetOptimizationBatteryExclusionApps";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID, EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.defaultArgSize = 1;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::vector<std::string> apps;
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        GetOptimizationBatteryExclusionApps(adapterAddonData.data, apps);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value appList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, apps.size(), &appList));
+    for (size_t i = 0; i < apps.size(); i++) {
+        napi_value item;
+        NAPI_CALL(env, napi_create_string_utf8(env, apps[i].c_str(), NAPI_AUTO_LENGTH, &item));
+        NAPI_CALL(env, napi_set_element(env, appList, i, item));
+    }
+    return appList;
 }
 
 static napi_module g_applicationManagerModule = {

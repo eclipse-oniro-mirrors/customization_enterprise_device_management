@@ -51,6 +51,8 @@ public:
     ErrCode SetEnterpriseInfo(AppExecFwk::ElementName &admin, EntInfo &entInfo);
     ErrCode HandleManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events,
         bool subscribe);
+    ErrCode SubscribeSmsEvent();
+    ErrCode UnsubscribeSmsEvent();
     ErrCode IsSuperAdmin(const std::string &bundleName, bool &result);
     ErrCode IsByodAdmin(const AppExecFwk::ElementName &admin, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);

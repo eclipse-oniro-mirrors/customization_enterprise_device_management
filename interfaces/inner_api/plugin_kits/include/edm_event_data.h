@@ -22,6 +22,7 @@
 #include "application_state_observer_stub.h"
 #include "common_event_subscriber.h"
 #include "external_storage_device_info.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -54,6 +55,7 @@ struct EdmEventData {
     ExternalStorageDeviceInfo externalStorageDeviceInfo;
     int32_t passwordFailedCount{0};
     int32_t userId{-1};
+    SmsReceiveInfo smsReceiveInfo;
 };
 
 } // namespace EDM

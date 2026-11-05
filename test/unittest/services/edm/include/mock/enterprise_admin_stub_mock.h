@@ -68,6 +68,8 @@ public:
 
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override { return true; }
 
+    bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override { return true; }
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

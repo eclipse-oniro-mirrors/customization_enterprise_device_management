@@ -568,6 +568,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
 {
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy));
@@ -594,6 +597,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
 {
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
     Utils::SetEdmServiceDisable();
     TelephonyQueryConfig config;
     config.startTime = 1000;
@@ -612,6 +618,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesIpcFail, TestSize.Level1)
 {
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail));

@@ -75,9 +75,7 @@ public:
     int32_t GetGlobalHttpProxy(const AppExecFwk::ElementName *admin, NetManagerStandard::HttpProxy &httpProxy,
         int32_t accountId = -1);
 #endif
-#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
     int32_t GetSharedPathList(std::vector<PathSharedData> &sharedList);
-#endif
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;
     static std::once_flag flag_;

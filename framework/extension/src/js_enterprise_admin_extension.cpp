@@ -609,6 +609,17 @@ void JsEnterpriseAdminExtension::OnPasswordFailed(int32_t cumulativeFailedCount,
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnSmsReceived(const SmsReceiveInfo &smsInfo)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnSmsReceived");
+    auto task = [smsInfo, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateSmsReceiveInfoObject(env, smsInfo) };
+        CallObjectMethod("onSmsReceived", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
 napi_value JsEnterpriseAdminExtension::CreateExternalStorageDeviceInfoObject(napi_env env,
     const ExternalStorageDeviceInfo &deviceInfo)
 {
@@ -650,6 +661,32 @@ napi_value JsEnterpriseAdminExtension::CreateExternalStorageDeviceInfoObject(nap
     }
 
     return nDeviceInfo;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateSmsReceiveInfoObject(napi_env env,
+    const SmsReceiveInfo &smsInfo)
+{
+    napi_value nSmsInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nSmsInfo));
+
+    napi_value nSlotId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, smsInfo.slotId, &nSlotId));
+    NAPI_CALL(env, napi_set_named_property(env, nSmsInfo, "slotId", nSlotId));
+
+    napi_value nTelephoneNumber = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, smsInfo.telephoneNumber.c_str(), NAPI_AUTO_LENGTH,
+        &nTelephoneNumber));
+    NAPI_CALL(env, napi_set_named_property(env, nSmsInfo, "telephoneNumber", nTelephoneNumber));
+
+    napi_value nCount = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, smsInfo.count, &nCount));
+    NAPI_CALL(env, napi_set_named_property(env, nSmsInfo, "count", nCount));
+
+    napi_value nContent = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, smsInfo.content.c_str(), NAPI_AUTO_LENGTH, &nContent));
+    NAPI_CALL(env, napi_set_named_property(env, nSmsInfo, "content", nContent));
+
+    return nSmsInfo;
 }
 
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)

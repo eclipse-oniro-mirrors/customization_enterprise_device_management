@@ -781,6 +781,28 @@ napi_value AdminManager::UnsubscribeManagedEvent(napi_env env, napi_callback_inf
     return HandleManagedEvent(env, info, false);
 }
 
+napi_value AdminManager::SubscribeSmsEvent(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SubscribeSmsEvent called");
+    return HandleSmsEvent(env, info, true);
+}
+
+napi_value AdminManager::UnsubscribeSmsEvent(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UnsubscribeSmsEvent called");
+    return HandleSmsEvent(env, info, false);
+}
+
+napi_value AdminManager::HandleSmsEvent(napi_env env, napi_callback_info info, bool subscribe)
+{
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    int32_t ret = subscribe ? proxy->SubscribeSmsEvent() : proxy->UnsubscribeSmsEvent();
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
 napi_value AdminManager::HandleManagedEvent(napi_env env, napi_callback_info info, bool subscribe)
 {
     size_t argc = ARGS_SIZE_THREE;
@@ -1199,6 +1221,15 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::POLICIES_CHANGED),
         &nPolicyChanged));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_POLICIES_CHANGED", nPolicyChanged));
+    napi_value nPasswordFailed;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::PASSWORD_FAILED),
+        &nPasswordFailed));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_PASSWORD_FAILED",
+        nPasswordFailed));
+    napi_value nSmsReceived;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(ManagedEvent::SMS_RECEIVED),
+        &nSmsReceived));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "MANAGED_EVENT_SMS_RECEIVED", nSmsReceived));
     napi_value nUnmountExternalStorageDevice;
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
         static_cast<uint32_t>(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE), &nUnmountExternalStorageDevice));
@@ -1467,6 +1498,8 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isByodAdmin", IsByodAdmin),
         DECLARE_NAPI_FUNCTION("subscribeManagedEvent", SubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEvent", UnsubscribeManagedEvent),
+        DECLARE_NAPI_FUNCTION("subscribeSmsEvent", SubscribeSmsEvent),
+        DECLARE_NAPI_FUNCTION("unSubscribeSmsEvent", UnsubscribeSmsEvent),
         DECLARE_NAPI_FUNCTION("authorizeAdmin", AuthorizeAdmin),
         DECLARE_NAPI_FUNCTION("subscribeManagedEventSync", SubscribeManagedEventSync),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEventSync", UnsubscribeManagedEventSync),

@@ -216,6 +216,7 @@ static ErrCode ParseCallLogsFromBuffer(void *buffer, int32_t dataSize, std::vect
             count, readableDataSize);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
+    callLogs.reserve(static_cast<size_t>(count));
     for (int32_t i = 0; i < count; ++i) {
         CallLogInfo log;
         log.createTime = tempParcel.ReadInt64();

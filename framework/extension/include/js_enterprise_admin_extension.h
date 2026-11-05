@@ -24,6 +24,7 @@
 #include "policy_struct.h"
 #include "key_code.h"
 #include "external_storage_device_info.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -87,6 +88,8 @@ public:
 
     void OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId);
 
+    void OnSmsReceived(const SmsReceiveInfo &smsInfo);
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 
@@ -105,6 +108,8 @@ private:
     napi_value CreatePolicyChangedEvent(napi_env env, const PolicyChangedEvent &policyChangedEvent);
 
     napi_value CreateExternalStorageDeviceInfoObject(napi_env env, const ExternalStorageDeviceInfo &deviceInfo);
+
+    napi_value CreateSmsReceiveInfoObject(napi_env env, const SmsReceiveInfo &smsInfo);
 
     bool ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo);
 

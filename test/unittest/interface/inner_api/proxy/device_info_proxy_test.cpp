@@ -18,6 +18,7 @@
 #include <system_ability_definition.h>
 
 #include "device_info_proxy.h"
+#include "edm_constants.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "edm_sys_manager_mock.h"
 #include "utils.h"
@@ -247,6 +248,29 @@ HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_ValidReply_Success, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetPatchInfo_EmptyList_Success
+ * @tc.desc: Test GetPatchInfo success with empty patch list from service (all-device query path).
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_EmptyList_Success, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokePatchInfoEmptyListSendRequestGetPolicy));
+    MessageParcel reply;
+    int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    uint32_t size = 0;
+    ASSERT_TRUE(reply.ReadUint32(size));
+    EXPECT_EQ(size, 0u);
+}
+
+/**
  * @tc.name: GetPatchInfo_ServiceDisabled_ReturnsAdminInactive
  * @tc.desc: Test GetPatchInfo returns ADMIN_INACTIVE when edm service is disabled.
  * @tc.type: FUNC
@@ -281,6 +305,54 @@ HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_InterfaceUnsupported_ReturnsInterface
     MessageParcel reply;
     int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
     EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: GetPatchInfo_OverMaxSizeReply_Passthrough
+ * @tc.desc: Test GetPatchInfo returns ERR_OK and leaves oversize payload for caller to validate.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_OverMaxSizeReply_Passthrough, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokePatchInfoOverMaxSizeSendRequestGetPolicy));
+    MessageParcel reply;
+    int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    uint32_t size = 0;
+    ASSERT_TRUE(reply.ReadUint32(size));
+    EXPECT_GT(size, EdmConstants::PATCH_INFO_MAX_SIZE);
+}
+
+/**
+ * @tc.name: GetPatchInfo_UnmarshallFailReply_Passthrough
+ * @tc.desc: Test GetPatchInfo returns ERR_OK and leaves incomplete patch payload for caller to unmarshall.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceInfoProxyTest, GetPatchInfo_UnmarshallFailReply_Passthrough, TestSize.Level1)
+{
+    MessageParcel data;
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokePatchInfoUnmarshallFailSendRequestGetPolicy));
+    MessageParcel reply;
+    int32_t ret = deviceInfoProxy->GetPatchInfo(data, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    uint32_t size = 0;
+    ASSERT_TRUE(reply.ReadUint32(size));
+    ASSERT_EQ(size, 1u);
+    PatchInfo patchInfo;
+    EXPECT_FALSE(PatchInfo::Unmarshalling(reply, patchInfo));
 }
 } // namespace TEST
 } // namespace EDM

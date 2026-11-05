@@ -20,6 +20,7 @@
 #include "ienterprise_admin.h"
 #include "policy_struct.h"
 #include "external_storage_device_info.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -180,6 +181,16 @@ private:
     bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     int32_t cumulativeFailedCount_;
     int32_t userId_;
+};
+
+class SmsReceivedStrategy : public ICallbackStrategy {
+public:
+    explicit SmsReceivedStrategy(const SmsReceiveInfo& smsInfo)
+        : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_SMS_RECEIVED), smsInfo_(smsInfo) {}
+
+private:
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    SmsReceiveInfo smsInfo_;
 };
 
 } // namespace EDM

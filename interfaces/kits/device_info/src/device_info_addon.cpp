@@ -141,7 +141,6 @@ void DeviceInfoAddon::NativeGetPatchInfo(napi_env env, void *data)
         return;
     }
     AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
-#ifdef FEATURE_PC_ONLY
     auto deviceInfoProxy = DeviceInfoProxy::GetDeviceInfoProxy();
     if (deviceInfoProxy == nullptr) {
         EDMLOGE("NativeGetPatchInfo can not get DeviceInfoProxy");
@@ -149,10 +148,6 @@ void DeviceInfoAddon::NativeGetPatchInfo(napi_env env, void *data)
         return;
     }
     asyncCallbackInfo->ret = deviceInfoProxy->GetPatchInfo(asyncCallbackInfo->data, asyncCallbackInfo->reply);
-#else
-    asyncCallbackInfo->ret = ERR_OK;
-    asyncCallbackInfo->reply.WriteUint32(0);
-#endif
 }
 
 napi_value DeviceInfoAddon::BuildPatchInfoArray(napi_env env, MessageParcel &reply)
