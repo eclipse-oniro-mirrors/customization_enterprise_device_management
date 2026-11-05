@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <vector>
 
 #include "edm_constants.h"
 #include "edm_errors.h"
@@ -31,22 +32,21 @@ namespace TEST {
 namespace {
 constexpr int32_t ACCOUNT_ID = 100;
 constexpr int32_t ACCOUNT_ID_INVALID = -1;
-constexpr int32_t ACCOUNT_ID_MIN = 0;
+constexpr int32_t SYSTEM_ACCOUNT_ID = 0;
 constexpr int32_t RET_ANS_FAILED = 130001;
 } // namespace
 
 class RemoveAllNotificationsPluginMock : public RemoveAllNotificationsPlugin {
 public:
-    int32_t accountId_ = ACCOUNT_ID_INVALID;
-    int32_t callCount_ = 0;
+    std::vector<int32_t> accountIds_;
     int32_t ret_ = ERR_OK;
+    int32_t systemRet_ = ERR_OK;
 
 protected:
     int32_t RemoveAllNotifications(int32_t accountId) override
     {
-        accountId_ = accountId;
-        callCount_++;
-        return ret_;
+        accountIds_.push_back(accountId);
+        return accountId == SYSTEM_ACCOUNT_ID ? systemRet_ : ret_;
     }
 };
 
@@ -119,14 +119,14 @@ HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_InvalidAccountId_Retur
     ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID);
 
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-    EXPECT_EQ(plugin_->callCount_, 0);
+    EXPECT_TRUE(plugin_->accountIds_.empty());
     int32_t replyCode = ERR_OK;
     EXPECT_FALSE(reply.ReadInt32(replyCode));
 }
 
 /**
  * @tc.name: OnHandlePolicy_ServiceSuccess_ReturnsErrOk
- * @tc.desc: Test OnHandlePolicy returns ERR_OK when the underlying service removes notifications.
+ * @tc.desc: Test OnHandlePolicy returns ERR_OK after removing notifications of both the given and system account.
  * @tc.type: FUNC
  */
 HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_ServiceSuccess_ReturnsErrOk, TestSize.Level1)
@@ -139,15 +139,15 @@ HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_ServiceSuccess_Returns
     ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID);
 
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_EQ(plugin_->callCount_, 1);
-    EXPECT_EQ(plugin_->accountId_, ACCOUNT_ID);
+    std::vector<int32_t> expectedIds = {ACCOUNT_ID, SYSTEM_ACCOUNT_ID};
+    EXPECT_EQ(plugin_->accountIds_, expectedIds);
     int32_t replyCode = ERR_OK;
     EXPECT_FALSE(reply.ReadInt32(replyCode));
 }
 
 /**
  * @tc.name: OnHandlePolicy_ServiceFailed_ReturnsExecuteTimeOut
- * @tc.desc: Test OnHandlePolicy returns 9200016 when the underlying service fails.
+ * @tc.desc: Test OnHandlePolicy returns 9200016 and still sweeps the system account when the given account fails.
  * @tc.type: FUNC
  */
 HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_ServiceFailed_ReturnsExecuteTimeOut, TestSize.Level1)
@@ -161,28 +161,47 @@ HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_ServiceFailed_ReturnsE
     ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID);
 
     EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
-    EXPECT_EQ(plugin_->callCount_, 1);
-    EXPECT_EQ(plugin_->accountId_, ACCOUNT_ID);
+    std::vector<int32_t> expectedIds = {ACCOUNT_ID, SYSTEM_ACCOUNT_ID};
+    EXPECT_EQ(plugin_->accountIds_, expectedIds);
 }
 
 /**
- * @tc.name: OnHandlePolicy_MinValidAccountId_CallsServiceWithSameAccountId
- * @tc.desc: Test OnHandlePolicy accepts accountId 0 and passes it to the underlying service unchanged.
+ * @tc.name: OnHandlePolicy_SystemAccountFailed_ReturnsExecuteTimeOut
+ * @tc.desc: Test OnHandlePolicy returns 9200016 when only the system account removal fails.
  * @tc.type: FUNC
  */
-HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_MinValidAccountId_CallsServiceWithSameAccountId,
-    TestSize.Level1)
+HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_SystemAccountFailed_ReturnsExecuteTimeOut, TestSize.Level1)
+{
+    plugin_->systemRet_ = RET_ANS_FAILED;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    data.WriteInt32(ACCOUNT_ID);
+
+    ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID);
+
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    std::vector<int32_t> expectedIds = {ACCOUNT_ID, SYSTEM_ACCOUNT_ID};
+    EXPECT_EQ(plugin_->accountIds_, expectedIds);
+}
+
+/**
+ * @tc.name: OnHandlePolicy_MinValidAccountId_ReturnsErrOk
+ * @tc.desc: Test OnHandlePolicy accepts the minimum valid accountId 0 and calls the service for both accounts.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_MinValidAccountId_ReturnsErrOk, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     HandlePolicyData policyData;
-    data.WriteInt32(ACCOUNT_ID_MIN);
+    data.WriteInt32(SYSTEM_ACCOUNT_ID);
 
-    ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID_MIN);
+    ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, SYSTEM_ACCOUNT_ID);
 
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_EQ(plugin_->callCount_, 1);
-    EXPECT_EQ(plugin_->accountId_, ACCOUNT_ID_MIN);
+    std::vector<int32_t> expectedIds = {SYSTEM_ACCOUNT_ID, SYSTEM_ACCOUNT_ID};
+    EXPECT_EQ(plugin_->accountIds_, expectedIds);
 }
 } // namespace TEST
 } // namespace EDM

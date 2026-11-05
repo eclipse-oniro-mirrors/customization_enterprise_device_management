@@ -24,6 +24,7 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t SYSTEM_ACCOUNT_ID = 0;
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<RemoveAllNotificationsPlugin>());
 
 RemoveAllNotificationsPlugin::RemoveAllNotificationsPlugin()
@@ -47,8 +48,9 @@ ErrCode RemoveAllNotificationsPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
     }
     EDMLOGI("RemoveAllNotificationsPlugin OnHandlePolicy, accountId=%{public}d", accountId);
     int32_t ret = RemoveAllNotifications(accountId);
-    if (ret != ERR_OK) {
-        EDMLOGE("RemoveAllNotificationsPlugin: RemoveAllNotifications failed, %{public}d", ret);
+    int32_t systemRet = RemoveAllNotifications(SYSTEM_ACCOUNT_ID);
+    if (ret != ERR_OK || systemRet != ERR_OK) {
+        EDMLOGE("RemoveAllNotificationsPlugin: RemoveAllNotifications failed, %{public}d %{public}d", ret, systemRet);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
