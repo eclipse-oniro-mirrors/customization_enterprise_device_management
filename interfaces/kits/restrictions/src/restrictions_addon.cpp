@@ -182,6 +182,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::SATA_ODD_BURN), EdmInterfaceCode::DISABLE_SATA_ODD_BURN},
     {static_cast<int32_t>(RestrictionsFeature::SUPER_PRIVACY),
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY},
+    {static_cast<int32_t>(RestrictionsFeature::ADVANCED_MESSAGE), EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -1157,6 +1158,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"SYSTEM_ROLLBACK", static_cast<uint32_t>(RestrictionsFeature::SYSTEM_ROLLBACK)},
         {"SATA_ODD_BURN", static_cast<uint32_t>(RestrictionsFeature::SATA_ODD_BURN)},
         {"SUPER_PRIVACY", static_cast<uint32_t>(RestrictionsFeature::SUPER_PRIVACY)},
+        {"ADVANCED_MESSAGE", static_cast<uint32_t>(RestrictionsFeature::ADVANCED_MESSAGE)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

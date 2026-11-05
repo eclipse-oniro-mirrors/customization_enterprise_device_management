@@ -523,6 +523,7 @@ namespace PolicyName {
     const char* const POLICY_SCREEN_WATERMARK_IMAGE = "screen_watermark_image";
     const char* const POLICY_ALLOWED_NOTIFICATION_BUNDLES = "allowed_notification_bundles";
     const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
+    const char* const POLICY_DISALLOWED_ADVANCED_MESSAGE = "disallowed_advanced_message";
     const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";

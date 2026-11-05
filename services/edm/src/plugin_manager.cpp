@@ -109,6 +109,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_USB_DEVICES, EdmInterfaceCode::MANAGED_BROWSER_POLICY,
     EdmInterfaceCode::ALLOWED_WIFI_LIST, EdmInterfaceCode::DISALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_SMS, EdmInterfaceCode::DISALLOWED_MMS,
+    EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE,
     EdmInterfaceCode::SWITCH_WIFI, EdmInterfaceCode::DISALLOW_MODIFY_APN,
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
