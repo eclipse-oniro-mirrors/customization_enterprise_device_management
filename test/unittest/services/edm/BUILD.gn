@@ -148,8 +148,10 @@ ohos_static_library("edmservice_static") {
 
   if (wifi_edm_enable) {
     sources += [
+      "../../../../services/edm/src/query_policy/allowed_hotspot_client_list_query.cpp",
       "../../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
       "../../../../services/edm/src/query_policy/disallowed_wifi_list_query.cpp",
+      "../../../../services/edm/src/query_policy/is_allowed_hotspot_client_connect_query.cpp",
     ]
     defines += ["WIFI_EDM_ENABLE"]
   }
@@ -570,6 +572,7 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/system_service_start_handler_test.cpp",
     "./src/update_policy_conflict_test.cpp",
     "./src/user_policy_manager_test.cpp",
+    "./src/query_policy/allowed_hotspot_client_list_query_test.cpp",
     "./src/query_policy/allowed_permission_bundle_query_test.cpp",
     "./src/query_policy/disallowed_permission_query_test.cpp",
     "./src/query_policy/get_watermark_image_apps_query_test.cpp",

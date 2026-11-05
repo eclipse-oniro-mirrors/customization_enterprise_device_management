@@ -43,6 +43,7 @@ namespace EdmConstants {
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     constexpr uint32_t DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE = 1000;
     constexpr uint32_t ALLOWED_ODD_BURN_USB_DEVICES_MAX_SIZE = 10000;
+    constexpr uint32_t ALLOWED_HOTSPOT_CLIENT_LIST_MAX_SIZE = 1000;
     constexpr int32_t DISTRIBUTE_SERVICE_TYPE_COLLABORATION = 0;
     constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
     constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 10;
@@ -118,6 +119,9 @@ namespace EdmConstants {
     // 外置存储设备挂载拦截使能persist参数
     constexpr const char* PARAM_EDM_ENABLE_EXTERNAL_STORAGE_MOUNT_INTERCEPT =
         "persist.edm.enable_external_storage_mount_intercept";
+    
+    // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
+    const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
 
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
@@ -512,6 +516,7 @@ namespace PolicyName {
     const char* const POLICY_SET_WIFI_PROFILE = "set_wifi_profile";
     const char* const POLICY_ALLOWED_WIFI_LIST = "allowed_wifi_list";
     const char* const POLICY_DISALLOWED_WIFI_LIST = "disallowed_wifi_list";
+    const char* const POLICY_ALLOWED_HOTSPOT_CLIENT_LIST = "allowed_hotspot_client_list";
     const char* const POLICY_ALLOWED_INSTALL_APP_TYPE = "allowed_install_app_type";
     const char* const POLICY_SHUTDOWN_DEVICE = "shutdown_device";
     const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";

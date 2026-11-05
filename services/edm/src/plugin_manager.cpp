@@ -132,6 +132,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS,
     EdmInterfaceCode::GET_CALL_LOGS,
     EdmInterfaceCode::GET_SMS_MESSAGES,
+    EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {

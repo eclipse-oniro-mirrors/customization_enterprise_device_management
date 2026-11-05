@@ -45,6 +45,9 @@
 #include "is_allowed_odd_burn_query.h"
 #endif
 
+#include "allowed_hotspot_client_list_query.h"
+#include "is_allowed_hotspot_client_connect_query.h"
+
 #include "allowed_app_distribution_types_query.h"
 #include "ntp_server_query.h"
 
@@ -177,6 +180,10 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomSecurityQuery(uint
         case EdmInterfaceCode::IS_ALLOWED_ODD_BURN:
             return std::make_shared<IsAllowedOddBurnQuery>();
 #endif
+        case EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST:
+            return std::make_shared<AllowedHotspotClientListQuery>();
+        case EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT:
+            return std::make_shared<IsAllowedHotspotClientConnectQuery>();
         case EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY:
             return std::make_shared<DeviceSecurityLevelPolicyQuery>();
         default:

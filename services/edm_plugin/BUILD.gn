@@ -371,6 +371,7 @@ ohos_shared_library("communication_plugin") {
     if (wifi_edm_enable) {
       external_deps += [ "wifi:wifi_sdk" ]
       sources += [
+        "./src/wifi_manager/allowed_hotspot_client_list_plugin.cpp",
         "./src/wifi_manager/allowed_wifi_list_plugin.cpp",
         "./src/wifi_manager/disallowed_wifi_list_plugin.cpp",
         "./src/wifi_manager/is_wifi_active_plugin.cpp",

@@ -348,7 +348,10 @@ ohos_static_library("edmservice_fuzz_static") {
       external_deps += [ "wifi:wifi_sdk" ]
       sources += [
         "../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
+        "../../../services/edm/src/query_policy/allowed_hotspot_client_list_query.cpp",
         "../../../services/edm/src/query_policy/disallowed_wifi_list_query.cpp",
+        "../../../services/edm/src/query_policy/is_allowed_hotspot_client_connect_query.cpp",
+        "../../../services/edm_plugin/src/wifi_manager/allowed_hotspot_client_list_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/allowed_wifi_list_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/disallowed_wifi_list_plugin.cpp",
         "../../../services/edm_plugin/src/wifi_manager/is_wifi_active_plugin.cpp",
