@@ -161,6 +161,15 @@ public:
     int InvokeWindowStateVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeMainWindowStatesVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeMainWindowStatesInvalidStateSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 

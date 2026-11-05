@@ -28,6 +28,7 @@
 #include "net_stats_utils.h"
 #include "bundle_stats_info.h"
 #include "window_state_info.h"
+#include "main_window_states.h"
 
 namespace OHOS {
 namespace EDM {
@@ -89,6 +90,7 @@ public:
     int32_t QueryBundleStatsInfos(MessageParcel &data, std::vector<BundleStatsInfo> &bundleStatsInfos);
     int32_t GetApplicationWindowStates(const AppExecFwk::ElementName &admin, std::string &bundleName, int32_t appIndex,
         std::vector<WindowStateInfo> &windowStateInfos);
+    int32_t GetAllMainWindowStates(MessageParcel &data, std::vector<MainWindowStates> &mainWindowStates);
 #ifndef FEATURE_PC_ONLY
     int32_t AddOrRemoveHideLauncherIcon(const AppExecFwk::ElementName &admin, int32_t userId,
         const std::vector<std::string> &bundleNames, bool isAdd);

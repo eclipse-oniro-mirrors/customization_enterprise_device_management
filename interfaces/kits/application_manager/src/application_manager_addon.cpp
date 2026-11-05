@@ -131,6 +131,7 @@ std::vector<napi_property_descriptor> ApplicationManagerAddon::InitOne()
         DECLARE_NAPI_FUNCTION("queryTrafficStats", QueryTrafficStats),
         DECLARE_NAPI_FUNCTION("queryBundleStatsInfos", QueryBundleStatsInfos),
         DECLARE_NAPI_FUNCTION("getApplicationWindowStates", GetApplicationWindowStates),
+        DECLARE_NAPI_FUNCTION("getAllMainWindowStates", GetAllMainWindowStates),
         DECLARE_NAPI_FUNCTION("addHideLauncherIcon", AddHideLauncherIcon),
         DECLARE_NAPI_FUNCTION("removeHideLauncherIcon", RemoveHideLauncherIcon),
         DECLARE_NAPI_FUNCTION("getHideLauncherIcon", GetHideLauncherIcon),
@@ -1618,6 +1619,62 @@ void ApplicationManagerAddon::ConvertWindowStateInfoVectorToJs(napi_env env,
         napi_set_element(env, nWindowStateInfos, idx, obj);
         idx++;
     }
+}
+
+napi_value ApplicationManagerAddon::GetAllMainWindowStates(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("ApplicationManagerAddon::GetAllMainWindowStates called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetAllMainWindowStates";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    if (applicationManagerProxy == nullptr) {
+        EDMLOGE("can not get applicationManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    std::vector<MainWindowStates> mainWindowStates;
+    int32_t ret = applicationManagerProxy->GetAllMainWindowStates(adapterAddonData.data, mainWindowStates);
+    EDMLOGI("ApplicationManagerAddon::GetAllMainWindowStates return size: %{public}zu", mainWindowStates.size());
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, mainWindowStates.size(), &jsList));
+    for (size_t i = 0; i < mainWindowStates.size(); i++) {
+        napi_value item = MainWindowStatesToJsObj(env, mainWindowStates[i]);
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+}
+
+napi_value ApplicationManagerAddon::MainWindowStatesToJsObj(napi_env env,
+    const MainWindowStates &mainWindowState)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+
+    napi_value pid = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, mainWindowState.pid, &pid));
+    NAPI_CALL(env, napi_set_named_property(env, value, "pid", pid));
+
+    napi_value bundleName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, mainWindowState.bundleName.c_str(), NAPI_AUTO_LENGTH, &bundleName));
+    NAPI_CALL(env, napi_set_named_property(env, value, "bundleName", bundleName));
+
+    napi_value state = nullptr;
+    NAPI_CALL(env, napi_create_uint32(env, static_cast<uint32_t>(mainWindowState.state), &state));
+    NAPI_CALL(env, napi_set_named_property(env, value, "state", state));
+
+    return value;
 }
 
 napi_value ApplicationManagerAddon::QueryTrafficStats(napi_env env, napi_callback_info info)

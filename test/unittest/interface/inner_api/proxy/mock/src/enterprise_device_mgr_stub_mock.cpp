@@ -41,6 +41,7 @@
 #include "usb_interface_type.h"
 #include "wifi_id.h"
 #include "window_state_info.h"
+#include "main_window_states.h"
 
 namespace OHOS {
 namespace EDM {
@@ -336,6 +337,48 @@ int EnterpriseDeviceMgrStubMock::InvokeWindowStateVectorSendRequestGetPolicy(uin
         GTEST_LOG_(INFO) << "mock InvokeWindowStateVectorSendRequestGetPolicy write windowStateInfos failed";
         return ERR_PROXY_SENDREQUEST_FAIL;
     }
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeMainWindowStatesVectorSendRequestGetPolicy code :"
+                     << code;
+    code_ = code;
+    std::vector<MainWindowStates> mainWindowStates{
+        MainWindowStates{TEST_WINDOW_ID, TEST_WINDOW_NAME, WindowState::ACTIVE}
+    };
+    reply.WriteInt32(ERR_OK);
+    if (!MainWindowStatesHandle::WriteMainWindowStatesVector(reply, mainWindowStates)) {
+        GTEST_LOG_(INFO) << "mock InvokeMainWindowStatesVectorSendRequestGetPolicy write mainWindowStates failed";
+        return ERR_PROXY_SENDREQUEST_FAIL;
+    }
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy"
+                     << " code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(EdmConstants::DEFAULT_LOOP_MAX_SIZE + 1);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeMainWindowStatesInvalidStateSendRequestGetPolicy(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeMainWindowStatesInvalidStateSendRequestGetPolicy"
+                     << " code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint32(1);
+    reply.WriteInt32(TEST_WINDOW_ID);
+    reply.WriteString(TEST_WINDOW_NAME);
+    reply.WriteUint32(static_cast<uint32_t>(WindowState::BACKGROUND) + 1);
     return 0;
 }
 
