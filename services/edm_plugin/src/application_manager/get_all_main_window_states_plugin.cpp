@@ -76,6 +76,10 @@ ErrCode GetAllMainWindowStatesPlugin::QueryMainWindowStates(int32_t userId,
     // A process may have multiple main windows. Query window states once for each unique pid.
     std::map<int32_t, std::string> pidToBundleNames;
     for (const auto &info : mainWindowInfos) {
+        if (info.pid_ <= 0) { // LCOV_EXCL_BR_LINE
+            EDMLOGW("GetAllMainWindowStatesPlugin skip invalid pid: %{public}d", info.pid_);
+            continue;
+        }
         pidToBundleNames.emplace(info.pid_, info.bundleName_);
     }
     for (const auto &pidToBundleName : pidToBundleNames) {
