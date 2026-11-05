@@ -64,6 +64,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE,
     EdmInterfaceCode::DISALLOWED_SMS,
     EdmInterfaceCode::DISALLOWED_MMS,
+    EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE,
     EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
     EdmInterfaceCode::IS_APP_KIOSK_ALLOWED,
     EdmInterfaceCode::DISALLOWED_MOBILE_DATA,

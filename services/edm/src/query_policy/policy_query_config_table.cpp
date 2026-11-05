@@ -647,6 +647,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER, {PolicyName::POLICY_DISALLOW_NOTIFICATION_CENTER,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE, {PolicyName::POLICY_DISALLOWED_ADVANCED_MESSAGE,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::GET_SMS_MESSAGES, {PolicyName::POLICY_GET_SMS_MESSAGES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_READ_MESSAGES), false, IPlugin::ApiType::PUBLIC,
