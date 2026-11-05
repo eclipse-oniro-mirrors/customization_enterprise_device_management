@@ -16,6 +16,7 @@
 #include "disallow_notification_center_plugin.h"
 
 #include <cstdlib>
+#include <string_ex.h>
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
@@ -25,7 +26,7 @@
 namespace OHOS {
 namespace EDM {
 const std::string PARAM_CONTROL_NOTIFICATION_CENTER_DISABLE = "persist.edm.control_notification_center_disable";
-constexpr int32_t NOTIFICATION_CENTER_DISABLE_BIT = 0x02;
+constexpr uint32_t NOTIFICATION_CENTER_DISABLE_BIT = 0x02;
 
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(
     std::make_shared<DisallowNotificationCenterPlugin>());
@@ -44,11 +45,17 @@ DisallowNotificationCenterPlugin::DisallowNotificationCenterPlugin()
 ErrCode DisallowNotificationCenterPlugin::SetOtherModulePolicy(bool data, int32_t userId)
 {
     EDMLOGI("DisallowNotificationCenterPlugin SetOtherModulePolicy data : %{public}d", data);
-    int32_t value = atoi(system::GetParameter(PARAM_CONTROL_NOTIFICATION_CENTER_DISABLE, "0").c_str());
+    std::string paramValue = system::GetParameter(PARAM_CONTROL_NOTIFICATION_CENTER_DISABLE, "0");
+    int32_t policy = 0;
+    if (!OHOS::StrToInt(paramValue, policy) || policy < 0) {
+        EDMLOGE("DisallowNotificationCenterPlugin GetParameter failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    uint32_t value = static_cast<uint32_t>(policy);
     value = data ? (value | NOTIFICATION_CENTER_DISABLE_BIT) : (value & ~NOTIFICATION_CENTER_DISABLE_BIT);
     if (!system::SetParameter(PARAM_CONTROL_NOTIFICATION_CENTER_DISABLE, std::to_string(value))) {
         EDMLOGE("DisallowNotificationCenterPlugin set param failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
 }
