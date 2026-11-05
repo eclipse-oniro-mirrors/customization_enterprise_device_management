@@ -336,15 +336,14 @@ bool EdmBundleManagerImpl::GetBundleArchiveInfoV9(const std::string &hapFilePath
 }
 // LCOV_EXCL_STOP
 
-std::string EdmBundleManagerImpl::GetAppIdByBundleName(const std::string &bundleName, int32_t userId)
+std::string EdmBundleManagerImpl::GetAppIdentifierByBundleName(const std::string &bundleName, int32_t userId)
 {
-    auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (proxy == nullptr) { // LCOV_EXCL_BR_LINE
-        EDMLOGE("EdmBundleManagerImpl::GetAppIdByBundleName GetBundleMgr failed.");
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId)) {
+        EDMLOGE("EdmBundleManagerImpl::GetAppIdentifierByBundleName GetBundleInfo failed.");
         return "";
     }
-    return proxy->GetAppIdByBundleName(bundleName, userId);
+    return bundleInfo.signatureInfo.appIdentifier;
 }
 
 ErrCode EdmBundleManagerImpl::GetBundleNameByAppId(const std::string &appIdentifier, std::string &bundleName)

@@ -39,8 +39,6 @@ public:
         const EdmEventData &data, int32_t userId) override;
 
 protected:
-    ErrCode SetOtherModulePolicy(const std::vector<std::string> &data, int32_t userId,
-        std::vector<std::string> &failedData) override;
     std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM

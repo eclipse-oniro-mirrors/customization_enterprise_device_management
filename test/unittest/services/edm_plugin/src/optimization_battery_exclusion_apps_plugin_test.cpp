@@ -23,8 +23,6 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
-#include "edm_bundle_manager_impl_mock.h"
-#include "external_manager_factory_mock.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -68,16 +66,8 @@ HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestSetEmptyData, TestSize.
  */
 HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestSetValidData, TestSize.Level1)
 {
-    auto bundleMgrMock = std::make_shared<EdmBundleManagerImplMock>();
-    auto factoryMock = std::make_shared<ExternalManagerFactoryMock>();
-    EXPECT_CALL(*factoryMock, CreateBundleManager).WillRepeatedly(Return(bundleMgrMock));
-    EXPECT_CALL(*bundleMgrMock, GetBundleNameByAppId)
-        .WillRepeatedly(DoAll(SetArgReferee<1>("com.example.app"), Return(ERR_OK)));
-    EXPECT_CALL(*bundleMgrMock, IsBundleInstalled).WillRepeatedly(Return(true));
-
     OptimizationBatteryExclusionAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
-    plugin.externalManagerFactory_ = factoryMock;
     std::vector<std::string> data = {"com.example.app1", "com.example.app2"};
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
@@ -112,16 +102,8 @@ HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestSetExceedMaxSize, TestS
  */
 HWTEST_F(OptimizationBatteryExclusionAppsPluginTest, TestSetMergePolicy, TestSize.Level1)
 {
-    auto bundleMgrMock = std::make_shared<EdmBundleManagerImplMock>();
-    auto factoryMock = std::make_shared<ExternalManagerFactoryMock>();
-    EXPECT_CALL(*factoryMock, CreateBundleManager).WillRepeatedly(Return(bundleMgrMock));
-    EXPECT_CALL(*bundleMgrMock, GetBundleNameByAppId)
-        .WillRepeatedly(DoAll(SetArgReferee<1>("com.example.app"), Return(ERR_OK)));
-    EXPECT_CALL(*bundleMgrMock, IsBundleInstalled).WillRepeatedly(Return(true));
-
     OptimizationBatteryExclusionAppsPlugin plugin;
     plugin.maxListSize_ = EdmConstants::OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE;
-    plugin.externalManagerFactory_ = factoryMock;
     std::vector<std::string> data = {"com.example.app3"};
     std::vector<std::string> currentData = {"com.example.app1", "com.example.app2"};
     std::vector<std::string> mergeData = {"com.example.app1", "com.example.app2"};
