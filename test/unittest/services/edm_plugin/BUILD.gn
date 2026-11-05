@@ -887,6 +887,7 @@ ohos_static_library("edm_all_plugin_static") {
       "netmanager_ext:ethernet_manager_if",
     ]
     sources += [
+      "../../../../services/edm_plugin/src/network_manager/clear_dns_cache_plugin.cpp",
       "../../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
       "../../../../services/edm_plugin/src/device_settings/set_network_interface_config_plugin.cpp",
       "../../../../services/edm_plugin/src/network/executer/domain_executer.cpp",
