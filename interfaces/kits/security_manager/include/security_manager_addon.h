@@ -109,12 +109,15 @@ private:
     static void NativeGetUserExtCredential(napi_env env, void *data);
     static void NativeGetUserExtCredentialComplete(napi_env env, napi_status status, void *data);
     static std::vector<napi_property_descriptor> InitOne(napi_value nUnlockPolicy,
-        napi_value nDeviceSecurityLevelPolicy);
+        napi_value nDeviceSecurityLevelPolicy, napi_value nEnterpriseResetPolicy);
     static napi_value SetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info);
     static napi_value GetDeviceSecurityLevelPolicy(napi_env env, napi_callback_info info);
+    static napi_value SetEnterpriseResetPolicy(napi_env env, napi_callback_info info);
+    static napi_value GetEnterpriseResetPolicy(napi_env env, napi_callback_info info);
     static napi_value SetWeakPinEnable(napi_env env, napi_callback_info info);
     static napi_value IsWeakPinEnabled(napi_env env, napi_callback_info info);
     static void CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value);
+    static void CreateEnterpriseResetPolicyObject(napi_env env, napi_value value);
 };
 } // namespace EDM
 } // namespace OHOS

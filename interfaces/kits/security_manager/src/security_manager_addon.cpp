@@ -57,6 +57,9 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
     napi_value nDeviceSecurityLevelPolicy = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nDeviceSecurityLevelPolicy));
     CreateDeviceSecurityLevelPolicyObject(env, nDeviceSecurityLevelPolicy);
+    napi_value nEnterpriseResetPolicy = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nEnterpriseResetPolicy));
+    CreateEnterpriseResetPolicyObject(env, nEnterpriseResetPolicy);
     std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getSecurityPatchTag", GetSecurityPatchTag),
         DECLARE_NAPI_FUNCTION("getDeviceEncryptionStatus", GetDeviceEncryptionStatus),
@@ -78,14 +81,15 @@ napi_value SecurityManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("PermissionManagedState", nPermissionManagedState),
         DECLARE_NAPI_PROPERTY("PasswordAlgs", nPasswordAlgs),
     };
-    std::vector<napi_property_descriptor> propertyOne = InitOne(nUnlockPolicy, nDeviceSecurityLevelPolicy);
+    std::vector<napi_property_descriptor> propertyOne = InitOne(nUnlockPolicy, nDeviceSecurityLevelPolicy,
+        nEnterpriseResetPolicy);
     property.insert(property.end(), propertyOne.begin(), propertyOne.end());
     NAPI_CALL(env, napi_define_properties(env, exports, property.size(), property.data()));
     return exports;
 }
 
 std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value nUnlockPolicy,
-    napi_value nDeviceSecurityLevelPolicy)
+    napi_value nDeviceSecurityLevelPolicy, napi_value nEnterpriseResetPolicy)
 {
     std::vector<napi_property_descriptor> property = {
         DECLARE_NAPI_FUNCTION("getDisallowedPermissions", GetDisallowedPermissions),
@@ -104,6 +108,9 @@ std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value n
         DECLARE_NAPI_PROPERTY("DeviceSecurityLevelPolicy", nDeviceSecurityLevelPolicy),
         DECLARE_NAPI_FUNCTION("setDeviceSecurityLevelPolicy", SetDeviceSecurityLevelPolicy),
         DECLARE_NAPI_FUNCTION("getDeviceSecurityLevelPolicy", GetDeviceSecurityLevelPolicy),
+        DECLARE_NAPI_PROPERTY("EnterpriseResetPolicy", nEnterpriseResetPolicy),
+        DECLARE_NAPI_FUNCTION("setEnterpriseResetPolicy", SetEnterpriseResetPolicy),
+        DECLARE_NAPI_FUNCTION("getEnterpriseResetPolicy", GetEnterpriseResetPolicy),
         DECLARE_NAPI_FUNCTION("setExternalSourceExtensionsPolicy", SetExternalSourceExtensionsPolicy),
         DECLARE_NAPI_FUNCTION("getExternalSourceExtensionsPolicy", GetExternalSourceExtensionsPolicy),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SecurityManager::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
@@ -1880,6 +1887,70 @@ napi_value SecurityManagerAddon::GetDeviceSecurityLevelPolicy(napi_env env, napi
     napi_value deviceSecurityLevelPolicy;
     NAPI_CALL(env, napi_create_int32(env, policy, &deviceSecurityLevelPolicy));
     return deviceSecurityLevelPolicy;
+}
+
+void SecurityManagerAddon::CreateEnterpriseResetPolicyObject(napi_env env, napi_value value)
+{
+    napi_value nDefault;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EnterpriseResetPolicy::DEFAULT), &nDefault));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEFAULT", nDefault));
+    napi_value nEnterpriseAccountAuthOn;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EnterpriseResetPolicy::ENTERPRISE_ACCOUNT_AUTH_ON), &nEnterpriseAccountAuthOn));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ENTERPRISE_ACCOUNT_AUTH_ON",
+        nEnterpriseAccountAuthOn));
+    napi_value nEnterpriseAccountAuthOff;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(EnterpriseResetPolicy::ENTERPRISE_ACCOUNT_AUTH_OFF), &nEnterpriseAccountAuthOff));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "ENTERPRISE_ACCOUNT_AUTH_OFF",
+        nEnterpriseAccountAuthOff));
+}
+
+napi_value SecurityManagerAddon::SetEnterpriseResetPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetEnterpriseResetPolicy called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.name = "SetEnterpriseResetPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t retCode =
+        SecurityManagerProxy::GetSecurityManagerProxy()->SetEnterpriseResetPolicy(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
+napi_value SecurityManagerAddon::GetEnterpriseResetPolicy(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetEnterpriseResetPolicy called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {};
+    addonMethodSign.name = "GetEnterpriseResetPolicy";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t policy;
+    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->
+        GetEnterpriseResetPolicy(adapterAddonData.data, policy);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value enterpriseResetPolicy;
+    NAPI_CALL(env, napi_create_int32(env, policy, &enterpriseResetPolicy));
+    return enterpriseResetPolicy;
 }
 
 napi_value SecurityManagerAddon::SetWeakPinEnable(napi_env env, napi_callback_info info)

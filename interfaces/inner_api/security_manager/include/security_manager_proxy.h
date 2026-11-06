@@ -85,6 +85,8 @@ public:
     int32_t GetUnlockPolicy(MessageParcel &data, int32_t &policy);
     int32_t SetDeviceSecurityLevelPolicy(MessageParcel &data);
     int32_t GetDeviceSecurityLevelPolicy(MessageParcel &data, int32_t &policy);
+    int32_t SetEnterpriseResetPolicy(MessageParcel &data);
+    int32_t GetEnterpriseResetPolicy(MessageParcel &data, int32_t &policy);
     int32_t SetWeakPinEnable(bool isEnable, int32_t fd);
     int32_t IsWeakPinEnabled(bool &result);
 private:

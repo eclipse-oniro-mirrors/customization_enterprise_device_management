@@ -1047,6 +1047,66 @@ HWTEST_F(SecurityManagerProxyTest, TestGetDeviceSecurityLevelPolicyFail, TestSiz
 }
 
 /**
+ * @tc.name: TestSetEnterpriseResetPolicySuc
+ * @tc.desc: Test SetEnterpriseResetPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetEnterpriseResetPolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(EnterpriseResetPolicy::ENTERPRISE_ACCOUNT_AUTH_ON));
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetEnterpriseResetPolicy(data);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseResetPolicyFail
+ * @tc.desc: Test SetEnterpriseResetPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestSetEnterpriseResetPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(EnterpriseResetPolicy::ENTERPRISE_ACCOUNT_AUTH_ON));
+    int32_t ret = proxy_->SetEnterpriseResetPolicy(data);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseResetPolicySuc
+ * @tc.desc: Test GetEnterpriseResetPolicy success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetEnterpriseResetPolicySuc, TestSize.Level1)
+{
+    MessageParcel data;
+    int32_t policy = -1;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t ret = proxy_->GetEnterpriseResetPolicy(data, policy);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseResetPolicyFail
+ * @tc.desc: Test GetEnterpriseResetPolicy without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetEnterpriseResetPolicyFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    int32_t policy = -1;
+    int32_t ret = proxy_->GetEnterpriseResetPolicy(data, policy);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestSetWeakPinEnableSuc
  * @tc.desc: Test SetWeakPinEnable success func with isEnable=true.
  * @tc.type: FUNC

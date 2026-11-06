@@ -70,6 +70,7 @@
 #include "permission_managed_state_query.h"
 #include "allowed_permission_bundle_query.h"
 #include "device_security_level_policy_query.h"
+#include "enterprise_reset_policy_query.h"
 #include "installed_bundle_info_list_query.h"
 #include "get_installed_bundle_storage_stats_query.h"
 #include "query_bundle_stats_infos_query.h"
@@ -186,6 +187,8 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomSecurityQuery(uint
             return std::make_shared<IsAllowedHotspotClientConnectQuery>();
         case EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY:
             return std::make_shared<DeviceSecurityLevelPolicyQuery>();
+        case EdmInterfaceCode::ENTERPRISE_RESET_POLICY:
+            return std::make_shared<EnterpriseResetPolicyQuery>();
         default:
             return nullptr;
     }
