@@ -50,7 +50,7 @@ public:
     std::string GetAppNameByBundleName(const std::string &bundleName) override;
     bool GetBundleArchiveInfoV9(const std::string &hapFilePath, int32_t flags,
         AppExecFwk::BundleInfo &bundleInfo) override;
-    std::string GetAppIdByBundleName(const std::string &bundleName, int32_t userId) override;
+    std::string GetAppIdentifierByBundleName(const std::string &bundleName, int32_t userId) override;
     ErrCode GetBundleNameByAppId(const std::string &appIdentifier, std::string &bundleName) override;
 };
 } // namespace EDM

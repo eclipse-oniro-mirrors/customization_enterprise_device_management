@@ -923,9 +923,9 @@ bool ApplicationManagerProxy::IsOptimizationBatteryExcluded(const std::string &b
         return false;
     }
     auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    std::string appId = bundleMgr->GetAppIdByBundleName(bundleName, userId);
-    if (appId.empty()) {
-        EDMLOGE("IsOptimizationBatteryExcluded: GetAppIdByBundleName failed for %{public}s", bundleName.c_str());
+    std::string appIdentifier = bundleMgr->GetAppIdentifierByBundleName(bundleName, userId);
+    if (appIdentifier.empty()) {
+        EDMLOGE("IsOptimizationBatteryExcluded: get appIdentifier failed for %{public}s", bundleName.c_str());
         return false;
     }
     std::vector<std::string> apps;
@@ -934,7 +934,7 @@ bool ApplicationManagerProxy::IsOptimizationBatteryExcluded(const std::string &b
         EDMLOGE("GetOptimizationBatteryExclusionApps failed, ret=%{public}d", ret);
         return false;
     }
-    return std::find(apps.begin(), apps.end(), appId) != apps.end();
+    return std::find(apps.begin(), apps.end(), appIdentifier) != apps.end();
 }
 } // namespace EDM
 } // namespace OHOS
