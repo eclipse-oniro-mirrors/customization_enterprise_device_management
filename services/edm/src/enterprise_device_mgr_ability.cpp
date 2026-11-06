@@ -21,6 +21,7 @@
 #include <filesystem>
 #include <string_ex.h>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 #include "ability_controller.h"
@@ -2149,7 +2150,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReportAgInstallStatus(const std::string &bun
     EDMLOGI("EnterpriseMgrAbility::ReportAgInstallStatus start, bundleName %{public}s status %{public}d",
         bundleName.c_str(), status);
 #ifndef EDM_FUZZ_TEST
-    if (IPCSkeleton::GetCallingUid() != EdmConstants::EDM_UID) {
+    if (IPCSkeleton::GetCallingUid() != EdmConstants::EDM_UID && getuid() != EdmConstants::EDM_UID) {
         EDMLOGE("ReportAgInstallStatus::VerifyCallingPermission check permission failed.");
         return EdmReturnErrCode::PERMISSION_DENIED;
     }
