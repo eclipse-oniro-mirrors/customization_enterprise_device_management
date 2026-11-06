@@ -123,6 +123,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
     {static_cast<int32_t>(RestrictionsFeature::X_KEY), EdmInterfaceCode::DISALLOW_X_KEY},
+    {static_cast<int32_t>(RestrictionsFeature::RECENT_TASKS), EdmInterfaceCode::DISALLOW_RECENT_TASKS},
     {static_cast<int32_t>(RestrictionsFeature::CONTROL_CENTER), EdmInterfaceCode::DISALLOW_CONTROL_CENTER},
     {static_cast<int32_t>(RestrictionsFeature::NOTIFICATION_CENTER), EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
@@ -1094,6 +1095,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
     EnumEntry entries[] = {
         {"WIFI_P2P", static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P)},
         {"X_KEY", static_cast<uint32_t>(RestrictionsFeature::X_KEY)},
+        {"RECENT_TASKS", static_cast<uint32_t>(RestrictionsFeature::RECENT_TASKS)},
         {"CONTROL_CENTER", static_cast<uint32_t>(RestrictionsFeature::CONTROL_CENTER)},
         {"NOTIFICATION_CENTER", static_cast<uint32_t>(RestrictionsFeature::NOTIFICATION_CENTER)},
         {"SUDO", static_cast<uint32_t>(RestrictionsFeature::SUDO)},
