@@ -313,6 +313,11 @@ ohos_shared_library("device_core_plugin") {
     "../../interfaces/inner_api/plugin_kits",
   ]
 
+  if (os_account_edm_enable && enterprise_device_management_feature_pc_only &&
+      drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
+    deps += [ ":communication_plugin" ]
+  }
+
   cflags_cc = [
     "-fdata-sections",
     "-ffunction-sections",
