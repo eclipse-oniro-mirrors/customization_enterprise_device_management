@@ -45,16 +45,16 @@ ErrCode ClearDnsCachePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParce
     int32_t netId = 0;
     if (!data.ReadInt32(netId)) {
         EDMLOGE("ClearDnsCachePlugin: read netId failed");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (netId < 0) {
         EDMLOGE("ClearDnsCachePlugin: invalid netId=%{public}d", netId);
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     int32_t ret = NetManagerStandard::NetsysController::GetInstance().FlushDnsCache(netId);
     if (ret != ERR_OK) {
         EDMLOGE("ClearDnsCachePlugin: FlushDnsCache failed, netId=%{public}d, ret=%{public}d", netId, ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     EDMLOGI("ClearDnsCachePlugin: FlushDnsCache success, netId=%{public}d", netId);
     return ERR_OK;

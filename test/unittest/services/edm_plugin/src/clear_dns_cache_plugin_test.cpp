@@ -62,7 +62,7 @@ HWTEST_F(ClearDnsCachePluginTest, TestConstructor, TestSize.Level1)
 
 /**
  * @tc.name: TestOnHandlePolicy_ReadNetIdFail
- * @tc.desc: Empty data parcel causes ReadInt32 to fail, returns PARAM_ERROR.
+ * @tc.desc: Empty data parcel causes ReadInt32 to fail, returns PARAMETER_VERIFICATION_FAILED.
  * @tc.type: FUNC
  */
 HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_ReadNetIdFail, TestSize.Level1)
@@ -72,12 +72,12 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_ReadNetIdFail, TestSize.Lev
     MessageParcel reply;
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
  * @tc.name: TestOnHandlePolicy_NegativeNetId
- * @tc.desc: netId = -1 is invalid, returns PARAM_ERROR.
+ * @tc.desc: netId = -1 is invalid, returns PARAMETER_VERIFICATION_FAILED.
  * @tc.type: FUNC
  */
 HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_NegativeNetId, TestSize.Level1)
@@ -88,12 +88,12 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_NegativeNetId, TestSize.Lev
     MessageParcel reply;
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
  * @tc.name: TestOnHandlePolicy_LargeNegativeNetId
- * @tc.desc: netId = INT32_MIN is invalid, returns PARAM_ERROR.
+ * @tc.desc: netId = INT32_MIN is invalid, returns PARAMETER_VERIFICATION_FAILED.
  * @tc.type: FUNC
  */
 HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_LargeNegativeNetId, TestSize.Level1)
@@ -104,7 +104,7 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_LargeNegativeNetId, TestSiz
     MessageParcel reply;
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -121,8 +121,8 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_ZeroNetId, TestSize.Level1)
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
     // netId=0 passes validation; FlushDnsCache may succeed or fail depending on UT env
-    // Key assertion: must NOT return PARAM_ERROR (validation passed)
-    EXPECT_NE(ret, EdmReturnErrCode::PARAM_ERROR);
+    // Key assertion: must NOT return PARAMETER_VERIFICATION_FAILED (validation passed)
+    EXPECT_NE(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -138,7 +138,7 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_PositiveNetId, TestSize.Lev
     MessageParcel reply;
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
-    EXPECT_NE(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_NE(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -154,7 +154,7 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_MaxNetId, TestSize.Level1)
     MessageParcel reply;
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
-    EXPECT_NE(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_NE(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 } // namespace TEST
