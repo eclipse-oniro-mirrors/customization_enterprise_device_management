@@ -90,6 +90,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
     EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
+    EdmInterfaceCode::DISALLOW_RECENT_TASKS,
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::EXEMPTION_RESOURCE,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,

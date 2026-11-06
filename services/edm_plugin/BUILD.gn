@@ -143,6 +143,7 @@ ohos_shared_library("device_core_plugin") {
       "../../interfaces/inner_api/application_manager/src/main_window_states.cpp",
       "./src/application_manager/get_all_main_window_states_plugin.cpp",
       "./src/restrictions/disallow_x_key_plugin.cpp",
+      "./src/restrictions/disallow_recent_tasks_plugin.cpp",
       "./src/restrictions/disallow_control_center_plugin.cpp",
       "./src/restrictions/disallow_notification_center_plugin.cpp",
       "./src/application_manager/remove_all_notifications_plugin.cpp",

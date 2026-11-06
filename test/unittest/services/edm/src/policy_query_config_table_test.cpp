@@ -186,6 +186,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_CORE_DUMP] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_RS232] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_RECENT_TASKS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_CONTROL_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
@@ -382,6 +383,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
         EdmInterfaceCode::DISALLOW_CORE_DUMP,
         EdmInterfaceCode::DISALLOW_RS232,
         EdmInterfaceCode::DISALLOW_X_KEY,
+        EdmInterfaceCode::DISALLOW_RECENT_TASKS,
         EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
         EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
         EdmInterfaceCode::DISALLOW_USB_SERIAL,
