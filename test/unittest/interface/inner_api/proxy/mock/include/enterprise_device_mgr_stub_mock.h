@@ -31,6 +31,7 @@ constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 constexpr int EDM_MAXREQUESTSIZE = 99999;
 const std::string RETURN_STRING = "test_string";
 constexpr uint64_t PASSWORD_LAST_CHANGED_TIME_VALUE = 1722470400;
+constexpr uint64_t CREDENTIAL_ID_VALUE = 1234567890123456789ULL;
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 const std::string EDM_ELEMENT_STRING = "com.example.myapplication/MainAbility/true";
 const std::string UPGRADE_VERSION = "version_1.0";
@@ -212,6 +213,12 @@ public:
 
     int InvokeSendRequestGetPasswordPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestGetCredentialId(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetCredentialIdFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeSendRequestGetManagedBrowserPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);

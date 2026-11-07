@@ -264,6 +264,8 @@ namespace EdmConstants {
         const char* const SET_PROCESS_WATERMARK_BY_PID = "set_process_watermark_by_pid";
         const char* const FASTBOOT  = "fastboot";
         const char* const PARAM_EDM_DEVICE_SECURITY_LEVEL_POLICY = "persist.edm.dsl.config";
+        constexpr uint32_t MAX_AUTH_TOKEN_SIZE = 1024;
+        constexpr uint64_t MAX_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
         const char* const PARAM_EDM_ENTERPRISE_RESET_POLICY = "persist.edm.enterprise_reset.policy";
     } // namespace SecurityManager
 
@@ -628,6 +630,7 @@ namespace PolicyName {
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
     const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
     const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
+    const char* const POLICY_GET_CREDENTIAL_ID = "get_credential_id";
     const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
     const char* const POLICY_ENTERPRISE_RESET_POLICY = "enterprise_reset_policy";
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";

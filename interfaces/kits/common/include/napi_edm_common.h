@@ -100,6 +100,8 @@ bool JsObjectToCharArray(napi_env env, napi_value object, const char *filedStr, 
 bool GetJsProperty(napi_env env, napi_value object, const char *filedStr, napi_value &result);
 bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr,
     std::vector<uint8_t> &certVector);
+bool ParseUint8Array(napi_env env, napi_value args, std::vector<uint8_t> &result,
+    size_t maxLen = NAPI_MAX_DATA_LEN);
 bool JsObjectToStringVector(napi_env env, napi_value object, const char *fieldStr, bool isNecessaryProp,
     std::vector<std::string> &stringVector);
 void NativeVoidCallbackComplete(napi_env env, napi_status status, void *data);

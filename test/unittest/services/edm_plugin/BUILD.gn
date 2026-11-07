@@ -409,8 +409,11 @@ ohos_unittest("EdmPluginTest") {
 
   if (useriam_edm_enable) {
     external_deps += [ "user_auth_framework:userauth_client" ]
-    sources +=
-        [ "./src/security_manager/password_last_changed_time_plugin_test.cpp" ]
+    sources += [
+      "./src/security_manager/password_last_changed_time_plugin_test.cpp",
+      "./src/security_manager/get_credential_id_plugin_test.cpp",
+      "./src/security_manager/verify_auth_token_callback_test.cpp",
+    ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable &&
@@ -1077,7 +1080,11 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (useriam_edm_enable) {
     external_deps += [ "user_auth_framework:userauth_client" ]
-    sources += [ "../../../../services/edm_plugin/src/security_manager/password_last_changed_time_plugin.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/security_manager/password_last_changed_time_plugin.cpp",
+      "../../../../services/edm_plugin/src/security_manager/get_credential_id_plugin.cpp",
+      "../../../../services/edm_plugin/src/security_manager/verify_auth_token_callback.cpp",
+    ]
   }
 
   if (useriam_edm_enable && os_account_edm_enable &&

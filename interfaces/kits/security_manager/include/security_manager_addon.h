@@ -116,6 +116,9 @@ private:
     static napi_value GetEnterpriseResetPolicy(napi_env env, napi_callback_info info);
     static napi_value SetWeakPinEnable(napi_env env, napi_callback_info info);
     static napi_value IsWeakPinEnabled(napi_env env, napi_callback_info info);
+    static napi_value GetCredentialId(napi_env env, napi_callback_info info);
+    static void NativeGetCredentialId(napi_env env, void *data);
+    static void NativeGetCredentialIdComplete(napi_env env, napi_status status, void *data);
     static void CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value);
     static void CreateEnterpriseResetPolicyObject(napi_env env, napi_value value);
 };

@@ -556,6 +556,8 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm/src/query_policy/password_policy_query.cpp",
         "../../../services/edm_plugin/src/restrictions/fingerprint_auth_plugin.cpp",
         "../../../services/edm_plugin/src/security_manager/password_policy_plugin.cpp",
+        "../../../services/edm_plugin/src/security_manager/get_credential_id_plugin.cpp",
+        "../../../services/edm_plugin/src/security_manager/verify_auth_token_callback.cpp",
       ]
     }
 
