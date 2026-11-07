@@ -99,6 +99,15 @@ void CommonManagerAddon::CreateStartupSceneObject(napi_env env, napi_value value
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "DEVICE_PROVISION", nDeviceProvision));
 }
 
+void CommonManagerAddon::CreateManagedFeatureObjectNext(napi_env env, napi_value value)
+{
+    napi_value nDisallowAdvancedMessage;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedFeature::ADVANCED_MESSAGE), &nDisallowAdvancedMessage));
+    NAPI_CALL_RETURN_VOID(env,
+        napi_set_named_property(env, value, "ADVANCED_MESSAGE", nDisallowAdvancedMessage));
+}
+
 void CommonManagerAddon::CreateManagedFeatureObject(napi_env env, napi_value value)
 {
     napi_value nLocalHotaDomain;
@@ -148,6 +157,7 @@ void CommonManagerAddon::CreateManagedFeatureObject(napi_env env, napi_value val
         static_cast<uint32_t>(ManagedFeature::SUPER_PRIVACY), &nSuperPrivacy));
     NAPI_CALL_RETURN_VOID(env,
         napi_set_named_property(env, value, "SUPER_PRIVACY", nSuperPrivacy));
+    CreateManagedFeatureObjectNext(env, value);
 }
 
 napi_value CommonManagerAddon::IsFeatureSupported(napi_env env, napi_callback_info info)

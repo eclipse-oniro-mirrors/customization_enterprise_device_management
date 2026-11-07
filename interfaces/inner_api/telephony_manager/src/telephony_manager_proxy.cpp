@@ -314,7 +314,7 @@ int32_t TelephonyManagerProxy::GetSmsMessages(const TelephonyQueryConfig &config
     EDMLOGD("TelephonyManagerProxy::GetSmsMessages");
 #ifdef FEATURE_PC_ONLY
     EDMLOGW("TelephonyManagerProxy::GetCallLogs not supported on pc");
-    return ERR_OK;
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);

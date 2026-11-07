@@ -6482,6 +6482,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupported, TestSize.Level1
         static_cast<int32_t>(ManagedFeature::EXACT_TIMER),
         static_cast<int32_t>(ManagedFeature::EXEMPTION_RESOURCE),
         static_cast<int32_t>(ManagedFeature::SYSTEM_ROLLBACK),
+        static_cast<int32_t>(ManagedFeature::ADVANCED_MESSAGE),
     };
     for (int32_t feature : mobileFeatures) {
         bool supported = true;

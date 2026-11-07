@@ -176,9 +176,9 @@ static DataShare::DataSharePredicates BuildSmsPredicates(int64_t startTime, int6
     if (!telephoneNumber.empty()) {
         predicates.And()
             ->BeginWrap()
-            ->EqualTo(SMS_FIELD_RECEIVER_NUMBER, telephoneNumber)
+            ->EndsWith(SMS_FIELD_RECEIVER_NUMBER, telephoneNumber)
             ->Or()
-            ->EqualTo(SMS_FIELD_SENDER_NUMBER, telephoneNumber)
+            ->EndsWith(SMS_FIELD_SENDER_NUMBER, telephoneNumber)
             ->EndWrap();
     }
     return predicates;
