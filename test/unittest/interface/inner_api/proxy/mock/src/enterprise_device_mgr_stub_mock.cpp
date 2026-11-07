@@ -573,6 +573,25 @@ int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPasswordPolicy(uint32_t cod
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCredentialId(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetCredentialId code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteUint64(CREDENTIAL_ID_VALUE);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCredentialIdFail(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetCredentialIdFail code :" << code;
+    code_ = code;
+    reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeSendRequestGetManagedBrowserPolicy(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

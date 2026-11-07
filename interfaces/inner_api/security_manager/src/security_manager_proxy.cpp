@@ -688,5 +688,19 @@ int32_t SecurityManagerProxy::IsWeakPinEnabled(bool &result)
     result = reply.ReadBool();
     return ERR_OK;
 }
+
+int32_t SecurityManagerProxy::GetCredentialId(MessageParcel &data, uint64_t &credentialId)
+{
+    EDMLOGI("SecurityManagerProxy::GetCredentialId");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::GET_CREDENTIAL_ID, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetCredentialId fail. %{public}d", ret);
+        return ret;
+    }
+    credentialId = reply.ReadUint64();
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

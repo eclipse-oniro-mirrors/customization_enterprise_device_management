@@ -152,6 +152,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::PASSWORD_LAST_CHANGED_TIME,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+    EdmInterfaceCode::GET_CREDENTIAL_ID,
     EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
 };
 

@@ -701,6 +701,8 @@ ohos_shared_library("sys_service_plugin") {
         "./src/restrictions/fingerprint_auth_plugin.cpp",
         "./src/security_manager/password_last_changed_time_plugin.cpp",
         "./src/security_manager/password_policy_plugin.cpp",
+        "./src/security_manager/get_credential_id_plugin.cpp",
+        "./src/security_manager/verify_auth_token_callback.cpp",
       ]
     }
 

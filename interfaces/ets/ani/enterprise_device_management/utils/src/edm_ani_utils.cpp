@@ -49,6 +49,8 @@ const std::unordered_map<int32_t, std::string> EdmAniUtils::errMessageMap = {
     {EdmReturnErrCode::ADD_KEEP_ALIVE_APP_FAILED, "Add keep alive applications failed. $."},
     {EdmReturnErrCode::REPLACE_ADMIN_FAILED, "Replace admin failed. $."},
     {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
+    {EdmReturnErrCode::AUTH_TOKEN_INVALID, "AuthToken invalid."},
+    {EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID, "AuthToken duration invalid."},
 };
 
 std::string EdmAniUtils::FindErrMsg(int32_t errCode)

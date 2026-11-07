@@ -51,6 +51,8 @@ std::string SensitiveApiWhitelist::GetBodyTemplateName(const std::string &sensit
             "sensitive_call_notification_body_call_record"},
         {MakePolicyId(static_cast<uint32_t>(EdmInterfaceCode::GET_SMS_MESSAGES)),
             "sensitive_call_notification_body_sms_record"},
+        {MakePolicyId(static_cast<uint32_t>(EdmInterfaceCode::GET_CREDENTIAL_ID)),
+            "sensitive_call_notification_body_credential_id"},
         {MakeEventId(static_cast<uint32_t>(ManagedEvent::SMS_RECEIVED)),
             "sensitive_call_notification_body_sms_broadcast"}
     };

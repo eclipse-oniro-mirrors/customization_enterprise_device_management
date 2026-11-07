@@ -20,7 +20,8 @@ ohos_shared_library("securitymanager") {
   ]
 
   sources = [
-    "./src/security_manager_addon.cpp"
+    "./src/security_manager_addon.cpp",
+    "./src/security_manager_credential.cpp",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]

@@ -17,11 +17,9 @@
 
 #include <fcntl.h>
 #include <fstream>
-#include <sys/stat.h>
 
 #include "cJSON.h"
 #include "pixel_map_napi.h"
-#include "securec.h"
 
 #include "cjson_check.h"
 #include "clipboard_policy.h"
@@ -36,7 +34,6 @@
 using namespace OHOS::EDM;
 
 constexpr int64_t MAX_VALIDITY_PERIOD = 31536000000000; // 60 * 60 * 24 * 365 * 1000 * 1000
-constexpr int64_t WEAK_PIN_FILE_MAX_SIZE = 16 * 1024 * 1024; // 16M
 static const std::string VALIDITY_PERIOD_OUT_OF_RANGE_ERROR = "validityPeriod out of range!";
 static const std::string WITHOUT_PERMISSION_TAG = "";
 
@@ -123,6 +120,7 @@ std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value n
         DECLARE_NAPI_FUNCTION("getWatermarkImageApps", GetWatermarkImageApps),
         DECLARE_NAPI_FUNCTION("setWeakPinEnable", SetWeakPinEnable),
         DECLARE_NAPI_FUNCTION("isWeakPinEnabled", IsWeakPinEnabled),
+        DECLARE_NAPI_FUNCTION("getCredentialId", GetCredentialId),
     };
     return property;
 }
@@ -1951,66 +1949,6 @@ napi_value SecurityManagerAddon::GetEnterpriseResetPolicy(napi_env env, napi_cal
     napi_value enterpriseResetPolicy;
     NAPI_CALL(env, napi_create_int32(env, policy, &enterpriseResetPolicy));
     return enterpriseResetPolicy;
-}
-
-napi_value SecurityManagerAddon::SetWeakPinEnable(napi_env env, napi_callback_info info)
-{
-    EDMLOGI("NAPI_SetWeakPinEnable called");
-    size_t argc = ARGS_SIZE_TWO;
-    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
-    napi_value thisArg = nullptr;
-    void *data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "parameter count error",
-        ErrcodeType::NUMBER);
-    bool isEnable = false;
-    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseBool(env, isEnable, argv[ARR_INDEX_ZERO]),
-        "parameter isEnable error", ErrcodeType::NUMBER);
-    int32_t fd = -1;
-    if (isEnable) {
-        if (argc < ARGS_SIZE_TWO) {
-            napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
-                "fd is required when isEnable is true", ErrcodeType::NUMBER));
-            return nullptr;
-        }
-        ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, fd, argv[ARR_INDEX_ONE]),
-            "parameter fd error", ErrcodeType::NUMBER);
-        if (fd < 0) {
-            napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
-                "fd is invalid", ErrcodeType::NUMBER));
-            return nullptr;
-        }
-        struct stat st;
-        if (fstat(fd, &st) != 0) {
-            napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
-                "fd is not a valid file descriptor", ErrcodeType::NUMBER));
-            return nullptr;
-        }
-        if (st.st_size > WEAK_PIN_FILE_MAX_SIZE) {
-            napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED,
-                "file size exceeds 16M", ErrcodeType::NUMBER));
-            return nullptr;
-        }
-    }
-    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->SetWeakPinEnable(isEnable, fd);
-    if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
-    }
-    return nullptr;
-}
-
-napi_value SecurityManagerAddon::IsWeakPinEnabled(napi_env env, napi_callback_info info)
-{
-    EDMLOGI("NAPI_IsWeakPinEnabled called");
-    bool result = false;
-    int32_t retCode = SecurityManagerProxy::GetSecurityManagerProxy()->IsWeakPinEnabled(result);
-    if (FAILED(retCode)) {
-        napi_throw(env, CreateError(env, retCode, ErrcodeType::NUMBER));
-        return nullptr;
-    }
-    napi_value jsResult;
-    NAPI_CALL(env, napi_get_boolean(env, result, &jsResult));
-    return jsResult;
 }
 
 static napi_module g_securityModule = {
