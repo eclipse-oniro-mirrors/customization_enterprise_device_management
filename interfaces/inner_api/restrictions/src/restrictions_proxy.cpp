@@ -51,9 +51,29 @@ int32_t RestrictionsProxy::GetDisallowedPolicy(AppExecFwk::ElementName *admin, i
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(admin, policyCode, result, permissionTag);
 }
 
+int32_t RestrictionsProxy::SetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode)
+{
+    EDMLOGD("RestrictionsProxy::SetDisallowedPolicyImplicitAdmin");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, policyCode);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
 int32_t RestrictionsProxy::GetDisallowedPolicy(MessageParcel &data, uint32_t policyCode, bool &result)
 {
     return EnterpriseDeviceMgrProxy::GetInstance()->IsPolicyDisabled(data, policyCode, result);
+}
+
+int32_t RestrictionsProxy::GetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode, bool &result)
+{
+    EDMLOGD("RestrictionsProxy::GetDisallowedPolicyImplicitAdmin");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(policyCode, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("RestrictionsProxy::GetDisallowedPolicyImplicitAdmin GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
 }
 
 int32_t RestrictionsProxy::SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disallow)

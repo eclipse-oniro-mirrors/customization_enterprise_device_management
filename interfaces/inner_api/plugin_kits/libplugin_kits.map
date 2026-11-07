@@ -34,6 +34,7 @@
             vtable?for?OHOS::EDM::Basic*Plugin;
             vtable?for?OHOS::EDM::IExternalModuleAdapter;
             OHOS::EDM::IEdmFormManager::*;
+            OHOS::EDM::IPowerModeManager::*;
         };
     local:
         *;

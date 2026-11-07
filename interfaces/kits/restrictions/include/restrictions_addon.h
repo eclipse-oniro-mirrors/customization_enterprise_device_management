@@ -52,6 +52,8 @@ private:
     static napi_value IsFingerprintAuthDisabled(napi_env env, napi_callback_info info);
     static napi_value SetDisallowedPolicy(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedPolicy(napi_env env, napi_callback_info info);
+    static napi_value SetDisallowedPolicyImplicitAdmin(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPolicyImplicitAdmin(napi_env env, napi_callback_info info);
     static napi_value SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info);
     static napi_value AddDisallowedListForAccount(napi_env env, napi_callback_info info);
@@ -77,6 +79,7 @@ private:
         std::uint32_t ipcCode, int32_t accountId, bool &disallow, ErrcodeType errcodeType);
     static OHOS::ErrCode GetInterfaceCodeAndFeature(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType);
+    static OHOS::ErrCode GetInterfaceCodeAndFeatureAll(napi_env env, napi_value value, uint32_t &ipcCode);
     static OHOS::ErrCode GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType);
     static void CreateFeatureForDeviceObject(napi_env env, napi_value value);

@@ -232,7 +232,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef APN_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_MODIFY_APN] = EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 #endif
-#ifdef POWER_MANAGER_EDM_ENABLE
+#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
     map[EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS] = EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 #endif
 #ifdef WIFI_EDM_ENABLE
@@ -304,6 +304,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifndef FEATURE_PC_ONLY
     map[EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON] =
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
+#endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+    map[EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
     return map;
 }
@@ -450,6 +453,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #ifdef USERIAM_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::FINGERPRINT_AUTH);
 #endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE);
+#endif
     for (uint32_t code : superOnlyEntries) {
         const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(code);
         if (entry == nullptr || !entry->config.isFeatureEnabled) {
@@ -554,8 +560,11 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #ifdef APN_EDM_ENABLE
         {EdmInterfaceCode::DISALLOW_MODIFY_APN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
 #endif
-#ifdef POWER_MANAGER_EDM_ENABLE
+#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
         {EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
+#endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+        {EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif
 #ifdef MOBILE_DATA_ENABLE
         {EdmInterfaceCode::DISALLOWED_MOBILE_DATA, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK},

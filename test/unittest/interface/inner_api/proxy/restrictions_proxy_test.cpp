@@ -919,6 +919,69 @@ HWTEST_F(RestrictionsProxyTest, TestGetUserRestrictedForAccountFail_01, TestSize
         EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER, EdmConstants::PERMISSION_TAG_VERSION_23, restricted);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestSetDisallowedPolicyImplicitAdminSuc
+ * @tc.desc: Test SetDisallowedPolicyImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyImplicitAdminSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetDisallowedPolicyImplicitAdmin(data, EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyImplicitAdminFail
+ * @tc.desc: Test SetDisallowedPolicyImplicitAdmin without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyImplicitAdminFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteBool(true);
+    int32_t ret = proxy_->SetDisallowedPolicyImplicitAdmin(data, EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyImplicitAdminSuc
+ * @tc.desc: Test GetDisallowedPolicyImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyImplicitAdminSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyImplicitAdmin(data,
+        EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyImplicitAdminFail
+ * @tc.desc: Test GetDisallowedPolicyImplicitAdmin without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyImplicitAdminFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyImplicitAdmin(data,
+        EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, result);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
