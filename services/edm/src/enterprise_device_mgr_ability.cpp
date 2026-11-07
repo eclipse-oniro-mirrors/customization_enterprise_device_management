@@ -153,6 +153,7 @@ const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
     static_cast<int32_t>(ManagedFeature::X_KEY),
     static_cast<int32_t>(ManagedFeature::SYSTEM_ROLLBACK),
     static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY),
+    static_cast<int32_t>(ManagedFeature::ADVANCED_MESSAGE),
 #endif
 };
 

@@ -1499,7 +1499,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("subscribeManagedEvent", SubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEvent", UnsubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("subscribeSmsEvent", SubscribeSmsEvent),
-        DECLARE_NAPI_FUNCTION("unSubscribeSmsEvent", UnsubscribeSmsEvent),
+        DECLARE_NAPI_FUNCTION("unsubscribeSmsEvent", UnsubscribeSmsEvent),
         DECLARE_NAPI_FUNCTION("authorizeAdmin", AuthorizeAdmin),
         DECLARE_NAPI_FUNCTION("subscribeManagedEventSync", SubscribeManagedEventSync),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEventSync", UnsubscribeManagedEventSync),
