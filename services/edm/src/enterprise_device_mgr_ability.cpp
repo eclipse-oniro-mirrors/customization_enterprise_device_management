@@ -1929,7 +1929,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
         if (GetBundleMgr()->GetNameForUid(uid, bundleName) == ERR_OK && !bundleName.empty()) {
             auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
             if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-                SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, bundleName, userId);
+                SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, bundleName);
             }
         }
     }
@@ -2304,7 +2304,7 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
     for (uint32_t event : events) {
         auto sensitiveId = SensitiveApiWhitelist::MakeEventId(event);
         if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName(), userId);
+            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName());
         }
     }
 #endif
@@ -2378,8 +2378,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSmsEvent(bool subscribe)
     if (subscribe) {
         auto sensitiveId = SensitiveApiWhitelist::MakeEventId(static_cast<uint32_t>(ManagedEvent::SMS_RECEIVED));
         if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName(),
-                userId);
+            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName());
         }
     }
 #endif

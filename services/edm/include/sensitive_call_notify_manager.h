@@ -33,10 +33,12 @@ public:
 
     // Called by hook points after a sensitive op succeeded. sensitiveId is the
     // canonical string (e.g. "POLICY:1002" / "EVENT:27"). adminName is the
-    // calling admin bundle name (available at both hook points). userId is the
-    // OS account id. Records are keyed by (adminName, userId, appIndex,
-    // sensitiveId); appIndex is resolved from the calling token.
-    void CheckAndNotify(const std::string &sensitiveId, const std::string &adminName, int32_t userId);
+    // calling admin bundle name (available at both hook points). userId and
+    // appIndex are resolved internally from the calling token, so callers must
+    // not pass a userId (callers often hold DEFAULT_USER_ID or a queried target
+    // user that does not match the actual calling OS account). Records are keyed
+    // by (adminName, userId, appIndex, sensitiveId).
+    void CheckAndNotify(const std::string &sensitiveId, const std::string &adminName);
 
     // Cleanup on admin deactivation (hooked in RemoveAdminAndAdminPolicy).
     void ClearByAdmin(const std::string &adminName, int32_t userId);
