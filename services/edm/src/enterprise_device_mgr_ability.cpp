@@ -54,6 +54,9 @@
 #ifdef ABILITY_FORM_FWK_EDM_ENABLE
 #include "edm_form_manager_impl.h"
 #endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+#include "power_mode_manager_impl.h"
+#endif
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
@@ -606,6 +609,9 @@ void EnterpriseDeviceMgrAbility::OnStart()
         EdmTimerManager::GetInstance();
 #ifdef ABILITY_FORM_FWK_EDM_ENABLE
         EdmFormManagerImpl::GetInstance();
+#endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+        PowerModeManagerImpl::GetInstance();
 #endif
     }
     ExtInfoManager::GetInstance()->GetSuperHubInfo();

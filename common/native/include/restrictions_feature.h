@@ -74,6 +74,7 @@ enum class RestrictionsFeature : int32_t {
     SATA_ODD_BURN = 52,
     SUPER_PRIVACY = 53,
     ADVANCED_MESSAGE = 54,
+    POWER_SAVING_MODE = 57,
     RECENT_TASKS = 58,
     CONTROL_CENTER = 59,
     NOTIFICATION_CENTER = 60,

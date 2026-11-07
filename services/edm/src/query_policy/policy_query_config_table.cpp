@@ -331,7 +331,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, {PolicyName::POLICY_DISALLOW_POWER_LONG_PRESS,
         PolicyDataType::BOOL, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION), true, IPlugin::ApiType::PUBLIC,
-#ifdef POWER_MANAGER_EDM_ENABLE
+#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
         true
 #else
         false
@@ -667,6 +667,14 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY), false, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, {PolicyName::POLICY_DISALLOW_POWER_SAVING_MODE,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
+#ifdef POWER_MANAGER_EDM_ENABLE
+        true
+#else
+        false
+#endif
+    }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

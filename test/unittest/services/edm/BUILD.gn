@@ -235,8 +235,8 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/query_policy/set_browser_policies_query.cpp",
   ]
 
-  if (power_manager_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+  if (power_manager_edm_enable) {
+    sources += [ "../../../../services/edm/src/power_mode_manager_impl.cpp" ]
     defines += [ "POWER_MANAGER_EDM_ENABLE" ]
   }
 
@@ -315,6 +315,10 @@ ohos_static_library("edmservice_static") {
 
   if (useriam_edm_enable) {
     external_deps += [ "pin_auth:pinauth_framework" ]
+  }
+
+  if (power_manager_edm_enable) {
+    external_deps += [ "power_manager:powermgr_client" ]
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
@@ -661,8 +665,7 @@ ohos_unittest("EdmServicesUnitTest") {
     defines += [ "USB_STORAGE_SERVICE_EDM_ENABLE" ]
   }
 
-  if (power_manager_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+  if (power_manager_edm_enable) {
     defines += [ "POWER_MANAGER_EDM_ENABLE" ]
   }
 

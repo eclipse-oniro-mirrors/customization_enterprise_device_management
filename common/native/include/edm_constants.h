@@ -630,6 +630,7 @@ namespace PolicyName {
     const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
     const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
     const char* const POLICY_ENTERPRISE_RESET_POLICY = "enterprise_reset_policy";
+    const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
