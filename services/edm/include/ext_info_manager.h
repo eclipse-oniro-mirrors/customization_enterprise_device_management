@@ -48,6 +48,8 @@ public:
 
     ErrCode GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply, const std::string &bundleName);
 
+    void NotifyAdminDisabled(int32_t adminType, int32_t enableSource, const std::string &bundleName);
+
 private:
     ExtInfoManager();
 
