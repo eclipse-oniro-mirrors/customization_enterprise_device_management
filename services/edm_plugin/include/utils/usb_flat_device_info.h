@@ -26,11 +26,9 @@ namespace EDM {
 /**
  * Local mirror of USB-side flat structs from busmanager_usb_manager PR #1458
  * (UsbServerTypes.idl UsbDeviceInfo / UsbInterfaceInfo).
- * Kept in EDM namespace so we can map without depending on unmerged USB headers.
- * When OHOS::USB::UsbDeviceInfo is available, convert into these or map directly.
  *
  * Field notes vs Kit UsbDeviceInfo:
- * - enabled  ≡ Kit states (USB may rename to authorized)
+ * - authorized ≡ Kit states
  * - deviceClass ≡ Kit clazz; interfaceClass ≡ Kit interface clazz
  * - devAddr ≡ Kit UsbDeviceInfo.devAddress / USBDeviceConfigInfo.devAddr
  * - deviceId / isHub / alternateSetting: Kit does not expose
@@ -42,7 +40,7 @@ struct UsbFlatInterfaceInfo {
     int32_t subClass = 0;
     int32_t protocol = 0;
     int32_t alternateSetting = 0; // Kit ignores
-    bool enabled = false;         // ≡ states / authorized
+    bool authorized = false;      // ≡ Kit states
 };
 
 struct UsbFlatDeviceInfo {
@@ -57,8 +55,8 @@ struct UsbFlatDeviceInfo {
     std::string serial;
     std::string manufacturerName;
     std::string productName;
-    bool isHub = false;   // Kit ignores; hub policy is USB-side
-    bool enabled = false; // ≡ states / authorized
+    bool isHub = false;      // Kit ignores; hub policy is USB-side
+    bool authorized = false; // ≡ Kit states
     std::vector<UsbFlatInterfaceInfo> interfaces;
 };
 

@@ -40,14 +40,14 @@ UsbFlatDeviceInfo BuildFlatSample()
     flat.manufacturerName = "Vendor";
     flat.productName = "Disk";
     flat.isHub = false;
-    flat.enabled = true;
+    flat.authorized = true;
     UsbFlatInterfaceInfo iface;
     iface.interfaceId = 0;
     iface.interfaceClass = 8;
     iface.subClass = 6;
     iface.protocol = 80;
     iface.alternateSetting = 0;
-    iface.enabled = true;
+    iface.authorized = true;
     flat.interfaces = {iface};
     return flat;
 }

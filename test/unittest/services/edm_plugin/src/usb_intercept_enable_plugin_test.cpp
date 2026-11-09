@@ -34,7 +34,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-const std::string PERSIST_EDM_USB_DYNAMIC_CONTROL_ENABLE = "persist.edm.usb_dynamic_control_enable";
+const std::string PERSIST_EDM_USB_INTERCEPT_ENABLE = "persist.edm.usb.intercept_enable";
 const std::string TEST_ADMIN_NAME = "com.edm.test.demo";
 
 class UsbInterceptEnablePluginTest : public testing::Test {
@@ -52,7 +52,7 @@ void UsbInterceptEnablePluginTest::SetUpTestSuite(void)
 void UsbInterceptEnablePluginTest::TearDownTestSuite(void)
 {
     Utils::ResetTokenTypeAndUid();
-    OHOS::system::SetParameter(PERSIST_EDM_USB_DYNAMIC_CONTROL_ENABLE, "false");
+    OHOS::system::SetParameter(PERSIST_EDM_USB_INTERCEPT_ENABLE, "false");
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
 }
 
@@ -88,7 +88,7 @@ HWTEST_F(UsbInterceptEnablePluginTest, TestOnHandlePolicyTrue, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(handlePolicyData.isChanged);
     ASSERT_TRUE(handlePolicyData.policyData == EdmConstants::CONST_TRUE);
-    std::string value = system::GetParameter(PERSIST_EDM_USB_DYNAMIC_CONTROL_ENABLE, "false");
+    std::string value = system::GetParameter(PERSIST_EDM_USB_INTERCEPT_ENABLE, "false");
     ASSERT_TRUE(value == EdmConstants::CONST_TRUE);
 
     MessageParcel dataFalse;
@@ -96,7 +96,7 @@ HWTEST_F(UsbInterceptEnablePluginTest, TestOnHandlePolicyTrue, TestSize.Level1)
     HandlePolicyData handlePolicyDataFalse{EdmConstants::CONST_TRUE, "", false};
     ret = plugin->OnHandlePolicy(funcCode, dataFalse, reply, handlePolicyDataFalse, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK);
-    value = system::GetParameter(PERSIST_EDM_USB_DYNAMIC_CONTROL_ENABLE, "false");
+    value = system::GetParameter(PERSIST_EDM_USB_INTERCEPT_ENABLE, "false");
     ASSERT_TRUE(value == EdmConstants::CONST_FALSE);
 }
 

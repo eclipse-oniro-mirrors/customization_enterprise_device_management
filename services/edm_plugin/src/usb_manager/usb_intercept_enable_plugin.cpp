@@ -35,7 +35,8 @@ UsbInterceptEnablePlugin::UsbInterceptEnablePlugin()
     permissionConfig_ = IPlugin::PolicyPermissionConfig(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB, IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         IPlugin::ApiType::PUBLIC);
-    persistParam_ = EdmConstants::PARAM_EDM_USB_DYNAMIC_CONTROL_ENABLE;
+    // 需求文档：persist.edm.usb.intercept_enable = "true"/"false"
+    persistParam_ = EdmConstants::PARAM_EDM_USB_INTERCEPT_ENABLE;
 }
 
 ErrCode UsbInterceptEnablePlugin::CheckConflictPolicy(int32_t userId)

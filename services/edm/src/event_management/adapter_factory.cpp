@@ -19,6 +19,7 @@
 #include "common_event_adapter.h"
 #include "edm_log.h"
 #include "null_event_adapter.h"
+#include "usb_device_control_event_adapter.h"
 #include "user_auth_event_adapter.h"
 
 namespace OHOS {
@@ -53,7 +54,11 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
         case ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE:
             return std::make_shared<NullEventAdapter>();
         case ManagedEvent::USB_DEVICE_ADDED:
+#ifdef USB_SERVICE_EDM_ENABLE
+            return std::make_shared<UsbDeviceControlEventAdapter>(manager);
+#else
             return std::make_shared<NullEventAdapter>();
+#endif
         case ManagedEvent::PASSWORD_FAILED:
 #ifdef USERIAM_EDM_ENABLE
             return std::make_shared<UserAuthEventAdapter>(manager);

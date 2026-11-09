@@ -25,7 +25,7 @@ namespace OHOS {
 namespace EDM {
 class UsbDeviceControlUtils {
 public:
-    // EDM 侧入口：参数校验 + 映射；不实现 USB GetAllDevices/Authorize（属 #1458）。
+    // 调 USB #1458：GetAllDevices / UsbDeviceAuthorize / UsbInterfaceAuthorize
     static ErrCode GetUsbDeviceInfos(std::vector<UsbDeviceInfo> &infos);
     static ErrCode SetUsbDeviceStates(const USBDeviceConfigInfo &config, bool isEnable);
 };

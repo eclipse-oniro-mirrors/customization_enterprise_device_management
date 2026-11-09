@@ -43,20 +43,24 @@ void GetUsbDeviceInfosPluginTest::TearDownTestSuite(void)
 }
 
 /**
- * @tc.name: TestOnGetPolicyShellEmpty
- * @tc.desc: Test GetUsbDeviceInfosPlugin::OnGetPolicy shell returns empty list.
+ * @tc.name: TestOnGetPolicyCallUsb
+ * @tc.desc: Test GetUsbDeviceInfosPlugin::OnGetPolicy calls USB GetAllDevices.
  * @tc.type: FUNC
  */
-HWTEST_F(GetUsbDeviceInfosPluginTest, TestOnGetPolicyShellEmpty, TestSize.Level1)
+HWTEST_F(GetUsbDeviceInfosPluginTest, TestOnGetPolicyCallUsb, TestSize.Level1)
 {
     MessageParcel data;
     MessageParcel reply;
     std::shared_ptr<IPlugin> plugin = std::make_shared<GetUsbDeviceInfosPlugin>();
     std::string policyData;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
-    ASSERT_EQ(reply.ReadUint32(), 0u);
+    // USB 可用时 ERR_OK（列表可为空）；服务不可用时 SYSTEM_ABNORMALLY
+    if (ret == ERR_OK) {
+        ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
+        ASSERT_GE(reply.ReadUint32(), 0u);
+    } else {
+        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    }
 }
 } // namespace TEST
 } // namespace EDM

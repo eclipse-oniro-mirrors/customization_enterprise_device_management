@@ -123,9 +123,9 @@ namespace EdmConstants {
     // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
     const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
 
-    // USB 动态管控使能 persist 参数（USB 侧自行监听，Kit 只读写）
-    constexpr const char* PARAM_EDM_USB_DYNAMIC_CONTROL_ENABLE =
-        "persist.edm.usb_dynamic_control_enable";
+    // USB 拦截管控使能 persist 参数（以需求/SDK 为准：true/false）
+    constexpr const char* PARAM_EDM_USB_INTERCEPT_ENABLE =
+        "persist.edm.usb.intercept_enable";
 
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
