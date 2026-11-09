@@ -318,10 +318,10 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyInvalidJson, TestSiz
     data.WriteString(SERIAL_1);
 
     ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 
     int32_t result = reply.ReadInt32();
-    EXPECT_EQ(result, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(result, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 } // namespace TEST
