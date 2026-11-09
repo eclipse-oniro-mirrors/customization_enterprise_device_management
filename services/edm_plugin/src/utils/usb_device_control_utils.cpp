@@ -20,45 +20,19 @@
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_log.h"
+#include "usb_device_control_ipc.h"
 #include "usb_device_info_mapper.h"
 #include "usb_flat_device_info.h"
-#include "usb_srv_client.h"
 
 namespace OHOS {
 namespace EDM {
 namespace {
-UsbFlatDeviceInfo ToFlatDeviceInfo(const USB::UsbDeviceInfo &usbInfo)
-{
-    UsbFlatDeviceInfo flat;
-    flat.deviceId = usbInfo.deviceId;
-    flat.busNum = usbInfo.busNum;
-    flat.devAddr = usbInfo.devAddr;
-    flat.vendorId = usbInfo.vendorId;
-    flat.productId = usbInfo.productId;
-    flat.deviceClass = usbInfo.deviceClass;
-    flat.subClass = usbInfo.subClass;
-    flat.protocol = usbInfo.protocol;
-    flat.serial = usbInfo.serial;
-    flat.manufacturerName = usbInfo.manufacturerName;
-    flat.productName = usbInfo.productName;
-    flat.isHub = usbInfo.isHub;
-    flat.authorized = usbInfo.authorized;
-    flat.interfaces.reserve(usbInfo.interfaces.size());
-    for (const auto &usbIface : usbInfo.interfaces) {
-        UsbFlatInterfaceInfo flatIface;
-        flatIface.interfaceId = usbIface.interfaceId;
-        flatIface.interfaceClass = usbIface.interfaceClass;
-        flatIface.subClass = usbIface.subClass;
-        flatIface.protocol = usbIface.protocol;
-        flatIface.alternateSetting = usbIface.alternateSetting;
-        flatIface.authorized = usbIface.authorized;
-        flat.interfaces.emplace_back(flatIface);
-    }
-    return flat;
-}
-
 ErrCode MapUsbRet(int32_t usbRet, const char *apiName)
 {
+    if (usbRet == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
+        EDMLOGW("UsbDeviceControlUtils %{public}s: USB device-control API unsupported", apiName);
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
     if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGW("UsbDeviceControlUtils %{public}s: USB interface not init", apiName);
         return ERR_OK;
@@ -73,8 +47,13 @@ ErrCode MapUsbRet(int32_t usbRet, const char *apiName)
 
 ErrCode UsbDeviceControlUtils::GetUsbDeviceInfos(std::vector<UsbDeviceInfo> &infos)
 {
-    std::vector<USB::UsbDeviceInfo> usbInfos;
-    int32_t usbRet = USB::UsbSrvClient::GetInstance().GetAllDevices(usbInfos);
+    std::vector<UsbFlatDeviceInfo> flatList;
+    int32_t usbRet = UsbDeviceControlIpc::GetAllDevices(flatList);
+    if (usbRet == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
+        EDMLOGW("UsbDeviceControlUtils::GetUsbDeviceInfos: USB device-control API unsupported");
+        infos.clear();
+        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    }
     if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGW("UsbDeviceControlUtils::GetUsbDeviceInfos: USB interface not init, empty list");
         infos.clear();
@@ -83,11 +62,6 @@ ErrCode UsbDeviceControlUtils::GetUsbDeviceInfos(std::vector<UsbDeviceInfo> &inf
     if (usbRet != ERR_OK) {
         EDMLOGE("UsbDeviceControlUtils::GetUsbDeviceInfos GetAllDevices failed, ret=%{public}d", usbRet);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-    }
-    std::vector<UsbFlatDeviceInfo> flatList;
-    flatList.reserve(usbInfos.size());
-    for (const auto &usbInfo : usbInfos) {
-        flatList.emplace_back(ToFlatDeviceInfo(usbInfo));
     }
     UsbDeviceInfoMapper::ToKitDeviceInfos(flatList, infos);
     return ERR_OK;
@@ -101,7 +75,6 @@ ErrCode UsbDeviceControlUtils::SetUsbDeviceStates(const USBDeviceConfigInfo &con
         EDMLOGE("UsbDeviceControlUtils::SetUsbDeviceStates busNum/devAddr out of uint8 range");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    auto &srvClient = USB::UsbSrvClient::GetInstance();
     uint8_t busNum = static_cast<uint8_t>(config.busNum);
     uint8_t devAddr = static_cast<uint8_t>(config.devAddr);
     if (UsbDeviceInfoMapper::IsInterfaceAuthorize(config)) {
@@ -111,11 +84,11 @@ ErrCode UsbDeviceControlUtils::SetUsbDeviceStates(const USBDeviceConfigInfo &con
             EDMLOGE("UsbDeviceControlUtils::SetUsbDeviceStates config/interface id out of range");
             return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
-        int32_t usbRet = srvClient.UsbInterfaceAuthorize(busNum, devAddr,
+        int32_t usbRet = UsbDeviceControlIpc::UsbInterfaceAuthorize(busNum, devAddr,
             static_cast<uint8_t>(config.configId), static_cast<uint8_t>(config.interfaceId), isEnable);
         return MapUsbRet(usbRet, "UsbInterfaceAuthorize");
     }
-    int32_t usbRet = srvClient.UsbDeviceAuthorize(busNum, devAddr, isEnable);
+    int32_t usbRet = UsbDeviceControlIpc::UsbDeviceAuthorize(busNum, devAddr, isEnable);
     return MapUsbRet(usbRet, "UsbDeviceAuthorize");
 }
 } // namespace EDM

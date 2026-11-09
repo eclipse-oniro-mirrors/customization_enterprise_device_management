@@ -19,7 +19,9 @@
 #include "common_event_adapter.h"
 #include "edm_log.h"
 #include "null_event_adapter.h"
+#ifdef USB_SERVICE_EDM_ENABLE
 #include "usb_device_control_event_adapter.h"
+#endif
 #include "user_auth_event_adapter.h"
 
 namespace OHOS {

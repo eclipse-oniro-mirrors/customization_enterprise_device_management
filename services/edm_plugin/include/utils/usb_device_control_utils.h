@@ -25,7 +25,7 @@ namespace OHOS {
 namespace EDM {
 class UsbDeviceControlUtils {
 public:
-    // 调 USB #1458：GetAllDevices / UsbDeviceAuthorize / UsbInterfaceAuthorize
+    // Soft IPC to USB #1458：GetAllDevices / UsbDeviceAuthorize / UsbInterfaceAuthorize
     static ErrCode GetUsbDeviceInfos(std::vector<UsbDeviceInfo> &infos);
     static ErrCode SetUsbDeviceStates(const USBDeviceConfigInfo &config, bool isEnable);
 };
