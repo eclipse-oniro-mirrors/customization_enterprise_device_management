@@ -156,14 +156,18 @@ ErrCode IPolicyQuery::GetPolicyNew(std::shared_ptr<PolicyManager> policyManager,
             EDMLOGE("IPolicyQuery: permission check failed");
             return superRet;
         }
-        auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-        bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), bundleName);
-        std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
-            PermissionChecker::GetInstance()->GetCurrentUserId());
-        if (deviceAdmin != nullptr &&
-            !deviceAdmin->HasPermissionToHandlePolicy(this->GetPolicyName(), FuncOperateType::GET)) {
-            EDMLOGE("IPolicyQuery: admin does not have permission to get policy ALL");
-            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+        if (SUCCEEDED(superRet)) {
+            EDMLOGI("IPolicyQuery: system app calling ALL, skip admin check");
+        } else {
+            auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
+            bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), bundleName);
+            std::shared_ptr<Admin> deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName,
+                PermissionChecker::GetInstance()->GetCurrentUserId());
+            if (deviceAdmin != nullptr &&
+                !deviceAdmin->HasPermissionToHandlePolicy(this->GetPolicyName(), FuncOperateType::GET)) {
+                EDMLOGE("IPolicyQuery: admin does not have permission to get policy ALL");
+                return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+            }
         }
     }
     std::string policyName = this->GetPolicyName();
