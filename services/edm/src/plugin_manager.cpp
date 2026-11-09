@@ -98,6 +98,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::VOLUME_DEGREE,
     EdmInterfaceCode::DEFAULT_APPLICATION,
     EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
+    EdmInterfaceCode::POWER_MODE_SETTINGS,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

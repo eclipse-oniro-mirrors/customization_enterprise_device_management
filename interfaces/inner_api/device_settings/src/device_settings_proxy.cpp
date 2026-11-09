@@ -15,6 +15,7 @@
 
 #include "device_settings_proxy.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "switch_param.h"
@@ -257,6 +258,81 @@ int32_t DeviceSettingsProxy::SetDefaultInputMethod(const AppExecFwk::ElementName
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::SetPowerModeValueForAccount(const AppExecFwk::ElementName &admin,
+    int32_t accountId, SettingsItem item, const std::string &value, const std::string &permissionTag)
+{
+    EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccount");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteParcelable(&admin);
+    data.WriteString(permissionTag);
+    data.WriteInt32(static_cast<int32_t>(item));
+    data.WriteString(value);
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::GetPowerModeValueForAccount(const AppExecFwk::ElementName &admin,
+    int32_t accountId, SettingsItem item, std::string &value, const std::string &permissionTag)
+{
+    EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccount");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(HAS_USERID);
+    data.WriteInt32(accountId);
+    data.WriteString(permissionTag);
+    data.WriteInt32(HAS_ADMIN);
+    data.WriteParcelable(&admin);
+    data.WriteInt32(static_cast<int32_t>(item));
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::POWER_MODE_SETTINGS, data, reply);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!blRes) {
+        EDMLOGE("DeviceSettingsProxy:GetPowerModeValueForAccount fail. %{public}d", ret);
+        return ret;
+    }
+    value = reply.ReadString();
+    return ERR_OK;
+}
+
+int32_t DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
+    const std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteInt32(static_cast<int32_t>(item));
+    data.WriteString(value);
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
+    std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    data.WriteInt32(static_cast<int32_t>(item));
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::POWER_MODE_SETTINGS,
+        data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin fail. %{public}d", ret);
+        return ret;
+    }
+    value = reply.ReadString();
+    return ERR_OK;
 }
 
 int32_t DeviceSettingsProxy::SetValueForAccount(const AppExecFwk::ElementName &admin,

@@ -42,6 +42,10 @@ ohos_shared_library("devicesettings") {
   ]
 
   defines = []
+  if (enterprise_device_management_feature_pc_only) {
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
   if (os_account_edm_enable) {
     external_deps += [ "os_account:os_account_innerkits" ]
     defines += [ "OS_ACCOUNT_EDM_ENABLE" ]

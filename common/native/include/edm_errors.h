@@ -61,6 +61,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t CHECK_CREDENTIAL_FAILED = 9200017;
     constexpr uint32_t NOT_ENTERPRISE_DEVICE = 9200018;
     constexpr uint32_t POLICY_LIST_OVER_SIZE = 9200019;
+    constexpr uint32_t CROSS_USER_NOT_ALLOWED = 9200020;
 
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;

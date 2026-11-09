@@ -20,7 +20,11 @@ namespace OHOS {
 namespace EDM {
 enum class SettingsItem : uint32_t {
     DEVICE_NAME = 0,
-    FLOATING_NAVIGATION = 1
+    FLOATING_NAVIGATION = 1,
+    SCREEN_OFF_DC = 2,
+    SCREEN_OFF_AC = 3,
+    POWER_POLICY_DC = 4,
+    POWER_POLICY_AC = 5
 };
 } // namespace EDM
 } // namespace OHOS

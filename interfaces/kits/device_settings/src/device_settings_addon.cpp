@@ -45,6 +45,26 @@ void DeviceSettingsAddon::CreateSettingsItemObject(napi_env env, napi_value valu
     NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::FLOATING_NAVIGATION),
         &nFloatingNavigation));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "FLOATING_NAVIGATION", nFloatingNavigation));
+
+    napi_value nScreenOffDc;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::SCREEN_OFF_DC),
+        &nScreenOffDc));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SCREEN_OFF_DC", nScreenOffDc));
+
+    napi_value nScreenOffAc;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::SCREEN_OFF_AC),
+        &nScreenOffAc));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "SCREEN_OFF_AC", nScreenOffAc));
+
+    napi_value nPowerPolicyDc;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::POWER_POLICY_DC),
+        &nPowerPolicyDc));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "POWER_POLICY_DC", nPowerPolicyDc));
+
+    napi_value nPowerPolicyAc;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env, static_cast<uint32_t>(SettingsItem::POWER_POLICY_AC),
+        &nPowerPolicyAc));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "POWER_POLICY_AC", nPowerPolicyAc));
 }
 
 void DeviceSettingsAddon::CreatePowerPolicyActionObject(napi_env env, napi_value value)
@@ -660,7 +680,7 @@ napi_value DeviceSettingsAddon::GetValue(napi_env env, napi_callback_info info)
 
 napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetValue called");
+    EDMLOGI("NAPI_SetValueForAccount called");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = { nullptr };
     napi_value thisArg = nullptr;
@@ -668,6 +688,18 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
 
+    if (argc >= ARGS_SIZE_FOUR) {
+        return HandleSetValueForAccountWithAdmin(env, argv);
+    }
+    if (argc == ARGS_SIZE_THREE) {
+        return HandleSetValueForAccountWithoutAdmin(env, argv);
+    }
+    napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
+    return nullptr;
+}
+
+napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv)
+{
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
@@ -685,26 +717,70 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
         ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value,
             EdmConstants::PERMISSION_TAG_VERSION_23);
+    } else if (IsPowerModeItem(item)) {
+        ret = SetPowerModeValueForAccount(elementName, item, accountId, value);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
-        EDMLOGE("SetValue failed! item is %{public}d", item);
+        EDMLOGE("SetValueForAccount with admin failed! item is %{public}d", item);
     }
     return nullptr;
 }
 
+napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
+{
+    int32_t item = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]), "param 'accountId' error");
+    std::string value;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, value, argv[ARR_INDEX_TWO]), "param 'value' error");
+
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID));
+        EDMLOGE("SetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d", accountId,
+            EdmConstants::DEFAULT_USER_ID);
+        return nullptr;
+    }
+    if (!IsPowerModeItem(item)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
+        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d does not support cross-account", item);
+        return nullptr;
+    }
+
+    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
+    int32_t ret = proxy->SetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), value);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("SetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
+    }
+    return nullptr;
+}
 
 napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetValue called");
+    EDMLOGI("NAPI_GetValueForAccount called");
     size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value argv[ARGS_SIZE_THREE] = { nullptr };
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+
+    if (argc >= ARGS_SIZE_THREE) {
+        return HandleGetValueForAccountWithAdmin(env, argv);
+    }
+    if (argc == ARGS_SIZE_TWO) {
+        return HandleGetValueForAccountWithoutAdmin(env, argv);
+    }
+    napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
+    return nullptr;
+}
+
+napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv)
+{
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
@@ -722,17 +798,88 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
         ret = proxy->GetFloatingNavigationForAccount(elementName, accountId, stringRet,
             EdmConstants::PERMISSION_TAG_VERSION_23);
+    } else if (IsPowerModeItem(item)) {
+        ret = GetPowerModeValueForAccount(elementName, item, accountId, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
-        EDMLOGE("GetValue failed! item is %{public}d", item);
+        EDMLOGE("GetValueForAccount with admin failed! item is %{public}d", item);
         return nullptr;
     }
     napi_value result;
     NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result));
     return result;
+}
+
+napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
+{
+    int32_t item = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error");
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "param 'accountId' error");
+
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID));
+        EDMLOGE("GetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d", accountId,
+            EdmConstants::DEFAULT_USER_ID);
+        return nullptr;
+    }
+    if (!IsPowerModeItem(item)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
+        EDMLOGE("GetValueForAccountWithoutAdmin: item %{public}d does not support cross-account", item);
+        return nullptr;
+    }
+
+    std::string stringRet;
+    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
+    int32_t ret = proxy->GetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), stringRet);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+        EDMLOGE("GetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
+        return nullptr;
+    }
+    napi_value result;
+    NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result));
+    return result;
+}
+
+bool DeviceSettingsAddon::IsPowerModeItem(int32_t item)
+{
+    return item >= static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC) &&
+        item <= static_cast<int32_t>(SettingsItem::POWER_POLICY_AC);
+}
+
+int32_t DeviceSettingsAddon::SetPowerModeValueForAccount(
+    const OHOS::AppExecFwk::ElementName &elementName, int32_t item, int32_t accountId, const std::string &value)
+{
+#ifdef FEATURE_PC_ONLY
+    return DeviceSettingsProxy::GetDeviceSettingsProxy()->SetPowerModeValueForAccount(elementName, accountId,
+        static_cast<SettingsItem>(item), value, EdmConstants::PERMISSION_TAG_VERSION_26);
+#else
+    (void)elementName;
+    (void)item;
+    (void)accountId;
+    (void)value;
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
+}
+
+int32_t DeviceSettingsAddon::GetPowerModeValueForAccount(
+    const OHOS::AppExecFwk::ElementName &elementName, int32_t item, int32_t accountId, std::string &value)
+{
+#ifdef FEATURE_PC_ONLY
+    return DeviceSettingsProxy::GetDeviceSettingsProxy()->GetPowerModeValueForAccount(elementName, accountId,
+        static_cast<SettingsItem>(item), value, EdmConstants::PERMISSION_TAG_VERSION_26);
+#else
+    (void)elementName;
+    (void)item;
+    (void)accountId;
+    (void)value;
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+#endif
 }
 
 bool DeviceSettingsAddon::JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene)

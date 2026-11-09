@@ -124,6 +124,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/datetime_manager/ntp_server_plugin.cpp",
       "./src/device_settings/power_policy_plugin.cpp",
       "./src/device_settings/screen_off_time_plugin.cpp",
+      "./src/device_settings/power_mode_settings_plugin.cpp",
       "./src/device_settings/set_device_name_plugin.cpp",
       "./src/device_settings/set_eye_comfort_mode_plugin.cpp",
       "./src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
