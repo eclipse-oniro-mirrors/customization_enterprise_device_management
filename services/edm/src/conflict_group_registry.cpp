@@ -149,6 +149,8 @@ void ConflictGroupRegistry::RegisterConflictGroupSuperHub()
         static_cast<int32_t>(ConflictGroupId::GROUP_SUPERHUB);
     policyToGroup_[EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDDEN_SETTINGS_MENU] =
         static_cast<int32_t>(ConflictGroupId::GROUP_SUPERHUB);
+    policyToGroup_[EdmInterfaceCode::DISALLOW_PARENT_CONTROL] =
+        static_cast<int32_t>(ConflictGroupId::GROUP_SUPERHUB);
 }
 
 void ConflictGroupRegistry::RegisterConflictGroupUpdatePolicy()

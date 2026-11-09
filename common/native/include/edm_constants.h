@@ -253,6 +253,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
+        const char* const LABEL_DISALLOWED_POLICY_PARENT_CONTROL = "parentControl";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -634,6 +635,7 @@ namespace PolicyName {
     const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
     const char* const POLICY_ENTERPRISE_RESET_POLICY = "enterprise_reset_policy";
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
+    const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

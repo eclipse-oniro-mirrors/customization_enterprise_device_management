@@ -192,6 +192,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_USB_SERIAL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_PARENT_CONTROL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
     map[EdmInterfaceCode::DISALLOWED_PACKET_FILTERING] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
@@ -393,6 +394,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
         EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL,
+        EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
     };
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISABLED_PRINT);
