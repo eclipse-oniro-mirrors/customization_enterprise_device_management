@@ -456,6 +456,7 @@ ohos_shared_library("communication_plugin") {
         "netmanager_base:netsys_controller",
       ]
       sources += [
+        "./src/network_manager/clear_dns_cache_plugin.cpp",
         "./src/application_manager/query_traffic_stats_plugin.cpp",
         "./src/device_settings/set_network_interface_config_plugin.cpp",
         "./src/network/executer/domain_executer.cpp",

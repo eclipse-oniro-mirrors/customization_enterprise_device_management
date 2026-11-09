@@ -76,6 +76,7 @@ public:
         int32_t accountId = -1);
 #endif
     int32_t GetSharedPathList(std::vector<PathSharedData> &sharedList);
+    int32_t ClearDnsCache(MessageParcel &data);
 private:
     static std::shared_ptr<NetworkManagerProxy> instance_;
     static std::once_flag flag_;
