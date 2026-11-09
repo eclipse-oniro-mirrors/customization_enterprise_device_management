@@ -635,6 +635,7 @@ namespace PolicyName {
     const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
     const char* const POLICY_ENTERPRISE_RESET_POLICY = "enterprise_reset_policy";
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
+    const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
     const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
 } // namespace PolicyName
 } // namespace EDM

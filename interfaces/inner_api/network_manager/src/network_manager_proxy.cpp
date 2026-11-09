@@ -645,5 +645,13 @@ int32_t NetworkManagerProxy::GetSharedPathList(std::vector<PathSharedData> &shar
     }
     return ERR_OK;
 }
+
+int32_t NetworkManagerProxy::ClearDnsCache(MessageParcel &data)
+{
+    EDMLOGI("NetworkManagerProxy::ClearDnsCache");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::CLEAR_DNS_CACHE);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS
