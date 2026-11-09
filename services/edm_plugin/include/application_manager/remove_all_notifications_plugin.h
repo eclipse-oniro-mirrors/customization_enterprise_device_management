@@ -29,6 +29,7 @@ public:
 
 protected:
     virtual int32_t RemoveAllNotifications(int32_t accountId);
+    virtual ErrCode IsOsAccountExists(int32_t accountId, bool &isExist);
 };
 } // namespace EDM
 } // namespace OHOS

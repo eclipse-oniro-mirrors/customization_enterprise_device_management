@@ -32,6 +32,7 @@ namespace TEST {
 namespace {
 constexpr int32_t ACCOUNT_ID = 100;
 constexpr int32_t ACCOUNT_ID_INVALID = -1;
+constexpr int32_t ACCOUNT_ID_NOT_EXIST = 999;
 constexpr int32_t SYSTEM_ACCOUNT_ID = 0;
 constexpr int32_t RET_ANS_FAILED = 130001;
 } // namespace
@@ -41,12 +42,20 @@ public:
     std::vector<int32_t> accountIds_;
     int32_t ret_ = ERR_OK;
     int32_t systemRet_ = ERR_OK;
+    bool isExist_ = true;
+    ErrCode existRet_ = ERR_OK;
 
 protected:
     int32_t RemoveAllNotifications(int32_t accountId) override
     {
         accountIds_.push_back(accountId);
         return accountId == SYSTEM_ACCOUNT_ID ? systemRet_ : ret_;
+    }
+
+    ErrCode IsOsAccountExists(int32_t accountId, bool &isExist) override
+    {
+        isExist = isExist_;
+        return existRet_;
     }
 };
 
@@ -122,6 +131,44 @@ HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_InvalidAccountId_Retur
     EXPECT_TRUE(plugin_->accountIds_.empty());
     int32_t replyCode = ERR_OK;
     EXPECT_FALSE(reply.ReadInt32(replyCode));
+}
+
+/**
+ * @tc.name: OnHandlePolicy_AccountIdNotExist_ReturnsUidInvalid
+ * @tc.desc: Test OnHandlePolicy returns 9200006 and skips the underlying service when accountId does not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_AccountIdNotExist_ReturnsUidInvalid, TestSize.Level1)
+{
+    plugin_->isExist_ = false;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    data.WriteInt32(ACCOUNT_ID_NOT_EXIST);
+
+    ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID);
+
+    EXPECT_EQ(ret, EdmReturnErrCode::UID_INVALID);
+    EXPECT_TRUE(plugin_->accountIds_.empty());
+}
+
+/**
+ * @tc.name: OnHandlePolicy_QueryAccountFailed_ReturnsUidInvalid
+ * @tc.desc: Test OnHandlePolicy returns 9200006 when the os account query itself fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RemoveAllNotificationsPluginTest, OnHandlePolicy_QueryAccountFailed_ReturnsUidInvalid, TestSize.Level1)
+{
+    plugin_->existRet_ = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    data.WriteInt32(ACCOUNT_ID);
+
+    ErrCode ret = plugin_->OnHandlePolicy(SetFuncCode(), data, reply, policyData, ACCOUNT_ID);
+
+    EXPECT_EQ(ret, EdmReturnErrCode::UID_INVALID);
+    EXPECT_TRUE(plugin_->accountIds_.empty());
 }
 
 /**
