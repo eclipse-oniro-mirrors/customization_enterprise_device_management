@@ -321,6 +321,7 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/edm_cellular_data_manager_impl.cpp",
       "./src/query_policy/telephony_call_policy_query.cpp",
+      "./src/query_policy/is_allowed_telephony_call_query.cpp",
     ]
     defines += [
       "APN_EDM_ENABLE",
