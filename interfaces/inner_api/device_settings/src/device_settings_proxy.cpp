@@ -305,6 +305,11 @@ int32_t DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin(int32_t acc
     const std::string &value)
 {
     EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin");
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGE("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
+            accountId, EdmConstants::DEFAULT_USER_ID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(accountId);
@@ -319,6 +324,11 @@ int32_t DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin(int32_t acc
     std::string &value)
 {
     EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin");
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGE("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
+            accountId, EdmConstants::DEFAULT_USER_ID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);

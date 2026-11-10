@@ -745,8 +745,8 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env en
         return nullptr;
     }
     if (!IsPowerModeItem(item)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
-        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d does not support cross-account", item);
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d does not support without admin", item);
         return nullptr;
     }
 
@@ -828,8 +828,8 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env en
         return nullptr;
     }
     if (!IsPowerModeItem(item)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
-        EDMLOGE("GetValueForAccountWithoutAdmin: item %{public}d does not support cross-account", item);
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        EDMLOGE("GetValueForAccountWithoutAdmin: item %{public}d does not support without admin", item);
         return nullptr;
     }
 

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_POWER_MODE_SETTINGS_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_POWER_MODE_SETTINGS_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SETTINGS_POWER_MODE_SETTINGS_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SETTINGS_POWER_MODE_SETTINGS_PLUGIN_H
 
 #include <cstdint>
 #include <string>
@@ -22,6 +22,7 @@
 #include <message_parcel.h>
 
 #include "cJSON.h"
+#include "external_manager_factory.h"
 #include "iplugin.h"
 #include "power_policy.h"
 
@@ -55,6 +56,7 @@ private:
     ErrCode GetScreenOffTime(MessageParcel &reply, bool isAc);
     ErrCode SetPowerPolicy(const std::string &valueStr, bool isAc);
     ErrCode GetPowerPolicy(MessageParcel &reply, bool isAc);
+    bool IsCrossUserNotAllowed(int32_t userId);
     bool ParsePowerPolicy(const std::string &valueStr, uint32_t &powerScene, PowerPolicy &powerPolicy);
     bool SetPowerPolicyObject(cJSON* root, const std::string &key, PowerPolicy &powerPolicy);
     bool GetPowerSceneKey(const uint32_t &powerScene, std::string &sceneKey);
@@ -64,8 +66,9 @@ private:
         PowerPolicy &powerPolicy, bool isSetPolicy);
     std::string GetScreenOffTimeKey(bool isAc) const;
     std::string GetSuspendKey(bool isAc) const;
+    std::shared_ptr<IExternalManagerFactory> externalManagerFactory_ = std::make_shared<ExternalManagerFactory>();
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_POWER_MODE_SETTINGS_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SETTINGS_POWER_MODE_SETTINGS_PLUGIN_H

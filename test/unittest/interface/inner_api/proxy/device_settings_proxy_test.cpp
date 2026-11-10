@@ -567,6 +567,11 @@ static std::uint32_t GetExpectedFuncCode(FuncOperateType operateType, EdmInterfa
     return POLICY_FUNC_CODE(static_cast<std::uint32_t>(operateType), static_cast<std::uint32_t>(code));
 }
 
+static std::uint32_t GetExpectedFuncCodeNew(FuncOperateType operateType, EdmInterfaceCode code)
+{
+    return POLICY_FUNC_CODE_NEW(static_cast<std::uint32_t>(operateType), static_cast<std::uint32_t>(code));
+}
+
 /**
  * @tc.name: SetPowerModeValueForAccount_ScreenOffAc_Success
  * @tc.desc: Test SetPowerModeValueForAccount function with SCREEN_OFF_AC item.
@@ -697,6 +702,68 @@ HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccountWithoutAdmin_Succes
         SettingsItem::SCREEN_OFF_AC, value);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(value, RETURN_STRING);
+}
+
+/**
+ * @tc.name: GetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid
+ * @tc.desc: Test GetPowerModeValueForAccountWithoutAdmin function with invalid accountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid, TestSize.Level1)
+{
+    int32_t accountId = 99;
+    std::string value;
+    int32_t ret = deviceSettingsProxy->GetPowerModeValueForAccountWithoutAdmin(accountId,
+        SettingsItem::SCREEN_OFF_AC, value);
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::UID_INVALID));
+}
+
+/**
+ * @tc.name: SetPowerModeValueForAccountWithoutAdmin_ScreenOffAc_Success
+ * @tc.desc: Test SetPowerModeValueForAccountWithoutAdmin function with SCREEN_OFF_AC item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccountWithoutAdmin_ScreenOffAc_Success, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t accountId = 100;
+    int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccountWithoutAdmin(accountId,
+        SettingsItem::SCREEN_OFF_AC, "60000");
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
+}
+
+/**
+ * @tc.name: SetPowerModeValueForAccountWithoutAdmin_PowerPolicyDc_Success
+ * @tc.desc: Test SetPowerModeValueForAccountWithoutAdmin function with POWER_POLICY_DC item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccountWithoutAdmin_PowerPolicyDc_Success, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t accountId = 100;
+    std::string value = "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":1000}}";
+    int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccountWithoutAdmin(accountId,
+        SettingsItem::POWER_POLICY_DC, value);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
+}
+
+/**
+ * @tc.name: SetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid
+ * @tc.desc: Test SetPowerModeValueForAccountWithoutAdmin function with invalid accountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid, TestSize.Level1)
+{
+    int32_t accountId = 99;
+    int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccountWithoutAdmin(accountId,
+        SettingsItem::SCREEN_OFF_AC, "60000");
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::UID_INVALID));
 }
 
 /**

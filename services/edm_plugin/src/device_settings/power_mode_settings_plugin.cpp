@@ -48,6 +48,8 @@ const char* const KEY_POWER_SCENE = "powerScene";
 const char* const KEY_POWER_POLICY = "powerPolicy";
 const char* const KEY_POWER_POLICY_ACTION = "powerPolicyAction";
 const char* const KEY_POWER_DELAY_TIME = "delayTime";
+// Reserved sentinel value agreed with PowerMgrService: delayTime=30000 is treated as invalid
+// because the power suspend framework uses it internally as a no-op/default marker.
 static constexpr uint32_t INVALID_DELAY_TIME = 30000;
 
 const bool REGISTER_POWER_MODE_SETTINGS = IPluginManager::GetInstance()->AddPlugin(
@@ -89,12 +91,26 @@ std::string PowerModeSettingsPlugin::GetSuspendKey(bool isAc) const
     return isAc ? KEY_POWER_AC_SUSPEND : KEY_POWER_DC_SUSPEND;
 }
 
+bool PowerModeSettingsPlugin::IsCrossUserNotAllowed(int32_t userId)
+{
+    int32_t currentUserId = externalManagerFactory_->CreateOsAccountManager()->GetCurrentUserId();
+    if (currentUserId < 0) {
+        EDMLOGW("PowerModeSettingsPlugin::IsCrossUserNotAllowed get current user failed, skip check");
+        return false;
+    }
+    return userId != currentUserId;
+}
+
 ErrCode PowerModeSettingsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
     MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     if (FuncCodeUtils::ConvertOperateType(typeCode) != FuncOperateType::SET) {
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (IS_NEW_INTERFACE(funcCode) && IsCrossUserNotAllowed(userId)) {
+        EDMLOGE("PowerModeSettingsPlugin::OnHandlePolicy cross user not allowed, userId=%{public}d", userId);
+        return EdmReturnErrCode::CROSS_USER_NOT_ALLOWED;
     }
     int32_t item = 0;
     if (!data.ReadInt32(item)) {
@@ -192,14 +208,14 @@ ErrCode PowerModeSettingsPlugin::GetScreenOffTime(MessageParcel &reply, bool isA
 
 ErrCode PowerModeSettingsPlugin::SetPowerPolicy(const std::string &valueStr, bool isAc)
 {
-    uint32_t powerSence = 0;
+    uint32_t powerScene = 0;
     PowerPolicy powerPolicy;
-    if (!ParsePowerPolicy(valueStr, powerSence, powerPolicy)) {
+    if (!ParsePowerPolicy(valueStr, powerScene, powerPolicy)) {
         EDMLOGE("PowerModeSettingsPlugin:ParsePowerPolicy parse error");
         return EdmReturnErrCode::PARAM_ERROR;
     }
     std::string policyKey;
-    if (!GetPowerSceneKey(powerSence, policyKey)) {
+    if (!GetPowerSceneKey(powerScene, policyKey)) {
         EDMLOGE("PowerModeSettingsPlugin:GetPowerSceneKey error");
         return EdmReturnErrCode::PARAM_ERROR;
     }
@@ -264,8 +280,9 @@ bool PowerModeSettingsPlugin::ParsePowerPolicy(const std::string &valueStr, uint
     bool result = false;
     if (sceneItem != nullptr && cJSON_IsNumber(sceneItem) && actionItem != nullptr &&
         cJSON_IsNumber(actionItem) && delayItem != nullptr && cJSON_IsNumber(delayItem) &&
+        delayItem->valueint >= 0 &&
         powerPolicy.SetPowerPolicyAction(actionItem->valueint)) {
-        powerPolicy.SetDelayTime(delayItem->valueint);
+        powerPolicy.SetDelayTime(static_cast<uint32_t>(delayItem->valueint));
         powerScene = static_cast<uint32_t>(sceneItem->valueint);
         result = true;
     }
@@ -354,11 +371,12 @@ bool PowerModeSettingsPlugin::SetPowerPolicyObject(cJSON* root, const std::strin
     cJSON* actionValue = cJSON_GetObjectItem(valueObj, KEY_ACTION);
     cJSON* delayValue = cJSON_GetObjectItem(valueObj, KEY_DELAY_TIME);
 
-    if (actionValue && cJSON_IsNumber(actionValue) && delayValue && cJSON_IsNumber(delayValue)) {
+    if (actionValue && cJSON_IsNumber(actionValue) && delayValue && cJSON_IsNumber(delayValue) &&
+        delayValue->valueint >= 0) {
         if (!powerPolicy.SetPowerPolicyAction(actionValue->valueint)) {
             return false;
         }
-        powerPolicy.SetDelayTime(delayValue->valueint);
+        powerPolicy.SetDelayTime(static_cast<uint32_t>(delayValue->valueint));
         return true;
     }
     return false;

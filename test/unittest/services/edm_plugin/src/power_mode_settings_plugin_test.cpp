@@ -13,13 +13,17 @@
  * limitations under the License.
  */
 
+#define private public
 #include "power_mode_settings_plugin.h"
+#undef private
 
 #include <gtest/gtest.h>
 
 #include "edm_constants.h"
 #include "edm_data_ability_utils_mock.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_os_account_manager_impl_mock.h"
+#include "external_manager_factory_mock.h"
 #include "iplugin_manager.h"
 #include "setting_item_policy.h"
 #include "utils.h"
@@ -59,6 +63,12 @@ static std::shared_ptr<PowerModeSettingsPlugin> CreatePlugin()
 static std::uint32_t GetFuncCode(FuncOperateType operateType)
 {
     return POLICY_FUNC_CODE(static_cast<std::uint32_t>(operateType),
+        static_cast<std::uint32_t>(EdmInterfaceCode::POWER_MODE_SETTINGS));
+}
+
+static std::uint32_t GetFuncCodeNew(FuncOperateType operateType)
+{
+    return POLICY_FUNC_CODE_NEW(static_cast<std::uint32_t>(operateType),
         static_cast<std::uint32_t>(EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
@@ -334,6 +344,32 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeInvalid_ParamError
 }
 
 /**
+ * @tc.name: OnHandlePolicy_DelayTimeNegative_ParamError
+ * @tc.desc: Test OnHandlePolicy function when delayTime is negative (should be rejected, not wrapped to uint32).
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeNegative_ParamError, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC,
+        "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":-1}}");
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+}
+
+/**
+ * @tc.name: OnHandlePolicy_DelayTimeNotNumber_ParamError
+ * @tc.desc: Test OnHandlePolicy function when delayTime is a string (non-number type).
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeNotNumber_ParamError, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC,
+        "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":\"1000\"}}");
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+}
+
+/**
  * @tc.name: OnHandlePolicy_SetPowerPolicySuccess
  * @tc.desc: Test OnHandlePolicy function when setting power policy successfully.
  * @tc.type: FUNC
@@ -447,6 +483,97 @@ HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_PowerPolicyTimeoutNotObject_Sy
     ErrCode ret = GetPolicy(plugin, SettingsItem::POWER_POLICY_DC, reply);
     EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
     EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+}
+
+/**
+ * @tc.name: OnHandlePolicy_CrossUserNotAllowed
+ * @tc.desc: Test OnHandlePolicy function when userId differs from current user on new interface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_CrossUserNotAllowed, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin->externalManagerFactory_ = factory;
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(100));
+
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC));
+    data.WriteString("30000");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData{"TestString", "", false};
+    ErrCode ret = plugin->OnHandlePolicy(GetFuncCodeNew(FuncOperateType::SET), data, reply, handlePolicyData, 101);
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
+}
+
+/**
+ * @tc.name: OnHandlePolicy_SameUserNewInterface_Success
+ * @tc.desc: Test OnHandlePolicy function when userId equals current user on new interface passes cross-user check.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_SameUserNewInterface_Success, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin->externalManagerFactory_ = factory;
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(100));
+    EdmDataAbilityUtils::SetResult("test success");
+
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC));
+    data.WriteString("30000");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData{"TestString", "", false};
+    ErrCode ret = plugin->OnHandlePolicy(GetFuncCodeNew(FuncOperateType::SET), data, reply, handlePolicyData, 100);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: OnHandlePolicy_OldInterfaceCrossUser_NoCrossUserCheck
+ * @tc.desc: Test OnHandlePolicy function on old interface (without admin) skips cross-user check.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_OldInterfaceCrossUser_NoCrossUserCheck, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    EdmDataAbilityUtils::SetResult("test success");
+
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC));
+    data.WriteString("30000");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData{"TestString", "", false};
+    // Old interface (POLICY_FUNC_CODE, not POLICY_FUNC_CODE_NEW) should not trigger cross-user check
+    ErrCode ret = plugin->OnHandlePolicy(GetFuncCode(FuncOperateType::SET), data, reply, handlePolicyData, 101);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: OnHandlePolicy_GetUserIdFailed_SkipCrossUserCheck
+ * @tc.desc: Test OnHandlePolicy function when GetCurrentUserId fails, cross-user check is skipped.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_GetUserIdFailed_SkipCrossUserCheck, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin->externalManagerFactory_ = factory;
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(-1));
+    EdmDataAbilityUtils::SetResult("test success");
+
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC));
+    data.WriteString("30000");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData{"TestString", "", false};
+    ErrCode ret = plugin->OnHandlePolicy(GetFuncCodeNew(FuncOperateType::SET), data, reply, handlePolicyData, 101);
+    EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM
