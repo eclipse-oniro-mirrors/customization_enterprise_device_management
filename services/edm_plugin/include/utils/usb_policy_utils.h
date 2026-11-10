@@ -30,6 +30,7 @@ public:
     static ErrCode SetDisallowedPermissiveUsbDevices(std::vector<USB::UsbDeviceType> data);
     static ErrCode QueryAllCreatedOsAccountIds(std::vector<int32_t> &userIds);
     static ErrCode GetUsbSerialNumber(int32_t busNum, int32_t devAddress, std::string &serial);
+    static bool IsUsbInterceptEnabled();
 #ifdef FEATURE_PC_ONLY
     static ErrCode IsUsbStorageDeviceWriteDisallowed(bool &isDisallowed);
 #endif

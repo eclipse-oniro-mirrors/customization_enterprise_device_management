@@ -18,6 +18,7 @@ config("plugin_kits_config") {
     "include",
     "include/utils",
     "../common/include",
+    "../usb_manager/include",
     "../../../common/native/include",
   ]
 }

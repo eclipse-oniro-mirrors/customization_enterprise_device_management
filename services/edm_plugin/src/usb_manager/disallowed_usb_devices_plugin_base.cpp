@@ -224,6 +224,11 @@ ErrCode DisallowedUsbDevicesPluginBase::HasConflictPolicy(bool &hasConflict,
         hasConflict = true;
         return ERR_OK;
     }
+    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
+        EDMLOGE("%{public}s policy conflict! usbInterceptEnable.", GetPluginName().c_str());
+        hasConflict = true;
+        return ERR_OK;
+    }
 #ifdef FEATURE_PC_ONLY
     bool isDisallowed = false;
     if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {

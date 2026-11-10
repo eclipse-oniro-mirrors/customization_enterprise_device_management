@@ -21,6 +21,7 @@
 #include "policy_struct.h"
 #include "external_storage_device_info.h"
 #include "sms_receive_info.h"
+#include "usb_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -191,6 +192,16 @@ public:
 private:
     bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     SmsReceiveInfo smsInfo_;
+};
+
+class UsbDeviceAddedStrategy : public ICallbackStrategy {
+public:
+    explicit UsbDeviceAddedStrategy(const UsbDeviceInfo &usbDeviceInfo)
+        : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_USB_DEVICE_ADDED), usbDeviceInfo_(usbDeviceInfo) {}
+
+private:
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    UsbDeviceInfo usbDeviceInfo_;
 };
 
 } // namespace EDM

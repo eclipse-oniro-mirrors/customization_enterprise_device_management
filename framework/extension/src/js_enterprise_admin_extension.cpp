@@ -620,6 +620,17 @@ void JsEnterpriseAdminExtension::OnSmsReceived(const SmsReceiveInfo &smsInfo)
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnUsbDeviceAdded");
+    auto task = [usbDeviceInfo, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateUsbDeviceInfoObject(env, usbDeviceInfo) };
+        CallObjectMethod("onUsbDeviceAdded", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
 napi_value JsEnterpriseAdminExtension::CreateExternalStorageDeviceInfoObject(napi_env env,
     const ExternalStorageDeviceInfo &deviceInfo)
 {
@@ -687,6 +698,94 @@ napi_value JsEnterpriseAdminExtension::CreateSmsReceiveInfoObject(napi_env env,
     NAPI_CALL(env, napi_set_named_property(env, nSmsInfo, "content", nContent));
 
     return nSmsInfo;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateUsbInterfaceInfoObject(napi_env env, const USBInterfaceInfo &iface)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+    napi_value nId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.id, &nId));
+    NAPI_CALL(env, napi_set_named_property(env, value, "id", nId));
+    napi_value nProtocol = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.protocol, &nProtocol));
+    NAPI_CALL(env, napi_set_named_property(env, value, "protocol", nProtocol));
+    napi_value nClazz = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.clazz, &nClazz));
+    NAPI_CALL(env, napi_set_named_property(env, value, "clazz", nClazz));
+    napi_value nSubClass = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.subClass, &nSubClass));
+    NAPI_CALL(env, napi_set_named_property(env, value, "subClass", nSubClass));
+    napi_value nName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, iface.name.c_str(), NAPI_AUTO_LENGTH, &nName));
+    NAPI_CALL(env, napi_set_named_property(env, value, "name", nName));
+    napi_value nStates = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, iface.states, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    return value;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateUsbConfigurationInfoObject(napi_env env,
+    const USBConfigurationInfo &config)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+    napi_value nId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, config.id, &nId));
+    NAPI_CALL(env, napi_set_named_property(env, value, "id", nId));
+    napi_value nName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, config.name.c_str(), NAPI_AUTO_LENGTH, &nName));
+    NAPI_CALL(env, napi_set_named_property(env, value, "name", nName));
+    napi_value nStates = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, config.states, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    napi_value jsIfaces = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, config.interfaces.size(), &jsIfaces));
+    for (size_t i = 0; i < config.interfaces.size(); i++) {
+        napi_value item = CreateUsbInterfaceInfoObject(env, config.interfaces[i]);
+        NAPI_CALL(env, napi_set_element(env, jsIfaces, i, item));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, value, "interfaces", jsIfaces));
+    return value;
+}
+
+napi_value JsEnterpriseAdminExtension::CreateUsbDeviceInfoObject(napi_env env, const UsbDeviceInfo &usbDeviceInfo)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+    auto setInt = [&](const char *key, int32_t v) {
+        napi_value n = nullptr;
+        napi_create_int32(env, v, &n);
+        napi_set_named_property(env, value, key, n);
+    };
+    auto setStr = [&](const char *key, const std::string &v) {
+        napi_value n = nullptr;
+        napi_create_string_utf8(env, v.c_str(), NAPI_AUTO_LENGTH, &n);
+        napi_set_named_property(env, value, key, n);
+    };
+    setInt("busNum", usbDeviceInfo.busNum);
+    setInt("devAddress", usbDeviceInfo.devAddress);
+    setStr("serial", usbDeviceInfo.serial);
+    setStr("name", usbDeviceInfo.name);
+    setStr("manufacturerName", usbDeviceInfo.manufacturerName);
+    setStr("productName", usbDeviceInfo.productName);
+    setStr("version", usbDeviceInfo.version);
+    setInt("vendorId", usbDeviceInfo.vendorId);
+    setInt("productId", usbDeviceInfo.productId);
+    setInt("clazz", usbDeviceInfo.clazz);
+    setInt("subClass", usbDeviceInfo.subClass);
+    setInt("protocol", usbDeviceInfo.protocol);
+    napi_value nStates = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, usbDeviceInfo.states, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    napi_value jsConfigs = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, usbDeviceInfo.configs.size(), &jsConfigs));
+    for (size_t i = 0; i < usbDeviceInfo.configs.size(); i++) {
+        napi_value item = CreateUsbConfigurationInfoObject(env, usbDeviceInfo.configs[i]);
+        NAPI_CALL(env, napi_set_element(env, jsConfigs, i, item));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, value, "configs", jsConfigs));
+    return value;
 }
 
 napi_value JsEnterpriseAdminExtension::CreateUpdateInfoObject(napi_env env, const UpdateInfo &updateInfo)

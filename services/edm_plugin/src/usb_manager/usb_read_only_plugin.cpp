@@ -137,6 +137,11 @@ ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::st
         hasConflict = true;
         return ERR_OK;
     }
+    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
+        EDMLOGE("UsbReadOnlyPlugin policy conflict! usbInterceptEnable.");
+        hasConflict = true;
+        return ERR_OK;
+    }
 #ifdef FEATURE_PC_ONLY
     bool isDisallowed = false;
     if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {

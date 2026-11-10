@@ -122,6 +122,11 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
         return true;
     }
 
+    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
+        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! usbInterceptEnable.");
+        return true;
+    }
+
     std::string disableUsbSerial;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
     if (disableUsbSerial == "true") {

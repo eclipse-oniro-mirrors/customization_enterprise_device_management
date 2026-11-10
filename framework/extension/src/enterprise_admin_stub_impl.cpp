@@ -160,6 +160,17 @@ bool EnterpriseAdminStubImpl::OnUnmountExternalStorageDevice(const ExternalStora
     return true;
 }
 
+bool EnterpriseAdminStubImpl::OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo)
+{
+    EDMLOGI("EnterpriseAdminStubImpl::OnUsbDeviceAdded");
+    auto extension = extension_.lock();
+    if (extension == nullptr) {
+        return false;
+    }
+    extension->OnUsbDeviceAdded(usbDeviceInfo);
+    return true;
+}
+
 bool EnterpriseAdminStubImpl::OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId)
 {
     EDMLOGI("EnterpriseAdminStubImpl::OnPasswordFailed count=%{public}d userId=%{public}d",

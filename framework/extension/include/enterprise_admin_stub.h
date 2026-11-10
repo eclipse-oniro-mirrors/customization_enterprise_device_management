@@ -60,6 +60,7 @@ private:
     bool OnDeviceBootCompletedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnAdminPolicyChangedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnUnmountExternalStorageDeviceInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnUsbDeviceAddedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnPasswordFailedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnSmsReceivedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
 

@@ -65,6 +65,10 @@ napi_value UsbManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isExternalStorageInterceptEnable", IsExternalStorageInterceptEnable),
         DECLARE_NAPI_FUNCTION("setExternalStorageDeviceMountPolicy", SetExternalStorageDeviceMountPolicy),
         DECLARE_NAPI_FUNCTION("getExternalStorageDeviceInfos", GetExternalStorageDeviceInfos),
+        DECLARE_NAPI_FUNCTION("setUsbInterceptEnable", SetUsbInterceptEnable),
+        DECLARE_NAPI_FUNCTION("isUsbInterceptEnable", IsUsbInterceptEnable),
+        DECLARE_NAPI_FUNCTION("getUsbDeviceInfos", GetUsbDeviceInfos),
+        DECLARE_NAPI_FUNCTION("setUsbDeviceStates", SetUsbDeviceStates),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -171,6 +175,248 @@ napi_value UsbManagerAddon::IsExternalStorageInterceptEnable(napi_env env, napi_
     result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isEnabled, &result));
     return result;
+}
+
+napi_value UsbManagerAddon::SetUsbInterceptEnable(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::SetUsbInterceptEnable called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setUsbInterceptEnable";
+    addonMethodSign.argsType = {EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    int32_t ret = usbManagerProxy->SetUsbInterceptEnable(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+    }
+    return nullptr;
+}
+
+napi_value UsbManagerAddon::IsUsbInterceptEnable(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::IsUsbInterceptEnable called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "isUsbInterceptEnable";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    bool isEnabled = false;
+    int32_t ret = usbManagerProxy->IsUsbInterceptEnable(adapterAddonData.data, isEnabled);
+    EDMLOGI("UsbManagerAddon::IsUsbInterceptEnable return: %{public}d", isEnabled);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    result = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, isEnabled, &result));
+    return result;
+}
+
+napi_value UsbManagerAddon::GetUsbDeviceInfos(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::GetUsbDeviceInfos called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getUsbDeviceInfos";
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    std::vector<UsbDeviceInfo> deviceInfos;
+    int32_t ret = usbManagerProxy->GetUsbDeviceInfos(adapterAddonData.data, deviceInfos);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, deviceInfos.size(), &jsList));
+    for (size_t i = 0; i < deviceInfos.size(); i++) {
+        napi_value item = UsbDeviceInfoToJsObj(env, deviceInfos[i]);
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+    }
+    return jsList;
+}
+
+napi_value UsbManagerAddon::SetUsbDeviceStates(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UsbManagerAddon::SetUsbDeviceStates called");
+    auto convertConfig2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        USBDeviceConfigInfo config;
+        if (!UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(env, argv, config)) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        if (!config.Marshalling(data)) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setUsbDeviceStates";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.argsConvert = {convertConfig2Data, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
+    if (usbManagerProxy == nullptr) {
+        EDMLOGE("can not get usbManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    int32_t ret = usbManagerProxy->SetUsbDeviceStates(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+    }
+    return nullptr;
+}
+
+bool UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config)
+{
+    if (!JsObjectToInt(env, value, "busNum", true, config.busNum) ||
+        !JsObjectToInt(env, value, "devAddr", true, config.devAddr)) {
+        EDMLOGE("GetUsbDeviceConfigInfoFromNAPI busNum/devAddr parse error");
+        return false;
+    }
+    bool hasConfigId = false;
+    bool hasInterfaceId = false;
+    napi_has_named_property(env, value, "configId", &hasConfigId);
+    napi_has_named_property(env, value, "interfaceId", &hasInterfaceId);
+    if (hasConfigId != hasInterfaceId) {
+        EDMLOGE("GetUsbDeviceConfigInfoFromNAPI configId/interfaceId must appear together");
+        return false;
+    }
+    if (hasConfigId) {
+        if (!JsObjectToInt(env, value, "configId", true, config.configId) ||
+            !JsObjectToInt(env, value, "interfaceId", true, config.interfaceId)) {
+            return false;
+        }
+        config.hasConfigId = true;
+        config.hasInterfaceId = true;
+    }
+    return true;
+}
+
+napi_value UsbManagerAddon::UsbInterfaceInfoToJsObj(napi_env env, const USBInterfaceInfo &iface)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+    napi_value nId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.id, &nId));
+    NAPI_CALL(env, napi_set_named_property(env, value, "id", nId));
+    napi_value nProtocol = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.protocol, &nProtocol));
+    NAPI_CALL(env, napi_set_named_property(env, value, "protocol", nProtocol));
+    napi_value nClazz = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.clazz, &nClazz));
+    NAPI_CALL(env, napi_set_named_property(env, value, "clazz", nClazz));
+    napi_value nSubClass = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, iface.subClass, &nSubClass));
+    NAPI_CALL(env, napi_set_named_property(env, value, "subClass", nSubClass));
+    napi_value nName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, iface.name.c_str(), NAPI_AUTO_LENGTH, &nName));
+    NAPI_CALL(env, napi_set_named_property(env, value, "name", nName));
+    napi_value nStates = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, iface.states, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    return value;
+}
+
+napi_value UsbManagerAddon::UsbConfigurationInfoToJsObj(napi_env env, const USBConfigurationInfo &config)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+    napi_value nId = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, config.id, &nId));
+    NAPI_CALL(env, napi_set_named_property(env, value, "id", nId));
+    napi_value nName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, config.name.c_str(), NAPI_AUTO_LENGTH, &nName));
+    NAPI_CALL(env, napi_set_named_property(env, value, "name", nName));
+    napi_value nStates = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, config.states, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    napi_value jsIfaces = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, config.interfaces.size(), &jsIfaces));
+    for (size_t i = 0; i < config.interfaces.size(); i++) {
+        napi_value item = UsbInterfaceInfoToJsObj(env, config.interfaces[i]);
+        NAPI_CALL(env, napi_set_element(env, jsIfaces, i, item));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, value, "interfaces", jsIfaces));
+    return value;
+}
+
+napi_value UsbManagerAddon::UsbDeviceInfoToJsObj(napi_env env, const UsbDeviceInfo &deviceInfo)
+{
+    napi_value value = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &value));
+    auto setInt = [&](const char *key, int32_t v) {
+        napi_value n = nullptr;
+        napi_create_int32(env, v, &n);
+        napi_set_named_property(env, value, key, n);
+    };
+    auto setStr = [&](const char *key, const std::string &v) {
+        napi_value n = nullptr;
+        napi_create_string_utf8(env, v.c_str(), NAPI_AUTO_LENGTH, &n);
+        napi_set_named_property(env, value, key, n);
+    };
+    setInt("busNum", deviceInfo.busNum);
+    setInt("devAddress", deviceInfo.devAddress);
+    setStr("serial", deviceInfo.serial);
+    setStr("name", deviceInfo.name);
+    setStr("manufacturerName", deviceInfo.manufacturerName);
+    setStr("productName", deviceInfo.productName);
+    setStr("version", deviceInfo.version);
+    setInt("vendorId", deviceInfo.vendorId);
+    setInt("productId", deviceInfo.productId);
+    setInt("clazz", deviceInfo.clazz);
+    setInt("subClass", deviceInfo.subClass);
+    setInt("protocol", deviceInfo.protocol);
+    napi_value nStates = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, deviceInfo.states, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    napi_value jsConfigs = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, deviceInfo.configs.size(), &jsConfigs));
+    for (size_t i = 0; i < deviceInfo.configs.size(); i++) {
+        napi_value item = UsbConfigurationInfoToJsObj(env, deviceInfo.configs[i]);
+        NAPI_CALL(env, napi_set_element(env, jsConfigs, i, item));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, value, "configs", jsConfigs));
+    return value;
 }
 
 napi_value UsbManagerAddon::SetExternalStorageDeviceMountPolicy(napi_env env, napi_callback_info info)

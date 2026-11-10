@@ -613,6 +613,146 @@ HWTEST_F(UsbManagerProxyTest, TestIsExternalStorageInterceptEnableFail, TestSize
 }
 
 /**
+ * @tc.name: TestSetUsbInterceptEnableSuc
+ * @tc.desc: Test SetUsbInterceptEnable success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestSetUsbInterceptEnableSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = proxy_->SetUsbInterceptEnable(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetUsbInterceptEnableFail
+ * @tc.desc: Test SetUsbInterceptEnable without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestSetUsbInterceptEnableFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    data.WriteBool(true);
+
+    int32_t ret = proxy_->SetUsbInterceptEnable(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsUsbInterceptEnableSuc
+ * @tc.desc: Test IsUsbInterceptEnable func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestIsUsbInterceptEnableSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+
+    bool isEnabled = false;
+    int32_t ret = proxy_->IsUsbInterceptEnable(data, isEnabled);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(isEnabled);
+}
+
+/**
+ * @tc.name: TestIsUsbInterceptEnableFail
+ * @tc.desc: Test IsUsbInterceptEnable func without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestIsUsbInterceptEnableFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+
+    bool isEnabled = false;
+    int32_t ret = proxy_->IsUsbInterceptEnable(data, isEnabled);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_FALSE(isEnabled);
+}
+
+/**
+ * @tc.name: TestSetUsbDeviceStatesSuc
+ * @tc.desc: Test SetUsbDeviceStates success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestSetUsbDeviceStatesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    USBDeviceConfigInfo config;
+    config.busNum = 1;
+    config.devAddr = 2;
+    ASSERT_TRUE(config.Marshalling(data));
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetUsbDeviceStates(data);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetUsbDeviceStatesFail
+ * @tc.desc: Test SetUsbDeviceStates without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestSetUsbDeviceStatesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    USBDeviceConfigInfo config;
+    config.busNum = 1;
+    config.devAddr = 2;
+    ASSERT_TRUE(config.Marshalling(data));
+    data.WriteBool(true);
+    int32_t ret = proxy_->SetUsbDeviceStates(data);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetUsbDeviceInfosFail
+ * @tc.desc: Test GetUsbDeviceInfos without enable edm service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, TestGetUsbDeviceInfosFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    data.WriteParcelable(&admin);
+    std::vector<UsbDeviceInfo> result;
+    int32_t ret = proxy_->GetUsbDeviceInfos(data, result);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+    ASSERT_TRUE(result.empty());
+}
+
+/**
  * @tc.name: TestSetExternalStorageDeviceMountPolicySuc
  * @tc.desc: Test SetExternalStorageDeviceMountPolicy success func.
  * @tc.type: FUNC

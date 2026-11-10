@@ -24,6 +24,7 @@
 #include "external_storage_device_info.h"
 #include "policy_changed_event.h"
 #include "sms_receive_info.h"
+#include "usb_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -147,6 +148,10 @@ void EnterpriseAdminStub::InitOtherHandleFuncs()
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnSmsReceivedInner(code, data, reply);
         };
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_USB_DEVICE_ADDED] =
+        [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
+            return OnUsbDeviceAddedInner(code, data, reply);
+        };
 }
 
 int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply,
@@ -175,6 +180,17 @@ bool EnterpriseAdminStub::OnSmsReceivedInner(uint32_t code, MessageParcel& data,
         return false;
     }
     return OnSmsReceived(*smsInfo);
+}
+
+bool EnterpriseAdminStub::OnUsbDeviceAddedInner(uint32_t code, MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnUsbDeviceAddedInner");
+    UsbDeviceInfo usbDeviceInfo;
+    if (!UsbDeviceInfo::Unmarshalling(data, usbDeviceInfo)) {
+        EDMLOGE("OnUsbDeviceAddedInner read usbDeviceInfo failed");
+        return false;
+    }
+    return OnUsbDeviceAdded(usbDeviceInfo);
 }
 
 bool EnterpriseAdminStub::OnAdminInner(uint32_t code, MessageParcel& data, MessageParcel& reply)

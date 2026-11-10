@@ -52,6 +52,8 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
                 EDM_OOBE_FINISHED_EVENT, EDM_OOBE_FINISHED_PERMISSION);
         case ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE:
             return std::make_shared<NullEventAdapter>();
+        case ManagedEvent::USB_DEVICE_ADDED:
+            return std::make_shared<NullEventAdapter>();
         case ManagedEvent::PASSWORD_FAILED:
 #ifdef USERIAM_EDM_ENABLE
             return std::make_shared<UserAuthEventAdapter>(manager);

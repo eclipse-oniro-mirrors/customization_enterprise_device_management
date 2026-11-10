@@ -103,6 +103,12 @@ bool UnmountExternalStorageDeviceStrategy::ExecuteImpl(const sptr<EnterpriseAdmi
     return proxy->OnUnmountExternalStorageDevice(deviceInfo_);
 }
 
+bool UsbDeviceAddedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+{
+    EDMLOGI("UsbDeviceAddedStrategy::ExecuteImpl");
+    return proxy->OnUsbDeviceAdded(usbDeviceInfo_);
+}
+
 // PasswordFailed策略
 bool PasswordFailedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
 {

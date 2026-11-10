@@ -50,6 +50,7 @@ private:
     void RegisterAccountStrategies();
     void RegisterDeviceStrategies();
     void RegisterUnmountExternalStorageDeviceStrategies();
+    void RegisterUsbDeviceAddedStrategies();
     void RegisterPasswordFailedStrategies();
     void RegisterSmsReceivedStrategies();
     void ParseSmsContent(const EventFwk::Want &want, std::string &content);
