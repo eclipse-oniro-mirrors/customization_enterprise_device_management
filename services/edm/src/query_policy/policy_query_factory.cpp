@@ -34,7 +34,6 @@
 
 #ifdef TELEPHONY_EDM_ENABLE
 #include "telephony_call_policy_query.h"
-#include "is_allowed_telephony_call_query.h"
 #endif
 
 #ifdef USB_SERVICE_EDM_ENABLE
@@ -211,8 +210,6 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomAppManageQuery(uin
 #ifdef TELEPHONY_EDM_ENABLE
         case EdmInterfaceCode::TELEPHONY_CALL_POLICY:
             return std::make_shared<TelephonyCallPolicyQuery>();
-        case EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL:
-            return std::make_shared<IsAllowedTelephonyCallQuery>();
 #endif
         case EdmInterfaceCode::GET_BUNDLE_INFO_LIST:
             return std::make_shared<InstalledBundleInfoListQuery>();

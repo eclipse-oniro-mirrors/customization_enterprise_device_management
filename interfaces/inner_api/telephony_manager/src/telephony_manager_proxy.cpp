@@ -126,36 +126,6 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(MessageParcel &data, std::ve
     return ERR_OK;
 }
 
-bool TelephonyManagerProxy::IsAllowedTelephonyCall(const std::string &callType, const std::string &number)
-{
-    EDMLOGI("TelephonyManagerProxy::IsAllowedTelephonyCall");
-    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
-    if (proxy == nullptr) {
-        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
-        return true;
-    }
-    if (!proxy->IsEdmEnabled()) {
-        EDMLOGI("The device is not under control.");
-        return true;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
-    data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
-    data.WriteString(callType);
-    data.WriteString(number);
-    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, data, reply);
-    if (ret != ERR_OK) {
-        EDMLOGW("TelephonyManagerProxy:IsAllowedTelephonyCall GetPolicyNew fail. %{public}d", ret);
-        return true;
-    }
-    bool isAllowed = true;
-    reply.ReadBool(isAllowed);
-    EDMLOGI("TelephonyManagerProxy:IsAllowedTelephonyCall result=%{public}d", isAllowed);
-    return isAllowed;
-}
-
 int32_t TelephonyManagerProxy::HangupCalling(MessageParcel &data)
 {
     EDMLOGD("TelephonyManagerProxy::HangupCalling.");
