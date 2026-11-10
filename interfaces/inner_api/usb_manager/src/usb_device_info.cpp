@@ -46,18 +46,18 @@ bool ReadVectorSize(Parcel &parcel, uint32_t &size)
 bool USBInterfaceInfo::Marshalling(Parcel &parcel) const
 {
     return parcel.WriteInt32(id) && parcel.WriteInt32(protocol) && parcel.WriteInt32(clazz) &&
-        parcel.WriteInt32(subClass) && parcel.WriteString(name) && parcel.WriteBool(states);
+        parcel.WriteInt32(subClass) && parcel.WriteString(name) && parcel.WriteBool(isMount);
 }
 
 bool USBInterfaceInfo::Unmarshalling(Parcel &parcel, USBInterfaceInfo &info)
 {
     return parcel.ReadInt32(info.id) && parcel.ReadInt32(info.protocol) && parcel.ReadInt32(info.clazz) &&
-        parcel.ReadInt32(info.subClass) && parcel.ReadString(info.name) && parcel.ReadBool(info.states);
+        parcel.ReadInt32(info.subClass) && parcel.ReadString(info.name) && parcel.ReadBool(info.isMount);
 }
 
 bool USBConfigurationInfo::Marshalling(Parcel &parcel) const
 {
-    if (!parcel.WriteInt32(id) || !parcel.WriteString(name) || !parcel.WriteBool(states)) {
+    if (!parcel.WriteInt32(id) || !parcel.WriteString(name) || !parcel.WriteBool(isMount)) {
         return false;
     }
     if (!WriteVectorSize(parcel, interfaces.size())) {
@@ -73,7 +73,7 @@ bool USBConfigurationInfo::Marshalling(Parcel &parcel) const
 
 bool USBConfigurationInfo::Unmarshalling(Parcel &parcel, USBConfigurationInfo &info)
 {
-    if (!parcel.ReadInt32(info.id) || !parcel.ReadString(info.name) || !parcel.ReadBool(info.states)) {
+    if (!parcel.ReadInt32(info.id) || !parcel.ReadString(info.name) || !parcel.ReadBool(info.isMount)) {
         return false;
     }
     uint32_t size = 0;
@@ -94,13 +94,13 @@ bool USBConfigurationInfo::Unmarshalling(Parcel &parcel, USBConfigurationInfo &i
 
 bool USBDeviceConfigInfo::Marshalling(Parcel &parcel) const
 {
-    return parcel.WriteInt32(busNum) && parcel.WriteInt32(devAddr) && parcel.WriteBool(hasConfigId) &&
+    return parcel.WriteInt32(busNum) && parcel.WriteInt32(devAddress) && parcel.WriteBool(hasConfigId) &&
         parcel.WriteInt32(configId) && parcel.WriteBool(hasInterfaceId) && parcel.WriteInt32(interfaceId);
 }
 
 bool USBDeviceConfigInfo::Unmarshalling(Parcel &parcel, USBDeviceConfigInfo &info)
 {
-    return parcel.ReadInt32(info.busNum) && parcel.ReadInt32(info.devAddr) && parcel.ReadBool(info.hasConfigId) &&
+    return parcel.ReadInt32(info.busNum) && parcel.ReadInt32(info.devAddress) && parcel.ReadBool(info.hasConfigId) &&
         parcel.ReadInt32(info.configId) && parcel.ReadBool(info.hasInterfaceId) &&
         parcel.ReadInt32(info.interfaceId);
 }
@@ -111,7 +111,7 @@ bool UsbDeviceInfo::Marshalling(Parcel &parcel) const
         !parcel.WriteString(name) || !parcel.WriteString(manufacturerName) || !parcel.WriteString(productName) ||
         !parcel.WriteString(version) || !parcel.WriteInt32(vendorId) || !parcel.WriteInt32(productId) ||
         !parcel.WriteInt32(clazz) || !parcel.WriteInt32(subClass) || !parcel.WriteInt32(protocol) ||
-        !parcel.WriteBool(states)) {
+        !parcel.WriteBool(isMount)) {
         return false;
     }
     if (!WriteVectorSize(parcel, configs.size())) {
@@ -131,7 +131,7 @@ bool UsbDeviceInfo::Unmarshalling(Parcel &parcel, UsbDeviceInfo &info)
         !parcel.ReadString(info.name) || !parcel.ReadString(info.manufacturerName) ||
         !parcel.ReadString(info.productName) || !parcel.ReadString(info.version) ||
         !parcel.ReadInt32(info.vendorId) || !parcel.ReadInt32(info.productId) || !parcel.ReadInt32(info.clazz) ||
-        !parcel.ReadInt32(info.subClass) || !parcel.ReadInt32(info.protocol) || !parcel.ReadBool(info.states)) {
+        !parcel.ReadInt32(info.subClass) || !parcel.ReadInt32(info.protocol) || !parcel.ReadBool(info.isMount)) {
         return false;
     }
     uint32_t size = 0;

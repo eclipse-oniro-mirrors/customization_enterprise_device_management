@@ -703,7 +703,7 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbDeviceStatesSuc, TestSize.Level1)
     data.WriteParcelable(&admin);
     USBDeviceConfigInfo config;
     config.busNum = 1;
-    config.devAddr = 2;
+    config.devAddress = 2;
     ASSERT_TRUE(config.Marshalling(data));
     data.WriteBool(true);
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
@@ -727,7 +727,7 @@ HWTEST_F(UsbManagerProxyTest, TestSetUsbDeviceStatesFail, TestSize.Level1)
     data.WriteParcelable(&admin);
     USBDeviceConfigInfo config;
     config.busNum = 1;
-    config.devAddr = 2;
+    config.devAddress = 2;
     ASSERT_TRUE(config.Marshalling(data));
     data.WriteBool(true);
     int32_t ret = proxy_->SetUsbDeviceStates(data);

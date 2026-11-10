@@ -28,9 +28,9 @@ namespace EDM {
  * (UsbServerTypes.idl UsbDeviceInfo / UsbInterfaceInfo).
  *
  * Field notes vs Kit UsbDeviceInfo:
- * - authorized ≡ Kit states
+ * - authorized ≡ Kit isMount
  * - deviceClass ≡ Kit clazz; interfaceClass ≡ Kit interface clazz
- * - devAddr ≡ Kit UsbDeviceInfo.devAddress / USBDeviceConfigInfo.devAddr
+ * - devAddr ≡ Kit UsbDeviceInfo.devAddress / USBDeviceConfigInfo.devAddress
  * - deviceId / isHub / alternateSetting: Kit does not expose
  * - USB has no configs[] / name / version: Kit wraps interfaces in one config
  */
@@ -40,7 +40,7 @@ struct UsbFlatInterfaceInfo {
     int32_t subClass = 0;
     int32_t protocol = 0;
     int32_t alternateSetting = 0; // Kit ignores
-    bool authorized = false;      // ≡ Kit states
+    bool authorized = false;      // ≡ Kit isMount
 };
 
 struct UsbFlatDeviceInfo {
@@ -56,7 +56,7 @@ struct UsbFlatDeviceInfo {
     std::string manufacturerName;
     std::string productName;
     bool isHub = false;      // Kit ignores; hub policy is USB-side
-    bool authorized = false; // ≡ Kit states
+    bool authorized = false; // ≡ Kit isMount
     std::vector<UsbFlatInterfaceInfo> interfaces;
 };
 

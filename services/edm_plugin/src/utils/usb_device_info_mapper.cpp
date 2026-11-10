@@ -26,7 +26,7 @@ USBInterfaceInfo ToKitInterface(const UsbFlatInterfaceInfo &flat)
     iface.clazz = flat.interfaceClass;
     iface.subClass = flat.subClass;
     iface.name = "";
-    iface.states = flat.authorized;
+    iface.isMount = flat.authorized;
     return iface;
 }
 
@@ -35,7 +35,7 @@ USBConfigurationInfo BuildSyntheticConfig(const UsbFlatDeviceInfo &flat)
     USBConfigurationInfo config;
     config.id = USB_SYNTHETIC_CONFIG_ID;
     config.name = "";
-    config.states = flat.authorized;
+    config.isMount = flat.authorized;
     config.interfaces.reserve(flat.interfaces.size());
     for (const auto &flatIface : flat.interfaces) {
         config.interfaces.emplace_back(ToKitInterface(flatIface));
@@ -59,7 +59,7 @@ UsbDeviceInfo UsbDeviceInfoMapper::ToKitDeviceInfo(const UsbFlatDeviceInfo &flat
     info.clazz = flat.deviceClass;
     info.subClass = flat.subClass;
     info.protocol = flat.protocol;
-    info.states = flat.authorized;
+    info.isMount = flat.authorized;
     info.configs = {BuildSyntheticConfig(flat)};
     return info;
 }

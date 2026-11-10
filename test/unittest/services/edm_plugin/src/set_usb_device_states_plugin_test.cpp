@@ -56,7 +56,7 @@ HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyDeviceLevelCallUsb, Tes
     MessageParcel reply;
     USBDeviceConfigInfo config;
     config.busNum = 1;
-    config.devAddr = 2;
+    config.devAddress = 2;
     ASSERT_TRUE(config.Marshalling(data));
     data.WriteBool(true);
     std::shared_ptr<IPlugin> plugin = std::make_shared<SetUsbDeviceStatesPlugin>();
@@ -81,7 +81,7 @@ HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyMismatchOptionalFail, T
     MessageParcel reply;
     USBDeviceConfigInfo config;
     config.busNum = 1;
-    config.devAddr = 2;
+    config.devAddress = 2;
     config.hasConfigId = true;
     config.configId = 1;
     ASSERT_TRUE(config.Marshalling(data));

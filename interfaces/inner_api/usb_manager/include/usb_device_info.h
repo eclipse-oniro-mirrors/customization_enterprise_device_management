@@ -31,7 +31,7 @@ struct USBInterfaceInfo {
     int32_t clazz = 0;
     int32_t subClass = 0;
     std::string name;
-    bool states = false;
+    bool isMount = false;
 
     bool Marshalling(Parcel &parcel) const;
     static bool Unmarshalling(Parcel &parcel, USBInterfaceInfo &info);
@@ -40,7 +40,7 @@ struct USBInterfaceInfo {
 struct USBConfigurationInfo {
     int32_t id = 0;
     std::string name;
-    bool states = false;
+    bool isMount = false;
     std::vector<USBInterfaceInfo> interfaces;
 
     bool Marshalling(Parcel &parcel) const;
@@ -49,7 +49,7 @@ struct USBConfigurationInfo {
 
 struct USBDeviceConfigInfo {
     int32_t busNum = 0;
-    int32_t devAddr = 0;
+    int32_t devAddress = 0;
     bool hasConfigId = false;
     int32_t configId = 0;
     bool hasInterfaceId = false;
@@ -79,7 +79,7 @@ public:
     int32_t clazz = 0;
     int32_t subClass = 0;
     int32_t protocol = 0;
-    bool states = false;
+    bool isMount = false;
     std::vector<USBConfigurationInfo> configs;
 };
 

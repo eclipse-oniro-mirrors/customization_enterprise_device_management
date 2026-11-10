@@ -76,14 +76,14 @@ HWTEST_F(UsbDeviceInfoMapperTest, ToKitDeviceInfo_FlatFields_Mapped, TestSize.Le
     EXPECT_EQ(kit.clazz, 8);
     EXPECT_EQ(kit.subClass, 6);
     EXPECT_EQ(kit.protocol, 80);
-    EXPECT_TRUE(kit.states);
+    EXPECT_TRUE(kit.isMount);
     ASSERT_EQ(kit.configs.size(), 1u);
     EXPECT_EQ(kit.configs[0].id, USB_SYNTHETIC_CONFIG_ID);
-    EXPECT_TRUE(kit.configs[0].states);
+    EXPECT_TRUE(kit.configs[0].isMount);
     ASSERT_EQ(kit.configs[0].interfaces.size(), 1u);
     EXPECT_EQ(kit.configs[0].interfaces[0].id, 0);
     EXPECT_EQ(kit.configs[0].interfaces[0].clazz, 8);
-    EXPECT_TRUE(kit.configs[0].interfaces[0].states);
+    EXPECT_TRUE(kit.configs[0].interfaces[0].isMount);
 }
 
 /**

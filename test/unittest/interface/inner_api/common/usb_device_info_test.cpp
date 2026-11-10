@@ -52,18 +52,18 @@ UsbDeviceInfo UsbDeviceInfoTest::BuildValidUsbDeviceInfo() const
     info.clazz = 8;
     info.subClass = 6;
     info.protocol = 80;
-    info.states = true;
+    info.isMount = true;
     USBInterfaceInfo iface;
     iface.id = 0;
     iface.protocol = 80;
     iface.clazz = 8;
     iface.subClass = 6;
     iface.name = "ifc";
-    iface.states = true;
+    iface.isMount = true;
     USBConfigurationInfo config;
     config.id = 1;
     config.name = "cfg";
-    config.states = true;
+    config.isMount = true;
     config.interfaces = {iface};
     info.configs = {config};
     return info;
@@ -85,11 +85,11 @@ HWTEST_F(UsbDeviceInfoTest, Marshalling_ValidUsbDeviceInfo_Success, TestSize.Lev
     EXPECT_EQ(dst.devAddress, 2);
     EXPECT_EQ(dst.serial, TEST_SERIAL);
     EXPECT_EQ(dst.name, TEST_NAME);
-    EXPECT_TRUE(dst.states);
+    EXPECT_TRUE(dst.isMount);
     ASSERT_EQ(dst.configs.size(), 1u);
     ASSERT_EQ(dst.configs[0].interfaces.size(), 1u);
     EXPECT_EQ(dst.configs[0].interfaces[0].id, 0);
-    EXPECT_TRUE(dst.configs[0].interfaces[0].states);
+    EXPECT_TRUE(dst.configs[0].interfaces[0].isMount);
 }
 
 /**
@@ -106,7 +106,7 @@ HWTEST_F(UsbDeviceInfoTest, Marshalling_EmptyFields_Success, TestSize.Level1)
     ASSERT_TRUE(UsbDeviceInfo::Unmarshalling(parcel, dst));
     EXPECT_TRUE(dst.serial.empty());
     EXPECT_TRUE(dst.configs.empty());
-    EXPECT_FALSE(dst.states);
+    EXPECT_FALSE(dst.isMount);
 }
 
 /**
@@ -170,7 +170,7 @@ HWTEST_F(UsbDeviceInfoTest, Marshalling_ValidUsbDeviceConfigInfo_Success, TestSi
 {
     USBDeviceConfigInfo src;
     src.busNum = 1;
-    src.devAddr = 2;
+    src.devAddress = 2;
     src.hasConfigId = true;
     src.configId = 3;
     src.hasInterfaceId = true;
@@ -180,7 +180,7 @@ HWTEST_F(UsbDeviceInfoTest, Marshalling_ValidUsbDeviceConfigInfo_Success, TestSi
     USBDeviceConfigInfo dst;
     ASSERT_TRUE(USBDeviceConfigInfo::Unmarshalling(parcel, dst));
     EXPECT_EQ(dst.busNum, 1);
-    EXPECT_EQ(dst.devAddr, 2);
+    EXPECT_EQ(dst.devAddress, 2);
     EXPECT_TRUE(dst.hasConfigId);
     EXPECT_EQ(dst.configId, 3);
     EXPECT_TRUE(dst.hasInterfaceId);

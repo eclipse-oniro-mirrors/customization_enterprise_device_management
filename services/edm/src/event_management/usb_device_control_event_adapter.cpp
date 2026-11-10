@@ -140,7 +140,7 @@ UsbDeviceInfo UsbDeviceControlEventAdapter::ToKitDeviceInfo(const USB::UsbDevice
     info.clazz = device.GetClass();
     info.subClass = device.GetSubclass();
     info.protocol = device.GetProtocol();
-    info.states = (status != USB::AuthorizeStatus::DISABLED);
+    info.isMount = (status != USB::AuthorizeStatus::DISABLED);
 
     int32_t configCount = device.GetConfigCount();
     info.configs.reserve(static_cast<size_t>(configCount));
@@ -152,7 +152,7 @@ UsbDeviceInfo UsbDeviceControlEventAdapter::ToKitDeviceInfo(const USB::UsbDevice
         USBConfigurationInfo kitConfig;
         kitConfig.id = usbConfig.GetId();
         kitConfig.name = usbConfig.GetName();
-        kitConfig.states = info.states;
+        kitConfig.isMount = info.isMount;
         for (auto &usbIface : usbConfig.GetInterfaces()) {
             USBInterfaceInfo kitIface;
             kitIface.id = usbIface.GetId();
@@ -160,7 +160,7 @@ UsbDeviceInfo UsbDeviceControlEventAdapter::ToKitDeviceInfo(const USB::UsbDevice
             kitIface.subClass = usbIface.GetSubClass();
             kitIface.protocol = usbIface.GetProtocol();
             kitIface.name = "";
-            kitIface.states = usbIface.GetAuthorizeStatus();
+            kitIface.isMount = usbIface.GetAuthorizeStatus();
             kitConfig.interfaces.emplace_back(kitIface);
         }
         info.configs.emplace_back(std::move(kitConfig));

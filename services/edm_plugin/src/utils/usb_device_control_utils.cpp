@@ -69,14 +69,14 @@ ErrCode UsbDeviceControlUtils::GetUsbDeviceInfos(std::vector<UsbDeviceInfo> &inf
 
 ErrCode UsbDeviceControlUtils::SetUsbDeviceStates(const USBDeviceConfigInfo &config, bool isEnable)
 {
-    if (config.busNum < 0 || config.devAddr < 0 ||
+    if (config.busNum < 0 || config.devAddress < 0 ||
         config.busNum > static_cast<int32_t>(UINT8_MAX) ||
-        config.devAddr > static_cast<int32_t>(UINT8_MAX)) {
-        EDMLOGE("UsbDeviceControlUtils::SetUsbDeviceStates busNum/devAddr out of uint8 range");
+        config.devAddress > static_cast<int32_t>(UINT8_MAX)) {
+        EDMLOGE("UsbDeviceControlUtils::SetUsbDeviceStates busNum/devAddress out of uint8 range");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     uint8_t busNum = static_cast<uint8_t>(config.busNum);
-    uint8_t devAddr = static_cast<uint8_t>(config.devAddr);
+    uint8_t devAddr = static_cast<uint8_t>(config.devAddress);
     if (UsbDeviceInfoMapper::IsInterfaceAuthorize(config)) {
         if (config.configId < 0 || config.interfaceId < 0 ||
             config.configId > static_cast<int32_t>(UINT8_MAX) ||

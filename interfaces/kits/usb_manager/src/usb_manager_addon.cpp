@@ -309,8 +309,8 @@ napi_value UsbManagerAddon::SetUsbDeviceStates(napi_env env, napi_callback_info 
 bool UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config)
 {
     if (!JsObjectToInt(env, value, "busNum", true, config.busNum) ||
-        !JsObjectToInt(env, value, "devAddr", true, config.devAddr)) {
-        EDMLOGE("GetUsbDeviceConfigInfoFromNAPI busNum/devAddr parse error");
+        !JsObjectToInt(env, value, "devAddress", true, config.devAddress)) {
+        EDMLOGE("GetUsbDeviceConfigInfoFromNAPI busNum/devAddress parse error");
         return false;
     }
     bool hasConfigId = false;
@@ -352,8 +352,8 @@ napi_value UsbManagerAddon::UsbInterfaceInfoToJsObj(napi_env env, const USBInter
     NAPI_CALL(env, napi_create_string_utf8(env, iface.name.c_str(), NAPI_AUTO_LENGTH, &nName));
     NAPI_CALL(env, napi_set_named_property(env, value, "name", nName));
     napi_value nStates = nullptr;
-    NAPI_CALL(env, napi_get_boolean(env, iface.states, &nStates));
-    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    NAPI_CALL(env, napi_get_boolean(env, iface.isMount, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "isMount", nStates));
     return value;
 }
 
@@ -368,8 +368,8 @@ napi_value UsbManagerAddon::UsbConfigurationInfoToJsObj(napi_env env, const USBC
     NAPI_CALL(env, napi_create_string_utf8(env, config.name.c_str(), NAPI_AUTO_LENGTH, &nName));
     NAPI_CALL(env, napi_set_named_property(env, value, "name", nName));
     napi_value nStates = nullptr;
-    NAPI_CALL(env, napi_get_boolean(env, config.states, &nStates));
-    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    NAPI_CALL(env, napi_get_boolean(env, config.isMount, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "isMount", nStates));
     napi_value jsIfaces = nullptr;
     NAPI_CALL(env, napi_create_array_with_length(env, config.interfaces.size(), &jsIfaces));
     for (size_t i = 0; i < config.interfaces.size(); i++) {
@@ -407,8 +407,8 @@ napi_value UsbManagerAddon::UsbDeviceInfoToJsObj(napi_env env, const UsbDeviceIn
     setInt("subClass", deviceInfo.subClass);
     setInt("protocol", deviceInfo.protocol);
     napi_value nStates = nullptr;
-    NAPI_CALL(env, napi_get_boolean(env, deviceInfo.states, &nStates));
-    NAPI_CALL(env, napi_set_named_property(env, value, "states", nStates));
+    NAPI_CALL(env, napi_get_boolean(env, deviceInfo.isMount, &nStates));
+    NAPI_CALL(env, napi_set_named_property(env, value, "isMount", nStates));
     napi_value jsConfigs = nullptr;
     NAPI_CALL(env, napi_create_array_with_length(env, deviceInfo.configs.size(), &jsConfigs));
     for (size_t i = 0; i < deviceInfo.configs.size(); i++) {
