@@ -139,6 +139,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT,
     EdmInterfaceCode::SET_KEY_CODE_POLICYS,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY,
+    EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL,
     EdmInterfaceCode::GET_CALL_LOGS,
     EdmInterfaceCode::ALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_WIFI_LIST,

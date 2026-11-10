@@ -317,7 +317,7 @@ namespace EdmConstants {
     } // namespace MobileData
 
     namespace CallPolicy {
-        constexpr uint32_t NUMBER_LIST_MAX_SIZE = 1000;
+        constexpr uint32_t NUMBER_LIST_MAX_SIZE = 10000;
         const std::string OUTGOING = "outgoing";
         const std::string INCOMING = "incoming";
     }
