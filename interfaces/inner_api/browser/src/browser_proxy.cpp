@@ -106,6 +106,14 @@ int32_t BrowserProxy::SetPolicy(const AppExecFwk::ElementName &admin, const std:
 int32_t BrowserProxy::SetManagedBrowserPolicy(MessageParcel &data)
 {
     EDMLOGI("BrowserProxy::SetManagedBrowserPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::MANAGED_BROWSER_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t BrowserProxy::SetManagedBrowserPolicyForceOverride(MessageParcel &data)
+{
+    EDMLOGI("BrowserProxy::SetManagedBrowserPolicyForceOverride");
     std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::MANAGED_BROWSER_POLICY);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);

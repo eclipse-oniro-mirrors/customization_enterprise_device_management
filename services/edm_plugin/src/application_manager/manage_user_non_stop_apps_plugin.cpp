@@ -161,6 +161,11 @@ ErrCode ManageUserNonStopAppsPlugin::HasConflictPolicy(std::vector<ApplicationIn
         EDMLOGW("ManageUserNonStopAppsPlugin superhubBundleName is empty, some conflict will be shadowed");
     }
 
+    std::string parentControlBundleName = IExtInfoManager::parentControlBundleName;
+    if (parentControlBundleName.empty()) {
+        EDMLOGW("ManageUserNonStopAppsPlugin parentControlBundleName is empty, some conflict will be shadowed");
+    }
+
     std::vector<int32_t> ids;
     ErrCode accountRet = std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(ids);
     if (FAILED(accountRet) || ids.empty()) {
@@ -177,6 +182,18 @@ ErrCode ManageUserNonStopAppsPlugin::HasConflictPolicy(std::vector<ApplicationIn
         if (std::find_if(nonStopApps.begin(), nonStopApps.end(), [&](const ApplicationInstance &nonStopApp) {
             return nonStopApp.accountId == accountId && nonStopApp.bundleName == superhubBundleName;
         }) != nonStopApps.end()) {
+            hasConflict = true;
+            break;
+        }
+        std::string disableParentControlValue;
+        IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOW_PARENT_CONTROL,
+            disableParentControlValue, accountId);
+        if (disableParentControlValue != "true") {
+            continue;
+        }
+        if (std::find_if(nonStopApps.begin(), nonStopApps.end(), [&](const ApplicationInstance& nonStopApp) {
+            return nonStopApp.accountId == accountId && nonStopApp.bundleName == parentControlBundleName;
+            }) != nonStopApps.end()) {
             hasConflict = true;
             break;
         }

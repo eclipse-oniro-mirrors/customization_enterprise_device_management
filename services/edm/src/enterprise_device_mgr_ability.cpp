@@ -617,6 +617,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
     }
     ExtInfoManager::GetInstance()->GetSuperHubInfo();
     ExtInfoManager::GetInstance()->GetAppUidMap();
+    ExtInfoManager::GetInstance()->GetParentControlInfo();
     InitAgTask();
     CheckAndReportInstalledBundleInfoOnStart();
     CleanHapTempDirectory();

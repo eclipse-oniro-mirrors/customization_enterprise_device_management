@@ -40,6 +40,8 @@ public:
     static bool IsOriginalUTEnv();
     static void SetEdmServiceEnable();
     static void SetEdmServiceDisable();
+    static void SetEdmExtServiceEnable();
+    static void SetEdmExtServiceDisable();
     static void SetBluetoothEnable();
     static void SetBluetoothDisable();
     static void SetEdmPermissions();

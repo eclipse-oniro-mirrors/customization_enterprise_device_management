@@ -192,11 +192,13 @@ static ErrCode ReadSmsMessagesFromResultSet(
     int slotIdColumn = -1;
     int contentColumn = -1;
     int receiverNumberColumn = -1;
+    int senderNumberColumn = -1;
     resultset->GetColumnIndex(SMS_FIELD_TIME, timeColumn);
     resultset->GetColumnIndex(SMS_FIELD_IS_SENDER, isSenderColumn);
     resultset->GetColumnIndex(SMS_FIELD_SLOT_ID, slotIdColumn);
     resultset->GetColumnIndex(SMS_FIELD_CONTENT, contentColumn);
     resultset->GetColumnIndex(SMS_FIELD_RECEIVER_NUMBER, receiverNumberColumn);
+    resultset->GetColumnIndex(SMS_FIELD_SENDER_NUMBER, senderNumberColumn);
     int isSenderValue = 0;
     int ret = resultset->GoToFirstRow();
     while (ret == 0) {
@@ -206,7 +208,9 @@ static ErrCode ReadSmsMessagesFromResultSet(
         info.isSender = (isSenderValue != 0);
         resultset->GetInt(slotIdColumn, info.slotId);
         resultset->GetString(contentColumn, info.content);
-        resultset->GetString(receiverNumberColumn, info.telephoneNumber);
+        // 本机发出时对端为接收方，本机接收时对端为发送方
+        int telephoneNumberColumn = info.isSender ? senderNumberColumn : receiverNumberColumn;
+        resultset->GetString(telephoneNumberColumn, info.telephoneNumber);
         messages.push_back(info);
         ret = resultset->GoToNextRow();
     }
@@ -223,7 +227,7 @@ ErrCode EdmDataAbilityUtils::GetSmsMessages(int64_t startTime, int64_t endTime,
     }
     Uri uri(SMS_MMS_INFO_URI);
     std::vector<std::string> columns{SMS_FIELD_TIME, SMS_FIELD_IS_SENDER, SMS_FIELD_SLOT_ID,
-        SMS_FIELD_CONTENT, SMS_FIELD_RECEIVER_NUMBER};
+        SMS_FIELD_CONTENT, SMS_FIELD_RECEIVER_NUMBER, SMS_FIELD_SENDER_NUMBER};
     auto predicates = BuildSmsPredicates(startTime, endTime, telephoneNumber);
     auto resultset = dataShareHelper->Query(uri, predicates, columns);
     if (resultset == nullptr) {
