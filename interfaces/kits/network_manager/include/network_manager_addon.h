@@ -130,6 +130,7 @@ private:
     static napi_value GetSharedPathList(napi_env env, napi_callback_info info);
     static napi_value ConvertSharedPathListToJS(
         napi_env env, const std::vector<PathSharedData> &result);
+    static napi_value ClearDnsCache(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS
