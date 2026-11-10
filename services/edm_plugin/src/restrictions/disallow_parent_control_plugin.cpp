@@ -84,12 +84,12 @@ ErrCode DisallowParentControlPlugin::SetOtherModulePolicy(bool data, int32_t use
     auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (iBundleMgr == nullptr) {
         EDMLOGE("DisallowParentControlPlugin can not get iBundleMgr");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     ErrCode ret = iBundleMgr->SetApplicationEnabled(IExtInfoManager::parentControlBundleName, !data, userId);
     if (FAILED(ret)) {
         EDMLOGE("DisallowParentControlPlugin SetApplicationEnabled failed:%{public}d", ret);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
 }
