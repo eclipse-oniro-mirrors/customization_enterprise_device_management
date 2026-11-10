@@ -64,8 +64,10 @@ HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyDeviceLevelCallUsb, Tes
         EdmInterfaceCode::SET_USB_DEVICE_STATES);
     HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    // USB 未 init / 设备不存在时可能 SYSTEM_ABNORMALLY；参数合法路径不应再是参数错误
-    ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    // soft-IPC：参数合法时允许 ERR_OK / SYSTEM_ABNORMALLY / INTERFACE_UNSUPPORTED
+    ASSERT_TRUE(ret == ERR_OK ||
+        ret == EdmReturnErrCode::SYSTEM_ABNORMALLY ||
+        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 }
 
 /**

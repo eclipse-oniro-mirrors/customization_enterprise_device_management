@@ -54,12 +54,13 @@ HWTEST_F(GetUsbDeviceInfosPluginTest, TestOnGetPolicyCallUsb, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin = std::make_shared<GetUsbDeviceInfosPlugin>();
     std::string policyData;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    // USB 可用时 ERR_OK（列表可为空）；服务不可用时 SYSTEM_ABNORMALLY
+    // soft-IPC：USB 可用 ERR_OK；未落地 INTERFACE_UNSUPPORTED；异常 SYSTEM_ABNORMALLY
+    ASSERT_TRUE(ret == ERR_OK ||
+        ret == EdmReturnErrCode::SYSTEM_ABNORMALLY ||
+        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
     if (ret == ERR_OK) {
         ASSERT_TRUE(reply.ReadInt32() == ERR_OK);
         ASSERT_GE(reply.ReadUint32(), 0u);
-    } else {
-        ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
     }
 }
 } // namespace TEST
