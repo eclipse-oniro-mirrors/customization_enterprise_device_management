@@ -635,6 +635,9 @@ namespace PolicyName {
     const char* const POLICY_ENTERPRISE_RESET_POLICY = "enterprise_reset_policy";
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
     const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
+    const char* const POLICY_CONTROL_PANEL_RESTRICTED = "control_panel_restricted";
+    const char* const POLICY_CONTROL_PANEL_QUICK_TOGGLE_LIST = "control_panel_quick_toggle_list";
+    const char* const POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST = "control_panel_top_toggle_list";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

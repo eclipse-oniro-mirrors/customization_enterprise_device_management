@@ -339,5 +339,22 @@ int32_t RestrictionsProxy::GetUserRestrictedForAccount(const AppExecFwk::Element
     reply.ReadBool(result);
     return ERR_OK;
 }
+
+int32_t RestrictionsProxy::GetArrayStringPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode,
+    std::vector<std::string> &result)
+{
+    EDMLOGD("RestrictionsProxy::GetArrayStringPolicyImplicitAdmin");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(policyCode, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("RestrictionsProxy::GetArrayStringPolicyImplicitAdmin GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    if (!reply.ReadStringVector(&result)) {
+        EDMLOGW("RestrictionsProxy::GetArrayStringPolicyImplicitAdmin ReadStringVector fail.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

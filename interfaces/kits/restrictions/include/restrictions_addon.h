@@ -68,6 +68,18 @@ private:
     static napi_value GetUserRestricted(napi_env env, napi_callback_info info);
     static napi_value SetUserRestrictionForAccount(napi_env env, napi_callback_info info);
     static napi_value GetUserRestrictedForAccount(napi_env env, napi_callback_info info);
+    static napi_value SetControlPanelRestricted(napi_env env, napi_callback_info info);
+    static napi_value GetControlPanelRestricted(napi_env env, napi_callback_info info);
+    static napi_value SetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info);
+    static napi_value GetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info);
+    static napi_value SetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info);
+    static napi_value GetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info);
+    static void NativeSetControlPanelRestricted(napi_env env, void *data);
+    static void NativeGetControlPanelRestricted(napi_env env, void *data);
+    static void NativeSetControlPanelQuickToggleListForAccount(napi_env env, void *data);
+    static void NativeGetControlPanelQuickToggleListForAccount(napi_env env, void *data);
+    static void NativeSetControlPanelTopToggleListForAccount(napi_env env, void *data);
+    static void NativeGetControlPanelTopToggleListForAccount(napi_env env, void *data);
     static void NativeSetPolicyDisabled(napi_env env, void *data);
     static void NativeIsPolicyDisabled(napi_env env, void *data);
     static void SetPolicyDisabledCommon(AddonMethodSign &addonMethodSign, int policyCode);

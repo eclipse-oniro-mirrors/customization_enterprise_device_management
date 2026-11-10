@@ -255,6 +255,12 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserRestricted", GetUserRestricted),
         DECLARE_NAPI_FUNCTION("setUserRestrictionForAccount", SetUserRestrictionForAccount),
         DECLARE_NAPI_FUNCTION("getUserRestrictedForAccount", GetUserRestrictedForAccount),
+        DECLARE_NAPI_FUNCTION("setControlPanelRestricted", SetControlPanelRestricted),
+        DECLARE_NAPI_FUNCTION("getControlPanelRestricted", GetControlPanelRestricted),
+        DECLARE_NAPI_FUNCTION("setControlPanelQuickToggleListForAccount", SetControlPanelQuickToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("getControlPanelQuickToggleListForAccount", GetControlPanelQuickToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("setControlPanelTopToggleListForAccount", SetControlPanelTopToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("getControlPanelTopToggleListForAccount", GetControlPanelTopToggleListForAccount),
         DECLARE_NAPI_PROPERTY("FeatureForDevice", nFeatureForDevice),
         DECLARE_NAPI_PROPERTY("FeatureForAccount", nFeatureForAccount),
         DECLARE_NAPI_PROPERTY("SettingsForDevice", nSettingsForDevice),
@@ -1363,6 +1369,158 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndSettingsItem(napi_env env, n
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
+}
+
+napi_value RestrictionsAddon::SetControlPanelRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelRestricted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelRestricted";
+    addonMethodSign.argsType = {EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelRestricted,
+        NativeVoidCallbackComplete);
+}
+
+void RestrictionsAddon::NativeSetControlPanelRestricted(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelRestricted called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+}
+
+napi_value RestrictionsAddon::GetControlPanelRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelRestricted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelRestricted";
+    addonMethodSign.argsType = {};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelRestricted,
+        NativeBoolCallbackComplete);
+}
+
+void RestrictionsAddon::NativeGetControlPanelRestricted(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelRestricted called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_RESTRICTED, asyncCallbackInfo->boolRet);
+}
+
+napi_value RestrictionsAddon::SetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelQuickToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelQuickToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelQuickToggleListForAccount,
+        NativeVoidCallbackComplete);
+}
+
+void RestrictionsAddon::NativeSetControlPanelQuickToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelQuickToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST);
+}
+
+napi_value RestrictionsAddon::GetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelQuickToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelQuickToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelQuickToggleListForAccount,
+        NativeArrayStringCallbackComplete);
+}
+
+void RestrictionsAddon::NativeGetControlPanelQuickToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelQuickToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetArrayStringPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
+        asyncCallbackInfo->arrayStringRet);
+}
+
+napi_value RestrictionsAddon::SetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelTopToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelTopToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelTopToggleListForAccount,
+        NativeVoidCallbackComplete);
+}
+
+void RestrictionsAddon::NativeSetControlPanelTopToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelTopToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST);
+}
+
+napi_value RestrictionsAddon::GetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelTopToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelTopToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelTopToggleListForAccount,
+        NativeArrayStringCallbackComplete);
+}
+
+void RestrictionsAddon::NativeGetControlPanelTopToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelTopToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetArrayStringPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
+        asyncCallbackInfo->arrayStringRet);
 }
 
 static napi_module g_restrictionsModule = {

@@ -675,6 +675,12 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
+    {EdmInterfaceCode::CONTROL_PANEL_RESTRICTED, {PolicyName::POLICY_CONTROL_PANEL_RESTRICTED,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST, {PolicyName::POLICY_CONTROL_PANEL_QUICK_TOGGLE_LIST,
+        PolicyDataType::ARRAY_STRING, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST, {PolicyName::POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST,
+        PolicyDataType::ARRAY_STRING, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

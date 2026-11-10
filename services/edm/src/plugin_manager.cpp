@@ -98,6 +98,9 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::VOLUME_DEGREE,
     EdmInterfaceCode::DEFAULT_APPLICATION,
     EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
+    EdmInterfaceCode::CONTROL_PANEL_RESTRICTED,
+    EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
+    EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

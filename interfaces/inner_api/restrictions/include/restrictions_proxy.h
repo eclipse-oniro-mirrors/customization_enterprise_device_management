@@ -53,6 +53,8 @@ public:
         bool disallow, const std::string &permissionTag, uint32_t policyCode);
     int32_t GetUserRestrictedForAccount(const AppExecFwk::ElementName *admin, int32_t accountId,
         int policyCode, const std::string &permissionTag, bool &result);
+    int32_t GetArrayStringPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode,
+        std::vector<std::string> &result);
 private:
     static std::shared_ptr<RestrictionsProxy> instance_;
     static std::once_flag flag_;
