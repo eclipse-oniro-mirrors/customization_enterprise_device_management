@@ -20,9 +20,7 @@ ohos_shared_library("devicesettings") {
     "../common/include",
   ]
 
-  sources = [
-    "./src/device_settings_addon.cpp"
-  ]
+  sources = [ "./src/device_settings_addon.cpp" ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
