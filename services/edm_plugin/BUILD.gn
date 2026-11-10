@@ -122,9 +122,9 @@ ohos_shared_library("device_core_plugin") {
       "./src/bundle_manager/uninstall_plugin.cpp",
       "./src/datetime_manager/disallow_modify_datetime_plugin.cpp",
       "./src/datetime_manager/ntp_server_plugin.cpp",
+      "./src/device_settings/power_mode_settings_plugin.cpp",
       "./src/device_settings/power_policy_plugin.cpp",
       "./src/device_settings/screen_off_time_plugin.cpp",
-      "./src/device_settings/power_mode_settings_plugin.cpp",
       "./src/device_settings/set_device_name_plugin.cpp",
       "./src/device_settings/set_eye_comfort_mode_plugin.cpp",
       "./src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
@@ -457,7 +457,6 @@ ohos_shared_library("communication_plugin") {
         "netmanager_base:netsys_controller",
       ]
       sources += [
-        "./src/network_manager/clear_dns_cache_plugin.cpp",
         "./src/application_manager/query_traffic_stats_plugin.cpp",
         "./src/device_settings/set_network_interface_config_plugin.cpp",
         "./src/network/executer/domain_executer.cpp",
@@ -473,6 +472,7 @@ ohos_shared_library("communication_plugin") {
         "./src/network/rule/domain_chain_rule.cpp",
         "./src/network/rule/firewall_chain_rule.cpp",
         "./src/network/rule/rule_utils.cpp",
+        "./src/network_manager/clear_dns_cache_plugin.cpp",
         "./src/network_manager/disabled_network_interface_plugin.cpp",
         "./src/network_manager/domain_filter_rule_plugin.cpp",
         "./src/network_manager/firewall_rule_plugin.cpp",
@@ -701,9 +701,9 @@ ohos_shared_library("sys_service_plugin") {
       defines += [ "USERIAM_EDM_ENABLE" ]
       sources += [
         "./src/restrictions/fingerprint_auth_plugin.cpp",
+        "./src/security_manager/get_credential_id_plugin.cpp",
         "./src/security_manager/password_last_changed_time_plugin.cpp",
         "./src/security_manager/password_policy_plugin.cpp",
-        "./src/security_manager/get_credential_id_plugin.cpp",
         "./src/security_manager/verify_auth_token_callback.cpp",
       ]
     }
