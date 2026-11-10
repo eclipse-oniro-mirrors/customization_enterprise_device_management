@@ -29,6 +29,7 @@ public:
     int32_t SetPolicy(const AppExecFwk::ElementName &admin, const std::string &appId, const std::string &policyName,
         const std::string &policyValue);
     int32_t SetManagedBrowserPolicy(MessageParcel &data);
+    int32_t SetManagedBrowserPolicyForceOverride(MessageParcel &data);
     int32_t GetManagedBrowserPolicy(MessageParcel &data, void** rawData, int32_t &size);
     int32_t GetSelfManagedBrowserPolicyVersion(int32_t &version);
     int32_t GetSelfManagedBrowserPolicy(void** rawData, int32_t &size);
