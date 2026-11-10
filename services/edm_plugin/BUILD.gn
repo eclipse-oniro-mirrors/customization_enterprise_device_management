@@ -193,6 +193,8 @@ ohos_shared_library("device_core_plugin") {
       sources += [
         "./src/account_manager/set_domain_account_policy_plugin.cpp",
         "./src/restrictions/disable_sudo_plugin.cpp",
+        "./src/restrictions/disallow_screen_record_for_account_plugin.cpp",
+        "./src/restrictions/disallow_screen_shot_for_account_plugin.cpp",
         "./src/restrictions/disallowed_device_sudo_plugin.cpp",
         "./src/restrictions/disallowed_usb_storage_device_write_plugin.cpp",
         "./src/utils/array_permissive_usb_device_type_serializer.cpp",
