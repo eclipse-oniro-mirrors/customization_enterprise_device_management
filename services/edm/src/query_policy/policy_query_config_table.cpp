@@ -695,6 +695,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         true
 #endif
     }},
+    {EdmInterfaceCode::DISALLOW_PARENT_CONTROL, {PolicyName::POLICY_DISALLOW_PARENT_CONTROL,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
 };
 
 constexpr size_t CONFIG_TABLE_SIZE = sizeof(CONFIG_TABLE) / sizeof(CONFIG_TABLE[0]);

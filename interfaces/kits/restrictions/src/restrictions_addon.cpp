@@ -71,6 +71,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE, EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE, EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_SERIAL, EdmInterfaceCode::DISALLOW_USB_SERIAL},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PARENT_CONTROL, EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
@@ -185,6 +186,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY},
     {static_cast<int32_t>(RestrictionsFeature::ADVANCED_MESSAGE), EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE},
     {static_cast<int32_t>(RestrictionsFeature::POWER_SAVING_MODE), EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE},
+    {static_cast<int32_t>(RestrictionsFeature::PARENT_CONTROL), EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -1260,6 +1262,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"SUPER_PRIVACY", static_cast<uint32_t>(RestrictionsFeature::SUPER_PRIVACY)},
         {"ADVANCED_MESSAGE", static_cast<uint32_t>(RestrictionsFeature::ADVANCED_MESSAGE)},
         {"POWER_SAVING_MODE", static_cast<uint32_t>(RestrictionsFeature::POWER_SAVING_MODE)},
+        {"PARENT_CONTROL", static_cast<uint32_t>(RestrictionsFeature::PARENT_CONTROL)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

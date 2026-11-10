@@ -29,6 +29,8 @@ public:
 
     virtual std::string GetSuperHubInfo();
 
+    virtual std::string GetParentControlInfo();
+
     virtual void GetAppUidMap();
 
     static IExtInfoManager* instance_;
@@ -36,6 +38,8 @@ public:
     static std::string superhubBundleName;
 
     static std::map<std::string, uint32_t> appUidMap;
+
+    static std::string parentControlBundleName;
 };
 
 } // namespace EDM
