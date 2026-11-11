@@ -101,7 +101,7 @@ HWTEST_F(SetPermissionManagedStatePluginTest, TestOnAdminRemoveWithInvalidInfo, 
     data.insert(std::make_pair("1", info));
     std::map<std::string, PermissionManagedStateInfo> mergeData;
     ErrCode ret = plugin.OnAdminRemove("", data, mergeData, 0);
-    ASSERT_TRUE(ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 } // namespace TEST
