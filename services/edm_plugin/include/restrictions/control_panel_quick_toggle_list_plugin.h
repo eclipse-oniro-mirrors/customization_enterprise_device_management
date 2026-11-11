@@ -32,13 +32,11 @@ public:
 
     ErrCode OnBasicSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
         std::vector<std::string> &mergeData, int32_t userId) override;
-    ErrCode OnBasicRemovePolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
-        std::vector<std::string> &mergeData, int32_t userId) override;
-    ErrCode OnBasicAdminRemove(const std::string &adminName, std::vector<std::string> &data,
-        std::vector<std::string> &mergeData, int32_t userId) override;
+
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
 
 private:
-    ErrCode WriteMergeToSettingsData(const std::vector<std::string> &mergeData, int32_t userId);
+    ErrCode WriteToggleListToSettingsData(const std::vector<std::string> &toggleList, int32_t accountId);
 };
 
 } // namespace EDM
