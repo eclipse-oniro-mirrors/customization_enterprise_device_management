@@ -52,6 +52,129 @@ protected:
         std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
     }
 };
+
+namespace {
+const std::string TEST_UNKNOWN_PERMISSION = "ohos.permission.NOT.A.REAL.PERMISSION";
+}
+
+/**
+ * @tc.name: TestPluginAttributes
+ * @tc.desc: Test DisallowedPermissionPlugin code, name and the inherited limits.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestPluginAttributes, TestSize.Level1)
+{
+    auto plugin = DisallowedPermissionPlugin::GetPlugin();
+    ASSERT_NE(plugin, nullptr);
+    EXPECT_EQ(plugin->GetCode(), EdmInterfaceCode::DISALLOWED_PERMISSION);
+    EXPECT_EQ(plugin->GetPolicyName(), PolicyName::POLICY_DISALLOWED_PERMISSION);
+
+    DisallowedPermissionPlugin instance;
+    auto pluginTemplate = std::make_shared<IPluginTemplate<DisallowedPermissionPlugin, std::vector<std::string>>>();
+    instance.InitPlugin(pluginTemplate);
+    EXPECT_EQ(instance.maxListSize_, EdmConstants::APPID_MAX_SIZE);
+    EXPECT_EQ(instance.overMaxReturnErrCode_, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestAddOrRemovePolicyUnknownPermission
+ * @tc.desc: Test an unknown permission name is rejected before any access-token call.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestAddOrRemovePolicyUnknownPermission, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    std::vector<std::string> data = { TEST_UNKNOWN_PERMISSION };
+    ErrCode ret = plugin.AddOrRemoveAccessTokenPolicy(data, DEFAULT_USER_ID, true);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+
+    ret = plugin.AddOrRemoveAccessTokenPolicy(data, DEFAULT_USER_ID, false);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestAddOrRemoveAccessTokenPolicyEmptyList
+ * @tc.desc: Test an empty permission list succeeds without touching the token service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestAddOrRemoveAccessTokenPolicyEmptyList, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    std::vector<std::string> data;
+    ErrCode ret = plugin.AddOrRemoveAccessTokenPolicy(data, DEFAULT_USER_ID, true);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetOtherModulePolicyUnknownPermission
+ * @tc.desc: Test SetOtherModulePolicy forwards the failure of the access-token check.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestSetOtherModulePolicyUnknownPermission, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    std::vector<std::string> data = { TEST_UNKNOWN_PERMISSION };
+    std::vector<std::string> failedData;
+    ErrCode ret = plugin.SetOtherModulePolicy(data, DEFAULT_USER_ID, failedData);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_TRUE(failedData.empty());
+}
+
+/**
+ * @tc.name: TestRemoveOtherModulePolicyFailed
+ * @tc.desc: Test RemoveOtherModulePolicy stops on the first failed permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestRemoveOtherModulePolicyFailed, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    std::vector<std::string> data = { TEST_UNKNOWN_PERMISSION };
+    std::vector<std::string> failedData;
+    ErrCode ret = plugin.RemoveOtherModulePolicy(data, DEFAULT_USER_ID, failedData);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestRemoveOtherModulePolicyEmptyList
+ * @tc.desc: Test RemoveOtherModulePolicy with no permission succeeds and cleans nothing.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestRemoveOtherModulePolicyEmptyList, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    std::vector<std::string> data;
+    std::vector<std::string> failedData;
+    ErrCode ret = plugin.RemoveOtherModulePolicy(data, DEFAULT_USER_ID, failedData);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetCombinedPolicy
+ * @tc.desc: Test GetCombinedPolicy returns either an empty policy or the serialized whitelist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestGetCombinedPolicy, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    std::string combinePolicy = plugin.GetCombinedPolicy(TEST_UNKNOWN_PERMISSION, DEFAULT_USER_ID);
+    EXPECT_TRUE(combinePolicy.empty() || combinePolicy.front() == '{');
+}
+
+/**
+ * @tc.name: TestCleanAdminAllowedPermissionBundle
+ * @tc.desc: Test CleanAdminAllowedPermissionBundle succeeds whether or not admins hold the policy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowedPermissionPluginTest, TestCleanAdminAllowedPermissionBundle, TestSize.Level1)
+{
+    DisallowedPermissionPlugin plugin;
+    ErrCode ret = plugin.CleanAdminAllowedPermissionBundle(TEST_UNKNOWN_PERMISSION,
+        DEFAULT_USER_ID, "");
+    EXPECT_EQ(ret, ERR_OK);
+
+    ret = plugin.CleanAdminAllowedPermissionBundle(TEST_UNKNOWN_PERMISSION, DEFAULT_USER_ID, "{}");
+    EXPECT_EQ(ret, ERR_OK);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
