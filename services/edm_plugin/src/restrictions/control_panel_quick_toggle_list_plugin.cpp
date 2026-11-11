@@ -28,9 +28,6 @@ namespace EDM {
 
 namespace {
 const std::string QUICK_TOGGLE_LIST_KEY = "control_panel_quick_toggle_list";
-const std::string SETTINGS_DATA_USER_URI_PREFIX =
-    "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_";
-const std::string SETTINGS_DATA_URI_SUFFIX = "?Proxy=true";
 constexpr uint32_t TOGGLE_LIST_MAX_SIZE = 1000;
 }
 
@@ -96,7 +93,8 @@ ErrCode ControlPanelQuickToggleListPlugin::WriteMergeToSettingsData(
         EDMLOGE("ControlPanelQuickToggleListPlugin Serialize failed");
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    std::string baseUri = SETTINGS_DATA_USER_URI_PREFIX + std::to_string(userId) + SETTINGS_DATA_URI_SUFFIX;
+    std::string baseUri = std::string(EdmConstants::SETTINGS_DATA_SECURE_URI_PREFIX) +
+        std::to_string(userId) + EdmConstants::SETTINGS_DATA_URI_SUFFIX;
     ErrCode ret = EdmDataAbilityUtils::UpdateSettingsData(baseUri, QUICK_TOGGLE_LIST_KEY, jsonStr);
     if (FAILED(ret)) {
         EDMLOGE("ControlPanelQuickToggleListPlugin UpdateSettingsData failed ret=%{public}d", ret);
