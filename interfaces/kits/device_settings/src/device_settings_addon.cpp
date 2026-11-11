@@ -688,10 +688,10 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
 
-    if (argc >= ARGS_SIZE_FOUR) {
+    if (argc >= ARGS_SIZE_THREE) {
         return HandleSetValueForAccountWithAdmin(env, argv);
     }
-    if (argc == ARGS_SIZE_THREE) {
+    if (argc == ARGS_SIZE_TWO) {
         return HandleSetValueForAccountWithoutAdmin(env, argv);
     }
     napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));

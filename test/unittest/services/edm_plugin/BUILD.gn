@@ -121,6 +121,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/utils/managed_browser_policy_serializer_test.cpp",
     "./src/utils/password_policy_serializer_test.cpp",
     "./src/utils/switch_param_serializer_test.cpp",
+    "./src/disallow_parent_control_plugin_test.cpp",
   ]
 
   configs = [
@@ -724,6 +725,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm_plugin/src/restrictions/disallowed_sms_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/disallowed_tethering_plugin.cpp",
     "../../../../services/edm_plugin/src/restrictions/inactive_user_freeze_plugin.cpp",
+    "../../../../services/edm_plugin/src/restrictions/disallow_parent_control_plugin.cpp",
     "../../../../services/edm_plugin/src/security_manager/snapshot_skip_plugin.cpp",
     "../../../../services/edm_plugin/src/system_manager/local_hota_domain_plugin.cpp",
     "../../../../services/edm_plugin/src/utils/allowed_app_distribution_types_utils.cpp",

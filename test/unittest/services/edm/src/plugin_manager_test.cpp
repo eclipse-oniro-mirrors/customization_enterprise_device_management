@@ -41,6 +41,16 @@ void PluginManagerTest::SetUp()
 
 void PluginManagerTest::TearDown()
 {
+    auto pluginManager = PluginManager::GetInstance();
+    for (std::uint32_t code : {0u, 1u, TEST_POLICY_CODE}) {
+        pluginManager->pluginsCode_.erase(code);
+        pluginManager->extensionPluginMap_.erase(code);
+        pluginManager->executeStrategyMap_.erase(code);
+    }
+    for (const char *name : {"TestPlugin",
+        "TestExtensionPlugin", "TestPluginWithAdminName"}) {
+        pluginManager->pluginsName_.erase(name);
+    }
     PluginManager::GetInstance().reset();
 }
 

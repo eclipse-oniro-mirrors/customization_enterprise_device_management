@@ -43,33 +43,85 @@ ErrCode ConvertPolicyValue(napi_env env, napi_value argv, MessageParcel &data, c
     return ERR_OK;
 }
 
-ErrCode ConvertAdminElement(napi_env env, napi_value argv, MessageParcel &data, const AddonMethodSign &methodSign)
-{
-    AppExecFwk::ElementName elementName;
-    if (!ParseElementName(env, elementName, argv)) {
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-    return ERR_OK;
-}
-
 bool ParseForceOverrideFlag(napi_env env, const napi_value *argv, size_t argc, bool &isForceOverride)
 {
-    if (argc < ARGS_SIZE_FIVE) {
+    if (argc < ARGS_SIZE_FOUR) {
         return true;
     }
-    return ParseBool(env, isForceOverride, argv[ARR_INDEX_FOUR]);
+    return ParseBool(env, isForceOverride, argv[ARR_INDEX_THREE]);
 }
 
-AddonMethodSign BuildSetManagedBrowserPolicySign()
+AddonMethodSign BuildSetManagedBrowserPolicyNewSign()
 {
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setManagedBrowserPolicy";
-    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::STRING,
-        EdmAddonCommonType::STRING, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.argsConvert = {ConvertAdminElement, nullptr, nullptr, ConvertPolicyValue};
+    addonMethodSign.argsType = {EdmAddonCommonType::STRING, EdmAddonCommonType::STRING,
+        EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, nullptr, ConvertPolicyValue};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     return addonMethodSign;
+}
+
+napi_value SetManagedBrowserPolicyLegacy(napi_env env, napi_callback_info info)
+{
+    auto convertPolicyValue = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        std::string policyValue;
+        if (!ParseString(env, policyValue, argv)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        if (policyValue.empty()) {
+            return ERR_OK;
+        }
+        cJSON* root = cJSON_Parse(policyValue.c_str());
+        if (root == nullptr) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        cJSON_Delete(root);
+        data.WriteString(policyValue);
+        return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT, EdmAddonCommonType::STRING,
+        EdmAddonCommonType::STRING, EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {nullptr, nullptr, nullptr, convertPolicyValue};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToData(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY));
+        return nullptr;
+    }
+    int32_t ret = BrowserProxy::GetBrowserProxy()->SetManagedBrowserPolicy(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret));
+    }
+    return nullptr;
+}
+
+napi_value SetManagedBrowserPolicyForceOverride(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_SIZE_FIVE;
+    napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    bool isForceOverride = false;
+    if (!ParseForceOverrideFlag(env, argv, argc, isForceOverride)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+
+    AddonMethodSign addonMethodSign = BuildSetManagedBrowserPolicyNewSign();
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    adapterAddonData.data.WriteBool(isForceOverride);
+
+    int32_t ret = BrowserProxy::GetBrowserProxy()->SetManagedBrowserPolicyForceOverride(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
 }
 } // namespace
 
@@ -235,24 +287,10 @@ napi_value BrowserAddon::SetManagedBrowserPolicy(napi_env env, napi_callback_inf
     size_t argc = ARGS_SIZE_FIVE;
     napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    bool isForceOverride = false;
-    if (!ParseForceOverrideFlag(env, argv, argc, isForceOverride)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, ErrcodeType::NUMBER));
-        return nullptr;
+    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_string)) {
+        return SetManagedBrowserPolicyForceOverride(env, info);
     }
-
-    AddonMethodSign addonMethodSign = BuildSetManagedBrowserPolicySign();
-    AdapterAddonData adapterAddonData{};
-    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
-        return nullptr;
-    }
-    adapterAddonData.data.WriteBool(isForceOverride);
-
-    int32_t ret = BrowserProxy::GetBrowserProxy()->SetManagedBrowserPolicy(adapterAddonData.data);
-    if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
-    }
-    return nullptr;
+    return SetManagedBrowserPolicyLegacy(env, info);
 }
 
 napi_value BrowserAddon::GetManagedBrowserPolicy(napi_env env, napi_callback_info info)
