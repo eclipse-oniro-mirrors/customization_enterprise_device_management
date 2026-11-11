@@ -250,7 +250,7 @@ std::shared_ptr<IPlugin> GetPluginByFuncCode(uint32_t code) {
 **正确做法**: 按职责分离锁
 ```cpp
 static std::shared_timed_mutex mutexLock_;    // map 读写（加载/卸载/查找）
-static std::shared_mutex soPinMutex_;         // SO pinning（防止 dlclose 期间使用）
+static std::shared_timed_mutex soPinMutex_;      // SO pinning（防止 dlclose 期间使用）
 ```
 
 Phase 2+3 持 `shared_lock(soPinMutex_)` 仅阻塞卸载，不影响 `mutexLock_` 上的加载/查询。
