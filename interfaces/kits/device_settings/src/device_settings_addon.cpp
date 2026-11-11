@@ -686,12 +686,12 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
 
-    if (argc >= ARGS_SIZE_THREE) {
+    if (argc >= ARGS_SIZE_FOUR) {
         return HandleSetValueForAccountWithAdmin(env, argv);
     }
-    if (argc == ARGS_SIZE_TWO) {
+    if (argc == ARGS_SIZE_THREE) {
         return HandleSetValueForAccountWithoutAdmin(env, argv);
     }
     napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
@@ -767,7 +767,7 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
 
     if (argc >= ARGS_SIZE_THREE) {
         return HandleGetValueForAccountWithAdmin(env, argv);
