@@ -581,6 +581,12 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/system_service_start_handler_test.cpp",
     "./src/update_policy_conflict_test.cpp",
     "./src/user_policy_manager_test.cpp",
+    "./src/device_security_level_policy_query_test.cpp",
+    "./src/allowed_notification_bundles_query_test.cpp",
+    "./src/allowed_usb_devices_query_test.cpp",
+    "./src/is_app_kiosk_allowed_query_test.cpp",
+    "./src/ntp_server_query_test.cpp",
+    "./src/allowed_app_distribution_types_query_test.cpp",
   ]
 
   if (!enterprise_device_management_feature_pc_only) {
@@ -653,6 +659,10 @@ ohos_unittest("EdmServicesUnitTest") {
 
   if (wifi_edm_enable) {
     defines += [ "WIFI_EDM_ENABLE" ]
+    sources += [
+      "./src/allowed_wifi_list_query_test.cpp",
+      "./src/disallowed_wifi_list_query_test.cpp",
+    ]
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
