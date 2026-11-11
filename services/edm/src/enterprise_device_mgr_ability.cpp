@@ -1168,7 +1168,7 @@ ErrCode EnterpriseDeviceMgrAbility::ReplaceSuperAdmin(const AppExecFwk::ElementN
         std::string newAdminName = newAdmin.GetBundleName();
         HandleKeepPolicy(adminName, newAdminName, adminInfo, adminPtr->adminInfo_);
     } else {
-        ErrCode res = DoDisableAdmin(adminPtr, EdmConstants::DEFAULT_USER_ID, AdminType::ENT);
+        ErrCode res = DoDisableAdmin(adminPtr, EdmConstants::DEFAULT_USER_ID, AdminType::ENT, true);
         if (res != ERR_OK) {
             EDMLOGE("ReplaceSuperAdmin: delete admin failed");
             return EdmReturnErrCode::REPLACE_ADMIN_FAILED;
@@ -1579,7 +1579,8 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
 }
 
 // LCOV_EXCL_START
-ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType)
+ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType,
+    bool skipNotify)
 {
     if (admin->IsSuperAdmin() && FAILED(RemoveSuperAdminAndAdminPolicy(admin->adminInfo_.packageName_))) {
         EDMLOGW("DoDisableAdmin: remove admin failed.");
@@ -1608,7 +1609,8 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
         OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED,
             userId, admin->adminInfo_.packageName_);
     }
-    if (!admin->adminInfo_.isDebug_) {
+    if (!admin->adminInfo_.isDebug_ && !skipNotify &&
+        !GetPermissionChecker()->CheckIsNativeCall()) {
         ExtInfoManager::GetInstance()->NotifyAdminDisabled(
             static_cast<int32_t>(admin->adminInfo_.adminType_),
             static_cast<int32_t>(admin->adminInfo_.enableSource_),

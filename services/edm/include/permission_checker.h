@@ -55,6 +55,7 @@ public:
     bool CheckIsDebug();
     bool CheckIsSystemAppOrNative();
     bool CheckIsSystemApp();
+    bool CheckIsNativeCall();
     bool CheckSpecialPolicyCallQuery(uint32_t code);
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId, const std::string &permissionName);
     bool IsAllowDelegatedPolicy(const std::string &policy);
