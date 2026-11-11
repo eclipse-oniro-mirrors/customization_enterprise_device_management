@@ -806,30 +806,24 @@ void PluginManager::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t syst
 }
 
 // LCOV_EXCL_START
-void PluginManager::CallOnHandlePolicy(uint32_t interfaceCode, const std::string &adminName,
+void PluginManager::CallOnHandlePolicy(uint32_t funcCode, const std::string &adminName,
     MessageParcel &data, int32_t userId)
 {
-    EDMLOGI("PluginManager::CallOnHandlePolicy code=%{public}u admin=%{public}s",
-        interfaceCode, adminName.c_str());
+    EDMLOGI("PluginManager::CallOnHandlePolicy funcCode=%{public}u admin=%{public}s",
+        funcCode, adminName.c_str());
     std::shared_ptr<IPlugin> plugin;
     {
         std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
-        auto ret = LoadPluginByCode(interfaceCode);
-        if (ret != ERR_OK) {
-            EDMLOGW("CallOnHandlePolicy: load plugin failed, code=%{public}u", interfaceCode);
-            return;
-        }
-        plugin = GetPluginByCode(interfaceCode);
+        plugin = GetPluginByFuncCode(funcCode);
         if (plugin == nullptr) {
-            EDMLOGW("CallOnHandlePolicy: plugin not found, code=%{public}u", interfaceCode);
+            EDMLOGW("CallOnHandlePolicy: get plugin by funcCode fail: %{public}u", funcCode);
             return;
         }
     }
     std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
-    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET), interfaceCode);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"", "", false, adminName};
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, userId);
+    ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(funcCode, data, reply, handlePolicyData, userId);
     if (FAILED(ret)) {
         EDMLOGW("CallOnHandlePolicy: OnHandlePolicy failed, ret=%{public}d", ret);
     }

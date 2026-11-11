@@ -173,7 +173,8 @@ void ExtInfoManager::NotifyAdminDisabled(int32_t adminType, int32_t enableSource
     data.WriteInt32(adminType);
     data.WriteInt32(enableSource);
     data.WriteString(bundleName);
-    PluginManager::GetInstance()->CallOnHandlePolicy(EdmInterfaceCode::GET_EXT_INFO,
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);
+    PluginManager::GetInstance()->CallOnHandlePolicy(funcCode,
         bundleName, data, EdmConstants::DEFAULT_USER_ID);
 }
 // LCOV_EXCL_STOP
