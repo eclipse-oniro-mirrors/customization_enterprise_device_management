@@ -470,15 +470,12 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsSuc, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs));
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
-    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(callLogs.size(), static_cast<size_t>(2));
     EXPECT_EQ(callLogs[0].createTime, static_cast<int64_t>(1700000000));
@@ -502,15 +499,12 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsFail, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
-    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_NE(ret, ERR_OK);
     EXPECT_TRUE(callLogs.empty());
 }
@@ -525,15 +519,12 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsEmpty, TestSize.Level1)
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsEmpty));
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
-    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_TRUE(callLogs.empty());
 }
@@ -548,15 +539,12 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsInvalidSize));
-    OHOS::AppExecFwk::ElementName admin;
-    admin.SetBundleName(ADMIN_PACKAGENAME);
-    admin.SetAbilityName("com.edm.test.demo.Ability");
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
-    int32_t ret = telephonyManagerProxy->GetCallLogs(admin, config, callLogs);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_TRUE(callLogs.empty());
 }
@@ -568,6 +556,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
 {
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy));
@@ -594,6 +585,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
 {
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
     Utils::SetEdmServiceDisable();
     TelephonyQueryConfig config;
     config.startTime = 1000;
@@ -612,6 +606,9 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesIpcFail, TestSize.Level1)
 {
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail));

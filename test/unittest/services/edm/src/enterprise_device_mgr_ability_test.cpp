@@ -86,6 +86,7 @@ const std::string EDM_TEST_PERMISSION = "ohos.permission.EDM_TEST_PERMISSION";
 const std::string EDM_TEST_ENT_PERMISSION = "ohos.permission.EDM_TEST_ENT_PERMISSION";
 const std::string TEST_POLICY_VALUE = "test_policy_value";
 const std::string PERMISSION_MANAGE_EDM_POLICY = "ohos.permission.MANAGE_EDM_POLICY";
+const std::string PERMISSION_ENTERPRISE_RECEIVE_SMS = "ohos.permission.ENTERPRISE_RECEIVE_SMS";
 const std::string PARAM_MAINTENANCE_MODE = "persist.hiviewcare.maintenancemode";
 const std::string PARAM_SECURITY_MODE = "ohos.boot.advsecmode.state";
 
@@ -2338,6 +2339,152 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, UnsubscribeAppStartStopEvent, TestSize.
     EXPECT_TRUE(res == ERR_OK);
 
     DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestSubscribeSmsEventWithoutActiveAdmin
+ * @tc.desc: Test SubscribeSmsEvent with not activated admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeSmsEventWithoutActiveAdmin, TestSize.Level1)
+{
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    ErrCode res = edmMgr_->SubscribeSmsEvent();
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+
+    res = edmMgr_->UnsubscribeSmsEvent();
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSubscribeSmsEventWithNormalAdmin
+ * @tc.desc: Test SubscribeSmsEvent with normal admin (not SDA).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeSmsEventWithNormalAdmin, TestSize.Level1)
+{
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::NORMAL, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_ENTERPRISE_RECEIVE_SMS)))
+        .Times(2).WillRepeatedly(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).Times(2)
+        .WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()), Return(ERR_OK)));
+    ErrCode res = edmMgr_->SubscribeSmsEvent();
+    EXPECT_TRUE(res == ERR_OK);
+
+    res = edmMgr_->UnsubscribeSmsEvent();
+    EXPECT_TRUE(res == ERR_OK);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestSubscribeSmsEventWithByodAdmin
+ * @tc.desc: Test SubscribeSmsEvent with byod admin (not SDA).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeSmsEventWithByodAdmin, TestSize.Level1)
+{
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    ErrCode res = edmMgr_->SubscribeSmsEvent();
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+
+    res = edmMgr_->UnsubscribeSmsEvent();
+    EXPECT_TRUE(res == EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestSubscribeSmsEventWithoutPermission
+ * @tc.desc: Test SubscribeSmsEvent with SDA but no permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeSmsEventWithoutPermission, TestSize.Level1)
+{
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_ENTERPRISE_RECEIVE_SMS)))
+        .Times(2).WillRepeatedly(DoAll(Return(false)));
+    ErrCode res = edmMgr_->SubscribeSmsEvent();
+    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+
+    res = edmMgr_->UnsubscribeSmsEvent();
+    EXPECT_TRUE(res == EdmReturnErrCode::PERMISSION_DENIED);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSubscribeSmsEventSuc
+ * @tc.desc: Test SubscribeSmsEvent success with SDA.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSubscribeSmsEventSuc, TestSize.Level1)
+{
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_ENTERPRISE_RECEIVE_SMS)))
+        .WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    ErrCode res = edmMgr_->SubscribeSmsEvent();
+    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestUnsubscribeSmsEventSuc
+ * @tc.desc: Test UnsubscribeSmsEvent success with SDA.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUnsubscribeSmsEventSuc, TestSize.Level1)
+{
+#ifdef FEATURE_PC_ONLY
+    return;
+#endif
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(PERMISSION_ENTERPRISE_RECEIVE_SMS)))
+        .WillOnce(DoAll(Return(true)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillOnce(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    ErrCode res = edmMgr_->UnsubscribeSmsEvent();
+    EXPECT_TRUE(res == ERR_OK);
+    DisableSuperAdminSuc(admin.GetBundleName());
 }
 
 /**
@@ -6335,6 +6482,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupported, TestSize.Level1
         static_cast<int32_t>(ManagedFeature::EXACT_TIMER),
         static_cast<int32_t>(ManagedFeature::EXEMPTION_RESOURCE),
         static_cast<int32_t>(ManagedFeature::SYSTEM_ROLLBACK),
+        static_cast<int32_t>(ManagedFeature::ADVANCED_MESSAGE),
     };
     for (int32_t feature : mobileFeatures) {
         bool supported = true;

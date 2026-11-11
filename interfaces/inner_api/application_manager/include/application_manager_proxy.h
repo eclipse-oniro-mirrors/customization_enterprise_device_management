@@ -28,6 +28,7 @@
 #include "net_stats_utils.h"
 #include "bundle_stats_info.h"
 #include "window_state_info.h"
+#include "main_window_states.h"
 
 namespace OHOS {
 namespace EDM {
@@ -89,6 +90,7 @@ public:
     int32_t QueryBundleStatsInfos(MessageParcel &data, std::vector<BundleStatsInfo> &bundleStatsInfos);
     int32_t GetApplicationWindowStates(const AppExecFwk::ElementName &admin, std::string &bundleName, int32_t appIndex,
         std::vector<WindowStateInfo> &windowStateInfos);
+    int32_t GetAllMainWindowStates(MessageParcel &data, std::vector<MainWindowStates> &mainWindowStates);
 #ifndef FEATURE_PC_ONLY
     int32_t AddOrRemoveHideLauncherIcon(const AppExecFwk::ElementName &admin, int32_t userId,
         const std::vector<std::string> &bundleNames, bool isAdd);
@@ -102,6 +104,10 @@ public:
     int32_t PublishFormToDesktop(MessageParcel &data, std::string &formId);
     int32_t ExemptionResource(MessageParcel &data, FuncOperateType operateType);
     int32_t RemoveAllNotifications(MessageParcel &data);
+    int32_t AddOrRemoveOptimizationBatteryExclusionApps(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetOptimizationBatteryExclusionApps(MessageParcel &data, std::vector<std::string> &apps);
+    ErrCode GetOptimizationBatteryExclusionApps(std::vector<std::string> &apps);
+    bool IsOptimizationBatteryExcluded(const std::string &bundleName);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

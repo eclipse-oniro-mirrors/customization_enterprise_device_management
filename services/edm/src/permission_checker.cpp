@@ -50,6 +50,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::ALLOWED_USB_DEVICES,
     EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES,
     EdmInterfaceCode::IS_ALLOWED_ODD_BURN,
+    EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST,
+    EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT,
     EdmInterfaceCode::DISABLE_WIFI,
     EdmInterfaceCode::DISABLE_MTP_CLIENT,
     EdmInterfaceCode::DISABLE_MTP_SERVER,
@@ -64,6 +66,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISABLE_MAINTENANCE_MODE,
     EdmInterfaceCode::DISALLOWED_SMS,
     EdmInterfaceCode::DISALLOWED_MMS,
+    EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE,
     EdmInterfaceCode::DISABLE_BACKUP_AND_RESTORE,
     EdmInterfaceCode::IS_APP_KIOSK_ALLOWED,
     EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
@@ -104,6 +107,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_CORE_DUMP,
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOW_X_KEY,
+    EdmInterfaceCode::DISALLOW_RECENT_TASKS,
     EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
     EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
@@ -149,8 +153,11 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+    EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY,
     EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
+    EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE,
+    EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
@@ -387,21 +394,21 @@ bool PermissionChecker::CheckElementNullPermission(uint32_t funcCode, const std:
     return true;
 }
 
-bool PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName)
+ErrCode PermissionChecker::CheckElementNullPermissionNew(uint32_t funcCode, const std::string &permissionName)
 {
     std::uint32_t code = FuncCodeUtils::GetPolicyCode(funcCode);
     if (permissionName.empty()) {
-        return true;
+        return ERR_OK;
     }
     if (CheckSpecialPolicyCallQuery(code)) {
-        return true;
+        return ERR_OK;
     }
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     if (!VerifyCallingPermission(tokenId, permissionName)) {
         EDMLOGE("PermissionChecker element null query no permission code is %{public}d", code);
-        return false;
+        return EdmReturnErrCode::PERMISSION_DENIED;
     }
-    return true;
+    return ERR_OK;
 }
 
 bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
@@ -422,6 +429,8 @@ bool PermissionChecker::CheckSpecialPolicyCallQuery(uint32_t code)
             return uid == EdmConstants::USB_SERVICE_UID;
         } else if (code == EdmInterfaceCode::INSTALL_MARKET_APPS) {
             return uid == EdmConstants::SAMGR_SERVICE_UID;
+        } else if (code == EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS) {
+            return uid == EdmConstants::RESOURCE_SCHEDULE_UID;
         }
     }
     return false;

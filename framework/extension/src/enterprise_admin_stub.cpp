@@ -23,6 +23,7 @@
 #include "edm_log.h"
 #include "external_storage_device_info.h"
 #include "policy_changed_event.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -142,6 +143,10 @@ void EnterpriseAdminStub::InitOtherHandleFuncs()
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnPasswordFailedInner(code, data, reply);
         };
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_SMS_RECEIVED] =
+        [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
+            return OnSmsReceivedInner(code, data, reply);
+        };
 }
 
 int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply,
@@ -158,6 +163,18 @@ int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, 
         return CALL_FUN_FAILED;
     }
     return ERR_NONE;
+}
+
+bool EnterpriseAdminStub::OnSmsReceivedInner(uint32_t code, MessageParcel& data,
+    MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnSmsReceivedInner");
+    std::unique_ptr<SmsReceiveInfo> smsInfo(SmsReceiveInfo::Unmarshalling(data));
+    if (smsInfo == nullptr) {
+        EDMLOGE("OnSmsReceivedInner read smsInfo failed");
+        return false;
+    }
+    return OnSmsReceived(*smsInfo);
 }
 
 bool EnterpriseAdminStub::OnAdminInner(uint32_t code, MessageParcel& data, MessageParcel& reply)
@@ -287,5 +304,6 @@ int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     }
     return CallFuncByCode(code, data, reply, option);
 }
+
 } // namespace EDM
 } // namespace OHOS

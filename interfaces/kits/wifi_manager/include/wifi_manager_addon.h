@@ -133,6 +133,11 @@ private:
     static napi_value GetWifiList(napi_env env, napi_callback_info info, EdmInterfaceCode policyCode);
     static napi_value TurnOnWifi(napi_env env, napi_callback_info info);
     static napi_value TurnOffWifi(napi_env env, napi_callback_info info);
+    static napi_value AddAllowedHotspotClientList(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedHotspotClientList(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedHotspotClientList(napi_env env, napi_callback_info info, bool isAdd);
+    static int32_t ParseMacAddressArray(napi_env env, std::vector<std::string> &macAddresses, napi_value object);
+    static napi_value GetAllowedHotspotClientList(napi_env env, napi_callback_info info);
 };
 } // namespace EDM
 } // namespace OHOS

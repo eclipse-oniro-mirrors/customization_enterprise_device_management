@@ -83,18 +83,22 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT, EdmInterfaceCode::DISALLOWED_MULTI_WINDOW,
     EdmInterfaceCode::DISALLOW_CORE_DUMP, EdmInterfaceCode::UNLOCK_POLICY,
     EdmInterfaceCode::GET_APPLICATION_WINDOW_STATES, EdmInterfaceCode::DEVICE_SECURITY_LEVEL_POLICY,
+    EdmInterfaceCode::GET_ALL_MAIN_WINDOW_STATES,
+    EdmInterfaceCode::ENTERPRISE_RESET_POLICY,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
     EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
+    EdmInterfaceCode::DISALLOW_RECENT_TASKS,
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::EXEMPTION_RESOURCE,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
     EdmInterfaceCode::VOLUME_DEGREE,
     EdmInterfaceCode::DEFAULT_APPLICATION,
     EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
+    EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -109,6 +113,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_USB_DEVICES, EdmInterfaceCode::MANAGED_BROWSER_POLICY,
     EdmInterfaceCode::ALLOWED_WIFI_LIST, EdmInterfaceCode::DISALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_SMS, EdmInterfaceCode::DISALLOWED_MMS,
+    EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE,
     EdmInterfaceCode::SWITCH_WIFI, EdmInterfaceCode::DISALLOW_MODIFY_APN,
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
@@ -130,6 +135,8 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS,
     EdmInterfaceCode::GET_CALL_LOGS,
     EdmInterfaceCode::GET_SMS_MESSAGES,
+    EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST,
+    EdmInterfaceCode::CLEAR_DNS_CACHE,
 };
 
 std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
@@ -147,6 +154,8 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::PASSWORD_LAST_CHANGED_TIME,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_DEVICE,
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
+    EdmInterfaceCode::GET_CREDENTIAL_ID,
+    EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
@@ -159,7 +168,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::HIDDEN_SETTINGS_MENU, EdmInterfaceCode::ADD_DOCK_APP,
     EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE,
     EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN,
-    EdmInterfaceCode::GET_PATCH_INFO,
+    EdmInterfaceCode::GET_PATCH_INFO, EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE,
     EdmInterfaceCode::GET_SHARED_PATH_LIST
 };
 

@@ -30,7 +30,6 @@ namespace OHOS {
 namespace EDM {
 
 struct AsyncCallLogCallbackInfo : AsyncCallbackInfo {
-    OHOS::AppExecFwk::ElementName elementName;
     TelephonyQueryConfig queryConfig;
     std::vector<CallLogInfo> callLogs;
 };

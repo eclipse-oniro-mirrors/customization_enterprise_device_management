@@ -28,6 +28,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
   sources = [
     "../../../../interfaces/inner_api/application_manager/src/net_stats_utils.cpp",
     "../../../../interfaces/inner_api/application_manager/src/window_state_info.cpp",
+    "../../../../interfaces/inner_api/application_manager/src/main_window_states.cpp",
     "../../../../interfaces/inner_api/common/src/histograms_report.cpp",
     "../../common/mock/src/edm_sys_manager_mock.cpp",
     "../../../../interfaces/inner_api/system_manager/src/print_policy_util.cpp",
@@ -43,6 +44,18 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./proxy/common_manager_proxy_test.cpp",
     "./proxy/histograms_report_test.cpp",
     "./security_manager/allowed_permission_bundle_serializer_test.cpp",
+    "./application_manager/allowed_notification_bundles_serializer_test.cpp",
+    "./bundle_manager/edm_application_info_test.cpp",
+    "./bundle_manager/install_market_apps_serializer_test.cpp",
+    "./common/enable_self_device_admin_param_serializer_test.cpp",
+    "./common/edm_load_manager_test.cpp",
+    "./common/iadmin_manager_test.cpp",
+    "../../../../interfaces/inner_api/common/src/edm_load_callback.cpp",
+    "../../../../interfaces/inner_api/common/src/edm_load_manager.cpp",
+    "./common/imdm_event_relayer_test.cpp",
+    "./device_settings/wall_paper_param_serializer_test.cpp",
+    "./system_manager/update_policy_serializer_test.cpp",
+    "./system_manager/upgrade_package_info_serializer_test.cpp",
   ]
 
   configs = [

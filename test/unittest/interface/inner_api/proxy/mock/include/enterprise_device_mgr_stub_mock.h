@@ -31,6 +31,7 @@ constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 constexpr int EDM_MAXREQUESTSIZE = 99999;
 const std::string RETURN_STRING = "test_string";
 constexpr uint64_t PASSWORD_LAST_CHANGED_TIME_VALUE = 1722470400;
+constexpr uint64_t CREDENTIAL_ID_VALUE = 1234567890123456789ULL;
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 const std::string EDM_ELEMENT_STRING = "com.example.myapplication/MainAbility/true";
 const std::string UPGRADE_VERSION = "version_1.0";
@@ -66,6 +67,8 @@ public:
         (override));
     MOCK_METHOD(int, UnsubscribeManagedEvent, (const AppExecFwk::ElementName &, (const std::vector<uint32_t> &)),
         (override));
+    MOCK_METHOD(int, SubscribeSmsEvent, (), (override));
+    MOCK_METHOD(int, UnsubscribeSmsEvent, (), (override));
     MOCK_METHOD(int, AuthorizeAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
     MOCK_METHOD(int, GetSuperAdmin, (std::string &, std::string &), (override));
     MOCK_METHOD(int, SetDelegatedPolicies,
@@ -159,6 +162,15 @@ public:
     int InvokeWindowStateVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeMainWindowStatesVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeMainWindowStatesOversizeVectorSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeMainWindowStatesInvalidStateSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokeHttpProxySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
@@ -201,6 +213,12 @@ public:
 
     int InvokeSendRequestGetPasswordPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestGetCredentialId(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeSendRequestGetCredentialIdFail(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
 
     int InvokeSendRequestGetManagedBrowserPolicy(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
@@ -274,6 +292,9 @@ public:
         MessageParcel &reply, MessageOption &option);
 
     int InvokePatchInfoSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokePatchInfoEmptyListSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
     int InvokePatchInfoInterfaceUnsupportedSendRequestGetPolicy(uint32_t code, MessageParcel &data,

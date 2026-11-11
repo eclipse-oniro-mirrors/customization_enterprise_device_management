@@ -29,6 +29,7 @@ enum class ManagedFeature : int32_t {
     X_KEY = 7,
     SYSTEM_ROLLBACK = 8,
     SUPER_PRIVACY = 9,
+    ADVANCED_MESSAGE = 10,
 };
 } // namespace EDM
 } // namespace OHOS

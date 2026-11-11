@@ -38,6 +38,8 @@ public:
 
     std::string GetSuperHubInfo() override;
 
+    std::string GetParentControlInfo() override;
+
     void GetAppUidMap() override;
 
     ~ExtInfoManager() override;

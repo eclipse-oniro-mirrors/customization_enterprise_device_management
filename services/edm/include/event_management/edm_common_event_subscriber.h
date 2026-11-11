@@ -16,8 +16,6 @@
 #ifndef SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_EDM_COMMON_EVENT_SUBSCRIBER_H
 #define SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_EDM_COMMON_EVENT_SUBSCRIBER_H
 
-#include <unordered_map>
-
 #include "common_event_subscriber.h"
 #include "edm_event_data.h"
 #include "event_subscription_manager.h"

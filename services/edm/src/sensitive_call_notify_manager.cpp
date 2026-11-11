@@ -73,17 +73,20 @@ bool SensitiveCallNotifyManager::IsAlreadyNotified(const std::string &adminName,
 }
 
 void SensitiveCallNotifyManager::CheckAndNotify(const std::string &sensitiveId,
-    const std::string &adminName, int32_t userId)
+    const std::string &adminName)
 {
     if (sensitiveId.empty() || adminName.empty()) {
         EDMLOGW("SensitiveCallNotifyManager::CheckAndNotify invalid param, skip.");
         return;
     }
     // Resolve calling identity outside lock (thread-local IPC context, no shared state).
+    // userId is resolved from the calling token so callers do not need to pass it;
+    // callers often hold DEFAULT_USER_ID or a queried target user that does not
+    // match the actual calling OS account.
     std::string tokenBundleName;
-    int32_t tokenUserId = userId;
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
     int32_t appIndex = 0;
-    if (!ResolveCallingIdentity(tokenBundleName, tokenUserId, appIndex)) {
+    if (!ResolveCallingIdentity(tokenBundleName, userId, appIndex)) {
         EDMLOGE("SensitiveCallNotifyManager::CheckAndNotify resolve identity failed, skip. id=%{public}s",
             sensitiveId.c_str());
         return;

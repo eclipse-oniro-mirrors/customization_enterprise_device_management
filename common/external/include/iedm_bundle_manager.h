@@ -57,6 +57,8 @@ public:
     virtual std::string GetAppNameByBundleName(const std::string &bundleName) = 0;
     virtual bool GetBundleArchiveInfoV9(const std::string &hapFilePath, int32_t flags,
         AppExecFwk::BundleInfo &bundleInfo) = 0;
+    virtual std::string GetAppIdentifierByBundleName(const std::string &bundleName, int32_t userId) = 0;
+    virtual ErrCode GetBundleNameByAppId(const std::string &appIdentifier, std::string &bundleName) = 0;
 };
 } // namespace EDM
 } // namespace OHOS

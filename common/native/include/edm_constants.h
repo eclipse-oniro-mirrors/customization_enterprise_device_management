@@ -28,6 +28,7 @@ namespace EdmConstants {
     constexpr int32_t USERIAM_SERVICE_UID = 1088;
     constexpr int32_t USB_SERVICE_UID = 1018;
     constexpr int32_t DISK_MANAGER_UID = 1091;
+    constexpr int32_t RESOURCE_SCHEDULE_UID = 1096;
     constexpr int32_t SAMGR_SERVICE_UID = 5555;
     constexpr int32_t USB_ERRCODE_INTERFACE_NO_INIT = 88080389;
     constexpr uint32_t ALLOWED_USB_DEVICES_MAX_SIZE = 1000;
@@ -42,6 +43,7 @@ namespace EdmConstants {
     constexpr uint32_t DISALLOWED_USB_DEVICES_TYPES_MAX_SIZE = 200;
     constexpr uint32_t DISALLOWED_PERMISSIVE_USB_DEVICES_TYPES_MAX_SIZE = 1000;
     constexpr uint32_t ALLOWED_ODD_BURN_USB_DEVICES_MAX_SIZE = 10000;
+    constexpr uint32_t ALLOWED_HOTSPOT_CLIENT_LIST_MAX_SIZE = 1000;
     constexpr int32_t DISTRIBUTE_SERVICE_TYPE_COLLABORATION = 0;
     constexpr uint32_t AUTO_START_APPS_MAX_SIZE = 10;
     constexpr uint32_t KEEP_ALIVE_APPS_MAX_SIZE = 10;
@@ -57,6 +59,7 @@ namespace EdmConstants {
     constexpr int32_t LOG_DOMAINID = 0xD001E00;
     constexpr uint32_t MENUS_TO_HIDDEN_LIST_MAX_SIZE = 200;
     constexpr int32_t ALLOWED_PRINTER_IP_ADDRESSES_MAX_SIZE = 100;
+    constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 10;
 
     constexpr int32_t EDM_UID = 3057;
 
@@ -116,6 +119,9 @@ namespace EdmConstants {
     // 外置存储设备挂载拦截使能persist参数
     constexpr const char* PARAM_EDM_ENABLE_EXTERNAL_STORAGE_MOUNT_INTERCEPT =
         "persist.edm.enable_external_storage_mount_intercept";
+    
+    // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
+    const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
 
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
@@ -247,6 +253,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_USB_SERIAL = "usbSerial";
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
+        const char* const LABEL_DISALLOWED_POLICY_PARENT_CONTROL = "parentControl";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -258,6 +265,9 @@ namespace EdmConstants {
         const char* const SET_PROCESS_WATERMARK_BY_PID = "set_process_watermark_by_pid";
         const char* const FASTBOOT  = "fastboot";
         const char* const PARAM_EDM_DEVICE_SECURITY_LEVEL_POLICY = "persist.edm.dsl.config";
+        constexpr uint32_t MAX_AUTH_TOKEN_SIZE = 1024;
+        constexpr uint64_t MAX_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
+        const char* const PARAM_EDM_ENTERPRISE_RESET_POLICY = "persist.edm.enterprise_reset.policy";
     } // namespace SecurityManager
 
     namespace DeviceSettings {
@@ -415,6 +425,8 @@ namespace EdmPermission {
     const char* const PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION =
         "ohos.permission.ENTERPRISE_MANAGE_NOTIFICATION";
     const char* const PERMISSION_ENTERPRISE_READ_MESSAGES = "ohos.permission.ENTERPRISE_READ_MESSAGES";
+    const char* const PERMISSION_RECEIVE_SMS = "ohos.permission.RECEIVE_SMS";
+    const char* const PERMISSION_ENTERPRISE_RECEIVE_SMS = "ohos.permission.ENTERPRISE_RECEIVE_SMS";
 } // namespace EdmPermission
 namespace PolicyName {
     // open-source
@@ -508,6 +520,7 @@ namespace PolicyName {
     const char* const POLICY_SET_WIFI_PROFILE = "set_wifi_profile";
     const char* const POLICY_ALLOWED_WIFI_LIST = "allowed_wifi_list";
     const char* const POLICY_DISALLOWED_WIFI_LIST = "disallowed_wifi_list";
+    const char* const POLICY_ALLOWED_HOTSPOT_CLIENT_LIST = "allowed_hotspot_client_list";
     const char* const POLICY_ALLOWED_INSTALL_APP_TYPE = "allowed_install_app_type";
     const char* const POLICY_SHUTDOWN_DEVICE = "shutdown_device";
     const char* const POLICY_SNAPSHOT_SKIP = "snapshot_skip";
@@ -519,6 +532,7 @@ namespace PolicyName {
     const char* const POLICY_SCREEN_WATERMARK_IMAGE = "screen_watermark_image";
     const char* const POLICY_ALLOWED_NOTIFICATION_BUNDLES = "allowed_notification_bundles";
     const char* const POLICY_DISALLOWED_MMS = "disallowed_mms";
+    const char* const POLICY_DISALLOWED_ADVANCED_MESSAGE = "disallowed_advanced_message";
     const char* const POLICY_DISABLE_BACKUP_AND_RESTORE = "disable_backup_and_restore";
     const char* const POLICY_DISALLOW_MODIFY_APN = "disallow_modify_apn";
     const char* const POLICY_INSTALLED_BUNDLE_INFO_LIST = "installed_bundle_info_list";
@@ -552,6 +566,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_USB_SERIAL = "disallow_usb_serial";
     const char* const POLICY_DISALLOW_UINPUT = "disallow_uinput";
     const char* const POLICY_DISALLOW_X_KEY = "disallow_x_key";
+    const char* const POLICY_DISALLOW_RECENT_TASKS = "disallow_recent_tasks";
     const char* const POLICY_DISALLOW_CONTROL_CENTER = "disallow_control_center";
     const char* const POLICY_DISALLOW_NOTIFICATION_CENTER = "disallow_notification_center";
     const char* const POLICY_DISABLED_ACTIVATION_LOCK = "disable_activation_lock";
@@ -564,6 +579,7 @@ namespace PolicyName {
     const char* const POLICY_SET_SWITCH_STATUS = "set_switch_status";
     const char* const POLICY_BUNDLE_STORAGE_STATS = "bundle_storage_stats";
     const char* const POLICY_GET_APPLICATION_WINDOW_STATES = "get_application_window_states";
+    const char* const POLICY_GET_ALL_MAIN_WINDOW_STATES = "get_all_main_window_states";
     const char* const POLICY_DISALLOWED_TRAFFIC_REDIRECTION = "disallowed_traffic_redirection";
     const char* const POLICY_SYSTEM_TIMER = "system_timer";
     const char* const POLICY_EXEMPTION_RESOURCE = "exemption_resource";
@@ -615,6 +631,12 @@ namespace PolicyName {
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";
     const char* const POLICY_DISALLOWED_FREE_WINDOW = "disallowed_free_window";
     const char* const POLICY_GET_CALL_LOGS = "get_call_logs";
+    const char* const POLICY_GET_CREDENTIAL_ID = "get_credential_id";
+    const char* const POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS = "optimization_battery_exclusion_apps";
+    const char* const POLICY_ENTERPRISE_RESET_POLICY = "enterprise_reset_policy";
+    const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
+    const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
+    const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

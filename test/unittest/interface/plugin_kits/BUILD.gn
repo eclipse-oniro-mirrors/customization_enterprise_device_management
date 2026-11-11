@@ -29,12 +29,18 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "./ipolicy_manager_test.cpp",
     "./policy_serializer_test.cpp",
     "./utils/array_int_serializer_test.cpp",
+    "./utils/bit_serializer_test.cpp",
+    "../../../../interfaces/inner_api/plugin_kits/src/utils/bit_serializer.cpp",
+    "../../../../interfaces/inner_api/plugin_kits/src/utils/uint_serializer.cpp",
     "./utils/cjson_serializer_test.cpp",
+    "./utils/int_serializer_test.cpp",
+    "./utils/uint_serializer_test.cpp",
     "./utils_test.cpp",
     "./basic_array_int_plugin_test.cpp",
     "./basic_array_string_plugin_test.cpp",
     "../../../../interfaces/inner_api/common/src/external_storage_device_info.cpp",
     "../../../../interfaces/inner_api/common/src/sms_message_info.cpp",
+    "../../../../interfaces/inner_api/common/src/sms_receive_info.cpp",
   ]
 
   configs = [

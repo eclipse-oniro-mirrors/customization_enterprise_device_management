@@ -29,6 +29,12 @@ enum class DeviceSecurityLevelPolicy {
     ALLOW_BALANCED = 1,
     ALLOW_FLEXIBLE = 2,
 };
+
+enum class EnterpriseResetPolicy {
+    DEFAULT = 0,
+    ENTERPRISE_ACCOUNT_AUTH_ON = 1,
+    ENTERPRISE_ACCOUNT_AUTH_OFF = 2,
+};
 } // namespace EDM
 } // namespace OHOS
 #endif // INTERFACES_INNER_API_MANAGED_POLICY_PROXY_H

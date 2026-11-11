@@ -239,7 +239,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::DISALLOWED_SMS, {PolicyName::POLICY_DISALLOWED_SMS, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
-#ifdef SMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
         true
 #else
         false
@@ -247,7 +247,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::DISALLOWED_MMS, {PolicyName::POLICY_DISALLOWED_MMS, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
-#ifdef MMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
         true
 #else
         false
@@ -331,7 +331,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, {PolicyName::POLICY_DISALLOW_POWER_LONG_PRESS,
         PolicyDataType::BOOL, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION), true, IPlugin::ApiType::PUBLIC,
-#ifdef POWER_MANAGER_EDM_ENABLE
+#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
         true
 #else
         false
@@ -636,21 +636,40 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, {PolicyName::POLICY_DISALLOWED_FREE_WINDOW,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true,
-        IPlugin::ApiType::PUBLIC,
-#ifdef FEATURE_PC_ONLY
-        false
-#else
-        true
-#endif
-    }},
+        IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_CONTROL_CENTER, {PolicyName::POLICY_DISALLOW_CONTROL_CENTER, PolicyDataType::BOOL,
         PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER, {PolicyName::POLICY_DISALLOW_NOTIFICATION_CENTER,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE, {PolicyName::POLICY_DISALLOWED_ADVANCED_MESSAGE,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::GET_SMS_MESSAGES, {PolicyName::POLICY_GET_SMS_MESSAGES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_READ_MESSAGES), false, IPlugin::ApiType::PUBLIC,
 #ifdef TELEPHONY_EDM_ENABLE
+        true
+#else
+        false
+#endif
+    }},
+    {EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
+        {PolicyName::POLICY_OPTIMIZATION_BATTERY_EXCLUSION_APPS,
+        PolicyDataType::ARRAY_STRING, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_RECENT_TASKS, {PolicyName::POLICY_DISALLOW_RECENT_TASKS,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY), false, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, {PolicyName::POLICY_DISALLOW_POWER_SAVING_MODE,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
+#ifdef POWER_MANAGER_EDM_ENABLE
         true
 #else
         false
@@ -676,6 +695,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         true
 #endif
     }},
+    {EdmInterfaceCode::DISALLOW_PARENT_CONTROL, {PolicyName::POLICY_DISALLOW_PARENT_CONTROL,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
 };
 
 constexpr size_t CONFIG_TABLE_SIZE = sizeof(CONFIG_TABLE) / sizeof(CONFIG_TABLE[0]);

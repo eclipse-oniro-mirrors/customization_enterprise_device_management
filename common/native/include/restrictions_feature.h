@@ -73,8 +73,12 @@ enum class RestrictionsFeature : int32_t {
     SYSTEM_ROLLBACK = 51,
     SATA_ODD_BURN = 52,
     SUPER_PRIVACY = 53,
+    ADVANCED_MESSAGE = 54,
+    POWER_SAVING_MODE = 57,
+    RECENT_TASKS = 58,
     CONTROL_CENTER = 59,
     NOTIFICATION_CENTER = 60,
+    PARENT_CONTROL = 61,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {

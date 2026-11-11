@@ -186,10 +186,13 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_CORE_DUMP] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_RS232] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_RECENT_TASKS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_CONTROL_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_USB_SERIAL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_PARENT_CONTROL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
     map[EdmInterfaceCode::DISALLOWED_PACKET_FILTERING] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
@@ -230,7 +233,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef APN_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_MODIFY_APN] = EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 #endif
-#ifdef POWER_MANAGER_EDM_ENABLE
+#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
     map[EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS] = EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 #endif
 #ifdef WIFI_EDM_ENABLE
@@ -242,10 +245,8 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef NETMANAGER_EXT_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_VPN] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
-#ifdef SMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_SMS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
-#endif
-#ifdef MMS_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_MMS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
 #ifdef TELEPHONY_EDM_ENABLE
@@ -282,9 +283,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef MULTI_WINDOW_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_MULTI_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
-#ifndef FEATURE_PC_ONLY
     map[EdmInterfaceCode::DISALLOWED_FREE_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
-#endif
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
     map[EdmInterfaceCode::ALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
     map[EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
@@ -306,6 +305,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifndef FEATURE_PC_ONLY
     map[EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON] =
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
+#endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+    map[EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
     return map;
 }
@@ -385,12 +387,14 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
         EdmInterfaceCode::DISALLOW_CORE_DUMP,
         EdmInterfaceCode::DISALLOW_RS232,
         EdmInterfaceCode::DISALLOW_X_KEY,
+        EdmInterfaceCode::DISALLOW_RECENT_TASKS,
         EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
         EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
         EdmInterfaceCode::DISALLOW_USB_SERIAL,
         EdmInterfaceCode::DISALLOWED_TRAFFIC_REDIRECTION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION,
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION_FULL,
+        EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
     };
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISABLED_PRINT);
@@ -407,10 +411,8 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
     superOnlyEntries.push_back(EdmInterfaceCode::DISABLED_HDC_REMOTE);
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE);
 #endif
-#ifdef SMS_EDM_ENABLE
+#ifdef SMS_MMS_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_SMS);
-#endif
-#ifdef MMS_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MMS);
 #endif
 #ifdef TELEPHONY_EDM_ENABLE
@@ -443,9 +445,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #ifdef MULTI_WINDOW_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MULTI_WINDOW);
 #endif
-#ifndef FEATURE_PC_ONLY
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_FREE_WINDOW);
-#endif
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
 #endif
@@ -454,6 +454,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #endif
 #ifdef USERIAM_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::FINGERPRINT_AUTH);
+#endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE);
 #endif
     for (uint32_t code : superOnlyEntries) {
         const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(code);
@@ -559,8 +562,11 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #ifdef APN_EDM_ENABLE
         {EdmInterfaceCode::DISALLOW_MODIFY_APN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
 #endif
-#ifdef POWER_MANAGER_EDM_ENABLE
+#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
         {EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
+#endif
+#ifdef POWER_MANAGER_EDM_ENABLE
+        {EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif
 #ifdef MOBILE_DATA_ENABLE
         {EdmInterfaceCode::DISALLOWED_MOBILE_DATA, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NETWORK},
@@ -581,8 +587,8 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #ifdef MULTI_WINDOW_EDM_ENABLE
         {EdmInterfaceCode::DISALLOWED_MULTI_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif
-#ifndef FEATURE_PC_ONLY
         {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
+#ifndef FEATURE_PC_ONLY
         {EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
             EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION},
 #endif

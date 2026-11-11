@@ -118,6 +118,8 @@ namespace EdmReturnErrCode {
     constexpr uint32_t SYSTEM_TIMER_NOT_FOUND = 9201054;
     constexpr uint32_t GET_USB_SERIAL_NUMBER_FAILED = 9201055;
     constexpr uint32_t EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY_INVALID = 9201056;
+    constexpr uint32_t AUTH_TOKEN_INVALID = 9201057;
+    constexpr uint32_t AUTH_TOKEN_INVALID_DURATION_INVALID = 9201058;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

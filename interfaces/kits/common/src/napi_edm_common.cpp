@@ -665,6 +665,36 @@ bool JsObjectToU8Vector(napi_env env, napi_value object, const char *fieldStr, s
     return true;
 }
 
+bool ParseUint8Array(napi_env env, napi_value args, std::vector<uint8_t> &result, size_t maxLen)
+{
+    bool isTypedArray = false;
+    if (napi_is_typedarray(env, args, &isTypedArray) != napi_ok || !isTypedArray) {
+        EDMLOGE("the argument is not a typedarray");
+        return false;
+    }
+    size_t length = 0;
+    size_t offset = 0;
+    napi_typedarray_type type;
+    napi_value buffer = nullptr;
+    void *data = nullptr;
+    if (napi_get_typedarray_info(env, args, &type, &length, &data, &buffer, &offset) != napi_ok ||
+        type != napi_uint8_array || buffer == nullptr) {
+        EDMLOGE("the argument is not a uint8 array");
+        return false;
+    }
+    if (length > maxLen) {
+        EDMLOGE("uint8 array range failed, length: %{public}zu, maxLen: %{public}zu", length, maxLen);
+        return false;
+    }
+    if (data == nullptr) {
+        EDMLOGE("uint8 array data failed");
+        return false;
+    }
+    result.clear();
+    result.assign(static_cast<uint8_t *>(data), (static_cast<uint8_t *>(data) + length));
+    return true;
+}
+
 bool JsObjectToStringVector(napi_env env, napi_value object, const char *filedStr, bool isNecessaryProp,
     std::vector<std::string> &vec)
 {

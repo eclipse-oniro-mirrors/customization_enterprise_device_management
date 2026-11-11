@@ -634,6 +634,28 @@ int32_t SecurityManagerProxy::GetDeviceSecurityLevelPolicy(MessageParcel &data, 
     return ERR_OK;
 }
 
+int32_t SecurityManagerProxy::SetEnterpriseResetPolicy(MessageParcel &data)
+{
+    EDMLOGD("SecurityManagerProxy::SetEnterpriseResetPolicy");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::ENTERPRISE_RESET_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t SecurityManagerProxy::GetEnterpriseResetPolicy(MessageParcel &data, int32_t &policy)
+{
+    EDMLOGD("SecurityManagerProxy::GetEnterpriseResetPolicy");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::ENTERPRISE_RESET_POLICY, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("SecurityManagerProxy:GetEnterpriseResetPolicy fail. %{public}d", ret);
+        return ret;
+    }
+    policy = reply.ReadInt32();
+    return ERR_OK;
+}
+
 int32_t SecurityManagerProxy::SetWeakPinEnable(bool isEnable, int32_t fd)
 {
     EDMLOGD("SecurityManagerProxy::SetWeakPinEnable isEnable=%{public}d", isEnable);
@@ -664,6 +686,20 @@ int32_t SecurityManagerProxy::IsWeakPinEnabled(bool &result)
         return ret;
     }
     result = reply.ReadBool();
+    return ERR_OK;
+}
+
+int32_t SecurityManagerProxy::GetCredentialId(MessageParcel &data, uint64_t &credentialId)
+{
+    EDMLOGI("SecurityManagerProxy::GetCredentialId");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::GET_CREDENTIAL_ID, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy:GetCredentialId fail. %{public}d", ret);
+        return ret;
+    }
+    credentialId = reply.ReadUint64();
     return ERR_OK;
 }
 } // namespace EDM

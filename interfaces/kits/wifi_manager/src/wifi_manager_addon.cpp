@@ -16,6 +16,7 @@
 
 #include "securec.h"
 
+#include "array_string_serializer.h"
 #include "edm_constants.h"
 #include "edm_log.h"
 #include "edm_utils.h"
@@ -174,6 +175,9 @@ napi_value WifiManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getDisallowedWifiList", GetDisallowedWifiList),
         DECLARE_NAPI_FUNCTION("turnOnWifi", TurnOnWifi),
         DECLARE_NAPI_FUNCTION("turnOffWifi", TurnOffWifi),
+        DECLARE_NAPI_FUNCTION("addAllowedHotspotClientList", AddAllowedHotspotClientList),
+        DECLARE_NAPI_FUNCTION("removeAllowedHotspotClientList", RemoveAllowedHotspotClientList),
+        DECLARE_NAPI_FUNCTION("getAllowedHotspotClientList", GetAllowedHotspotClientList),
 
         DECLARE_NAPI_PROPERTY("WifiSecurityType", nWifiSecurityType),
         DECLARE_NAPI_PROPERTY("IpType", nIpType),
@@ -866,6 +870,149 @@ napi_value WifiManagerAddon::TurnOffWifi(napi_env env, napi_callback_info info)
         napi_throw(env, CreateError(env, ret));
     }
     return nullptr;
+}
+
+napi_value WifiManagerAddon::AddAllowedHotspotClientList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::AddAllowedHotspotClientList called");
+    return AddOrRemoveAllowedHotspotClientList(env, info, true);
+}
+
+napi_value WifiManagerAddon::RemoveAllowedHotspotClientList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::RemoveAllowedHotspotClientList called");
+    return AddOrRemoveAllowedHotspotClientList(env, info, false);
+}
+
+napi_value WifiManagerAddon::AddOrRemoveAllowedHotspotClientList(napi_env env, napi_callback_info info, bool isAdd)
+{
+    auto convertMacAddresses2Data = [](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+            std::vector<std::string> macAddresses;
+            int32_t parseRet = ParseMacAddressArray(env, macAddresses, argv);
+            if (FAILED(parseRet)) {
+                EDMLOGE("parameter parse error");
+                return parseRet;
+            }
+            if (macAddresses.empty()) {
+                EDMLOGE("macAddresses array is empty");
+                return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+            }
+            if (!ArrayStringSerializer::GetInstance()->WritePolicy(data, macAddresses)) {
+                EDMLOGE("WritePolicy failed");
+                return EdmReturnErrCode::EXECUTE_TIME_OUT;
+            }
+            return ERR_OK;
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {convertMacAddresses2Data};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.name = (isAdd ? "addAllowedHotspotClientList" : "removeAllowedHotspotClientList");
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get wifiManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    int32_t ret = ERR_OK;
+    if (isAdd) {
+        ret = wifiManagerProxy->AddAllowedHotspotClientList(adapterAddonData.data);
+    } else {
+        ret = wifiManagerProxy->RemoveAllowedHotspotClientList(adapterAddonData.data);
+    }
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+    }
+    return nullptr;
+}
+
+int32_t WifiManagerAddon::ParseMacAddressArray(napi_env env, std::vector<std::string> &macAddresses,
+    napi_value object)
+{
+    bool isArray = false;
+    napi_is_array(env, object, &isArray);
+    if (!isArray) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, object, &arrayLength);
+    if (arrayLength > EdmConstants::ALLOWED_HOTSPOT_CLIENT_LIST_MAX_SIZE) {
+        EDMLOGE("ParseMacAddressArray: arrayLength=%{public}u is too large", arrayLength);
+        return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
+    }
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value value = nullptr;
+        napi_get_element(env, object, i, &value);
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env, value, &valueType);
+        if (valueType != napi_string) {
+            macAddresses.clear();
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
+        std::string macAddress;
+        size_t bufferSize = 0;
+        napi_get_value_string_utf8(env, value, nullptr, 0, &bufferSize);
+        macAddress.resize(bufferSize);
+        napi_get_value_string_utf8(env, value, macAddress.data(), bufferSize + 1, &bufferSize);
+        if (macAddress.empty()) {
+            EDMLOGE("ParseMacAddressArray: macAddress is empty");
+            macAddresses.clear();
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        macAddresses.push_back(macAddress);
+        EdmUtils::ClearString(macAddress);
+    }
+    return ERR_OK;
+}
+
+napi_value WifiManagerAddon::GetAllowedHotspotClientList(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("WifiManagerAddon::GetAllowedHotspotClientList called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getAllowedHotspotClientList";
+    addonMethodSign.argsType = {EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.defaultArgSize = 1;
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto wifiManagerProxy = WifiManagerProxy::GetWifiManagerProxy();
+    if (wifiManagerProxy == nullptr) {
+        EDMLOGE("can not get wifiManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    int32_t ret = wifiManagerProxy->GetAllowedHotspotClientList(adapterAddonData.data, adapterAddonData.reply);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    std::vector<std::string> macAddresses;
+    if (!ArrayStringSerializer::GetInstance()->GetPolicy(adapterAddonData.reply, macAddresses)) {
+        EDMLOGE("GetAllowedHotspotClientList GetPolicy failed");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    EDMLOGI("WifiManagerAddon::GetAllowedHotspotClientList return size: %{public}zu", macAddresses.size());
+    napi_value jsList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, macAddresses.size(), &jsList));
+    for (size_t i = 0; i < macAddresses.size(); i++) {
+        napi_value item = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, macAddresses[i].c_str(), NAPI_AUTO_LENGTH, &item));
+        NAPI_CALL(env, napi_set_element(env, jsList, i, item));
+        EdmUtils::ClearString(macAddresses[i]);
+    }
+    return jsList;
 }
 
 static napi_module g_wifiManagerModule = {

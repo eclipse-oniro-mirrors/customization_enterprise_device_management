@@ -62,6 +62,23 @@ HWTEST_F(SensitiveApiWhitelistTest, TestIsSensitive_GetSmsMessages_ReturnTrue, T
 }
 
 /**
+ * @tc.name: TestIsSensitive_GetCredentialId_ReturnTrue
+ * @tc.desc: Test IsSensitive with GET_CREDENTIAL_ID policy id.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SensitiveApiWhitelistTest, TestIsSensitive_GetCredentialId_ReturnTrue, TestSize.Level1)
+{
+    uint32_t policyCode = static_cast<uint32_t>(EdmInterfaceCode::GET_CREDENTIAL_ID);
+    std::string sensitiveId = SensitiveApiWhitelist::MakePolicyId(policyCode);
+    EXPECT_FALSE(sensitiveId.empty());
+    bool result = SensitiveApiWhitelist::IsSensitive(sensitiveId);
+    EXPECT_TRUE(result);
+    std::string body = SensitiveApiWhitelist::GetBodyTemplateName(sensitiveId);
+    EXPECT_FALSE(body.empty());
+    EXPECT_EQ(body, "sensitive_call_notification_body_credential_id");
+}
+
+/**
  * @tc.name: TestIsSensitive_SmsReceivedEvent_ReturnTrue
  * @tc.desc: Test IsSensitive with SMS_RECEIVED event id (EVENT type, not POLICY).
  * @tc.type: FUNC

@@ -71,6 +71,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_UNMUTE_DEVICE, EdmInterfaceCode::DISALLOW_UNMUTE_DEVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_VIRTUAL_SERVICE, EdmInterfaceCode::DISALLOW_VIRTUAL_SERVICE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_USB_SERIAL, EdmInterfaceCode::DISALLOW_USB_SERIAL},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PARENT_CONTROL, EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
 };
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::itemCodeMap = {
@@ -123,6 +124,7 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
     {static_cast<int32_t>(RestrictionsFeature::X_KEY), EdmInterfaceCode::DISALLOW_X_KEY},
+    {static_cast<int32_t>(RestrictionsFeature::RECENT_TASKS), EdmInterfaceCode::DISALLOW_RECENT_TASKS},
     {static_cast<int32_t>(RestrictionsFeature::CONTROL_CENTER), EdmInterfaceCode::DISALLOW_CONTROL_CENTER},
     {static_cast<int32_t>(RestrictionsFeature::NOTIFICATION_CENTER), EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
@@ -182,6 +184,9 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::SATA_ODD_BURN), EdmInterfaceCode::DISABLE_SATA_ODD_BURN},
     {static_cast<int32_t>(RestrictionsFeature::SUPER_PRIVACY),
         EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY},
+    {static_cast<int32_t>(RestrictionsFeature::ADVANCED_MESSAGE), EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE},
+    {static_cast<int32_t>(RestrictionsFeature::POWER_SAVING_MODE), EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE},
+    {static_cast<int32_t>(RestrictionsFeature::PARENT_CONTROL), EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -561,6 +566,38 @@ napi_value RestrictionsAddon::IsPolicyDisabledSync(napi_env env, napi_callback_i
     return result;
 }
 
+napi_value RestrictionsAddon::SetDisallowedPolicyImplicitAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetDisallowedPolicyImplicitAdmin called");
+    std::uint32_t ipcCode = 0;
+    auto convertFeature = [&ipcCode](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        return GetInterfaceCodeAndFeatureAll(env, argv, ipcCode);
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "SetDisallowedPolicyImplicitAdmin";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.argsConvert = {convertFeature, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("SetDisallowedPolicyImplicitAdmin can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t ret = proxy->SetDisallowedPolicyImplicitAdmin(adapterAddonData.data, ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
 napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_info info)
 {
     EDMLOGI("NAPI_SetDisallowedPolicy called");
@@ -569,7 +606,12 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_ZERO], &valueType));
+    if (valueType == napi_number) {
+        return SetDisallowedPolicyImplicitAdmin(env, info);
+    }
     std::uint32_t ipcCode = 0;
     std::string feature;
     ErrcodeType errcodeType = ErrcodeType::STRING;
@@ -596,6 +638,20 @@ napi_value RestrictionsAddon::SetDisallowedPolicy(napi_env env, napi_callback_in
         napi_throw(env, CreateError(env, ret, errcodeType));
     }
     return nullptr;
+}
+
+OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureAll(napi_env env, napi_value value, uint32_t &ipcCode)
+{
+    int32_t featureNumber = -1;
+    if (!ParseInt(env, featureNumber, value)) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    auto it = featureEnum2InterfaceCodeMap.find(featureNumber);
+    if (it == featureEnum2InterfaceCodeMap.end()) {
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    ipcCode = it->second;
+    return ERR_OK;
 }
 
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_value value,
@@ -629,6 +685,47 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_v
     return ERR_OK;
 }
 
+napi_value RestrictionsAddon::GetDisallowedPolicyImplicitAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetDisallowedPolicyImplicitAdmin called");
+    std::uint32_t ipcCode = 0;
+    auto convertFeature = [&ipcCode](napi_env env, napi_value argv, MessageParcel &data,
+        const AddonMethodSign &methodSign) -> ErrCode {
+        return GetInterfaceCodeAndFeatureAll(env, argv, ipcCode);
+    };
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetDisallowedPolicyImplicitAdmin";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.argsConvert = {convertFeature, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.defaultArgSize = 1;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("GetDisallowedPolicyImplicitAdmin can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    bool disallow = false;
+    int32_t ret = proxy->GetDisallowedPolicyImplicitAdmin(adapterAddonData.data, ipcCode, disallow);
+    if (FAILED(ret)) {
+        if (ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+            disallow = false;
+        } else {
+            napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+            return nullptr;
+        }
+    }
+    napi_value napiResult = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, disallow, &napiResult));
+    return napiResult;
+}
+
 napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGS_SIZE_TWO;
@@ -636,7 +733,12 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_ONE, "parameter count error");
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARR_INDEX_ZERO], &valueType));
+    if (valueType == napi_number) {
+        return GetDisallowedPolicyImplicitAdmin(env, info);
+    }
     std::uint32_t ipcCode = 0;
     std::string feature;
     ErrcodeType errcodeType = ErrcodeType::STRING;
@@ -1093,6 +1195,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
     EnumEntry entries[] = {
         {"WIFI_P2P", static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P)},
         {"X_KEY", static_cast<uint32_t>(RestrictionsFeature::X_KEY)},
+        {"RECENT_TASKS", static_cast<uint32_t>(RestrictionsFeature::RECENT_TASKS)},
         {"CONTROL_CENTER", static_cast<uint32_t>(RestrictionsFeature::CONTROL_CENTER)},
         {"NOTIFICATION_CENTER", static_cast<uint32_t>(RestrictionsFeature::NOTIFICATION_CENTER)},
         {"SUDO", static_cast<uint32_t>(RestrictionsFeature::SUDO)},
@@ -1157,6 +1260,9 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"SYSTEM_ROLLBACK", static_cast<uint32_t>(RestrictionsFeature::SYSTEM_ROLLBACK)},
         {"SATA_ODD_BURN", static_cast<uint32_t>(RestrictionsFeature::SATA_ODD_BURN)},
         {"SUPER_PRIVACY", static_cast<uint32_t>(RestrictionsFeature::SUPER_PRIVACY)},
+        {"ADVANCED_MESSAGE", static_cast<uint32_t>(RestrictionsFeature::ADVANCED_MESSAGE)},
+        {"POWER_SAVING_MODE", static_cast<uint32_t>(RestrictionsFeature::POWER_SAVING_MODE)},
+        {"PARENT_CONTROL", static_cast<uint32_t>(RestrictionsFeature::PARENT_CONTROL)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

@@ -41,6 +41,8 @@ bool SubSuperDeviceAdmin::HasPermissionToCallServiceCode(uint32_t interfaceCode)
     switch (interfaceCode) {
         case static_cast<uint32_t>(EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT):
         case static_cast<uint32_t>(EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT):
+        case static_cast<uint32_t>(EdmInterfaceCode::SUBSCRIBE_SMS_EVENT):
+        case static_cast<uint32_t>(EdmInterfaceCode::UNSUBSCRIBE_SMS_EVENT):
             return true;
         default:
             return false;

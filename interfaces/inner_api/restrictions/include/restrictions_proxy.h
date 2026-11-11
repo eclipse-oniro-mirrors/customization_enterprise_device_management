@@ -27,9 +27,11 @@ public:
     int32_t SetDisallowedPolicy(const AppExecFwk::ElementName &admin, bool disallow, int policyCode,
         const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t SetDisallowedPolicy(MessageParcel &data, uint32_t policyCode);
+    int32_t SetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode);
     int32_t GetDisallowedPolicy(AppExecFwk::ElementName *admin, int policyCode, bool &result,
         const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_11);
     int32_t GetDisallowedPolicy(MessageParcel &data, uint32_t policyCode, bool &result);
+    int32_t GetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode, bool &result);
     int32_t SetFingerprintAuthDisabled(const AppExecFwk::ElementName &admin, bool disallow);
     int32_t IsFingerprintAuthDisabled(AppExecFwk::ElementName *admin, bool &result);
     int32_t SetFingerprintAuthDisallowedPolicyForAccount(const AppExecFwk::ElementName &admin,

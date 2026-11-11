@@ -33,7 +33,6 @@ enum class ManagedEvent : uint32_t {
     BOOT_COMPLETED = 9,
     BUNDLE_UPDATED = 10,
     POLICIES_CHANGED = 11,
-    SMS_RECEIVED = 12,
     PASSWORD_FAILED = 13,
     BMS_READY = 101,
     KIOSK_MODE_ON = 102,
@@ -42,6 +41,8 @@ enum class ManagedEvent : uint32_t {
     APP_MARKET_DOWNLOAD = 105,
     APP_MARKET_INSTALL = 106,
     UNMOUNT_EXTERNAL_STORAGE_DEVICE = 107,
+    // 监听短信广播事件，只能subscribeSmsEvent接口能听，通用监听接口不可以监听。
+    SMS_RECEIVED = 10000,
 };
 } // namespace EDM
 } // namespace OHOS

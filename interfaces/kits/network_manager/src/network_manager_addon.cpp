@@ -205,6 +205,7 @@ std::vector<napi_property_descriptor> NetworkManagerAddon::InitOne()
         DECLARE_NAPI_FUNCTION("queryApn", QueryApn),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::NetworkManager::SET_ETHERNET_CONFIG, SetEthernetConfig),
         DECLARE_NAPI_FUNCTION("getSharedList", GetSharedPathList),
+        DECLARE_NAPI_FUNCTION("clearDnsCache", ClearDnsCache),
     };
 
     return property;
@@ -2011,6 +2012,26 @@ napi_value NetworkManagerAddon::ConvertSharedPathListToJS(
         NAPI_CALL(env, napi_set_element(env, jsList, i, entry));
     }
     return jsList;
+}
+
+napi_value NetworkManagerAddon::ClearDnsCache(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_ClearDnsCache called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "ClearDnsCache";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = NetworkManagerProxy::GetNetworkManagerProxy()->ClearDnsCache(adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
 }
 
 static napi_module g_networkManagerModule = {

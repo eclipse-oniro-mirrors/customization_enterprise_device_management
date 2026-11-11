@@ -148,12 +148,13 @@ ErrCode IPolicyQuery::GetPolicyNew(std::shared_ptr<PolicyManager> policyManager,
         }
         abilityName = deviceAdmin->adminInfo_.className_;
     } else {
-        if (!(PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
-            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG)) ||
-            PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
-            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG)))) {
+        ErrCode superRet = PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
+            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG));
+        ErrCode byodRet = PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
+            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG));
+        if (FAILED(superRet) && FAILED(byodRet)) {
             EDMLOGE("IPolicyQuery: permission check failed");
-            return EdmReturnErrCode::PERMISSION_DENIED;
+            return superRet;
         }
         auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
         bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), bundleName);

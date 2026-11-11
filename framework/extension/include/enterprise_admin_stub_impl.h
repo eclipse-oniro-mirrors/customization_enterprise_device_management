@@ -22,6 +22,7 @@
 #include "js_enterprise_admin_extension.h"
 #include "policy_changed_event.h"
 #include "external_storage_device_info.h"
+#include "sms_receive_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -59,6 +60,8 @@ public:
     bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
     bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override;
+
+    bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };
