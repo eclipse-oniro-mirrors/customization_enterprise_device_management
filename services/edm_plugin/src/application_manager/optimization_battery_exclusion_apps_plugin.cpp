@@ -77,6 +77,30 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::OnHandlePolicy(std::uint32_t fun
     return ret;
 }
 
+ErrCode OptimizationBatteryExclusionAppsPlugin::SetOtherModulePolicy(const std::vector<std::string> &data,
+    int32_t userId, std::vector<std::string> &failedData)
+{
+    auto bundleMgr = externalManagerFactory_->CreateBundleManager();
+    if (bundleMgr == nullptr) {
+        EDMLOGE("SetOtherModulePolicy: cannot get bundle manager");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    for (const auto &appIdentifier : data) {
+        std::string bundleName;
+        ErrCode ret = bundleMgr->GetBundleNameByAppId(appIdentifier, bundleName);
+        if (FAILED(ret)) {
+            EDMLOGE("SetOtherModulePolicy: GetBundleNameByAppId failed for %{public}s, ret=%{public}d",
+                appIdentifier.c_str(), ret);
+            return EdmReturnErrCode::DOCK_APP_NOT_INSTALLED;
+        }
+        if (!bundleMgr->IsBundleInstalled(bundleName, userId)) {
+            EDMLOGE("SetOtherModulePolicy: %{public}s is not installed", bundleName.c_str());
+            return EdmReturnErrCode::DOCK_APP_NOT_INSTALLED;
+        }
+    }
+    return ERR_OK;
+}
+
 ErrCode OptimizationBatteryExclusionAppsPlugin::GetOthersMergePolicyData(const std::string &adminName,
     int32_t userId, std::string &othersMergePolicyData)
 {
