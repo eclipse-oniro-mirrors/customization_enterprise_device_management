@@ -110,6 +110,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/query_policy/allowed_app_distribution_types_query.cpp",
     "../../../services/edm/src/query_policy/allowed_notification_bundles_query.cpp",
     "../../../services/edm/src/query_policy/device_security_level_policy_query.cpp",
+    "../../../services/edm/src/query_policy/enabled_notification_bundles_query.cpp",
     "../../../services/edm/src/query_policy/enterprise_reset_policy_query.cpp",
     "../../../services/edm/src/query_policy/generic_policy_query.cpp",
     "../../../services/edm/src/query_policy/get_auto_unlock_after_reboot_query.cpp",
@@ -247,6 +248,7 @@ ohos_static_library("edmservice_fuzz_static") {
     sources += [
       "../../../services/edm_plugin/src/application_manager/allowed_notification_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/clear_up_application_data_plugin.cpp",
+      "../../../services/edm_plugin/src/application_manager/enabled_notification_bundles_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/manage_user_non_stop_apps_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/optimization_battery_exclusion_apps_plugin.cpp",
       "../../../services/edm_plugin/src/application_manager/query_traffic_stats_plugin.cpp",
