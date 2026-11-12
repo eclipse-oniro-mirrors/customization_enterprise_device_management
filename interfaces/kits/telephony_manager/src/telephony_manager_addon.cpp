@@ -551,11 +551,11 @@ napi_value TelephonyManagerAddon::GetCallLogs(napi_env env, napi_callback_info i
     }
     std::unique_ptr<AsyncCallLogCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (argc < ARGS_SIZE_ONE) {
-        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAM_ERROR);
     }
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) ||
         !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo->queryConfig)) {
-        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAM_ERROR);
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetCallLogs",
         NativeGetCallLogs, NativeGetCallLogsComplete);
@@ -685,11 +685,11 @@ napi_value TelephonyManagerAddon::GetSmsMessages(napi_env env, napi_callback_inf
     }
     std::unique_ptr<AsyncSmsMessageCallbackInfo> callbackPtr{asyncCallbackInfo};
     if (argc < ARGS_SIZE_ONE) {
-        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAM_ERROR);
     }
     if (!MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) ||
         !ParseQueryConfigFromJs(env, argv[ARR_INDEX_ZERO], asyncCallbackInfo->queryConfig)) {
-        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::PARAM_ERROR);
     }
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "NativeGetSmsMessages",
         NativeGetSmsMessages, NativeGetSmsMessagesComplete);
