@@ -36,6 +36,7 @@ struct AsyncCallbackInfo {
     bool boolRet = true;
     std::string stringRet;
     std::vector<std::string> arrayStringRet;
+    std::vector<int32_t> arrayIntRet;
     int32_t intRet = 0;
     int32_t err = 0;
     uint32_t errCode = 0;
@@ -111,6 +112,7 @@ void NativeBoolCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeStringCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeNumberCallbackComplete(napi_env env, napi_status status, void *data);
 void NativeArrayStringCallbackComplete(napi_env env, napi_status status, void *data);
+void NativeArrayIntCallbackComplete(napi_env env, napi_status status, void *data);
 void ConvertStringVectorToJS(napi_env env, const std::vector<std::string> &stringVector, napi_value result);
 void ConvertInt32VectorToJS(napi_env env, const std::vector<int32_t> &int32Vector, napi_value result);
 napi_value ConvertUint8ArrayToJS(napi_env env, const uint8_t *data, size_t length);

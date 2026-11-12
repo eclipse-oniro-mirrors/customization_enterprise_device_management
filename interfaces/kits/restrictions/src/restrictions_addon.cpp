@@ -16,6 +16,9 @@
 #include "restrictions_addon.h"
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <string>
 #include <vector>
 
 #include "edm_constants.h"
@@ -24,6 +27,161 @@
 #include "restrictions_feature.h"
 
 using namespace OHOS::EDM;
+
+namespace OHOS {
+namespace EDM {
+namespace {
+constexpr uint32_t MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE = 1000;
+
+// Control center key list of the 1*2 area. The index is the enum value of
+// ControlPanelTopToggleList. Keep the order in sync with the .d.ts declaration.
+const std::vector<std::string> CONTROL_PANEL_TOP_TOGGLE_KEYS = {
+    "super_device",
+    "brightness",
+    "focus_mode",
+    "sound",
+    "combined_slider",
+    "hotspot_tagged",
+    "mobile_data_tagged",
+};
+
+// Control center key list of the 1*1 area. The index is the enum value of
+// ControlPanelQuickToggleList. Keep the order in sync with the .d.ts declaration.
+const std::vector<std::string> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
+    "flashlight",
+    "ring_mode",
+    "auto_rotate",
+    "toggle_scanner",
+    "huawei_share",
+    "air_plane",
+    "mobile_data",
+    "hotspot",
+    "toggle_screenshot",
+    "toggle_screen_recorder",
+    "HuaweiCastToggle",
+    "location",
+    "music_service",
+    "nfc",
+    "eye_comfort",
+    "dark_mode",
+    "super_privacy",
+    "super_hub",
+    "power_save",
+    "performance_mode",
+    "youth_mode",
+    "ebook",
+    "sound_recorder",
+    "calculator",
+    "clock_timer",
+    "remote_control",
+    "camera_open",
+    "wltx",
+    "quick_remind",
+    "celia_translate",
+    "quick_note",
+    "multi_window",
+    "qingyun_mode",
+    "celia_captions",
+    "single_handle_switch",
+    "meeting",
+    "edu_space",
+    "computer_mode",
+    "anti_peeping",
+    "mic",
+    "key_mouse_share",
+    "dpin",
+    "toggle_smart_screenshot",
+    "history_clipboard",
+    "health_measure",
+    "heart_rate_measure",
+    "magic_pad",
+    "select_reader",
+};
+
+bool IsValidEnumNumber(napi_env env, napi_value value, int32_t &number)
+{
+    napi_valuetype type = napi_undefined;
+    if (napi_typeof(env, value, &type) != napi_ok || type != napi_number) {
+        return false;
+    }
+    double raw = 0;
+    if (napi_get_value_double(env, value, &raw) != napi_ok) {
+        return false;
+    }
+    if (raw < 0 || raw > static_cast<double>(INT32_MAX) || std::floor(raw) != raw) {
+        return false;
+    }
+    number = static_cast<int32_t>(raw);
+    return true;
+}
+
+ErrCode ConvertToggleListToKeys(napi_env env, napi_value argv, MessageParcel &data,
+    const std::vector<std::string> &keyTable)
+{
+    bool isArray = false;
+    if (napi_is_array(env, argv, &isArray) != napi_ok || !isArray) {
+        EDMLOGE("Control panel toggle list is not an array.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    uint32_t length = 0;
+    if (napi_get_array_length(env, argv, &length) != napi_ok ||
+        length > MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE) {
+        EDMLOGE("Control panel toggle list length is invalid.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    std::vector<std::string> keys;
+    keys.reserve(length);
+    for (uint32_t i = 0; i < length; i++) {
+        napi_value element = nullptr;
+        if (napi_get_element(env, argv, i, &element) != napi_ok) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        int32_t value = 0;
+        if (!IsValidEnumNumber(env, element, value) || value < 0 ||
+            static_cast<size_t>(value) >= keyTable.size()) {
+            EDMLOGE("Control panel toggle list contains invalid enum value.");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        const std::string &key = keyTable[value];
+        if (std::find(keys.begin(), keys.end(), key) == keys.end()) {
+            keys.push_back(key);
+        }
+    }
+    if (!data.WriteStringVector(keys)) {
+        EDMLOGE("Control panel toggle list write parcel failed.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return ERR_OK;
+}
+
+ErrCode ControlPanelTopToggleListToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &)
+{
+    return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_TOP_TOGGLE_KEYS);
+}
+
+ErrCode ControlPanelQuickToggleListToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &)
+{
+    return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_QUICK_TOGGLE_KEYS);
+}
+
+void ConvertKeysToEnumValues(const std::vector<std::string> &keys,
+    const std::vector<std::string> &keyTable, std::vector<int32_t> &values)
+{
+    values.clear();
+    for (const auto &key : keys) {
+        auto it = std::find(keyTable.begin(), keyTable.end(), key);
+        if (it == keyTable.end()) {
+            EDMLOGW("Unknown control panel toggle key: %{public}s", key.c_str());
+            continue;
+        }
+        values.push_back(static_cast<int32_t>(it - keyTable.begin()));
+    }
+}
+} // namespace
+} // namespace EDM
+} // namespace OHOS
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BLUETOOTH, EdmInterfaceCode::DISABLE_BLUETOOTH},
@@ -1426,7 +1584,8 @@ napi_value RestrictionsAddon::SetControlPanelQuickToggleListForAccount(napi_env 
     EDMLOGI("SetControlPanelQuickToggleListForAccount called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setControlPanelQuickToggleListForAccount";
-    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {ControlPanelQuickToggleListToData, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
@@ -1456,7 +1615,7 @@ napi_value RestrictionsAddon::GetControlPanelQuickToggleListForAccount(napi_env 
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelQuickToggleListForAccount,
-        NativeArrayStringCallbackComplete);
+        NativeArrayIntCallbackComplete);
 }
 
 void RestrictionsAddon::NativeGetControlPanelQuickToggleListForAccount(napi_env env, void *data)
@@ -1470,6 +1629,10 @@ void RestrictionsAddon::NativeGetControlPanelQuickToggleListForAccount(napi_env 
     asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetArrayStringPolicyImplicitAdmin(
         asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
         asyncCallbackInfo->arrayStringRet);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        ConvertKeysToEnumValues(asyncCallbackInfo->arrayStringRet, CONTROL_PANEL_QUICK_TOGGLE_KEYS,
+            asyncCallbackInfo->arrayIntRet);
+    }
 }
 
 napi_value RestrictionsAddon::SetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
@@ -1477,7 +1640,8 @@ napi_value RestrictionsAddon::SetControlPanelTopToggleListForAccount(napi_env en
     EDMLOGI("SetControlPanelTopToggleListForAccount called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "setControlPanelTopToggleListForAccount";
-    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {ControlPanelTopToggleListToData, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
@@ -1507,7 +1671,7 @@ napi_value RestrictionsAddon::GetControlPanelTopToggleListForAccount(napi_env en
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelTopToggleListForAccount,
-        NativeArrayStringCallbackComplete);
+        NativeArrayIntCallbackComplete);
 }
 
 void RestrictionsAddon::NativeGetControlPanelTopToggleListForAccount(napi_env env, void *data)
@@ -1521,6 +1685,10 @@ void RestrictionsAddon::NativeGetControlPanelTopToggleListForAccount(napi_env en
     asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetArrayStringPolicyImplicitAdmin(
         asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
         asyncCallbackInfo->arrayStringRet);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        ConvertKeysToEnumValues(asyncCallbackInfo->arrayStringRet, CONTROL_PANEL_TOP_TOGGLE_KEYS,
+            asyncCallbackInfo->arrayIntRet);
+    }
 }
 
 static napi_module g_restrictionsModule = {

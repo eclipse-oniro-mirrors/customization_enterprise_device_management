@@ -823,6 +823,20 @@ void ConvertInt32VectorToJS(napi_env env, const std::vector<int32_t> &int32Vecto
     }
 }
 
+void NativeArrayIntCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+    napi_value result = nullptr;
+    napi_create_array(env, &result);
+    ConvertInt32VectorToJS(env, asyncCallbackInfo->arrayIntRet, result);
+    NativeCallbackComplete(env, status, asyncCallbackInfo, result);
+    delete asyncCallbackInfo;
+}
+
 napi_value ConvertUint8ArrayToJS(napi_env env, const uint8_t *data, size_t length)
 {
     void *arrayBufferData = nullptr;
