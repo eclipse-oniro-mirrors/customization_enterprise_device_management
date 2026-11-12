@@ -42,6 +42,7 @@ protected:
     static void SetUpTestSuite(void);
     static void TearDownTestSuite(void);
     void AssertConflictWithPolicy(const std::string &policyName, const std::string &policyValue);
+    void AssertNoConflictWithPolicy(const std::string &policyName, const std::string &policyValue);
 };
 
 void UsbInterceptEnablePluginTest::SetUpTestSuite(void)
@@ -66,6 +67,20 @@ void UsbInterceptEnablePluginTest::AssertConflictWithPolicy(const std::string &p
     UsbInterceptEnablePlugin plugin;
     ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
+    policyManager->SetPolicy(TEST_ADMIN_NAME, policyName, "", "", DEFAULT_USER_ID);
+    IPolicyManager::policyManagerInstance_ = nullptr;
+}
+
+void UsbInterceptEnablePluginTest::AssertNoConflictWithPolicy(const std::string &policyName,
+    const std::string &policyValue)
+{
+    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
+    IPolicyManager::policyManagerInstance_ = policyManager.get();
+    ErrCode res = policyManager->SetPolicy(TEST_ADMIN_NAME, policyName, policyValue, policyValue, DEFAULT_USER_ID);
+    ASSERT_TRUE(res == ERR_OK);
+    UsbInterceptEnablePlugin plugin;
+    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
     policyManager->SetPolicy(TEST_ADMIN_NAME, policyName, "", "", DEFAULT_USER_ID);
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
@@ -143,13 +158,46 @@ HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyDisableUsb, TestSi
 }
 
 /**
- * @tc.name: TestCheckConflictPolicyExternalStorageIntercept
- * @tc.desc: Test CheckConflictPolicy when external storage intercept is enabled.
+ * @tc.name: TestCheckConflictPolicyDisallowUsbSerial
+ * @tc.desc: Test CheckConflictPolicy when usb serial is disallowed.
  * @tc.type: FUNC
  */
-HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyExternalStorageIntercept, TestSize.Level1)
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyDisallowUsbSerial, TestSize.Level1)
 {
-    AssertConflictWithPolicy(PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE, EdmConstants::CONST_TRUE);
+    AssertConflictWithPolicy(PolicyName::POLICY_DISALLOW_USB_SERIAL, EdmConstants::CONST_TRUE);
+}
+
+/**
+ * @tc.name: TestCheckConflictPolicyUsbStorageDisabled
+ * @tc.desc: Test CheckConflictPolicy when usb storage access policy is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyUsbStorageDisabled, TestSize.Level1)
+{
+    AssertConflictWithPolicy(PolicyName::POLICY_USB_READ_ONLY,
+        std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED));
+}
+
+/**
+ * @tc.name: TestCheckConflictPolicyDisallowedUsbDevices
+ * @tc.desc: Test CheckConflictPolicy when disallowed usb devices is not empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyDisallowedUsbDevices, TestSize.Level1)
+{
+    AssertConflictWithPolicy(PolicyName::POLICY_DISALLOWED_USB_DEVICES,
+        "[{\"baseClass\":8,\"subClass\":6,\"protocol\":80,\"isInterfaceRestricted\":true}]");
+}
+
+/**
+ * @tc.name: TestCheckConflictPolicyDisallowedPermissiveUsbDevices
+ * @tc.desc: Test CheckConflictPolicy when disallowed permissive usb devices is not empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyDisallowedPermissiveUsbDevices, TestSize.Level1)
+{
+    AssertConflictWithPolicy(PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
+        "[{\"baseClass\":3,\"subClass\":1,\"protocol\":2,\"isInterfaceRestricted\":true}]");
 }
 
 /**
@@ -160,6 +208,37 @@ HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyExternalStorageInt
 HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyAllowedUsbDevices, TestSize.Level1)
 {
     AssertConflictWithPolicy(PolicyName::POLICY_ALLOWED_USB_DEVICES, "[{\"vendorId\":1,\"productId\":2}]");
+}
+
+/**
+ * @tc.name: TestCheckConflictPolicyExternalStorageInterceptNoConflict
+ * @tc.desc: Test CheckConflictPolicy allows external storage intercept coexistence.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyExternalStorageInterceptNoConflict, TestSize.Level1)
+{
+    AssertNoConflictWithPolicy(PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE, EdmConstants::CONST_TRUE);
+}
+
+/**
+ * @tc.name: TestCheckConflictPolicyUsbReadOnlyNoConflict
+ * @tc.desc: Test CheckConflictPolicy allows usb storage read-only coexistence.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyUsbReadOnlyNoConflict, TestSize.Level1)
+{
+    AssertNoConflictWithPolicy(PolicyName::POLICY_USB_READ_ONLY,
+        std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY));
+}
+
+/**
+ * @tc.name: TestCheckConflictPolicyDisallowedUsbStorageWriteNoConflict
+ * @tc.desc: Test CheckConflictPolicy allows disallowed usb storage write coexistence.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbInterceptEnablePluginTest, TestCheckConflictPolicyDisallowedUsbStorageWriteNoConflict, TestSize.Level1)
+{
+    AssertNoConflictWithPolicy(PolicyName::POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE, EdmConstants::CONST_TRUE);
 }
 } // namespace TEST
 } // namespace EDM

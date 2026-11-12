@@ -129,6 +129,12 @@ ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::st
         hasConflict = true;
         return ERR_OK;
     }
+    if (accessPolicy == EdmConstants::STORAGE_USB_POLICY_DISABLED &&
+        UsbPolicyUtils::IsUsbInterceptEnabled()) {
+        EDMLOGE("UsbReadOnlyPlugin policy conflict! usbInterceptEnable.");
+        hasConflict = true;
+        return ERR_OK;
+    }
     std::string externalStorageInterceptEnable;
     policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
         externalStorageInterceptEnable);
@@ -137,11 +143,7 @@ ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::st
         hasConflict = true;
         return ERR_OK;
     }
-    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
-        EDMLOGE("UsbReadOnlyPlugin policy conflict! usbInterceptEnable.");
-        hasConflict = true;
-        return ERR_OK;
-    }
+
 #ifdef FEATURE_PC_ONLY
     bool isDisallowed = false;
     if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {

@@ -21,7 +21,6 @@
 #include "imdm_event_relayer.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
-#include "usb_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -84,10 +83,7 @@ ErrCode ExternalStorageInterceptEnablePlugin::CheckConflictPolicy(int32_t userId
             usbStorageDeviceWrite.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
-        EDMLOGE("ExternalStorageInterceptEnablePlugin POLICY CONFLICT! usbInterceptEnable is true");
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
+
     return ERR_OK;
 }
 

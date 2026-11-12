@@ -41,14 +41,14 @@ UsbInterceptEnablePlugin::UsbInterceptEnablePlugin()
 
 ErrCode UsbInterceptEnablePlugin::CheckConflictPolicy(int32_t userId)
 {
-    ErrCode ret = CheckConflictWithUsbDevicePolicies();
+    ErrCode ret = CheckConflictWithUsbRestrictionPolicies();
     if (FAILED(ret)) {
         return ret;
     }
-    return CheckConflictWithUsbStoragePolicies();
+    return CheckConflictWithUsbDeviceListPolicies();
 }
 
-ErrCode UsbInterceptEnablePlugin::CheckConflictWithUsbDevicePolicies()
+ErrCode UsbInterceptEnablePlugin::CheckConflictWithUsbRestrictionPolicies()
 {
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
@@ -57,13 +57,25 @@ ErrCode UsbInterceptEnablePlugin::CheckConflictWithUsbDevicePolicies()
         EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! Usb is disabled.");
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    std::string allowUsbDevice;
-    policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
-    if (!allowUsbDevice.empty()) {
-        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! allowedUsbDevice: %{public}s",
-            allowUsbDevice.c_str());
+    std::string disableUsbSerial;
+    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
+    if (disableUsbSerial == "true") {
+        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! Usb serial is disabled.");
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
+    std::string usbStoragePolicy;
+    policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
+    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
+        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! usbStoragePolicy disabled: %{public}s",
+            usbStoragePolicy.c_str());
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
+    return ERR_OK;
+}
+
+ErrCode UsbInterceptEnablePlugin::CheckConflictWithUsbDeviceListPolicies()
+{
+    auto policyManager = IPolicyManager::GetInstance();
     std::string disallowUsbDevice;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevice);
     if (!disallowUsbDevice.empty()) {
@@ -79,33 +91,11 @@ ErrCode UsbInterceptEnablePlugin::CheckConflictWithUsbDevicePolicies()
             disallowPermissiveUsbDevice.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
-    return ERR_OK;
-}
-
-ErrCode UsbInterceptEnablePlugin::CheckConflictWithUsbStoragePolicies()
-{
-    auto policyManager = IPolicyManager::GetInstance();
-    std::string usbStoragePolicy;
-    policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
-    if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED) ||
-        usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY)) {
-        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! usbStoragePolicy: %{public}s",
-            usbStoragePolicy.c_str());
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-    std::string usbStorageDeviceWrite;
-    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE, usbStorageDeviceWrite);
-    if (usbStorageDeviceWrite == "true") {
-        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! usbStorageDeviceWrite: %{public}s",
-            usbStorageDeviceWrite.c_str());
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-    std::string externalStorageInterceptEnable;
-    policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
-        externalStorageInterceptEnable);
-    if (externalStorageInterceptEnable == "true") {
-        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! externalStorageInterceptEnable: %{public}s",
-            externalStorageInterceptEnable.c_str());
+    std::string allowUsbDevice;
+    policyManager->GetPolicy("", PolicyName::POLICY_ALLOWED_USB_DEVICES, allowUsbDevice);
+    if (!allowUsbDevice.empty()) {
+        EDMLOGE("UsbInterceptEnablePlugin POLICY CONFLICT! allowedUsbDevice: %{public}s",
+            allowUsbDevice.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
     return ERR_OK;

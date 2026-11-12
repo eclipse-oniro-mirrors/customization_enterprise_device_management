@@ -49,13 +49,10 @@ ErrCode UsbDeviceControlUtils::GetUsbDeviceInfos(std::vector<UsbDeviceInfo> &inf
 {
     std::vector<UsbFlatDeviceInfo> flatList;
     int32_t usbRet = UsbDeviceControlIpc::GetAllDevices(flatList);
-    if (usbRet == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
-        EDMLOGW("UsbDeviceControlUtils::GetUsbDeviceInfos: USB device-control API unsupported");
-        infos.clear();
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-    }
-    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
-        EDMLOGW("UsbDeviceControlUtils::GetUsbDeviceInfos: USB interface not init, empty list");
+    if (usbRet == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED) ||
+        usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("UsbDeviceControlUtils::GetUsbDeviceInfos: USB unavailable, return empty list, ret=%{public}d",
+            usbRet);
         infos.clear();
         return ERR_OK;
     }

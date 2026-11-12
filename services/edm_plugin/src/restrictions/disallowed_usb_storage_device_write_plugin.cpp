@@ -26,7 +26,6 @@
 #include "os_account_manager.h"
 #include "parameters.h"
 #include "usb_interface_type.h"
-#include "usb_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -116,11 +115,6 @@ ErrCode DisallowedUsbStorageDeviceWritePlugin::CheckConflictPolicy(int32_t userI
     if (externalStorageInterceptEnable == "true") {
         EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
             "externalStorageInterceptEnable: %{public}s", externalStorageInterceptEnable.c_str());
-        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
-    }
-    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
-        EDMLOGE("DisallowedUsbStorageDeviceWritePlugin::HasConflictPolicy, policy conflict! "
-            "usbInterceptEnable is true");
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
 

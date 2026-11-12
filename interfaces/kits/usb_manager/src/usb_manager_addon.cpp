@@ -14,6 +14,8 @@
  */
 #include "usb_manager_addon.h"
 
+#include <climits>
+
 #include "array_odd_burn_usb_device_serializer.h"
 #include "edm_log.h"
 #include "external_storage_device_info.h"
@@ -306,26 +308,82 @@ napi_value UsbManagerAddon::SetUsbDeviceStates(napi_env env, napi_callback_info 
     return nullptr;
 }
 
+namespace {
+bool ParseJsNumberToInt32(napi_env env, napi_value value, int32_t &out)
+{
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, value, &valueType) != napi_ok || valueType != napi_number) {
+        return false;
+    }
+    if (napi_get_value_int32(env, value, &out) == napi_ok) {
+        return true;
+    }
+    double number = 0.0;
+    if (napi_get_value_double(env, value, &number) != napi_ok) {
+        return false;
+    }
+    if (number < static_cast<double>(INT32_MIN) || number > static_cast<double>(INT32_MAX)) {
+        return false;
+    }
+    out = static_cast<int32_t>(number);
+    return true;
+}
+
+bool GetObjectIntProperty(napi_env env, napi_value object, const char *field, bool required, int32_t &out,
+    bool &present)
+{
+    present = false;
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, field, &hasProperty) != napi_ok) {
+        return false;
+    }
+    if (!hasProperty) {
+        return !required;
+    }
+    napi_value prop = nullptr;
+    if (napi_get_named_property(env, object, field, &prop) != napi_ok) {
+        return false;
+    }
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, prop, &valueType) != napi_ok) {
+        return false;
+    }
+    if (valueType == napi_undefined || valueType == napi_null) {
+        return !required;
+    }
+    if (!ParseJsNumberToInt32(env, prop, out)) {
+        EDMLOGE("GetObjectIntProperty %{public}s: Wrong argument type. int32 expected.", field);
+        return false;
+    }
+    present = true;
+    return true;
+}
+} // namespace
 bool UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config)
 {
-    if (!JsObjectToInt(env, value, "busNum", true, config.busNum) ||
-        !JsObjectToInt(env, value, "devAddress", true, config.devAddress)) {
+    bool presentBus = false;
+    bool presentDev = false;
+    if (!GetObjectIntProperty(env, value, "busNum", true, config.busNum, presentBus) ||
+        !GetObjectIntProperty(env, value, "devAddress", true, config.devAddress, presentDev)) {
         EDMLOGE("GetUsbDeviceConfigInfoFromNAPI busNum/devAddress parse error");
         return false;
     }
-    bool hasConfigId = false;
-    bool hasInterfaceId = false;
-    napi_has_named_property(env, value, "configId", &hasConfigId);
-    napi_has_named_property(env, value, "interfaceId", &hasInterfaceId);
-    if (hasConfigId != hasInterfaceId) {
+    bool presentConfigId = false;
+    bool presentInterfaceId = false;
+    int32_t configId = 0;
+    int32_t interfaceId = 0;
+    if (!GetObjectIntProperty(env, value, "configId", false, configId, presentConfigId) ||
+        !GetObjectIntProperty(env, value, "interfaceId", false, interfaceId, presentInterfaceId)) {
+        EDMLOGE("GetUsbDeviceConfigInfoFromNAPI configId/interfaceId parse error");
+        return false;
+    }
+    if (presentConfigId != presentInterfaceId) {
         EDMLOGE("GetUsbDeviceConfigInfoFromNAPI configId/interfaceId must appear together");
         return false;
     }
-    if (hasConfigId) {
-        if (!JsObjectToInt(env, value, "configId", true, config.configId) ||
-            !JsObjectToInt(env, value, "interfaceId", true, config.interfaceId)) {
-            return false;
-        }
+    if (presentConfigId) {
+        config.configId = configId;
+        config.interfaceId = interfaceId;
         config.hasConfigId = true;
         config.hasInterfaceId = true;
     }

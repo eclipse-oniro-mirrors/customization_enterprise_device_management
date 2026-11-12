@@ -31,8 +31,8 @@ public:
 
 private:
     ErrCode CheckConflictPolicy(int32_t userId) override;
-    ErrCode CheckConflictWithUsbDevicePolicies();
-    ErrCode CheckConflictWithUsbStoragePolicies();
+    ErrCode CheckConflictWithUsbRestrictionPolicies();
+    ErrCode CheckConflictWithUsbDeviceListPolicies();
 };
 } // namespace EDM
 } // namespace OHOS
