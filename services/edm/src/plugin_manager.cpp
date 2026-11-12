@@ -157,6 +157,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
     EdmInterfaceCode::GET_CREDENTIAL_ID,
     EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
+    EdmInterfaceCode::ENABLED_NOTIFICATION_BUNDLES,
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {

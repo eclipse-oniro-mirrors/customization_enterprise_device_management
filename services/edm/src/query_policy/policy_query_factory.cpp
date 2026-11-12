@@ -54,6 +54,7 @@
 #include "is_app_kiosk_allowed_query.h"
 
 #include "allowed_notification_bundles_query.h"
+#include "enabled_notification_bundles_query.h"
 
 #ifdef WIFI_EDM_ENABLE
 #include "allowed_wifi_list_query.h"
@@ -217,6 +218,8 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomAppManageQuery(uin
             return std::make_shared<AllowedAppDistributionTypesQuery>();
         case EdmInterfaceCode::ALLOWED_NOTIFICATION_BUNDLES:
             return std::make_shared<AllowedNotificationBundlesQuery>();
+        case EdmInterfaceCode::ENABLED_NOTIFICATION_BUNDLES:
+            return std::make_shared<EnabledNotificationBundlesQuery>();
         case EdmInterfaceCode::NTP_SERVER:
             return std::make_shared<NTPServerQuery>();
         case EdmInterfaceCode::GET_BUNDLE_STORAGE_STATS:

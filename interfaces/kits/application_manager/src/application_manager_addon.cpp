@@ -141,6 +141,9 @@ std::vector<napi_property_descriptor> ApplicationManagerAddon::InitOne()
         DECLARE_NAPI_FUNCTION("addOptimizationBatteryExclusionApps", AddOptimizationBatteryExclusionApps),
         DECLARE_NAPI_FUNCTION("removeOptimizationBatteryExclusionApps", RemoveOptimizationBatteryExclusionApps),
         DECLARE_NAPI_FUNCTION("getOptimizationBatteryExclusionApps", GetOptimizationBatteryExclusionApps),
+        DECLARE_NAPI_FUNCTION("addEnabledNotificationBundles", AddEnabledNotificationBundles),
+        DECLARE_NAPI_FUNCTION("removeEnabledNotificationBundles", RemoveEnabledNotificationBundles),
+        DECLARE_NAPI_FUNCTION("getEnabledNotificationBundles", GetEnabledNotificationBundles),
     };
     return property;
 }
@@ -2155,6 +2158,73 @@ napi_value ApplicationManagerAddon::GetOptimizationBatteryExclusionApps(napi_env
         NAPI_CALL(env, napi_set_element(env, appList, i, item));
     }
     return appList;
+}
+
+napi_value ApplicationManagerAddon::AddEnabledNotificationBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_AddEnabledNotificationBundles called");
+    return AddOrRemoveEnabledNotificationBundles(env, info, FuncOperateType::SET);
+}
+
+napi_value ApplicationManagerAddon::RemoveEnabledNotificationBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_RemoveEnabledNotificationBundles called");
+    return AddOrRemoveEnabledNotificationBundles(env, info, FuncOperateType::REMOVE);
+}
+
+napi_value ApplicationManagerAddon::AddOrRemoveEnabledNotificationBundles(napi_env env, napi_callback_info info,
+    FuncOperateType operateType)
+{
+    EDMLOGI("NAPI_AddOrRemoveEnabledNotificationBundles called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = operateType == FuncOperateType::SET ?
+        "AddEnabledNotificationBundles" : "RemoveEnabledNotificationBundles";
+    addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        AddOrRemoveEnabledNotificationBundles(adapterAddonData.data, operateType);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("AddOrRemoveEnabledNotificationBundles failed!");
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::GetEnabledNotificationBundles(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetEnabledNotificationBundles called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetEnabledNotificationBundles";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID, EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.defaultArgSize = 1;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    std::vector<std::string> bundleNames;
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->
+        GetEnabledNotificationBundles(adapterAddonData.data, bundleNames);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value bundleList = nullptr;
+    NAPI_CALL(env, napi_create_array_with_length(env, bundleNames.size(), &bundleList));
+    for (size_t i = 0; i < bundleNames.size(); i++) {
+        napi_value item;
+        NAPI_CALL(env, napi_create_string_utf8(env, bundleNames[i].c_str(), NAPI_AUTO_LENGTH, &item));
+        NAPI_CALL(env, napi_set_element(env, bundleList, i, item));
+    }
+    return bundleList;
 }
 
 static napi_module g_applicationManagerModule = {
