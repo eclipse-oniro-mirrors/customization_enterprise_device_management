@@ -675,6 +675,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
+    {EdmInterfaceCode::DISALLOW_PARENT_CONTROL, {PolicyName::POLICY_DISALLOW_PARENT_CONTROL,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::ENABLED_NOTIFICATION_BUNDLES, {PolicyName::POLICY_ENABLED_NOTIFICATION_BUNDLES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION), true, IPlugin::ApiType::PUBLIC, true}},
@@ -698,8 +700,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         true
 #endif
     }},
-    {EdmInterfaceCode::DISALLOW_PARENT_CONTROL, {PolicyName::POLICY_DISALLOW_PARENT_CONTROL,
-        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
 };
 
 constexpr size_t CONFIG_TABLE_SIZE = sizeof(CONFIG_TABLE) / sizeof(CONFIG_TABLE[0]);
