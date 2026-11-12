@@ -81,12 +81,13 @@ private:
 
 class AccountStrategy : public ICallbackStrategy {
 public:
-    AccountStrategy(uint32_t code, int32_t accountId)
-        : ICallbackStrategy(code), accountId_(accountId) {}
+    AccountStrategy(uint32_t code, int32_t accountId, int32_t oldAccountId = INVALID_ACCOUNT_ID)
+        : ICallbackStrategy(code), accountId_(accountId), oldAccountId_(oldAccountId) {}
 
 private:
     bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     int32_t accountId_;
+    int32_t oldAccountId_;
 };
 
 class KioskModeStrategy : public ICallbackStrategy {

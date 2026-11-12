@@ -546,6 +546,8 @@ ohos_unittest("EdmServicesUnitTest") {
   ]
 
   sources = [
+    "../../../../framework/extension/src/enterprise_admin_stub.cpp",
+    "./src/account_callback_ipc_test.cpp",
     "./src/ability_controller_factory_test.cpp",
     "./src/ability_controller_test.cpp",
     "./src/admin_container_test.cpp",
