@@ -820,7 +820,7 @@ void PluginManager::CallOnHandlePolicy(uint32_t funcCode, const std::string &adm
             return;
         }
     }
-    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
+    std::shared_lock<std::shared_timed_mutex> pinLock(soPinMutex_);
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"", "", false, adminName};
     ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(funcCode, data, reply, handlePolicyData, userId);

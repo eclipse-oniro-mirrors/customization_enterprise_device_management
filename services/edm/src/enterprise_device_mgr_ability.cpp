@@ -1609,6 +1609,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
         OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED,
             userId, admin->adminInfo_.packageName_);
     }
+#ifndef FEATURE_PC_ONLY
     if (!admin->adminInfo_.isDebug_ && !skipNotify &&
         !GetPermissionChecker()->CheckIsNativeCall()) {
         ExtInfoManager::GetInstance()->NotifyAdminDisabled(
@@ -1616,6 +1617,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
             static_cast<int32_t>(admin->adminInfo_.enableSource_),
             admin->adminInfo_.packageName_);
     }
+#endif
     if (admin->IsDisallowedUninstall()) {
         if (admin->IsAllowedAcrossAccountSetPolicy()) {
             DelDisallowUninstallApp(admin->adminInfo_.packageName_);
