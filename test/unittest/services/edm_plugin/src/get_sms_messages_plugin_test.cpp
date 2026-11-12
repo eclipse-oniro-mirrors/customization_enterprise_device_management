@@ -20,8 +20,11 @@
 #undef protected
 
 #include <gtest/gtest.h>
+#include <limits>
+#include <vector>
 
 #include "edm_constants.h"
+#include "edm_data_ability_utils_mock.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -40,9 +43,15 @@ const std::string TELEPHONE_NUMBER = "13800000000";
 
 class GetSmsMessagesPluginTest : public testing::Test {
 protected:
+    void SetUp() override;
     static void SetUpTestSuite(void);
     static void TearDownTestSuite(void);
 };
+
+void GetSmsMessagesPluginTest::SetUp()
+{
+    EdmDataAbilityUtils::ResetSmsMessagesResult();
+}
 
 void GetSmsMessagesPluginTest::SetUpTestSuite(void)
 {
@@ -72,8 +81,8 @@ HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicyInvalidStartTimeNegative, Test
     std::shared_ptr<IPlugin> plugin = std::make_shared<GetSmsMessagesPlugin>();
     std::string policyData;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -92,8 +101,8 @@ HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicyInvalidEndTimeNegative, TestSi
     std::shared_ptr<IPlugin> plugin = std::make_shared<GetSmsMessagesPlugin>();
     std::string policyData;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -112,8 +121,8 @@ HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicyInvalidRange, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin = std::make_shared<GetSmsMessagesPlugin>();
     std::string policyData;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
-    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_TRUE(reply.ReadInt32() == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -130,6 +139,94 @@ HWTEST_F(GetSmsMessagesPluginTest, TestPluginConstruction, TestSize.Level1)
     for (const auto &item : plugin->permissionConfig_.typePermissions) {
         ASSERT_TRUE(item.second == EdmPermission::PERMISSION_ENTERPRISE_READ_MESSAGES);
     }
+}
+
+/**
+ * @tc.name: TestOnGetPolicyEndTimeOverflow
+ * @tc.desc: Test OnGetPolicy with endTime that would overflow when converted to milliseconds.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetSmsMessagesPluginTest, TestOnGetPolicyEndTimeOverflow, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt64(0);
+    data.WriteInt64(std::numeric_limits<int64_t>::max());
+    data.WriteString(TELEPHONE_NUMBER);
+
+    std::shared_ptr<IPlugin> plugin = std::make_shared<GetSmsMessagesPlugin>();
+    std::string policyData;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestQuerySmsMessagesConvertSecondsToMilliseconds
+ * @tc.desc: Test QuerySmsMessages converts the seconds time range to milliseconds for the database
+ *           and converts the returned timer back to seconds.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetSmsMessagesPluginTest, TestQuerySmsMessagesConvertSecondsToMilliseconds, TestSize.Level1)
+{
+    SmsQueryResult mockResult;
+    mockResult.slotId = 1;
+    mockResult.telephoneNumber = "13800000000";
+    mockResult.content = "hello";
+    mockResult.timer = 1500999;
+    mockResult.isSender = true;
+    EdmDataAbilityUtils::SetSmsMessagesResult(ERR_OK, {mockResult});
+
+    auto plugin = std::make_shared<GetSmsMessagesPlugin>();
+    std::vector<SmsMessageInfo> messages;
+    ErrCode ret = plugin->QuerySmsMessages(START_TIME, END_TIME, TELEPHONE_NUMBER, messages);
+
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastSmsStartTime(), START_TIME * 1000);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastSmsEndTime(), END_TIME * 1000);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastSmsTelephoneNumber(), TELEPHONE_NUMBER);
+    ASSERT_EQ(messages.size(), 1);
+    EXPECT_EQ(messages[0].slotId, 1);
+    EXPECT_EQ(messages[0].telephoneNumber, "13800000000");
+    EXPECT_EQ(messages[0].content, "hello");
+    EXPECT_EQ(messages[0].timer, 1500);
+    EXPECT_TRUE(messages[0].isSender);
+}
+
+/**
+ * @tc.name: TestQuerySmsMessagesEmptyResult
+ * @tc.desc: Test QuerySmsMessages returns success with empty messages when database has no matched record.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetSmsMessagesPluginTest, TestQuerySmsMessagesEmptyResult, TestSize.Level1)
+{
+    EdmDataAbilityUtils::SetSmsMessagesResult(ERR_OK, {});
+
+    auto plugin = std::make_shared<GetSmsMessagesPlugin>();
+    std::vector<SmsMessageInfo> messages;
+    ErrCode ret = plugin->QuerySmsMessages(START_TIME, END_TIME, TELEPHONE_NUMBER, messages);
+
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(messages.empty());
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastSmsStartTime(), START_TIME * 1000);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastSmsEndTime(), END_TIME * 1000);
+}
+
+/**
+ * @tc.name: TestQuerySmsMessagesQueryFailed
+ * @tc.desc: Test QuerySmsMessages returns the database error code when the query fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetSmsMessagesPluginTest, TestQuerySmsMessagesQueryFailed, TestSize.Level1)
+{
+    EdmDataAbilityUtils::SetSmsMessagesResult(EdmReturnErrCode::EXECUTE_TIME_OUT, {});
+
+    auto plugin = std::make_shared<GetSmsMessagesPlugin>();
+    std::vector<SmsMessageInfo> messages;
+    ErrCode ret = plugin->QuerySmsMessages(START_TIME, END_TIME, TELEPHONE_NUMBER, messages);
+
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_TRUE(messages.empty());
 }
 } // namespace TEST
 } // namespace EDM
