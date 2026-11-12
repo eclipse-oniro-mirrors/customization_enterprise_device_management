@@ -22,9 +22,57 @@ namespace EDM {
 
 const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
 std::string EdmDataAbilityUtils::result_;
+ErrCode EdmDataAbilityUtils::smsResult_ = ERR_OK;
+std::vector<SmsQueryResult> EdmDataAbilityUtils::smsMessages_;
+int64_t EdmDataAbilityUtils::lastSmsStartTime_ = 0;
+int64_t EdmDataAbilityUtils::lastSmsEndTime_ = 0;
+std::string EdmDataAbilityUtils::lastSmsTelephoneNumber_;
 void EdmDataAbilityUtils::SetResult(const std::string &result)
 {
     result_ = result;
+}
+
+void EdmDataAbilityUtils::SetSmsMessagesResult(ErrCode ret, const std::vector<SmsQueryResult> &messages)
+{
+    smsResult_ = ret;
+    smsMessages_ = messages;
+}
+
+void EdmDataAbilityUtils::ResetSmsMessagesResult()
+{
+    smsResult_ = ERR_OK;
+    smsMessages_.clear();
+    lastSmsStartTime_ = 0;
+    lastSmsEndTime_ = 0;
+    lastSmsTelephoneNumber_.clear();
+}
+
+int64_t EdmDataAbilityUtils::GetLastSmsStartTime()
+{
+    return lastSmsStartTime_;
+}
+
+int64_t EdmDataAbilityUtils::GetLastSmsEndTime()
+{
+    return lastSmsEndTime_;
+}
+
+std::string EdmDataAbilityUtils::GetLastSmsTelephoneNumber()
+{
+    return lastSmsTelephoneNumber_;
+}
+
+ErrCode EdmDataAbilityUtils::GetSmsMessages(int64_t startTime, int64_t endTime,
+    const std::string &telephoneNumber, std::vector<SmsQueryResult> &messages)
+{
+    lastSmsStartTime_ = startTime;
+    lastSmsEndTime_ = endTime;
+    lastSmsTelephoneNumber_ = telephoneNumber;
+    if (smsResult_ != ERR_OK) {
+        return smsResult_;
+    }
+    messages = smsMessages_;
+    return ERR_OK;
 }
 
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)

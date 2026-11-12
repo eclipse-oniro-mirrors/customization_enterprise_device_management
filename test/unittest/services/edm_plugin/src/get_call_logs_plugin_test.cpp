@@ -15,7 +15,10 @@
 
 #include <gtest/gtest.h>
 #include <string>
+#include <variant>
+#include <vector>
 
+#include "datashare_predicates.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_log.h"
@@ -30,6 +33,32 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
+
+static std::vector<std::string> GetEndsWithValues(const DataShare::DataSharePredicates &predicates,
+    const std::string &field)
+{
+    std::vector<std::string> values;
+    for (const auto &item : predicates.GetOperationList()) {
+        if (item.operation != DataShare::END_WITH) {
+            continue;
+        }
+        std::vector<std::string> params;
+        for (const auto &param : item.singleParams) {
+            if (std::holds_alternative<std::string>(param)) {
+                params.push_back(std::get<std::string>(param));
+            }
+        }
+        if (params.size() < 2) {
+            continue;
+        }
+        if (params[0] == field) {
+            values.push_back(params[1]);
+        } else if (params[1] == field) {
+            values.push_back(params[0]);
+        }
+    }
+    return values;
+}
 
 class GetCallLogsPluginTest : public testing::Test {
 protected:
@@ -200,6 +229,57 @@ HWTEST_F(GetCallLogsPluginTest, TestOnGetPolicy_ValidTimeWithTelephoneNumber_Pas
     auto plugin = std::make_shared<GetCallLogsPlugin>();
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
     EXPECT_NE(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestBuildPredicates_WithTelephoneNumber_UsesSuffixMatch
+ * @tc.desc: Test BuildPredicates uses suffix match (END_WITH) for telephone number, consistent with SMS.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCallLogsPluginTest, TestBuildPredicates_WithTelephoneNumber_UsesSuffixMatch, TestSize.Level1)
+{
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = true;
+    config.telephoneNumber = "13800138000";
+
+    auto predicates = GetCallLogsPlugin::BuildPredicates(config);
+    auto values = GetEndsWithValues(predicates, "phone_number");
+    ASSERT_EQ(values.size(), 1);
+    EXPECT_EQ(values[0], "13800138000");
+}
+
+/**
+ * @tc.name: TestBuildPredicates_WithoutTelephoneNumber_NoNumberFilter
+ * @tc.desc: Test BuildPredicates does not add telephone number filter when hasTelephoneNumber is false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCallLogsPluginTest, TestBuildPredicates_WithoutTelephoneNumber_NoNumberFilter, TestSize.Level1)
+{
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = false;
+
+    auto predicates = GetCallLogsPlugin::BuildPredicates(config);
+    EXPECT_TRUE(GetEndsWithValues(predicates, "phone_number").empty());
+}
+
+/**
+ * @tc.name: TestBuildPredicates_EmptyTelephoneNumber_NoNumberFilter
+ * @tc.desc: Test BuildPredicates does not add telephone number filter when telephoneNumber is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCallLogsPluginTest, TestBuildPredicates_EmptyTelephoneNumber_NoNumberFilter, TestSize.Level1)
+{
+    TelephonyQueryConfig config;
+    config.startTime = 100;
+    config.endTime = 200;
+    config.hasTelephoneNumber = true;
+
+    auto predicates = GetCallLogsPlugin::BuildPredicates(config);
+    EXPECT_TRUE(GetEndsWithValues(predicates, "phone_number").empty());
 }
 
 } // namespace TEST

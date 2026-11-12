@@ -17,6 +17,7 @@
 #define EDM_UNIT_TEST_EDM_PLUGIN_EDM_DATA_ABILITY_UTILS_H
 
 #include <gmock/gmock.h>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -43,8 +44,18 @@ public:
     static ErrCode UpdateSettingsData(const std::string &baseUri, const std::string &key, const std::string &value);
     static ErrCode GetSmsMessages(int64_t startTime, int64_t endTime, const std::string &telephoneNumber,
         std::vector<SmsQueryResult> &messages);
+    static void SetSmsMessagesResult(ErrCode ret, const std::vector<SmsQueryResult> &messages);
+    static void ResetSmsMessagesResult();
+    static int64_t GetLastSmsStartTime();
+    static int64_t GetLastSmsEndTime();
+    static std::string GetLastSmsTelephoneNumber();
 private:
     static std::string result_;
+    static ErrCode smsResult_;
+    static std::vector<SmsQueryResult> smsMessages_;
+    static int64_t lastSmsStartTime_;
+    static int64_t lastSmsEndTime_;
+    static std::string lastSmsTelephoneNumber_;
 };
 } // namespace EDM
 } // namespace OHOS
