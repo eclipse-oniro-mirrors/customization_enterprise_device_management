@@ -47,9 +47,9 @@ public:
     int32_t GetEyeComfortMode(const AppExecFwk::ElementName &admin, std::string &value);
     int32_t SetDefaultInputMethod(const AppExecFwk::ElementName &admin, const std::string &value);
     int32_t SetPowerModeValueForAccount(const AppExecFwk::ElementName &admin, int32_t accountId, SettingsItem item,
-        const std::string &value, const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_26);
+        const std::string &value);
     int32_t GetPowerModeValueForAccount(const AppExecFwk::ElementName &admin, int32_t accountId, SettingsItem item,
-        std::string &value, const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_26);
+        std::string &value);
 
     // New path via HandleDevicePolicyNew / GetPolicyNew – the admin bundle is resolved automatically
     // from the IPC caller on the SA side, so no explicit Want is required from the Addon layer.

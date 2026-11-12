@@ -52,9 +52,9 @@ public:
 private:
     ErrCode DispatchSetPolicy(int32_t item, const std::string &valueStr);
     ErrCode DispatchGetPolicy(int32_t item, MessageParcel &reply);
-    ErrCode SetScreenOffTime(const std::string &valueStr, bool isAc);
+    ErrCode SetScreenOffTime(const std::string &valueStr, const std::string &key);
     ErrCode GetScreenOffTime(MessageParcel &reply, bool isAc);
-    ErrCode SetPowerPolicy(const std::string &valueStr, bool isAc);
+    ErrCode SetPowerPolicy(const std::string &valueStr, const std::string &key);
     ErrCode GetPowerPolicy(MessageParcel &reply, bool isAc);
     bool IsCrossUserNotAllowed(int32_t userId);
     bool ParsePowerPolicy(const std::string &valueStr, uint32_t &powerScene, PowerPolicy &powerPolicy);

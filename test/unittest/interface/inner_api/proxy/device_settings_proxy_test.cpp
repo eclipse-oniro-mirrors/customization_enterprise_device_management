@@ -562,11 +562,6 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetFloatingNavigationForAccountFail, TestS
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
-static std::uint32_t GetExpectedFuncCode(FuncOperateType operateType, EdmInterfaceCode code)
-{
-    return POLICY_FUNC_CODE(static_cast<std::uint32_t>(operateType), static_cast<std::uint32_t>(code));
-}
-
 static std::uint32_t GetExpectedFuncCodeNew(FuncOperateType operateType, EdmInterfaceCode code)
 {
     return POLICY_FUNC_CODE_NEW(static_cast<std::uint32_t>(operateType), static_cast<std::uint32_t>(code));
@@ -588,7 +583,7 @@ HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccount_ScreenOffAc_Succes
     int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccount(admin, accountId, SettingsItem::SCREEN_OFF_AC,
         "60000");
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_EQ(object_->code_, GetExpectedFuncCode(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
 /**
@@ -608,7 +603,7 @@ HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccount_PowerPolicyDc_Succ
     int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccount(admin, accountId, SettingsItem::POWER_POLICY_DC,
         value);
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_EQ(object_->code_, GetExpectedFuncCode(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
 /**
@@ -645,7 +640,7 @@ HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccount_ScreenOffDc_Succes
         value);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(value, RETURN_STRING);
-    EXPECT_EQ(object_->code_, GetExpectedFuncCode(FuncOperateType::GET, EdmInterfaceCode::POWER_MODE_SETTINGS));
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::GET, EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
 /**
@@ -666,7 +661,7 @@ HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccount_PowerPolicyAc_Succ
         value);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(value, RETURN_STRING);
-    EXPECT_EQ(object_->code_, GetExpectedFuncCode(FuncOperateType::GET, EdmInterfaceCode::POWER_MODE_SETTINGS));
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::GET, EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
 /**

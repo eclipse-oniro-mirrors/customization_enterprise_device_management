@@ -15,9 +15,6 @@
 
 #include "power_mode_settings_plugin.h"
 
-#include <cerrno>
-#include <climits>
-#include <cstdlib>
 #include <string>
 
 #include "battery_utils.h"
@@ -31,6 +28,7 @@
 #include "iplugin_manager.h"
 #include "override_interface_name.h"
 #include "setting_item_policy.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace EDM {
@@ -55,21 +53,6 @@ static constexpr uint32_t INVALID_DELAY_TIME = 30000;
 const bool REGISTER_POWER_MODE_SETTINGS = IPluginManager::GetInstance()->AddPlugin(
     std::make_shared<PowerModeSettingsPlugin>(EdmInterfaceCode::POWER_MODE_SETTINGS,
         PolicyName::POLICY_POWER_MODE_SETTINGS));
-
-static bool ParseScreenOffTime(const std::string &valueStr, int32_t &value)
-{
-    if (valueStr.empty()) {
-        return false;
-    }
-    errno = 0;
-    char *end = nullptr;
-    long parsed = std::strtol(valueStr.c_str(), &end, 10);
-    if (errno != 0 || end == nullptr || *end != '\0' || parsed > INT32_MAX || parsed < INT32_MIN) {
-        return false;
-    }
-    value = static_cast<int32_t>(parsed);
-    return true;
-}
 
 PowerModeSettingsPlugin::PowerModeSettingsPlugin(std::uint32_t policyCode, const std::string &policyName)
 {
@@ -106,7 +89,7 @@ ErrCode PowerModeSettingsPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageP
 {
     uint32_t typeCode = FUNC_TO_OPERATE(funcCode);
     if (FuncCodeUtils::ConvertOperateType(typeCode) != FuncOperateType::SET) {
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     if (IS_NEW_INTERFACE(funcCode) && IsCrossUserNotAllowed(userId)) {
         EDMLOGE("PowerModeSettingsPlugin::OnHandlePolicy cross user not allowed, userId=%{public}d", userId);
@@ -124,13 +107,13 @@ ErrCode PowerModeSettingsPlugin::DispatchSetPolicy(int32_t item, const std::stri
 {
     switch (static_cast<SettingsItem>(item)) {
         case SettingsItem::SCREEN_OFF_DC:
-            return SetScreenOffTime(valueStr, false);
+            return SetScreenOffTime(valueStr, KEY_DC_SCREEN_OFF_TIME);
         case SettingsItem::SCREEN_OFF_AC:
-            return SetScreenOffTime(valueStr, true);
+            return SetScreenOffTime(valueStr, KEY_AC_SCREEN_OFF_TIME);
         case SettingsItem::POWER_POLICY_DC:
-            return SetPowerPolicy(valueStr, false);
+            return SetPowerPolicy(valueStr, KEY_POWER_DC_SUSPEND);
         case SettingsItem::POWER_POLICY_AC:
-            return SetPowerPolicy(valueStr, true);
+            return SetPowerPolicy(valueStr, KEY_POWER_AC_SUSPEND);
         default:
             EDMLOGE("PowerModeSettingsPlugin::DispatchSetPolicy unsupported item %{public}d", item);
             return EdmReturnErrCode::EXECUTE_TIME_OUT;
@@ -167,21 +150,21 @@ ErrCode PowerModeSettingsPlugin::DispatchGetPolicy(int32_t item, MessageParcel &
     }
 }
 
-ErrCode PowerModeSettingsPlugin::SetScreenOffTime(const std::string &valueStr, bool isAc)
+ErrCode PowerModeSettingsPlugin::SetScreenOffTime(const std::string &valueStr, const std::string &key)
 {
     int32_t value = 0;
-    if (!ParseScreenOffTime(valueStr, value)) {
+    if (!OHOS::StrToInt(valueStr, value)) {
         EDMLOGE("PowerModeSettingsPlugin::set screen off time param error.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (value < SCREEN_OFF_TIME_MIN_VALUE && value != SCREEN_OFF_TIME_NEVER_VALUE) {
+    if (value < SCREEN_OFF_TIME_MIN_VALUE || value == SCREEN_OFF_TIME_NEVER_VALUE) {
         EDMLOGE("PowerModeSettingsPlugin::set screen off time param error.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (FAILED(EdmDataAbilityUtils::UpdateSettingsData(BatteryUtils::GetSubUserTableUri(),
-        GetScreenOffTimeKey(isAc), std::to_string(value)))) {
+        key, std::to_string(value)))) {
         EDMLOGE("PowerModeSettingsPlugin::set screen off time failed.");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     std::string params = EdmJsonBuilder()
         .Add("item", "screenOff")
@@ -198,33 +181,33 @@ ErrCode PowerModeSettingsPlugin::GetScreenOffTime(MessageParcel &reply, bool isA
     if (FAILED(EdmDataAbilityUtils::GetIntFromSettingsDataShare(BatteryUtils::GetSubUserTableUri(),
         GetScreenOffTimeKey(isAc), result))) {
         EDMLOGE("PowerModeSettingsPlugin::get screen off time from database failed.");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteString(std::to_string(result));
     return ERR_OK;
 }
 
-ErrCode PowerModeSettingsPlugin::SetPowerPolicy(const std::string &valueStr, bool isAc)
+ErrCode PowerModeSettingsPlugin::SetPowerPolicy(const std::string &valueStr, const std::string &key)
 {
     uint32_t powerScene = 0;
     PowerPolicy powerPolicy;
     if (!ParsePowerPolicy(valueStr, powerScene, powerPolicy)) {
         EDMLOGE("PowerModeSettingsPlugin:ParsePowerPolicy parse error");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     std::string policyKey;
     if (!GetPowerSceneKey(powerScene, policyKey)) {
         EDMLOGE("PowerModeSettingsPlugin:GetPowerSceneKey error");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (powerPolicy.GetDelayTime() == INVALID_DELAY_TIME) {
         EDMLOGE("PowerModeSettingsPlugin:delayTime can not be 30000.");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    if (DealPowerSuspendPolicy(policyKey, GetSuspendKey(isAc), powerPolicy, true)) {
+    if (DealPowerSuspendPolicy(policyKey, key, powerPolicy, true)) {
         std::string powerPolicyJson = EdmJsonBuilder()
             .Add("powerPolicyAction", static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()))
             .Add("delayTime", static_cast<uint32_t>(powerPolicy.GetDelayTime()))
@@ -241,7 +224,7 @@ ErrCode PowerModeSettingsPlugin::SetPowerPolicy(const std::string &valueStr, boo
             params);
         return ERR_OK;
     }
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    return EdmReturnErrCode::EXECUTE_TIME_OUT;
 }
 
 ErrCode PowerModeSettingsPlugin::GetPowerPolicy(MessageParcel &reply, bool isAc)
@@ -250,8 +233,8 @@ ErrCode PowerModeSettingsPlugin::GetPowerPolicy(MessageParcel &reply, bool isAc)
     PowerPolicy powerPolicy;
     if (!DealPowerSuspendPolicy(policyKey, GetSuspendKey(isAc), powerPolicy, false)) {
         EDMLOGE("PowerModeSettingsPlugin:PowerPolicy parse error");
-        reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     std::string powerPolicyJson = EdmJsonBuilder()
         .Add(KEY_POWER_POLICY_ACTION, static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()))

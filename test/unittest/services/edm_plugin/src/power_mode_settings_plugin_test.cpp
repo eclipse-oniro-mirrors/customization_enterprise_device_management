@@ -100,11 +100,11 @@ static const std::string VALID_POWER_POLICY =
  * @tc.desc: Test OnHandlePolicy function when operate type is REMOVE.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_RemoveOperate_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_RemoveOperate_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_DC, "30000", FuncOperateType::REMOVE);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
@@ -124,35 +124,35 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_UnsupportedItem_ExecuteTime
  * @tc.desc: Test OnHandlePolicy function when screen off time is empty string.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_EmptyValue_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_EmptyValue_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_ValueNotNumber_ParamError
+ * @tc.name: OnHandlePolicy_ValueNotNumber_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when screen off time contains non-numeric characters.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueNotNumber_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueNotNumber_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_DC, "abc");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_ValueOverflow_ParamError
+ * @tc.name: OnHandlePolicy_ValueOverflow_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when screen off time exceeds int32 range.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueOverflow_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueOverflow_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "2147483648");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
@@ -160,11 +160,11 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueOverflow_ParamError, T
  * @tc.desc: Test OnHandlePolicy function when screen off time is 14999.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueBelowMin_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueBelowMin_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "14999");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
@@ -181,16 +181,16 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MinBoundaryValue_Success, T
 }
 
 /**
- * @tc.name: OnHandlePolicy_NeverTimeOutValue_Success
+ * @tc.name: OnHandlePolicy_NeverTimeOutValue_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when screen off time is -1 (never timeout).
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_Success, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("test success");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "-1");
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
@@ -198,27 +198,27 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_Success, 
  * @tc.desc: Test OnHandlePolicy function when writing settings data failed.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_UpdateSettingsDataFailed_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_UpdateSettingsDataFailed_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_DC, "30000");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
- * @tc.name: OnGetPolicy_ReadSettingsDataFailed_SysAbnormally
+ * @tc.name: OnGetPolicy_ReadSettingsDataFailed_ExecuteTimeOut
  * @tc.desc: Test OnGetPolicy function when reading screen off time failed.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_ReadSettingsDataFailed_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_ReadSettingsDataFailed_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     MessageParcel reply;
     EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
     ErrCode ret = GetPolicy(plugin, SettingsItem::SCREEN_OFF_AC, reply);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
-    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
@@ -272,101 +272,101 @@ HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_UnsupportedItem_ExecuteTimeOut
  * @tc.desc: Test OnHandlePolicy function when power policy value is invalid json.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_InvalidJson_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_InvalidJson_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC, "json error");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_MissingPowerScene_ParamError
+ * @tc.name: OnHandlePolicy_MissingPowerScene_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when powerScene key is missing.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MissingPowerScene_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MissingPowerScene_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC,
         "{\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":1000}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_MissingPowerPolicy_ParamError
+ * @tc.name: OnHandlePolicy_MissingPowerPolicy_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when powerPolicy key is missing.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MissingPowerPolicy_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MissingPowerPolicy_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC, "{\"powerScene\":0}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_UnsupportedPowerScene_ParamError
+ * @tc.name: OnHandlePolicy_UnsupportedPowerScene_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when power scene is unsupported.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_UnsupportedPowerScene_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_UnsupportedPowerScene_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC,
         "{\"powerScene\":1000,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":1000}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_ActionOutOfRange_ParamError
+ * @tc.name: OnHandlePolicy_ActionOutOfRange_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when powerPolicyAction is out of range.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ActionOutOfRange_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ActionOutOfRange_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC,
         "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":5,\"delayTime\":1000}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_DelayTimeInvalid_ParamError
+ * @tc.name: OnHandlePolicy_DelayTimeInvalid_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when delayTime equals 30000.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeInvalid_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeInvalid_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC,
         "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":30000}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_DelayTimeNegative_ParamError
+ * @tc.name: OnHandlePolicy_DelayTimeNegative_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when delayTime is negative (should be rejected, not wrapped to uint32).
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeNegative_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeNegative_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC,
         "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":-1}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
- * @tc.name: OnHandlePolicy_DelayTimeNotNumber_ParamError
+ * @tc.name: OnHandlePolicy_DelayTimeNotNumber_ParameterVerificationFailed
  * @tc.desc: Test OnHandlePolicy function when delayTime is a string (non-number type).
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeNotNumber_ParamError, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeNotNumber_ParameterVerificationFailed, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC,
         "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":\"1000\"}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAM_ERROR));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
@@ -383,72 +383,72 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_SetPowerPolicySuccess, Test
 }
 
 /**
- * @tc.name: OnHandlePolicy_PowerPolicyReadSettingsDataFailed_SysAbnormally
+ * @tc.name: OnHandlePolicy_PowerPolicyReadSettingsDataFailed_ExecuteTimeOut
  * @tc.desc: Test OnHandlePolicy function when reading suspend settings data failed.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_PowerPolicyReadSettingsDataFailed_SysAbnormally,
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_PowerPolicyReadSettingsDataFailed_ExecuteTimeOut,
     TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC, VALID_POWER_POLICY);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
- * @tc.name: OnHandlePolicy_InvalidSuspendJson_SysAbnormally
+ * @tc.name: OnHandlePolicy_InvalidSuspendJson_ExecuteTimeOut
  * @tc.desc: Test OnHandlePolicy function when suspend settings data is invalid json.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_InvalidSuspendJson_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_InvalidSuspendJson_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("power_suspend_json_error");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC, VALID_POWER_POLICY);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
- * @tc.name: OnHandlePolicy_TimeoutKeyMissing_SysAbnormally
+ * @tc.name: OnHandlePolicy_TimeoutKeyMissing_ExecuteTimeOut
  * @tc.desc: Test OnHandlePolicy function when suspend settings json has no timeout node.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_TimeoutKeyMissing_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_TimeoutKeyMissing_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("power_suspend_json_no_time_out");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_AC, VALID_POWER_POLICY);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
- * @tc.name: OnHandlePolicy_TimeoutNotObject_SysAbnormally
+ * @tc.name: OnHandlePolicy_TimeoutNotObject_ExecuteTimeOut
  * @tc.desc: Test OnHandlePolicy function when timeout node of suspend settings json is not object.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_TimeoutNotObject_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_TimeoutNotObject_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("power_suspend_json_key_not_object");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC, VALID_POWER_POLICY);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
- * @tc.name: OnGetPolicy_PowerPolicyReadSettingsDataFailed_SysAbnormally
+ * @tc.name: OnGetPolicy_PowerPolicyReadSettingsDataFailed_ExecuteTimeOut
  * @tc.desc: Test OnGetPolicy function when reading power policy data failed.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_PowerPolicyReadSettingsDataFailed_SysAbnormally,
+HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_PowerPolicyReadSettingsDataFailed_ExecuteTimeOut,
     TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     MessageParcel reply;
     EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
     ErrCode ret = GetPolicy(plugin, SettingsItem::POWER_POLICY_DC, reply);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
-    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**
@@ -471,18 +471,18 @@ HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_PowerPolicySuccess, TestSize.L
 }
 
 /**
- * @tc.name: OnGetPolicy_PowerPolicyTimeoutNotObject_SysAbnormally
+ * @tc.name: OnGetPolicy_PowerPolicyTimeoutNotObject_ExecuteTimeOut
  * @tc.desc: Test OnGetPolicy function when timeout node of suspend settings json is not object.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_PowerPolicyTimeoutNotObject_SysAbnormally, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_PowerPolicyTimeoutNotObject_ExecuteTimeOut, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     MessageParcel reply;
     EdmDataAbilityUtils::SetResult("power_suspend_json_key_not_object");
     ErrCode ret = GetPolicy(plugin, SettingsItem::POWER_POLICY_DC, reply);
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
-    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::EXECUTE_TIME_OUT));
 }
 
 /**

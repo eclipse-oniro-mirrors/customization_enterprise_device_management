@@ -261,39 +261,35 @@ int32_t DeviceSettingsProxy::SetDefaultInputMethod(const AppExecFwk::ElementName
 }
 
 int32_t DeviceSettingsProxy::SetPowerModeValueForAccount(const AppExecFwk::ElementName &admin,
-    int32_t accountId, SettingsItem item, const std::string &value, const std::string &permissionTag)
+    int32_t accountId, SettingsItem item, const std::string &value)
 {
     EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccount");
+    (void)admin;
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(HAS_USERID);
     data.WriteInt32(accountId);
-    data.WriteParcelable(&admin);
-    data.WriteString(permissionTag);
     data.WriteInt32(static_cast<int32_t>(item));
     data.WriteString(value);
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::POWER_MODE_SETTINGS);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t DeviceSettingsProxy::GetPowerModeValueForAccount(const AppExecFwk::ElementName &admin,
-    int32_t accountId, SettingsItem item, std::string &value, const std::string &permissionTag)
+    int32_t accountId, SettingsItem item, std::string &value)
 {
     EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccount");
+    (void)admin;
+    (void)accountId;
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(HAS_USERID);
-    data.WriteInt32(accountId);
-    data.WriteString(permissionTag);
-    data.WriteInt32(HAS_ADMIN);
-    data.WriteParcelable(&admin);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
     data.WriteInt32(static_cast<int32_t>(item));
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::POWER_MODE_SETTINGS, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::POWER_MODE_SETTINGS,
+        data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("DeviceSettingsProxy:GetPowerModeValueForAccount fail. %{public}d", ret);
         return ret;
     }

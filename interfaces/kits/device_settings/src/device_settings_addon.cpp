@@ -688,14 +688,11 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
 
-    if (argc >= ARGS_SIZE_FOUR) {
+    if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
         return HandleSetValueForAccountWithAdmin(env, argv);
-    }
-    if (argc == ARGS_SIZE_THREE) {
+    } else {
         return HandleSetValueForAccountWithoutAdmin(env, argv);
     }
-    napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
-    return nullptr;
 }
 
 napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv)
@@ -717,8 +714,6 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, 
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
         ret = proxy->SetFloatingNavigationForAccount(elementName, accountId, value,
             EdmConstants::PERMISSION_TAG_VERSION_23);
-    } else if (IsPowerModeItem(item)) {
-        ret = SetPowerModeValueForAccount(elementName, item, accountId, value);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -816,19 +811,20 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, 
 napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
 {
     int32_t item = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error",
+        ErrcodeType::NUMBER);
     int32_t accountId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
-        "param 'accountId' error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "param 'accountId' error", ErrcodeType::NUMBER);
 
     if (accountId < EdmConstants::DEFAULT_USER_ID) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
         EDMLOGE("GetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d", accountId,
             EdmConstants::DEFAULT_USER_ID);
         return nullptr;
     }
     if (!IsPowerModeItem(item)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
         EDMLOGE("GetValueForAccountWithoutAdmin: item %{public}d does not support without admin", item);
         return nullptr;
     }
@@ -837,7 +833,7 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env en
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     int32_t ret = proxy->GetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), stringRet);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("GetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
         return nullptr;
     }
@@ -857,12 +853,8 @@ int32_t DeviceSettingsAddon::SetPowerModeValueForAccount(
 {
 #ifdef FEATURE_PC_ONLY
     return DeviceSettingsProxy::GetDeviceSettingsProxy()->SetPowerModeValueForAccount(elementName, accountId,
-        static_cast<SettingsItem>(item), value, EdmConstants::PERMISSION_TAG_VERSION_26);
+        static_cast<SettingsItem>(item), value);
 #else
-    (void)elementName;
-    (void)item;
-    (void)accountId;
-    (void)value;
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
 }
@@ -872,13 +864,10 @@ int32_t DeviceSettingsAddon::GetPowerModeValueForAccount(
 {
 #ifdef FEATURE_PC_ONLY
     return DeviceSettingsProxy::GetDeviceSettingsProxy()->GetPowerModeValueForAccount(elementName, accountId,
-        static_cast<SettingsItem>(item), value, EdmConstants::PERMISSION_TAG_VERSION_26);
+        static_cast<SettingsItem>(item), value);
 #else
-    (void)elementName;
-    (void)item;
-    (void)accountId;
-    (void)value;
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+    value = "";
+    return ERR_OK;
 #endif
 }
 
