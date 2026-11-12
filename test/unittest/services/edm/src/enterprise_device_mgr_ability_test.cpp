@@ -6960,6 +6960,56 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestOnPinAuthServiceStart_NoCrash, Test
     edmMgr_->OnPinAuthServiceStart();
     EXPECT_TRUE(true);
 }
+
+/**
+ * @tc.name: TestDoDisableAdmin_NotifyWithDeploySource
+ * @tc.desc: Test DoDisableAdmin notification path when enableSource is DEPLOY and non-debug non-native.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDoDisableAdmin_NotifyWithDeploySource, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, IsNativeCall).WillRepeatedly(Return(false));
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(AdminManager::GetInstance()->GetAdminByPkgName(ADMIN_PACKAGENAME, DEFAULT_USER_ID) == nullptr);
+}
+
+/**
+ * @tc.name: TestDoDisableAdmin_SkipNotifyWithNonDeploySource
+ * @tc.desc: Test DoDisableAdmin skips notification when enableSource is not DEPLOY.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDoDisableAdmin_SkipNotifyWithNonDeploySource, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    auto adminPtr = AdminManager::GetInstance()->GetAdminByPkgName(ADMIN_PACKAGENAME, DEFAULT_USER_ID);
+    ASSERT_TRUE(adminPtr != nullptr);
+    adminPtr->adminInfo_.enableSource_ = EnableSource::REPLACE;
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+    EXPECT_TRUE(AdminManager::GetInstance()->GetAdminByPkgName(ADMIN_PACKAGENAME, DEFAULT_USER_ID) == nullptr);
+}
+
+/**
+ * @tc.name: TestDoDisableAdmin_SkipNotifyWithDebugAdmin
+ * @tc.desc: Test DoDisableAdmin skips notification when admin is debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDoDisableAdmin_SkipNotifyWithDebugAdmin, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID, true);
+    EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID)));
+    EXPECT_TRUE(AdminManager::GetInstance()->GetAdminByPkgName(ADMIN_PACKAGENAME, DEFAULT_USER_ID) == nullptr);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
