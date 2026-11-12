@@ -95,7 +95,7 @@ private:
     static std::vector<uint32_t> watermarkSoCodes_;
 
     static std::shared_timed_mutex mutexLock_;
-    static std::shared_mutex soPinMutex_;
+    static std::shared_timed_mutex soPinMutex_;
     inline static std::mutex policyStripes_[static_cast<size_t>(ConflictGroupId::END)];
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();

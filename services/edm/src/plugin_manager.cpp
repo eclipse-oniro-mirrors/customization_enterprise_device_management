@@ -41,8 +41,9 @@ const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
 
 std::shared_ptr<PluginManager> PluginManager::instance_;
 std::shared_timed_mutex PluginManager::mutexLock_;
-std::shared_mutex PluginManager::soPinMutex_;
+std::shared_timed_mutex PluginManager::soPinMutex_;
 constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
+constexpr int32_t LOCK_TIMEOUT = 1000; // 1 * 1000;
 
 std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, EdmInterfaceCode::ALLOWED_INSTALL_BUNDLES,
@@ -156,6 +157,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::ALLOWED_PRINTER_IP_ADDRESS_FOR_ACCOUNT,
     EdmInterfaceCode::GET_CREDENTIAL_ID,
     EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
+    EdmInterfaceCode::ENABLED_NOTIFICATION_BUNDLES,
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
@@ -392,15 +394,26 @@ void PluginManager::LoadPlugin(const std::string &soName)
 void PluginManager::UnloadPluginTask(const std::string &soName, std::shared_ptr<SoLoadState> loadStatePtr)
 {
     while (loadStatePtr->pluginHasInit) {
+        bool wokenByNotify = false;
         {
             std::unique_lock<std::mutex> lock(loadStatePtr->waitMutex);
             loadStatePtr->notifySignal = false;
-            loadStatePtr->waitSignal.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT), [=] {
-                return loadStatePtr->notifySignal;
-            });
+            wokenByNotify = loadStatePtr->waitSignal.wait_for(lock, std::chrono::milliseconds(TIMER_TIMEOUT),
+                [=] { return loadStatePtr->notifySignal; });
         }
-        std::unique_lock<std::shared_mutex> pinLock(soPinMutex_);
-        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        if (wokenByNotify) {
+            continue;
+        }
+        std::unique_lock<std::shared_timed_mutex> pinLock(soPinMutex_, std::defer_lock);
+        if (!pinLock.try_lock_for(std::chrono::milliseconds(LOCK_TIMEOUT))) {
+            EDMLOGW("UnloadPluginTask: acquire soPinMutex_ timeout, skip unloading %{public}s", soName.c_str());
+            continue;
+        }
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_, std::defer_lock);
+        if (!lock.try_lock_for(std::chrono::milliseconds(LOCK_TIMEOUT))) {
+            EDMLOGW("UnloadPluginTask: acquire mutexLock_ timeout, skip unloading %{public}s", soName.c_str());
+            continue;
+        }
         auto now = std::chrono::system_clock::now();
         auto diffTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - loadStatePtr->lastCallTime).count();
         if (diffTime >= std::chrono::milliseconds(TIMER_TIMEOUT).count()) {
@@ -672,7 +685,7 @@ ErrCode PluginManager::UpdateDevicePolicy(uint32_t code, const std::string &bund
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
         }
     }
-    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
+    std::shared_lock<std::shared_timed_mutex> pinLock(soPinMutex_);
     std::unique_lock<std::mutex> codeLock;
     if (plugin->NeedSavePolicy()) {
         int32_t groupId = ConflictGroupRegistry::GetInstance().GetConflictGroupId(FuncCodeUtils::GetPolicyCode(code));
@@ -720,7 +733,7 @@ ErrCode PluginManager::GetPolicy(uint32_t funcCode, const std::string &bundleNam
             return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
         }
     }
-    std::shared_lock<std::shared_mutex> pinLock(soPinMutex_);
+    std::shared_lock<std::shared_timed_mutex> pinLock(soPinMutex_);
     std::string policyValue;
     if (plugin->NeedSavePolicy()) {
         PolicyManager::GetInstance()->GetPolicy(bundleName, plugin->GetPolicyName(), policyValue, userId);
