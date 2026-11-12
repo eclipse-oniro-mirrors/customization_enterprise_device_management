@@ -15,15 +15,19 @@
 
 #include <cstdio>
 #include <fstream>
+#include <memory>
 #include "managed_browser_policy_plugin_test.h"
 
+#include "cJSON.h"
 #include "device_policies_storage_rdb.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_sys_manager.h"
+#include "iextra_policy_notification.h"
 #include "ipolicy_manager.h"
 #include "managed_browser_policy_serializer.h"
+#include "override_interface_name.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -92,6 +96,25 @@ std::string BuildAdminPolicyData(const std::string &bundleName, const std::strin
     ManagedBrowserPolicySerializer::GetInstance()->Serialize(adminPolicies, data);
     return data;
 }
+
+// Records every policy-changed notification so the tests can assert on the payload.
+class MockExtraPolicyNotification final : public IExtraPolicyNotification {
+public:
+    bool NotifyPolicyChanged(const std::string &interfaceName, const std::string &parameters) override
+    {
+        ++notifyCount_;
+        lastInterfaceName_ = interfaceName;
+        lastParameters_ = parameters;
+        return true;
+    }
+
+    int32_t notifyCount_ = 0;
+    std::string lastInterfaceName_;
+    std::string lastParameters_;
+};
+
+IExtraPolicyNotification *g_originalNotification = nullptr;
+std::unique_ptr<MockExtraPolicyNotification> g_mockNotification;
 } // namespace
 const char* const MANAGED_BROWSER_POLICY_DIR = "/data/service/el1/public/edm/browser/";
 const char* const MANAGED_BROWSER_POLICY_SUFFIX = ".dat";
@@ -113,10 +136,16 @@ void ManagedBrowserPolicyPluginTest::TearDownTestSuite(void)
 void ManagedBrowserPolicyPluginTest::SetUp(void)
 {
     RemovePolicyFiles();
+    g_originalNotification = IExtraPolicyNotification::instance_;
+    g_mockNotification = std::make_unique<MockExtraPolicyNotification>();
+    IExtraPolicyNotification::instance_ = g_mockNotification.get();
 }
 
 void ManagedBrowserPolicyPluginTest::TearDown(void)
 {
+    IExtraPolicyNotification::instance_ = g_originalNotification;
+    g_originalNotification = nullptr;
+    g_mockNotification.reset();
     RemovePolicyFiles();
     ClearStoredBrowserPolicy();
     IPolicyManager::policyManagerInstance_ = nullptr;
@@ -169,7 +198,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithEmptyBundleNa
     MessageParcel reply;
     HandlePolicyData policyData;
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -190,7 +219,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithInvalidBundle
     MessageParcel reply;
     HandlePolicyData policyData;
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -211,7 +240,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithEmptyPolicyNa
     MessageParcel reply;
     HandlePolicyData policyData;
     ErrCode ret = plugin.OnHandlePolicy(funcCode, data, reply, policyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAM_ERROR);
+    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -904,7 +933,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithEmptyBundleNa
     data.WriteBool(true);
     ErrCode ret = plugin.OnHandlePolicy(BuildNewFuncCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY), data,
         reply, policyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_FALSE(policyData.isChanged);
 }
 
@@ -926,7 +955,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithInvalidBundle
     data.WriteBool(true);
     ErrCode ret = plugin.OnHandlePolicy(BuildNewFuncCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY), data,
         reply, policyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_FALSE(policyData.isChanged);
 }
 
@@ -948,7 +977,7 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyFailWithEmptyPolicyNa
     data.WriteBool(true);
     ErrCode ret = plugin.OnHandlePolicy(BuildNewFuncCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY), data,
         reply, policyData, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::PARAM_ERROR);
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_FALSE(policyData.isChanged);
 }
 
@@ -2024,6 +2053,86 @@ HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyNewCodeWithoutOwnerIs
     std::map<std::string, ManagedBrowserPolicyType> currentPolicies;
     DeserializeOrFail(policyData.policyData, currentPolicies);
     EXPECT_EQ(CountName(currentPolicies[TEST_BUNDLE_NAME].policyNames, TEST_POLICY_NAME), 1);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyForceOverrideNotifiesPolicyChanged
+ * @tc.desc: A successful force override notifies the policy change with the browser interface
+ *           name and a payload carrying the bundle name, policy name and policy value.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyForceOverrideNotifiesPolicyChanged, TestSize.Level1)
+{
+    auto policyManager = AcquirePolicyManager();
+    ASSERT_EQ(policyManager->SetPolicy(TEST_ADMIN_A, PolicyName::POLICY_MANAGED_BROWSER_POLICY,
+        BuildAdminPolicyData(TEST_BUNDLE_NAME, TEST_POLICY_NAME, 1), "", DEFAULT_USER_ID), ERR_OK);
+
+    ManagedBrowserPolicyPlugin plugin;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    policyData.currentAdminName = TEST_ADMIN_B;
+    MessageParcel data;
+    BuildSetPolicyParcel(data, true);
+    ErrCode ret = plugin.OnHandlePolicy(BuildNewFuncCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY), data,
+        reply, policyData, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(g_mockNotification->notifyCount_, 1);
+    EXPECT_EQ(g_mockNotification->lastInterfaceName_, OverrideInterfaceName::Browser::SET_MANAGED_BROWSER_POLICY);
+
+    cJSON *parameters = cJSON_Parse(g_mockNotification->lastParameters_.c_str());
+    ASSERT_NE(parameters, nullptr);
+    cJSON *bundleName = cJSON_GetObjectItem(parameters, "bundleName");
+    cJSON *policyName = cJSON_GetObjectItem(parameters, "policyName");
+    cJSON *policyValue = cJSON_GetObjectItem(parameters, "policyValue");
+    ASSERT_NE(bundleName, nullptr);
+    ASSERT_NE(policyName, nullptr);
+    ASSERT_NE(policyValue, nullptr);
+    EXPECT_EQ(std::string(bundleName->valuestring), TEST_BUNDLE_NAME);
+    EXPECT_EQ(std::string(policyName->valuestring), TEST_POLICY_NAME);
+    EXPECT_EQ(std::string(policyValue->valuestring), TEST_POLICY_VALUE);
+    cJSON_Delete(parameters);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyLegacyDoesNotNotify
+ * @tc.desc: The legacy interface never carries a force override flag, so a successful legacy set
+ *           must not notify any policy change.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyLegacyDoesNotNotify, TestSize.Level1)
+{
+    AcquirePolicyManager();
+    ManagedBrowserPolicyPlugin plugin;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    policyData.currentAdminName = TEST_ADMIN_B;
+    MessageParcel data;
+    BuildLegacySetPolicyParcel(data);
+    ErrCode ret = plugin.OnHandlePolicy(BuildFuncCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY), data,
+        reply, policyData, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_EQ(g_mockNotification->notifyCount_, 0);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyNewWithoutForceOverrideDoesNotNotify
+ * @tc.desc: The new interface with a false force override flag is a plain set, so it must not
+ *           notify any policy change.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManagedBrowserPolicyPluginTest, TestOnHandlePolicyNewWithoutForceOverrideDoesNotNotify, TestSize.Level1)
+{
+    AcquirePolicyManager();
+    ManagedBrowserPolicyPlugin plugin;
+    MessageParcel reply;
+    HandlePolicyData policyData;
+    policyData.currentAdminName = TEST_ADMIN_B;
+    MessageParcel data;
+    BuildSetPolicyParcel(data, false);
+    ErrCode ret = plugin.OnHandlePolicy(BuildNewFuncCode(EdmInterfaceCode::MANAGED_BROWSER_POLICY), data,
+        reply, policyData, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_EQ(g_mockNotification->notifyCount_, 0);
 }
 
 } // namespace TEST

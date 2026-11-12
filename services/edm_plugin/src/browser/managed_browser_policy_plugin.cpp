@@ -30,10 +30,13 @@
 #include "edm_bundle_manager_impl.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_json_builder.h"
 #include "edm_utils.h"
 #include "func_code.h"
+#include "iextra_policy_notification.h"
 #include "managed_browser_policy_serializer.h"
 #include "iplugin_manager.h"
+#include "override_interface_name.h"
 #include "security_label.h"
 #include "want.h"
 
@@ -112,7 +115,21 @@ ErrCode ManagedBrowserPolicyPlugin::OnHandlePolicy(std::uint32_t funcCode, Messa
     policyData.isChanged = true;
     policyData.policyData = afterHandle;
     policyData.mergePolicyData = afterMerge;
+    if (request.isForceOverride) {
+        NotifyPolicyChanged(request);
+    }
     return ret;
+}
+
+void ManagedBrowserPolicyPlugin::NotifyPolicyChanged(const ManagedBrowserPolicyRequest &request)
+{
+    std::string params = EdmJsonBuilder()
+        .Add("bundleName", request.bundleName)
+        .Add("policyName", request.policyName)
+        .Add("policyValue", request.policyValue)
+        .Build();
+    IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
+        OverrideInterfaceName::Browser::SET_MANAGED_BROWSER_POLICY, params);
 }
 
 ErrCode ManagedBrowserPolicyPlugin::PreparePolicyContext(std::uint32_t funcCode, MessageParcel &data,
@@ -123,12 +140,12 @@ ErrCode ManagedBrowserPolicyPlugin::PreparePolicyContext(std::uint32_t funcCode,
     request.bundleName = data.ReadString();
     request.policyName = data.ReadString();
     request.policyValue = data.ReadString();
+    bool isNewInterface = IS_NEW_INTERFACE(funcCode);
     if (request.bundleName.empty() || request.policyName.empty() ||
         request.bundleName.find("..") != std::string::npos) {
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
-    bool isNewInterface = IS_NEW_INTERFACE(funcCode);
     if (isNewInterface) {
         ErrCode forceFlagRet = ReadForceOverrideFlag(data, request.isForceOverride);
         if (FAILED(forceFlagRet)) {
