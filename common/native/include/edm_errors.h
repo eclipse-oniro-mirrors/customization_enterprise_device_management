@@ -120,6 +120,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY_INVALID = 9201056;
     constexpr uint32_t AUTH_TOKEN_INVALID = 9201057;
     constexpr uint32_t AUTH_TOKEN_INVALID_DURATION_INVALID = 9201058;
+    constexpr uint32_t USB_DYNAMIC_CONTROL_NOT_ENABLED = 9201059;
 };
 
 // Error code for SERVICE: 0x2000000,value:33554432

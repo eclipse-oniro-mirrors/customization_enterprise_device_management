@@ -22,6 +22,7 @@
 #include "iplugin_manager.h"
 #include "usb_device_control_utils.h"
 #include "usb_device_info.h"
+#include "usb_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -52,6 +53,10 @@ ErrCode SetUsbDeviceStatesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
     if (config.hasConfigId != config.hasInterfaceId) {
         EDMLOGE("SetUsbDeviceStatesPlugin configId/interfaceId must both be set or both absent");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (!UsbPolicyUtils::IsUsbInterceptEnabled()) {
+        EDMLOGE("SetUsbDeviceStatesPlugin USB dynamic control is not enabled");
+        return EdmReturnErrCode::USB_DYNAMIC_CONTROL_NOT_ENABLED;
     }
     return UsbDeviceControlUtils::SetUsbDeviceStates(config, isEnable);
 }
