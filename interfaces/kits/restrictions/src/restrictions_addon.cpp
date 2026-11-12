@@ -16,9 +16,11 @@
 #include "restrictions_addon.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "edm_constants.h"
@@ -35,7 +37,7 @@ constexpr uint32_t MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE = 1000;
 
 // Control center key list of the 1*2 area. The index is the enum value of
 // ControlPanelTopToggleList. Keep the order in sync with the .d.ts declaration.
-const std::vector<std::string> CONTROL_PANEL_TOP_TOGGLE_KEYS = {
+constexpr std::array<std::string_view, 7> CONTROL_PANEL_TOP_TOGGLE_KEYS = {
     "super_device",
     "brightness",
     "focus_mode",
@@ -47,7 +49,7 @@ const std::vector<std::string> CONTROL_PANEL_TOP_TOGGLE_KEYS = {
 
 // Control center key list of the 1*1 area. The index is the enum value of
 // ControlPanelQuickToggleList. Keep the order in sync with the .d.ts declaration.
-const std::vector<std::string> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
+constexpr std::array<std::string_view, 48> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
     "flashlight",
     "ring_mode",
     "auto_rotate",
@@ -98,6 +100,19 @@ const std::vector<std::string> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
     "select_reader",
 };
 
+template <size_t N>
+constexpr bool AllKeysNonEmpty(const std::array<std::string_view, N> &keys)
+{
+    for (const auto &key : keys) {
+        if (key.empty()) {
+            return false;
+        }
+    }
+    return true;
+}
+static_assert(AllKeysNonEmpty(CONTROL_PANEL_TOP_TOGGLE_KEYS), "empty top toggle key");
+static_assert(AllKeysNonEmpty(CONTROL_PANEL_QUICK_TOGGLE_KEYS), "empty quick toggle key");
+
 bool IsValidEnumNumber(napi_env env, napi_value value, int32_t &number)
 {
     napi_valuetype type = napi_undefined;
@@ -115,9 +130,11 @@ bool IsValidEnumNumber(napi_env env, napi_value value, int32_t &number)
     return true;
 }
 
+template <size_t N>
 ErrCode ConvertToggleListToKeys(napi_env env, napi_value argv, MessageParcel &data,
-    const std::vector<std::string> &keyTable)
+    const std::array<std::string_view, N> &keyTable)
 {
+    static_assert(N <= 64, "bitmask dedupe supports at most 64 entries");
     bool isArray = false;
     if (napi_is_array(env, argv, &isArray) != napi_ok || !isArray) {
         EDMLOGE("Control panel toggle list is not an array.");
@@ -130,7 +147,8 @@ ErrCode ConvertToggleListToKeys(napi_env env, napi_value argv, MessageParcel &da
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     std::vector<std::string> keys;
-    keys.reserve(length);
+    keys.reserve(std::min<size_t>(length, N));
+    uint64_t seen = 0;
     for (uint32_t i = 0; i < length; i++) {
         napi_value element = nullptr;
         if (napi_get_element(env, argv, i, &element) != napi_ok) {
@@ -142,10 +160,12 @@ ErrCode ConvertToggleListToKeys(napi_env env, napi_value argv, MessageParcel &da
             EDMLOGE("Control panel toggle list contains invalid enum value.");
             return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
-        const std::string &key = keyTable[value];
-        if (std::find(keys.begin(), keys.end(), key) == keys.end()) {
-            keys.push_back(key);
+        uint64_t bit = 1ULL << static_cast<uint32_t>(value);
+        if ((seen & bit) != 0) {
+            continue;
         }
+        seen |= bit;
+        keys.emplace_back(keyTable[value].data(), keyTable[value].size());
     }
     if (!data.WriteStringVector(keys)) {
         EDMLOGE("Control panel toggle list write parcel failed.");
@@ -166,12 +186,15 @@ ErrCode ControlPanelQuickToggleListToData(napi_env env, napi_value argv, Message
     return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_QUICK_TOGGLE_KEYS);
 }
 
+template <size_t N>
 void ConvertKeysToEnumValues(const std::vector<std::string> &keys,
-    const std::vector<std::string> &keyTable, std::vector<int32_t> &values)
+    const std::array<std::string_view, N> &keyTable, std::vector<int32_t> &values)
 {
     values.clear();
+    values.reserve(keys.size());
     for (const auto &key : keys) {
-        auto it = std::find(keyTable.begin(), keyTable.end(), key);
+        auto it = std::find(keyTable.begin(), keyTable.end(),
+            std::string_view(key.data(), key.size()));
         if (it == keyTable.end()) {
             EDMLOGW("Unknown control panel toggle key: %{public}s", key.c_str());
             continue;
