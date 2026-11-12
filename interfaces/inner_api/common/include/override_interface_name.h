@@ -31,6 +31,7 @@ namespace OverrideInterfaceName {
 
     namespace Browser {
         const char* const SET_POLICY_SYNC = "setPolicySync";
+        const char* const SET_MANAGED_BROWSER_POLICY = "setManagedBrowserPolicy";
     } // namespace Browser
 
     namespace DeviceSettings {

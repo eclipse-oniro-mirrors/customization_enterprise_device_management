@@ -100,6 +100,8 @@ private:
         std::map<std::string, ManagedBrowserPolicyType> &mergeData);
 
     void PublishEventToBrowser();
+
+    void NotifyPolicyChanged(const ManagedBrowserPolicyRequest &request);
 };
 } // namespace EDM
 } // namespace OHOS
