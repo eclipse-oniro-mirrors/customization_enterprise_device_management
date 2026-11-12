@@ -146,6 +146,7 @@ void InstalledBundleInfoListQuery::ConvertApplicationInfo(const OHOS::AppExecFwk
     edmApplicationInfo.labelId = applicationInfo.labelId;
     edmApplicationInfo.descriptionId = applicationInfo.descriptionId;
     edmApplicationInfo.uid = applicationInfo.uid;
+    edmApplicationInfo.appUid = applicationInfo.appUid;
     edmApplicationInfo.appIndex = applicationInfo.appIndex;
     edmApplicationInfo.name = applicationInfo.name;
     edmApplicationInfo.description = applicationInfo.description;

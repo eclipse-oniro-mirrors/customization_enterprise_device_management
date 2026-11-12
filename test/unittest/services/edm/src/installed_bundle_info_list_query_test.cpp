@@ -15,6 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#include <limits>
+#include <memory>
+
 #define private public
 #define protected public
 #include "installed_bundle_info_list_query.h"
@@ -106,6 +109,8 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertApplicationInfo, TestSize.
     OHOS::AppExecFwk::ApplicationInfo appInfo;
     appInfo.iconPath = "$media:app_icon";
     appInfo.isSystemApp = true;
+    appInfo.uid = 10001;
+    appInfo.appUid = 20002;
     bundleInfo.applicationInfo = appInfo;
     
     OHOS::EDM::EdmApplicationInfo edmApplicationInfo;
@@ -113,6 +118,8 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertApplicationInfo, TestSize.
     queryObj->ConvertApplicationInfo(bundleInfo.applicationInfo, edmApplicationInfo);
     ASSERT_TRUE(bundleInfo.applicationInfo.iconPath == edmApplicationInfo.icon);
     ASSERT_TRUE(bundleInfo.applicationInfo.isSystemApp == edmApplicationInfo.isSystemApp);
+    ASSERT_EQ(edmApplicationInfo.uid, bundleInfo.applicationInfo.uid);
+    ASSERT_EQ(edmApplicationInfo.appUid, bundleInfo.applicationInfo.appUid);
 }
 
 /**
@@ -335,6 +342,174 @@ HWTEST_F(InstalledBundleInfoListQueryTest, TestConvertBundleInfoListData, TestSi
     queryObj->ConvertBundleInfoListData(0, bundleInfos, edmBundleInfos);
     ASSERT_EQ(bundleInfos.size(), edmBundleInfos.size());
     ASSERT_EQ(bundleInfos[0].name, edmBundleInfos[0].name);
+}
+
+/**
+ * @tc.name: ConvertApplicationInfo_AppUidZero_Copied
+ * @tc.desc: Test ConvertApplicationInfo copies appUid when the value is zero.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, ConvertApplicationInfo_AppUidZero_Copied, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ApplicationInfo appInfo;
+    appInfo.uid = 0;
+    appInfo.appUid = 0;
+    EdmApplicationInfo edmApplicationInfo;
+    edmApplicationInfo.uid = -1;
+    edmApplicationInfo.appUid = -1;
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->ConvertApplicationInfo(appInfo, edmApplicationInfo);
+    ASSERT_EQ(edmApplicationInfo.uid, 0);
+    ASSERT_EQ(edmApplicationInfo.appUid, 0);
+}
+
+/**
+ * @tc.name: ConvertApplicationInfo_AppUidInt32Min_Copied
+ * @tc.desc: Test ConvertApplicationInfo copies the minimum int32 appUid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, ConvertApplicationInfo_AppUidInt32Min_Copied, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ApplicationInfo appInfo;
+    appInfo.uid = std::numeric_limits<int32_t>::min();
+    appInfo.appUid = std::numeric_limits<int32_t>::min();
+    EdmApplicationInfo edmApplicationInfo;
+    edmApplicationInfo.uid = 0;
+    edmApplicationInfo.appUid = 0;
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->ConvertApplicationInfo(appInfo, edmApplicationInfo);
+    ASSERT_EQ(edmApplicationInfo.uid, std::numeric_limits<int32_t>::min());
+    ASSERT_EQ(edmApplicationInfo.appUid, std::numeric_limits<int32_t>::min());
+}
+
+/**
+ * @tc.name: ConvertApplicationInfo_AppUidInt32Max_Copied
+ * @tc.desc: Test ConvertApplicationInfo copies the maximum int32 appUid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, ConvertApplicationInfo_AppUidInt32Max_Copied, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ApplicationInfo appInfo;
+    appInfo.uid = std::numeric_limits<int32_t>::max();
+    appInfo.appUid = std::numeric_limits<int32_t>::max();
+    EdmApplicationInfo edmApplicationInfo;
+    edmApplicationInfo.uid = 0;
+    edmApplicationInfo.appUid = 0;
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->ConvertApplicationInfo(appInfo, edmApplicationInfo);
+    ASSERT_EQ(edmApplicationInfo.uid, std::numeric_limits<int32_t>::max());
+    ASSERT_EQ(edmApplicationInfo.appUid, std::numeric_limits<int32_t>::max());
+}
+
+/**
+ * @tc.name: ConvertBundleInfoListItem_WithApplicationInfo_CopyAppUid
+ * @tc.desc: Test ConvertBundleInfoListItem copies appUid when WITH_APPLICATION_INFO is set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, ConvertBundleInfoListItem_WithApplicationInfo_CopyAppUid, TestSize.Level1)
+{
+    OHOS::AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.applicationInfo.uid = 10001;
+    bundleInfo.applicationInfo.appUid = 20002;
+    EdmBundleInfo edmBundleInfo;
+    uint32_t edmBundleFlag = static_cast<uint32_t>(BundleInfoGetFlag::WITH_APPLICATION_INFO);
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->ConvertBundleInfoListItem(edmBundleFlag, bundleInfo, edmBundleInfo);
+    ASSERT_EQ(edmBundleInfo.applicationInfo.uid, 10001);
+    ASSERT_EQ(edmBundleInfo.applicationInfo.appUid, 20002);
+}
+
+/**
+ * @tc.name: ConvertBundleInfoListItem_WithoutApplicationInfo_AppUidDefault
+ * @tc.desc: Test ConvertBundleInfoListItem keeps the default appUid without WITH_APPLICATION_INFO.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, ConvertBundleInfoListItem_WithoutApplicationInfo_AppUidDefault,
+    TestSize.Level1)
+{
+    OHOS::AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.applicationInfo.uid = 10001;
+    bundleInfo.applicationInfo.appUid = 20002;
+    EdmBundleInfo edmBundleInfo;
+    std::shared_ptr<InstalledBundleInfoListQuery> queryObj = std::make_shared<InstalledBundleInfoListQuery>();
+    queryObj->ConvertBundleInfoListItem(0, bundleInfo, edmBundleInfo);
+    ASSERT_EQ(edmBundleInfo.applicationInfo.uid, -1);
+    ASSERT_EQ(edmBundleInfo.applicationInfo.appUid, -1);
+}
+
+/**
+ * @tc.name: Marshalling_AppUidRoundTrip_Success
+ * @tc.desc: Test EdmApplicationInfo keeps uid, appIndex and appUid after parcel round trip.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, Marshalling_AppUidRoundTrip_Success, TestSize.Level1)
+{
+    EdmApplicationInfo src;
+    src.isSystemApp = true;
+    src.uid = 10001;
+    src.appIndex = 3;
+    src.appUid = 20002;
+    src.name = "com.test.app";
+    src.iconResource.bundleName = "icon.bundle";
+    src.labelResource.bundleName = "label.bundle";
+    src.descriptionResource.bundleName = "desc.bundle";
+
+    MessageParcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    std::unique_ptr<EdmApplicationInfo> dest(EdmApplicationInfo::Unmarshalling(parcel));
+    ASSERT_NE(dest.get(), nullptr);
+    ASSERT_EQ(dest->isSystemApp, true);
+    ASSERT_EQ(dest->uid, src.uid);
+    ASSERT_EQ(dest->appIndex, src.appIndex);
+    ASSERT_EQ(dest->name, src.name);
+    ASSERT_EQ(dest->iconResource.bundleName, src.iconResource.bundleName);
+    ASSERT_EQ(dest->labelResource.bundleName, src.labelResource.bundleName);
+    ASSERT_EQ(dest->descriptionResource.bundleName, src.descriptionResource.bundleName);
+    ASSERT_EQ(dest->appUid, src.appUid);
+}
+
+/**
+ * @tc.name: Marshalling_AppUidInt32Max_Success
+ * @tc.desc: Test EdmApplicationInfo parcel round trip with the maximum int32 appUid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, Marshalling_AppUidInt32Max_Success, TestSize.Level1)
+{
+    EdmApplicationInfo src;
+    src.appUid = std::numeric_limits<int32_t>::max();
+    MessageParcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    std::unique_ptr<EdmApplicationInfo> dest(EdmApplicationInfo::Unmarshalling(parcel));
+    ASSERT_NE(dest.get(), nullptr);
+    ASSERT_EQ(dest->appUid, std::numeric_limits<int32_t>::max());
+}
+
+/**
+ * @tc.name: Marshalling_AppUidInt32Min_Success
+ * @tc.desc: Test EdmApplicationInfo parcel round trip with the minimum int32 appUid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, Marshalling_AppUidInt32Min_Success, TestSize.Level1)
+{
+    EdmApplicationInfo src;
+    src.appUid = std::numeric_limits<int32_t>::min();
+    MessageParcel parcel;
+    ASSERT_TRUE(src.Marshalling(parcel));
+    std::unique_ptr<EdmApplicationInfo> dest(EdmApplicationInfo::Unmarshalling(parcel));
+    ASSERT_NE(dest.get(), nullptr);
+    ASSERT_EQ(dest->appUid, std::numeric_limits<int32_t>::min());
+}
+
+/**
+ * @tc.name: Unmarshalling_EmptyParcel_ReturnNull
+ * @tc.desc: Test EdmApplicationInfo::Unmarshalling returns null when the parcel is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstalledBundleInfoListQueryTest, Unmarshalling_EmptyParcel_ReturnNull, TestSize.Level1)
+{
+    MessageParcel parcel;
+    std::unique_ptr<EdmApplicationInfo> info(EdmApplicationInfo::Unmarshalling(parcel));
+    ASSERT_EQ(info.get(), nullptr);
 }
 } // namespace TEST
 } // namespace EDM
