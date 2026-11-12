@@ -157,6 +157,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::DISABLE_SUPER_PRIVACY,
     EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
     EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE,
+    EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

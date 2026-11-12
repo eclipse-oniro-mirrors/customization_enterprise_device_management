@@ -19,6 +19,7 @@ namespace OHOS {
 namespace EDM {
 IExtInfoManager* IExtInfoManager::instance_ = nullptr;
 std::string IExtInfoManager::superhubBundleName = "";
+std::string IExtInfoManager::parentControlBundleName = "";
 std::map<std::string, uint32_t> IExtInfoManager::appUidMap = {};
 
 IExtInfoManager *IExtInfoManager::GetInstance()
@@ -37,6 +38,11 @@ std::string IExtInfoManager::GetSuperHubInfo()
 void IExtInfoManager::GetAppUidMap()
 {
     return;
+}
+
+std::string IExtInfoManager::GetParentControlInfo()
+{
+    return "";
 }
 } // namespace EDM
 } // namespace OHOS
