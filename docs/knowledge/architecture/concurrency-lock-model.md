@@ -9,7 +9,7 @@
 | 锁 | 类型 | 保护对象 | 持有方式 |
 |---|---|---|---|
 | `mutexLock_` | `std::shared_timed_mutex` | `pluginsCode_`/`pluginsName_`/`soLoadStateMap_` 及 `SoLoadState` 成员 | 插件加载/卸载/查找用 `unique_lock` |
-| `soPinMutex_` | `std::shared_mutex` | 防止 SO 被 `dlclose` 卸载（SO pinning） | `UpdateDevicePolicy`/`GetPolicy` Phase 2 用 `shared_lock`；`UnloadPluginTask` 用 `unique_lock` |
+| `soPinMutex_` | `std::shared_timed_mutex` | 防止 SO 被 `dlclose` 卸载（SO pinning） | `UpdateDevicePolicy`/`GetPolicy` Phase 2 用 `shared_lock`；`UnloadPluginTask` 用 `try_lock_for`（超时放弃） |
 | `policyStripes_` | `std::mutex[ConflictGroupId::END]` | 按冲突组串行化同组 `OnSetExecute` | `NeedSavePolicy=true` 时按 `ConflictGroupId` 取条带 `unique_lock` |
 | `PolicyManager::mutex_` | `std::recursive_mutex` | `policyMgrMap_`/`defaultPolicyMgr_` 及 `UserPolicyManager` map 访问 | 所有 `PolicyManager` 公共方法用 `lock_guard` |
 
@@ -58,7 +58,7 @@ Phase 2: shared_lock(soPinMutex_) → OnGetExecute(查询策略)
 
 ```
 soPinMutex_ (shared) → policyStripes_[i] (unique) → PolicyManager::mutex_ (lock_guard)
-UnloadPluginTask: soPinMutex_ (unique) → mutexLock_ (unique)
+UnloadPluginTask: wokenByNotify? continue : try_lock_for(soPinMutex_, 1s) → try_lock_for(mutexLock_, 1s)
 ```
 
 无逆序，无死锁。
@@ -68,8 +68,17 @@ UnloadPluginTask: soPinMutex_ (unique) → mutexLock_ (unique)
 `UpdateDevicePolicy` 和 `UnloadPluginTask` 不会死锁：
 
 - `UpdateDevicePolicy` Phase 2+3 持 `shared_lock(soPinMutex_)`，不持有 `mutexLock_`，不等待 `mutexLock_`
-- `UnloadPluginTask` 持 `unique_lock(soPinMutex_)`，等待 `mutexLock_`
+- `UnloadPluginTask` 被 `notify_one()` 唤醒时（`wokenByNotify=true`）直接 `continue`，不尝试获取独占锁；仅 3 分钟超时唤醒时才用 `try_lock_for` 获取独占锁，1 秒超时则放弃
 - 无循环等待
+
+### 线程池耗尽型死锁防护
+
+Install 安装大包时 `OnSetExecute` 通过 `future.wait()` 同步阻塞 IPC 线程（3+ 分钟），持 `shared_lock(soPinMutex_)`。若 `UnloadPluginTask` 无条件排队 `unique_lock(soPinMutex_)`，`shared_mutex` 写者优先特性会阻塞 GetPolicy 的 `shared_lock`，耗尽 binder 线程池，导致 `OnFinished` 回调无法分发 → `future.wait()` 永不返回 → 循环死锁。
+
+三层防护：
+1. `wokenByNotify` 早退：`LoadPlugin` 的 `notify_one()` 唤醒 `UnloadPluginTask` 时，`wait_for` 返回 `true`，直接 `continue` 不排队独占锁 → 不阻塞 GetPolicy
+2. `try_lock_for(1s)` 超时：超时唤醒后获取不到锁则放弃，最多阻塞 1 秒（远低于 6 秒应用冻结阈值）
+3. `diffTime < 3min` 检查：锁获取后再判断时间，不卸载正在使用的 SO
 
 ## UAF 防护
 
@@ -77,13 +86,13 @@ UnloadPluginTask: soPinMutex_ (unique) → mutexLock_ (unique)
 |---|---|---|
 | Phase 1（`unique_lock(mutexLock_)`） | 独占 | 无 |
 | Phase 1 释放 → Phase 2 获取（窗口） | 无锁 | `lastCallTime` 刚更新，`UnloadPluginTask` 检查 `diffTime < 3min` → 不卸载（timer 软保护） |
-| Phase 2+3（`shared_lock(soPinMutex_)`） | 共享 | `UnloadPluginTask` 的 `unique_lock(soPinMutex_)` 被阻塞 → 不卸载 |
+| Phase 2+3（`shared_lock(soPinMutex_)`） | 共享 | `UnloadPluginTask` 被 `notify_one()` 唤醒时 `wokenByNotify=true` → `continue`，不排队独占锁 → 不卸载 |
 
 ### Timer 软保护
 
-Phase 1 的 `LoadPlugin` 更新 `lastCallTime = now`。`UnloadPluginTask` 在获取 `mutexLock_` 后读取 `lastCallTime`（`mutexLock_` 串行化保证写先于读），计算 `diffTime`。如果 `diffTime < 3min`（`TIMER_TIMEOUT = 180000ms`），不卸载。
+Phase 1 的 `LoadPlugin` 更新 `lastCallTime = now` 并 `notify_one()` 唤醒 `UnloadPluginTask`。`UnloadPluginTask` 被 notify 唤醒时 `wait_for` 返回 `true`（`wokenByNotify=true`），直接 `continue` 不尝试获取独占锁 → 不卸载（timer 软保护 + notify 早退双重保护）。
 
-如果 `UnloadPluginTask` 在 Phase 1 之前就拿到两把锁并检查 timer（`lastCallTime` 是旧值），则卸载。但之后 Phase 1 的 `LoadPlugin` 发现 `pluginHasInit == false` → 重新 dlopen 加载。无 UAF，只是重复卸载+加载。
+如果 `UnloadPluginTask` 在 3 分钟超时唤醒（`wokenByNotify=false`）后获取到锁并检查 timer（`lastCallTime` 是旧值），则卸载。但之后 Phase 1 的 `LoadPlugin` 发现 `pluginHasInit == false` → 重新 dlopen 加载。无 UAF，只是重复卸载+加载。超时唤醒后若 `try_lock_for` 获取不到锁（1 秒内），则放弃本轮卸载，下一轮 `wait_for` 再等 3 分钟。
 
 ## adminLock_ 改动
 

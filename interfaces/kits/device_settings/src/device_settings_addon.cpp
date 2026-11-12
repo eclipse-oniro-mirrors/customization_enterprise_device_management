@@ -727,20 +727,23 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, 
 napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
 {
     int32_t item = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error",
+        ErrcodeType::NUMBER);
     int32_t accountId = 0;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]), "param 'accountId' error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]), "param 'accountId' error",
+        ErrcodeType::NUMBER);
     std::string value;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseString(env, value, argv[ARR_INDEX_TWO]), "param 'value' error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseString(env, value, argv[ARR_INDEX_TWO]), "param 'value' error",
+        ErrcodeType::NUMBER);
 
     if (accountId < EdmConstants::DEFAULT_USER_ID) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
         EDMLOGE("SetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d", accountId,
             EdmConstants::DEFAULT_USER_ID);
         return nullptr;
     }
     if (!IsPowerModeItem(item)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
         EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d does not support without admin", item);
         return nullptr;
     }
@@ -748,7 +751,7 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env en
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     int32_t ret = proxy->SetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), value);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("SetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
     }
     return nullptr;

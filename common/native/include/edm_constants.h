@@ -586,6 +586,7 @@ namespace PolicyName {
     const char* const POLICY_EXEMPTION_RESOURCE = "exemption_resource";
     const char* const POLICY_PUBLISH_FORM_TO_DESKTOP = "publish_form_to_desktop";
     const char* const POLICY_REMOVE_ALL_NOTIFICATIONS = "remove_all_notifications";
+    const char* const POLICY_ENABLED_NOTIFICATION_BUNDLES = "enabled_notification_bundles";
     // closed-source
     const char* const POLICY_GET_DEVICE_ENCRYPTION_STATUS = "get_device_encryption_status";
     const char* const POLICY_GET_DISPLAY_VERSION = "get_display_version";

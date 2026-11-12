@@ -93,6 +93,7 @@ ohos_unittest("EdmPluginTest") {
     "./src/disallowed_mms_plugin_test.cpp",
     "./src/disallowed_policy_plugin_test.cpp",
     "./src/disallowed_sms_plugin_test.cpp",
+    "./src/enabled_notification_bundles_plugin_test.cpp",
     "./src/get_all_main_window_states_plugin_test.cpp",
     "./src/get_application_window_states_plugin_test.cpp",
     "./src/get_ext_info_plugin_test.cpp",
@@ -122,6 +123,22 @@ ohos_unittest("EdmPluginTest") {
     "./src/utils/password_policy_serializer_test.cpp",
     "./src/utils/switch_param_serializer_test.cpp",
     "./src/disallow_parent_control_plugin_test.cpp",
+    "../../../../services/edm_plugin/src/admin_manager/enable_self_device_admin_plugin.cpp",
+    "./src/enable_self_device_admin_plugin_test.cpp",
+    "../../../../services/edm_plugin/src/system_manager/set_update_policy_plugin.cpp",
+    "./src/set_update_policy_plugin_test.cpp",
+    "../../../../services/edm_plugin/src/system_manager/notify_update_packages_plugin.cpp",
+    "./src/notify_update_packages_plugin_test.cpp",
+    "../../../../services/edm_plugin/src/device_settings/set_wall_paper_plugin.cpp",
+    "./src/set_wall_paper_plugin_test.cpp",
+    "./src/local_hota_domain_plugin_test.cpp",
+    "../../../../services/edm_plugin/src/utils/battery_utils.cpp",
+    "./src/utils/battery_utils_test.cpp",
+    "./src/utils/installer_callback_test.cpp",
+    "./src/bundle_manager/install_market_apps_plugin_test.cpp",
+    "./src/utils/clear_up_application_data_param_serializer_test.cpp",
+    "./src/utils/operate_device_param_serializer_test.cpp",
+    "./src/utils/uninstall_param_serializer_test.cpp",
   ]
 
   configs = [
@@ -194,6 +211,8 @@ ohos_unittest("EdmPluginTest") {
     sources += [
       "./src/allowed_running_bundles_plugin_test.cpp",
       "./src/disallowed_running_bundles_plugin_test.cpp",
+      "./src/utils/bms_utils_test.cpp",
+      "./src/utils/manage_keep_alive_apps_info_test.cpp",
       "./src/manage_freeze_exempted_apps_plugin_test.cpp",
       "./src/manage_keep_alive_apps_plugin_test.cpp",
       "./src/manage_user_non_stop_apps_plugin_test.cpp",
@@ -246,8 +265,22 @@ ohos_unittest("EdmPluginTest") {
       "./src/set_wifi_profile_plugin_test.cpp",
       "./src/switch_wifi_plugin_test.cpp",
       "./src/utils/array_wifi_id_serializer_test.cpp",
+      "./src/disallowed_p2p_plugin_test.cpp",
+      "./src/utils/wifi_device_config_serializer_test.cpp",
+      "./src/utils/wifi_policy_utils_test.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
+  }
+
+  if (time_service_edm_enable) {
+    external_deps += [
+      "time_service:time_client",
+      "ability_runtime:wantagent_innerkits",
+    ]
+    sources += [
+      "../../../../services/edm_plugin/src/datetime_manager/set_datetime_plugin.cpp",
+      "./src/set_datetime_plugin_test.cpp",
+    ]
   }
 
   if (netmanager_base_edm_enable && netmanager_ext_edm_enable) {
@@ -258,6 +291,9 @@ ohos_unittest("EdmPluginTest") {
     ]
     sources += [
       "./src/clear_dns_cache_plugin_test.cpp",
+      "./src/utils/http_proxy_serializer_test.cpp",
+      "./src/utils/domain_filter_rule_serializer_test.cpp",
+      "./src/utils/firewall_rule_serializer_test.cpp",
       "./src/disallowed_airplane_mode_plugin_test.cpp",
       "./src/domain_filter_rule_plugin_test.cpp",
       "./src/firewall_rule_plugin_test.cpp",
@@ -397,6 +433,12 @@ ohos_unittest("EdmPluginTest") {
       "./src/set_auto_unlock_after_reboot_plugin_test.cpp",
       "./src/set_install_local_enterprise_app_enabled_plugin_test.cpp",
       "./src/system_manager/allowed_printer_ip_addresses_plugin_test.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disable_activation_lock_plugin.cpp",
+      "./src/disable_activation_lock_plugin_test.cpp",
+      "./src/disable_sata_odd_burn_plugin_test.cpp",
+      "./src/utils/nearlink_protocol_utils_test.cpp",
+      "./src/utils/install_local_enterprise_app_policy_utils_test.cpp",
+      "./src/utils/nearlink_config_utils_test.cpp",
     ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
@@ -453,6 +495,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/disable_sudo_plugin_test.cpp",
       "./src/set_domain_account_policy_plugin_test.cpp",
       "./src/set_watermark_plugin_test.cpp",
+      "./src/disallowed_device_sudo_plugin_test.cpp",
     ]
   }
 
@@ -495,6 +538,7 @@ ohos_unittest("EdmPluginTest") {
       "./src/activate_normal_os_account_plugin_test.cpp",
       "./src/disable_backup_and_restore_plugin_test.cpp",
       "./src/disable_private_space_plugin_test.cpp",
+      "./src/set_key_code_plugin_test.cpp",
       "./src/disallow_free_window_plugin_test.cpp",
       "./src/disallow_multi_window_test_plugin.cpp",
       "./src/hidden_settings_menu_plugin_test.cpp",
@@ -667,6 +711,7 @@ ohos_static_library("edm_all_plugin_static") {
     "../../../../services/edm/src/strategy/single_execute_strategy.cpp",
     "../../../../services/edm/src/user_policy_manager.cpp",
     "../../../../services/edm_plugin/src/application_manager/clear_up_application_data_plugin.cpp",
+    "../../../../services/edm_plugin/src/application_manager/enabled_notification_bundles_plugin.cpp",
     "../../../../services/edm_plugin/src/application_manager/get_all_main_window_states_plugin.cpp",
     "../../../../services/edm_plugin/src/application_manager/get_application_window_states_plugin.cpp",
     "../../../../services/edm_plugin/src/application_manager/kiosk_feature_plugin.cpp",
