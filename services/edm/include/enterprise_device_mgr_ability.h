@@ -208,8 +208,7 @@ public:
     void UpdateNetworkAccessPolicy(int oldId, int newId);
     // non-thread-safe function
     ErrCode DoDisableAdmin(const std::string &bundleName, int32_t userId, AdminType adminType);
-    ErrCode DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType,
-        bool skipNotify = false);
+    ErrCode DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType);
     std::string GetExtensionEnterpriseAdminName(const std::string &bundleName, int32_t userId);
     ErrCode CheckEnableDeviceAdmin(const AppExecFwk::ElementName &admin);
     ErrCode CheckDisableDeviceAdmin(std::shared_ptr<Admin> deviceAdmin);

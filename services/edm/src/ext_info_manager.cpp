@@ -164,14 +164,12 @@ ErrCode ExtInfoManager::GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply
 }
 
 // LCOV_EXCL_START
-void ExtInfoManager::NotifyAdminDisabled(int32_t adminType, int32_t enableSource,
-    const std::string &bundleName)
+void ExtInfoManager::NotifyAdminDisabled(int32_t adminType, const std::string &bundleName)
 {
-    EDMLOGI("ExtInfoManager::NotifyAdminDisabled adminType=%{public}d enableSource=%{public}d bundle=%{public}s",
-        adminType, enableSource, bundleName.c_str());
+    EDMLOGI("ExtInfoManager::NotifyAdminDisabled adminType=%{public}d bundle=%{public}s",
+        adminType, bundleName.c_str());
     MessageParcel data;
     data.WriteInt32(adminType);
-    data.WriteInt32(enableSource);
     data.WriteString(bundleName);
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);
     PluginManager::GetInstance()->CallOnHandlePolicy(funcCode,
