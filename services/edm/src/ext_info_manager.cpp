@@ -138,6 +138,23 @@ void ExtInfoManager::GetAppUidMap()
     IExtInfoManager::appUidMap = result;
 }
 
+std::string ExtInfoManager::GetParentControlInfo()
+{
+    MessageParcel reply;
+    if (FAILED(GetExtInfo(ExtInfoType::PARENT_CONTROL_INFO, reply))) {
+        EDMLOGE("ExtInfoManager::GetParentControlInfo GetExtInfo failed");
+        return "";
+    }
+    int32_t res = ERR_INVALID_VALUE;
+    if (!reply.ReadInt32(res) || FAILED(res)) {
+        EDMLOGE("ExtInfoManager::GetParentControlInfo failed, %{public}d", res);
+        return "";
+    }
+    std::string bundleName = reply.ReadString();
+    IExtInfoManager::parentControlBundleName = bundleName;
+    return bundleName;
+}
+
 ErrCode ExtInfoManager::GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply)
 {
     uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::GET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);

@@ -58,6 +58,8 @@ void BrowserProxyTest::SetUp()
 
     bundleManager_ = new (std::nothrow) AppExecFwk::BundleMgrHost();
     edmSysManager_->RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleManager_);
+    // The edc switch is a device wide parameter, pin it so the cases do not depend on the device state.
+    Utils::SetEdmExtServiceDisable();
     Utils::SetEdmServiceEnable();
 }
 
@@ -99,6 +101,8 @@ HWTEST_F(BrowserProxyTest, TestSetPolicySuc, TestSize.Level1)
  */
 HWTEST_F(BrowserProxyTest, TestSetPolicyFail, TestSize.Level1)
 {
+    // The set path only rejects the request when both the edm and the edc switch are off.
+    Utils::SetEdmExtServiceDisable();
     Utils::SetEdmServiceDisable();
     OHOS::AppExecFwk::ElementName admin;
     ErrCode ret = browserProxy_->SetPolicy(admin, TEST_APP_ID, TEST_POLICY_NAME, TEST_POLICY_VALUE);
@@ -233,6 +237,8 @@ HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicySuc, TestSize.Level1)
  */
 HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyFail, TestSize.Level1)
 {
+    // The set path only rejects the request when both the edm and the edc switch are off.
+    Utils::SetEdmExtServiceDisable();
     Utils::SetEdmServiceDisable();
     MessageParcel data;
     ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
@@ -240,20 +246,21 @@ HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyFail, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestSetManagedBrowserPolicyUsesNewInterfaceCode
- * @tc.desc: Test SetManagedBrowserPolicy sends the new interface code of the shared browser
- *           policy interface, the force override flag travels in the parcel.
+ * @tc.name: TestSetManagedBrowserPolicyUsesLegacyInterfaceCode
+ * @tc.desc: Test SetManagedBrowserPolicy keeps sending the legacy interface code (bit22 = 0) of
+ *           the shared browser policy interface, so an old caller still reaches the old branch
+ *           of the service.
  * @tc.type: FUNC
  */
-HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyUsesNewInterfaceCode, TestSize.Level1)
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyUsesLegacyInterfaceCode, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     MessageParcel data;
     ErrCode ret = browserProxy_->SetManagedBrowserPolicy(data);
-    ASSERT_TRUE(ret == ERR_OK);
-    ASSERT_EQ(object_->code_, POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_EQ(object_->code_, POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::SET),
         EdmInterfaceCode::MANAGED_BROWSER_POLICY));
 }
 
@@ -293,6 +300,77 @@ HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyForwardsForceOverrideFlag,
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_TRUE(forceOverrideRead);
     ASSERT_TRUE(forceOverrideSeen);
+}
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicyForceOverrideUsesNewInterfaceCode
+ * @tc.desc: Test SetManagedBrowserPolicyForceOverride sends the new interface code (bit22 = 1),
+ *           so the service takes the force override branch that reads the flag from the parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyForceOverrideUsesNewInterfaceCode, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    MessageParcel data;
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicyForceOverride(data);
+    ASSERT_EQ(ret, ERR_OK);
+    EXPECT_EQ(object_->code_, POLICY_FUNC_CODE_NEW(static_cast<uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::MANAGED_BROWSER_POLICY));
+}
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicyForceOverrideForwardsForceOverrideFlag
+ * @tc.desc: Test SetManagedBrowserPolicyForceOverride forwards the parcel of the request
+ *           unchanged, so the force override flag that the addon wrote at the end of the parcel
+ *           reaches the service and a takeover can be told from a plain set.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyForceOverrideForwardsForceOverrideFlag, TestSize.Level1)
+{
+    bool forceOverrideSeen = false;
+    bool forceOverrideRead = false;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke([&forceOverrideSeen, &forceOverrideRead](uint32_t code, MessageParcel &data,
+            MessageParcel &reply, MessageOption &option) {
+            GTEST_LOG_(INFO) << "mock BrowserProxyTest forward parcel";
+            reply.WriteInt32(ERR_OK);
+            data.ReadInt32();
+            data.ReadInt32();
+            data.ReadString();
+            data.ReadString();
+            data.ReadString();
+            forceOverrideRead = data.ReadBool(forceOverrideSeen);
+            return 0;
+        }));
+    MessageParcel data;
+    data.WriteInt32(0);
+    data.WriteInt32(0);
+    data.WriteString("com.example.bundle");
+    data.WriteString("policy_name");
+    data.WriteString("policy_value");
+    data.WriteBool(true);
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicyForceOverride(data);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(forceOverrideRead);
+    ASSERT_TRUE(forceOverrideSeen);
+}
+
+/**
+ * @tc.name: TestSetManagedBrowserPolicyForceOverrideFail
+ * @tc.desc: Test SetManagedBrowserPolicyForceOverride without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BrowserProxyTest, TestSetManagedBrowserPolicyForceOverrideFail, TestSize.Level1)
+{
+    // The set path only rejects the request when both the edm and the edc switch are off.
+    Utils::SetEdmExtServiceDisable();
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    ErrCode ret = browserProxy_->SetManagedBrowserPolicyForceOverride(data);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
 
 /**

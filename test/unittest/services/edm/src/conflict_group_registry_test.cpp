@@ -138,6 +138,7 @@ HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdSuperHubGroup, TestSiz
         EdmConstants::PolicyCode::DISABLE_SUPERHUB), groupId);
     EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDDEN_SETTINGS_MENU), groupId);
+    EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::DISALLOW_PARENT_CONTROL), groupId);
 }
 
 HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdUpdatePolicyGroup, TestSize.Level1)

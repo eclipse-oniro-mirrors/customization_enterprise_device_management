@@ -42,9 +42,6 @@ public:
         std::map<std::string, ManagedBrowserPolicyType> &result) override;
 
 private:
-    static void DeserializeOwnership(cJSON* mapItem, ManagedBrowserPolicyType &policyType);
-
-    static bool SerializeOwnership(const ManagedBrowserPolicyType &policyType, cJSON* policyObject);
 };
 } // namespace EDM
 } // namespace OHOS

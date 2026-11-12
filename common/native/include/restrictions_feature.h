@@ -78,6 +78,7 @@ enum class RestrictionsFeature : int32_t {
     RECENT_TASKS = 58,
     CONTROL_CENTER = 59,
     NOTIFICATION_CENTER = 60,
+    PARENT_CONTROL = 61,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {
