@@ -37,6 +37,9 @@ namespace TEST {
 static std::vector<std::string> GetEndsWithValues(const DataShare::DataSharePredicates &predicates,
     const std::string &field)
 {
+    constexpr size_t END_WITH_PARAM_COUNT = 2;
+    constexpr size_t END_WITH_FIELD_INDEX = 0;
+    constexpr size_t END_WITH_VALUE_INDEX = 1;
     std::vector<std::string> values;
     for (const auto &item : predicates.GetOperationList()) {
         if (item.operation != DataShare::END_WITH) {
@@ -48,13 +51,13 @@ static std::vector<std::string> GetEndsWithValues(const DataShare::DataSharePred
                 params.push_back(std::get<std::string>(param));
             }
         }
-        if (params.size() < 2) {
+        if (params.size() < END_WITH_PARAM_COUNT) {
             continue;
         }
-        if (params[0] == field) {
-            values.push_back(params[1]);
-        } else if (params[1] == field) {
-            values.push_back(params[0]);
+        if (params[END_WITH_FIELD_INDEX] == field) {
+            values.push_back(params[END_WITH_VALUE_INDEX]);
+        } else if (params[END_WITH_VALUE_INDEX] == field) {
+            values.push_back(params[END_WITH_FIELD_INDEX]);
         }
     }
     return values;
