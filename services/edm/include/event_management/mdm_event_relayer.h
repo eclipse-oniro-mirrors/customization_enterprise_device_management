@@ -28,6 +28,7 @@
 
 namespace OHOS {
 namespace EDM {
+
 class ICallbackStrategy;
 
 class MdmEventRelayer : public IMdmEventRelayer {

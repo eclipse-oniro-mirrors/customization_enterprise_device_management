@@ -582,14 +582,20 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetDefaultDataSimFail, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsSuc, TestSize.Level1)
 {
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs));
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(callLogs.empty());
+#else
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogs));
     int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(callLogs.size(), static_cast<size_t>(2));
@@ -602,6 +608,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsSuc, TestSize.Level1)
     EXPECT_FALSE(callLogs[1].isIncoming);
     EXPECT_EQ(callLogs[1].slotId, 1);
     EXPECT_EQ(callLogs[1].telephoneNumber, "13800138001");
+#endif
 }
 
 /**
@@ -611,17 +618,24 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsSuc, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsFail, TestSize.Level1)
 {
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(callLogs.empty());
+#else
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
     int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_NE(ret, ERR_OK);
     EXPECT_TRUE(callLogs.empty());
+#endif
 }
 
 /**
@@ -631,17 +645,24 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsFail, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsEmpty, TestSize.Level1)
 {
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsEmpty));
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
     int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_TRUE(callLogs.empty());
+#else
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsEmpty));
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(callLogs.empty());
+#endif
 }
 
 /**
@@ -651,17 +672,24 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsEmpty, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Level1)
 {
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsInvalidSize));
     TelephonyQueryConfig config;
     config.startTime = 100;
     config.endTime = 200;
     config.hasTelephoneNumber = false;
     std::vector<CallLogInfo> callLogs;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
+    int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(callLogs.empty());
+#else
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetCallLogsInvalidSize));
     int32_t ret = telephonyManagerProxy->GetCallLogs(config, callLogs);
     EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_TRUE(callLogs.empty());
+#endif
 }
 
 /**
@@ -671,18 +699,21 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallLogsInvalidDataSize, TestSize.Lev
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
 {
-#ifdef FEATURE_PC_ONLY
-    return;
-#endif
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy));
     TelephonyQueryConfig config;
     config.startTime = 1000;
     config.endTime = 2000;
     config.hasTelephoneNumber = true;
     config.telephoneNumber = "13800000000";
     std::vector<SmsMessageInfo> messages;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(messages.empty());
+#else
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicy));
     int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
     ASSERT_TRUE(ret == ERR_OK);
     ASSERT_FALSE(messages.empty());
@@ -691,6 +722,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
     ASSERT_TRUE(messages[0].content == "hello");
     ASSERT_TRUE(messages[0].timer == 1722470500);
     ASSERT_TRUE(messages[0].isSender == true);
+#endif
 }
 
 /**
@@ -700,18 +732,22 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesSuc, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
 {
-#ifdef FEATURE_PC_ONLY
-    return;
-#endif
-    Utils::SetEdmServiceDisable();
     TelephonyQueryConfig config;
     config.startTime = 1000;
     config.endTime = 2000;
     config.telephoneNumber = "13800000000";
     std::vector<SmsMessageInfo> messages;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(messages.empty());
+#else
+    Utils::SetEdmServiceDisable();
     int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
     ASSERT_TRUE(messages.empty());
+#endif
 }
 
 /**
@@ -721,20 +757,24 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesFail, TestSize.Level1)
  */
 HWTEST_F(TelephonyManagerProxyTest, TestGetSmsMessagesIpcFail, TestSize.Level1)
 {
-#ifdef FEATURE_PC_ONLY
-    return;
-#endif
-    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail));
     TelephonyQueryConfig config;
     config.startTime = 1000;
     config.endTime = 2000;
     config.telephoneNumber = "13800000000";
     std::vector<SmsMessageInfo> messages;
+#ifdef FEATURE_PC_ONLY
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _)).Times(0);
+    int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(messages.empty());
+#else
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSmsMessagesSendRequestGetPolicyFail));
     int32_t ret = telephonyManagerProxy->GetSmsMessages(config, messages);
     ASSERT_TRUE(ret != ERR_OK);
     ASSERT_TRUE(messages.empty());
+#endif
 }
 } // namespace TEST
 } // namespace EDM

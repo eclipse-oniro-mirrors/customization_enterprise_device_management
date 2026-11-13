@@ -51,6 +51,22 @@ bool ParseForceOverrideFlag(napi_env env, const napi_value *argv, size_t argc, b
     return ParseBool(env, isForceOverride, argv[ARR_INDEX_THREE]);
 }
 
+bool IsNullOrUndefined(napi_env env, napi_value argv)
+{
+    return MatchValueType(env, argv, napi_null) || MatchValueType(env, argv, napi_undefined);
+}
+
+bool CheckNewInterfaceArgsNotNullable(napi_env env, const napi_value *argv, size_t argc)
+{
+    for (size_t i = 0; i < argc && i < ARGS_SIZE_THREE; i++) {
+        if (IsNullOrUndefined(env, argv[i])) {
+            napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+            return false;
+        }
+    }
+    return true;
+}
+
 AddonMethodSign BuildSetManagedBrowserPolicyNewSign()
 {
     AddonMethodSign addonMethodSign;
@@ -93,6 +109,9 @@ napi_value SetManagedBrowserPolicyLegacy(napi_env env, napi_callback_info info)
         return nullptr;
     }
     int32_t ret = BrowserProxy::GetBrowserProxy()->SetManagedBrowserPolicy(adapterAddonData.data);
+    if (ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED) {
+        ret = EdmReturnErrCode::PARAM_ERROR;
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -104,6 +123,9 @@ napi_value SetManagedBrowserPolicyForceOverride(napi_env env, napi_callback_info
     size_t argc = ARGS_SIZE_FIVE;
     napi_value argv[ARGS_SIZE_FIVE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (!CheckNewInterfaceArgsNotNullable(env, argv, argc)) {
+        return nullptr;
+    }
     bool isForceOverride = false;
     if (!ParseForceOverrideFlag(env, argv, argc, isForceOverride)) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED, ErrcodeType::NUMBER));
@@ -289,6 +311,10 @@ napi_value BrowserAddon::SetManagedBrowserPolicy(napi_env env, napi_callback_inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_string)) {
         return SetManagedBrowserPolicyForceOverride(env, info);
+    }
+    if (argc > 0 && !MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+        return nullptr;
     }
     return SetManagedBrowserPolicyLegacy(env, info);
 }
