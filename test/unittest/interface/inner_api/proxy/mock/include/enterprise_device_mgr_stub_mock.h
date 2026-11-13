@@ -91,6 +91,8 @@ public:
     MOCK_METHOD(int, EnableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
     MOCK_METHOD(int, DisableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
     MOCK_METHOD(int, GetEnterpriseManagedTips, (std::string &), (override));
+    MOCK_METHOD(int, SetEnterpriseDisplayInfo, (const std::string &), (override));
+    MOCK_METHOD(int, GetEnterpriseDisplayInfo, (std::string &), (override));
     MOCK_METHOD(int, StartAbilityByAdmin, (const AppExecFwk::ElementName &, const AAFwk::Want &), (override));
     MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType,
         int32_t, bool, EnableSource), (override));

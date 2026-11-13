@@ -1099,6 +1099,60 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetSwitchStatusInvalidUpper, TestSize.Leve
     EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
     EXPECT_EQ(status, SwitchStatus::UNKNOWN);
 }
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoSuc
+ * @tc.desc: Test SetEnterpriseDisplayInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetEnterpriseDisplayInfoSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SetEnterpriseDisplayInfo(_)).Times(1).WillOnce(Return(ERR_OK));
+    int32_t ret = deviceSettingsProxy->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseDisplayInfoSuc
+ * @tc.desc: Test GetEnterpriseDisplayInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetEnterpriseDisplayInfoSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetEnterpriseDisplayInfo(_)).Times(1)
+        .WillOnce(DoAll(SetArgReferee<0>("displayInfo"), Return(ERR_OK)));
+    std::string result;
+    int32_t ret = deviceSettingsProxy->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(result, "displayInfo");
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoFail
+ * @tc.desc: Test SetEnterpriseDisplayInfo propagates the error code returned by the inner proxy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetEnterpriseDisplayInfoFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SetEnterpriseDisplayInfo(_)).Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    int32_t ret = deviceSettingsProxy->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseDisplayInfoFail
+ * @tc.desc: Test GetEnterpriseDisplayInfo propagates the error code returned by the inner proxy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetEnterpriseDisplayInfoFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetEnterpriseDisplayInfo(_)).Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    std::string result;
+    int32_t ret = deviceSettingsProxy->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -71,6 +71,8 @@ public:
         std::vector<int32_t> &hiddenSettingsMenu);
     int32_t SetSwitchStatus(MessageParcel &data);
     int32_t GetSwitchStatus(MessageParcel &data, SwitchStatus &status);
+    int32_t SetEnterpriseDisplayInfo(const std::string &displayInfo);
+    int32_t GetEnterpriseDisplayInfo(std::string &displayInfo);
 
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;

@@ -340,6 +340,8 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("removeHiddenSettingsMenu", RemoveHiddenSettingsMenu),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::DeviceSettings::SET_SWITCH_STATUS, SetSwitchStatus),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::DeviceSettings::GET_SWITCH_STATUS, GetSwitchStatus),
+        DECLARE_NAPI_FUNCTION("setEnterpriseDisplayInfo", SetEnterpriseDisplayInfo),
+        DECLARE_NAPI_FUNCTION("getEnterpriseDisplayInfo", GetEnterpriseDisplayInfo),
         DECLARE_NAPI_PROPERTY("SwitchKey", nSwitchKey),
         DECLARE_NAPI_PROPERTY("SwitchStatus", nSwitchStatus),
     };
@@ -1047,6 +1049,49 @@ napi_value DeviceSettingsAddon::GetSwitchStatus(napi_env env, napi_callback_info
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(status), &result));
+    return result;
+}
+
+napi_value DeviceSettingsAddon::SetEnterpriseDisplayInfo(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetEnterpriseDisplayInfo called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    std::string enterpriseName;
+    bool isParamValid = argc >= ARGS_SIZE_ONE && argv[ARR_INDEX_ZERO] != nullptr &&
+        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+        JsObjectToString(env, argv[ARR_INDEX_ZERO], EdmConstants::ENTERPRISE_DISPLAY_INFO_NAME, true, enterpriseName);
+    if (!isParamValid) {
+        EDMLOGE("NAPI_SetEnterpriseDisplayInfo parse parameter error");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetEnterpriseDisplayInfo(enterpriseName);
+    if (FAILED(ret)) {
+        EDMLOGE("NAPI_SetEnterpriseDisplayInfo failed. %{public}d", ret);
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
+napi_value DeviceSettingsAddon::GetEnterpriseDisplayInfo(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetEnterpriseDisplayInfo called");
+    std::string enterpriseName;
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetEnterpriseDisplayInfo(enterpriseName);
+    if (FAILED(ret)) {
+        EDMLOGE("NAPI_GetEnterpriseDisplayInfo failed. %{public}d", ret);
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &result));
+    napi_value nEnterpriseName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, enterpriseName.c_str(), enterpriseName.size(), &nEnterpriseName));
+    NAPI_CALL(env, napi_set_named_property(env, result, EdmConstants::ENTERPRISE_DISPLAY_INFO_NAME, nEnterpriseName));
     return result;
 }
 
