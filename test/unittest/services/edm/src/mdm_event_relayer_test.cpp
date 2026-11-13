@@ -15,6 +15,7 @@
 
 #define private public
 #include "mdm_event_relayer.h"
+#include "callback_strategies.h"
 #undef private
 
 #include <gtest/gtest.h>
@@ -338,6 +339,198 @@ HWTEST_F(MdmEventRelayerTest, MultipleAdmins_EachDispatchedOnce, TestSize.Level1
     relayer_->OnAdminUnsubscribe(adminA, userId, ManagedEvent::BUNDLE_ADDED);
     relayer_->OnAdminUnsubscribe(adminB, userId, ManagedEvent::BUNDLE_ADDED);
     relayer_->strategyFactories_[ManagedEvent::BUNDLE_ADDED] = originalFactory;
+}
+
+namespace {
+constexpr int32_t TEST_SWITCHED_IN_ACCOUNT_ID = 102;
+constexpr int32_t TEST_SWITCHED_OUT_ACCOUNT_ID = 100;
+/* 账号切换事件 Want 的切出账号ID参数名（生产侧同名常量定义于 mdm_event_relayer.cpp） */
+constexpr const char *TEST_OLD_ACCOUNT_ID_PARAM = "oldId";
+
+/* 构造账号事件数据：CommonEventData.code 承载账号ID，Want 的 oldId 参数承载切出账号ID */
+EdmEventData BuildAccountEventData(ManagedEvent event, int32_t accountId, const std::string &oldId)
+{
+    AAFwk::Want want;
+    if (!oldId.empty()) {
+        want.SetParam(TEST_OLD_ACCOUNT_ID_PARAM, oldId);
+    }
+    EventFwk::CommonEventData commonEventData;
+    commonEventData.SetCode(accountId);
+    commonEventData.SetWant(want);
+
+    EdmEventData data;
+    data.eventId = EventId{static_cast<uint32_t>(event)};
+    data.commonEventData = commonEventData;
+    return data;
+}
+
+/* 通过账号事件工厂构造 AccountStrategy，工厂未注册或返回类型不符时返回 nullptr */
+std::shared_ptr<AccountStrategy> CreateAccountStrategyForTest(
+    MdmEventRelayer *relayer, ManagedEvent event, int32_t accountId, const std::string &oldId)
+{
+    auto factoryIt = relayer->strategyFactories_.find(event);
+    if (factoryIt == relayer->strategyFactories_.end()) {
+        return nullptr;
+    }
+    // 注：OpenHarmony 全局 -fno-rtti，dynamic_pointer_cast 不可用，只能静态向下转换；
+    // 类型正确性由三个账号事件工厂的实现保证，用例通过字段值断言间接校验类型行为
+    return std::static_pointer_cast<AccountStrategy>(factoryIt->second(
+        BuildAccountEventData(event, accountId, oldId)));
+}
+
+/* 断言切出账号被判定为不可用：切出账号回退为 INVALID_ACCOUNT_ID，切入账号不受影响 */
+void ExpectInvalidOldAccountId(const std::shared_ptr<AccountStrategy> &strategy, const std::string &oldId)
+{
+    ASSERT_NE(strategy, nullptr) << "oldId=" << oldId;
+    EXPECT_EQ(strategy->oldAccountId_, INVALID_ACCOUNT_ID) << "oldId=" << oldId;
+    EXPECT_EQ(strategy->accountId_, TEST_SWITCHED_IN_ACCOUNT_ID) << "oldId=" << oldId;
+}
+} // namespace
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_ValidOldId_CarriesBothAccountIds
+ * @tc.desc: Test USER_SWITCHED factory parses oldId from Want and builds AccountStrategy
+ *           carrying both the switched-in accountId and switched-out oldAccountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_ValidOldId_CarriesBothAccountIds, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, std::to_string(TEST_SWITCHED_OUT_ACCOUNT_ID));
+    ASSERT_NE(strategy, nullptr);
+    EXPECT_EQ(strategy->GetCode(), static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED));
+    EXPECT_EQ(strategy->accountId_, TEST_SWITCHED_IN_ACCOUNT_ID);
+    EXPECT_EQ(strategy->oldAccountId_, TEST_SWITCHED_OUT_ACCOUNT_ID);
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_ZeroOldId_KeepsZero
+ * @tc.desc: Test USER_SWITCHED with oldId "0" keeps 0 as a valid account ID instead of
+ *           being mistaken for unavailable, since 0 is a legal OS account ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_ZeroOldId_KeepsZero, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, "0");
+    ASSERT_NE(strategy, nullptr);
+    EXPECT_EQ(strategy->oldAccountId_, 0);
+    EXPECT_NE(strategy->oldAccountId_, INVALID_ACCOUNT_ID);
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_MaxOldId_KeepsMax
+ * @tc.desc: Test USER_SWITCHED with oldId taking the maximum int32 value is still accepted,
+ *           covering the upper boundary of the accepted range.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_MaxOldId_KeepsMax, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, "2147483647");
+    ASSERT_NE(strategy, nullptr);
+    EXPECT_EQ(strategy->oldAccountId_, 2147483647);
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_MissingOldId_FallsBackToInvalid
+ * @tc.desc: Test USER_SWITCHED without the oldId param falls back to INVALID_ACCOUNT_ID
+ *           while the switched-in accountId is still delivered.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_MissingOldId_FallsBackToInvalid, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, "");
+    ExpectInvalidOldAccountId(strategy, "");
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_NonNumericOldId_FallsBackToInvalid
+ * @tc.desc: Test USER_SWITCHED with a non-numeric oldId falls back to INVALID_ACCOUNT_ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_NonNumericOldId_FallsBackToInvalid, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, "abc");
+    ExpectInvalidOldAccountId(strategy, "abc");
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_TrailingGarbageOldId_FallsBackToInvalid
+ * @tc.desc: Test USER_SWITCHED with a partially numeric oldId keeps no leading digits,
+ *           falling back to INVALID_ACCOUNT_ID rather than truncating to 100.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_TrailingGarbageOldId_FallsBackToInvalid, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, "100abc");
+    ExpectInvalidOldAccountId(strategy, "100abc");
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_NegativeOldId_ParsedAsNegative
+ * @tc.desc: Test USER_SWITCHED with a negative oldId: OHOS::StrToInt accepts the minus sign,
+ *           so the parsed negative value is passed through as-is.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_NegativeOldId_ParsedAsNegative, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, "-5");
+    ASSERT_NE(strategy, nullptr);
+    EXPECT_EQ(strategy->oldAccountId_, -5);
+}
+
+/**
+ * @tc.name: Test_AccountSwitchFactory_OutOfRangeOldId_FallsBackToInvalid
+ * @tc.desc: Test USER_SWITCHED with oldId beyond int32 range falls back to INVALID_ACCOUNT_ID
+ *           instead of being truncated into a wrong account ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountSwitchFactory_OutOfRangeOldId_FallsBackToInvalid, TestSize.Level1)
+{
+    // 前导空白与正号同样拒绝：strtol 会宽松接受，ParseOldAccountId 要求纯数字开头
+    for (const char *oldId : {"2147483648", "99999999999999", " 100", "+100"}) {
+        SCOPED_TRACE(std::string("oldId=") + oldId);
+        auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_SWITCHED,
+            TEST_SWITCHED_IN_ACCOUNT_ID, oldId);
+        ExpectInvalidOldAccountId(strategy, oldId);
+    }
+}
+
+/**
+ * @tc.name: Test_AccountAddedFactory_IgnoresOldId
+ * @tc.desc: Test USER_ADDED factory does not parse oldId, keeping single-account semantics
+ *           so account-added callbacks never report a switched-out account.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountAddedFactory_IgnoresOldId, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_ADDED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, std::to_string(TEST_SWITCHED_OUT_ACCOUNT_ID));
+    ASSERT_NE(strategy, nullptr);
+    EXPECT_EQ(strategy->GetCode(), static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED));
+    EXPECT_EQ(strategy->accountId_, TEST_SWITCHED_IN_ACCOUNT_ID);
+    EXPECT_EQ(strategy->oldAccountId_, INVALID_ACCOUNT_ID);
+}
+
+/**
+ * @tc.name: Test_AccountRemovedFactory_IgnoresOldId
+ * @tc.desc: Test USER_REMOVED factory does not parse oldId, keeping single-account semantics
+ *           so account-removed callbacks never report a switched-out account.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MdmEventRelayerTest, AccountRemovedFactory_IgnoresOldId, TestSize.Level1)
+{
+    auto strategy = CreateAccountStrategyForTest(relayer_, ManagedEvent::USER_REMOVED,
+        TEST_SWITCHED_IN_ACCOUNT_ID, std::to_string(TEST_SWITCHED_OUT_ACCOUNT_ID));
+    ASSERT_NE(strategy, nullptr);
+    EXPECT_EQ(strategy->GetCode(), static_cast<uint32_t>(IEnterpriseAdmin::COMMAND_ON_ACCOUNT_REMOVED));
+    EXPECT_EQ(strategy->accountId_, TEST_SWITCHED_IN_ACCOUNT_ID);
+    EXPECT_EQ(strategy->oldAccountId_, INVALID_ACCOUNT_ID);
 }
 } // namespace TEST
 } // namespace EDM

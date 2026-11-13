@@ -15,6 +15,8 @@
 
 #include "get_sms_messages_plugin.h"
 
+#include <limits>
+
 #include "edm_constants.h"
 #include "edm_data_ability_utils.h"
 #include "edm_errors.h"
@@ -28,6 +30,8 @@ namespace EDM {
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<GetSmsMessagesPlugin>());
 
 constexpr int64_t MAX_SMS_MESSAGE_RETURN_SIZE = 128LL * 1024 * 1024;
+// The JS API uses seconds, while the sms_mms_info.start_time in database is in milliseconds.
+constexpr int64_t MILLISECONDS_PER_SECOND = 1000;
 
 static bool WriteSmsMessagesToReply(const std::vector<SmsMessageInfo> &messages, MessageParcel &reply)
 {
@@ -87,11 +91,12 @@ ErrCode GetSmsMessagesPlugin::OnGetPolicy(std::string &policyData, MessageParcel
     int64_t endTime = data.ReadInt64();
     std::string telephoneNumber = data.ReadString();
 
-    if (startTime < 0 || endTime < 0 || startTime > endTime) {
+    if (startTime < 0 || endTime < 0 || startTime > endTime ||
+        endTime > std::numeric_limits<int64_t>::max() / MILLISECONDS_PER_SECOND) {
         EDMLOGE("GetSmsMessagesPlugin invalid time range: startTime=%{public}lld endTime=%{public}lld",
             static_cast<long long>(startTime), static_cast<long long>(endTime));
-        reply.WriteInt32(EdmReturnErrCode::PARAM_ERROR);
-        return EdmReturnErrCode::PARAM_ERROR;
+        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
     std::vector<SmsMessageInfo> messages;
@@ -115,12 +120,15 @@ ErrCode GetSmsMessagesPlugin::OnGetPolicy(std::string &policyData, MessageParcel
 ErrCode GetSmsMessagesPlugin::QuerySmsMessages(int64_t startTime, int64_t endTime,
     const std::string &telephoneNumber, std::vector<SmsMessageInfo> &messages)
 {
-    EDMLOGI("GetSmsMessagesPlugin QuerySmsMessages startTime=%{public}lld endTime=%{public}lld "
-        "telephoneNumber=%{public}s",
-        static_cast<long long>(startTime), static_cast<long long>(endTime), telephoneNumber.c_str());
+    int64_t startTimeMs = startTime * MILLISECONDS_PER_SECOND;
+    int64_t endTimeMs = endTime * MILLISECONDS_PER_SECOND;
+    EDMLOGI("GetSmsMessagesPlugin QuerySmsMessages startTime=%{public}lld(ms=%{public}lld) "
+        "endTime=%{public}lld(ms=%{public}lld) telephoneNumber=%{public}s",
+        static_cast<long long>(startTime), static_cast<long long>(startTimeMs),
+        static_cast<long long>(endTime), static_cast<long long>(endTimeMs), telephoneNumber.c_str());
     std::vector<SmsQueryResult> results;
     EDMLOGI("GetSmsMessagesPlugin::QuerySmsMessages GetSmsMessages start");
-    ErrCode ret = EdmDataAbilityUtils::GetSmsMessages(startTime, endTime, telephoneNumber, results);
+    ErrCode ret = EdmDataAbilityUtils::GetSmsMessages(startTimeMs, endTimeMs, telephoneNumber, results);
     if (FAILED(ret)) {
         EDMLOGE("GetSmsMessagesPlugin EdmDataAbilityUtils::GetSmsMessages failed, ret=%{public}d", ret);
         return ret;
@@ -130,7 +138,7 @@ ErrCode GetSmsMessagesPlugin::QuerySmsMessages(int64_t startTime, int64_t endTim
         info.slotId = result.slotId;
         info.telephoneNumber = result.telephoneNumber;
         info.content = result.content;
-        info.timer = result.timer;
+        info.timer = result.timer / MILLISECONDS_PER_SECOND;
         info.isSender = result.isSender;
         messages.push_back(info);
     }

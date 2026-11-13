@@ -28,6 +28,7 @@
 #include "ienterprise_admin.h"
 #include "sms_receive_info.h"
 #include "startup_scene.h"
+#include "string_ex.h"
 #ifdef SMS_MMS_EDM_ENABLE
 #include "short_message.h"
 #include "sms_service_manager_client.h"
@@ -35,6 +36,12 @@
 
 namespace OHOS {
 namespace EDM {
+
+// 账号切换事件 Want 中携带切出账号ID的参数名，由账号服务（os_account）下发账号切换 common event 时写入 Want。
+// 按检视意见定义在 cpp：头文件不对外暴露；单测通过 extern 声明引用本定义，保证单一事实源、禁止重复字面量。
+// 取值缺失或非法（非数字开头/含尾部字符/溢出）时 StrToInt 返回 false，oldAccountId 回退 INVALID_ACCOUNT_ID。
+const char *OLD_ACCOUNT_ID_PARAM = "oldId";
+
 namespace {
 constexpr int32_t BUNDLE_UPDATE_EVENT = 2;
 constexpr const char *SMS_BROADCAST_SLOTID_KEY = "slotId";
@@ -106,7 +113,14 @@ void MdmEventRelayer::RegisterAccountStrategies()
     auto makeAccountFactory = [](int32_t command) {
         return [command](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
             int32_t accountId = data.commonEventData.GetCode();
-            return std::make_shared<AccountStrategy>(command, accountId);
+            int32_t oldAccountId = INVALID_ACCOUNT_ID;
+            // 仅账号切换事件存在切出账号：USER_ADDED 新增账号无切出，USER_REMOVED 移除按切入账号处理。
+            // oldId 缺失或非法（非数字开头/含尾部字符/溢出）时 StrToInt 返回 false，oldAccountId 保持 INVALID_ACCOUNT_ID
+            if (command == IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED) {
+                std::string oldId = data.commonEventData.GetWant().GetStringParam(OLD_ACCOUNT_ID_PARAM);
+                StrToInt(oldId, oldAccountId);
+            }
+            return std::make_shared<AccountStrategy>(command, accountId, oldAccountId);
         };
     };
     strategyFactories_[ManagedEvent::USER_ADDED] =
