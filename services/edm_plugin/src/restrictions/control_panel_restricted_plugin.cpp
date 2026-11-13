@@ -15,6 +15,8 @@
 
 #include "control_panel_restricted_plugin.h"
 
+#include "parameters.h"
+
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -35,6 +37,17 @@ ControlPanelRestrictedPlugin::ControlPanelRestrictedPlugin()
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.control_panel_restricted";
+}
+
+ErrCode ControlPanelRestrictedPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
+{
+    // Device-level flag: always return the effective persist value so that an
+    // admin who has never set this policy also sees the current device state.
+    bool restricted = system::GetParameter(persistParam_, EdmConstants::CONST_FALSE) == EdmConstants::CONST_TRUE;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(restricted);
+    return ERR_OK;
 }
 } // namespace EDM
 } // namespace OHOS

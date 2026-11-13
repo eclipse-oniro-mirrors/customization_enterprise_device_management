@@ -135,16 +135,17 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoChange, TestS
 }
 
 /**
- * @tc.name: OnGetPolicy_True_Success
- * @tc.desc: Test querying restricted mode when policy data is true.
+ * @tc.name: OnGetPolicy_DeviceLevelTrue_OtherAdminQuery_ReturnTrue
+ * @tc.desc: Test an admin that never set the policy still gets the device-level persist value.
  * @tc.type: FUNC
  */
-HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_True_Success, TestSize.Level1)
+HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_DeviceLevelTrue_OtherAdminQuery_ReturnTrue, TestSize.Level1)
 {
     auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
-    std::string policyData = EdmConstants::CONST_TRUE;
+    std::string policyData = "";
     MessageParcel data;
     MessageParcel reply;
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
 
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
@@ -153,16 +154,17 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_True_Success, TestSize.Le
 }
 
 /**
- * @tc.name: OnGetPolicy_False_Success
- * @tc.desc: Test querying restricted mode when policy data is empty (not set).
+ * @tc.name: OnGetPolicy_PersistFalse_ReturnFalse
+ * @tc.desc: Test persist param is the source of truth even when policy data holds a stale true.
  * @tc.type: FUNC
  */
-HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_False_Success, TestSize.Level1)
+HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_PersistFalse_ReturnFalse, TestSize.Level1)
 {
     auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
-    std::string policyData = "";
+    std::string policyData = EdmConstants::CONST_TRUE;
     MessageParcel data;
     MessageParcel reply;
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false");
 
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
