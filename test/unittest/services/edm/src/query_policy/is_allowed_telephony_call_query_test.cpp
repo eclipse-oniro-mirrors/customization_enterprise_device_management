@@ -110,7 +110,7 @@ HWTEST_F(IsAllowedTelephonyCallQueryTest, TestQueryPolicyTrustListNoMatch, TestS
 
 /**
  * @tc.name: TestQueryPolicyBlockListMatch
- * @tc.desc: Test QueryPolicy when number is in the blacklist (BLOCK_LIST), should not allow.
+ * @tc.desc: Test QueryPolicy when number is in the block list, should not allow.
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedTelephonyCallQueryTest, TestQueryPolicyBlockListMatch, TestSize.Level1)
@@ -129,7 +129,7 @@ HWTEST_F(IsAllowedTelephonyCallQueryTest, TestQueryPolicyBlockListMatch, TestSiz
 
 /**
  * @tc.name: TestQueryPolicyBlockListNoMatch
- * @tc.desc: Test QueryPolicy when number is not in the blacklist (BLOCK_LIST), should allow.
+ * @tc.desc: Test QueryPolicy when number is not in the block list, should allow.
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedTelephonyCallQueryTest, TestQueryPolicyBlockListNoMatch, TestSize.Level1)
