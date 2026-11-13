@@ -55,6 +55,7 @@ public:
     int32_t SetAllowedKioskApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &appIdentifiers);
     int32_t GetAllowedKioskApps(MessageParcel &data, std::vector<std::string> &appIdentifiers);
     int32_t IsAppKioskAllowed(const std::string &appIdentifier, bool &isAllowed);
+    int32_t GetApplicationIconData(MessageParcel &data, std::string &iconData);
     int32_t ClearUpApplicationData(const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param);
     int32_t AddKeepAliveApps(const AppExecFwk::ElementName &admin, const std::vector<std::string> &keepAliveApps,
         bool disallowModify, int32_t userId, std::string &retMessage);
