@@ -108,6 +108,8 @@ public:
     int32_t GetOptimizationBatteryExclusionApps(MessageParcel &data, std::vector<std::string> &apps);
     ErrCode GetOptimizationBatteryExclusionApps(std::vector<std::string> &apps);
     bool IsOptimizationBatteryExcluded(const std::string &bundleName);
+    int32_t AddOrRemoveEnabledNotificationBundles(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetEnabledNotificationBundles(MessageParcel &data, std::vector<std::string> &bundleNames);
 private:
     static std::shared_ptr<ApplicationManagerProxy> instance_;
     static std::once_flag flag_;

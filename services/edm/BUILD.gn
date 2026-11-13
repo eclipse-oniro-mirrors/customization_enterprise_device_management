@@ -126,6 +126,7 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/allowed_notification_bundles_query.cpp",
       "./src/query_policy/allowed_permission_bundle_query.cpp",
       "./src/query_policy/device_security_level_policy_query.cpp",
+      "./src/query_policy/enabled_notification_bundles_query.cpp",
       "./src/query_policy/enterprise_reset_policy_query.cpp",
       "./src/query_policy/generic_policy_query.cpp",
       "./src/query_policy/get_device_encryption_status_query.cpp",

@@ -93,7 +93,7 @@ ErrCode SetPermissionManagedStatePlugin::OnSetPolicy(
         if (rel == Security::AccessToken::AccessTokenError::ERR_PARAM_INVALID) {
             return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     currentData = currentDataHandle;
     mergeData = mergeDataHandle;
@@ -119,7 +119,7 @@ ErrCode SetPermissionManagedStatePlugin::OnAdminRemove(
             static_cast<int32_t>(PermissionFlag::PERMISSION_ADMIN_POLICYS_CANCEL));
         if (rel != ERR_OK) {
             EDMLOGE("SetPermissionManagedStatePlugin OnAdminRemove SetPermissionStatusWithPolicy failed.");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
         }
         if (mergeDataHandle.find(pair.first) != mergeDataHandle.end()) {
             mergeDataHandle.erase(pair.first);
