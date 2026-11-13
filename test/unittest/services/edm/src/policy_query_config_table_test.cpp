@@ -187,6 +187,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_RS232] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_X_KEY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_RECENT_TASKS] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_CONTROL_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
@@ -446,6 +447,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MULTI_WINDOW);
 #endif
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_FREE_WINDOW);
+#ifndef FEATURE_PC_ONLY
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK);
+#endif
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
 #endif

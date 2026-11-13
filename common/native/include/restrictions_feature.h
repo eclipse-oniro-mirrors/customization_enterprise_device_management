@@ -79,6 +79,7 @@ enum class RestrictionsFeature : int32_t {
     CONTROL_CENTER = 59,
     NOTIFICATION_CENTER = 60,
     PARENT_CONTROL = 61,
+    MULTI_WINDOW_DOCK = 62,
 };
 
 enum class RestrictionsFeatureForAccount : int32_t {
