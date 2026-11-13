@@ -18,6 +18,9 @@
 
 #include "plugin_singleton.h"
 #include "call_log_info.h"
+#ifdef TELEPHONY_EDM_ENABLE
+#include "datashare_predicates.h"
+#endif
 
 namespace OHOS {
 namespace EDM {
@@ -26,6 +29,12 @@ public:
     void InitPlugin(std::shared_ptr<IPluginTemplate<GetCallLogsPlugin, int32_t>> ptr) override;
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
+#ifdef TELEPHONY_EDM_ENABLE
+    /**
+     * @brief Build the DataShare predicates for the call log query.
+     */
+    static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig &config);
+#endif
 };
 } // namespace EDM
 } // namespace OHOS

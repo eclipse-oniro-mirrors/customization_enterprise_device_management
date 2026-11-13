@@ -76,13 +76,14 @@ static std::shared_ptr<DataShare::DataShareHelper> CreateCallLogHelper()
     return DataShare::DataShareHelper::Creator(remote, std::string(CALL_LOG_BASE_URI), "", DATASHARE_WAIT_TIME);
 }
 
-static DataShare::DataSharePredicates BuildPredicates(const TelephonyQueryConfig &config)
+DataShare::DataSharePredicates GetCallLogsPlugin::BuildPredicates(const TelephonyQueryConfig &config)
 {
     DataShare::DataSharePredicates predicates;
     predicates.GreaterThanOrEqualTo(CALL_LOG_COLUMN_CREATE_TIME, std::to_string(config.startTime));
     predicates.And()->LessThanOrEqualTo(CALL_LOG_COLUMN_CREATE_TIME, std::to_string(config.endTime));
     if (config.hasTelephoneNumber && !config.telephoneNumber.empty()) {
-        predicates.And()->EqualTo(CALL_LOG_COLUMN_PHONE_NUMBER, config.telephoneNumber);
+        // Use suffix match to keep consistent with the telephone number matching of GetSmsMessages.
+        predicates.And()->EndsWith(CALL_LOG_COLUMN_PHONE_NUMBER, config.telephoneNumber);
     }
     predicates.OrderByDesc(CALL_LOG_COLUMN_CREATE_TIME);
     return predicates;
@@ -144,7 +145,7 @@ static ErrCode QueryCallLogs(const TelephonyQueryConfig &config, std::vector<Cal
         EDMLOGE("GetCallLogsPlugin: CreateCallLogHelper failed.");
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
-    auto predicates = BuildPredicates(config);
+    auto predicates = GetCallLogsPlugin::BuildPredicates(config);
     auto columns = BuildResultColumns();
     Uri uri(CALL_LOG_URI);
     auto resultSet = helper->Query(uri, predicates, columns);

@@ -66,7 +66,7 @@ public:
 
     void OnSystemUpdate(const UpdateInfo &updateInfo);
 
-    void OnAccount(uint32_t code, const int32_t accountId);
+    void OnAccount(uint32_t code, const int32_t accountId, const int32_t oldAccountId);
 
     void OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId);
 

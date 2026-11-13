@@ -207,7 +207,11 @@ bool EnterpriseAdminStub::OnSystemUpdateInner(uint32_t code, MessageParcel& data
 bool EnterpriseAdminStub::OnAccountInner(uint32_t code, MessageParcel& data, MessageParcel& reply)
 {
     int32_t accountId = data.ReadInt32();
-    return OnAccount(code, accountId);
+    // oldAccountId（可选）为账号事件 parcel 的最后一个字段：旧版本 Proxy 未下发时
+    // ReadInt32(value) 返回 false 且不修改出参，oldAccountId 保持 INVALID_ACCOUNT_ID，向前兼容
+    int32_t oldAccountId = INVALID_ACCOUNT_ID;
+    data.ReadInt32(oldAccountId);
+    return OnAccount(code, accountId, oldAccountId);
 }
 
 bool EnterpriseAdminStub::OnKioskModeInner(uint32_t code, MessageParcel& data, MessageParcel& reply)

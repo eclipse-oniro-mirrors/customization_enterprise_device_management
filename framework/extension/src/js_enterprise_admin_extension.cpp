@@ -319,9 +319,10 @@ void JsEnterpriseAdminExtension::OnSystemUpdate(const UpdateInfo &updateInfo)
     handler_->PostTask(task);
 }
 
-void JsEnterpriseAdminExtension::OnAccount(uint32_t code, const int32_t accountId)
+void JsEnterpriseAdminExtension::OnAccount(uint32_t code, const int32_t accountId, const int32_t oldAccountId)
 {
-    EDMLOGI("JsEnterpriseAdminExtension::OnAccount: %{public}u", code);
+    EDMLOGI("JsEnterpriseAdminExtension::OnAccount: code=%{public}u accountId=%{public}d "
+        "oldAccountId=%{public}d", code, accountId, oldAccountId);
     std::string functionName;
     if (code == IEnterpriseAdmin::COMMAND_ON_ACCOUNT_ADDED) { // LCOV_EXCL_BR_LINE
         functionName = "onAccountAdded";
@@ -332,16 +333,27 @@ void JsEnterpriseAdminExtension::OnAccount(uint32_t code, const int32_t accountI
     } else {
         return;
     }
-    auto task = [functionName, accountId, this]() {
+    // 账号切换事件支持双参数重载；旧实现仅声明accountId入参，需按形参个数区分，避免切出账号被误当作切入账号
+    bool isAccountSwitched = code == IEnterpriseAdmin::COMMAND_ON_ACCOUNT_SWITCHED;
+    auto task = [functionName, accountId, oldAccountId, isAccountSwitched, this]() {
         auto env = jsRuntime_.GetNapiEnv();
         napi_handle_scope scope = nullptr;
         auto status = napi_open_handle_scope(env, &scope);
         if (status != napi_ok || scope == nullptr) {
-            EDMLOGE("OnAccountAdded failed to open handle scope, status=%{public}d", status);
+            EDMLOGE("OnAccount failed to open handle scope, status=%{public}d", status);
             return;
         }
-        napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
-        CallObjectMethod(functionName.c_str(), argv, JS_NAPI_ARGC_ONE);
+        if (isAccountSwitched) {
+            EDMLOGI("OnAccount: %{public}s dispatch with from-to args", functionName.c_str());
+            // onAccountSwitched(fromAccountId, toAccountId)：先切出账号，后切入账号；
+            // 旧单参实现的函数会自动忽略多余的切出账号参数，无需按形参个数区分
+            napi_value argv[] = { AbilityRuntime::CreateJsValue(env, oldAccountId),
+                                  AbilityRuntime::CreateJsValue(env, accountId) };
+            CallObjectMethod(functionName.c_str(), argv, JS_NAPI_ARGC_TWO);
+        } else {
+            napi_value argv[] = { AbilityRuntime::CreateJsValue(env, accountId) };
+            CallObjectMethod(functionName.c_str(), argv, JS_NAPI_ARGC_ONE);
+        }
         napi_close_handle_scope(env, scope);
     };
     handler_->PostTask(task);

@@ -46,7 +46,7 @@ public:
 
     bool OnSystemUpdate(const UpdateInfo &updateInfo) override { return true; }
 
-    bool OnAccount(uint32_t code, const int32_t accountId) override { return true; }
+    bool OnAccount(uint32_t code, const int32_t accountId, const int32_t oldAccountId) override { return true; }
 
     bool OnKioskMode(uint32_t code, const std::string &bundleName, int32_t accountId) override { return true; }
 
