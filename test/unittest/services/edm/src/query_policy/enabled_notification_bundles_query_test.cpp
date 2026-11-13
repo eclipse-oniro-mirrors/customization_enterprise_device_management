@@ -186,7 +186,7 @@ HWTEST_F(EnabledNotificationBundlesQueryTest, QueryPolicy_005, TestSize.Level1)
 
 /**
  * @tc.name: EnabledNotificationBundlesQueryTest.QueryPolicy_006
- * @tc.desc: Both views reject an account id that is zero or negative.
+ * @tc.desc: Both views reject a negative account id and a zero account id.
  * @tc.type: FUNC
  */
 HWTEST_F(EnabledNotificationBundlesQueryTest, QueryPolicy_006, TestSize.Level1)
@@ -194,9 +194,12 @@ HWTEST_F(EnabledNotificationBundlesQueryTest, QueryPolicy_006, TestSize.Level1)
     std::string policyData = R"(["com.example.a"])";
     MessageParcel data;
     MessageParcel reply;
+    EXPECT_EQ(query_->QueryPolicy(policyData, data, reply, -1, false),
+        EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(query_->QueryPolicy(policyData, data, reply, -1, true),
+        EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_EQ(query_->QueryPolicy(policyData, data, reply, 0, false), EdmReturnErrCode::UID_INVALID);
     EXPECT_EQ(query_->QueryPolicy(policyData, data, reply, 0, true), EdmReturnErrCode::UID_INVALID);
-    EXPECT_EQ(query_->QueryPolicy(policyData, data, reply, -1, true), EdmReturnErrCode::UID_INVALID);
     EXPECT_TRUE(query_->readUserIds_.empty());
 }
 } // namespace TEST

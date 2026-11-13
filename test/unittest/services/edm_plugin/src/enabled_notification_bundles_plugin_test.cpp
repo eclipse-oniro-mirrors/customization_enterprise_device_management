@@ -118,7 +118,7 @@ HWTEST_F(EnabledNotificationBundlesPluginTest, OnSetPolicy_003, TestSize.Level1)
 
 /**
  * @tc.name: EnabledNotificationBundlesPluginTest.OnSetPolicy_004
- * @tc.desc: OnSetPolicy rejects an invalid account id without touching the notification service.
+ * @tc.desc: OnSetPolicy rejects a negative account id and a zero account id.
  * @tc.type: FUNC
  */
 HWTEST_F(EnabledNotificationBundlesPluginTest, OnSetPolicy_004, TestSize.Level1)
@@ -127,8 +127,9 @@ HWTEST_F(EnabledNotificationBundlesPluginTest, OnSetPolicy_004, TestSize.Level1)
     std::vector<std::string> data = {"com.example.a"};
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;
+    EXPECT_EQ(plugin.OnSetPolicy(data, currentData, mergeData, -1),
+        EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_EQ(plugin.OnSetPolicy(data, currentData, mergeData, 0), EdmReturnErrCode::UID_INVALID);
-    EXPECT_EQ(plugin.OnSetPolicy(data, currentData, mergeData, -1), EdmReturnErrCode::UID_INVALID);
     EXPECT_TRUE(plugin.pushedLists_.empty());
     EXPECT_TRUE(currentData.empty());
 }
@@ -278,10 +279,32 @@ HWTEST_F(EnabledNotificationBundlesPluginTest, OnRemovePolicy_004, TestSize.Leve
     std::vector<std::string> data = {"com.example.a"};
     std::vector<std::string> currentData = {"com.example.a"};
     std::vector<std::string> mergeData = {"com.example.a"};
+    EXPECT_EQ(plugin.OnRemovePolicy(data, currentData, mergeData, -1),
+        EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_EQ(plugin.OnRemovePolicy(data, currentData, mergeData, 0), EdmReturnErrCode::UID_INVALID);
     EXPECT_TRUE(plugin.pushedLists_.empty());
     std::vector<std::string> emptyData;
     EXPECT_EQ(plugin.OnRemovePolicy(emptyData, currentData, mergeData, ACCOUNT_ID), ERR_OK);
+    EXPECT_TRUE(plugin.pushedLists_.empty());
+    EXPECT_EQ(currentData.size(), 1U);
+}
+
+/**
+ * @tc.name: EnabledNotificationBundlesPluginTest.OnRemovePolicy_005
+ * @tc.desc: OnRemovePolicy rejects an input list larger than the maximum size.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnabledNotificationBundlesPluginTest, OnRemovePolicy_005, TestSize.Level1)
+{
+    EnabledNotificationBundlesPluginMock plugin;
+    std::vector<std::string> data;
+    for (size_t i = 0; i <= MAX_SIZE; i++) {
+        data.push_back("com.example." + std::to_string(i));
+    }
+    std::vector<std::string> currentData = {"com.example.a"};
+    std::vector<std::string> mergeData = {"com.example.a"};
+    ErrCode ret = plugin.OnRemovePolicy(data, currentData, mergeData, ACCOUNT_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::POLICY_LIST_OVER_SIZE);
     EXPECT_TRUE(plugin.pushedLists_.empty());
     EXPECT_EQ(currentData.size(), 1U);
 }
@@ -329,6 +352,8 @@ HWTEST_F(EnabledNotificationBundlesPluginTest, OnAdminRemove_003, TestSize.Level
     EnabledNotificationBundlesPluginMock plugin;
     std::vector<std::string> data;
     std::vector<std::string> mergeData;
+    EXPECT_EQ(plugin.OnAdminRemove("com.example.mdm", data, mergeData, -1),
+        EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
     EXPECT_EQ(plugin.OnAdminRemove("com.example.mdm", data, mergeData, 0), EdmReturnErrCode::UID_INVALID);
     EXPECT_TRUE(plugin.pushedLists_.empty());
 }
