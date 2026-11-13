@@ -507,6 +507,7 @@ namespace PolicyName {
     const char* const POLICY_OTA_UPDATE_NONCE = "ota_update_nonce";
     const char* const POLICY_OPERATE_DEVICE = "operate_device";
     const char* const POLICY_PASSWORD_POLICY = "password_policy";
+    const char* const POLICY_POWER_MODE_SETTINGS = "power_mode_settings";
     const char* const POLICY_POWER_POLICY = "power_policy";
     const char* const POLICY_PERMISSION_MANAGED_STATE_POLICY = "permission_managed_state";
     const char* const POLICY_REBOOT = "reboot";
