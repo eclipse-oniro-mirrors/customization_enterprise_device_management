@@ -586,6 +586,12 @@ ohos_unittest("EdmServicesUnitTest") {
     "./src/user_policy_manager_test.cpp",
   ]
 
+  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+    sources += [
+      "./src/query_policy/is_allowed_telephony_call_query_test.cpp",
+    ]
+  }
+
   if (!enterprise_device_management_feature_pc_only) {
     sources += [
       "./src/sensitive_api_whitelist_test.cpp",
