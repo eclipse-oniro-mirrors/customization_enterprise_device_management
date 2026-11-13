@@ -52,6 +52,7 @@ void ControlPanelTopToggleListPluginTest::SetUpTestSuite(void)
 void ControlPanelTopToggleListPluginTest::TearDownTestSuite(void)
 {
     EdmDataAbilityUtils::SetResult("");
+    EdmDataAbilityUtils::ClearLastUpdatedValue();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
@@ -197,6 +198,29 @@ HWTEST_F(ControlPanelTopToggleListPluginTest, OnGetPolicy_EmptyValue_ReturnEmpty
 }
 
 /**
+ * @tc.name: OnGetPolicy_CommaSeparated_Success
+ * @tc.desc: Test query splits the comma-separated settingsdata value into a list.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelTopToggleListPluginTest, OnGetPolicy_CommaSeparated_Success, TestSize.Level1)
+{
+    auto plugin = std::make_shared<ControlPanelTopToggleListPlugin>();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    EdmDataAbilityUtils::SetResult("control_panel_top_toggle_list");
+
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), ERR_OK);
+    std::vector<std::string> result;
+    reply.ReadStringVector(&result);
+    ASSERT_EQ(result.size(), 2);
+    EXPECT_EQ(result[0], "cast");
+    EXPECT_EQ(result[1], "hotspot");
+}
+
+/**
  * @tc.name: WriteToggleListToSettingsData_Normal_Success
  * @tc.desc: Test serialization and settingsdata write succeed for normal list.
  * @tc.type: FUNC
@@ -208,6 +232,21 @@ HWTEST_F(ControlPanelTopToggleListPluginTest, WriteToggleListToSettingsData_Norm
 
     ErrCode ret = plugin.WriteToggleListToSettingsData(TEST_TOGGLE_LIST, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: WriteToggleListToSettingsData_CommaJoined_Success
+ * @tc.desc: Test settingsdata value is a comma-separated string without JSON brackets.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelTopToggleListPluginTest, WriteToggleListToSettingsData_CommaJoined_Success, TestSize.Level1)
+{
+    ControlPanelTopToggleListPlugin plugin;
+    EdmDataAbilityUtils::SetResult("");
+
+    ErrCode ret = plugin.WriteToggleListToSettingsData(TEST_TOGGLE_LIST, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedValue(), "cast,hotspot");
 }
 
 /**

@@ -52,6 +52,7 @@ void ControlPanelQuickToggleListPluginTest::SetUpTestSuite(void)
 void ControlPanelQuickToggleListPluginTest::TearDownTestSuite(void)
 {
     EdmDataAbilityUtils::SetResult("");
+    EdmDataAbilityUtils::ClearLastUpdatedValue();
     Utils::ResetTokenTypeAndUid();
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
     std::cout << "now ut process is orignal ut env : " << Utils::IsOriginalUTEnv() << std::endl;
@@ -198,6 +199,29 @@ HWTEST_F(ControlPanelQuickToggleListPluginTest, OnGetPolicy_EmptyValue_ReturnEmp
 }
 
 /**
+ * @tc.name: OnGetPolicy_CommaSeparated_Success
+ * @tc.desc: Test query splits the comma-separated settingsdata value into a list.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelQuickToggleListPluginTest, OnGetPolicy_CommaSeparated_Success, TestSize.Level1)
+{
+    auto plugin = std::make_shared<ControlPanelQuickToggleListPlugin>();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    EdmDataAbilityUtils::SetResult("control_panel_toggle_list");
+
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), ERR_OK);
+    std::vector<std::string> result;
+    reply.ReadStringVector(&result);
+    ASSERT_EQ(result.size(), 2);
+    EXPECT_EQ(result[0], "flashlight");
+    EXPECT_EQ(result[1], "ring_mode");
+}
+
+/**
  * @tc.name: WriteToggleListToSettingsData_Normal_Success
  * @tc.desc: Test serialization and settingsdata write succeed for normal list.
  * @tc.type: FUNC
@@ -209,6 +233,21 @@ HWTEST_F(ControlPanelQuickToggleListPluginTest, WriteToggleListToSettingsData_No
 
     ErrCode ret = plugin.WriteToggleListToSettingsData(TEST_TOGGLE_LIST, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: WriteToggleListToSettingsData_CommaJoined_Success
+ * @tc.desc: Test settingsdata value is a comma-separated string without JSON brackets.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelQuickToggleListPluginTest, WriteToggleListToSettingsData_CommaJoined_Success, TestSize.Level1)
+{
+    ControlPanelQuickToggleListPlugin plugin;
+    EdmDataAbilityUtils::SetResult("");
+
+    ErrCode ret = plugin.WriteToggleListToSettingsData(TEST_TOGGLE_LIST, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedValue(), "wifi,bluetooth");
 }
 
 /**

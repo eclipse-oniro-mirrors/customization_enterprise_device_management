@@ -22,6 +22,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_json_builder.h"
 #include "edm_log.h"
+#include "edm_utils.h"
 #include "iextra_policy_notification.h"
 #include "iplugin_manager.h"
 #include "override_interface_name.h"
@@ -30,7 +31,7 @@ namespace OHOS {
 namespace EDM {
 
 namespace {
-const std::string TOP_TOGGLE_LIST_KEY = "control_panel_top_toggle_list";
+const std::string TOP_TOGGLE_LIST_KEY = "settings.control.cust_top_toggle_data";
 constexpr uint32_t TOGGLE_LIST_MAX_SIZE = 1000;
 }
 
@@ -80,11 +81,11 @@ ErrCode ControlPanelTopToggleListPlugin::OnGetPolicy(std::string &policyData, Me
     EDMLOGI("ControlPanelTopToggleListPlugin OnGetPolicy accountId=%{public}d", userId);
     std::string baseUri = std::string(EdmConstants::SETTINGS_DATA_SECURE_URI_PREFIX) +
         std::to_string(userId) + EdmConstants::SETTINGS_DATA_URI_SUFFIX;
-    std::string jsonStr;
+    std::string toggleData;
     std::vector<std::string> result;
-    ErrCode ret = EdmDataAbilityUtils::GetStringFromSettingsDataShare(baseUri, TOP_TOGGLE_LIST_KEY, jsonStr);
-    if (SUCCEEDED(ret) && !jsonStr.empty()) {
-        ArrayStringSerializer::GetInstance()->Deserialize(jsonStr, result);
+    ErrCode ret = EdmDataAbilityUtils::GetStringFromSettingsDataShare(baseUri, TOP_TOGGLE_LIST_KEY, toggleData);
+    if (SUCCEEDED(ret) && !toggleData.empty()) {
+        result = EdmUtils::SplitString(toggleData, ",");
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteStringVector(result);
@@ -94,14 +95,10 @@ ErrCode ControlPanelTopToggleListPlugin::OnGetPolicy(std::string &policyData, Me
 ErrCode ControlPanelTopToggleListPlugin::WriteToggleListToSettingsData(
     const std::vector<std::string> &toggleList, int32_t accountId)
 {
-    std::string jsonStr;
-    if (!ArrayStringSerializer::GetInstance()->Serialize(toggleList, jsonStr)) {
-        EDMLOGE("ControlPanelTopToggleListPlugin Serialize failed");
-        return EdmReturnErrCode::EXECUTE_TIME_OUT;
-    }
+    std::string toggleData = EdmUtils::JoinString(toggleList, ",");
     std::string baseUri = std::string(EdmConstants::SETTINGS_DATA_SECURE_URI_PREFIX) +
         std::to_string(accountId) + EdmConstants::SETTINGS_DATA_URI_SUFFIX;
-    ErrCode ret = EdmDataAbilityUtils::UpdateSettingsData(baseUri, TOP_TOGGLE_LIST_KEY, jsonStr);
+    ErrCode ret = EdmDataAbilityUtils::UpdateSettingsData(baseUri, TOP_TOGGLE_LIST_KEY, toggleData);
     if (FAILED(ret)) {
         EDMLOGE("ControlPanelTopToggleListPlugin UpdateSettingsData failed ret=%{public}d", ret);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;

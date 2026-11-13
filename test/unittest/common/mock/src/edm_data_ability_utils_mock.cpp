@@ -22,9 +22,20 @@ namespace EDM {
 
 const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
 std::string EdmDataAbilityUtils::result_;
+std::string EdmDataAbilityUtils::lastUpdatedValue_;
 void EdmDataAbilityUtils::SetResult(const std::string &result)
 {
     result_ = result;
+}
+
+const std::string &EdmDataAbilityUtils::GetLastUpdatedValue()
+{
+    return lastUpdatedValue_;
+}
+
+void EdmDataAbilityUtils::ClearLastUpdatedValue()
+{
+    lastUpdatedValue_.clear();
 }
 
 ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &key, std::string &value)
@@ -46,6 +57,12 @@ ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &s
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     } else if (result_ == "test value nullptr") {
         GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test nullptr";
+        return ERR_OK;
+    } else if (result_ == "control_panel_toggle_list") {
+        value = "flashlight,ring_mode";
+        return ERR_OK;
+    } else if (result_ == "control_panel_top_toggle_list") {
+        value = "cast,hotspot";
         return ERR_OK;
     } else if (result_ == "power_suspend_normal") {
         value =
@@ -88,6 +105,7 @@ ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &baseUri, cons
     const std::string &value)
 {
     GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils UpdateSettingsData start: " << result_.c_str();
+    lastUpdatedValue_ = value;
     if (result_ == "SYSTEM_ABNORMALLY") {
         GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils result SYSTEM_ABNORMALLY";
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
