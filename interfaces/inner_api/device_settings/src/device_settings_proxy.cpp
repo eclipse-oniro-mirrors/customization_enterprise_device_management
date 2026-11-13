@@ -15,6 +15,7 @@
 
 #include "device_settings_proxy.h"
 
+#include "edm_constants.h"
 #include "edm_log.h"
 #include "func_code.h"
 #include "switch_param.h"
@@ -257,6 +258,87 @@ int32_t DeviceSettingsProxy::SetDefaultInputMethod(const AppExecFwk::ElementName
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::SET_DEFAULT_INPUT_METHOD);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::SetPowerModeValueForAccount(const AppExecFwk::ElementName &admin,
+    int32_t accountId, SettingsItem item, const std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccount");
+    (void)admin;
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteInt32(static_cast<int32_t>(item));
+    data.WriteString(value);
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::GetPowerModeValueForAccount(const AppExecFwk::ElementName &admin,
+    int32_t accountId, SettingsItem item, std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccount");
+    (void)admin;
+    (void)accountId;
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    data.WriteInt32(static_cast<int32_t>(item));
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::POWER_MODE_SETTINGS,
+        data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("DeviceSettingsProxy:GetPowerModeValueForAccount fail. %{public}d", ret);
+        return ret;
+    }
+    value = reply.ReadString();
+    return ERR_OK;
+}
+
+int32_t DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
+    const std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin");
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGE("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
+            accountId, EdmConstants::DEFAULT_USER_ID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteInt32(static_cast<int32_t>(item));
+    data.WriteString(value);
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
+    std::string &value)
+{
+    EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin");
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGE("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
+            accountId, EdmConstants::DEFAULT_USER_ID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    data.WriteInt32(static_cast<int32_t>(item));
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::POWER_MODE_SETTINGS,
+        data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin fail. %{public}d", ret);
+        return ret;
+    }
+    value = reply.ReadString();
+    return ERR_OK;
 }
 
 int32_t DeviceSettingsProxy::SetValueForAccount(const AppExecFwk::ElementName &admin,

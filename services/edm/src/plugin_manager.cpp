@@ -100,6 +100,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DEFAULT_APPLICATION,
     EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
     EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
+    EdmInterfaceCode::POWER_MODE_SETTINGS,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
