@@ -44,6 +44,7 @@ enum class ManagedEvent : uint32_t {
     USB_DEVICE_ADDED = 108,
     // 监听短信广播事件，只能subscribeSmsEvent接口能听，通用监听接口不可以监听。
     SMS_RECEIVED = 10000,
+    NOTIFICATION_RECEIVED = 10001,
 };
 } // namespace EDM
 } // namespace OHOS

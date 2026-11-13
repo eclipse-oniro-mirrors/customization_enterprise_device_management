@@ -297,6 +297,7 @@ ohos_shared_library("edmservice") {
     "./src/event_management/edm_common_event_subscriber.cpp",
     "./src/event_management/event_subscription_manager.cpp",
     "./src/event_management/mdm_event_relayer.cpp",
+    "./src/event_management/notification_event_source_adapter.cpp",
     "./src/event_management/plugin_event_router.cpp",
     "./src/event_management/subscription_handle.cpp",
     "./src/event_management/user_auth_event_adapter.cpp",

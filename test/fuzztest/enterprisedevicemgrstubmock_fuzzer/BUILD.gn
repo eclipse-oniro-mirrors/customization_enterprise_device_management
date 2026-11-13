@@ -514,6 +514,7 @@ ohos_static_library("edmservice_fuzz_static") {
       "../../../services/edm/src/event_management/edm_common_event_subscriber.cpp",
       "../../../services/edm/src/event_management/event_subscription_manager.cpp",
       "../../../services/edm/src/event_management/mdm_event_relayer.cpp",
+      "../../../services/edm/src/event_management/notification_event_source_adapter.cpp",
       "../../../services/edm/src/event_management/plugin_event_router.cpp",
       "../../../services/edm/src/event_management/subscription_handle.cpp",
       "../../../services/edm/src/query_policy/set_browser_policies_query.cpp",

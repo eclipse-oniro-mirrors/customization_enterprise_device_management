@@ -122,5 +122,11 @@ bool SmsReceivedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
     EDMLOGI("SmsReceivedStrategy::ExecuteImpl");
     return proxy->OnSmsReceived(smsInfo_);
 }
+
+bool NotificationReceivedStrategy::ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy)
+{
+    EDMLOGI("NotificationReceivedStrategy::ExecuteImpl");
+    return proxy->OnNotificationReceived(info_);
+}
 } // namespace EDM
 } // namespace OHOS

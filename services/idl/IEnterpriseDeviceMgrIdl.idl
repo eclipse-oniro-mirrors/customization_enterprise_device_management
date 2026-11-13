@@ -58,6 +58,8 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 35] void IsFeatureSupported([in] int feature, [out] boolean supported);
     [ipccode 36] void SubscribeSmsEvent();
     [ipccode 37] void UnsubscribeSmsEvent();
+    [ipccode 38] void SubscribeNotificationEvent();
+    [ipccode 39] void UnsubscribeNotificationEvent();
     [ipccode 40] void SetEnterpriseDisplayInfo([in] String displayInfo);
     [ipccode 41] void GetEnterpriseDisplayInfo([out] String displayInfo);
 }

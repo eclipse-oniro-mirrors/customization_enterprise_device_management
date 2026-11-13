@@ -977,5 +977,13 @@ bool ApplicationManagerProxy::IsOptimizationBatteryExcluded(const std::string &b
     }
     return std::find(apps.begin(), apps.end(), appIdentifier) != apps.end();
 }
+
+int32_t ApplicationManagerProxy::RemoveNotification(MessageParcel &data)
+{
+    EDMLOGI("ApplicationManagerProxy::RemoveNotification");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::REMOVE_NOTIFICATION);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
 } // namespace EDM
 } // namespace OHOS

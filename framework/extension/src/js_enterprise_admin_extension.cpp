@@ -621,6 +621,41 @@ void JsEnterpriseAdminExtension::OnPasswordFailed(int32_t cumulativeFailedCount,
     handler_->PostTask(task);
 }
 
+void JsEnterpriseAdminExtension::OnNotificationReceived(const NotificationReceivedInfo &info)
+{
+    EDMLOGI("JsEnterpriseAdminExtension::OnNotificationReceived bundleName=%{public}s", info.bundleName.c_str());
+    auto task = [info, this]() {
+        auto env = jsRuntime_.GetNapiEnv();
+        napi_value argv[] = { CreateNotificationReceivedInfoObject(env, info) };
+        CallObjectMethod("onNotificationReceived", argv, JS_NAPI_ARGC_ONE);
+    };
+    handler_->PostTask(task);
+}
+
+napi_value JsEnterpriseAdminExtension::CreateNotificationReceivedInfoObject(napi_env env,
+    const NotificationReceivedInfo &info)
+{
+    napi_value nInfo = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nInfo));
+
+    napi_value nHashCode = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, info.hashCode.c_str(), NAPI_AUTO_LENGTH, &nHashCode));
+    NAPI_CALL(env, napi_set_named_property(env, nInfo, "hashCode", nHashCode));
+
+    napi_value nBundleName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, info.bundleName.c_str(), NAPI_AUTO_LENGTH, &nBundleName));
+    NAPI_CALL(env, napi_set_named_property(env, nInfo, "bundleName", nBundleName));
+
+    napi_value nAppIndex = nullptr;
+    NAPI_CALL(env, napi_create_int32(env, info.appIndex, &nAppIndex));
+    NAPI_CALL(env, napi_set_named_property(env, nInfo, "appIndex", nAppIndex));
+
+    napi_value nAppName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, info.appName.c_str(), NAPI_AUTO_LENGTH, &nAppName));
+    NAPI_CALL(env, napi_set_named_property(env, nInfo, "appName", nAppName));
+    return nInfo;
+}
+
 void JsEnterpriseAdminExtension::OnSmsReceived(const SmsReceiveInfo &smsInfo)
 {
     EDMLOGI("JsEnterpriseAdminExtension::OnSmsReceived");

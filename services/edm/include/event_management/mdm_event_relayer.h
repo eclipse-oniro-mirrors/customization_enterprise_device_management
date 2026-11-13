@@ -53,6 +53,7 @@ private:
     void RegisterUnmountExternalStorageDeviceStrategies();
     void RegisterUsbDeviceAddedStrategies();
     void RegisterPasswordFailedStrategies();
+    void RegisterNotificationReceivedStrategies();
     void RegisterSmsReceivedStrategies();
     void ParseSmsContent(const EventFwk::Want &want, std::string &content);
     void RestoreSubscriptions(bool appLifecycleOnly);

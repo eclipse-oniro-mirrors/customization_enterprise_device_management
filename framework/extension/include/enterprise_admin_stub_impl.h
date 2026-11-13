@@ -22,6 +22,7 @@
 #include "js_enterprise_admin_extension.h"
 #include "policy_changed_event.h"
 #include "external_storage_device_info.h"
+#include "notification_received_info.h"
 #include "sms_receive_info.h"
 #include "usb_device_info.h"
 
@@ -61,6 +62,7 @@ public:
     bool OnAdminPolicyChanged(const PolicyChangedEvent &policyChangedEvent) override;
     bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override;
+    bool OnNotificationReceived(const NotificationReceivedInfo &info) override;
 
     bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override;
 

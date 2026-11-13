@@ -18,6 +18,7 @@
 #include "app_lifecycle_adapter.h"
 #include "common_event_adapter.h"
 #include "edm_log.h"
+#include "notification_event_source_adapter.h"
 #include "null_event_adapter.h"
 #ifdef USB_SERVICE_EDM_ENABLE
 #include "usb_device_control_event_adapter.h"
@@ -100,6 +101,9 @@ bool AdapterFactory::CreateManagedEventAdapter(EventSubscriptionManager &manager
             EDMLOGW("AdapterFactory::CreateAdapter PASSWORD_FAILED unsupported without useriam");
             out = nullptr;
 #endif
+            return true;
+        case ManagedEvent::NOTIFICATION_RECEIVED:
+            out = std::make_shared<NotificationEventSourceAdapter>(manager);
             return true;
         default:
             return false;

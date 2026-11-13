@@ -88,7 +88,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::ENTERPRISE_RESET_POLICY,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
-    EdmInterfaceCode::DISALLOW_RS232,
+    EdmInterfaceCode::DISALLOW_RS232, EdmInterfaceCode::REMOVE_NOTIFICATION,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
     EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,

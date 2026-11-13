@@ -62,6 +62,7 @@ private:
     bool OnUnmountExternalStorageDeviceInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnUsbDeviceAddedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnPasswordFailedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
+    bool OnNotificationReceivedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
     bool OnSmsReceivedInner(uint32_t code, MessageParcel& data, MessageParcel& reply);
 
     std::unordered_map<uint32_t, HandleFunc> handleFuncMap_;

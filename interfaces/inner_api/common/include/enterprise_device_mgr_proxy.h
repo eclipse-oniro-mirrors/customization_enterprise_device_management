@@ -53,6 +53,8 @@ public:
         bool subscribe);
     ErrCode SubscribeSmsEvent();
     ErrCode UnsubscribeSmsEvent();
+    ErrCode SubscribeNotificationEvent();
+    ErrCode UnsubscribeNotificationEvent();
     ErrCode IsSuperAdmin(const std::string &bundleName, bool &result);
     ErrCode IsByodAdmin(const AppExecFwk::ElementName &admin, bool &result);
     ErrCode IsAdminEnabled(AppExecFwk::ElementName &admin, int32_t userId, bool &result);

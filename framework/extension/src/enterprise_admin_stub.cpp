@@ -152,6 +152,10 @@ void EnterpriseAdminStub::InitOtherHandleFuncs()
         [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
             return OnUsbDeviceAddedInner(code, data, reply);
         };
+    handleFuncMap_[IEnterpriseAdmin::COMMAND_ON_NOTIFICATION_RECEIVED] =
+        [this](uint32_t code, MessageParcel& data, MessageParcel& reply) {
+            return OnNotificationReceivedInner(code, data, reply);
+        };
 }
 
 int32_t EnterpriseAdminStub::CallFuncByCode(uint32_t code, MessageParcel& data, MessageParcel& reply,
@@ -299,6 +303,17 @@ bool EnterpriseAdminStub::OnPasswordFailedInner(uint32_t code, MessageParcel& da
     int32_t cumulativeFailedCount = data.ReadInt32();
     int32_t userId = data.ReadInt32();
     return OnPasswordFailed(cumulativeFailedCount, userId);
+}
+
+bool EnterpriseAdminStub::OnNotificationReceivedInner(uint32_t code, MessageParcel& data, MessageParcel& reply)
+{
+    EDMLOGI("EnterpriseAdminStub::OnNotificationReceivedInner");
+    std::unique_ptr<NotificationReceivedInfo> info(NotificationReceivedInfo::Unmarshalling(data));
+    if (info == nullptr) {
+        EDMLOGE("OnNotificationReceivedInner read info failed");
+        return false;
+    }
+    return OnNotificationReceived(*info);
 }
 
 int32_t EnterpriseAdminStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,

@@ -109,6 +109,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/application_manager/get_application_window_states_plugin.cpp",
       "./src/application_manager/kiosk_feature_plugin.cpp",
       "./src/application_manager/remove_all_notifications_plugin.cpp",
+      "./src/application_manager/remove_notification_plugin.cpp",
       "./src/application_manager/set_ability_disable_plugin.cpp",
       "./src/application_manager/set_allowed_kiosk_apps_plugin.cpp",
       "./src/bundle_manager/allowed_app_distribution_types_plugin.cpp",

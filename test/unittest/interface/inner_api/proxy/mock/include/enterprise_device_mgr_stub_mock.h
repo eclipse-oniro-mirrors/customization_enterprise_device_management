@@ -69,6 +69,8 @@ public:
         (override));
     MOCK_METHOD(int, SubscribeSmsEvent, (), (override));
     MOCK_METHOD(int, UnsubscribeSmsEvent, (), (override));
+    MOCK_METHOD(int, SubscribeNotificationEvent, (), (override));
+    MOCK_METHOD(int, UnsubscribeNotificationEvent, (), (override));
     MOCK_METHOD(int, AuthorizeAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
     MOCK_METHOD(int, GetSuperAdmin, (std::string &, std::string &), (override));
     MOCK_METHOD(int, SetDelegatedPolicies,

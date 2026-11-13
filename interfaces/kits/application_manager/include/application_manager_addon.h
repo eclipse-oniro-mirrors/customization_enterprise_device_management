@@ -99,6 +99,7 @@ public:
     static napi_value RequestExemptionResource(napi_env env, napi_callback_info info);
     static napi_value ReleaseExemptionResource(napi_env env, napi_callback_info info);
     static napi_value RemoveAllNotifications(napi_env env, napi_callback_info info);
+    static napi_value RemoveNotification(napi_env env, napi_callback_info info);
     static napi_value AddOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info);
     static napi_value RemoveOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info);
     static napi_value GetOptimizationBatteryExclusionApps(napi_env env, napi_callback_info info);
