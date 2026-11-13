@@ -75,6 +75,7 @@ namespace OverrideInterfaceName {
     } // namespace WifiManager
 
     namespace Restrictions {
+        const char* const SET_CONTROL_PANEL_RESTRICTED = "setControlPanelRestricted";
         const char* const SET_CONTROL_PANEL_QUICK_TOGGLE_LIST = "setControlPanelQuickToggleListForAccount";
         const char* const SET_CONTROL_PANEL_TOP_TOGGLE_LIST = "setControlPanelTopToggleListForAccount";
     } // namespace Restrictions

@@ -20,7 +20,9 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "iextra_policy_notification.h"
 #include "iplugin_manager.h"
+#include "override_interface_name.h"
 
 namespace OHOS {
 namespace EDM {
@@ -36,7 +38,30 @@ ControlPanelRestrictedPlugin::ControlPanelRestrictedPlugin()
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
-    persistParam_ = "persist.edm.control_panel_restricted";
+    persistParam_ = EdmConstants::PARAM_EDM_CONTROL_PANEL_RESTRICTED;
+}
+
+ErrCode ControlPanelRestrictedPlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
+    MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
+{
+    bool newValue = data.ReadBool();
+    bool oldAdminValue = policyData.policyData == EdmConstants::CONST_TRUE;
+    bool oldGlobalValue = system::GetParameter(persistParam_, EdmConstants::CONST_FALSE) ==
+        EdmConstants::CONST_TRUE;
+    if (!system::SetParameter(persistParam_,
+        newValue ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE)) {
+        EDMLOGE("ControlPanelRestrictedPlugin set persist param failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    // Last-write-wins: the latest admin value is the effective device value.
+    policyData.policyData = newValue ? EdmConstants::CONST_TRUE : "";
+    policyData.mergePolicyData = newValue ? EdmConstants::CONST_TRUE : "";
+    policyData.isChanged = (oldAdminValue != newValue) || (oldGlobalValue != newValue);
+    if (oldGlobalValue != newValue) {
+        IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
+            OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
+    }
+    return ERR_OK;
 }
 
 ErrCode ControlPanelRestrictedPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
@@ -47,6 +72,27 @@ ErrCode ControlPanelRestrictedPlugin::OnGetPolicy(std::string &policyData, Messa
     bool restricted = system::GetParameter(persistParam_, EdmConstants::CONST_FALSE) == EdmConstants::CONST_TRUE;
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(restricted);
+    return ERR_OK;
+}
+
+ErrCode ControlPanelRestrictedPlugin::OnAdminRemove(const std::string &adminName, const std::string &policyData,
+    const std::string &mergeData, int32_t userId)
+{
+    // Removal can only clear the flag, never re-enable it.
+    bool oldGlobalValue = system::GetParameter(persistParam_, EdmConstants::CONST_FALSE) ==
+        EdmConstants::CONST_TRUE;
+    bool remainingHasTrue = mergeData == EdmConstants::CONST_TRUE;
+    bool newGlobalValue = oldGlobalValue && remainingHasTrue;
+    if (oldGlobalValue == newGlobalValue) {
+        return ERR_OK;
+    }
+    if (!system::SetParameter(persistParam_,
+        newGlobalValue ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE)) {
+        EDMLOGE("ControlPanelRestrictedPlugin reset persist param failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
+        OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
     return ERR_OK;
 }
 } // namespace EDM

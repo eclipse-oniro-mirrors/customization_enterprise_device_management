@@ -69,7 +69,7 @@ HWTEST_F(ControlPanelRestrictedPluginTest, Constructor_Normal_Success, TestSize.
 
 /**
  * @tc.name: OnSetPolicy_True_Success
- * @tc.desc: Test setting restricted mode to true writes persist param.
+ * @tc.desc: Test setting restricted mode to true writes persist param directly.
  * @tc.type: FUNC
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_True_Success, TestSize.Level1)
@@ -91,7 +91,7 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_True_Success, TestSize.Le
 
 /**
  * @tc.name: OnSetPolicy_False_Success
- * @tc.desc: Test setting restricted mode to false clears persist param.
+ * @tc.desc: Test setting restricted mode to false writes persist param directly.
  * @tc.type: FUNC
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_False_Success, TestSize.Level1)
@@ -113,7 +113,7 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_False_Success, TestSize.L
 
 /**
  * @tc.name: OnSetPolicy_SameValue_NoChange
- * @tc.desc: Test setting the same value does not report changed (merged by other admin).
+ * @tc.desc: Test setting the same value does not report a global change.
  * @tc.type: FUNC
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoChange, TestSize.Level1)
@@ -124,14 +124,57 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoChange, TestS
     HandlePolicyData handlePolicyData{"true", "true", false};
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
-    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false");
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
 
     data.WriteBool(true);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_FALSE(handlePolicyData.isChanged);
-    // mergePolicy 为 true 时基类直接返回，不写 persist
-    EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false"), "false");
+    EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true"), "true");
+}
+
+/**
+ * @tc.name: OnSetPolicy_FalseWins_OverOtherAdminTrue
+ * @tc.desc: Test a later false from one admin overrides another admin's true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_FalseWins_OverOtherAdminTrue, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    HandlePolicyData handlePolicyData{"", "true", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
+
+    data.WriteBool(false);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(handlePolicyData.isChanged);
+    EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true"), "false");
+}
+
+/**
+ * @tc.name: OnSetPolicy_TrueAfterOtherAdminFalse
+ * @tc.desc: Test a later true from one admin overrides another admin's false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_TrueAfterOtherAdminFalse, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    HandlePolicyData handlePolicyData{"true", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false");
+
+    data.WriteBool(true);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(handlePolicyData.isChanged);
+    EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false"), "true");
 }
 
 /**
@@ -174,7 +217,7 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_PersistFalse_ReturnFalse,
 
 /**
  * @tc.name: OnAdminRemove_LastHolder_ClearPersist
- * @tc.desc: Test admin removal clears persist param when no other admin holds it.
+ * @tc.desc: Test admin removal clears persist when no other configured admin holds true.
  * @tc.type: FUNC
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_LastHolder_ClearPersist, TestSize.Level1)
@@ -189,7 +232,7 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_LastHolder_ClearPersist
 
 /**
  * @tc.name: OnAdminRemove_OtherHolder_KeepPersist
- * @tc.desc: Test admin removal keeps persist param when another admin still holds it.
+ * @tc.desc: Test admin removal keeps persist when another configured admin holds true.
  * @tc.type: FUNC
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_OtherHolder_KeepPersist, TestSize.Level1)
@@ -201,6 +244,22 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_OtherHolder_KeepPersist
         EdmConstants::CONST_TRUE, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true"), "true");
+}
+
+/**
+ * @tc.name: OnAdminRemove_NoReEnable
+ * @tc.desc: Test removal does not re-enable the flag when persist is already false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_NoReEnable, TestSize.Level1)
+{
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false");
+
+    ErrCode ret = plugin->OnAdminRemove("com.edm.test.admin", EdmConstants::CONST_FALSE,
+        EdmConstants::CONST_TRUE, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false"), "false");
 }
 } // namespace TEST
 } // namespace EDM

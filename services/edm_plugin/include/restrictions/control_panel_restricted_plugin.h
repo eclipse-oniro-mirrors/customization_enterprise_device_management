@@ -23,8 +23,12 @@ namespace EDM {
 class ControlPanelRestrictedPlugin : public BasicBoolPlugin {
 public:
     ControlPanelRestrictedPlugin();
+    ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
+        HandlePolicyData &policyData, int32_t userId) override;
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
+    ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
+        const std::string &mergeData, int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS

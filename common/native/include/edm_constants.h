@@ -119,6 +119,9 @@ namespace EdmConstants {
     // 外置存储设备挂载拦截使能persist参数
     constexpr const char* PARAM_EDM_ENABLE_EXTERNAL_STORAGE_MOUNT_INTERCEPT =
         "persist.edm.enable_external_storage_mount_intercept";
+
+    // 控制中心图标裁剪管控标记persist参数
+    constexpr const char* PARAM_EDM_CONTROL_PANEL_RESTRICTED = "persist.edm.control_panel_restricted";
     
     // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
     const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
