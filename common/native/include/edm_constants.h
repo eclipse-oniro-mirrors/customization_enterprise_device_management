@@ -639,6 +639,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
     const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
     const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
+    const char* const POLICY_GET_APPLICATION_ICON_DATA = "get_application_icon_data";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
