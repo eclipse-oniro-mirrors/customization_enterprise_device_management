@@ -30,8 +30,8 @@ namespace {
 ErrCode MapUsbRet(int32_t usbRet, const char *apiName)
 {
     if (usbRet == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
-        EDMLOGW("UsbDeviceControlUtils %{public}s: USB device-control API unsupported", apiName);
-        return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+        EDMLOGW("UsbDeviceControlUtils %{public}s: parameter verification failed", apiName);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGW("UsbDeviceControlUtils %{public}s: USB interface not init", apiName);

@@ -37,8 +37,8 @@ class SetUsbDeviceStatesPluginTest : public testing::Test {
 protected:
     static void SetUpTestSuite(void);
     static void TearDownTestSuite(void);
+    void TearDown() override;
     void SetUsbInterceptEnable(bool enable);
-    void ClearUsbInterceptEnable();
 
     std::shared_ptr<PolicyManager> policyManager_;
 };
@@ -54,6 +54,18 @@ void SetUsbDeviceStatesPluginTest::TearDownTestSuite(void)
     ASSERT_TRUE(Utils::IsOriginalUTEnv());
 }
 
+void SetUsbDeviceStatesPluginTest::TearDown()
+{
+    // Always turn off dynamic control after each case, even if ASSERT failed mid-test.
+    if (policyManager_ != nullptr) {
+        policyManager_->SetPolicy(TEST_ADMIN_NAME, PolicyName::POLICY_USB_INTERCEPT_ENABLE,
+            EdmConstants::CONST_FALSE, EdmConstants::CONST_FALSE, DEFAULT_USER_ID);
+        policyManager_->SetPolicy(TEST_ADMIN_NAME, PolicyName::POLICY_USB_INTERCEPT_ENABLE, "", "", DEFAULT_USER_ID);
+    }
+    IPolicyManager::policyManagerInstance_ = nullptr;
+    policyManager_.reset();
+}
+
 void SetUsbDeviceStatesPluginTest::SetUsbInterceptEnable(bool enable)
 {
     policyManager_ = std::make_shared<PolicyManager>();
@@ -62,15 +74,6 @@ void SetUsbDeviceStatesPluginTest::SetUsbInterceptEnable(bool enable)
     ErrCode setRet = policyManager_->SetPolicy(TEST_ADMIN_NAME, PolicyName::POLICY_USB_INTERCEPT_ENABLE,
         value, value, DEFAULT_USER_ID);
     ASSERT_EQ(setRet, ERR_OK);
-}
-
-void SetUsbDeviceStatesPluginTest::ClearUsbInterceptEnable()
-{
-    if (policyManager_ != nullptr) {
-        policyManager_->SetPolicy(TEST_ADMIN_NAME, PolicyName::POLICY_USB_INTERCEPT_ENABLE, "", "", DEFAULT_USER_ID);
-    }
-    IPolicyManager::policyManagerInstance_ = nullptr;
-    policyManager_.reset();
 }
 
 /**
@@ -93,11 +96,9 @@ HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyDeviceLevelCallUsb, Tes
         EdmInterfaceCode::SET_USB_DEVICE_STATES);
     HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    // soft-IPC：参数合法时允许 ERR_OK / SYSTEM_ABNORMALLY / INTERFACE_UNSUPPORTED
     ASSERT_TRUE(ret == ERR_OK ||
         ret == EdmReturnErrCode::SYSTEM_ABNORMALLY ||
-        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-    ClearUsbInterceptEnable();
+        ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -126,8 +127,7 @@ HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyInterfaceLevelCallUsb, 
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_TRUE(ret == ERR_OK ||
         ret == EdmReturnErrCode::SYSTEM_ABNORMALLY ||
-        ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED);
-    ClearUsbInterceptEnable();
+        ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
 }
 
 /**
@@ -151,7 +151,6 @@ HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyDynamicControlNotEnable
     HandlePolicyData handlePolicyData{"", "", false};
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::USB_DYNAMIC_CONTROL_NOT_ENABLED);
-    ClearUsbInterceptEnable();
 }
 
 /**

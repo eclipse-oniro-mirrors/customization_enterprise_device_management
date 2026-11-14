@@ -136,6 +136,8 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY_INVALID,
         "Invalid external storage mount policy."},
     {EdmReturnErrCode::POLICY_LIST_OVER_SIZE, "The policy list has exceeded the limit."},
+    {EdmReturnErrCode::USB_DYNAMIC_CONTROL_NOT_ENABLED,
+        "Failed to set the state because dynamic USB control is not enabled."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
