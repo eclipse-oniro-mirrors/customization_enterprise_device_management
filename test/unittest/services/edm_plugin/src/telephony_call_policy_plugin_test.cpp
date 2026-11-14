@@ -156,7 +156,7 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyTrustBlockConflict, Tes
 
 /**
  * @tc.name: TestAddCallPolicyOverLimit
- * @tc.desc: Adding more than 10000 numbers returns PARAMETER_VERIFICATION_FAILED.
+ * @tc.desc: Adding more than 10000 numbers returns POLICY_LIST_OVER_SIZE.
  * @tc.type: FUNC
  */
 HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyOverLimit, TestSize.Level1)
@@ -182,7 +182,7 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyOverLimit, TestSize.Lev
     data.WriteStringVector(numbers);
 
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ASSERT_TRUE(ret == EdmReturnErrCode::POLICY_LIST_OVER_SIZE);
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
 } // namespace TEST
