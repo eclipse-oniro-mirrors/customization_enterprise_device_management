@@ -93,6 +93,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::ApplicationManager::SET_ALLOWED_KIOSK_APPS, SetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("getAllowedKioskApps", GetAllowedKioskApps),
         DECLARE_NAPI_FUNCTION("isAppKioskAllowed", IsAppKioskAllowed),
+        DECLARE_NAPI_FUNCTION("getApplicationIconData", GetApplicationIconData),
         DECLARE_NAPI_PROPERTY("KioskFeature", nKioskFeature),
         DECLARE_NAPI_PROPERTY("WindowState", nWindowState),
         DECLARE_NAPI_FUNCTION("clearUpApplicationData", ClearUpApplicationData),
@@ -1339,6 +1340,43 @@ napi_value ApplicationManagerAddon::IsAppKioskAllowed(napi_env env, napi_callbac
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_boolean(env, isAllowed, &result));
+    return result;
+}
+
+napi_value ApplicationManagerAddon::GetApplicationIconData(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetApplicationIconData called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+
+    std::string bundleName;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "Parameter count error.", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_string),
+    "Parameter bundleName error.", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(
+        env, ParseString(env, bundleName, argv[ARR_INDEX_ZERO]), "bundleName parse error.",
+        ErrcodeType::NUMBER);
+
+    // GET_APPLICATION_ICON_DATA does not bind a specific admin, so QueryPolicy::ALL is required
+    // to pass the admin-null permission check of the new interface.
+    MessageParcel parcelData;
+    parcelData.WriteInterfaceToken(DESCRIPTOR);
+    parcelData.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    parcelData.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
+    parcelData.WriteString(bundleName);
+
+    auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
+    std::string iconData;
+    int32_t ret = applicationManagerProxy->GetApplicationIconData(parcelData, iconData);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, iconData.c_str(), iconData.size(), &result));
     return result;
 }
 

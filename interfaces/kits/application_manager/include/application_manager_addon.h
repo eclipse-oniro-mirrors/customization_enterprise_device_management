@@ -67,6 +67,7 @@ public:
     static napi_value SetAllowedKioskApps(napi_env env, napi_callback_info info);
     static napi_value GetAllowedKioskApps(napi_env env, napi_callback_info info);
     static napi_value IsAppKioskAllowed(napi_env env, napi_callback_info info);
+    static napi_value GetApplicationIconData(napi_env env, napi_callback_info info);
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value IsModifyKeepAliveAppsDisallowed(napi_env env, napi_callback_info info);
     static napi_value IsModifyAutoStartAppsDisallowed(napi_env env, napi_callback_info info);
