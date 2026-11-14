@@ -24,6 +24,11 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr size_t MASKED_NUMBER_KEEP_PREFIX = 3;
+constexpr size_t MASKED_NUMBER_KEEP_SUFFIX = 4;
+constexpr size_t MASKED_NUMBER_MIN_LENGTH = MASKED_NUMBER_KEEP_PREFIX + MASKED_NUMBER_KEEP_SUFFIX;
+constexpr const char *MASKED_NUMBER_REPLACEMENT = "****";
+
 std::string IsAllowedTelephonyCallQuery::GetPolicyName()
 {
     return PolicyName::POLICY_TELEPHONY_CALL_POLICY;
@@ -41,8 +46,9 @@ ErrCode IsAllowedTelephonyCallQuery::QueryPolicy(std::string &policyData, Messag
     const std::string callType = data.ReadString();
     const std::string number = data.ReadString();
     std::string maskedNumber = number;
-    if (maskedNumber.length() > 7) {
-        maskedNumber.replace(3, maskedNumber.length() - 7, "****");
+    if (maskedNumber.length() > MASKED_NUMBER_MIN_LENGTH) {
+        maskedNumber.replace(MASKED_NUMBER_KEEP_PREFIX,
+            maskedNumber.length() - MASKED_NUMBER_MIN_LENGTH, MASKED_NUMBER_REPLACEMENT);
     }
     EDMLOGI("IsAllowedTelephonyCallQuery::QueryPolicy callType:%{public}s, number:%{public}s",
         callType.c_str(), maskedNumber.c_str());
