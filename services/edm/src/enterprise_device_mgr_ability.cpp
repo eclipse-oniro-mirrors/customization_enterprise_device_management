@@ -2855,9 +2855,9 @@ ErrCode EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo(
 {
     EDMLOGI("EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo "
         "type=%{public}d devicePath=%{public}s volumeId=%{public}s mountStatus=%{public}d "
-        "vendorId=%{public}d productId=%{public}d serial=%{public}s",
+        "vendorId=%{public}d productId=%{public}d",
         deviceInfo.type, deviceInfo.devicePath.c_str(), deviceInfo.volumeId.c_str(),
-        deviceInfo.mountStatus, deviceInfo.vendorId, deviceInfo.productId, deviceInfo.serial.c_str());
+        deviceInfo.mountStatus, deviceInfo.vendorId, deviceInfo.productId);
     Security::AccessToken::ATokenTypeEnum tokenType =
         Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
