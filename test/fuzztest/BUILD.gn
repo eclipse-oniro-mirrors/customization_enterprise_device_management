@@ -52,6 +52,7 @@ group("fuzztest") {
     "enterprisedevicemgrstubmock_fuzzer:EnterpriseDeviceMgrStubMockFuzzTest",
     "fingerprintauthplugin_fuzzer:FingerprintAuthPluginFuzzTest",
     "firewallruleplugin_fuzzer:FireWallRulePluginFuzzTest",
+    "getapplicationicondataquery_fuzzer:GetApplicationIconDataQueryFuzzTest",
     "getbluetoothinfoplugin_fuzzer:GetBluetoothInfoPluginFuzzTest",
     "getdeviceinfoplugin_fuzzer:GetDeviceInfoPluginFuzzTest",
     "getusbserialnumberplugin_fuzzer:GetUsbSerialNumberPluginFuzzTest",
