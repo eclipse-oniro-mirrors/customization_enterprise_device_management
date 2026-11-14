@@ -220,6 +220,71 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, M
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin code :"
+        << code;
+    code_ = code;
+    interfaceToken_ = data.ReadInterfaceToken();
+    int32_t accountId = -1;
+    data.ReadInt32(accountId);
+    int32_t queryPolicy = -1;
+    data.ReadInt32(queryPolicy);
+    accountId_ = accountId;
+    queryPolicy_ = queryPolicy;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(true);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyForAccountImplicitAdmin(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestSetPolicyForAccountImplicitAdmin code :"
+        << code;
+    code_ = code;
+    interfaceToken_ = data.ReadInterfaceToken();
+    int32_t accountId = -1;
+    data.ReadInt32(accountId);
+    bool disallow = false;
+    data.ReadBool(disallow);
+    accountId_ = accountId;
+    disallow_ = disallow;
+    reply.WriteInt32(ERR_OK);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeSendRequestReturnFail(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeSendRequestReturnFail code :" << code;
+    code_ = code;
+    // A negative return value makes the IPC layer report a failure.
+    return -1;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdminFail(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolSendRequestGetPolicyForAccountImplicitAdminFail"
+        << " code :" << code;
+    code_ = code;
+    // A negative return value makes the IPC layer report a failure.
+    return -1;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicySystemAbnormally(uint32_t code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolSendRequestGetPolicySystemAbnormally code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    reply.WriteBool(false);
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetFirewallRule(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
