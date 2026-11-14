@@ -20,6 +20,7 @@
 #include "restrictions_proxy.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
+#include "func_code.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -30,6 +31,7 @@ namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
 const std::string FEATURE_SNAPSHOT_SKIP = "snapshotSkip";
+constexpr int32_t TEST_ACCOUNT_ID = 100;
 class RestrictionsProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -981,6 +983,269 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyImplicitAdminFail, TestSi
     int32_t ret = proxy_->GetDisallowedPolicyImplicitAdmin(data,
         EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, result);
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminSuc
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, true,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminFail
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, true,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminSuc
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminFail
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminWithQueryPolicySelf
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin writes the account id and the SELF query policy
+ *           into the request parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWithQueryPolicySelf, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+    ASSERT_EQ(object_->accountId_, TEST_ACCOUNT_ID);
+    ASSERT_EQ(object_->queryPolicy_, static_cast<int32_t>(QueryPolicy::SELF));
+    ASSERT_EQ(object_->interfaceToken_, std::u16string(u"ohos.edm.IEnterpriseDeviceMgr"));
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminWithQueryPolicyAll
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin writes the ALL query policy into the request parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWithQueryPolicyAll, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::ALL), result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+    ASSERT_EQ(object_->accountId_, TEST_ACCOUNT_ID);
+    ASSERT_EQ(object_->queryPolicy_, static_cast<int32_t>(QueryPolicy::ALL));
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminWithFreeWindow
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin with the free window policy code of an account feature.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminWithFreeWindow, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, false,
+        EdmInterfaceCode::DISALLOWED_FREE_WINDOW);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminWithParcelContent
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin writes the account id, the disallow flag and the
+ *           interface token into the request parcel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminWithParcelContent, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyForAccountImplicitAdmin));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, true,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(ret, ERR_OK);
+    // The account id and the disallow flag have to reach the server in the request parcel.
+    ASSERT_EQ(object_->accountId_, TEST_ACCOUNT_ID);
+    ASSERT_TRUE(object_->disallow_);
+    ASSERT_EQ(object_->interfaceToken_, std::u16string(u"ohos.edm.IEnterpriseDeviceMgr"));
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminWithDisallowFalse
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin writes the disallow flag as false when the policy is
+ *           released.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminWithDisallowFalse, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyForAccountImplicitAdmin));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, false,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(object_->accountId_, TEST_ACCOUNT_ID);
+    ASSERT_FALSE(object_->disallow_);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminWithSetFuncCode
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin builds the set func code from the policy code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminWithSetFuncCode, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyForAccountImplicitAdmin));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, true,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(ret, ERR_OK);
+    uint32_t expectedFuncCode = POLICY_FUNC_CODE_NEW((uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(object_->code_, expectedFuncCode);
+}
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminWithIpcFail
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin reports a timeout when the IPC request fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminWithIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReturnFail));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, true,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminWithIpcFail
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin reports a timeout when the IPC request fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWithIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdminFail));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminWithSystemAbnormally
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin maps a SYSTEM_ABNORMALLY reply to a timeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWithSystemAbnormally, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicySystemAbnormally));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminWithGetFuncCode
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin builds the get func code from the policy code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWithGetFuncCode, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, ERR_OK);
+    uint32_t expectedFuncCode = POLICY_FUNC_CODE_NEW((uint32_t)FuncOperateType::GET,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_EQ(object_->code_, expectedFuncCode);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminWithDisallowFalse
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin returns the disallow state reported by the server.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWithDisallowFalse, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicySystemAbnormally));
+    bool result = true;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, static_cast<int32_t>(QueryPolicy::SELF), result);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    // The result must not be overwritten by the failed request.
+    ASSERT_TRUE(result);
 }
 } // namespace TEST
 } // namespace EDM

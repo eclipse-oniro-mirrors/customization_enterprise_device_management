@@ -430,6 +430,12 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [
         "../../../services/edm_plugin/src/device_settings/user_cert_plugin.cpp",
       ]
+      defines += [ "CERTIFICATE_MANAGER_EDM_ENABLE" ]
+      if (enterprise_device_management_feature_pc_only) {
+        sources += [
+          "../../../services/edm_plugin/src/restrictions/disallow_install_device_certificate_plugin.cpp",
+        ]
+      }
     }
 
     if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {

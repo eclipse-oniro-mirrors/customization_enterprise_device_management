@@ -339,5 +339,35 @@ int32_t RestrictionsProxy::GetUserRestrictedForAccount(const AppExecFwk::Element
     reply.ReadBool(result);
     return ERR_OK;
 }
+
+int32_t RestrictionsProxy::SetDisallowedPolicyForAccountImplicitAdmin(int32_t accountId, bool disallow,
+    uint32_t policyCode)
+{
+    EDMLOGD("RestrictionsProxy::SetDisallowedPolicyForAccountImplicitAdmin");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteBool(disallow);
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, policyCode);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t RestrictionsProxy::GetDisallowedPolicyForAccountImplicitAdmin(int32_t accountId, uint32_t policyCode,
+    int32_t queryPolicy, bool &result)
+{
+    EDMLOGD("RestrictionsProxy::GetDisallowedPolicyForAccountImplicitAdmin");
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(accountId);
+    data.WriteInt32(queryPolicy);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(policyCode, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("RestrictionsProxy::GetDisallowedPolicyForAccountImplicitAdmin GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
 } // namespace EDM
 } // namespace OHOS

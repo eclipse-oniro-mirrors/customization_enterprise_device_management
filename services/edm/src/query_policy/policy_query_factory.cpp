@@ -243,9 +243,9 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomOtherQuery(uint32_
     switch (policyCode) {
 #ifdef FEATURE_PC_ONLY
         case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
-            return std::make_shared<InstallLocalEnterpriseAppEnabledQuery>();
+            return std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
         case EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT:
-            return std::make_shared<InstallLocalEnterpriseAppEnabledForAccountQuery>();
+            return std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
             return std::make_shared<GetAutoUnlockAfterRebootQuery>();
 #endif

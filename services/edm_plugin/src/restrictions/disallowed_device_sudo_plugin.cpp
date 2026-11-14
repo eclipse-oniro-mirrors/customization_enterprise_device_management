@@ -18,6 +18,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "parameters.h"
 
 namespace OHOS {

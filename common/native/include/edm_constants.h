@@ -254,6 +254,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
         const char* const LABEL_DISALLOWED_POLICY_PARENT_CONTROL = "parentControl";
+        const char* const LABEL_DISALLOWED_POLICY_INSTALL_DEVICE_CERTIFICATE = "installDeviceCertificate";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -640,6 +641,7 @@ namespace PolicyName {
     const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
     const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
     const char* const POLICY_GET_APPLICATION_ICON_DATA = "get_application_icon_data";
+    const char* const POLICY_DISALLOW_INSTALL_DEVICE_CERTIFICATE = "disallow_install_device_certificate";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
