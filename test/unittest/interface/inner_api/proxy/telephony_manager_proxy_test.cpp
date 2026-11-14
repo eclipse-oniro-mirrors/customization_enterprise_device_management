@@ -345,7 +345,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestIsAllowedTelephonyCallEdmDisabled, TestS
 
 /**
  * @tc.name: TestAddCallPolicyNumbersOverLimit
- * @tc.desc: Test AddCallPolicyNumbers with 10001 numbers exceeds the limit, returns ERR_INVALID_VALUE.
+ * @tc.desc: Test AddCallPolicyNumbers with 10001 numbers exceeds the limit, returns POLICY_LIST_OVER_SIZE.
  * @tc.type: FUNC
  */
 HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersOverLimit, TestSize.Level1)
@@ -359,7 +359,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersOverLimit, TestSize.
         numbers.push_back(std::to_string(i));
     }
     int32_t ret = telephonyManagerProxy->AddCallPolicyNumbers(admin, callType, policyFlag, numbers);
-    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == EdmReturnErrCode::POLICY_LIST_OVER_SIZE);
 }
 
 /**
@@ -386,7 +386,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersAtLimit, TestSize.Le
 
 /**
  * @tc.name: TestRemoveCallPolicyNumbersOverLimit
- * @tc.desc: Test RemoveCallPolicyNumbers with 10001 numbers exceeds the limit, returns ERR_INVALID_VALUE.
+ * @tc.desc: Test RemoveCallPolicyNumbers with 10001 numbers exceeds the limit, returns POLICY_LIST_OVER_SIZE.
  * @tc.type: FUNC
  */
 HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersOverLimit, TestSize.Level1)
@@ -400,7 +400,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersOverLimit, TestSi
         numbers.push_back(std::to_string(i));
     }
     int32_t ret = telephonyManagerProxy->RemoveCallPolicyNumbers(admin, callType, policyFlag, numbers);
-    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == EdmReturnErrCode::POLICY_LIST_OVER_SIZE);
 }
 
 /**
