@@ -40,8 +40,12 @@ ErrCode IsAllowedTelephonyCallQuery::QueryPolicy(std::string &policyData, Messag
 {
     const std::string callType = data.ReadString();
     const std::string number = data.ReadString();
+    std::string maskedNumber = number;
+    if (maskedNumber.length() > 7) {
+        maskedNumber.replace(3, maskedNumber.length() - 7, "****");
+    }
     EDMLOGI("IsAllowedTelephonyCallQuery::QueryPolicy callType:%{public}s, number:%{public}s",
-        callType.c_str(), number.c_str());
+        callType.c_str(), maskedNumber.c_str());
     auto serializer = TelephonyCallPolicySerializer::GetInstance();
     std::map<std::string, TelephonyCallPolicyType> policies;
     if (!serializer->Deserialize(policyData, policies)) {
