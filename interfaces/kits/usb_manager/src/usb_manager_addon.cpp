@@ -196,7 +196,7 @@ napi_value UsbManagerAddon::SetUsbInterceptEnable(napi_env env, napi_callback_in
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
         return nullptr;
     }
     int32_t ret = usbManagerProxy->SetUsbInterceptEnable(adapterAddonData.data);
@@ -222,7 +222,7 @@ napi_value UsbManagerAddon::IsUsbInterceptEnable(napi_env env, napi_callback_inf
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
         return nullptr;
     }
     bool isEnabled = false;
@@ -252,7 +252,7 @@ napi_value UsbManagerAddon::GetUsbDeviceInfos(napi_env env, napi_callback_info i
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
         return nullptr;
     }
     std::vector<UsbDeviceInfo> deviceInfos;
@@ -298,7 +298,7 @@ napi_value UsbManagerAddon::SetUsbDeviceStates(napi_env env, napi_callback_info 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
         return nullptr;
     }
     int32_t ret = usbManagerProxy->SetUsbDeviceStates(adapterAddonData.data);
