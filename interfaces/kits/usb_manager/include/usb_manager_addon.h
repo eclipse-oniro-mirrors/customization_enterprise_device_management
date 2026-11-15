@@ -77,7 +77,8 @@ private:
     static napi_value GetUsbDeviceInfos(napi_env env, napi_callback_info info);
     static napi_value SetUsbDeviceStates(napi_env env, napi_callback_info info);
     static bool ParseJsNumberToInt32(napi_env env, napi_value value, int32_t &out);
-    static bool GetObjectIntProperty(napi_env env, napi_value object, const char *field, bool required, int32_t &out,
+    static bool GetRequiredObjectIntProperty(napi_env env, napi_value object, const char *field, int32_t &out);
+    static bool GetOptionalObjectIntProperty(napi_env env, napi_value object, const char *field, int32_t &out,
         bool &present);
     static bool GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config);
     static napi_value UsbDeviceInfoToJsObj(napi_env env, const UsbDeviceInfo &deviceInfo);

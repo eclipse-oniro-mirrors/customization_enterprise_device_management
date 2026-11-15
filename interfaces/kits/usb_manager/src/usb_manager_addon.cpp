@@ -328,16 +328,11 @@ bool UsbManagerAddon::ParseJsNumberToInt32(napi_env env, napi_value value, int32
     return true;
 }
 
-bool UsbManagerAddon::GetObjectIntProperty(napi_env env, napi_value object, const char *field, bool required,
-    int32_t &out, bool &present)
+bool UsbManagerAddon::GetRequiredObjectIntProperty(napi_env env, napi_value object, const char *field, int32_t &out)
 {
-    present = false;
     bool hasProperty = false;
-    if (napi_has_named_property(env, object, field, &hasProperty) != napi_ok) {
+    if (napi_has_named_property(env, object, field, &hasProperty) != napi_ok || !hasProperty) {
         return false;
-    }
-    if (!hasProperty) {
-        return !required;
     }
     napi_value prop = nullptr;
     if (napi_get_named_property(env, object, field, &prop) != napi_ok) {
@@ -348,10 +343,39 @@ bool UsbManagerAddon::GetObjectIntProperty(napi_env env, napi_value object, cons
         return false;
     }
     if (valueType == napi_undefined || valueType == napi_null) {
-        return !required;
+        return false;
     }
     if (!ParseJsNumberToInt32(env, prop, out)) {
-        EDMLOGE("GetObjectIntProperty %{public}s: Wrong argument type. int32 expected.", field);
+        EDMLOGE("GetRequiredObjectIntProperty %{public}s: Wrong argument type. int32 expected.", field);
+        return false;
+    }
+    return true;
+}
+
+bool UsbManagerAddon::GetOptionalObjectIntProperty(napi_env env, napi_value object, const char *field, int32_t &out,
+    bool &present)
+{
+    present = false;
+    bool hasProperty = false;
+    if (napi_has_named_property(env, object, field, &hasProperty) != napi_ok) {
+        return false;
+    }
+    if (!hasProperty) {
+        return true;
+    }
+    napi_value prop = nullptr;
+    if (napi_get_named_property(env, object, field, &prop) != napi_ok) {
+        return false;
+    }
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, prop, &valueType) != napi_ok) {
+        return false;
+    }
+    if (valueType == napi_undefined || valueType == napi_null) {
+        return true;
+    }
+    if (!ParseJsNumberToInt32(env, prop, out)) {
+        EDMLOGE("GetOptionalObjectIntProperty %{public}s: Wrong argument type. int32 expected.", field);
         return false;
     }
     present = true;
@@ -360,10 +384,8 @@ bool UsbManagerAddon::GetObjectIntProperty(napi_env env, napi_value object, cons
 
 bool UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config)
 {
-    bool presentBus = false;
-    bool presentDev = false;
-    if (!GetObjectIntProperty(env, value, "busNum", true, config.busNum, presentBus) ||
-        !GetObjectIntProperty(env, value, "devAddress", true, config.devAddress, presentDev)) {
+    if (!GetRequiredObjectIntProperty(env, value, "busNum", config.busNum) ||
+        !GetRequiredObjectIntProperty(env, value, "devAddress", config.devAddress)) {
         EDMLOGE("GetUsbDeviceConfigInfoFromNAPI busNum/devAddress parse error");
         return false;
     }
@@ -371,8 +393,8 @@ bool UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value va
     bool presentInterfaceId = false;
     int32_t configId = 0;
     int32_t interfaceId = 0;
-    if (!GetObjectIntProperty(env, value, "configId", false, configId, presentConfigId) ||
-        !GetObjectIntProperty(env, value, "interfaceId", false, interfaceId, presentInterfaceId)) {
+    if (!GetOptionalObjectIntProperty(env, value, "configId", configId, presentConfigId) ||
+        !GetOptionalObjectIntProperty(env, value, "interfaceId", interfaceId, presentInterfaceId)) {
         EDMLOGE("GetUsbDeviceConfigInfoFromNAPI configId/interfaceId parse error");
         return false;
     }
