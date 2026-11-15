@@ -18,7 +18,6 @@ config("plugin_kits_config") {
     "include",
     "include/utils",
     "../common/include",
-    "../usb_manager/include",
     "../../../common/native/include",
   ]
 }
@@ -53,7 +52,10 @@ ohos_shared_library("plugin_kits") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [ "../../../common/native:edm_commom" ]
+  deps = [
+    "../../../common/native:edm_commom",
+    "../usb_manager:usb_manager_headers",
+  ]
 
   external_deps = [
     "ability_base:want",

@@ -27,7 +27,6 @@ config("edm_config") {
     "include/strategy",
     "include/system_manager",
     "include/event_management",
-    "../edm_plugin/include/utils",
     "../../framework/extension/include",
   ]
 }

@@ -196,12 +196,12 @@ napi_value UsbManagerAddon::SetUsbInterceptEnable(napi_env env, napi_callback_in
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
         return nullptr;
     }
     int32_t ret = usbManagerProxy->SetUsbInterceptEnable(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 }
@@ -222,14 +222,14 @@ napi_value UsbManagerAddon::IsUsbInterceptEnable(napi_env env, napi_callback_inf
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
         return nullptr;
     }
     bool isEnabled = false;
     int32_t ret = usbManagerProxy->IsUsbInterceptEnable(adapterAddonData.data, isEnabled);
     EDMLOGI("UsbManagerAddon::IsUsbInterceptEnable return: %{public}d", isEnabled);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
     result = nullptr;
@@ -252,13 +252,13 @@ napi_value UsbManagerAddon::GetUsbDeviceInfos(napi_env env, napi_callback_info i
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
         return nullptr;
     }
     std::vector<UsbDeviceInfo> deviceInfos;
     int32_t ret = usbManagerProxy->GetUsbDeviceInfos(adapterAddonData.data, deviceInfos);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         return nullptr;
     }
     napi_value jsList = nullptr;
@@ -298,18 +298,17 @@ napi_value UsbManagerAddon::SetUsbDeviceStates(napi_env env, napi_callback_info 
     auto usbManagerProxy = UsbManagerProxy::GetUsbManagerProxy();
     if (usbManagerProxy == nullptr) {
         EDMLOGE("can not get usbManagerProxy");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::SYSTEM_ABNORMALLY, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
         return nullptr;
     }
     int32_t ret = usbManagerProxy->SetUsbDeviceStates(adapterAddonData.data);
     if (FAILED(ret)) {
-        napi_throw(env, CreateError(env, ret, addonMethodSign.errcodeType));
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
     }
     return nullptr;
 }
 
-namespace {
-bool ParseJsNumberToInt32(napi_env env, napi_value value, int32_t &out)
+bool UsbManagerAddon::ParseJsNumberToInt32(napi_env env, napi_value value, int32_t &out)
 {
     napi_valuetype valueType = napi_undefined;
     if (napi_typeof(env, value, &valueType) != napi_ok || valueType != napi_number) {
@@ -329,8 +328,8 @@ bool ParseJsNumberToInt32(napi_env env, napi_value value, int32_t &out)
     return true;
 }
 
-bool GetObjectIntProperty(napi_env env, napi_value object, const char *field, bool required, int32_t &out,
-    bool &present)
+bool UsbManagerAddon::GetObjectIntProperty(napi_env env, napi_value object, const char *field, bool required,
+    int32_t &out, bool &present)
 {
     present = false;
     bool hasProperty = false;
@@ -358,7 +357,7 @@ bool GetObjectIntProperty(napi_env env, napi_value object, const char *field, bo
     present = true;
     return true;
 }
-} // namespace
+
 bool UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config)
 {
     bool presentBus = false;

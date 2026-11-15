@@ -272,13 +272,13 @@ int32_t UsbManagerProxy::GetUsbDeviceInfos(MessageParcel &data, std::vector<UsbD
     EDMLOGI("UsbManagerProxy:GetUsbDeviceInfos return size:%{public}u", size);
     if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
         EDMLOGE("UsbManagerProxy:GetUsbDeviceInfos size over limit");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     for (uint32_t i = 0; i < size; i++) {
         UsbDeviceInfo info;
         if (!UsbDeviceInfo::Unmarshalling(reply, info)) {
             EDMLOGE("UsbManagerProxy:GetUsbDeviceInfos read parcel fail");
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
         }
         result.emplace_back(std::move(info));
     }

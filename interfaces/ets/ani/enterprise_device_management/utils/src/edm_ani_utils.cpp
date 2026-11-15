@@ -51,8 +51,6 @@ const std::unordered_map<int32_t, std::string> EdmAniUtils::errMessageMap = {
     {EdmReturnErrCode::ETHERNET_CONFIGURATION_FAILED, "Ethernet configuration failed."},
     {EdmReturnErrCode::AUTH_TOKEN_INVALID, "AuthToken invalid."},
     {EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID, "AuthToken duration invalid."},
-    {EdmReturnErrCode::USB_DYNAMIC_CONTROL_NOT_ENABLED,
-        "Failed to set the state because dynamic USB control is not enabled."},
 };
 
 std::string EdmAniUtils::FindErrMsg(int32_t errCode)
