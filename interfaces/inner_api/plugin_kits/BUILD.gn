@@ -52,10 +52,7 @@ ohos_shared_library("plugin_kits") {
 
   configs = [ "../../../common/config:coverage_flags" ]
 
-  deps = [
-    "../../../common/native:edm_commom",
-    "../usb_manager:usb_manager_headers",
-  ]
+  deps = [ "../../../common/native:edm_commom" ]
 
   external_deps = [
     "ability_base:want",

@@ -14,8 +14,6 @@
  */
 #include "usb_manager_addon.h"
 
-#include <climits>
-
 #include "array_odd_burn_usb_device_serializer.h"
 #include "edm_log.h"
 #include "external_storage_device_info.h"

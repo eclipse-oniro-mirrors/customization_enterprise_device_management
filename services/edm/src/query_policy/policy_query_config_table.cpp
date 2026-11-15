@@ -131,33 +131,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
-    {EdmInterfaceCode::DISALLOWED_USB_DEVICES, {PolicyName::POLICY_DISALLOWED_USB_DEVICES,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC,
-#ifdef USB_SERVICE_EDM_ENABLE
-        true
-#else
-        false
-#endif
-    }},
-    {EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES, {PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC,
-#ifdef USB_SERVICE_EDM_ENABLE
-        true
-#else
-        false
-#endif
-    }},
-    {EdmInterfaceCode::GET_USB_SERIAL_NUMBER, {PolicyName::POLICY_USB_SERIAL_NUMBER,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), false, IPlugin::ApiType::PUBLIC,
-#ifdef USB_SERVICE_EDM_ENABLE
-        true
-#else
-        false
-#endif
-    }},
     {EdmInterfaceCode::GET_USB_DEVICE_INFOS, {PolicyName::POLICY_USB_DEVICE_INFOS,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), false, IPlugin::ApiType::PUBLIC,
