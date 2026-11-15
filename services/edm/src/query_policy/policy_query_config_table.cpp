@@ -131,24 +131,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         false
 #endif
     }},
-    {EdmInterfaceCode::GET_USB_DEVICE_INFOS, {PolicyName::POLICY_USB_DEVICE_INFOS,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), false, IPlugin::ApiType::PUBLIC,
-#ifdef USB_SERVICE_EDM_ENABLE
-        true
-#else
-        false
-#endif
-    }},
-    {EdmInterfaceCode::SET_USB_DEVICE_STATES, {PolicyName::POLICY_SET_USB_DEVICE_STATES,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), false, IPlugin::ApiType::PUBLIC,
-#ifdef USB_SERVICE_EDM_ENABLE
-        true
-#else
-        false
-#endif
-    }},
     {EdmInterfaceCode::DISABLE_WIFI, {PolicyName::POLICY_DISABLE_WIFI, PolicyDataType::BOOL,
         PermissionConfig::TagPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
