@@ -82,6 +82,11 @@ ErrCode AllowUsbDevicesPlugin::OnSetPolicy(std::vector<UsbDeviceId> &data,
 
 bool AllowUsbDevicesPlugin::HasConflictPolicy()
 {
+    return HasConflictWithUsbRestrictionPolicies() || HasConflictWithUsbInterceptOrSerial();
+}
+
+bool AllowUsbDevicesPlugin::HasConflictWithUsbRestrictionPolicies()
+{
     auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsbPolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsbPolicy);
@@ -89,14 +94,12 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! Usb is disabled.");
         return true;
     }
-
     std::string usbStoragePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_USB_READ_ONLY, usbStoragePolicy);
     if (usbStoragePolicy == std::to_string(EdmConstants::STORAGE_USB_POLICY_DISABLED)) {
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! usbStoragePolicy is disabled.");
         return true;
     }
-
     std::string disallowUsbDevicePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_USB_DEVICES, disallowUsbDevicePolicy);
     if (!disallowUsbDevicePolicy.empty()) {
@@ -104,7 +107,6 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
             disallowUsbDevicePolicy.c_str());
         return true;
     }
-
     std::string disallowPermissiveUsbDevicePolicy;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
         disallowPermissiveUsbDevicePolicy);
@@ -113,7 +115,6 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
             disallowPermissiveUsbDevicePolicy.c_str());
         return true;
     }
-
     std::string externalStorageInterceptEnable;
     policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
         externalStorageInterceptEnable);
@@ -121,14 +122,17 @@ bool AllowUsbDevicesPlugin::HasConflictPolicy()
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! externalStorageInterceptEnable.");
         return true;
     }
+    return false;
+}
 
+bool AllowUsbDevicesPlugin::HasConflictWithUsbInterceptOrSerial()
+{
     if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! usbInterceptEnable.");
         return true;
     }
-
     std::string disableUsbSerial;
-    policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
     if (disableUsbSerial == "true") {
         EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! Usb serial is disabled.");
         return true;

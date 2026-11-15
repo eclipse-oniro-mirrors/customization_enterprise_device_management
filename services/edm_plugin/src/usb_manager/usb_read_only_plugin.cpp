@@ -105,6 +105,16 @@ ErrCode UsbReadOnlyPlugin::SetUsbStorageAccessPolicy(int32_t accessPolicy, int32
 ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::string &allowUsbDevice,
     bool &hasConflict)
 {
+    ErrCode ret = CheckBasicUsbConflicts(accessPolicy, allowUsbDevice, hasConflict);
+    if (FAILED(ret) || hasConflict) {
+        return ret;
+    }
+    return CheckExternalAndStorageConflicts(hasConflict);
+}
+
+ErrCode UsbReadOnlyPlugin::CheckBasicUsbConflicts(int32_t accessPolicy, const std::string &allowUsbDevice,
+    bool &hasConflict)
+{
     if (accessPolicy == EdmConstants::STORAGE_USB_POLICY_DISABLED && !allowUsbDevice.empty()) {
         EDMLOGE("UsbReadOnlyPlugin policy conflict! AllowedUsbDevice: %{public}s", allowUsbDevice.c_str());
         hasConflict = true;
@@ -121,9 +131,8 @@ ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::st
         hasConflict = true;
         return ERR_OK;
     }
-    auto policyManager = IPolicyManager::GetInstance();
     std::string disableUsb;
-    policyManager->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsb);
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISABLE_USB, disableUsb);
     if (disableUsb == "true") {
         EDMLOGE("UsbReadOnlyPlugin policy conflict! Usb is disabled.");
         hasConflict = true;
@@ -135,15 +144,19 @@ ErrCode UsbReadOnlyPlugin::HasConflictPolicy(int32_t accessPolicy, const std::st
         hasConflict = true;
         return ERR_OK;
     }
+    return ERR_OK;
+}
+
+ErrCode UsbReadOnlyPlugin::CheckExternalAndStorageConflicts(bool &hasConflict)
+{
     std::string externalStorageInterceptEnable;
-    policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
         externalStorageInterceptEnable);
     if (externalStorageInterceptEnable == "true") {
         EDMLOGE("UsbReadOnlyPlugin policy conflict! externalStorageInterceptEnable.");
         hasConflict = true;
         return ERR_OK;
     }
-
 #ifdef FEATURE_PC_ONLY
     bool isDisallowed = false;
     if (FAILED(UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(isDisallowed))) {
