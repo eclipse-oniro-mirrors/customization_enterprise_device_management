@@ -56,6 +56,10 @@ private:
     static napi_value GetDisallowedPolicyImplicitAdmin(napi_env env, napi_callback_info info);
     static napi_value SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info);
     static napi_value GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info);
+    static napi_value SetDisallowedPolicyForAccountLegacy(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPolicyForAccountLegacy(napi_env env, napi_callback_info info);
+    static napi_value SetDisallowedPolicyForAccountImplicitAdmin(napi_env env, napi_callback_info info);
+    static napi_value GetDisallowedPolicyForAccountImplicitAdmin(napi_env env, napi_callback_info info);
     static napi_value AddDisallowedListForAccount(napi_env env, napi_callback_info info);
     static napi_value RemoveDisallowedListForAccount(napi_env env, napi_callback_info info);
     static napi_value AddOrRemoveDisallowedListForAccount(napi_env env, napi_callback_info info, bool isAdd);
@@ -80,8 +84,12 @@ private:
     static OHOS::ErrCode GetInterfaceCodeAndFeature(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType);
     static OHOS::ErrCode GetInterfaceCodeAndFeatureAll(napi_env env, napi_value value, uint32_t &ipcCode);
+    static OHOS::ErrCode GetInterfaceCodeAndFeatureForAccountAll(napi_env env, napi_value value, uint32_t &ipcCode);
     static OHOS::ErrCode GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
         std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType);
+    static int32_t ParseQueryPolicyForAccount(napi_env env, napi_value value, size_t argc);
+    static OHOS::ErrCode NativeGetDisallowedPolicyForAccountImplicitAdmin(int32_t accountId, uint32_t ipcCode,
+        int32_t queryPolicy, bool &disallow);
     static void CreateFeatureForDeviceObject(napi_env env, napi_value value);
     static void CreateFeatureForDevicePart1(napi_env env, napi_value value);
     static void CreateFeatureForDevicePart2(napi_env env, napi_value value);

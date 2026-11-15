@@ -732,6 +732,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::GET_APPLICATION_ICON_DATA, {PolicyName::POLICY_GET_APPLICATION_ICON_DATA,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION), false, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE, {PolicyName::POLICY_DISALLOW_INSTALL_DEVICE_CERTIFICATE,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

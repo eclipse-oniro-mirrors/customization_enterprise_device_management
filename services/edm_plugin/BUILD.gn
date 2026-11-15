@@ -640,6 +640,7 @@ ohos_shared_library("sys_service_plugin") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
@@ -690,6 +691,9 @@ ohos_shared_library("sys_service_plugin") {
     if (certificate_manager_edm_enable) {
       external_deps += [ "certificate_manager:cert_manager_sdk" ]
       sources += [ "./src/device_settings/user_cert_plugin.cpp" ]
+      if (enterprise_device_management_feature_pc_only) {
+        sources += [ "./src/restrictions/disallow_install_device_certificate_plugin.cpp" ]
+      }
     }
 
     if (pasteboard_edm_enable) {

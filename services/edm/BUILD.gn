@@ -189,6 +189,9 @@ ohos_shared_library("edmservice") {
       "SAMBA_EDM_ENABLE",
       "FEATURE_PC_ONLY",
     ]
+    if (certificate_manager_edm_enable) {
+      defines += [ "CERTIFICATE_MANAGER_EDM_ENABLE" ]
+    }
   }
 
   if (ability_runtime_edm_enable) {
