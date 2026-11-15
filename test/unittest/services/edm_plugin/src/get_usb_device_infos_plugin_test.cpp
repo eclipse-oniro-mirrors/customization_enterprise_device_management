@@ -54,7 +54,7 @@ HWTEST_F(GetUsbDeviceInfosPluginTest, TestOnGetPolicyCallUsb, TestSize.Level1)
     std::shared_ptr<IPlugin> plugin = std::make_shared<GetUsbDeviceInfosPlugin>();
     std::string policyData;
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    // soft-IPC：USB 可用/未落地/未 init 均 ERR_OK（空列表）；其它异常 SYSTEM_ABNORMALLY
+    // USB GetAllDevices：未 init 返回空列表；其它异常 SYSTEM_ABNORMALLY
     ASSERT_TRUE(ret == ERR_OK || ret == EdmReturnErrCode::SYSTEM_ABNORMALLY);
     if (ret == ERR_OK) {
         ASSERT_TRUE(reply.ReadInt32() == ERR_OK);

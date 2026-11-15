@@ -220,7 +220,6 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/query_policy/allowed_usb_devices_query.cpp",
       "./src/event_management/usb_device_control_event_adapter.cpp",
-      "../edm_plugin/src/utils/usb_device_control_ipc.cpp",
     ]
     external_deps += [ "usb_manager:usbsrv_client" ]
     defines += [ "USB_SERVICE_EDM_ENABLE" ]

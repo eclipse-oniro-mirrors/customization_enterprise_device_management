@@ -78,7 +78,7 @@ void SetUsbDeviceStatesPluginTest::SetUsbInterceptEnable(bool enable)
 
 /**
  * @tc.name: TestOnHandlePolicyDeviceLevelCallUsb
- * @tc.desc: Test SetUsbDeviceStatesPlugin device-level calls USB Authorize when dynamic control enabled.
+ * @tc.desc: Test SetUsbDeviceStatesPlugin device-level Authorize when dynamic control enabled.
  * @tc.type: FUNC
  */
 HWTEST_F(SetUsbDeviceStatesPluginTest, TestOnHandlePolicyDeviceLevelCallUsb, TestSize.Level1)

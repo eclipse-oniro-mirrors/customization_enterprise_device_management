@@ -15,14 +15,15 @@
 
 #include "set_usb_device_states_plugin.h"
 
+#include <cstdint>
+
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "iplugin_manager.h"
-#include "usb_device_control_utils.h"
-#include "usb_device_info.h"
 #include "usb_policy_utils.h"
+#include "usb_srv_client.h"
 
 namespace OHOS {
 namespace EDM {
@@ -58,7 +59,7 @@ ErrCode SetUsbDeviceStatesPlugin::OnHandlePolicy(std::uint32_t funcCode, Message
         EDMLOGE("SetUsbDeviceStatesPlugin USB dynamic control is not enabled");
         return EdmReturnErrCode::USB_DYNAMIC_CONTROL_NOT_ENABLED;
     }
-    return UsbDeviceControlUtils::SetUsbDeviceStates(config, isEnable);
+    return SetUsbDeviceStates(config, isEnable);
 }
 
 ErrCode SetUsbDeviceStatesPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
@@ -67,6 +68,54 @@ ErrCode SetUsbDeviceStatesPlugin::OnGetPolicy(std::string &policyData, MessagePa
     EDMLOGI("SetUsbDeviceStatesPlugin OnGetPolicy");
     reply.WriteInt32(ERR_OK);
     return ERR_OK;
+}
+
+bool SetUsbDeviceStatesPlugin::IsInterfaceAuthorize(const USBDeviceConfigInfo &config)
+{
+    return config.hasConfigId && config.hasInterfaceId;
+}
+
+ErrCode SetUsbDeviceStatesPlugin::MapUsbRet(int32_t usbRet, const char *apiName)
+{
+    if (usbRet == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
+        EDMLOGW("SetUsbDeviceStatesPlugin %{public}s: parameter verification failed", apiName);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (usbRet == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
+        EDMLOGW("SetUsbDeviceStatesPlugin %{public}s: USB interface not init", apiName);
+        return ERR_OK;
+    }
+    if (usbRet != ERR_OK) {
+        EDMLOGE("SetUsbDeviceStatesPlugin %{public}s failed, ret=%{public}d", apiName, usbRet);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+
+ErrCode SetUsbDeviceStatesPlugin::SetUsbDeviceStates(const USBDeviceConfigInfo &config, bool isEnable)
+{
+    if (config.busNum < 0 || config.devAddress < 0 ||
+        config.busNum > static_cast<int32_t>(UINT8_MAX) ||
+        config.devAddress > static_cast<int32_t>(UINT8_MAX)) {
+        EDMLOGE("SetUsbDeviceStatesPlugin busNum/devAddress out of uint8 range");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    uint8_t busNum = static_cast<uint8_t>(config.busNum);
+    uint8_t devAddr = static_cast<uint8_t>(config.devAddress);
+    auto &usbClient = USB::UsbSrvClient::GetInstance();
+    if (IsInterfaceAuthorize(config)) {
+        if (config.configId < 0 || config.interfaceId < 0 ||
+            config.configId > static_cast<int32_t>(UINT8_MAX) ||
+            config.interfaceId > static_cast<int32_t>(UINT8_MAX)) {
+            EDMLOGE("SetUsbDeviceStatesPlugin config/interface id out of range");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        int32_t usbRet = usbClient.UsbInterfaceAuthorize(busNum, devAddr,
+            static_cast<uint8_t>(config.configId), static_cast<uint8_t>(config.interfaceId), isEnable);
+        return MapUsbRet(usbRet, "UsbInterfaceAuthorize");
+    }
+    int32_t usbRet = usbClient.UsbDeviceAuthorize(busNum, devAddr, isEnable);
+    return MapUsbRet(usbRet, "UsbDeviceAuthorize");
 }
 } // namespace EDM
 } // namespace OHOS

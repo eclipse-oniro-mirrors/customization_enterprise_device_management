@@ -17,6 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_USB_MANAGER_SET_USB_DEVICE_STATES_PLUGIN_H
 
 #include "iplugin.h"
+#include "usb_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -34,6 +35,11 @@ public:
         int32_t userId) override {};
     ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
+
+private:
+    ErrCode SetUsbDeviceStates(const USBDeviceConfigInfo &config, bool isEnable);
+    ErrCode MapUsbRet(int32_t usbRet, const char *apiName);
+    bool IsInterfaceAuthorize(const USBDeviceConfigInfo &config);
 };
 } // namespace EDM
 } // namespace OHOS

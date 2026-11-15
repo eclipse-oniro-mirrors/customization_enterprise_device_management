@@ -200,7 +200,6 @@ ohos_static_library("edmservice_static") {
     sources += [
       "../../../../services/edm/src/query_policy/allowed_usb_devices_query.cpp",
       "../../../../services/edm/src/event_management/usb_device_control_event_adapter.cpp",
-      "../../../../services/edm_plugin/src/utils/usb_device_control_ipc.cpp",
     ]
     defines += [ "USB_SERVICE_EDM_ENABLE" ]
   }

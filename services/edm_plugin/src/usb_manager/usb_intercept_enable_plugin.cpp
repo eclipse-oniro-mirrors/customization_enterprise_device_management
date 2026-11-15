@@ -106,7 +106,7 @@ void UsbInterceptEnablePlugin::OnHandlePolicyDone(std::uint32_t funcCode, const 
 {
     EDMLOGI("UsbInterceptEnablePlugin::OnHandlePolicyDone admin: %{public}s", adminName.c_str());
     std::string policyValue;
-    IPolicyManager::GetInstance()->GetPolicy(adminName, policyName_, policyValue, userId);
+    IPolicyManager::GetInstance()->GetPolicy("", policyName_, policyValue, userId);
     bool enabled = policyValue == EdmConstants::CONST_TRUE;
     std::vector<uint32_t> events = {static_cast<uint32_t>(ManagedEvent::USB_DEVICE_ADDED)};
     if (enabled) {
@@ -124,6 +124,12 @@ void UsbInterceptEnablePlugin::OnAdminRemoveDone(const std::string &adminName,
     const std::string &currentJsonData, int32_t userId)
 {
     EDMLOGI("UsbInterceptEnablePlugin::OnAdminRemoveDone admin: %{public}s", adminName.c_str());
+    std::string policyValue;
+    IPolicyManager::GetInstance()->GetPolicy("", policyName_, policyValue, userId);
+    if (policyValue == EdmConstants::CONST_TRUE) {
+        EDMLOGI("UsbInterceptEnablePlugin::OnAdminRemoveDone merged policy still enabled, skip unsubscribe");
+        return;
+    }
     std::vector<uint32_t> events = {static_cast<uint32_t>(ManagedEvent::USB_DEVICE_ADDED)};
     IAdminManager::GetInstance()->RemoveSubscribeEvents(events, adminName, userId);
     IMdmEventRelayer::GetInstance()->OnAdminUnsubscribe(adminName, userId,

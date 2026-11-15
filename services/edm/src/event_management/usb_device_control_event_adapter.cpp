@@ -20,8 +20,8 @@
 #include "edm_log.h"
 #include "managed_event.h"
 #include "usb_config.h"
-#include "usb_device_control_ipc.h"
 #include "usb_interface.h"
+#include "usb_srv_client.h"
 
 namespace OHOS {
 namespace EDM {
@@ -73,11 +73,7 @@ bool UsbDeviceControlEventAdapter::SubscribeEvent()
     if (registered_) {
         return true;
     }
-    int32_t ret = UsbDeviceControlIpc::RegDeviceControlCallback(callback_);
-    if (ret == static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
-        EDMLOGW("UsbDeviceControlEventAdapter::SubscribeEvent USB device-control API unsupported");
-        return false;
-    }
+    int32_t ret = USB::UsbSrvClient::GetInstance().RegDeviceControlCallback(callback_);
     if (ret == EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGW("UsbDeviceControlEventAdapter::SubscribeEvent USB not init");
         return false;
@@ -97,9 +93,8 @@ bool UsbDeviceControlEventAdapter::UnsubscribeEvent()
         registered_ = false;
         return true;
     }
-    int32_t ret = UsbDeviceControlIpc::UnRegDeviceControlCallback(callback_);
-    if (ret != ERR_OK && ret != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT &&
-        ret != static_cast<int32_t>(EdmReturnErrCode::INTERFACE_UNSUPPORTED)) {
+    int32_t ret = USB::UsbSrvClient::GetInstance().UnRegDeviceControlCallback(callback_);
+    if (ret != ERR_OK && ret != EdmConstants::USB_ERRCODE_INTERFACE_NO_INIT) {
         EDMLOGE("UsbDeviceControlEventAdapter::UnsubscribeEvent UnReg failed, ret=%{public}d", ret);
         return false;
     }

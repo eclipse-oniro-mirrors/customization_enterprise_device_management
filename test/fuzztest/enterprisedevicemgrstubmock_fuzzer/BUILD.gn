@@ -459,9 +459,6 @@ ohos_static_library("edmservice_fuzz_static") {
         "../../../services/edm_plugin/src/usb_manager/usb_intercept_enable_plugin.cpp",
         "../../../services/edm_plugin/src/usb_manager/get_usb_device_infos_plugin.cpp",
         "../../../services/edm_plugin/src/usb_manager/set_usb_device_states_plugin.cpp",
-        "../../../services/edm_plugin/src/utils/usb_device_control_utils.cpp",
-        "../../../services/edm_plugin/src/utils/usb_device_control_ipc.cpp",
-        "../../../services/edm_plugin/src/utils/usb_device_info_mapper.cpp",
       ]
       defines += [ "USB_SERVICE_EDM_ENABLE" ]
     }
