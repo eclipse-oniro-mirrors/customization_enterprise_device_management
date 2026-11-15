@@ -260,9 +260,6 @@ ErrCode DisallowedUsbDevicesPluginBase::CheckStorageWriteConflict(bool &hasConfl
         hasConflict = true;
         return ERR_OK;
     }
-#else
-    (void)hasConflict;
-    (void)usbDeviceTypes;
 #endif
     return ERR_OK;
 }

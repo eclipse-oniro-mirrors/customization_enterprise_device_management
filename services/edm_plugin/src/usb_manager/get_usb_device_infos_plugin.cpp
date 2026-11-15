@@ -73,7 +73,7 @@ ErrCode GetUsbDeviceInfosPlugin::QueryUsbDeviceInfos(std::vector<UsbDeviceInfo> 
     }
     if (usbRet != ERR_OK) {
         EDMLOGE("GetUsbDeviceInfosPlugin GetAllDevices failed, ret=%{public}d", usbRet);
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     infos.clear();
     infos.reserve(usbInfos.size());

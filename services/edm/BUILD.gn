@@ -218,6 +218,7 @@ ohos_shared_library("edmservice") {
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
     sources += [
       "./src/query_policy/allowed_usb_devices_query.cpp",
+      "./src/event_management/device_control_callback_stub.cpp",
       "./src/event_management/usb_device_control_event_adapter.cpp",
     ]
     external_deps += [ "usb_manager:usbsrv_client" ]

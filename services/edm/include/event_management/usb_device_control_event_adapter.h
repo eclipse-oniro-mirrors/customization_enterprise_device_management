@@ -16,17 +16,13 @@
 #ifndef SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_USB_DEVICE_CONTROL_EVENT_ADAPTER_H
 #define SERVICES_EDM_INCLUDE_EVENT_MANAGEMENT_USB_DEVICE_CONTROL_EVENT_ADAPTER_H
 
+#include "device_control_callback_stub.h"
 #include "event_subscription_manager.h"
 #include "i_event_source_adapter.h"
-#include "iremote_stub.h"
 #include "usb_device.h"
 
 namespace OHOS {
 namespace EDM {
-
-// USB #1458 DEVICE_CONTROL_EVENT_CODE
-constexpr uint32_t USB_DEVICE_CONTROL_EVENT_CODE = 1;
-// USB host BASE_CLASS_HUB
 constexpr int32_t USB_BASE_CLASS_HUB = 0x09;
 
 class UsbDeviceControlEventAdapter : public IEventSourceAdapter {
@@ -39,16 +35,7 @@ public:
     AdapterType GetAdapterType() const override { return AdapterType::USB_DEVICE_CONTROL; }
 
 private:
-    class DeviceControlCallbackStub : public IPCObjectStub {
-    public:
-        explicit DeviceControlCallbackStub(UsbDeviceControlEventAdapter &owner);
-        int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
-            MessageOption &option) override;
-
-    private:
-        UsbDeviceControlEventAdapter &owner_;
-    };
-
+    friend class DeviceControlCallbackStub;
     void OnDeviceControlEvent(USB::UsbDevice &device, USB::AuthorizeStatus status, bool attached);
     static UsbDeviceInfo ToKitDeviceInfo(const USB::UsbDevice &device, USB::AuthorizeStatus status);
 

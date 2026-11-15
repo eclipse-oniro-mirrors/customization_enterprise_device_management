@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace EDM {
-class __attribute__((visibility("default"))) UsbPolicyUtils {
+class UsbPolicyUtils {
 public:
     static ErrCode SetUsbDisabled(bool data);
     static ErrCode AddAllowedUsbDevices(std::vector<UsbDeviceId> data);

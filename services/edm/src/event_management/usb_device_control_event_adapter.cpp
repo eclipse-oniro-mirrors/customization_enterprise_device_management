@@ -25,32 +25,6 @@
 
 namespace OHOS {
 namespace EDM {
-UsbDeviceControlEventAdapter::DeviceControlCallbackStub::DeviceControlCallbackStub(
-    UsbDeviceControlEventAdapter &owner)
-    : IPCObjectStub(u"ohos.edm.UsbDeviceControlCallback"), owner_(owner)
-{
-}
-
-int UsbDeviceControlEventAdapter::DeviceControlCallbackStub::OnRemoteRequest(uint32_t code,
-    MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    if (code != USB_DEVICE_CONTROL_EVENT_CODE) {
-        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-    }
-    // USB #1458: parcel = UsbDevice.Marshalling + AuthorizeStatus(int32) + attached(bool)
-    USB::UsbDevice *device = USB::UsbDevice::Unmarshalling(data);
-    if (device == nullptr) {
-        EDMLOGE("UsbDeviceControlEventAdapter Unmarshalling UsbDevice failed");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t statusRaw = data.ReadInt32();
-    bool attached = data.ReadBool();
-    auto status = static_cast<USB::AuthorizeStatus>(statusRaw);
-    owner_.OnDeviceControlEvent(*device, status, attached);
-    delete device;
-    return ERR_OK;
-}
-
 UsbDeviceControlEventAdapter::UsbDeviceControlEventAdapter(EventSubscriptionManager &manager)
     : manager_(manager)
 {
