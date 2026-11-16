@@ -51,7 +51,6 @@ struct PathSharedData {
     std::string shareName;
     std::string shareUri;
     std::vector<UserPathInfo> userPathInfoList;
-    int32_t shareLimit = 0;
 
     bool Marshalling(MessageParcel &parcel) const
     {
@@ -61,7 +60,6 @@ struct PathSharedData {
         for (const auto &u : userPathInfoList) {
             u.Marshalling(parcel);
         }
-        parcel.WriteInt32(shareLimit);
         return true;
     }
 
@@ -75,15 +73,12 @@ struct PathSharedData {
             for (uint32_t i = 0; i < size; ++i) {
                 UserPathInfo::Unmarshalling(parcel);
             }
-            parcel.ReadInt32();
-            data.shareLimit = 0;
             return data;
         }
         data.userPathInfoList.reserve(size);
         for (uint32_t i = 0; i < size; ++i) {
             data.userPathInfoList.push_back(UserPathInfo::Unmarshalling(parcel));
         }
-        data.shareLimit = parcel.ReadInt32();
         return data;
     }
 };
