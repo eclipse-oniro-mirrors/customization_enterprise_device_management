@@ -123,6 +123,11 @@ ErrCode PowerModeSettingsPlugin::DispatchSetPolicy(int32_t item, const std::stri
 ErrCode PowerModeSettingsPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
+    if (IsCrossUserNotAllowed(userId)) {
+        EDMLOGE("PowerModeSettingsPlugin::OnGetPolicy cross user not allowed, userId=%{public}d", userId);
+        reply.WriteInt32(EdmReturnErrCode::CROSS_USER_NOT_ALLOWED);
+        return EdmReturnErrCode::CROSS_USER_NOT_ALLOWED;
+    }
     int32_t item = 0;
     if (!data.ReadInt32(item)) {
         EDMLOGE("PowerModeSettingsPlugin::OnGetPolicy read item failed.");
@@ -157,7 +162,7 @@ ErrCode PowerModeSettingsPlugin::SetScreenOffTime(const std::string &valueStr, c
         EDMLOGE("PowerModeSettingsPlugin::set screen off time param error.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (value < SCREEN_OFF_TIME_MIN_VALUE || value == SCREEN_OFF_TIME_NEVER_VALUE) {
+    if (value < SCREEN_OFF_TIME_MIN_VALUE && value != SCREEN_OFF_TIME_NEVER_VALUE) {
         EDMLOGE("PowerModeSettingsPlugin::set screen off time param error.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
