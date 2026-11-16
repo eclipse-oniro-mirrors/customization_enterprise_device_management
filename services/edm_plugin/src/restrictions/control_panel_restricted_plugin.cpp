@@ -60,6 +60,7 @@ ErrCode ControlPanelRestrictedPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
     if (oldGlobalValue != newValue) {
         IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
             OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
+        IExtraPolicyNotification::GetInstance()->NotifyControlPanelRestrictedChanged();
     }
     return ERR_OK;
 }
@@ -112,6 +113,7 @@ ErrCode ControlPanelRestrictedPlugin::OnAdminRemove(const std::string &adminName
     }
     IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
         OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
+    IExtraPolicyNotification::GetInstance()->NotifyControlPanelRestrictedChanged();
     return ERR_OK;
 }
 } // namespace EDM

@@ -23,6 +23,7 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "iextra_policy_notification.h"
 #include "parameters.h"
 #include "utils.h"
 
@@ -33,6 +34,34 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string PARAM_CONTROL_PANEL_RESTRICTED = "persist.edm.control_panel_restricted";
+
+class MockExtraPolicyNotification : public IExtraPolicyNotification {
+public:
+    bool NotifyControlPanelRestrictedChanged() override
+    {
+        count_++;
+        return true;
+    }
+
+    int32_t count_ = 0;
+};
+
+class ScopedPolicyNotification {
+public:
+    explicit ScopedPolicyNotification(IExtraPolicyNotification *mock)
+    {
+        original_ = IExtraPolicyNotification::instance_;
+        IExtraPolicyNotification::instance_ = mock;
+    }
+
+    ~ScopedPolicyNotification()
+    {
+        IExtraPolicyNotification::instance_ = original_;
+    }
+
+private:
+    IExtraPolicyNotification *original_ = nullptr;
+};
 
 class ControlPanelRestrictedPluginTest : public testing::Test {
 protected:
@@ -131,6 +160,69 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoChange, TestS
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_FALSE(handlePolicyData.isChanged);
     EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true"), "true");
+}
+
+/**
+ * @tc.name: OnSetPolicy_GlobalChanged_NotifyControlPanel
+ * @tc.desc: Test a global flag change triggers the control panel broadcast.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_GlobalChanged_NotifyControlPanel, TestSize.Level1)
+{
+    MockExtraPolicyNotification mock;
+    ScopedPolicyNotification guard(&mock);
+    MessageParcel data;
+    MessageParcel reply;
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    HandlePolicyData handlePolicyData{"", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false");
+
+    data.WriteBool(true);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(mock.count_, 1);
+}
+
+/**
+ * @tc.name: OnSetPolicy_SameValue_NoControlPanelNotify
+ * @tc.desc: Test setting the same value does not trigger the control panel broadcast.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoControlPanelNotify, TestSize.Level1)
+{
+    MockExtraPolicyNotification mock;
+    ScopedPolicyNotification guard(&mock);
+    MessageParcel data;
+    MessageParcel reply;
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    HandlePolicyData handlePolicyData{"true", "true", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
+
+    data.WriteBool(true);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(mock.count_, 0);
+}
+
+/**
+ * @tc.name: OnAdminRemove_GlobalChanged_NotifyControlPanel
+ * @tc.desc: Test removing the last true holder triggers the control panel broadcast.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_GlobalChanged_NotifyControlPanel, TestSize.Level1)
+{
+    MockExtraPolicyNotification mock;
+    ScopedPolicyNotification guard(&mock);
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
+
+    ErrCode ret = plugin->OnAdminRemove("com.edm.test.admin", EdmConstants::CONST_TRUE, "", DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(mock.count_, 1);
 }
 
 /**

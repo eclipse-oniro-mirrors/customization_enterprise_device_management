@@ -41,6 +41,11 @@ public:
         return true;
     }
 
+    virtual bool NotifyControlPanelRestrictedChanged()
+    {
+        return true;
+    }
+
     static IExtraPolicyNotification* instance_;
 };
 

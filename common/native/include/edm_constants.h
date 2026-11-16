@@ -77,6 +77,7 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_NORMAL = "normal";
     const char* const SCENE_APP_UNINSTALL = "app_uninstall";
     const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
+    const char* const CONTROL_CENTER_BUNDLE_NAME = "com.ohos.sceneboard";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
