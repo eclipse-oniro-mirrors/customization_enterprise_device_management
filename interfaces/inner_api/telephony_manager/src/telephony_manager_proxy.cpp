@@ -82,7 +82,7 @@ int32_t TelephonyManagerProxy::AddCallPolicyNumbers(const AppExecFwk::ElementNam
     data.WriteString(callType);
     data.WriteInt32(policyFlag);
     if (numbers.size() > EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE) {
-        return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
+        return ERR_INVALID_VALUE;
     }
     data.WriteStringVector(numbers);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
@@ -102,7 +102,7 @@ int32_t TelephonyManagerProxy::RemoveCallPolicyNumbers(const AppExecFwk::Element
     data.WriteString(callType);
     data.WriteInt32(policyFlag);
     if (numbers.size() > EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE) {
-        return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
+        return ERR_INVALID_VALUE;
     }
     data.WriteStringVector(numbers);
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
