@@ -179,7 +179,7 @@ HWTEST_F(IsAllowedTelephonyCallQueryTest, TestQueryPolicyInvalidJson, TestSize.L
     data.WriteString(NUMBER_IN_LIST);
 
     ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 /**
@@ -196,7 +196,7 @@ HWTEST_F(IsAllowedTelephonyCallQueryTest, TestQueryPolicyInvalidField, TestSize.
     data.WriteString(NUMBER_IN_LIST);
 
     ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 } // namespace TEST
