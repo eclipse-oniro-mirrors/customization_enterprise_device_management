@@ -359,7 +359,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersOverLimit, TestSize.
         numbers.push_back(std::to_string(i));
     }
     int32_t ret = telephonyManagerProxy->AddCallPolicyNumbers(admin, callType, policyFlag, numbers);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
 }
 
 /**
@@ -400,7 +400,7 @@ HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersOverLimit, TestSi
         numbers.push_back(std::to_string(i));
     }
     int32_t ret = telephonyManagerProxy->RemoveCallPolicyNumbers(admin, callType, policyFlag, numbers);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
 }
 
 /**
