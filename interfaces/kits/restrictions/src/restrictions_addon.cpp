@@ -846,10 +846,10 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        return SetDisallowedPolicyForAccountLegacy(env, info);
+    if (argc > ARR_INDEX_ONE && MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean)) {
+        return SetDisallowedPolicyForAccountImplicitAdmin(env, info);
     }
-    return SetDisallowedPolicyForAccountImplicitAdmin(env, info);
+    return SetDisallowedPolicyForAccountLegacy(env, info);
 }
 
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
@@ -929,10 +929,10 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        return GetDisallowedPolicyForAccountLegacy(env, info);
+    if (argc > ARR_INDEX_ZERO && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number)) {
+        return GetDisallowedPolicyForAccountImplicitAdmin(env, info);
     }
-    return GetDisallowedPolicyForAccountImplicitAdmin(env, info);
+    return GetDisallowedPolicyForAccountLegacy(env, info);
 }
 
 OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk::ElementName *elementName,

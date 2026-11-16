@@ -28,8 +28,11 @@ public:
 
 private:
     ErrCode SetOtherModulePolicy(bool policy, int32_t userId) override;
-    ErrCode UpdateCertManagerConfig(const std::string &defaultConfig, const std::string &enableUserList,
-        const std::string &disableUserList);
+    ErrCode UpdateCertManagerConfig(const std::string &disableUserList);
+
+    bool IsUserIdInList(const std::string &list, int32_t userId);
+    void AppendUserListToken(const std::string &token, const std::string &excludedUserId, std::string &result);
+    void RemoveUserIdFromList(const std::string &list, int32_t userId, std::string &result);
 };
 } // namespace EDM
 } // namespace OHOS

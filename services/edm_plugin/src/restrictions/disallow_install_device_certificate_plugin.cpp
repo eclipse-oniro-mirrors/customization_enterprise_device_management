@@ -36,59 +36,13 @@ const bool REGISTER_RESULT =
     IPluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowInstallDeviceCertificatePlugin>());
 
 namespace {
-constexpr uint32_t MAX_CONFIG_ITEM_COUNT = 3;
+constexpr uint32_t MAX_CONFIG_ITEM_COUNT = 2;
 constexpr size_t DEFAULT_CONFIG_ITEM_INDEX = 0;
-constexpr size_t ENABLE_USER_LIST_ITEM_INDEX = 1;
-constexpr size_t DISABLE_USER_LIST_ITEM_INDEX = 2;
+constexpr size_t DISABLE_USER_LIST_ITEM_INDEX = 1;
 constexpr char DEFAULT_CONFIG_KEY[] = "installGlobalUserCA_defaultConfig";
-constexpr char ENABLE_USER_LIST_KEY[] = "enableInstallGlobalUserCA_userList";
 constexpr char DISABLE_USER_LIST_KEY[] = "disableInstallGlobalUserCA_userList";
 constexpr char DEFAULT_CONFIG_ENABLE[] = "enable";
-constexpr char DEFAULT_CONFIG_DISABLE[] = "disable";
 constexpr char USER_LIST_SEPARATOR = '|';
-
-bool IsUserIdInList(const std::string &list, int32_t userId)
-{
-    std::string userIdStr = std::to_string(userId);
-    size_t start = 0;
-    while (start <= list.size()) {
-        size_t end = list.find(USER_LIST_SEPARATOR, start);
-        if (end == std::string::npos) {
-            end = list.size();
-        }
-        if (end > start && list.substr(start, end - start) == userIdStr) {
-            return true;
-        }
-        start = end + 1;
-    }
-    return false;
-}
-
-void AppendUserListToken(const std::string &token, const std::string &excludedUserId, std::string &result)
-{
-    if (token.empty() || token == excludedUserId) {
-        return;
-    }
-    if (!result.empty()) {
-        result.push_back(USER_LIST_SEPARATOR);
-    }
-    result.append(token);
-}
-
-void RemoveUserIdFromList(const std::string &list, int32_t userId, std::string &result)
-{
-    std::string userIdStr = std::to_string(userId);
-    result.clear();
-    size_t start = 0;
-    while (start <= list.size()) {
-        size_t end = list.find(USER_LIST_SEPARATOR, start);
-        if (end == std::string::npos) {
-            end = list.size();
-        }
-        AppendUserListToken(list.substr(start, end - start), userIdStr, result);
-        start = end + 1;
-    }
-}
 } // namespace
 
 DisallowInstallDeviceCertificatePlugin::DisallowInstallDeviceCertificatePlugin()
@@ -118,26 +72,19 @@ ErrCode DisallowInstallDeviceCertificatePlugin::SetOtherModulePolicy(bool policy
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
 
-    std::string defaultConfig = DEFAULT_CONFIG_ENABLE;
-    std::string enableUserList;
     std::string disableUserList;
     for (uint32_t i = 0; i < config.count; i++) {
         std::string key(config.configItems[i].key);
         std::string value(config.configItems[i].value);
-        if (key == DEFAULT_CONFIG_KEY) {
-            defaultConfig = value;
-        } else if (key == ENABLE_USER_LIST_KEY) {
-            enableUserList = value;
-        } else if (key == DISABLE_USER_LIST_KEY) {
+        if (key == DISABLE_USER_LIST_KEY) {
             disableUserList = value;
         }
     }
     CmFreeCertManagerConfig(&config);
 
-    std::string newEnableUserList = enableUserList;
-    std::string newDisableUserList = disableUserList;
+    std::string newDisableUserList;
     if (policy) {
-        RemoveUserIdFromList(enableUserList, userId, newEnableUserList);
+        newDisableUserList = disableUserList;
         if (!IsUserIdInList(disableUserList, userId)) {
             if (!newDisableUserList.empty()) {
                 newDisableUserList.push_back(USER_LIST_SEPARATOR);
@@ -146,19 +93,12 @@ ErrCode DisallowInstallDeviceCertificatePlugin::SetOtherModulePolicy(bool policy
         }
     } else {
         RemoveUserIdFromList(disableUserList, userId, newDisableUserList);
-        if (defaultConfig == DEFAULT_CONFIG_DISABLE && !IsUserIdInList(enableUserList, userId)) {
-            if (!newEnableUserList.empty()) {
-                newEnableUserList.push_back(USER_LIST_SEPARATOR);
-            }
-            newEnableUserList.append(std::to_string(userId));
-        }
     }
 
-    return UpdateCertManagerConfig(defaultConfig, newEnableUserList, newDisableUserList);
+    return UpdateCertManagerConfig(newDisableUserList);
 }
 
-ErrCode DisallowInstallDeviceCertificatePlugin::UpdateCertManagerConfig(const std::string &defaultConfig,
-    const std::string &enableUserList, const std::string &disableUserList)
+ErrCode DisallowInstallDeviceCertificatePlugin::UpdateCertManagerConfig(const std::string &disableUserList)
 {
     std::vector<struct CmConfigItem> items(MAX_CONFIG_ITEM_COUNT);
     for (auto &item : items) {
@@ -168,11 +108,7 @@ ErrCode DisallowInstallDeviceCertificatePlugin::UpdateCertManagerConfig(const st
     if (strncpy_s(items[DEFAULT_CONFIG_ITEM_INDEX].key, sizeof(items[DEFAULT_CONFIG_ITEM_INDEX].key),
             DEFAULT_CONFIG_KEY, sizeof(items[DEFAULT_CONFIG_ITEM_INDEX].key) - 1) != EOK ||
         strncpy_s(items[DEFAULT_CONFIG_ITEM_INDEX].value, sizeof(items[DEFAULT_CONFIG_ITEM_INDEX].value),
-            defaultConfig.c_str(), sizeof(items[DEFAULT_CONFIG_ITEM_INDEX].value) - 1) != EOK ||
-        strncpy_s(items[ENABLE_USER_LIST_ITEM_INDEX].key, sizeof(items[ENABLE_USER_LIST_ITEM_INDEX].key),
-            ENABLE_USER_LIST_KEY, sizeof(items[ENABLE_USER_LIST_ITEM_INDEX].key) - 1) != EOK ||
-        strncpy_s(items[ENABLE_USER_LIST_ITEM_INDEX].value, sizeof(items[ENABLE_USER_LIST_ITEM_INDEX].value),
-            enableUserList.c_str(), sizeof(items[ENABLE_USER_LIST_ITEM_INDEX].value) - 1) != EOK ||
+            DEFAULT_CONFIG_ENABLE, sizeof(items[DEFAULT_CONFIG_ITEM_INDEX].value) - 1) != EOK ||
         strncpy_s(items[DISABLE_USER_LIST_ITEM_INDEX].key, sizeof(items[DISABLE_USER_LIST_ITEM_INDEX].key),
             DISABLE_USER_LIST_KEY, sizeof(items[DISABLE_USER_LIST_ITEM_INDEX].key) - 1) != EOK ||
         strncpy_s(items[DISABLE_USER_LIST_ITEM_INDEX].value, sizeof(items[DISABLE_USER_LIST_ITEM_INDEX].value),
@@ -192,6 +128,51 @@ ErrCode DisallowInstallDeviceCertificatePlugin::UpdateCertManagerConfig(const st
     }
     EDMLOGI("DisallowInstallDeviceCertificatePlugin::UpdateCertManagerConfig success");
     return ERR_OK;
+}
+
+bool DisallowInstallDeviceCertificatePlugin::IsUserIdInList(const std::string &list, int32_t userId)
+{
+    const std::string userIdStr = std::to_string(userId);
+    size_t start = 0;
+    while (start <= list.size()) {
+        size_t end = list.find(USER_LIST_SEPARATOR, start);
+        if (end == std::string::npos) {
+            end = list.size();
+        }
+        if (end > start && list.compare(start, end - start, userIdStr) == 0) {
+            return true;
+        }
+        start = end + 1;
+    }
+    return false;
+}
+
+void DisallowInstallDeviceCertificatePlugin::AppendUserListToken(const std::string &token,
+    const std::string &excludedUserId, std::string &result)
+{
+    if (token.empty() || token == excludedUserId) {
+        return;
+    }
+    if (!result.empty()) {
+        result.push_back(USER_LIST_SEPARATOR);
+    }
+    result.append(token);
+}
+
+void DisallowInstallDeviceCertificatePlugin::RemoveUserIdFromList(const std::string &list, int32_t userId,
+    std::string &result)
+{
+    const std::string userIdStr = std::to_string(userId);
+    result.clear();
+    size_t start = 0;
+    while (start <= list.size()) {
+        size_t end = list.find(USER_LIST_SEPARATOR, start);
+        if (end == std::string::npos) {
+            end = list.size();
+        }
+        AppendUserListToken(list.substr(start, end - start), userIdStr, result);
+        start = end + 1;
+    }
 }
 } // namespace EDM
 } // namespace OHOS
