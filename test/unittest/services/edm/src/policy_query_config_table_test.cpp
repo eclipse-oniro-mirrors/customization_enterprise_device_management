@@ -310,6 +310,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef POWER_MANAGER_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
+    map[EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     return map;
 }
 
@@ -614,6 +615,22 @@ HWTEST_F(PolicyQueryConfigTableTest, TestInvalidCode, TestSize.Level1)
 {
     const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(99999);
     ASSERT_EQ(entry, nullptr);
+}
+
+HWTEST_F(PolicyQueryConfigTableTest, TestInstallDeviceCertificateConfigEntry, TestSize.Level1)
+{
+    const PolicyQueryConfigEntry* entry =
+        PolicyQueryConfigTable::FindConfig(EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE);
+    ASSERT_NE(entry, nullptr);
+    ASSERT_EQ(entry->config.policyName, PolicyName::POLICY_DISALLOW_INSTALL_DEVICE_CERTIFICATE);
+    // The policy is a plain boolean, so it is served by the generic query template.
+    ASSERT_EQ(entry->config.dataType, PolicyDataType::BOOL);
+    ASSERT_EQ(entry->config.apiType, IPlugin::ApiType::PUBLIC);
+    // The plugin uses the super device admin permission, so the query must resolve the same one.
+    ASSERT_EQ(entry->config.permissionConfig.GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, ""),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+    // The feature is no longer gated by the certificate manager build flag.
+    ASSERT_TRUE(entry->config.isFeatureEnabled);
 }
 
 HWTEST_F(PolicyQueryConfigTableTest, TestIsPolicySavedConsistency, TestSize.Level1)
