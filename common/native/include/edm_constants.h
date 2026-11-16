@@ -257,6 +257,7 @@ namespace EdmConstants {
         const char* const LABEL_DISALLOWED_POLICY_SUPERHUB = "superhub";
         const char* const LABEL_DISALLOWED_POLICY_MULTI_WINDOW = "multiWindow";
         const char* const LABEL_DISALLOWED_POLICY_PARENT_CONTROL = "parentControl";
+        const char* const LABEL_DISALLOWED_POLICY_INSTALL_DEVICE_CERTIFICATE = "installDeviceCertificate";
     } // namespace Restrictions
 
     namespace SecurityManager {
@@ -642,6 +643,8 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
     const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
     const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
+    const char* const POLICY_GET_APPLICATION_ICON_DATA = "get_application_icon_data";
+    const char* const POLICY_DISALLOW_INSTALL_DEVICE_CERTIFICATE = "disallow_install_device_certificate";
     const char* const POLICY_CONTROL_PANEL_RESTRICTED = "control_panel_restricted";
     const char* const POLICY_CONTROL_PANEL_QUICK_TOGGLE_LIST = "control_panel_quick_toggle_list";
     const char* const POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST = "control_panel_top_toggle_list";

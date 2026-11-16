@@ -162,6 +162,7 @@ std::vector<uint32_t> PluginManager::sysServiceSoCodes_ = {
     EdmInterfaceCode::GET_CREDENTIAL_ID,
     EdmInterfaceCode::OPTIMIZATION_BATTERY_EXCLUSION_APPS,
     EdmInterfaceCode::ENABLED_NOTIFICATION_BUNDLES,
+    EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE,
 };
 
 std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
