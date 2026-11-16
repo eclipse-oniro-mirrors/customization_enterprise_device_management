@@ -22,20 +22,16 @@ namespace EDM {
 
 const std::string KEY_POWER_SUSPEND = "settings.power.suspend_sources";
 std::string EdmDataAbilityUtils::result_;
-std::string EdmDataAbilityUtils::lastUpdatedValue_;
 ErrCode EdmDataAbilityUtils::smsResult_ = ERR_OK;
 std::vector<SmsQueryResult> EdmDataAbilityUtils::smsMessages_;
 int64_t EdmDataAbilityUtils::lastSmsStartTime_ = 0;
 int64_t EdmDataAbilityUtils::lastSmsEndTime_ = 0;
 std::string EdmDataAbilityUtils::lastSmsTelephoneNumber_;
+std::string EdmDataAbilityUtils::lastUpdatedKey_;
+std::string EdmDataAbilityUtils::lastUpdatedValue_;
 void EdmDataAbilityUtils::SetResult(const std::string &result)
 {
     result_ = result;
-}
-
-const std::string &EdmDataAbilityUtils::GetLastUpdatedValue()
-{
-    return lastUpdatedValue_;
 }
 
 void EdmDataAbilityUtils::ClearLastUpdatedValue()
@@ -152,14 +148,36 @@ ErrCode EdmDataAbilityUtils::GetIntFromSettingsDataShare(const std::string &strU
 ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &baseUri, const std::string &key,
     const std::string &value)
 {
-    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils UpdateSettingsData start: " << result_.c_str();
-    lastUpdatedValue_ = value;
+    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils UpdateSettingsData start: " << result_.c_str() <<
+        ", key: " << key << ", value: " << value;
     if (result_ == "SYSTEM_ABNORMALLY") {
         GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils result SYSTEM_ABNORMALLY";
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test Success";
+    lastUpdatedKey_ = key;
+    lastUpdatedValue_ = value;
     return ERR_OK;
+}
+
+ErrCode EdmDataAbilityUtils::UpdateSettingsData(const std::string &key, const std::string &value)
+{
+    return UpdateSettingsData("", key, value);
+}
+
+std::string EdmDataAbilityUtils::GetLastUpdatedKey()
+{
+    return lastUpdatedKey_;
+}
+
+std::string EdmDataAbilityUtils::GetLastUpdatedValue()
+{
+    return lastUpdatedValue_;
+}
+
+void EdmDataAbilityUtils::ResetLastUpdated()
+{
+    lastUpdatedKey_.clear();
+    lastUpdatedValue_.clear();
 }
 } // namespace EDM
 } // namespace OHOS

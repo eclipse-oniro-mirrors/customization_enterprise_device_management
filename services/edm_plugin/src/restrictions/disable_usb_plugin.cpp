@@ -87,6 +87,10 @@ ErrCode DisableUsbPlugin::CheckConflictPolicy(int32_t userId)
             externalStorageInterceptEnable.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
+    if (UsbPolicyUtils::IsUsbInterceptEnabled()) {
+        EDMLOGE("DisableUsbPlugin POLICY CONFLICT! usbInterceptEnable is true");
+        return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
+    }
     std::string disableUsbSerial;
     policyManager->GetPolicy("", PolicyName::POLICY_DISALLOW_USB_SERIAL, disableUsbSerial);
     if (disableUsbSerial == "true") {

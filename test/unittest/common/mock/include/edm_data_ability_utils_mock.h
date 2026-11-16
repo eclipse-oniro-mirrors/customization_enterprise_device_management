@@ -42,7 +42,10 @@ public:
     static ErrCode GetIntFromSettingsDataShare(const std::string &strUri, const std::string &key, int32_t &value);
     static void SetResult(const std::string &result);
     static ErrCode UpdateSettingsData(const std::string &baseUri, const std::string &key, const std::string &value);
-    static const std::string &GetLastUpdatedValue();
+    static ErrCode UpdateSettingsData(const std::string &key, const std::string &value);
+    static std::string GetLastUpdatedKey();
+    static std::string GetLastUpdatedValue();
+    static void ResetLastUpdated();
     static void ClearLastUpdatedValue();
     static ErrCode GetSmsMessages(int64_t startTime, int64_t endTime, const std::string &telephoneNumber,
         std::vector<SmsQueryResult> &messages);
@@ -53,12 +56,13 @@ public:
     static std::string GetLastSmsTelephoneNumber();
 private:
     static std::string result_;
-    static std::string lastUpdatedValue_;
     static ErrCode smsResult_;
     static std::vector<SmsQueryResult> smsMessages_;
     static int64_t lastSmsStartTime_;
     static int64_t lastSmsEndTime_;
     static std::string lastSmsTelephoneNumber_;
+    static std::string lastUpdatedKey_;
+    static std::string lastUpdatedValue_;
 };
 } // namespace EDM
 } // namespace OHOS

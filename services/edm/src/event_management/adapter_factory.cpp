@@ -19,12 +19,28 @@
 #include "common_event_adapter.h"
 #include "edm_log.h"
 #include "null_event_adapter.h"
+#ifdef USB_SERVICE_EDM_ENABLE
+#include "usb_device_control_event_adapter.h"
+#endif
 #include "user_auth_event_adapter.h"
 
 namespace OHOS {
 namespace EDM {
 std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscriptionManager &manager,
     EventId groupId, const std::string &eventName, const std::string &eventPermission)
+{
+    std::shared_ptr<IEventSourceAdapter> adapter;
+    if (CreateManagedEventAdapter(manager, groupId, adapter)) {
+        return adapter;
+    }
+    if (!eventName.empty()) {
+        return CreateCommonEventAdapter(manager, groupId, eventName, eventPermission);
+    }
+    EDMLOGE("AdapterFactory::CreateAdapter unknown groupId=%{public}u", groupId.code);
+    return nullptr;
+}
+
+bool AdapterFactory::IsDefaultCommonEventGroup(EventId groupId)
 {
     switch (static_cast<ManagedEvent>(groupId.code)) {
         case ManagedEvent::BUNDLE_ADDED:
@@ -38,37 +54,56 @@ std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAdapter(EventSubscrip
         case ManagedEvent::KIOSK_MODE_ON:
         case ManagedEvent::KIOSK_MODE_OFF:
         case ManagedEvent::SIM_STATE_CHANGED:
-            return CreateCommonEventAdapter(manager, groupId, "", "");
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool AdapterFactory::CreateManagedEventAdapter(EventSubscriptionManager &manager, EventId groupId,
+    std::shared_ptr<IEventSourceAdapter> &out)
+{
+    if (IsDefaultCommonEventGroup(groupId)) {
+        out = CreateCommonEventAdapter(manager, groupId, "", "");
+        return true;
+    }
+    switch (static_cast<ManagedEvent>(groupId.code)) {
         case ManagedEvent::SMS_RECEIVED:
-            return CreateCommonEventAdapter(manager, groupId,
+            out = CreateCommonEventAdapter(manager, groupId,
                 EDM_SMS_RECEIVE_COMPLETED_EVENT, EDM_SYSTEM_RECEIVE_SMS_PERMISSION);
+            return true;
         case ManagedEvent::APP_START:
-            return CreateAppLifecycleAdapter(manager);
+            out = CreateAppLifecycleAdapter(manager);
+            return true;
         case ManagedEvent::SYSTEM_UPDATE:
-            return CreateCommonEventAdapter(manager, groupId,
+            out = CreateCommonEventAdapter(manager, groupId,
                 EDM_SYSTEM_UPDATE_FOR_POLICY, EDM_SYSTEM_UPDATE_PERMISSION);
+            return true;
         case ManagedEvent::STARTUP_GUIDE_COMPLETED:
-            return CreateCommonEventAdapter(manager, groupId,
+            out = CreateCommonEventAdapter(manager, groupId,
                 EDM_OOBE_FINISHED_EVENT, EDM_OOBE_FINISHED_PERMISSION);
+            return true;
         case ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE:
-            return std::make_shared<NullEventAdapter>();
+            out = std::make_shared<NullEventAdapter>();
+            return true;
+        case ManagedEvent::USB_DEVICE_ADDED:
+#ifdef USB_SERVICE_EDM_ENABLE
+            out = std::make_shared<UsbDeviceControlEventAdapter>(manager);
+#else
+            out = std::make_shared<NullEventAdapter>();
+#endif
+            return true;
         case ManagedEvent::PASSWORD_FAILED:
 #ifdef USERIAM_EDM_ENABLE
-            return std::make_shared<UserAuthEventAdapter>(manager);
+            out = std::make_shared<UserAuthEventAdapter>(manager);
 #else
             EDMLOGW("AdapterFactory::CreateAdapter PASSWORD_FAILED unsupported without useriam");
-            return nullptr;
+            out = nullptr;
 #endif
+            return true;
         default:
-            break;
+            return false;
     }
-
-    if (!eventName.empty()) {
-        return CreateCommonEventAdapter(manager, groupId, eventName, eventPermission);
-    }
-
-    EDMLOGE("AdapterFactory::CreateAdapter unknown groupId=%{public}u", groupId.code);
-    return nullptr;
 }
 
 std::shared_ptr<IEventSourceAdapter> AdapterFactory::CreateAppLifecycleAdapter(EventSubscriptionManager &manager)

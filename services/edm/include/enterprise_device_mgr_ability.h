@@ -87,6 +87,8 @@ public:
     ErrCode EnableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
     ErrCode DisableDeviceAdmin(const AppExecFwk::ElementName &admin) override;
     ErrCode GetEnterpriseManagedTips(std::string &tips) override;
+    ErrCode SetEnterpriseDisplayInfo(const std::string &displayInfo) override;
+    ErrCode GetEnterpriseDisplayInfo(std::string &displayInfo) override;
     ErrCode EnableSelfDeviceAdmin(const AppExecFwk::ElementName &admin, const std::string &credential) override;
     ErrCode EnableAdmin(const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType,
         int32_t userId, bool enableSelf, EnableSource enableSource = EnableSource::DEPLOY) override;
@@ -124,6 +126,8 @@ private:
     void NotifyAdminEnabled(bool isEnabled);
     void HandleEdmEnabled();
     void CheckAndUpdateByodSettingsData();
+    ErrCode CheckEnterpriseDisplayInfoCaller(uint32_t interfaceCode);
+    void ClearEnterpriseDisplayInfo();
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);

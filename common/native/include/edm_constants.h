@@ -89,6 +89,14 @@ namespace EdmConstants {
     const char* const ENTERPRISE_MANAGED_TIPS_ON_SETTINGS = "enterpriseManagedTipsOnSettings";
     const char* const MANAGED_TIPS_DISABLED_ON_SETTINGS = "persist.edm.show_settings_managed_tips_disabled";
 
+    const char* const ENTERPRISE_DISPLAY_INFO = "enterpriseDisplayInfo";
+    const char* const ENTERPRISE_DISPLAY_INFO_NAME = "enterpriseName";
+    const char* const ENTERPRISE_DISPLAY_INFO_DEFAULT = "default";
+    constexpr uint32_t MIN_ENTERPRISE_NAME_LENGTH = 1;
+    constexpr uint32_t MAX_ENTERPRISE_NAME_LENGTH = 30;
+    constexpr uint32_t MAX_ENTERPRISE_DISPLAY_LANGUAGE_COUNT = 5;
+    constexpr uint32_t MAX_ENTERPRISE_DISPLAY_INFO_LENGTH = 4096;
+
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
     const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";
@@ -126,6 +134,10 @@ namespace EdmConstants {
     
     // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
     const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
+
+    // USB 拦截管控使能 persist 参数（以需求/SDK 为准：true/false）
+    constexpr const char* PARAM_EDM_USB_INTERCEPT_ENABLE =
+        "persist.edm.usb.intercept_enable";
 
     namespace ApplicationManager {
         const char* const PARAM_EDM_KIOSK_ALLOW_NOTIFICATION_CENTER = "persist.edm.kiosk.allow_notification_center";
@@ -630,6 +642,9 @@ namespace PolicyName {
     const char* const POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE = "external_storage_intercept_enable";
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY = "external_storage_device_mount_policy";
     const char* const POLICY_EXTERNAL_STORAGE_DEVICE_INFOS = "external_storage_device_infos";
+    const char* const POLICY_USB_INTERCEPT_ENABLE = "usb_intercept_enable";
+    const char* const POLICY_USB_DEVICE_INFOS = "usb_device_infos";
+    const char* const POLICY_SET_USB_DEVICE_STATES = "set_usb_device_states";
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
     const char* const POLICY_VOLUME_DEGREE = "volume_degree";

@@ -480,6 +480,41 @@ ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseManagedTips(std::string &tips)
     return mgrService->GetEnterpriseManagedTips(tips);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::SetEnterpriseDisplayInfo(const std::string &displayInfo)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SetEnterpriseDisplayInfo");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return mgrService->SetEnterpriseDisplayInfo(displayInfo);
+}
+
+ErrCode EnterpriseDeviceMgrProxy::GetEnterpriseDisplayInfo(std::string &displayInfo)
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::GetEnterpriseDisplayInfo");
+    if (!IsEdmEnabled()) {
+        displayInfo = "";
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return mgrService->GetEnterpriseDisplayInfo(displayInfo);
+}
+
 ErrCode EnterpriseDeviceMgrProxy::SetDelegatedPolicies(
     AppExecFwk::ElementName &parentAdmin, std::string &bundleName, std::vector<std::string> &policies)
 {

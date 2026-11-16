@@ -135,6 +135,13 @@ ErrCode UsbPolicyUtils::GetUsbSerialNumber(int32_t busNum, int32_t devAddress, s
     return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
 }
 
+bool UsbPolicyUtils::IsUsbInterceptEnabled()
+{
+    std::string usbInterceptEnable;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_USB_INTERCEPT_ENABLE, usbInterceptEnable);
+    return usbInterceptEnable == "true";
+}
+
 #ifdef FEATURE_PC_ONLY
 ErrCode UsbPolicyUtils::IsUsbStorageDeviceWriteDisallowed(bool &isDisallowed)
 {

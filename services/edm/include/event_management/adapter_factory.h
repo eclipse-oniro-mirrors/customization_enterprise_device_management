@@ -39,6 +39,9 @@ public:
         EventId groupId, const std::string &eventName = "", const std::string &eventPermission = "");
 
 private:
+    static bool IsDefaultCommonEventGroup(EventId groupId);
+    static bool CreateManagedEventAdapter(EventSubscriptionManager &manager, EventId groupId,
+        std::shared_ptr<IEventSourceAdapter> &out);
     static std::shared_ptr<IEventSourceAdapter> CreateCommonEventAdapter(EventSubscriptionManager &manager,
         EventId groupId, const std::string &commonEvent, const std::string &publisherPermission);
     static std::shared_ptr<IEventSourceAdapter> CreateAppLifecycleAdapter(EventSubscriptionManager &manager);

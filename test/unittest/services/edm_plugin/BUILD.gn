@@ -347,6 +347,9 @@ ohos_unittest("EdmPluginTest") {
       "./src/utils/array_permissive_usb_device_type_serializer_test.cpp",
       "./src/utils/array_usb_device_id_serializer_test.cpp",
       "./src/utils/array_usb_device_type_serializer_base_test.cpp",
+      "./src/usb_intercept_enable_plugin_test.cpp",
+      "./src/get_usb_device_infos_plugin_test.cpp",
+      "./src/set_usb_device_states_plugin_test.cpp",
     ]
   }
 
@@ -1024,6 +1027,9 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/usb_manager/external_storage_intercept_enable_plugin.cpp",
       "../../../../services/edm_plugin/src/usb_manager/get_usb_serial_number_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/usb_intercept_enable_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/get_usb_device_infos_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/set_usb_device_states_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
       "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",
