@@ -57,6 +57,8 @@ void ConflictGroupRegistry::RegisterConflictGroupUsb()
     policyToGroup_[EdmInterfaceCode::DISALLOW_USB_SERIAL] = static_cast<int32_t>(ConflictGroupId::GROUP_USB);
     policyToGroup_[EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE] =
         static_cast<int32_t>(ConflictGroupId::GROUP_USB);
+    policyToGroup_[EdmInterfaceCode::USB_INTERCEPT_ENABLE] =
+        static_cast<int32_t>(ConflictGroupId::GROUP_USB);
 }
 
 void ConflictGroupRegistry::RegisterConflictGroupBluetooth()

@@ -235,6 +235,65 @@ int32_t UsbManagerProxy::IsExternalStorageInterceptEnable(MessageParcel &data, b
     return ERR_OK;
 }
 
+int32_t UsbManagerProxy::SetUsbInterceptEnable(MessageParcel &data)
+{
+    EDMLOGI("UsbManagerProxy::SetUsbInterceptEnable");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::USB_INTERCEPT_ENABLE);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t UsbManagerProxy::IsUsbInterceptEnable(MessageParcel &data, bool &result)
+{
+    EDMLOGI("UsbManagerProxy::IsUsbInterceptEnable");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::USB_INTERCEPT_ENABLE, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("UsbManagerProxy:IsUsbInterceptEnable fail. %{public}d", ret);
+        return ret;
+    }
+    reply.ReadBool(result);
+    return ERR_OK;
+}
+
+int32_t UsbManagerProxy::GetUsbDeviceInfos(MessageParcel &data, std::vector<UsbDeviceInfo> &result)
+{
+    EDMLOGI("UsbManagerProxy::GetUsbDeviceInfos");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::GET_USB_DEVICE_INFOS, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("UsbManagerProxy:GetUsbDeviceInfos fail. %{public}d", ret);
+        return ret;
+    }
+    uint32_t size = reply.ReadUint32();
+    EDMLOGI("UsbManagerProxy:GetUsbDeviceInfos return size:%{public}u", size);
+    if (size > EdmConstants::DEFAULT_LOOP_MAX_SIZE) {
+        EDMLOGE("UsbManagerProxy:GetUsbDeviceInfos size over limit");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    for (uint32_t i = 0; i < size; i++) {
+        UsbDeviceInfo info;
+        if (!UsbDeviceInfo::Unmarshalling(reply, info)) {
+            EDMLOGE("UsbManagerProxy:GetUsbDeviceInfos read parcel fail");
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
+        }
+        result.emplace_back(std::move(info));
+    }
+    return ERR_OK;
+}
+
+int32_t UsbManagerProxy::SetUsbDeviceStates(MessageParcel &data)
+{
+    EDMLOGI("UsbManagerProxy::SetUsbDeviceStates");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::SET_USB_DEVICE_STATES);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
+}
+
 int32_t UsbManagerProxy::SetExternalStorageDeviceMountPolicy(MessageParcel &data)
 {
     EDMLOGI("UsbManagerProxy::SetExternalStorageDeviceMountPolicy");

@@ -42,6 +42,13 @@
             "virtual thunk to OHOS::EDM::UsbDeviceId::~UsbDeviceId()";
             VTT?for?OHOS::EDM::UsbDeviceId;
             vtable?for?OHOS::EDM::UsbDeviceId;
+            OHOS::EDM::USBDeviceConfigInfo::*;
+            OHOS::EDM::USBInterfaceInfo::*;
+            OHOS::EDM::USBConfigurationInfo::*;
+            OHOS::EDM::UsbDeviceInfo::*;
+            "virtual thunk to OHOS::EDM::UsbDeviceInfo::~UsbDeviceInfo()";
+            VTT?for?OHOS::EDM::UsbDeviceInfo;
+            vtable?for?OHOS::EDM::UsbDeviceInfo;
             OHOS::EDM::OddBurnUsbDevice::*;
             "virtual thunk to OHOS::EDM::OddBurnUsbDevice::~OddBurnUsbDevice()";
             VTT?for?OHOS::EDM::OddBurnUsbDevice;

@@ -25,6 +25,7 @@
 #include "ienterprise_admin.h"
 #include "mock/enterprise_admin_stub_mock.h"
 #include "sms_receive_info.h"
+#include "usb_device_info.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -78,6 +79,8 @@ public:
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override { return true; }
 
     bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override { return true; }
+
+    bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) override { return true; }
 
     uint32_t lastCode_ = 0;
     int32_t lastAccountId_ = 0;

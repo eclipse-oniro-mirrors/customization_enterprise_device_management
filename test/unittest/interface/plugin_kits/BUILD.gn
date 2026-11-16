@@ -17,7 +17,10 @@ module_output_path = "enterprise_device_management/enterprise_device_management"
 
 config("module_private_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "./mock" ]
+  include_dirs = [
+    "./mock",
+    "../../../../interfaces/inner_api/usb_manager/include",
+  ]
 }
 
 ohos_unittest("EdmPluginKitsUnitTest") {
@@ -41,6 +44,7 @@ ohos_unittest("EdmPluginKitsUnitTest") {
     "../../../../interfaces/inner_api/common/src/external_storage_device_info.cpp",
     "../../../../interfaces/inner_api/common/src/sms_message_info.cpp",
     "../../../../interfaces/inner_api/common/src/sms_receive_info.cpp",
+    "../../../../interfaces/inner_api/usb_manager/src/usb_device_info.cpp",
   ]
 
   configs = [

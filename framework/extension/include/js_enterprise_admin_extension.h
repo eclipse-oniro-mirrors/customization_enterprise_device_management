@@ -25,6 +25,7 @@
 #include "key_code.h"
 #include "external_storage_device_info.h"
 #include "sms_receive_info.h"
+#include "usb_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -90,6 +91,8 @@ public:
 
     void OnSmsReceived(const SmsReceiveInfo &smsInfo);
 
+    void OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo);
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value* argv, size_t argc);
 
@@ -110,6 +113,12 @@ private:
     napi_value CreateExternalStorageDeviceInfoObject(napi_env env, const ExternalStorageDeviceInfo &deviceInfo);
 
     napi_value CreateSmsReceiveInfoObject(napi_env env, const SmsReceiveInfo &smsInfo);
+
+    napi_value CreateUsbInterfaceInfoObject(napi_env env, const USBInterfaceInfo &iface);
+
+    napi_value CreateUsbConfigurationInfoObject(napi_env env, const USBConfigurationInfo &config);
+
+    napi_value CreateUsbDeviceInfoObject(napi_env env, const UsbDeviceInfo &usbDeviceInfo);
 
     bool ParseKeyEventInfo(const std::string &jsonString, OHOS::EDM::KeyEvent &keyEventInfo);
 

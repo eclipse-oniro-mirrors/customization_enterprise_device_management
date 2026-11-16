@@ -20,6 +20,7 @@
 #include "external_storage_device_info.h"
 #include "odd_burn_usb_device.h"
 #include "usb_device_id.h"
+#include "usb_device_info.h"
 #ifdef USB_EDM_ENABLE
 #include "usb_interface_type.h"
 #endif
@@ -44,6 +45,10 @@ public:
     bool IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial);
     int32_t SetExternalStorageInterceptEnable(MessageParcel &data);
     int32_t IsExternalStorageInterceptEnable(MessageParcel &data, bool &result);
+    int32_t SetUsbInterceptEnable(MessageParcel &data);
+    int32_t IsUsbInterceptEnable(MessageParcel &data, bool &result);
+    int32_t GetUsbDeviceInfos(MessageParcel &data, std::vector<UsbDeviceInfo> &result);
+    int32_t SetUsbDeviceStates(MessageParcel &data);
     int32_t SetExternalStorageDeviceMountPolicy(MessageParcel &data);
     int32_t GetExternalStorageDeviceInfos(MessageParcel &data, std::vector<ExternalStorageDeviceInfo> &result);
 #ifdef USB_EDM_ENABLE
