@@ -39,6 +39,8 @@ public:
 private:
     ErrCode SetUsbStorageAccessPolicy(int32_t accessPolicy, int32_t userId);
     ErrCode HasConflictPolicy(int32_t accessPolicy, const std::string &allowUsbDevice, bool &hasConflict);
+    ErrCode CheckBasicUsbConflicts(int32_t accessPolicy, const std::string &allowUsbDevice, bool &hasConflict);
+    ErrCode CheckExternalAndStorageConflicts(bool &hasConflict);
     bool GetDisallowedUsbDeviceTypes(std::vector<USB::UsbDeviceType> &usbDeviceTypes);
     ErrCode DealDisablePolicy(std::vector<USB::UsbDeviceType> usbDeviceTypes);
     ErrCode DealReadPolicy(int32_t accessPolicy, const std::string &allowUsbDevice,

@@ -52,7 +52,7 @@ ErrCode OptimizationBatteryExclusionAppsPlugin::OnHandlePolicy(std::uint32_t fun
     std::vector<std::string> inputData;
     if (!ArrayStringSerializer::GetInstance()->GetPolicy(data, inputData)) {
         EDMLOGE("OnHandlePolicy: deserialize input data failed");
-        return EdmReturnErrCode::PARAM_ERROR;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     std::vector<std::string> currentData;
     std::vector<std::string> mergeData;

@@ -676,6 +676,10 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SECURITY), false, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::USB_INTERCEPT_ENABLE,
+        {PolicyName::POLICY_USB_INTERCEPT_ENABLE, PolicyDataType::BOOL,
+        PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
+        IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, {PolicyName::POLICY_DISALLOW_POWER_SAVING_MODE,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
 #ifdef POWER_MANAGER_EDM_ENABLE

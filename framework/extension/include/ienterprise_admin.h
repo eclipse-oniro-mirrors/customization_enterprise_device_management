@@ -23,6 +23,7 @@
 #include "policy_changed_event.h"
 #include "external_storage_device_info.h"
 #include "sms_receive_info.h"
+#include "usb_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -155,6 +156,13 @@ public:
     virtual bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) = 0;
 
     /**
+     * @brief USB 设备插入（动态管控）事件。
+     * @param usbDeviceInfo USB 设备信息（含 serial 等）。
+     * @return 处理成功返回true，失败返回false。
+     */
+    virtual bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) = 0;
+
+    /**
      * @brief IPC命令码枚举，定义了所有事件通知的命令码。
      */
     enum {
@@ -205,7 +213,9 @@ public:
         /** 密码认证失败事件 */
         COMMAND_ON_PASSWORD_FAILED = 23,
         /** 短信接收事件 */
-        COMMAND_ON_SMS_RECEIVED = 24
+        COMMAND_ON_SMS_RECEIVED = 24,
+        /** USB 设备插入（动态管控）事件 */
+        COMMAND_ON_USB_DEVICE_ADDED = 25
     };
 };
 } // namespace EDM
