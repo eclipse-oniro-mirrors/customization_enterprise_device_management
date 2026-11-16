@@ -182,7 +182,7 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyOverLimit, TestSize.Lev
     data.WriteStringVector(numbers);
 
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::ERR_INVALID_VALUE);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
 } // namespace TEST
