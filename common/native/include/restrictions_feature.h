@@ -102,6 +102,7 @@ enum class RestrictionsFeatureForAccount : int32_t {
     APP_LOCK = 16,
     SCREEN_SHOT = 17,
     SCREEN_RECORD = 18,
+    CAMERA = 19,
 };
 
 enum class UserRestrictionForDevice : int32_t {

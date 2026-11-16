@@ -300,10 +300,6 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST, EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREENSHOT,
-        EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT},
-    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREEN_RECORD,
-        EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
@@ -398,6 +394,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
         EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::COLLABORATION_REMOTE_SHARE),
         EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::CAMERA), EdmInterfaceCode::DISALLOWED_CAMERA_FOR_ACCOUNT},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::FREE_WINDOW), EdmInterfaceCode::DISALLOWED_FREE_WINDOW},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE),
         EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE},
@@ -1645,6 +1642,7 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
         {"SYSTEM_SHARING_PANEL", static_cast<uint32_t>(RestrictionsFeatureForAccount::SYSTEM_SHARING_PANEL)},
         {"COLLABORATION_REMOTE_SHARE",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::COLLABORATION_REMOTE_SHARE)},
+        {"CAMERA", static_cast<uint32_t>(RestrictionsFeatureForAccount::CAMERA)},
         {"FREE_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::FREE_WINDOW)},
         {"INSTALL_DEVICE_CERTIFICATE",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE)},

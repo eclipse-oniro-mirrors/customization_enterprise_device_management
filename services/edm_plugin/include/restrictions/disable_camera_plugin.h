@@ -24,6 +24,10 @@ class DisableCameraPlugin : public BasicBoolPlugin  {
 public:
     DisableCameraPlugin();
 
+    // 按检视意见以 CheckConflictPolicy 承载冲突检测入口；新版验收标准（camera.txt）
+    // 取消 9200010，设备级/用户级从严由策略合并层静默保证
+    ErrCode CheckConflictPolicy(int32_t userId) override;
+
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
 };
