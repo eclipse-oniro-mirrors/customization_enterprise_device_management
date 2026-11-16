@@ -60,7 +60,7 @@ constexpr std::array<std::string_view, 48> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
     "hotspot",
     "toggle_screenshot",
     "toggle_screen_recorder",
-    "HuaweiCastToggle",
+    "wireless_cast",
     "location",
     "music_service",
     "nfc",
