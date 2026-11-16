@@ -84,7 +84,11 @@ ErrCode ControlPanelQuickToggleListPlugin::OnGetPolicy(std::string &policyData, 
     std::string toggleData;
     std::vector<std::string> result;
     ErrCode ret = EdmDataAbilityUtils::GetStringFromSettingsDataShare(baseUri, QUICK_TOGGLE_LIST_KEY, toggleData);
-    if (SUCCEEDED(ret) && !toggleData.empty()) {
+    if (FAILED(ret)) {
+        EDMLOGE("ControlPanelQuickToggleListPlugin GetStringFromSettingsDataShare failed ret=%{public}d", ret);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    if (!toggleData.empty()) {
         result = EdmUtils::SplitString(toggleData, ",");
     }
     reply.WriteInt32(ERR_OK);

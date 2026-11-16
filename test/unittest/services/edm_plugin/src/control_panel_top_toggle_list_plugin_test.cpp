@@ -156,11 +156,11 @@ HWTEST_F(ControlPanelTopToggleListPluginTest, OnBasicSetPolicy_UpdateSettingsDat
 }
 
 /**
- * @tc.name: OnGetPolicy_DataShareFail_ReturnEmpty
- * @tc.desc: Test query returns empty list when settingsdata read fails.
+ * @tc.name: OnGetPolicy_DataShareFail_ReturnError
+ * @tc.desc: Test query returns execute error when settingsdata read fails.
  * @tc.type: FUNC
  */
-HWTEST_F(ControlPanelTopToggleListPluginTest, OnGetPolicy_DataShareFail_ReturnEmpty, TestSize.Level1)
+HWTEST_F(ControlPanelTopToggleListPluginTest, OnGetPolicy_DataShareFail_ReturnError, TestSize.Level1)
 {
     auto plugin = std::make_shared<ControlPanelTopToggleListPlugin>();
     std::string policyData;
@@ -169,11 +169,7 @@ HWTEST_F(ControlPanelTopToggleListPluginTest, OnGetPolicy_DataShareFail_ReturnEm
     EdmDataAbilityUtils::SetResult("test Failed");
 
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
-    EXPECT_EQ(reply.ReadInt32(), ERR_OK);
-    std::vector<std::string> result;
-    reply.ReadStringVector(&result);
-    EXPECT_TRUE(result.empty());
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 /**

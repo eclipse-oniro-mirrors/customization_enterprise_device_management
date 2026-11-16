@@ -617,6 +617,15 @@ HWTEST_F(PolicyQueryConfigTableTest, TestInvalidCode, TestSize.Level1)
     ASSERT_EQ(entry, nullptr);
 }
 
+HWTEST_F(PolicyQueryConfigTableTest, TestControlPanelRestrictedHasNoQueryEntry, TestSize.Level1)
+{
+    // CONTROL_PANEL_RESTRICTED must fall back to the plugin OnGetPolicy so that
+    // the device-level persist value is used instead of a per-admin policy value.
+    const PolicyQueryConfigEntry* entry =
+        PolicyQueryConfigTable::FindConfig(EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+    ASSERT_EQ(entry, nullptr);
+}
+
 HWTEST_F(PolicyQueryConfigTableTest, TestInstallDeviceCertificateConfigEntry, TestSize.Level1)
 {
     const PolicyQueryConfigEntry* entry =

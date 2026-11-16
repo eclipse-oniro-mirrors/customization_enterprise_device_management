@@ -29,6 +29,9 @@ public:
         int32_t userId) override;
     ErrCode OnAdminRemove(const std::string &adminName, const std::string &policyData,
         const std::string &mergeData, int32_t userId) override;
+
+private:
+    ErrCode GetRestrictedValue(bool &restricted);
 };
 } // namespace EDM
 } // namespace OHOS

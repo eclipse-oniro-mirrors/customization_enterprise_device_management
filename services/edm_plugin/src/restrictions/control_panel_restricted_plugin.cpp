@@ -64,12 +64,31 @@ ErrCode ControlPanelRestrictedPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
     return ERR_OK;
 }
 
+ErrCode ControlPanelRestrictedPlugin::GetRestrictedValue(bool &restricted)
+{
+    std::string value = system::GetParameter(persistParam_, "");
+    if (value == EdmConstants::CONST_TRUE) {
+        restricted = true;
+        return ERR_OK;
+    }
+    if (value == EdmConstants::CONST_FALSE) {
+        restricted = false;
+        return ERR_OK;
+    }
+    EDMLOGE("ControlPanelRestrictedPlugin get persist param invalid: %{public}s", value.c_str());
+    return EdmReturnErrCode::EXECUTE_TIME_OUT;
+}
+
 ErrCode ControlPanelRestrictedPlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
     // Device-level flag: always return the effective persist value so that an
     // admin who has never set this policy also sees the current device state.
-    bool restricted = system::GetParameter(persistParam_, EdmConstants::CONST_FALSE) == EdmConstants::CONST_TRUE;
+    bool restricted = false;
+    ErrCode ret = GetRestrictedValue(restricted);
+    if (FAILED(ret)) {
+        return ret;
+    }
     reply.WriteInt32(ERR_OK);
     reply.WriteBool(restricted);
     return ERR_OK;

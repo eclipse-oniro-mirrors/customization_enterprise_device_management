@@ -6755,6 +6755,46 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_UserNotExist, Te
 }
 
 /**
+ * @tc.name: TestGetDevicePolicyNew_ControlPanelQuickToggleUserNotExist
+ * @tc.desc: Test control panel quick toggle query rejects a non-existent account.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_ControlPanelQuickToggleUserNotExist,
+    TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET,
+        EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0); // queryPolicy = SELF
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::UID_INVALID);
+}
+
+/**
+ * @tc.name: TestGetDevicePolicyNew_ControlPanelTopToggleUserNotExist
+ * @tc.desc: Test control panel top toggle query rejects a non-existent account.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_ControlPanelTopToggleUserNotExist,
+    TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillOnce(DoAll(SetArgReferee<1>(false), Return(ERR_OK)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::GET,
+        EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST);
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(0); // queryPolicy = SELF
+    ErrCode res = edmMgr_->GetDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::UID_INVALID);
+}
+
+/**
  * @tc.name: TestGetDevicePolicyNew_QueryPolicyAll
  * @tc.desc: Test GetDevicePolicyNew with queryPolicy = ALL (bundleName empty).
  * @tc.type: FUNC

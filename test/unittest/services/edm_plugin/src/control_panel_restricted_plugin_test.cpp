@@ -216,6 +216,23 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_PersistFalse_ReturnFalse,
 }
 
 /**
+ * @tc.name: OnGetPolicy_InvalidPersistValue_ReturnError
+ * @tc.desc: Test query returns execute error when the persist value is invalid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_InvalidPersistValue_ReturnError, TestSize.Level1)
+{
+    auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
+    std::string policyData;
+    MessageParcel data;
+    MessageParcel reply;
+    system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "invalid");
+
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
  * @tc.name: OnAdminRemove_LastHolder_ClearPersist
  * @tc.desc: Test admin removal clears persist when no other configured admin holds true.
  * @tc.type: FUNC

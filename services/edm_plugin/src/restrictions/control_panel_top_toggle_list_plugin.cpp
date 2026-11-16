@@ -84,7 +84,11 @@ ErrCode ControlPanelTopToggleListPlugin::OnGetPolicy(std::string &policyData, Me
     std::string toggleData;
     std::vector<std::string> result;
     ErrCode ret = EdmDataAbilityUtils::GetStringFromSettingsDataShare(baseUri, TOP_TOGGLE_LIST_KEY, toggleData);
-    if (SUCCEEDED(ret) && !toggleData.empty()) {
+    if (FAILED(ret)) {
+        EDMLOGE("ControlPanelTopToggleListPlugin GetStringFromSettingsDataShare failed ret=%{public}d", ret);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    if (!toggleData.empty()) {
         result = EdmUtils::SplitString(toggleData, ",");
     }
     reply.WriteInt32(ERR_OK);
