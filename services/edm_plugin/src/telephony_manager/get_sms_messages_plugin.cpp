@@ -123,9 +123,9 @@ ErrCode GetSmsMessagesPlugin::QuerySmsMessages(int64_t startTime, int64_t endTim
     int64_t startTimeMs = startTime * MILLISECONDS_PER_SECOND;
     int64_t endTimeMs = endTime * MILLISECONDS_PER_SECOND;
     EDMLOGI("GetSmsMessagesPlugin QuerySmsMessages startTime=%{public}lld(ms=%{public}lld) "
-        "endTime=%{public}lld(ms=%{public}lld) telephoneNumber=%{public}s",
+        "endTime=%{public}lld(ms=%{public}lld)",
         static_cast<long long>(startTime), static_cast<long long>(startTimeMs),
-        static_cast<long long>(endTime), static_cast<long long>(endTimeMs), telephoneNumber.c_str());
+        static_cast<long long>(endTime), static_cast<long long>(endTimeMs));
     std::vector<SmsQueryResult> results;
     EDMLOGI("GetSmsMessagesPlugin::QuerySmsMessages GetSmsMessages start");
     ErrCode ret = EdmDataAbilityUtils::GetSmsMessages(startTimeMs, endTimeMs, telephoneNumber, results);

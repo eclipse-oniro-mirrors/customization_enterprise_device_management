@@ -17,6 +17,8 @@
 
 namespace OHOS {
 namespace EDM {
+constexpr int32_t MAX_FD_COUNT = 200;
+
 bool InstallParamSerializer::Deserialize(const std::string &jsonString, InstallParam &config)
 {
     return true;
@@ -31,6 +33,10 @@ bool InstallParamSerializer::GetPolicy(MessageParcel &data, InstallParam &result
 {
     data.ReadStringVector(&result.hapFilePaths);
     int32_t fdCount = data.ReadInt32();
+    if (fdCount < 0 || fdCount > MAX_FD_COUNT) {
+        EDMLOGE("fdCount invalid: %{public}d", fdCount);
+        return false;
+    }
     for (int32_t i = 0; i < fdCount; ++i) {
         result.hapFds.emplace_back(data.ReadFileDescriptor());
     }
