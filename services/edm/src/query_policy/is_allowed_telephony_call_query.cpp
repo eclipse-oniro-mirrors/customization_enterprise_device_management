@@ -56,7 +56,7 @@ ErrCode IsAllowedTelephonyCallQuery::QueryPolicy(std::string &policyData, Messag
     std::map<std::string, TelephonyCallPolicyType> policies;
     if (!serializer->Deserialize(policyData, policies)) {
         EDMLOGE("IsAllowedTelephonyCallQuery::QueryPolicy Deserialize failed");
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     bool isAllowed = true;
     auto iter = policies.find(callType);
