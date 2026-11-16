@@ -156,7 +156,7 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyTrustBlockConflict, Tes
 
 /**
  * @tc.name: TestAddCallPolicyOverLimit
- * @tc.desc: Adding more than 10000 numbers returns POLICY_LIST_OVER_SIZE.
+ * @tc.desc: Adding more than 10000 numbers returns ERR_INVALID_VALUE.
  * @tc.type: FUNC
  */
 HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyOverLimit, TestSize.Level1)
@@ -182,7 +182,7 @@ HWTEST_F(TelephonyCallPolicyPluginTest, TestAddCallPolicyOverLimit, TestSize.Lev
     data.WriteStringVector(numbers);
 
     ErrCode ret = plugin->OnHandlePolicy(code, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_TRUE(ret == EdmReturnErrCode::POLICY_LIST_OVER_SIZE);
+    ASSERT_TRUE(ret == EdmReturnErrCode::ERR_INVALID_VALUE);
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
 } // namespace TEST
