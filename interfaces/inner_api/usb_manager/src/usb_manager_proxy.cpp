@@ -182,8 +182,8 @@ int32_t UsbManagerProxy::GetAllowedOddBurnUsbDevices(MessageParcel &data, Messag
 
 bool UsbManagerProxy::IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial)
 {
-    EDMLOGI("UsbManagerProxy::IsAllowedOddBurn userId=%{public}d, vendorId=%{public}d, productId=%{public}d, "
-        "serial=%{public}s", userId, vendorId, productId, serial.c_str());
+    EDMLOGI("UsbManagerProxy::IsAllowedOddBurn userId=%{public}d, vendorId=%{public}d, productId=%{public}d",
+        userId, vendorId, productId);
     auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
     if (proxy == nullptr) {
         EDMLOGE("can not get EnterpriseDeviceMgrProxy");

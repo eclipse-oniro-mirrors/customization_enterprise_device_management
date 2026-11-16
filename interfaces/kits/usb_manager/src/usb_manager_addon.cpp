@@ -827,8 +827,7 @@ bool UsbManagerAddon::GetOddBurnUsbDeviceFromNAPI(napi_env env, napi_value value
     usbDevice.SetVendorId(vendorId);
     usbDevice.SetProductId(productId);
     usbDevice.SetSerial(serial);
-    EDMLOGI("GetOddBurnUsbDeviceFromNAPI vendorId: %{public}d, productId: %{public}d, serial: %{public}s",
-        vendorId, productId, serial.c_str());
+    EDMLOGI("GetOddBurnUsbDeviceFromNAPI vendorId: %{public}d, productId: %{public}d", vendorId, productId);
     return true;
 }
 
