@@ -1360,12 +1360,12 @@ napi_value ApplicationManagerAddon::GetApplicationIconData(napi_env env, napi_ca
         env, ParseString(env, bundleName, argv[ARR_INDEX_ZERO]), "bundleName parse error.",
         ErrcodeType::NUMBER);
 
-    // GET_APPLICATION_ICON_DATA does not bind a specific admin, so QueryPolicy::ALL is required
-    // to pass the admin-null permission check of the new interface.
+    // This API must be invoked by an activated administrator application. QueryPolicy::SELF lets
+    // the service resolve the caller bundle by calling uid and verify the caller admin identity.
     MessageParcel parcelData;
     parcelData.WriteInterfaceToken(DESCRIPTOR);
     parcelData.WriteInt32(EdmConstants::DEFAULT_USER_ID);
-    parcelData.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
+    parcelData.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
     parcelData.WriteString(bundleName);
 
     auto applicationManagerProxy = ApplicationManagerProxy::GetApplicationManagerProxy();
