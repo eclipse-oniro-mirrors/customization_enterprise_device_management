@@ -127,6 +127,7 @@ HWTEST_F(ControlPanelQuickToggleListPluginTest, OnBasicSetPolicy_OverMax_Fail, T
 {
     ControlPanelQuickToggleListPlugin plugin;
     plugin.maxListSize_ = TEST_MAX_LIST_SIZE;
+    plugin.overMaxReturnErrCode_ = EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     std::vector<std::string> data(TEST_MAX_LIST_SIZE + 1, "icon");
     std::vector<std::string> currentData = TEST_OLD_TOGGLE_LIST;
     std::vector<std::string> mergeData = TEST_OLD_TOGGLE_LIST;
