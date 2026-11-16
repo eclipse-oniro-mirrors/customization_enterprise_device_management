@@ -88,6 +88,14 @@ namespace EdmConstants {
     const char* const ENTERPRISE_MANAGED_TIPS_ON_SETTINGS = "enterpriseManagedTipsOnSettings";
     const char* const MANAGED_TIPS_DISABLED_ON_SETTINGS = "persist.edm.show_settings_managed_tips_disabled";
 
+    const char* const ENTERPRISE_DISPLAY_INFO = "enterpriseDisplayInfo";
+    const char* const ENTERPRISE_DISPLAY_INFO_NAME = "enterpriseName";
+    const char* const ENTERPRISE_DISPLAY_INFO_DEFAULT = "default";
+    constexpr uint32_t MIN_ENTERPRISE_NAME_LENGTH = 1;
+    constexpr uint32_t MAX_ENTERPRISE_NAME_LENGTH = 30;
+    constexpr uint32_t MAX_ENTERPRISE_DISPLAY_LANGUAGE_COUNT = 5;
+    constexpr uint32_t MAX_ENTERPRISE_DISPLAY_INFO_LENGTH = 4096;
+
     const char* const DEVICE_MANAGEMENT_TEXT = "DeviceManagement";
     const char* const MANAGEMENT_NOTIFICATION_TIPS = "management_notification_tips";
     const char* const REMOVED_MANAGEMENT_NOTIFICATION_TIPS = "removed_management_notification_tips";

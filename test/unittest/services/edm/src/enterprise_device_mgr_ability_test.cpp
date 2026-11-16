@@ -4762,6 +4762,252 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetEnterpriseManagedTipsermissionGr
     ASSERT_EQ(ret, ERR_OK);
 }
 
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoWithoutAdmin
+ * @tc.desc: Test SetEnterpriseDisplayInfo and GetEnterpriseDisplayInfo without active admin.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoWithoutAdmin, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName)
+        .WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME_NOT_ACTIVE)));
+    std::string displayInfo = R"({"default":"zh-Hans","zh-Hans":"示例企业"})";
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(displayInfo);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    std::string result;
+    ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoPermissionDenied
+ * @tc.desc: Test SetEnterpriseDisplayInfo without the enterprise manage settings permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoPermissionDenied, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(admin.GetBundleName())));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    std::string displayInfo = R"({"default":"zh-Hans","zh-Hans":"示例企业"})";
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(displayInfo);
+    EXPECT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
+    std::string result;
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillOnce(DoAll(Return(false)));
+    ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoParamError
+ * @tc.desc: Test SetEnterpriseDisplayInfo with invalid display info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoParamError, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(admin.GetBundleName())));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    // The default language is mandatory.
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(R"({"zh-Hans":"示例企业"})");
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ret = edmMgr_->SetEnterpriseDisplayInfo("invalid json");
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    ret = edmMgr_->SetEnterpriseDisplayInfo(R"({"default":"en","zh-Hans":1})");
+    EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoSuccess
+ * @tc.desc: Test SetEnterpriseDisplayInfo and GetEnterpriseDisplayInfo success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoSuccess, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(admin.GetBundleName())));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(admin.GetBundleName()),
+        Return(ERR_OK)));
+    std::string displayInfo = R"({"default":"zh-Hans","zh-Hans":"示例企业","en":"ExampleCorp"})";
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(displayInfo);
+    EXPECT_EQ(ret, ERR_OK);
+    std::string result;
+    ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_FALSE(result.empty());
+    // Empty display info means restoring the HEM configuration.
+    ret = edmMgr_->SetEnterpriseDisplayInfo("");
+    EXPECT_EQ(ret, ERR_OK);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestRemoveAdminAndAdminPolicyClearDisplayInfo
+ * @tc.desc: Test RemoveAdminAndAdminPolicy clears the enterprise display info when no super admin remains.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestRemoveAdminAndAdminPolicyClearDisplayInfo, TestSize.Level1)
+{
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EdmDataAbilityUtils::ResetLastUpdated();
+    EXPECT_TRUE(SUCCEEDED(edmMgr_->RemoveAdminAndAdminPolicy(admin.GetBundleName(), DEFAULT_USER_ID,
+        AdminType::ENT)));
+    // No super admin remains, so the stored display info must be cleared.
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedKey(), EdmConstants::ENTERPRISE_DISPLAY_INFO);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedValue(), "");
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoBundleNameEmpty
+ * @tc.desc: Test SetEnterpriseDisplayInfo and GetEnterpriseDisplayInfo return ADMIN_INACTIVE when the calling
+ *           bundle name cannot be resolved.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoBundleNameEmpty, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return("")));
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    std::string result;
+    ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoUserIdInvalid
+ * @tc.desc: Test SetEnterpriseDisplayInfo and GetEnterpriseDisplayInfo return ADMIN_INACTIVE when the current
+ *           user id cannot be obtained.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoUserIdInvalid, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(ADMIN_PACKAGENAME)));
+    std::vector<int32_t> emptyIds;
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds)
+        .WillRepeatedly(DoAll(SetArgReferee<0>(emptyIds), Return(ERR_OK)));
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    std::string result;
+    ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoByodPermissionDenied
+ * @tc.desc: Test SetEnterpriseDisplayInfo and GetEnterpriseDisplayInfo return ADMIN_EDM_PERMISSION_DENIED for a
+ *           byod admin that is not allowed to call the interface code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoByodPermissionDenied, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::BYOD, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(admin.GetBundleName())));
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+    std::string result;
+    ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED);
+    DisableAdminSuc(admin, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoUpdateFailed
+ * @tc.desc: Test SetEnterpriseDisplayInfo returns EXECUTE_TIME_OUT when updating settings data fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestSetEnterpriseDisplayInfoUpdateFailed, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(admin.GetBundleName())));
+    EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
+    ErrCode ret = edmMgr_->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EdmDataAbilityUtils::SetResult("");
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestGetEnterpriseDisplayInfoReadFailed
+ * @tc.desc: Test GetEnterpriseDisplayInfo returns EXECUTE_TIME_OUT when reading settings data fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetEnterpriseDisplayInfoReadFailed, TestSize.Level1)
+{
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    admin.SetAbilityName(ADMIN_PACKAGENAME_ABILITY);
+    EnableAdminSuc(admin, AdminType::ENT, DEFAULT_USER_ID);
+    EXPECT_CALL(*accessTokenMgrMock_, GetHapTokenBundleName).WillRepeatedly(DoAll(Return(admin.GetBundleName())));
+    EdmDataAbilityUtils::SetResult("test Failed");
+    std::string result;
+    ErrCode ret = edmMgr_->GetEnterpriseDisplayInfo(result);
+    EdmDataAbilityUtils::SetResult("");
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    DisableSuperAdminSuc(admin.GetBundleName());
+}
+
+/**
+ * @tc.name: TestClearEnterpriseDisplayInfo
+ * @tc.desc: Test ClearEnterpriseDisplayInfo does not crash on both success and failure of updating settings data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestClearEnterpriseDisplayInfo, TestSize.Level1)
+{
+    // Success path: update settings data returns ERR_OK and clears the stored display info.
+    EdmDataAbilityUtils::ResetLastUpdated();
+    edmMgr_->ClearEnterpriseDisplayInfo();
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedKey(), EdmConstants::ENTERPRISE_DISPLAY_INFO);
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedValue(), "");
+    // Failure path: update settings data returns an error, the key must not be recorded as cleared.
+    EdmDataAbilityUtils::ResetLastUpdated();
+    EdmDataAbilityUtils::SetResult("SYSTEM_ABNORMALLY");
+    edmMgr_->ClearEnterpriseDisplayInfo();
+    EdmDataAbilityUtils::SetResult("");
+    EXPECT_EQ(EdmDataAbilityUtils::GetLastUpdatedKey(), "");
+}
+
 #ifdef FEATURE_PC_ONLY
 /**
  * @tc.name: TestEnableDeviceAdminAndDisableDeviceAdminSuccess
