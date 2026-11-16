@@ -54,7 +54,7 @@ constexpr std::array<std::string_view, 48> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
     "ring_mode",
     "auto_rotate",
     "toggle_scanner",
-    "huawei_share",
+    "harmony_share",
     "air_plane",
     "mobile_data",
     "hotspot",
