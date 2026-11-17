@@ -402,6 +402,7 @@ ErrCode BundleManagerProxy::InnerGetVectorFromParcelIntelligent(MessageParcel &r
     MessageParcel tempParcel;
     if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
         EDMLOGE("Fail to ParseFrom");
+        free(buffer);
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
 

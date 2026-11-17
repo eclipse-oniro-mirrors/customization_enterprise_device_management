@@ -718,7 +718,7 @@ bool WifiManagerAddon::ProcessEapPeapConfig(napi_env env, napi_value object, Wif
             return false;
         }
         memset_s(ret.data(), ret.size(), '\0', ret.size());
-        pwd.preSharedKeySize = ret.size();
+        pwd.passwordSize = ret.size();
     }
     MessageParcelUtils::ProcessPhase2Method(phase2, eapConfig);
     return true;
