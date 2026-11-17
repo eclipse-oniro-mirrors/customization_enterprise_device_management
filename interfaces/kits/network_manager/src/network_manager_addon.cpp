@@ -2006,9 +2006,6 @@ napi_value NetworkManagerAddon::ConvertSharedPathListToJS(
             NAPI_CALL(env, napi_set_element(env, userArray, j, u));
         }
         NAPI_CALL(env, napi_set_named_property(env, entry, "userPathInfoList", userArray));
-        napi_value shareLimitNapi = nullptr;
-        NAPI_CALL(env, napi_create_int32(env, result[i].shareLimit, &shareLimitNapi));
-        NAPI_CALL(env, napi_set_named_property(env, entry, "shareLimit", shareLimitNapi));
         NAPI_CALL(env, napi_set_element(env, jsList, i, entry));
     }
     return jsList;

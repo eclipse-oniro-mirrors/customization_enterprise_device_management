@@ -52,7 +52,6 @@ const int32_t PROTOCOL = 2;
 const int32_t TEST_BUNDLE_SIZE = 3;
 const int32_t TEST_APP_SIZE = 1024;
 const int32_t TEST_DATA_SIZE = 2048;
-const int32_t TEST_SHARE_LIMIT = 5;
 const int64_t TEST_PATCH_INSTALL_TIME = 1710000000000;
 const int64_t TEST_TIMER = 1722470500;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
@@ -985,7 +984,6 @@ int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicy(uint32
     PathSharedData sharedData;
     sharedData.shareName = "share_test";
     sharedData.shareUri = "file:///data/service/share_test";
-    sharedData.shareLimit = TEST_SHARE_LIMIT;
     UserPathInfo user1;
     user1.userName = "user1";
     user1.userPermission = "readonly";
@@ -1072,7 +1070,6 @@ int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicyMaxCoun
         PathSharedData sharedData;
         sharedData.shareName = "s" + std::to_string(i);
         sharedData.shareUri = "u" + std::to_string(i);
-        sharedData.shareLimit = TEST_SHARE_LIMIT;
         sharedData.Marshalling(reply);
     }
     return 0;

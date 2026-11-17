@@ -692,6 +692,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         {PolicyName::POLICY_USB_INTERCEPT_ENABLE, PolicyDataType::BOOL,
         PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
         IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK, {PolicyName::POLICY_DISALLOW_MULTI_WINDOW_DOCK,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

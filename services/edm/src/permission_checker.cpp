@@ -108,6 +108,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_RS232,
     EdmInterfaceCode::DISALLOW_X_KEY,
     EdmInterfaceCode::DISALLOW_RECENT_TASKS,
+    EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK,
     EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
     EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
     EdmInterfaceCode::DISABLE_SATA_ODD_BURN,
