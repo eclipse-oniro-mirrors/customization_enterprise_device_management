@@ -33,6 +33,7 @@ group("fuzztest") {
     "allowedwifilistplugin_fuzzer:AllowedWifiListPluginFuzzTest",
     "bundleinstallplugin_fuzzer:BundleInstallPluginFuzzTest",
     "clearupapplicationdataplugin_fuzzer:ClearUpApplicationDataPluginFuzzTest",
+    "controlpanelplugin_fuzzer:ControlPanelPluginFuzzTest",
     "disablednetworkinterfaceplugin_fuzzer:DisabledNetworkInterfacePluginFuzzTest",
     "disableusbplugin_fuzzer:DisableUsbPluginFuzzTest",
     "disallowaddosaccountbyuserplugin_fuzzer:DisallowAddOsAccountByUserPluginFuzzTest",
