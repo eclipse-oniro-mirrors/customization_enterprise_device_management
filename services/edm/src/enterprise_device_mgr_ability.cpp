@@ -1432,6 +1432,9 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
 #ifndef FEATURE_PC_ONLY
     SensitiveCallNotifyManager::GetInstance()->ClearByAdmin(adminName, userId);
 #endif
+    if (!AdminManager::GetInstance()->IsSuperAdminExist()) {
+        ClearEnterpriseDisplayInfo();
+    }
     return ERR_OK;
 }
 
@@ -2544,6 +2547,96 @@ ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseManagedTips(std::string &tips)
     }
     tips = LanguageManager::GetEnterpriseManagedTips();
     return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::CheckEnterpriseDisplayInfoCaller(uint32_t interfaceCode)
+{
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
+    if (callingBundleName.empty()) {
+        EDMLOGE("CheckEnterpriseDisplayInfoCaller get calling bundle name failed.");
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    int32_t userId = GetCurrentUserId();
+    if (userId < 0) {
+        EDMLOGE("CheckEnterpriseDisplayInfoCaller get current user id failed.");
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(callingBundleName, userId);
+    if (admin == nullptr) {
+        EDMLOGE("CheckEnterpriseDisplayInfoCaller %{public}s is not an active admin.", callingBundleName.c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    if (!admin->HasPermissionToCallServiceCode(interfaceCode)) {
+        EDMLOGE("CheckEnterpriseDisplayInfoCaller %{public}s is not allowed to call the interface.",
+            callingBundleName.c_str());
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS)) {
+        EDMLOGE("CheckEnterpriseDisplayInfoCaller %{public}s has no permission.", callingBundleName.c_str());
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::SetEnterpriseDisplayInfo(const std::string &displayInfo)
+{
+    EDMLOGD("EnterpriseDeviceMgrAbility::SetEnterpriseDisplayInfo");
+    ErrCode ret = ERR_OK;
+    {
+        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+        ret = CheckEnterpriseDisplayInfoCaller(
+            static_cast<uint32_t>(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO));
+    }
+    if (FAILED(ret)) {
+        return ret;
+    }
+    if (!displayInfo.empty()) {
+        ret = LanguageManager::ValidateEnterpriseDisplayInfo(displayInfo);
+        if (FAILED(ret)) {
+            EDMLOGE("EnterpriseDeviceMgrAbility::SetEnterpriseDisplayInfo validate failed.");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+    }
+    ret = EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_DISPLAY_INFO, displayInfo);
+    if (FAILED(ret)) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::SetEnterpriseDisplayInfo update settings data failed. %{public}d", ret);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    EDMLOGI("EnterpriseDeviceMgrAbility::SetEnterpriseDisplayInfo success, length %{public}zu", displayInfo.size());
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetEnterpriseDisplayInfo(std::string &displayInfo)
+{
+    EDMLOGD("EnterpriseDeviceMgrAbility::GetEnterpriseDisplayInfo");
+    ErrCode ret = ERR_OK;
+    {
+        std::shared_lock<std::shared_mutex> autoLock(adminLock_);
+        ret = CheckEnterpriseDisplayInfoCaller(
+            static_cast<uint32_t>(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO));
+    }
+    if (FAILED(ret)) {
+        return ret;
+    }
+    ret = EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmConstants::ENTERPRISE_DISPLAY_INFO, displayInfo);
+    if (FAILED(ret)) {
+        EDMLOGE("EnterpriseDeviceMgrAbility::GetEnterpriseDisplayInfo get settings data failed. %{public}d", ret);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
+
+void EnterpriseDeviceMgrAbility::ClearEnterpriseDisplayInfo()
+{
+    // The caller must hold adminLock_ before invoking this method.
+    ErrCode ret = EdmDataAbilityUtils::UpdateSettingsData(EdmConstants::ENTERPRISE_DISPLAY_INFO, "");
+    if (FAILED(ret)) {
+        EDMLOGE("ClearEnterpriseDisplayInfo failed. %{public}d", ret);
+        return;
+    }
+    EDMLOGI("ClearEnterpriseDisplayInfo success.");
 }
 
 bool EnterpriseDeviceMgrAbility::CheckDelegatedBundle(const std::string &bundleName, int32_t userId)

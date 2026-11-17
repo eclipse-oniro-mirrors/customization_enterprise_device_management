@@ -217,6 +217,92 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseManagedTipsDisabled, Tes
 }
 
 /**
+ * @tc.name: TestSetEnterpriseDisplayInfo
+ * @tc.desc: Test SetEnterpriseDisplayInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetEnterpriseDisplayInfo, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SetEnterpriseDisplayInfo(_)).Times(1).WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(errVal, ERR_OK);
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoWithEdmDisable
+ * @tc.desc: Test SetEnterpriseDisplayInfo func when edm is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetEnterpriseDisplayInfoWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    EXPECT_CALL(*object_, SetEnterpriseDisplayInfo(_)).Times(0);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseDisplayInfo(R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(errVal, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseDisplayInfo
+ * @tc.desc: Test GetEnterpriseDisplayInfo func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseDisplayInfo, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetEnterpriseDisplayInfo(_)).Times(1)
+        .WillOnce(Invoke([](std::string &displayInfo) {
+            displayInfo = "displayInfo";
+            return ERR_OK;
+        }));
+    std::string result;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(errVal, ERR_OK);
+    EXPECT_EQ(result, "displayInfo");
+}
+
+/**
+ * @tc.name: TestGetEnterpriseDisplayInfoWithEdmDisable
+ * @tc.desc: Test GetEnterpriseDisplayInfo func when edm is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseDisplayInfoWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    EXPECT_CALL(*object_, GetEnterpriseDisplayInfo(_)).Times(0);
+    std::string result;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(errVal, EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_EQ(result, "");
+}
+
+/**
+ * @tc.name: TestSetEnterpriseDisplayInfoIpcFail
+ * @tc.desc: Test SetEnterpriseDisplayInfo propagates the error code returned by the ipc call.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSetEnterpriseDisplayInfoIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SetEnterpriseDisplayInfo(_)).Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SetEnterpriseDisplayInfo(
+        R"({"default":"en","en":"ExampleCorp"})");
+    EXPECT_EQ(errVal, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseDisplayInfoIpcFail
+ * @tc.desc: Test GetEnterpriseDisplayInfo propagates the error code returned by the ipc call.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestGetEnterpriseDisplayInfoIpcFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, GetEnterpriseDisplayInfo(_)).Times(1)
+        .WillOnce(Return(EdmReturnErrCode::SYSTEM_ABNORMALLY));
+    std::string result;
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->GetEnterpriseDisplayInfo(result);
+    EXPECT_EQ(errVal, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
  * @tc.name: TestIsAdminEnabledFail
  * @tc.desc: Test IsAdminEnabled func.
  * @tc.type: FUNC
