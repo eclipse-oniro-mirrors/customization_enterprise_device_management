@@ -48,7 +48,8 @@ ErrCode UnlockPolicyPlugin::OnHandlePolicy(uint32_t funcCode, MessageParcel &dat
     EDMLOGI("UnlockPolicyPlugin OnHandlePolicy policy: %{public}d, accountId: %{public}d", policy, accountId);
     if (policy != static_cast<int32_t>(UnlockPolicyType::DEFAULT) &&
         policy != static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_ONLY) &&
-        policy != static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_REQUIRED)) {
+        policy != static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_REQUIRED) &&
+        policy != static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_OPTIONAL)) {
         EDMLOGE("UnlockPolicyPlugin invalid policy value: %{public}d", policy);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }

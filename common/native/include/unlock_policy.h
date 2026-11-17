@@ -22,6 +22,7 @@ enum class UnlockPolicyType : int32_t {
     DEFAULT = 0,
     EXTENDED_AUTH_ONLY = 1,
     EXTENDED_AUTH_REQUIRED = 2,
+    EXTENDED_AUTH_OPTIONAL = 3,
 };
 }
 }
