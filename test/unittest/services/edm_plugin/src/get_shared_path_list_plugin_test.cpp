@@ -17,6 +17,8 @@
 
 #include <gtest/gtest.h>
 
+#include <string>
+
 #include "edm_ipc_interface_code.h"
 #include "iplugin.h"
 #include "message_parcel.h"
@@ -116,7 +118,6 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataMarshalling, TestSize.Le
     PathSharedData data;
     data.shareName = "share_test";
     data.shareUri = "file:///data/service/share_test";
-    data.shareLimit = 5;
     UserPathInfo user1;
     user1.userName = "user1";
     user1.userPermission = "readonly";
@@ -131,7 +132,6 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataMarshalling, TestSize.Le
     PathSharedData result = PathSharedData::Unmarshalling(parcel);
     ASSERT_EQ(result.shareName, "share_test");
     ASSERT_EQ(result.shareUri, "file:///data/service/share_test");
-    ASSERT_EQ(result.shareLimit, 5);
     ASSERT_EQ(result.userPathInfoList.size(), 2u);
     ASSERT_EQ(result.userPathInfoList[0].userName, "user1");
     ASSERT_EQ(result.userPathInfoList[0].userPermission, "readonly");
@@ -144,7 +144,6 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataEmptyList, TestSize.Leve
     PathSharedData data;
     data.shareName = "empty_share";
     data.shareUri = "file:///data/empty";
-    data.shareLimit = 0;
 
     MessageParcel parcel;
     ASSERT_TRUE(data.Marshalling(parcel));
@@ -152,7 +151,6 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataEmptyList, TestSize.Leve
     PathSharedData result = PathSharedData::Unmarshalling(parcel);
     ASSERT_EQ(result.shareName, "empty_share");
     ASSERT_EQ(result.shareUri, "file:///data/empty");
-    ASSERT_EQ(result.shareLimit, 0);
     ASSERT_TRUE(result.userPathInfoList.empty());
 }
 
@@ -162,12 +160,16 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataOverLimit, TestSize.Leve
     parcel.WriteString("over_limit_share");
     parcel.WriteString("file:///data/overlimit");
     parcel.WriteUint32(SHARED_PATH_MAX_COUNT + 1);
-    parcel.WriteInt32(10);
+    for (uint32_t i = 0; i < SHARED_PATH_MAX_COUNT + 1; ++i) {
+        UserPathInfo user;
+        user.userName = "user" + std::to_string(i);
+        user.userPermission = "readonly";
+        ASSERT_TRUE(user.Marshalling(parcel));
+    }
 
     PathSharedData result = PathSharedData::Unmarshalling(parcel);
     ASSERT_EQ(result.shareName, "over_limit_share");
     ASSERT_EQ(result.shareUri, "file:///data/overlimit");
-    ASSERT_EQ(result.shareLimit, 0);
     ASSERT_TRUE(result.userPathInfoList.empty());
 }
 
@@ -204,7 +206,6 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataSingleElement, TestSize.
     PathSharedData data;
     data.shareName = "single_share";
     data.shareUri = "file:///data/single";
-    data.shareLimit = 1;
     UserPathInfo user;
     user.userName = "only_user";
     user.userPermission = "readonly";
@@ -216,36 +217,9 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataSingleElement, TestSize.
     PathSharedData result = PathSharedData::Unmarshalling(parcel);
     ASSERT_EQ(result.shareName, "single_share");
     ASSERT_EQ(result.shareUri, "file:///data/single");
-    ASSERT_EQ(result.shareLimit, 1);
     ASSERT_EQ(result.userPathInfoList.size(), 1u);
     ASSERT_EQ(result.userPathInfoList[0].userName, "only_user");
     ASSERT_EQ(result.userPathInfoList[0].userPermission, "readonly");
-}
-
-HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataDefaultShareLimit, TestSize.Level1)
-{
-    PathSharedData data;
-    ASSERT_EQ(data.shareLimit, 0);
-
-    MessageParcel parcel;
-    ASSERT_TRUE(data.Marshalling(parcel));
-
-    PathSharedData result = PathSharedData::Unmarshalling(parcel);
-    ASSERT_EQ(result.shareLimit, 0);
-}
-
-HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataNegativeShareLimit, TestSize.Level1)
-{
-    PathSharedData data;
-    data.shareName = "neg_limit";
-    data.shareUri = "file:///data/neg";
-    data.shareLimit = -1;
-
-    MessageParcel parcel;
-    ASSERT_TRUE(data.Marshalling(parcel));
-
-    PathSharedData result = PathSharedData::Unmarshalling(parcel);
-    ASSERT_EQ(result.shareLimit, -1);
 }
 
 HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataExactlyMaxCount, TestSize.Level1)
@@ -253,7 +227,6 @@ HWTEST_F(GetSharedPathListPluginTest, TestPathSharedDataExactlyMaxCount, TestSiz
     PathSharedData data;
     data.shareName = "max_share";
     data.shareUri = "file:///data/max";
-    data.shareLimit = 100;
     for (uint32_t i = 0; i < SHARED_PATH_MAX_COUNT; ++i) {
         UserPathInfo user;
         user.userName = "user" + std::to_string(i);
