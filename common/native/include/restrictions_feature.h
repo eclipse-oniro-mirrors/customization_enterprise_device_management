@@ -95,6 +95,7 @@ enum class RestrictionsFeatureForAccount : int32_t {
     DISTRIBUTED_TRANSMISSION_OUTGOING = 9,
     OPEN_FILE_BOOST = 10,
     FREE_WINDOW = 14,
+    INSTALL_DEVICE_CERTIFICATE = 15,
 };
 
 enum class UserRestrictionForDevice : int32_t {

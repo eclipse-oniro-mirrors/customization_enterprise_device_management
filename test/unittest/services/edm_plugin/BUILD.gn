@@ -319,7 +319,11 @@ ohos_unittest("EdmPluginTest") {
 
   if (certificate_manager_edm_enable) {
     external_deps += [ "certificate_manager:cert_manager_sdk" ]
-    sources += [ "./src/user_cert_plugin_test.cpp" ]
+    sources += [
+      "./src/disallow_install_device_certificate_plugin_test.cpp",
+      "./src/mock/cert_manager_sdk_stub.cpp",
+      "./src/user_cert_plugin_test.cpp",
+    ]
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
@@ -340,6 +344,9 @@ ohos_unittest("EdmPluginTest") {
       "./src/utils/array_permissive_usb_device_type_serializer_test.cpp",
       "./src/utils/array_usb_device_id_serializer_test.cpp",
       "./src/utils/array_usb_device_type_serializer_base_test.cpp",
+      "./src/usb_intercept_enable_plugin_test.cpp",
+      "./src/get_usb_device_infos_plugin_test.cpp",
+      "./src/set_usb_device_states_plugin_test.cpp",
     ]
   }
 
@@ -841,6 +848,7 @@ ohos_static_library("edm_all_plugin_static") {
     "c_utils:utils",
     "distributed_notification_service:ans_innerkits",
     "file_api:securitylabel",
+    "graphic_2d:librender_service_base",
     "graphic_2d:librender_service_client",
     "hilog:libhilog",
     "imf:inputmethod_client",
@@ -994,7 +1002,10 @@ ohos_static_library("edm_all_plugin_static") {
 
   if (certificate_manager_edm_enable) {
     external_deps += [ "certificate_manager:cert_manager_sdk" ]
-    sources += [ "../../../../services/edm_plugin/src/device_settings/user_cert_plugin.cpp" ]
+    sources += [
+      "../../../../services/edm_plugin/src/device_settings/user_cert_plugin.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disallow_install_device_certificate_plugin.cpp",
+    ]
   }
 
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable) {
@@ -1012,6 +1023,9 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/usb_manager/external_storage_intercept_enable_plugin.cpp",
       "../../../../services/edm_plugin/src/usb_manager/get_usb_serial_number_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_permissive_usb_device_type_serializer.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/usb_intercept_enable_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/get_usb_device_infos_plugin.cpp",
+      "../../../../services/edm_plugin/src/usb_manager/set_usb_device_states_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer.cpp",
       "../../../../services/edm_plugin/src/utils/array_usb_device_type_serializer_base.cpp",
       "../../../../services/edm_plugin/src/utils/usb_policy_utils.cpp",

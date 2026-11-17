@@ -23,6 +23,7 @@
 #include "policy_changed_event.h"
 #include "external_storage_device_info.h"
 #include "sms_receive_info.h"
+#include "usb_device_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -62,6 +63,8 @@ public:
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override;
 
     bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override;
+
+    bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) override;
 private:
     std::weak_ptr<JsEnterpriseAdminExtension> extension_;
 };

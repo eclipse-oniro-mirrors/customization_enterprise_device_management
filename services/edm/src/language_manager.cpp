@@ -15,6 +15,8 @@
 
 #include "language_manager.h"
 
+#include <map>
+
 #include "ipc_skeleton.h"
 #include "parameters.h"
 
@@ -42,9 +44,14 @@ namespace OHOS {
 namespace EDM {
 std::string LanguageManager::GetEnterpriseManagedTips()
 {
-    if (!IsNeedToShowEnterpriseManagedTips()) {
+    std::string mdmResult;
+    bool hasMdmDisplayInfo = GetValueFromMdmSettings(mdmResult);
+    if (!IsNeedToShowEnterpriseManagedTips(hasMdmDisplayInfo)) {
         EDMLOGW("LanguageManager::GetEnterpriseManagedTips no need to show enterprise managed tips.");
         return "";
+    }
+    if (hasMdmDisplayInfo) {
+        return mdmResult;
     }
     std::string result;
     if (GetValueFromCloudSettings(result)) {
@@ -53,6 +60,39 @@ std::string LanguageManager::GetEnterpriseManagedTips()
     bool ret = GetValueFromLocal(result);
     EDMLOGD("GetValueFromLocal %{public}d", ret);
     return result;
+}
+
+bool LanguageManager::GetValueFromMdmSettings(std::string &result)
+{
+    std::string jsonStr;
+    if (FAILED(EdmDataAbilityUtils::GetStringFromSettingsDataShare(EdmConstants::ENTERPRISE_DISPLAY_INFO, jsonStr)) ||
+        jsonStr.empty()) {
+        EDMLOGD("GetValueFromMdmSettings no mdm display info");
+        return false;
+    }
+    std::map<std::string, std::string> enterpriseNames;
+    std::string defaultLanguage;
+    if (FAILED(ParseEnterpriseDisplayInfo(jsonStr, enterpriseNames, defaultLanguage)) ||
+        enterpriseNames.empty()) {
+        EDMLOGW("GetValueFromMdmSettings parse mdm display info failed");
+        return false;
+    }
+    std::string language = Global::I18n::LocaleConfig::GetSystemLanguage();
+    std::string enterpriseName = FindEnterpriseName(enterpriseNames, language);
+    if (enterpriseName.empty()) {
+        enterpriseName = FindEnterpriseName(enterpriseNames, defaultLanguage);
+    }
+    if (enterpriseName.empty()) {
+        EDMLOGW("GetValueFromMdmSettings no matched enterprise name");
+        return false;
+    }
+    std::string tips = GetSystemStringFormatByName(EdmConstants::ENTERPRISE_DEVICE_TEXT, enterpriseName);
+    if (tips.empty()) {
+        EDMLOGW("GetValueFromMdmSettings get system template failed");
+        return false;
+    }
+    result = tips;
+    return true;
 }
 
 bool LanguageManager::GetValueFromCloudSettings(std::string& result)
@@ -187,6 +227,142 @@ std::string LanguageManager::GetTargetLanguageValue(const std::string& jsonStr, 
     return "";
 }
 
+std::string LanguageManager::FindEnterpriseName(const std::map<std::string, std::string> &enterpriseNames,
+    const std::string &language)
+{
+    if (language.empty()) {
+        return "";
+    }
+    // Match the language tag exactly first, then strip trailing subtags gradually,
+    // e.g. en-Latn-US -> en-Latn -> en, zh-Hans-CN -> zh-Hans.
+    std::string languageTag = language;
+    while (!languageTag.empty()) {
+        auto item = enterpriseNames.find(languageTag);
+        if (item != enterpriseNames.end()) {
+            return item->second;
+        }
+        size_t pos = languageTag.rfind('-');
+        if (pos == std::string::npos) {
+            break;
+        }
+        languageTag.erase(pos);
+    }
+    return "";
+}
+
+size_t LanguageManager::CountUtf8CodePoints(const std::string &value)
+{
+    size_t count = 0;
+    for (unsigned char ch : value) {
+        if ((ch & 0xC0) != 0x80) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+bool LanguageManager::IsValidEnterpriseName(const std::string &name)
+{
+    size_t length = CountUtf8CodePoints(name);
+    return length >= EdmConstants::MIN_ENTERPRISE_NAME_LENGTH &&
+        length <= EdmConstants::MAX_ENTERPRISE_NAME_LENGTH;
+}
+
+ErrCode LanguageManager::ParseEnterpriseDisplayInfo(const std::string &jsonStr,
+    std::map<std::string, std::string> &enterpriseNames, std::string &defaultLanguage)
+{
+    enterpriseNames.clear();
+    defaultLanguage.clear();
+    if (jsonStr.empty() || jsonStr.size() > EdmConstants::MAX_ENTERPRISE_DISPLAY_INFO_LENGTH) {
+        EDMLOGE("LanguageManager ParseEnterpriseDisplayInfo: invalid json length.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    cJSON *root = cJSON_Parse(jsonStr.c_str());
+    if (root == nullptr) {
+        EDMLOGE("LanguageManager ParseEnterpriseDisplayInfo: cJSON_Parse failed.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (!cJSON_IsObject(root)) {
+        EDMLOGE("LanguageManager ParseEnterpriseDisplayInfo: json root is not object.");
+        cJSON_Delete(root);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    cJSON *item = nullptr;
+    cJSON_ArrayForEach(item, root) {
+        if (item->string == nullptr || item->string[0] == '\0' ||
+            !cJSON_IsString(item) || item->valuestring == nullptr) {
+            continue;
+        }
+        std::string key(item->string);
+        if (key == EdmConstants::ENTERPRISE_DISPLAY_INFO_DEFAULT) {
+            defaultLanguage = item->valuestring;
+        } else {
+            enterpriseNames[key] = item->valuestring;
+        }
+    }
+    cJSON_Delete(root);
+    return ERR_OK;
+}
+
+bool LanguageManager::ValidateDisplayInfoItems(cJSON *root, bool &hasDefault, size_t &languageCount)
+{
+    cJSON *item = nullptr;
+    cJSON_ArrayForEach(item, root) {
+        if (item->string == nullptr || item->string[0] == '\0' ||
+            !cJSON_IsString(item) || item->valuestring == nullptr) {
+            EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: item is not a string field.");
+            return false;
+        }
+        if (std::string(item->string) == EdmConstants::ENTERPRISE_DISPLAY_INFO_DEFAULT) {
+            if (item->valuestring[0] == '\0') {
+                EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: default language is empty.");
+                return false;
+            }
+            hasDefault = true;
+            continue;
+        }
+        if (!IsValidEnterpriseName(item->valuestring)) {
+            EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: enterprise name invalid.");
+            return false;
+        }
+        ++languageCount;
+    }
+    return true;
+}
+
+ErrCode LanguageManager::ValidateEnterpriseDisplayInfo(const std::string &jsonStr)
+{
+    // Only the json format is verified here, the language tag is not restricted to a preset list.
+    // The "default" field is mandatory, the enterprise name length and the language count are limited.
+    if (jsonStr.empty() || jsonStr.size() > EdmConstants::MAX_ENTERPRISE_DISPLAY_INFO_LENGTH) {
+        EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: invalid json length.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    cJSON *root = cJSON_Parse(jsonStr.c_str());
+    if (root == nullptr) {
+        EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: cJSON_Parse failed.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (!cJSON_IsObject(root)) {
+        EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: json root is not object.");
+        cJSON_Delete(root);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    size_t languageCount = 0;
+    bool hasDefault = false;
+    bool isValid = ValidateDisplayInfoItems(root, hasDefault, languageCount);
+    if (isValid) {
+        isValid = hasDefault && languageCount > 0 &&
+            languageCount <= EdmConstants::MAX_ENTERPRISE_DISPLAY_LANGUAGE_COUNT;
+    }
+    cJSON_Delete(root);
+    if (!isValid) {
+        EDMLOGE("LanguageManager ValidateEnterpriseDisplayInfo: validate failed.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return ERR_OK;
+}
+
 bool LanguageManager::InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager>& resMgr)
 {
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -240,16 +416,19 @@ std::string LanguageManager::GetEnterpriseName()
     return adminItem->adminInfo_.entInfo_.enterpriseName;
 }
 
-bool LanguageManager::IsNeedToShowEnterpriseManagedTips()
+bool LanguageManager::IsNeedToShowEnterpriseManagedTips(bool hasMdmDisplayInfo)
 {
-    bool disableTips = false;
-    if (IsSettingsCalling()) {
-        disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, false);
-    } else {
-        disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED, false);
-    }
-    if (disableTips) {
-        return false;
+    // The MDM configured display info takes precedence over the HEM "do not show" switch.
+    if (!hasMdmDisplayInfo) {
+        bool disableTips = false;
+        if (IsSettingsCalling()) {
+            disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED_ON_SETTINGS, false);
+        } else {
+            disableTips = system::GetBoolParameter(EdmConstants::MANAGED_TIPS_DISABLED, false);
+        }
+        if (disableTips) {
+            return false;
+        }
     }
     EdmOsAccountManagerImpl osAccountMgr;
     int32_t userId = osAccountMgr.GetCurrentUserId();

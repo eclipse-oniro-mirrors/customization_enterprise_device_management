@@ -515,6 +515,9 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/external_storage_intercept_enable_plugin.cpp",
         "./src/usb_manager/get_usb_serial_number_plugin.cpp",
         "./src/utils/array_permissive_usb_device_type_serializer.cpp",
+        "./src/usb_manager/usb_intercept_enable_plugin.cpp",
+        "./src/usb_manager/get_usb_device_infos_plugin.cpp",
+        "./src/usb_manager/set_usb_device_states_plugin.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer_base.cpp",
         "./src/utils/usb_policy_utils.cpp",
@@ -630,6 +633,7 @@ ohos_shared_library("sys_service_plugin") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "bounds_checking_function:libsec_shared",
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
@@ -680,6 +684,9 @@ ohos_shared_library("sys_service_plugin") {
     if (certificate_manager_edm_enable) {
       external_deps += [ "certificate_manager:cert_manager_sdk" ]
       sources += [ "./src/device_settings/user_cert_plugin.cpp" ]
+      if (enterprise_device_management_feature_pc_only) {
+        sources += [ "./src/restrictions/disallow_install_device_certificate_plugin.cpp" ]
+      }
     }
 
     if (pasteboard_edm_enable) {

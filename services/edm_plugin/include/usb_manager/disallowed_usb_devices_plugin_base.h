@@ -51,6 +51,8 @@ protected:
     void CombineDataWithStorageAccessPolicy(std::vector<USB::UsbDeviceType> policyData,
         std::vector<USB::UsbDeviceType> &combineData);
     ErrCode HasConflictPolicy(bool &hasConflict, std::vector<USB::UsbDeviceType> &usbDeviceTypes);
+    ErrCode CheckUsbPolicyConflicts(bool &hasConflict);
+    ErrCode CheckStorageWriteConflict(bool &hasConflict, std::vector<USB::UsbDeviceType> &usbDeviceTypes);
 };
 } // namespace EDM
 } // namespace OHOS

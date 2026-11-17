@@ -18,6 +18,7 @@
 
 #include "edm_constants.h"
 #include "external_storage_device_info.h"
+#include "usb_device_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -71,6 +72,18 @@ private:
 
     static napi_value SetExternalStorageInterceptEnable(napi_env env, napi_callback_info info);
     static napi_value IsExternalStorageInterceptEnable(napi_env env, napi_callback_info info);
+    static napi_value SetUsbInterceptEnable(napi_env env, napi_callback_info info);
+    static napi_value IsUsbInterceptEnable(napi_env env, napi_callback_info info);
+    static napi_value GetUsbDeviceInfos(napi_env env, napi_callback_info info);
+    static napi_value SetUsbDeviceStates(napi_env env, napi_callback_info info);
+    static bool ParseJsNumberToInt32(napi_env env, napi_value value, int32_t &out);
+    static bool GetRequiredObjectIntProperty(napi_env env, napi_value object, const char *field, int32_t &out);
+    static bool GetOptionalObjectIntProperty(napi_env env, napi_value object, const char *field, int32_t &out,
+        bool &present);
+    static bool GetUsbDeviceConfigInfoFromNAPI(napi_env env, napi_value value, USBDeviceConfigInfo &config);
+    static napi_value UsbDeviceInfoToJsObj(napi_env env, const UsbDeviceInfo &deviceInfo);
+    static napi_value UsbConfigurationInfoToJsObj(napi_env env, const USBConfigurationInfo &config);
+    static napi_value UsbInterfaceInfoToJsObj(napi_env env, const USBInterfaceInfo &iface);
     static napi_value SetExternalStorageDeviceMountPolicy(napi_env env, napi_callback_info info);
     static void CreateMountPolicyEnum(napi_env env, napi_value value);
     static napi_value GetExternalStorageDeviceInfos(napi_env env, napi_callback_info info);

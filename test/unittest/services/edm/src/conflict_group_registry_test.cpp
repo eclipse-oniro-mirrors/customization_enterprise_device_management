@@ -48,6 +48,7 @@ HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdUsbGroup, TestSize.Lev
     EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES), groupId);
     EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::DISALLOW_USB_SERIAL), groupId);
     EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE), groupId);
+    EXPECT_EQ(registry.GetConflictGroupId(EdmInterfaceCode::USB_INTERCEPT_ENABLE), groupId);
 }
 
 HWTEST_F(ConflictGroupRegistryTest, TestGetConflictGroupIdBluetoothGroup, TestSize.Level1)

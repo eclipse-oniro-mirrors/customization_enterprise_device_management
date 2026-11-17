@@ -63,6 +63,8 @@ public:
     ErrCode AuthorizeAdmin(AppExecFwk::ElementName &admin, std::string &bundleName);
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName);
     ErrCode GetEnterpriseManagedTips(std::string &tips);
+    ErrCode SetEnterpriseDisplayInfo(const std::string &displayInfo);
+    ErrCode GetEnterpriseDisplayInfo(std::string &displayInfo);
     ErrCode SetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin, std::string &bundleName,
         std::vector<std::string> &policies);
     ErrCode GetDelegatedPolicies(AppExecFwk::ElementName &parentAdmin, std::string &bundleOrPolicyName, uint32_t code,

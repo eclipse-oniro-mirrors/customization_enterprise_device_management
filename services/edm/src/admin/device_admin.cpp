@@ -46,6 +46,8 @@ bool DeviceAdmin::HasPermissionToCallServiceCode(uint32_t interfaceCode) const
         case static_cast<uint32_t>(EdmInterfaceCode::SUBSCRIBE_SMS_EVENT):
         case static_cast<uint32_t>(EdmInterfaceCode::UNSUBSCRIBE_SMS_EVENT):
         case static_cast<uint32_t>(EdmInterfaceCode::GET_ADMIN_INFOS):
+        case static_cast<uint32_t>(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO):
+        case static_cast<uint32_t>(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO):
             return true;
         default:
             return false;

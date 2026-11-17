@@ -481,6 +481,18 @@ int32_t DeviceSettingsProxy::RemoveHiddenSettingsMenu(
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data, reply);
 }
 
+int32_t DeviceSettingsProxy::SetEnterpriseDisplayInfo(const std::string &displayInfo)
+{
+    EDMLOGD("DeviceSettingsProxy::SetEnterpriseDisplayInfo");
+    return EnterpriseDeviceMgrProxy::GetInstance()->SetEnterpriseDisplayInfo(displayInfo);
+}
+
+int32_t DeviceSettingsProxy::GetEnterpriseDisplayInfo(std::string &displayInfo)
+{
+    EDMLOGD("DeviceSettingsProxy::GetEnterpriseDisplayInfo");
+    return EnterpriseDeviceMgrProxy::GetInstance()->GetEnterpriseDisplayInfo(displayInfo);
+}
+
 int32_t DeviceSettingsProxy::SetSwitchStatus(MessageParcel &data)
 {
     EDMLOGD("DeviceSettingsProxy::SetSwitchStatus");

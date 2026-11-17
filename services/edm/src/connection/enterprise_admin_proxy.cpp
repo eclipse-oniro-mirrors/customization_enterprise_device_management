@@ -198,6 +198,21 @@ bool EnterpriseAdminProxy::OnUnmountExternalStorageDevice(const ExternalStorageD
     return SendRequest(COMMAND_ON_UNMOUNT_EXTERNAL_STORAGE_DEVICE, data);
 }
 
+bool EnterpriseAdminProxy::OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo)
+{
+    EDMLOGI("EnterpriseAdminProxy::OnUsbDeviceAdded");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::OnUsbDeviceAdded write descriptor failed!");
+        return false;
+    }
+    if (!usbDeviceInfo.Marshalling(data)) {
+        EDMLOGE("EnterpriseAdminProxy::OnUsbDeviceAdded marshalling failed!");
+        return false;
+    }
+    return SendRequest(COMMAND_ON_USB_DEVICE_ADDED, data);
+}
+
 bool EnterpriseAdminProxy::OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId)
 {
     EDMLOGI("EnterpriseAdminProxy::OnPasswordFailed count=%{public}d userId=%{public}d",

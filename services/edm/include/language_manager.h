@@ -16,9 +16,13 @@
 #ifndef COMMON_NATIVE_INCLUDE_LANGUAGE_MANAGER_H
 #define COMMON_NATIVE_INCLUDE_LANGUAGE_MANAGER_H
 
+#include <map>
 #include <string>
 
+#include "edm_errors.h"
 #include "resource_manager.h"
+
+struct cJSON;
 
 namespace OHOS {
 namespace EDM {
@@ -27,15 +31,24 @@ public:
     static std::string GetEnterpriseManagedTips();
     static std::string GetSystemStringByName(const std::string &name);
     static std::string GetSystemStringFormatByName(const std::string &name, const std::string &param);
+    static ErrCode ValidateEnterpriseDisplayInfo(const std::string &jsonStr);
 
 private:
+    static bool GetValueFromMdmSettings(std::string &result);
     static bool GetValueFromCloudSettings(std::string &result);
     static bool GetValueFromLocal(std::string &result);
     static std::string GetTargetLanguageValue(const std::string &jsonStr, const std::string &language);
+    static ErrCode ParseEnterpriseDisplayInfo(const std::string &jsonStr,
+        std::map<std::string, std::string> &enterpriseNames, std::string &defaultLanguage);
+    static std::string FindEnterpriseName(const std::map<std::string, std::string> &enterpriseNames,
+        const std::string &language);
+    static size_t CountUtf8CodePoints(const std::string &value);
+    static bool IsValidEnterpriseName(const std::string &name);
+    static bool ValidateDisplayInfoItems(cJSON *root, bool &hasDefault, size_t &languageCount);
     static bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
     static void AddDataToResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
     static std::string GetEnterpriseName();
-    static bool IsNeedToShowEnterpriseManagedTips();
+    static bool IsNeedToShowEnterpriseManagedTips(bool hasMdmDisplayInfo = false);
     static bool IsSettingsCalling();
 };
 } // namespace EDM

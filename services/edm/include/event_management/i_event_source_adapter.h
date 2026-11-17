@@ -23,6 +23,7 @@ enum class AdapterType {
     COMMON_EVENT,
     APP_LIFECYCLE,
     USER_AUTH,
+    USB_DEVICE_CONTROL,
 };
 
 class IEventSourceAdapter {

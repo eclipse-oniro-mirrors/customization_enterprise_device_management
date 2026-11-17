@@ -83,6 +83,7 @@ ErrCode ExternalStorageInterceptEnablePlugin::CheckConflictPolicy(int32_t userId
             usbStorageDeviceWrite.c_str());
         return EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED;
     }
+
     return ERR_OK;
 }
 

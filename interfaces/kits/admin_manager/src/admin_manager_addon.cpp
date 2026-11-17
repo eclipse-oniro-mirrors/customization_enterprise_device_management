@@ -1235,6 +1235,11 @@ void AdminManager::CreateManagedEventObject(napi_env env, napi_value value)
         static_cast<uint32_t>(ManagedEvent::UNMOUNT_EXTERNAL_STORAGE_DEVICE), &nUnmountExternalStorageDevice));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value,
         "MANAGED_EVENT_UNMOUNT_EXTERNAL_STORAGE_DEVICE", nUnmountExternalStorageDevice));
+    napi_value nUsbDeviceAdded;
+    NAPI_CALL_RETURN_VOID(env, napi_create_uint32(env,
+        static_cast<uint32_t>(ManagedEvent::USB_DEVICE_ADDED), &nUsbDeviceAdded));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value,
+        "MANAGED_EVENT_USB_DEVICE_ADDED", nUsbDeviceAdded));
 }
 
 void AdminManager::CreateRunningModeObject(napi_env env, napi_value value)

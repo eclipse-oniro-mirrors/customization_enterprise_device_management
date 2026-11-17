@@ -2129,6 +2129,40 @@ HWTEST_F(ApplicationManagerProxyTest, ExemptionResource_Release_Fail, TestSize.L
     int32_t ret = applicationManagerProxy_->ExemptionResource(data, FuncOperateType::REMOVE);
     ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
 }
+
+/**
+ * @tc.name: TestGetApplicationIconDataFail
+ * @tc.desc: Test GetApplicationIconData without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetApplicationIconDataFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    std::string iconData;
+    int32_t ret = applicationManagerProxy_->GetApplicationIconData(data, iconData);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+    EXPECT_TRUE(iconData.empty());
+}
+ 
+/**
+ * @tc.name: TestGetApplicationIconDataSuc
+ * @tc.desc: Test GetApplicationIconData with edm service enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ApplicationManagerProxyTest, TestGetApplicationIconDataSuc, TestSize.Level1)
+{
+    Utils::SetEdmServiceEnable();
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    MessageParcel data;
+    std::string iconData;
+    int32_t ret = applicationManagerProxy_->GetApplicationIconData(data, iconData);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(iconData, RETURN_STRING);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

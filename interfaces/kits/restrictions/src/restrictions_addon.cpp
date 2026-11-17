@@ -188,6 +188,8 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::ADVANCED_MESSAGE), EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE},
     {static_cast<int32_t>(RestrictionsFeature::POWER_SAVING_MODE), EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE},
     {static_cast<int32_t>(RestrictionsFeature::PARENT_CONTROL), EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
+    {static_cast<int32_t>(RestrictionsFeature::INSTALL_DEVICE_CERTIFICATE),
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -209,6 +211,8 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST), EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::FREE_WINDOW), EdmInterfaceCode::DISALLOWED_FREE_WINDOW},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE),
+        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForDeviceEnum2CodeMap = {
@@ -655,6 +659,21 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureAll(napi_env env, nap
     return ERR_OK;
 }
 
+OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccountAll(napi_env env, napi_value value,
+    uint32_t &ipcCode)
+{
+    int32_t featureNumber = -1;
+    if (!ParseInt(env, featureNumber, value)) {
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    auto it = featureForAccountEnum2InterfaceCodeMap.find(featureNumber);
+    if (it == featureForAccountEnum2InterfaceCodeMap.end()) {
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    ipcCode = it->second;
+    return ERR_OK;
+}
+
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeature(napi_env env, napi_value value,
     std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType)
 {
@@ -771,9 +790,9 @@ napi_value RestrictionsAddon::GetDisallowedPolicy(napi_env env, napi_callback_in
     return result;
 }
 
-napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
+napi_value RestrictionsAddon::SetDisallowedPolicyForAccountLegacy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_SetDisallowedPolicyForAccount called");
+    EDMLOGI("NAPI_SetDisallowedPolicyForAccountLegacy called");
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     napi_value thisArg = nullptr;
@@ -823,6 +842,18 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     return nullptr;
 }
 
+napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDisallowedPolicyForAccount called");
+    size_t argc = ARGS_SIZE_FOUR;
+    napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        return SetDisallowedPolicyForAccountLegacy(env, info);
+    }
+    return SetDisallowedPolicyForAccountImplicitAdmin(env, info);
+}
+
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
     std::string &feature, uint32_t &ipcCode, ErrcodeType &errcodeType)
 {
@@ -854,9 +885,9 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env e
     return ERR_OK;
 }
 
-napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
+napi_value RestrictionsAddon::GetDisallowedPolicyForAccountLegacy(napi_env env, napi_callback_info info)
 {
-    EDMLOGI("NAPI_GetDisallowedPolicyForAccount called");
+    EDMLOGI("NAPI_GetDisallowedPolicyForAccountLegacy called");
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     napi_value thisArg = nullptr;
@@ -894,6 +925,18 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     return result;
 }
 
+napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedPolicyForAccount called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
+        return GetDisallowedPolicyForAccountLegacy(env, info);
+    }
+    return GetDisallowedPolicyForAccountImplicitAdmin(env, info);
+}
+
 OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk::ElementName *elementName,
     std::uint32_t ipcCode, int32_t accountId, bool &disallow, ErrcodeType errcodeType)
 {
@@ -913,6 +956,117 @@ OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk:
         }
         return proxy->GetDisallowedPolicyForAccount(elementName, ipcCode, disallow, permissionTag, accountId);
     }
+}
+
+napi_value RestrictionsAddon::SetDisallowedPolicyForAccountImplicitAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_SetDisallowedPolicyForAccountImplicitAdmin called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
+        "parameter disallow error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "parameter accountId error");
+    std::uint32_t ipcCode = 0;
+    auto ret = GetInterfaceCodeAndFeatureForAccountAll(env, argv[ARR_INDEX_ZERO], ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    bool disallow = false;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_ONE]), "parameter disallow parse error");
+    int32_t accountId = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error");
+    if (accountId < 0) {
+        EDMLOGE("SetDisallowedPolicyForAccountImplicitAdmin: invalid accountId %{public}d", accountId);
+        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("SetDisallowedPolicyForAccountImplicitAdmin can not get RestrictionsProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t proxyRet = proxy->SetDisallowedPolicyForAccountImplicitAdmin(accountId, disallow, ipcCode);
+    if (FAILED(proxyRet)) {
+        napi_throw(env, CreateError(env, proxyRet, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
+int32_t RestrictionsAddon::ParseQueryPolicyForAccount(napi_env env, napi_value value, size_t argc)
+{
+    if (argc <= ARGS_SIZE_TWO) {
+        return static_cast<int32_t>(QueryPolicy::SELF);
+    }
+    int32_t parsedQueryPolicy = 0;
+    if (ParseInt(env, parsedQueryPolicy, value) &&
+        (parsedQueryPolicy == static_cast<int32_t>(QueryPolicy::SELF) ||
+         parsedQueryPolicy == static_cast<int32_t>(QueryPolicy::ALL))) {
+        return parsedQueryPolicy;
+    }
+    return static_cast<int32_t>(QueryPolicy::SELF);
+}
+
+OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccountImplicitAdmin(int32_t accountId, uint32_t ipcCode,
+    int32_t queryPolicy, bool &disallow)
+{
+    auto proxy = RestrictionsProxy::GetRestrictionsProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("GetDisallowedPolicyForAccountImplicitAdmin can not get RestrictionsProxy");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    int32_t proxyRet = proxy->GetDisallowedPolicyForAccountImplicitAdmin(accountId, ipcCode, queryPolicy, disallow);
+    if (FAILED(proxyRet) && proxyRet != EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+        return proxyRet;
+    }
+    if (FAILED(proxyRet)) {
+        disallow = false;
+    }
+    return ERR_OK;
+}
+
+napi_value RestrictionsAddon::GetDisallowedPolicyForAccountImplicitAdmin(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetDisallowedPolicyForAccountImplicitAdmin called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error");
+    std::uint32_t ipcCode = 0;
+    auto ret = GetInterfaceCodeAndFeatureForAccountAll(env, argv[ARR_INDEX_ZERO], ipcCode);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t accountId = -1;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "parameter accountId parse error");
+    if (accountId < 0) {
+        EDMLOGE("GetDisallowedPolicyForAccountImplicitAdmin: invalid accountId %{public}d", accountId);
+        napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t queryPolicy = ParseQueryPolicyForAccount(env, argv[ARR_INDEX_TWO], argc);
+    bool disallow = false;
+    auto proxyRet = NativeGetDisallowedPolicyForAccountImplicitAdmin(accountId, ipcCode, queryPolicy, disallow);
+    if (FAILED(proxyRet)) {
+        napi_throw(env, CreateError(env, proxyRet, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value napiResult = nullptr;
+    NAPI_CALL(env, napi_get_boolean(env, disallow, &napiResult));
+    return napiResult;
 }
 
 napi_value RestrictionsAddon::AddDisallowedListForAccount(napi_env env, napi_callback_info info)
@@ -1288,6 +1442,8 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
             static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING)},
         {"OPEN_FILE_BOOST", static_cast<uint32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST)},
         {"FREE_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::FREE_WINDOW)},
+        {"INSTALL_DEVICE_CERTIFICATE",
+            static_cast<uint32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

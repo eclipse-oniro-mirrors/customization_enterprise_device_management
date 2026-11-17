@@ -661,7 +661,7 @@ HWTEST_F(PluginPolicyQueryTest,
     TestInstallLocalEnterpriseAppEnabledQueryPermission, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> queryObj =
-        std::make_shared<InstallLocalEnterpriseAppEnabledQuery>();
+        std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, "")
         == EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
     ASSERT_TRUE(queryObj->GetPolicyName() ==
@@ -672,7 +672,7 @@ HWTEST_F(PluginPolicyQueryTest,
     TestInstallLocalEnterpriseAppEnabledForAccountQueryPermission, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> queryObj =
-        std::make_shared<InstallLocalEnterpriseAppEnabledForAccountQuery>();
+        std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
     ASSERT_TRUE(queryObj->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, "")
         == EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SYSTEM);
     ASSERT_TRUE(queryObj->GetPolicyName() ==

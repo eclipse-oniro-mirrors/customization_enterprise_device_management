@@ -335,6 +335,23 @@ int32_t ApplicationManagerProxy::IsAppKioskAllowed(const std::string &appIdentif
     return ERR_OK;
 }
 
+int32_t ApplicationManagerProxy::GetApplicationIconData(MessageParcel &data, std::string &iconData)
+{
+    EDMLOGI("ApplicationManagerProxy::GetApplicationIconData");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    MessageParcel reply;
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::GET_APPLICATION_ICON_DATA, data, reply);
+    if (FAILED(ret)) {
+        EDMLOGW("ApplicationManagerProxy::GetApplicationIconData fail. %{public}d", ret);
+        return ret;
+    }
+    if (!reply.ReadString(iconData)) {
+        EDMLOGE("ApplicationManagerProxy::GetApplicationIconData read iconData failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
+
 int32_t ApplicationManagerProxy::ClearUpApplicationData(
     const AppExecFwk::ElementName &admin, const ClearUpApplicationDataParam &param)
 {

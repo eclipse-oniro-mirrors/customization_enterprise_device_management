@@ -91,6 +91,8 @@ public:
     MOCK_METHOD(int, EnableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
     MOCK_METHOD(int, DisableDeviceAdmin, (const AppExecFwk::ElementName &), (override));
     MOCK_METHOD(int, GetEnterpriseManagedTips, (std::string &), (override));
+    MOCK_METHOD(int, SetEnterpriseDisplayInfo, (const std::string &), (override));
+    MOCK_METHOD(int, GetEnterpriseDisplayInfo, (std::string &), (override));
     MOCK_METHOD(int, StartAbilityByAdmin, (const AppExecFwk::ElementName &, const AAFwk::Want &), (override));
     MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType,
         int32_t, bool, EnableSource), (override));
@@ -127,6 +129,20 @@ public:
     int InvokeSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int InvokeBoolSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
+    int InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestSetPolicyForAccountImplicitAdmin(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeSendRequestReturnFail(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
+    int InvokeBoolSendRequestGetPolicyForAccountImplicitAdminFail(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+
+    int InvokeBoolSendRequestGetPolicySystemAbnormally(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
 
     int InvokeBoolSendRequestGetFirewallRule(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
@@ -328,6 +344,10 @@ public:
         MessageOption &option);
 
     uint32_t code_ = 0;
+    int32_t accountId_ = -1;
+    int32_t queryPolicy_ = -1;
+    bool disallow_ = false;
+    std::u16string interfaceToken_;
 };
 } // namespace EDM
 } // namespace OHOS

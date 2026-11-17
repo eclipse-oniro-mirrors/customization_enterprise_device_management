@@ -70,6 +70,8 @@ public:
 
     bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override { return true; }
 
+    bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) override { return true; }
+
     uint32_t code_ = 0;
 };
 } // namespace EDM

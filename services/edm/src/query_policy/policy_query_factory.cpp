@@ -66,6 +66,7 @@
 #include "get_display_version_query.h"
 #include "get_security_patch_tag_query.h"
 #include "get_device_encryption_status_query.h"
+#include "get_application_icon_data_query.h"
 #include "get_watermark_image_apps_query.h"
 
 #include "permission_managed_state_query.h"
@@ -242,9 +243,9 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomOtherQuery(uint32_
     switch (policyCode) {
 #ifdef FEATURE_PC_ONLY
         case EdmInterfaceCode::SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED:
-            return std::make_shared<InstallLocalEnterpriseAppEnabledQuery>();
+            return std::make_shared<InstallLocalEnterpriceAppEnabledQuery>();
         case EdmInterfaceCode::INSTALL_LOCAL_ENTERPRISE_APP_ENABLED_FOR_ACCOUNT:
-            return std::make_shared<InstallLocalEnterpriseAppEnabledForAccountQuery>();
+            return std::make_shared<InstallLocalEnterpriceAppEnabledForAccountQuery>();
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
             return std::make_shared<GetAutoUnlockAfterRebootQuery>();
 #endif
@@ -254,6 +255,8 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomOtherQuery(uint32_
 #endif
         case EdmInterfaceCode::IS_APP_KIOSK_ALLOWED:
             return std::make_shared<IsAppKioskAllowedQuery>();
+        case EdmInterfaceCode::GET_APPLICATION_ICON_DATA:
+            return std::make_shared<GetApplicationIconDataQuery>();
         default:
             return nullptr;
     }

@@ -35,6 +35,8 @@ public:
 
 private:
     bool HasConflictPolicy();
+    bool HasConflictWithUsbRestrictionPolicies();
+    bool HasConflictWithUsbInterceptOrSerial();
 };
 } // namespace EDM
 } // namespace OHOS
