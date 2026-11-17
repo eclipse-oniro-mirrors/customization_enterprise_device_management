@@ -271,6 +271,7 @@ enum EdmInterfaceCode : uint32_t {
     USB_INTERCEPT_ENABLE = 1217,
     GET_USB_DEVICE_INFOS = 1218,
     SET_USB_DEVICE_STATES = 1219,
+    DISALLOW_MULTI_WINDOW_DOCK = 1220,
     POLICY_CODE_END = 3000,
 };
 } // namespace EDM
