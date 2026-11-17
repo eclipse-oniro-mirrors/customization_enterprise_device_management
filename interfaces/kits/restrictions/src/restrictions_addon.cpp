@@ -306,6 +306,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::WIFI_P2P), EdmInterfaceCode::DISALLOWED_P2P},
     {static_cast<int32_t>(RestrictionsFeature::X_KEY), EdmInterfaceCode::DISALLOW_X_KEY},
     {static_cast<int32_t>(RestrictionsFeature::RECENT_TASKS), EdmInterfaceCode::DISALLOW_RECENT_TASKS},
+    {static_cast<int32_t>(RestrictionsFeature::MULTI_WINDOW_DOCK), EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK},
     {static_cast<int32_t>(RestrictionsFeature::CONTROL_CENTER), EdmInterfaceCode::DISALLOW_CONTROL_CENTER},
     {static_cast<int32_t>(RestrictionsFeature::NOTIFICATION_CENTER), EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER},
     {static_cast<int32_t>(RestrictionsFeature::LOCAL_INPUT), EdmInterfaceCode::DISALLOWED_UINPUT},
@@ -368,8 +369,6 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::ADVANCED_MESSAGE), EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE},
     {static_cast<int32_t>(RestrictionsFeature::POWER_SAVING_MODE), EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE},
     {static_cast<int32_t>(RestrictionsFeature::PARENT_CONTROL), EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
-    {static_cast<int32_t>(RestrictionsFeature::INSTALL_DEVICE_CERTIFICATE),
-        EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2InterfaceCodeMap = {
@@ -1537,6 +1536,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart1(napi_env env, napi_value val
         {"WIFI_P2P", static_cast<uint32_t>(RestrictionsFeature::WIFI_P2P)},
         {"X_KEY", static_cast<uint32_t>(RestrictionsFeature::X_KEY)},
         {"RECENT_TASKS", static_cast<uint32_t>(RestrictionsFeature::RECENT_TASKS)},
+        {"MULTI_WINDOW_DOCK", static_cast<uint32_t>(RestrictionsFeature::MULTI_WINDOW_DOCK)},
         {"CONTROL_CENTER", static_cast<uint32_t>(RestrictionsFeature::CONTROL_CENTER)},
         {"NOTIFICATION_CENTER", static_cast<uint32_t>(RestrictionsFeature::NOTIFICATION_CENTER)},
         {"SUDO", static_cast<uint32_t>(RestrictionsFeature::SUDO)},

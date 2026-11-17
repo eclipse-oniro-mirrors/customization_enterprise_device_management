@@ -40,6 +40,7 @@ bool NotificationManager::SendSystemNotification(const NotificationInfo &notific
     }
     request.SetCreatorUid(EdmConstants::EDM_UID);
     request.SetNotificationControlFlags(Notification::NotificationConstant::ReminderFlag::SA_SELF_BANNER_FLAG);
+    request.SetUserDeletableOnly(notificationInfo.userDeletableOnly);
     request.SetContent(notificationContent);
     // 设置通知图标
     auto pixelMap = GetIconPixelMap(iconInfo);

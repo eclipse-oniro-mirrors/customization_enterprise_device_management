@@ -143,7 +143,8 @@ void SensitiveCallNotifyManager::NotifyAndRecord(const std::string &adminName, i
     std::thread([iconInfo, resolvedBody, notifIdVal, sensitiveId]() {
         NotificationInfo info = { .title = EdmConstants::SENSITIVE_CALL_NOTIFIED_TITLE,
                                   .body = resolvedBody,
-                                  .notificationId = notifIdVal };
+                                  .notificationId = notifIdVal,
+                                  .userDeletableOnly = true };
         NotificationManager notificationManager;
         WantAgentInfo emptyWantAgent;
         if (!notificationManager.SendSystemNotification(info, iconInfo, emptyWantAgent)) {
