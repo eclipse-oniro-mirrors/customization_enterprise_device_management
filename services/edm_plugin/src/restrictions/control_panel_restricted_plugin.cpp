@@ -67,7 +67,7 @@ ErrCode ControlPanelRestrictedPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
 
 ErrCode ControlPanelRestrictedPlugin::GetRestrictedValue(bool &restricted)
 {
-    std::string value = system::GetParameter(persistParam_, "");
+    std::string value = system::GetParameter(persistParam_, EdmConstants::CONST_FALSE);
     if (value == EdmConstants::CONST_TRUE) {
         restricted = true;
         return ERR_OK;
