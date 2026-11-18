@@ -181,16 +181,16 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MinBoundaryValue_Success, T
 }
 
 /**
- * @tc.name: OnHandlePolicy_NeverTimeOutValue_ParameterVerificationFailed
- * @tc.desc: Test OnHandlePolicy function when screen off time is -1 (never timeout).
+ * @tc.name: OnHandlePolicy_NeverTimeOutValue_Success
+ * @tc.desc: Test OnHandlePolicy function when screen off time is -1 (never timeout), which is a supported value.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_ParameterVerificationFailed, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_Success, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("test success");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "-1");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
