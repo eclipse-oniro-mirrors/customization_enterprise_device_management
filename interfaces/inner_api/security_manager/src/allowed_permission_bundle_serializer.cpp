@@ -213,6 +213,7 @@ std::map<std::string, std::vector<ApplicationInstance>> AllowedPermissionBundleS
 bool AllowedPermissionBundleSerializer::Deserialize(const std::string &policy,
     std::map<std::string, std::vector<ApplicationInstance>> &dataObj)
 {
+    dataObj.clear();
     if (policy.empty()) {
         return true;
     }
@@ -301,6 +302,7 @@ bool AllowedPermissionBundleSerializer::Serialize(
     const std::map<std::string, std::vector<ApplicationInstance>> &dataObj, std::string &policy)
 {
     if (dataObj.empty()) {
+        policy = "";
         return true;
     }
 
