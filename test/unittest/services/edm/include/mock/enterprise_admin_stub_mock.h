@@ -68,6 +68,8 @@ public:
 
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override { return true; }
 
+    bool OnNotificationReceived(const NotificationReceivedInfo &info) override { return true; }
+
     bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override { return true; }
 
     bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) override { return true; }

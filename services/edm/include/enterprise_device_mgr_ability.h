@@ -66,6 +66,8 @@ public:
     ErrCode UnsubscribeManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events) override;
     ErrCode SubscribeSmsEvent() override;
     ErrCode UnsubscribeSmsEvent() override;
+    ErrCode SubscribeNotificationEvent() override;
+    ErrCode UnsubscribeNotificationEvent() override;
     ErrCode AuthorizeAdmin(const AppExecFwk::ElementName &admin, const std::string &bundleName) override;
     ErrCode GetSuperAdmin(std::string &bundleName, std::string &abilityName) override;
     ErrCode SetDelegatedPolicies(const AppExecFwk::ElementName &parentAdmin, const std::string &bundleName,
@@ -157,7 +159,8 @@ private:
         int32_t userId, bool isDebug);
     ErrCode VerifyManagedEvent(const AppExecFwk::ElementName &admin, const std::vector<uint32_t> &events);
     ErrCode HandleSmsEvent(bool subscribe);
-    ErrCode GetCallingSda(AppExecFwk::ElementName &admin);
+    ErrCode HandleNotificationEvent(bool subscribe);
+    ErrCode GetCallingSda(AppExecFwk::ElementName &admin, uint32_t interfaceCode);
     ErrCode CheckDelegatedPolicies(AdminType adminType, const std::vector<std::string> &policies);
     ErrCode CheckReplaceAdmins(const AppExecFwk::ElementName &oldAdmin, const AppExecFwk::ElementName &newAdmin,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &abilityInfo, std::vector<std::string> &permissionList);

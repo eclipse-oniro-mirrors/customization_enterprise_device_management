@@ -2358,7 +2358,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSmsEvent(bool subscribe)
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
     AppExecFwk::ElementName admin;
-    ErrCode ret = GetCallingSda(admin);
+    ErrCode ret = GetCallingSda(admin, static_cast<uint32_t>(EdmInterfaceCode::SUBSCRIBE_SMS_EVENT));
     RETURN_IF_FAILED(ret);
     if (!GetPermissionChecker()->CheckCallerPermission(admin.GetBundleName(),
         EdmPermission::PERMISSION_ENTERPRISE_RECEIVE_SMS)) {
@@ -2396,7 +2396,53 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSmsEvent(bool subscribe)
     return ERR_OK;
 }
 
-ErrCode EnterpriseDeviceMgrAbility::GetCallingSda(AppExecFwk::ElementName &admin)
+ErrCode EnterpriseDeviceMgrAbility::SubscribeNotificationEvent()
+{
+    return HandleNotificationEvent(true);
+}
+
+ErrCode EnterpriseDeviceMgrAbility::UnsubscribeNotificationEvent()
+{
+    return HandleNotificationEvent(false);
+}
+
+ErrCode EnterpriseDeviceMgrAbility::HandleNotificationEvent(bool subscribe)
+{
+    AppExecFwk::ElementName admin;
+    auto interfaceCode = subscribe ? EdmInterfaceCode::SUBSCRIBE_NOTIFICATION_EVENT
+        : EdmInterfaceCode::UNSUBSCRIBE_NOTIFICATION_EVENT;
+    ErrCode ret = GetCallingSda(admin, static_cast<uint32_t>(interfaceCode));
+    RETURN_IF_FAILED(ret);
+    if (!GetPermissionChecker()->CheckCallerPermission(admin.GetBundleName(),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_NOTIFICATION)) {
+        EDMLOGE("HandleNotificationEvent: %{public}s has no permission to manage notification.",
+            admin.GetBundleName().c_str());
+        return EdmReturnErrCode::PERMISSION_DENIED;
+    }
+    int32_t userId = EdmConstants::DEFAULT_USER_ID;
+    {
+        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+        std::shared_ptr<Admin> adminItem = AdminManager::GetInstance()->GetAdminByPkgName(admin.GetBundleName(),
+            GetCurrentUserId());
+        if (adminItem != nullptr && !adminItem->IsAllowedAcrossAccountSetPolicy()) {
+            userId = GetCurrentUserId();
+        }
+        if (subscribe) {
+            AdminManager::GetInstance()->SaveSubscribeEvents(
+                {static_cast<uint32_t>(ManagedEvent::NOTIFICATION_RECEIVED)}, admin.GetBundleName(), userId);
+            MdmEventRelayer::GetInstance().OnAdminSubscribe(admin.GetBundleName(), userId,
+                ManagedEvent::NOTIFICATION_RECEIVED);
+        } else {
+            AdminManager::GetInstance()->RemoveSubscribeEvents(
+                {static_cast<uint32_t>(ManagedEvent::NOTIFICATION_RECEIVED)}, admin.GetBundleName(), userId);
+            MdmEventRelayer::GetInstance().OnAdminUnsubscribe(admin.GetBundleName(), userId,
+                ManagedEvent::NOTIFICATION_RECEIVED);
+        }
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::GetCallingSda(AppExecFwk::ElementName &admin, uint32_t interfaceCode)
 {
     Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     std::string callingBundleName = GetPermissionChecker()->GetHapTokenBundleName(tokenId);
@@ -2410,9 +2456,9 @@ ErrCode EnterpriseDeviceMgrAbility::GetCallingSda(AppExecFwk::ElementName &admin
         EDMLOGE("GetCallingSda: %{public}s is not activated.", callingBundleName.c_str());
         return EdmReturnErrCode::ADMIN_INACTIVE;
     }
-    if (!adminItem->HasPermissionToCallServiceCode(EdmInterfaceCode::SUBSCRIBE_SMS_EVENT)) {
-        EDMLOGE("GetCallingSda: %{public}s has no permission to call sms event service.",
-            callingBundleName.c_str());
+    if (!adminItem->HasPermissionToCallServiceCode(interfaceCode)) {
+        EDMLOGE("GetCallingSda: %{public}s has no permission to call service code %{public}u.",
+            callingBundleName.c_str(), interfaceCode);
         return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
     }
     admin.SetBundleName(callingBundleName);

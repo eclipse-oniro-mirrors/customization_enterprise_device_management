@@ -21,6 +21,7 @@
 #include "ienterprise_admin.h"
 #include "policy_struct.h"
 #include "external_storage_device_info.h"
+#include "notification_received_info.h"
 #include "sms_receive_info.h"
 #include "usb_device_info.h"
 
@@ -62,6 +63,8 @@ public:
     bool OnUnmountExternalStorageDevice(const ExternalStorageDeviceInfo &deviceInfo) override;
 
     bool OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId) override;
+
+    bool OnNotificationReceived(const NotificationReceivedInfo &info) override;
 
     bool OnSmsReceived(const SmsReceiveInfo &smsInfo) override;
 

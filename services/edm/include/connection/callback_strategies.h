@@ -20,6 +20,7 @@
 #include "ienterprise_admin.h"
 #include "policy_struct.h"
 #include "external_storage_device_info.h"
+#include "notification_received_info.h"
 #include "sms_receive_info.h"
 #include "usb_device_info.h"
 
@@ -183,6 +184,16 @@ private:
     bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
     int32_t cumulativeFailedCount_;
     int32_t userId_;
+};
+
+class NotificationReceivedStrategy : public ICallbackStrategy {
+public:
+    explicit NotificationReceivedStrategy(const NotificationReceivedInfo &info)
+        : ICallbackStrategy(IEnterpriseAdmin::COMMAND_ON_NOTIFICATION_RECEIVED), info_(info) {}
+
+private:
+    bool ExecuteImpl(const sptr<EnterpriseAdminProxy>& proxy) override;
+    NotificationReceivedInfo info_;
 };
 
 class SmsReceivedStrategy : public ICallbackStrategy {

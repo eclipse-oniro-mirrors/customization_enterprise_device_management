@@ -252,6 +252,34 @@ ErrCode EnterpriseDeviceMgrProxy::HandleManagedEvent(const AppExecFwk::ElementNa
     }
 }
 
+ErrCode EnterpriseDeviceMgrProxy::SubscribeNotificationEvent()
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::SubscribeNotificationEvent");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->SubscribeNotificationEvent();
+}
+
+ErrCode EnterpriseDeviceMgrProxy::UnsubscribeNotificationEvent()
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::UnsubscribeNotificationEvent");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    return mgrService->UnsubscribeNotificationEvent();
+}
+
 ErrCode EnterpriseDeviceMgrProxy::SubscribeSmsEvent()
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::SubscribeSmsEvent");

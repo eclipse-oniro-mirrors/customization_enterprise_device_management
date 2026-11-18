@@ -193,5 +193,16 @@ bool EnterpriseAdminStubImpl::OnSmsReceived(const SmsReceiveInfo &smsInfo)
     extension->OnSmsReceived(smsInfo);
     return true;
 }
+
+bool EnterpriseAdminStubImpl::OnNotificationReceived(const NotificationReceivedInfo &info)
+{
+    EDMLOGI("EnterpriseAdminStubImpl::OnNotificationReceived bundleName=%{public}s", info.bundleName.c_str());
+    auto extension = extension_.lock();
+    if (extension == nullptr) {
+        return false;
+    }
+    extension->OnNotificationReceived(info);
+    return true;
+}
 } // namespace EDM
 } // namespace OHOS
