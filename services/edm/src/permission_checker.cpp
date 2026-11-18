@@ -467,6 +467,11 @@ bool PermissionChecker::CheckIsSystemApp()
     return GetExternalManagerFactory()->CreateAccessTokenManager()->IsSystemAppCall();
 }
 
+bool PermissionChecker::CheckIsNativeCall()
+{
+    return GetExternalManagerFactory()->CreateAccessTokenManager()->IsNativeCall();
+}
+
 bool PermissionChecker::VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId,
     const std::string &permissionName)
 {

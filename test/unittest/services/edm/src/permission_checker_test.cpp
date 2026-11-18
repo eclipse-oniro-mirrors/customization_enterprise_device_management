@@ -329,6 +329,30 @@ HWTEST_F(PermissionCheckerTest, TestCheckElementNullPermissionBrowserPolicyRejec
         "ohos.permission.MANAGE_EDM_POLICY"));
 }
 #endif
+
+/**
+ * @tc.name: TestIsNativeCallTrue
+ * @tc.desc: Test PermissionChecker IsNativeCall func when native process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestIsNativeCallTrue, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsNativeCall).WillOnce(DoAll(Return(true)));
+    bool ret = permissionChecker_->CheckIsNativeCall();
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: TestIsNativeCallFalse
+ * @tc.desc: Test PermissionChecker IsNativeCall func when not native process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestIsNativeCallFalse, TestSize.Level1)
+{
+    EXPECT_CALL(*accessTokenMgrMock_, IsNativeCall).WillOnce(DoAll(Return(false)));
+    bool ret = permissionChecker_->CheckIsNativeCall();
+    ASSERT_FALSE(ret);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

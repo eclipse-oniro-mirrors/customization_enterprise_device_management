@@ -66,6 +66,8 @@ public:
     ErrCode RemoveAdminItem(const std::string &adminName, const std::string &policyName, const std::string &policyValue,
         int32_t userId);
     void CallOnOtherServiceStart(uint32_t interfaceCode, int32_t systemAbilityId);
+    void CallOnHandlePolicy(uint32_t funcCode, const std::string &adminName,
+        MessageParcel &data, int32_t userId);
     void OnInitExecute(uint32_t interfaceCode, const std::vector<std::string> &bundleNames, int32_t userId);
     ErrCode SetPluginUnloadFlag(uint32_t code, bool unloadFlag);
     ErrCode UnloadCollectLogPlugin();

@@ -1582,6 +1582,26 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(const std::string &bundleName
 }
 
 // LCOV_EXCL_START
+void EnterpriseDeviceMgrAbility::OnAdminDisabled(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType)
+{
+    OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
+        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
+    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
+    if (superAdmin != nullptr && adminType == AdminType::NORMAL) {
+        OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED,
+            userId, admin->adminInfo_.packageName_);
+    }
+#ifndef FEATURE_PC_ONLY
+    if (!admin->adminInfo_.isDebug_ &&
+        admin->adminInfo_.enableSource_ == EnableSource::DEPLOY &&
+        !GetPermissionChecker()->CheckIsNativeCall()) {
+        ExtInfoManager::GetInstance()->NotifyAdminDisabled(
+            static_cast<int32_t>(admin->adminInfo_.adminType_),
+            admin->adminInfo_.packageName_);
+    }
+#endif
+}
+
 ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin, int32_t userId, AdminType adminType)
 {
     if (admin->IsSuperAdmin() && FAILED(RemoveSuperAdminAndAdminPolicy(admin->adminInfo_.packageName_))) {
@@ -1604,13 +1624,7 @@ ErrCode EnterpriseDeviceMgrAbility::DoDisableAdmin(std::shared_ptr<Admin> admin,
         DelayUnloadManager::GetInstance()->TryStartDelayUnload();
         EdmDataAbilityUtils::UpdateSettingsData(KEY_EDM_DISPLAY, "false");
     }
-    OnAdminEnabled(admin->adminInfo_.packageName_, admin->adminInfo_.className_,
-        IEnterpriseAdmin::COMMAND_ON_ADMIN_DISABLED, userId);
-    auto superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
-    if (superAdmin != nullptr && adminType == AdminType::NORMAL) {
-        OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_DISABLED,
-            userId, admin->adminInfo_.packageName_);
-    }
+    OnAdminDisabled(admin, userId, adminType);
     if (admin->IsDisallowedUninstall()) {
         if (admin->IsAllowedAcrossAccountSetPolicy()) {
             DelDisallowUninstallApp(admin->adminInfo_.packageName_);

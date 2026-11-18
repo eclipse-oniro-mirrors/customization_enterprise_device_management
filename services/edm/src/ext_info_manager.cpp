@@ -162,5 +162,19 @@ ErrCode ExtInfoManager::GetExtInfo(ExtInfoType extInfoType, MessageParcel &reply
     data.WriteInt32(static_cast<int32_t>(extInfoType));
     return PluginManager::GetInstance()->GetPolicy(funcCode, "", data, reply, EdmConstants::DEFAULT_USER_ID);
 }
+
+// LCOV_EXCL_START
+void ExtInfoManager::NotifyAdminDisabled(int32_t adminType, const std::string &bundleName)
+{
+    EDMLOGI("ExtInfoManager::NotifyAdminDisabled adminType=%{public}d bundle=%{public}s",
+        adminType, bundleName.c_str());
+    MessageParcel data;
+    data.WriteInt32(adminType);
+    data.WriteString(bundleName);
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, (uint32_t)EdmInterfaceCode::GET_EXT_INFO);
+    PluginManager::GetInstance()->CallOnHandlePolicy(funcCode,
+        bundleName, data, EdmConstants::DEFAULT_USER_ID);
+}
+// LCOV_EXCL_STOP
 } // namespace EDM
 } // namespace OHOS
