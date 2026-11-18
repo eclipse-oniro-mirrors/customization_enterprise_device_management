@@ -213,6 +213,35 @@ HWTEST_F(AllowedPermissionBundleSerializerTest, TestSerializeEmpty_SUC, TestSize
 }
 
 /**
+ * @tc.name: TestSerializeEmptyClearsStalePolicy_SUC
+ * @tc.desc: Test Serialize clears a stale output when data is empty, so that removing the last
+ *           app deletes the stale policy instead of writing it back.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AllowedPermissionBundleSerializerTest, TestSerializeEmptyClearsStalePolicy_SUC, TestSize.Level1)
+{
+    std::map<std::string, std::vector<ApplicationInstance>> dataObj;
+    std::string policy = "stale";
+    bool ret = serializer_->Serialize(dataObj, policy);
+    ASSERT_TRUE(ret);
+    EXPECT_TRUE(policy.empty());
+}
+
+/**
+ * @tc.name: TestDeserializeEmptyClearsData_SUC
+ * @tc.desc: Test Deserialize clears the output when policy is empty, so that a reused container
+ *           cannot keep stale apps.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AllowedPermissionBundleSerializerTest, TestDeserializeEmptyClearsData_SUC, TestSize.Level1)
+{
+    std::map<std::string, std::vector<ApplicationInstance>> dataObj;
+    dataObj["ohos.permission.CAMERA"] = { CreateAppInstance("com.test.app1", 100, 0, "com.test.app1") };
+    ASSERT_TRUE(serializer_->Deserialize("", dataObj));
+    EXPECT_TRUE(dataObj.empty());
+}
+
+/**
  * @tc.name: TestSerializeEmptyAppList_SUC
  * @tc.desc: Test Serialize function with empty app list.
  * @tc.type: FUNC

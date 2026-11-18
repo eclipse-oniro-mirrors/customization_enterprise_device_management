@@ -87,6 +87,7 @@ std::vector<ManageAutoStartAppInfo> ManageAutoStartAppsSerializer::SetIntersecti
  
 bool ManageAutoStartAppsSerializer::Deserialize(const std::string &policy, std::vector<ManageAutoStartAppInfo> &dataObj)
 {
+    dataObj.clear();
     if (policy.empty()) {
         return true;
     }
@@ -135,6 +136,7 @@ bool ManageAutoStartAppsSerializer::Serialize(const std::vector<ManageAutoStartA
     std::string &policy)
 {
     if (dataObj.empty()) {
+        policy = "";
         return true;
     }
     cJSON* root = nullptr;

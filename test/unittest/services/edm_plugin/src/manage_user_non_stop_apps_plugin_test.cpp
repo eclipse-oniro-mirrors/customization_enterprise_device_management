@@ -58,6 +58,39 @@ void ManageUserNonStopAppsPluginTest::TearDownTestSuite(void)
 }
 
 /**
+ * @tc.name: TestManageAppsSerializerSerializeEmptyPolicy
+ * @tc.desc: Test ManageAppsSerializer::Serialize clears the output when data is empty, so that
+ *           removing the last app can delete the stale admin policy instead of writing it back.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageUserNonStopAppsPluginTest, TestManageAppsSerializerSerializeEmptyPolicy, TestSize.Level1)
+{
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> apps = { { "appId", "com.test.app", DEFAULT_USER_ID, 0 } };
+    std::string policy = "stale";
+    EXPECT_TRUE(serializer->Serialize(apps, policy));
+    EXPECT_FALSE(policy.empty());
+
+    std::vector<ApplicationInstance> emptyApps;
+    EXPECT_TRUE(serializer->Serialize(emptyApps, policy));
+    EXPECT_TRUE(policy.empty());
+}
+
+/**
+ * @tc.name: TestManageAppsSerializerDeserializeEmptyClearsData
+ * @tc.desc: Test ManageAppsSerializer::Deserialize clears the output when policy is empty, so that a
+ *           reused container cannot keep stale apps.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageUserNonStopAppsPluginTest, TestManageAppsSerializerDeserializeEmptyClearsData, TestSize.Level1)
+{
+    auto serializer = ManageAppsSerializer::GetInstance();
+    std::vector<ApplicationInstance> apps = { { "appId", "com.test.app", DEFAULT_USER_ID, 0 } };
+    EXPECT_TRUE(serializer->Deserialize("", apps));
+    EXPECT_TRUE(apps.empty());
+}
+
+/**
  * @tc.name: TestOnHandlePolicyAddFailWithNullData
  * @tc.desc: Test ManageUserNonStopAppsPlugin::OnHandlePolicy add when data is empty.
  * @tc.type: FUNC

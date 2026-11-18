@@ -136,6 +136,43 @@ HWTEST_F(ClipboardPolicyPluginTest, TestHandlePasteboardPolicy, TestSize.Level1)
     ASSERT_TRUE(ret == ERR_OK);
 }
 
+/**
+ * @tc.name: TestClipboardSerializerSerializeEmpty
+ * @tc.desc: Test ClipboardSerializer::Serialize clears a stale output when the policy is empty,
+ *           so that removing the last app deletes the stale policy instead of writing it back.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClipboardPolicyPluginTest, TestClipboardSerializerSerializeEmpty, TestSize.Level1)
+{
+    auto serializer = ClipboardSerializer::GetInstance();
+    ClipboardInfo info = {ClipboardPolicy::DEFAULT, -1, ""};
+    std::map<int32_t, ClipboardInfo> data;
+    data.insert(std::make_pair(1, info));
+    std::string policy;
+    ASSERT_TRUE(serializer->Serialize(data, policy));
+    ASSERT_FALSE(policy.empty());
+
+    std::map<int32_t, ClipboardInfo> emptyData;
+    ASSERT_TRUE(serializer->Serialize(emptyData, policy));
+    ASSERT_TRUE(policy.empty());
+}
+
+/**
+ * @tc.name: TestClipboardSerializerDeserializeEmpty
+ * @tc.desc: Test ClipboardSerializer::Deserialize clears the output when policy is empty, so that a
+ *           reused container cannot keep stale entries.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClipboardPolicyPluginTest, TestClipboardSerializerDeserializeEmpty, TestSize.Level1)
+{
+    auto serializer = ClipboardSerializer::GetInstance();
+    ClipboardInfo info = {ClipboardPolicy::DEFAULT, -1, ""};
+    std::map<int32_t, ClipboardInfo> data;
+    data.insert(std::make_pair(1, info));
+    ASSERT_TRUE(serializer->Deserialize("", data));
+    ASSERT_TRUE(data.empty());
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

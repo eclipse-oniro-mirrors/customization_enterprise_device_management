@@ -83,6 +83,7 @@ std::vector<ManageKeepAliveAppInfo> ManageKeepAliveAppsSerializer::SetIntersecti
 
 bool ManageKeepAliveAppsSerializer::Deserialize(const std::string &policy, std::vector<ManageKeepAliveAppInfo> &dataObj)
 {
+    dataObj.clear();
     if (policy.empty()) {
         return true;
     }
@@ -114,6 +115,7 @@ bool ManageKeepAliveAppsSerializer::Serialize(const std::vector<ManageKeepAliveA
     std::string &policy)
 {
     if (dataObj.empty()) {
+        policy = "";
         return true;
     }
     cJSON* root = nullptr;

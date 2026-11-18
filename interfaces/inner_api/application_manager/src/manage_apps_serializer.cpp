@@ -91,6 +91,7 @@ std::vector<ApplicationInstance> ManageAppsSerializer::SetIntersectionPolicyData
 
 bool ManageAppsSerializer::Deserialize(const std::string &policy, std::vector<ApplicationInstance> &dataObj)
 {
+    dataObj.clear();
     if (policy.empty()) {
         return true;
     }
@@ -134,6 +135,7 @@ bool ManageAppsSerializer::Deserialize(const std::string &policy, std::vector<Ap
 bool ManageAppsSerializer::Serialize(const std::vector<ApplicationInstance> &dataObj, std::string &policy)
 {
     if (dataObj.empty()) {
+        policy = "";
         return true;
     }
     cJSON* root = nullptr;
