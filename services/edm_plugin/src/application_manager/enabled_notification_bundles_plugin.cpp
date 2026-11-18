@@ -46,8 +46,12 @@ ErrCode EnabledNotificationBundlesPlugin::OnSetPolicy(std::vector<std::string> &
     std::vector<std::string> &currentData, std::vector<std::string> &mergeData, int32_t userId)
 {
     EDMLOGI("EnabledNotificationBundlesPlugin OnSetPolicy, userId=%{public}d", userId);
-    if (userId <= 0) {
-        EDMLOGE("EnabledNotificationBundlesPlugin OnSetPolicy invalid userId=%{public}d", userId);
+    if (userId < 0) {
+        EDMLOGE("EnabledNotificationBundlesPlugin OnSetPolicy negative userId=%{public}d", userId);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (userId == 0) {
+        EDMLOGE("EnabledNotificationBundlesPlugin OnSetPolicy userId is zero");
         return EdmReturnErrCode::UID_INVALID;
     }
     if (data.empty()) {
@@ -78,8 +82,12 @@ ErrCode EnabledNotificationBundlesPlugin::OnRemovePolicy(std::vector<std::string
     std::vector<std::string> &currentData, std::vector<std::string> &mergeData, int32_t userId)
 {
     EDMLOGI("EnabledNotificationBundlesPlugin OnRemovePolicy, userId=%{public}d", userId);
-    if (userId <= 0) {
-        EDMLOGE("EnabledNotificationBundlesPlugin OnRemovePolicy invalid userId=%{public}d", userId);
+    if (userId < 0) {
+        EDMLOGE("EnabledNotificationBundlesPlugin OnRemovePolicy negative userId=%{public}d", userId);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (userId == 0) {
+        EDMLOGE("EnabledNotificationBundlesPlugin OnRemovePolicy userId is zero");
         return EdmReturnErrCode::UID_INVALID;
     }
     if (data.empty()) {
@@ -107,8 +115,12 @@ ErrCode EnabledNotificationBundlesPlugin::OnAdminRemove(const std::string &admin
     std::vector<std::string> &data, std::vector<std::string> &mergeData, int32_t userId)
 {
     EDMLOGI("EnabledNotificationBundlesPlugin OnAdminRemove, userId=%{public}d", userId);
-    if (userId <= 0) {
-        EDMLOGE("EnabledNotificationBundlesPlugin OnAdminRemove invalid userId=%{public}d", userId);
+    if (userId < 0) {
+        EDMLOGE("EnabledNotificationBundlesPlugin OnAdminRemove negative userId=%{public}d", userId);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (userId == 0) {
+        EDMLOGE("EnabledNotificationBundlesPlugin OnAdminRemove userId is zero");
         return EdmReturnErrCode::UID_INVALID;
     }
     ErrCode ret = PushMergedList(mergeData, userId);

@@ -55,6 +55,24 @@ auto convertServiceType2Data = [](napi_env env, napi_value argv, OHOS::MessagePa
     return OHOS::ERR_OK;
 };
 
+auto convertEnabledNotificationAccountId2Data = [](napi_env env, napi_value argv, OHOS::MessageParcel &data,
+    const AddonMethodSign &methodSign) -> OHOS::ErrCode {
+    int32_t accountId = 0;
+    if (!ParseInt(env, accountId, argv)) {
+        EDMLOGE("NAPI_EnabledNotificationBundles accountId ParseInt fail");
+        return EdmReturnErrCode::PARAM_ERROR;
+    }
+    if (accountId < 0) {
+        EDMLOGE("NAPI_EnabledNotificationBundles accountId is negative");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (accountId == 0) {
+        EDMLOGE("NAPI_EnabledNotificationBundles accountId is zero");
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    return OHOS::ERR_OK;
+};
+
 napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
 {
     napi_value nKioskFeature = nullptr;
@@ -2241,6 +2259,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveEnabledNotificationBundles(napi_e
     addonMethodSign.name = operateType == FuncOperateType::SET ?
         "AddEnabledNotificationBundles" : "RemoveEnabledNotificationBundles";
     addonMethodSign.argsType = {EdmAddonCommonType::ARRAY_STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {nullptr, convertEnabledNotificationAccountId2Data};
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
@@ -2263,6 +2282,7 @@ napi_value ApplicationManagerAddon::GetEnabledNotificationBundles(napi_env env, 
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetEnabledNotificationBundles";
     addonMethodSign.argsType = {EdmAddonCommonType::USERID, EdmAddonCommonType::QUERY_POLICY};
+    addonMethodSign.argsConvert = {convertEnabledNotificationAccountId2Data, nullptr};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     addonMethodSign.defaultArgSize = 1;
