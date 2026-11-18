@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+#include "edm_constants.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "sms_message_info.h"
@@ -286,6 +287,120 @@ HWTEST_F(TelephonyManagerProxyTest, TestGetCallPolicyNumbersFail, TestSize.Level
     std::vector<std::string> numbers;
     int32_t ret = telephonyManagerProxy->GetCallPolicyNumbers(data, numbers);
     ASSERT_TRUE(ret == EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestIsAllowedTelephonyCallSuc
+ * @tc.desc: Test IsAllowedTelephonyCall success and returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestIsAllowedTelephonyCallSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool isAllowed = telephonyManagerProxy->IsAllowedTelephonyCall("incoming", "11111111");
+    ASSERT_TRUE(isAllowed);
+}
+
+/**
+ * @tc.name: TestIsAllowedTelephonyCallBlocked
+ * @tc.desc: Test IsAllowedTelephonyCall returns false when number is blocked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestIsAllowedTelephonyCallBlocked, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolFalseSendRequestGetPolicy));
+    bool isAllowed = telephonyManagerProxy->IsAllowedTelephonyCall("incoming", "11111111");
+    ASSERT_FALSE(isAllowed);
+}
+
+/**
+ * @tc.name: TestIsAllowedTelephonyCallFail
+ * @tc.desc: Test IsAllowedTelephonyCall fails to query policy and defaults to allow (true).
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestIsAllowedTelephonyCallFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
+    bool isAllowed = telephonyManagerProxy->IsAllowedTelephonyCall("incoming", "11111111");
+    ASSERT_TRUE(isAllowed);
+}
+
+/**
+ * @tc.name: TestIsAllowedTelephonyCallEdmDisabled
+ * @tc.desc: Test IsAllowedTelephonyCall when EDM is disabled defaults to allow (true).
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestIsAllowedTelephonyCallEdmDisabled, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    bool isAllowed = telephonyManagerProxy->IsAllowedTelephonyCall("incoming", "11111111");
+    ASSERT_TRUE(isAllowed);
+}
+
+/**
+ * @tc.name: TestAddCallPolicyNumbersOverLimit
+ * @tc.desc: Test AddCallPolicyNumbers with 10001 numbers exceeds the limit, returns ERR_INVALID_VALUE.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersOverLimit, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    for (uint32_t i = 0; i <= EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE; ++i) {
+        numbers.push_back(std::to_string(i));
+    }
+    int32_t ret = telephonyManagerProxy->AddCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: TestAddCallPolicyNumbersAtLimit
+ * @tc.desc: Test AddCallPolicyNumbers with 10000 numbers succeeds.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestAddCallPolicyNumbersAtLimit, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    for (uint32_t i = 0; i < EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE; ++i) {
+        numbers.push_back(std::to_string(i));
+    }
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = telephonyManagerProxy->AddCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.name: TestRemoveCallPolicyNumbersOverLimit
+ * @tc.desc: Test RemoveCallPolicyNumbers with 10001 numbers exceeds the limit, returns ERR_INVALID_VALUE.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TelephonyManagerProxyTest, TestRemoveCallPolicyNumbersOverLimit, TestSize.Level1)
+{
+    OHOS::AppExecFwk::ElementName admin;
+    admin.SetBundleName(ADMIN_PACKAGENAME);
+    std::string callType = "incoming";
+    int32_t policyFlag = 0;
+    std::vector<std::string> numbers;
+    for (uint32_t i = 0; i <= EdmConstants::CallPolicy::NUMBER_LIST_MAX_SIZE; ++i) {
+        numbers.push_back(std::to_string(i));
+    }
+    int32_t ret = telephonyManagerProxy->RemoveCallPolicyNumbers(admin, callType, policyFlag, numbers);
+    ASSERT_TRUE(ret == ERR_INVALID_VALUE);
 }
 
 /**
