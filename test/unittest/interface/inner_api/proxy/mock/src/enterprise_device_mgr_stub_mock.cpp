@@ -219,6 +219,17 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, M
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyWithoutBool(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolSendRequestGetPolicyWithoutBool code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    // Intentionally omit the bool to simulate a WriteBool failure in the plugin.
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

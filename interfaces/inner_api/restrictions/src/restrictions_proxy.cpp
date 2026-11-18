@@ -72,7 +72,11 @@ int32_t RestrictionsProxy::GetDisallowedPolicyImplicitAdmin(MessageParcel &data,
         EDMLOGW("RestrictionsProxy::GetDisallowedPolicyImplicitAdmin GetPolicyNew fail. %{public}d", ret);
         return ret;
     }
-    reply.ReadBool(result);
+    result = false;
+    if (!reply.ReadBool(result)) {
+        EDMLOGE("RestrictionsProxy::GetDisallowedPolicyImplicitAdmin ReadBool fail.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
     return ERR_OK;
 }
 

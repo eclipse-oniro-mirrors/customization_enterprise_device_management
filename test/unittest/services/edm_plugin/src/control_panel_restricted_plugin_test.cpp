@@ -186,11 +186,11 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_GlobalChanged_NotifyContr
 }
 
 /**
- * @tc.name: OnSetPolicy_SameValue_NoControlPanelNotify
- * @tc.desc: Test setting the same value does not trigger the control panel broadcast.
+ * @tc.name: OnSetPolicy_SameValue_StillNotifyControlPanel
+ * @tc.desc: Test setting the same value still triggers the control panel broadcast.
  * @tc.type: FUNC
  */
-HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoControlPanelNotify, TestSize.Level1)
+HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_StillNotifyControlPanel, TestSize.Level1)
 {
     MockExtraPolicyNotification mock;
     ScopedPolicyNotification guard(&mock);
@@ -205,7 +205,7 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnSetPolicy_SameValue_NoControlPanelN
     data.WriteBool(true);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
-    EXPECT_EQ(mock.count_, 0);
+    EXPECT_EQ(mock.count_, 1);
 }
 
 /**

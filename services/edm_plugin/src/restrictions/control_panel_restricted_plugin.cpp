@@ -56,12 +56,14 @@ ErrCode ControlPanelRestrictedPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
     // Last-write-wins: the latest admin value is the effective device value.
     policyData.policyData = newValue ? EdmConstants::CONST_TRUE : "";
     policyData.mergePolicyData = newValue ? EdmConstants::CONST_TRUE : "";
-    policyData.isChanged = (oldAdminValue != newValue) || (oldGlobalValue != newValue);
-    if (oldGlobalValue != newValue) {
+    bool globalChanged = (oldGlobalValue != newValue);
+    policyData.isChanged = (oldAdminValue != newValue) || globalChanged;
+    if (globalChanged) {
         IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
             OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
-        IExtraPolicyNotification::GetInstance()->NotifyControlPanelRestrictedChanged();
     }
+    // Notify the control panel on every successful set, even if the value is unchanged.
+    IExtraPolicyNotification::GetInstance()->NotifyControlPanelRestrictedChanged();
     return ERR_OK;
 }
 
@@ -90,8 +92,22 @@ ErrCode ControlPanelRestrictedPlugin::OnGetPolicy(std::string &policyData, Messa
     if (FAILED(ret)) {
         return ret;
     }
-    reply.WriteInt32(ERR_OK);
-    reply.WriteBool(restricted);
+    // Build the whole success reply in a temporary parcel first. If writing the
+    // bool fails, leave reply empty so that the stub's error code becomes the
+    // first int32 and the proxy can return 9200016 instead of reading it as true.
+    MessageParcel temp;
+    if (!temp.WriteInt32(ERR_OK)) {
+        EDMLOGE("ControlPanelRestrictedPlugin write reply status failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    if (!temp.WriteBool(restricted)) {
+        EDMLOGE("ControlPanelRestrictedPlugin write reply bool failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    if (!reply.Append(temp)) {
+        EDMLOGE("ControlPanelRestrictedPlugin append reply failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
     return ERR_OK;
 }
 
@@ -103,11 +119,15 @@ ErrCode ControlPanelRestrictedPlugin::OnAdminRemove(const std::string &adminName
         EdmConstants::CONST_TRUE;
     bool remainingHasTrue = mergeData == EdmConstants::CONST_TRUE;
     bool newGlobalValue = oldGlobalValue && remainingHasTrue;
-    if (oldGlobalValue == newGlobalValue) {
+    if (newGlobalValue) {
+        // newGlobalValue can only be true when oldGlobalValue is true and a
+        // remaining admin still holds true, so the effective value is unchanged.
         return ERR_OK;
     }
-    if (!system::SetParameter(persistParam_,
-        newGlobalValue ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE)) {
+    // Always clear the flag when the recomputed value is false. If reading the
+    // old value failed, it is treated as false; writing false here prevents a
+    // stale "true" from being left behind and never re-enables the flag.
+    if (!system::SetParameter(persistParam_, EdmConstants::CONST_FALSE)) {
         EDMLOGE("ControlPanelRestrictedPlugin reset persist param failed.");
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
