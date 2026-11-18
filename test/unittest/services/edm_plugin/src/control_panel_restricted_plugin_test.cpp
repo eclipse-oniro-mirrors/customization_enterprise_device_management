@@ -331,11 +331,14 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnGetPolicy_InvalidPersistValue_Retur
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_LastHolder_ClearPersist, TestSize.Level1)
 {
+    MockExtraPolicyNotification mock;
+    ScopedPolicyNotification guard(&mock);
     auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
     system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
 
     ErrCode ret = plugin->OnAdminRemove("com.edm.test.admin", EdmConstants::CONST_TRUE, "", DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(mock.count_, 1);
     EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true"), "false");
 }
 
@@ -346,12 +349,15 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_LastHolder_ClearPersist
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_OtherHolder_KeepPersist, TestSize.Level1)
 {
+    MockExtraPolicyNotification mock;
+    ScopedPolicyNotification guard(&mock);
     auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
     system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true");
 
     ErrCode ret = plugin->OnAdminRemove("com.edm.test.admin", EdmConstants::CONST_TRUE,
         EdmConstants::CONST_TRUE, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(mock.count_, 0);
     EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "true"), "true");
 }
 
@@ -362,12 +368,15 @@ HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_OtherHolder_KeepPersist
  */
 HWTEST_F(ControlPanelRestrictedPluginTest, OnAdminRemove_NoReEnable, TestSize.Level1)
 {
+    MockExtraPolicyNotification mock;
+    ScopedPolicyNotification guard(&mock);
     auto plugin = std::make_shared<ControlPanelRestrictedPlugin>();
     system::SetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false");
 
     ErrCode ret = plugin->OnAdminRemove("com.edm.test.admin", EdmConstants::CONST_FALSE,
         EdmConstants::CONST_TRUE, DEFAULT_USER_ID);
     EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(mock.count_, 1);
     EXPECT_EQ(system::GetParameter(PARAM_CONTROL_PANEL_RESTRICTED, "false"), "false");
 }
 } // namespace TEST
