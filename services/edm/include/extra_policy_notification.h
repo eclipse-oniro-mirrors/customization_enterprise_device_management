@@ -33,6 +33,7 @@ public:
     ErrCode Notify(const std::string &adminName, const int32_t userId, const bool isSuccess) override;
     ErrCode ReportKeyEvent(const std::string &adminName, const int32_t userId, const std::string &keyEvent) override;
     bool NotifyPolicyChanged(const std::string &interfaceName, const std::string &parameters) override;
+    bool NotifyControlPanelRestrictedChanged() override;
 private:
     ErrCode UnloadPlugin(uint32_t code);
     void NotifySubscriber(const std::string &bundleName, const std::string &abilityName,

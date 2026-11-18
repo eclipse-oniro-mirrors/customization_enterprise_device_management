@@ -77,6 +77,7 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_NORMAL = "normal";
     const char* const SCENE_APP_UNINSTALL = "app_uninstall";
     const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
+    const char* const CONTROL_CENTER_BUNDLE_NAME = "com.ohos.sceneboard";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
@@ -127,6 +128,9 @@ namespace EdmConstants {
     // 外置存储设备挂载拦截使能persist参数
     constexpr const char* PARAM_EDM_ENABLE_EXTERNAL_STORAGE_MOUNT_INTERCEPT =
         "persist.edm.enable_external_storage_mount_intercept";
+
+    // 控制中心图标裁剪管控标记persist参数
+    constexpr const char* PARAM_EDM_CONTROL_PANEL_RESTRICTED = "persist.edm.control_panel_restricted";
     
     // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
     const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
@@ -659,6 +663,9 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
     const char* const POLICY_GET_APPLICATION_ICON_DATA = "get_application_icon_data";
     const char* const POLICY_DISALLOW_INSTALL_DEVICE_CERTIFICATE = "disallow_install_device_certificate";
+    const char* const POLICY_CONTROL_PANEL_RESTRICTED = "control_panel_restricted";
+    const char* const POLICY_CONTROL_PANEL_QUICK_TOGGLE_LIST = "control_panel_quick_toggle_list";
+    const char* const POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST = "control_panel_top_toggle_list";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

@@ -694,6 +694,8 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK, {PolicyName::POLICY_DISALLOW_MULTI_WINDOW_DOCK,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    // CONTROL_PANEL_RESTRICTED intentionally has no query entry. GET falls back to
+    // ControlPanelRestrictedPlugin::OnGetPolicy to read the device-level persist value.
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

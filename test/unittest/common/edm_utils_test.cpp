@@ -303,6 +303,68 @@ HWTEST_F(EdmUtilsTest, Test_TrustedExternalPath_WithBackslashPattern, TestSize.L
     bool result = EdmUtils::TrustedExternalPath(path);
     ASSERT_FALSE(result);
 }
+
+/**
+ * @tc.name: Test_JoinString_Normal
+ * @tc.desc: Test JoinString joins values with the given delimiter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_JoinString_Normal, TestSize.Level1)
+{
+    std::vector<std::string> values = {"flashlight", "ring_mode", "nfc"};
+    ASSERT_EQ(EdmUtils::JoinString(values, ","), "flashlight,ring_mode,nfc");
+}
+
+/**
+ * @tc.name: Test_JoinString_EmptyAndSingle
+ * @tc.desc: Test JoinString returns empty string for empty input and no delimiter for single input.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_JoinString_EmptyAndSingle, TestSize.Level1)
+{
+    ASSERT_EQ(EdmUtils::JoinString({}, ","), "");
+    ASSERT_EQ(EdmUtils::JoinString({"flashlight"}, ","), "flashlight");
+}
+
+/**
+ * @tc.name: Test_SplitString_Normal
+ * @tc.desc: Test SplitString splits a comma-separated string into values.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_SplitString_Normal, TestSize.Level1)
+{
+    std::vector<std::string> result = EdmUtils::SplitString("flashlight,ring_mode,nfc", ",");
+    ASSERT_EQ(result.size(), 3);
+    EXPECT_EQ(result[0], "flashlight");
+    EXPECT_EQ(result[1], "ring_mode");
+    EXPECT_EQ(result[2], "nfc");
+}
+
+/**
+ * @tc.name: Test_SplitString_NoDelimiter
+ * @tc.desc: Test SplitString returns a single value when the delimiter is absent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_SplitString_NoDelimiter, TestSize.Level1)
+{
+    std::vector<std::string> result = EdmUtils::SplitString("flashlight", ",");
+    ASSERT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0], "flashlight");
+}
+
+/**
+ * @tc.name: Test_SplitString_EmptyAndConsecutive
+ * @tc.desc: Test SplitString ignores empty input and empty tokens.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EdmUtilsTest, Test_SplitString_EmptyAndConsecutive, TestSize.Level1)
+{
+    ASSERT_TRUE(EdmUtils::SplitString("", ",").empty());
+    std::vector<std::string> result = EdmUtils::SplitString("flashlight,,nfc,", ",");
+    ASSERT_EQ(result.size(), 2);
+    EXPECT_EQ(result[0], "flashlight");
+    EXPECT_EQ(result[1], "nfc");
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

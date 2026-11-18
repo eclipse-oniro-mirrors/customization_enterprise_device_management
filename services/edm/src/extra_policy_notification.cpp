@@ -18,6 +18,9 @@
 #include "admin.h"
 #include "admin_manager.h"
 #include "callback_strategies.h"
+#include "common_event_data.h"
+#include "common_event_manager.h"
+#include "common_event_publish_info.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -26,7 +29,7 @@
 #include "ienterprise_admin.h"
 #include "plugin_manager.h"
 #include "ipc_skeleton.h"
-#include "edm_os_account_manager_impl.h"
+#include "want.h"
 
 namespace OHOS {
 namespace EDM {
@@ -113,6 +116,39 @@ bool ExtraPolicyNotification::NotifyPolicyChanged(const std::string &interfaceNa
         }
     }
     return true;
+}
+
+bool ExtraPolicyNotification::NotifyControlPanelRestrictedChanged()
+{
+    EDMLOGI("ExtraPolicyNotification::NotifyControlPanelRestrictedChanged");
+    AAFwk::Want want;
+    want.SetAction(EdmConstants::EDM_CONFIG_CHANGED_EVENT);
+
+    EventFwk::CommonEventData eventData;
+    eventData.SetWant(want);
+
+    EventFwk::CommonEventPublishInfo publishInfo;
+    publishInfo.SetBundleName(EdmConstants::CONTROL_CENTER_BUNDLE_NAME);
+
+    std::vector<int32_t> userIds;
+    if (edmOsAccountManagerImpl_->QueryActiveOsAccountIds(userIds) != ERR_OK || userIds.empty()) {
+        EDMLOGW("NotifyControlPanelRestrictedChanged get active userIds failed, use current user.");
+        int32_t currentUserId = edmOsAccountManagerImpl_->GetCurrentUserId();
+        if (currentUserId < 0) {
+            EDMLOGE("NotifyControlPanelRestrictedChanged get current userId failed.");
+            return false;
+        }
+        userIds.push_back(currentUserId);
+    }
+
+    bool success = true;
+    for (int32_t userId : userIds) {
+        if (EventFwk::CommonEventManager::NewPublishCommonEventAsUser(eventData, publishInfo, userId) != ERR_OK) {
+            EDMLOGE("NotifyControlPanelRestrictedChanged publish failed, userId=%{public}d", userId);
+            success = false;
+        }
+    }
+    return success;
 }
 
 // LCOV_EXCL_START

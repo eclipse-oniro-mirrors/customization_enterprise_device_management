@@ -102,6 +102,9 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
     EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
     EdmInterfaceCode::POWER_MODE_SETTINGS,
+    EdmInterfaceCode::CONTROL_PANEL_RESTRICTED,
+    EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
+    EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
