@@ -21,6 +21,7 @@
 
 namespace OHOS {
 namespace EDM {
+static constexpr int32_t MAX_CERTIFICATE_COUNT = 10;
 std::shared_ptr<SecurityManagerProxy> SecurityManagerProxy::instance_ = nullptr;
 std::once_flag SecurityManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
@@ -700,6 +701,32 @@ int32_t SecurityManagerProxy::GetCredentialId(MessageParcel &data, uint64_t &cre
         return ret;
     }
     credentialId = reply.ReadUint64();
+    return ERR_OK;
+}
+
+int32_t SecurityManagerProxy::GetEnterpriseReSignatureCertificates(MessageParcel &data,
+    std::vector<ReSignatureCertificateInfo> &certificateInfos)
+{
+    EDMLOGI("SecurityManagerProxy::GetEnterpriseReSignatureCertificates");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::GET_ENTERPRISE_RE_SIGNATURE_CERTIFICATE, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("SecurityManagerProxy::GetEnterpriseReSignatureCertificates fail. %{public}d", ret);
+        return ret;
+    }
+    int32_t size = reply.ReadInt32();
+    if (size < 0 || size > MAX_CERTIFICATE_COUNT) {
+        EDMLOGE("SecurityManagerProxy::GetEnterpriseReSignatureCertificates invalid size. %{public}d", size);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    for (int32_t i = 0; i < size; ++i) {
+        ReSignatureCertificateInfo certificateInfo;
+        certificateInfo.certificateAlias = reply.ReadString();
+        certificateInfo.enterpriseName = reply.ReadString();
+        certificateInfo.expirationTime = reply.ReadInt64();
+        certificateInfos.emplace_back(certificateInfo);
+    }
     return ERR_OK;
 }
 } // namespace EDM

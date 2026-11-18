@@ -121,6 +121,7 @@ std::vector<napi_property_descriptor> SecurityManagerAddon::InitOne(napi_value n
         DECLARE_NAPI_FUNCTION("setWeakPinEnable", SetWeakPinEnable),
         DECLARE_NAPI_FUNCTION("isWeakPinEnabled", IsWeakPinEnabled),
         DECLARE_NAPI_FUNCTION("getCredentialId", GetCredentialId),
+        DECLARE_NAPI_FUNCTION("getEnterpriseReSignatureCertificates", GetEnterpriseReSignatureCertificates),
     };
     return property;
 }
@@ -1823,6 +1824,52 @@ napi_value SecurityManagerAddon::GetPasswordLastChangedTime(napi_env env, napi_c
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_int64(env, static_cast<int64_t>(latestTime), &result));
     return result;
+}
+
+napi_value SecurityManagerAddon::GetEnterpriseReSignatureCertificates(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_GetEnterpriseReSignatureCertificates called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "GetEnterpriseReSignatureCertificates";
+    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    std::vector<ReSignatureCertificateInfo> certificateInfos;
+    int32_t ret = SecurityManagerProxy::GetSecurityManagerProxy()->GetEnterpriseReSignatureCertificates(
+        adapterAddonData.data, certificateInfos);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    return ConvertReSignatureCertificateInfos(env, certificateInfos);
+}
+
+napi_value SecurityManagerAddon::ConvertReSignatureCertificateInfos(napi_env env,
+    const std::vector<ReSignatureCertificateInfo> &certificateInfos)
+{
+    napi_value array = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &array));
+    for (size_t i = 0; i < certificateInfos.size(); ++i) {
+        napi_value object = nullptr;
+        NAPI_CALL(env, napi_create_object(env, &object));
+        napi_value certificateAlias = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, certificateInfos[i].certificateAlias.c_str(),
+            certificateInfos[i].certificateAlias.size(), &certificateAlias));
+        NAPI_CALL(env, napi_set_named_property(env, object, "certificateAlias", certificateAlias));
+        napi_value enterpriseName = nullptr;
+        NAPI_CALL(env, napi_create_string_utf8(env, certificateInfos[i].enterpriseName.c_str(),
+            certificateInfos[i].enterpriseName.size(), &enterpriseName));
+        NAPI_CALL(env, napi_set_named_property(env, object, "enterpriseName", enterpriseName));
+        napi_value expirationTime = nullptr;
+        NAPI_CALL(env, napi_create_int64(env, certificateInfos[i].expirationTime, &expirationTime));
+        NAPI_CALL(env, napi_set_named_property(env, object, "expirationTime", expirationTime));
+        NAPI_CALL(env, napi_set_element(env, array, static_cast<uint32_t>(i), object));
+    }
+    return array;
 }
 
 void SecurityManagerAddon::CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value)

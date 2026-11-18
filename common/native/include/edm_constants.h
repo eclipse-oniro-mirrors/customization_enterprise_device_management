@@ -577,6 +577,8 @@ namespace PolicyName {
     const char* const POLICY_SET_KEY_CODE = "set_key_code";
     const char* const POLICY_INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE =
         "install_enterprise_re_signature_certificate";
+    const char* const POLICY_GET_ENTERPRISE_RE_SIGNATURE_CERTIFICATE =
+        "get_enterprise_re_signature_certificate";
     const char* const POLICY_DISALLOW_USB_SERIAL = "disallow_usb_serial";
     const char* const POLICY_DISALLOW_UINPUT = "disallow_uinput";
     const char* const POLICY_DISALLOW_X_KEY = "disallow_x_key";

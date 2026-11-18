@@ -118,6 +118,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/bundle_manager/default_application_plugin.cpp",
       "./src/bundle_manager/disallowed_install_bundles_plugin.cpp",
       "./src/bundle_manager/disallowed_uninstall_bundles_plugin.cpp",
+      "./src/bundle_manager/get_enterprise_re_signature_certificate_plugin.cpp",
       "./src/bundle_manager/install_enterprise_re_signature_certificate_plugin.cpp",
       "./src/bundle_manager/install_plugin.cpp",
       "./src/bundle_manager/uninstall_plugin.cpp",
@@ -141,6 +142,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/restrictions/disallow_distributed_transmission_full_plugin.cpp",
       "./src/restrictions/disallow_distributed_transmission_plugin.cpp",
       "./src/restrictions/disallow_notification_center_plugin.cpp",
+      "./src/restrictions/disallow_parent_control_plugin.cpp",
       "./src/restrictions/disallow_recent_tasks_plugin.cpp",
       "./src/restrictions/disallow_unmute_device_plugin.cpp",
       "./src/restrictions/disallow_virtual_service_plugin.cpp",
@@ -149,7 +151,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/security_manager/snapshot_skip_plugin.cpp",
       "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
-      "./src/restrictions/disallow_parent_control_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -496,7 +497,7 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/network_manager/get_all_network_interfaces_plugin.cpp",
         "./src/network_manager/get_ip_or_mac_address_plugin.cpp",
-        "./src/restrictions/disallow_vpn_plugin.cpp"
+        "./src/restrictions/disallow_vpn_plugin.cpp",
       ]
     }
 
@@ -514,11 +515,11 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/disallowed_usb_devices_plugin.cpp",
         "./src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
         "./src/usb_manager/external_storage_intercept_enable_plugin.cpp",
-        "./src/usb_manager/get_usb_serial_number_plugin.cpp",
-        "./src/utils/array_permissive_usb_device_type_serializer.cpp",
-        "./src/usb_manager/usb_intercept_enable_plugin.cpp",
         "./src/usb_manager/get_usb_device_infos_plugin.cpp",
+        "./src/usb_manager/get_usb_serial_number_plugin.cpp",
         "./src/usb_manager/set_usb_device_states_plugin.cpp",
+        "./src/usb_manager/usb_intercept_enable_plugin.cpp",
+        "./src/utils/array_permissive_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer_base.cpp",
         "./src/utils/usb_policy_utils.cpp",
@@ -686,7 +687,9 @@ ohos_shared_library("sys_service_plugin") {
       external_deps += [ "certificate_manager:cert_manager_sdk" ]
       sources += [ "./src/device_settings/user_cert_plugin.cpp" ]
       if (enterprise_device_management_feature_pc_only) {
-        sources += [ "./src/restrictions/disallow_install_device_certificate_plugin.cpp" ]
+        sources += [
+          "./src/restrictions/disallow_install_device_certificate_plugin.cpp",
+        ]
       }
     }
 
@@ -829,9 +832,9 @@ ohos_shared_library("need_extra_plugin") {
       "./src/bundle_manager/install_market_apps_plugin.cpp",
       "./src/device_info/get_device_info_plugin.cpp",
       "./src/device_info/get_ext_info_plugin.cpp",
-      "./src/network_manager/get_shared_path_list_plugin.cpp",
       "./src/device_settings/set_switch_status_plugin.cpp",
       "./src/device_settings/set_wall_paper_plugin.cpp",
+      "./src/network_manager/get_shared_path_list_plugin.cpp",
       "./src/restrictions/disallow_power_saving_mode_plugin.cpp",
       "./src/system_manager/notify_update_packages_plugin.cpp",
       "./src/system_manager/set_update_policy_plugin.cpp",

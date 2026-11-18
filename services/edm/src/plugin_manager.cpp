@@ -102,6 +102,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::REMOVE_ALL_NOTIFICATIONS,
     EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
     EdmInterfaceCode::POWER_MODE_SETTINGS,
+    EdmInterfaceCode::GET_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

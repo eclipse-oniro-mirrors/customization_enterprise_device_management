@@ -117,6 +117,9 @@ private:
     static napi_value SetWeakPinEnable(napi_env env, napi_callback_info info);
     static napi_value IsWeakPinEnabled(napi_env env, napi_callback_info info);
     static napi_value GetCredentialId(napi_env env, napi_callback_info info);
+    static napi_value GetEnterpriseReSignatureCertificates(napi_env env, napi_callback_info info);
+    static napi_value ConvertReSignatureCertificateInfos(napi_env env,
+        const std::vector<ReSignatureCertificateInfo> &certificateInfos);
     static void NativeGetCredentialId(napi_env env, void *data);
     static void NativeGetCredentialIdComplete(napi_env env, napi_status status, void *data);
     static void CreateDeviceSecurityLevelPolicyObject(napi_env env, napi_value value);
