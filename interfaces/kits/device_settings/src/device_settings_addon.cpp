@@ -750,12 +750,17 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env en
         return nullptr;
     }
 
+#ifdef FEATURE_PC_ONLY
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     int32_t ret = proxy->SetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), value);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("SetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
     }
+#else
+    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+    EDMLOGE("SetValueForAccountWithoutAdmin not supported on non-PC device");
+#endif
     return nullptr;
 }
 
@@ -829,12 +834,15 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env en
         return nullptr;
     }
     if (!IsPowerModeItem(item)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-        EDMLOGE("GetValueForAccountWithoutAdmin: item %{public}d does not support without admin", item);
-        return nullptr;
+        EDMLOGW("GetValueForAccountWithoutAdmin: item %{public}d does not support without admin, return empty string",
+            item);
+        napi_value result;
+        NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &result));
+        return result;
     }
 
     std::string stringRet;
+#ifdef FEATURE_PC_ONLY
     auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
     int32_t ret = proxy->GetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), stringRet);
     if (FAILED(ret)) {
@@ -842,6 +850,9 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env en
         EDMLOGE("GetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
         return nullptr;
     }
+#else
+    EDMLOGW("GetValueForAccountWithoutAdmin not supported on non-PC device, return empty string");
+#endif
     napi_value result;
     NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result));
     return result;

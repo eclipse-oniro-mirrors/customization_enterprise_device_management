@@ -88,7 +88,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::ENTERPRISE_RESET_POLICY,
     EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::PUBLISH_FORM_TO_DESKTOP,
     EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT, EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
-    EdmInterfaceCode::DISALLOW_RS232,
+    EdmInterfaceCode::DISALLOW_RS232, EdmInterfaceCode::REMOVE_NOTIFICATION,
     EdmInterfaceCode::DISALLOWED_DEVICE_SUDO,
     EdmInterfaceCode::DISALLOW_CONTROL_CENTER,
     EdmInterfaceCode::DISALLOW_NOTIFICATION_CENTER,
@@ -814,6 +814,31 @@ void PluginManager::CallOnOtherServiceStart(uint32_t interfaceCode, int32_t syst
     }
     plugin->OnOtherServiceStart(systemAbilityId);
 }
+
+// LCOV_EXCL_START
+void PluginManager::CallOnHandlePolicy(uint32_t funcCode, const std::string &adminName,
+    MessageParcel &data, int32_t userId)
+{
+    EDMLOGI("PluginManager::CallOnHandlePolicy funcCode=%{public}u admin=%{public}s",
+        funcCode, adminName.c_str());
+    std::shared_ptr<IPlugin> plugin;
+    {
+        std::unique_lock<std::shared_timed_mutex> lock(mutexLock_);
+        plugin = GetPluginByFuncCode(funcCode);
+        if (plugin == nullptr) {
+            EDMLOGW("CallOnHandlePolicy: get plugin by funcCode fail: %{public}u", funcCode);
+            return;
+        }
+    }
+    std::shared_lock<std::shared_timed_mutex> pinLock(soPinMutex_);
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData{"", "", false, adminName};
+    ErrCode ret = plugin->GetExecuteStrategy()->OnSetExecute(funcCode, data, reply, handlePolicyData, userId);
+    if (FAILED(ret)) {
+        EDMLOGW("CallOnHandlePolicy: OnHandlePolicy failed, ret=%{public}d", ret);
+    }
+}
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 void PluginManager::OnInitExecute(uint32_t interfaceCode, const std::vector<std::string> &bundleNames, int32_t userId)

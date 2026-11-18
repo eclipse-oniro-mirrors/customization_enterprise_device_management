@@ -24,6 +24,7 @@
 #include "external_storage_device_info.h"
 #include "sms_receive_info.h"
 #include "usb_device_info.h"
+#include "notification_received_info.h"
 
 namespace OHOS {
 namespace EDM {
@@ -163,6 +164,13 @@ public:
     virtual bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) = 0;
 
     /**
+     * @brief 处理通知到达事件。
+     * @param info 通知到达信息，含 hashcode、归属包名、应用索引与应用名称。
+     * @return 处理成功返回true，失败返回false。
+     */
+    virtual bool OnNotificationReceived(const NotificationReceivedInfo &info) = 0;
+
+    /**
      * @brief IPC命令码枚举，定义了所有事件通知的命令码。
      */
     enum {
@@ -215,7 +223,9 @@ public:
         /** 短信接收事件 */
         COMMAND_ON_SMS_RECEIVED = 24,
         /** USB 设备插入（动态管控）事件 */
-        COMMAND_ON_USB_DEVICE_ADDED = 25
+        COMMAND_ON_USB_DEVICE_ADDED = 25,
+        /** 通知到达事件 */
+        COMMAND_ON_NOTIFICATION_RECEIVED = 26
     };
 };
 } // namespace EDM

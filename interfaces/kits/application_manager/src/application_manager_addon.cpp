@@ -111,6 +111,7 @@ napi_value ApplicationManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("requestExemptionResource", RequestExemptionResource),
         DECLARE_NAPI_FUNCTION("releaseExemptionResource", ReleaseExemptionResource),
         DECLARE_NAPI_FUNCTION("removeAllNotifications", RemoveAllNotifications),
+        DECLARE_NAPI_FUNCTION("removeNotification", RemoveNotification),
     };
     std::vector<napi_property_descriptor> propertyOne = InitOne();
     property.insert(property.end(), propertyOne.begin(), propertyOne.end());
@@ -2127,6 +2128,28 @@ napi_value ApplicationManagerAddon::RemoveAllNotifications(napi_env env, napi_ca
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("ApplicationManagerAddon::RemoveAllNotifications failed!");
+    }
+    return nullptr;
+}
+
+napi_value ApplicationManagerAddon::RemoveNotification(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("ApplicationManagerAddon::RemoveNotification called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "RemoveNotification";
+    addonMethodSign.argsType = {EdmAddonCommonType::STRING};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
+    if (result == nullptr) {
+        return nullptr;
+    }
+    int32_t ret = ApplicationManagerProxy::GetApplicationManagerProxy()->RemoveNotification(
+        adapterAddonData.data);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        EDMLOGE("ApplicationManagerAddon::RemoveNotification failed!");
     }
     return nullptr;
 }

@@ -956,6 +956,44 @@ HWTEST_F(PluginManagerTest, TestGetSoNameByCodeResolvesManagedBrowserPolicy, Tes
     EXPECT_TRUE(ret);
     EXPECT_EQ(soName, SONAME::COMMUNICATION_PLUGIN_SO);
 }
+
+/**
+ * @tc.name: TestCallOnHandlePolicy_NonExistPlugin
+ * @tc.desc: Test PluginManager CallOnHandlePolicy with non-existent plugin code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestCallOnHandlePolicy_NonExistPlugin, TestSize.Level1)
+{
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, INVAILD_PLUGIN_CODE);
+    MessageParcel data;
+    data.WriteInt32(0);
+    PluginManager::GetInstance()->CallOnHandlePolicy(funcCode, "testAdmin", data, 0);
+    EXPECT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestCallOnHandlePolicy_Suc
+ * @tc.desc: Test PluginManager CallOnHandlePolicy success via strategy OnSetExecute.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestCallOnHandlePolicy_Suc, TestSize.Level1)
+{
+    auto plugin = std::make_shared<TestPluginWithAdminName>();
+    ASSERT_TRUE(PluginManager::GetInstance()->AddPlugin(plugin));
+
+    uint32_t funcCode = POLICY_FUNC_CODE((uint32_t)FuncOperateType::SET, TEST_POLICY_CODE);
+    MessageParcel data;
+    data.WriteInt32(1);
+    data.WriteString("com.test.bundle");
+
+    PluginManager::GetInstance()->CallOnHandlePolicy(funcCode, "com.test.bundle", data, 0);
+
+    EXPECT_EQ(plugin->currentAdminNameSeen_, "com.test.bundle");
+
+    PluginManager::GetInstance()->pluginsCode_.erase(TEST_POLICY_CODE);
+    PluginManager::GetInstance()->pluginsName_.erase("TestPluginWithAdminName");
+    PluginManager::GetInstance()->executeStrategyMap_.erase(TEST_POLICY_CODE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

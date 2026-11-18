@@ -781,6 +781,28 @@ napi_value AdminManager::UnsubscribeManagedEvent(napi_env env, napi_callback_inf
     return HandleManagedEvent(env, info, false);
 }
 
+napi_value AdminManager::SubscribeNotificationEvent(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SubscribeNotificationEvent called");
+    return HandleNotificationEvent(env, info, true);
+}
+
+napi_value AdminManager::UnsubscribeNotificationEvent(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UnsubscribeNotificationEvent called");
+    return HandleNotificationEvent(env, info, false);
+}
+
+napi_value AdminManager::HandleNotificationEvent(napi_env env, napi_callback_info info, bool subscribe)
+{
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    int32_t ret = subscribe ? proxy->SubscribeNotificationEvent() : proxy->UnsubscribeNotificationEvent();
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
+}
+
 napi_value AdminManager::SubscribeSmsEvent(napi_env env, napi_callback_info info)
 {
     EDMLOGI("SubscribeSmsEvent called");
@@ -1505,6 +1527,8 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEvent", UnsubscribeManagedEvent),
         DECLARE_NAPI_FUNCTION("subscribeSmsEvent", SubscribeSmsEvent),
         DECLARE_NAPI_FUNCTION("unsubscribeSmsEvent", UnsubscribeSmsEvent),
+        DECLARE_NAPI_FUNCTION("subscribeNotificationEvent", SubscribeNotificationEvent),
+        DECLARE_NAPI_FUNCTION("unsubscribeNotificationEvent", UnsubscribeNotificationEvent),
         DECLARE_NAPI_FUNCTION("authorizeAdmin", AuthorizeAdmin),
         DECLARE_NAPI_FUNCTION("subscribeManagedEventSync", SubscribeManagedEventSync),
         DECLARE_NAPI_FUNCTION("unsubscribeManagedEventSync", UnsubscribeManagedEventSync),

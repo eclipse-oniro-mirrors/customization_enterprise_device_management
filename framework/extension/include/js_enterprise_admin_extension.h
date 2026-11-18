@@ -24,6 +24,7 @@
 #include "policy_struct.h"
 #include "key_code.h"
 #include "external_storage_device_info.h"
+#include "notification_received_info.h"
 #include "sms_receive_info.h"
 #include "usb_device_info.h"
 
@@ -89,6 +90,8 @@ public:
 
     void OnPasswordFailed(int32_t cumulativeFailedCount, int32_t userId);
 
+    void OnNotificationReceived(const NotificationReceivedInfo &info);
+
     void OnSmsReceived(const SmsReceiveInfo &smsInfo);
 
     void OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo);
@@ -111,6 +114,8 @@ private:
     napi_value CreatePolicyChangedEvent(napi_env env, const PolicyChangedEvent &policyChangedEvent);
 
     napi_value CreateExternalStorageDeviceInfoObject(napi_env env, const ExternalStorageDeviceInfo &deviceInfo);
+
+    napi_value CreateNotificationReceivedInfoObject(napi_env env, const NotificationReceivedInfo &info);
 
     napi_value CreateSmsReceiveInfoObject(napi_env env, const SmsReceiveInfo &smsInfo);
 

@@ -297,6 +297,7 @@ ohos_shared_library("edmservice") {
     "./src/event_management/edm_common_event_subscriber.cpp",
     "./src/event_management/event_subscription_manager.cpp",
     "./src/event_management/mdm_event_relayer.cpp",
+    "./src/event_management/notification_event_source_adapter.cpp",
     "./src/event_management/plugin_event_router.cpp",
     "./src/event_management/subscription_handle.cpp",
     "./src/event_management/user_auth_event_adapter.cpp",
@@ -331,6 +332,7 @@ ohos_shared_library("edmservice") {
     sources += [
       "./src/edm_cellular_data_manager_impl.cpp",
       "./src/query_policy/telephony_call_policy_query.cpp",
+      "./src/query_policy/is_allowed_telephony_call_query.cpp",
     ]
     defines += [
       "APN_EDM_ENABLE",

@@ -181,16 +181,16 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_MinBoundaryValue_Success, T
 }
 
 /**
- * @tc.name: OnHandlePolicy_NeverTimeOutValue_ParameterVerificationFailed
- * @tc.desc: Test OnHandlePolicy function when screen off time is -1 (never timeout).
+ * @tc.name: OnHandlePolicy_NeverTimeOutValue_Success
+ * @tc.desc: Test OnHandlePolicy function when screen off time is -1 (never timeout), which is a supported value.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_ParameterVerificationFailed, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_Success, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
     EdmDataAbilityUtils::SetResult("test success");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "-1");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
@@ -573,6 +573,70 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_GetUserIdFailed_SkipCrossUs
     MessageParcel reply;
     HandlePolicyData handlePolicyData{"TestString", "", false};
     ErrCode ret = plugin->OnHandlePolicy(GetFuncCodeNew(FuncOperateType::SET), data, reply, handlePolicyData, 101);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: OnGetPolicy_CrossUserNotAllowed
+ * @tc.desc: Test OnGetPolicy function when userId differs from current user returns CROSS_USER_NOT_ALLOWED.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_CrossUserNotAllowed, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin->externalManagerFactory_ = factory;
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(100));
+
+    MessageParcel data;
+    data.WriteInt32(static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC));
+    MessageParcel reply;
+    std::string policyData{"TestString"};
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, 101);
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(EdmReturnErrCode::CROSS_USER_NOT_ALLOWED));
+}
+
+/**
+ * @tc.name: OnGetPolicy_SameUser_Success
+ * @tc.desc: Test OnGetPolicy function when userId equals current user passes cross-user check.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_SameUser_Success, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin->externalManagerFactory_ = factory;
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(100));
+    EdmDataAbilityUtils::SetResult("test success");
+
+    MessageParcel reply;
+    ErrCode ret = GetPolicy(plugin, SettingsItem::SCREEN_OFF_DC, reply);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(reply.ReadInt32(), static_cast<int32_t>(ERR_OK));
+}
+
+/**
+ * @tc.name: OnGetPolicy_GetUserIdFailed_SkipCrossUserCheck
+ * @tc.desc: Test OnGetPolicy function when GetCurrentUserId fails, cross-user check is skipped.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnGetPolicy_GetUserIdFailed_SkipCrossUserCheck, TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    auto factory = std::make_shared<ExternalManagerFactoryMock>();
+    auto osAccountMgrMock = std::make_shared<EdmOsAccountManagerImplMock>();
+    plugin->externalManagerFactory_ = factory;
+    EXPECT_CALL(*factory, CreateOsAccountManager).Times(1).WillOnce(Return(osAccountMgrMock));
+    EXPECT_CALL(*osAccountMgrMock, GetCurrentUserId).Times(1).WillOnce(Return(-1));
+    EdmDataAbilityUtils::SetResult("test success");
+
+    MessageParcel reply;
+    ErrCode ret = GetPolicy(plugin, SettingsItem::SCREEN_OFF_DC, reply);
     EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace TEST

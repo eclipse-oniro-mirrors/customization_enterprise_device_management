@@ -82,6 +82,8 @@ public:
 
     bool OnUsbDeviceAdded(const UsbDeviceInfo &usbDeviceInfo) override { return true; }
 
+    bool OnNotificationReceived(const NotificationReceivedInfo &info) override { return true; }
+
     uint32_t lastCode_ = 0;
     int32_t lastAccountId_ = 0;
     int32_t lastOldAccountId_ = 0;

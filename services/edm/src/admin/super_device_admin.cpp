@@ -50,6 +50,8 @@ bool SuperDeviceAdmin::HasPermissionToCallServiceCode(uint32_t interfaceCode) co
         case static_cast<uint32_t>(EdmInterfaceCode::UNSUBSCRIBE_MANAGED_EVENT):
         case static_cast<uint32_t>(EdmInterfaceCode::SUBSCRIBE_SMS_EVENT):
         case static_cast<uint32_t>(EdmInterfaceCode::UNSUBSCRIBE_SMS_EVENT):
+        case static_cast<uint32_t>(EdmInterfaceCode::SUBSCRIBE_NOTIFICATION_EVENT):
+        case static_cast<uint32_t>(EdmInterfaceCode::UNSUBSCRIBE_NOTIFICATION_EVENT):
         case static_cast<uint32_t>(EdmInterfaceCode::AUTHORIZE_ADMIN):
         case static_cast<uint32_t>(EdmInterfaceCode::SET_DELEGATED_POLICIES):
         case static_cast<uint32_t>(EdmInterfaceCode::GET_DELEGATED_POLICIES):

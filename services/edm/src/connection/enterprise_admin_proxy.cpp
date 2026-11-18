@@ -229,6 +229,21 @@ bool EnterpriseAdminProxy::OnPasswordFailed(int32_t cumulativeFailedCount, int32
     return SendRequest(COMMAND_ON_PASSWORD_FAILED, data);
 }
 
+bool EnterpriseAdminProxy::OnNotificationReceived(const NotificationReceivedInfo &info)
+{
+    EDMLOGI("EnterpriseAdminProxy::OnNotificationReceived");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        EDMLOGE("EnterpriseAdminProxy::OnNotificationReceived write descriptor failed!");
+        return false;
+    }
+    if (!info.Marshalling(data)) {
+        EDMLOGE("EnterpriseAdminProxy::OnNotificationReceived marshal failed!");
+        return false;
+    }
+    return SendRequest(COMMAND_ON_NOTIFICATION_RECEIVED, data);
+}
+
 bool EnterpriseAdminProxy::OnSmsReceived(const SmsReceiveInfo &smsInfo)
 {
     EDMLOGI("EnterpriseAdminProxy::OnSmsReceived");

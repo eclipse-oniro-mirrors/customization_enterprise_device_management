@@ -196,6 +196,14 @@ void MdmEventRelayer::RegisterPasswordFailedStrategies()
     };
 }
 
+void MdmEventRelayer::RegisterNotificationReceivedStrategies()
+{
+    strategyFactories_[ManagedEvent::NOTIFICATION_RECEIVED] =
+        [](const EdmEventData &data) -> std::shared_ptr<ICallbackStrategy> {
+        return std::make_shared<NotificationReceivedStrategy>(data.notificationReceivedInfo);
+    };
+}
+
 void MdmEventRelayer::RegisterSmsReceivedStrategies()
 {
     strategyFactories_[ManagedEvent::SMS_RECEIVED] =
@@ -250,6 +258,7 @@ void MdmEventRelayer::RegisterStrategyFactories()
     RegisterUnmountExternalStorageDeviceStrategies();
     RegisterUsbDeviceAddedStrategies();
     RegisterPasswordFailedStrategies();
+    RegisterNotificationReceivedStrategies();
     RegisterSmsReceivedStrategies();
 }
 
