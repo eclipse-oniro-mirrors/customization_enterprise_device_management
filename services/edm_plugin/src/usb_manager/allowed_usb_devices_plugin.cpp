@@ -115,13 +115,6 @@ bool AllowUsbDevicesPlugin::HasConflictWithUsbRestrictionPolicies()
             disallowPermissiveUsbDevicePolicy.c_str());
         return true;
     }
-    std::string externalStorageInterceptEnable;
-    policyManager->GetPolicy("", PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE,
-        externalStorageInterceptEnable);
-    if (externalStorageInterceptEnable == "true") {
-        EDMLOGE("AllowUsbDevicesPlugin POLICY CONFLICT! externalStorageInterceptEnable.");
-        return true;
-    }
     return false;
 }
 

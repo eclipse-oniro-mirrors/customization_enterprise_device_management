@@ -179,77 +179,6 @@ HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyDisabl
 }
 
 /**
- * @tc.name: TestCheckConflictPolicyAllowedUsbDevices
- * @tc.desc: Test CheckConflictPolicy when allowed usb devices is not empty.
- * @tc.type: FUNC
- */
-HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyAllowedUsbDevices, TestSize.Level1)
-{
-    const std::string testAdminName = "com.edm.test.demo";
-    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
-    IPolicyManager::policyManagerInstance_ = policyManager.get();
-
-    ErrCode res = policyManager->SetPolicy(testAdminName, PolicyName::POLICY_ALLOWED_USB_DEVICES,
-        "[{\"vendorId\":1,\"productId\":2}]", "[{\"vendorId\":1,\"productId\":2}]", DEFAULT_USER_ID);
-    ASSERT_TRUE(res == ERR_OK);
-
-    ExternalStorageInterceptEnablePlugin plugin;
-    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
-
-    policyManager->SetPolicy(testAdminName, PolicyName::POLICY_ALLOWED_USB_DEVICES, "", "", DEFAULT_USER_ID);
-    IPolicyManager::policyManagerInstance_ = nullptr;
-}
-
-/**
- * @tc.name: TestCheckConflictPolicyDisallowedUsbDevices
- * @tc.desc: Test CheckConflictPolicy when disallowed usb devices is not empty.
- * @tc.type: FUNC
- */
-HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyDisallowedUsbDevices, TestSize.Level1)
-{
-    const std::string testAdminName = "com.edm.test.demo";
-    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
-    IPolicyManager::policyManagerInstance_ = policyManager.get();
-
-    ErrCode res = policyManager->SetPolicy(testAdminName, PolicyName::POLICY_DISALLOWED_USB_DEVICES,
-        "[{\"baseClass\":3}]", "[{\"baseClass\":3}]", DEFAULT_USER_ID);
-    ASSERT_TRUE(res == ERR_OK);
-
-    ExternalStorageInterceptEnablePlugin plugin;
-    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
-
-    policyManager->SetPolicy(testAdminName, PolicyName::POLICY_DISALLOWED_USB_DEVICES, "", "", DEFAULT_USER_ID);
-    IPolicyManager::policyManagerInstance_ = nullptr;
-}
-
-/**
- * @tc.name: TestCheckConflictPolicyDisallowedPermissiveUsbDevices
- * @tc.desc: Test CheckConflictPolicy when disallowed permissive usb devices is not empty.
- * @tc.type: FUNC
- */
-HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyDisallowedPermissiveUsbDevices,
-    TestSize.Level1)
-{
-    const std::string testAdminName = "com.edm.test.demo";
-    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
-    IPolicyManager::policyManagerInstance_ = policyManager.get();
-
-    ErrCode res = policyManager->SetPolicy(testAdminName, PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
-        "[{\"vendorId\":1,\"productId\":2}]", "[{\"vendorId\":1,\"productId\":2}]", DEFAULT_USER_ID);
-    ASSERT_TRUE(res == ERR_OK);
-
-    ExternalStorageInterceptEnablePlugin plugin;
-    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
-
-    policyManager->SetPolicy(testAdminName, PolicyName::POLICY_DISALLOWED_PERMISSIVE_USB_DEVICES,
-        "", "", DEFAULT_USER_ID);
-    IPolicyManager::policyManagerInstance_ = nullptr;
-}
-
-/**
  * @tc.name: TestCheckConflictPolicyUsbReadOnlyDisabled
  * @tc.desc: Test CheckConflictPolicy when usb read only policy is disabled.
  * @tc.type: FUNC
@@ -270,56 +199,6 @@ HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyUsbRea
     ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
 
     policyManager->SetPolicy(testAdminName, PolicyName::POLICY_USB_READ_ONLY, "", "", DEFAULT_USER_ID);
-    IPolicyManager::policyManagerInstance_ = nullptr;
-}
-
-/**
- * @tc.name: TestCheckConflictPolicyUsbReadOnlyReadOnly
- * @tc.desc: Test CheckConflictPolicy when usb read only policy is read only.
- * @tc.type: FUNC
- */
-HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyUsbReadOnlyReadOnly, TestSize.Level1)
-{
-    const std::string testAdminName = "com.edm.test.demo";
-    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
-    IPolicyManager::policyManagerInstance_ = policyManager.get();
-
-    ErrCode res = policyManager->SetPolicy(testAdminName, PolicyName::POLICY_USB_READ_ONLY,
-        std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY),
-        std::to_string(EdmConstants::STORAGE_USB_POLICY_READ_ONLY), DEFAULT_USER_ID);
-    ASSERT_TRUE(res == ERR_OK);
-
-    ExternalStorageInterceptEnablePlugin plugin;
-    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
-
-    policyManager->SetPolicy(testAdminName, PolicyName::POLICY_USB_READ_ONLY, "", "", DEFAULT_USER_ID);
-    IPolicyManager::policyManagerInstance_ = nullptr;
-}
-
-/**
- * @tc.name: TestCheckConflictPolicyDisallowedUsbStorageDeviceWrite
- * @tc.desc: Test CheckConflictPolicy when disallowed usb storage device write is true.
- * @tc.type: FUNC
- */
-HWTEST_F(ExternalStorageInterceptEnablePluginTest, TestCheckConflictPolicyDisallowedUsbStorageDeviceWrite,
-    TestSize.Level1)
-{
-    const std::string testAdminName = "com.edm.test.demo";
-    std::shared_ptr<PolicyManager> policyManager = std::make_shared<PolicyManager>();
-    IPolicyManager::policyManagerInstance_ = policyManager.get();
-
-    ErrCode res = policyManager->SetPolicy(testAdminName,
-        PolicyName::POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE,
-        EdmConstants::CONST_TRUE, EdmConstants::CONST_TRUE, DEFAULT_USER_ID);
-    ASSERT_TRUE(res == ERR_OK);
-
-    ExternalStorageInterceptEnablePlugin plugin;
-    ErrCode ret = plugin.CheckConflictPolicy(DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED);
-
-    policyManager->SetPolicy(testAdminName, PolicyName::POLICY_DISALLOWED_USB_STORAGE_DEVICE_WRITE,
-        "", "", DEFAULT_USER_ID);
     IPolicyManager::policyManagerInstance_ = nullptr;
 }
 } // namespace TEST
