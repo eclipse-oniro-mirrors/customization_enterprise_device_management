@@ -1720,6 +1720,7 @@ napi_value RestrictionsAddon::SetControlPanelRestricted(napi_env env, napi_callb
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelRestricted,
         NativeVoidCallbackComplete);
 }
@@ -1745,6 +1746,7 @@ napi_value RestrictionsAddon::GetControlPanelRestricted(napi_env env, napi_callb
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelRestricted,
         NativeBoolCallbackComplete);
 }
@@ -1771,6 +1773,7 @@ napi_value RestrictionsAddon::SetControlPanelQuickToggleListForAccount(napi_env 
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelQuickToggleListForAccount,
         NativeVoidCallbackComplete);
 }
@@ -1796,6 +1799,7 @@ napi_value RestrictionsAddon::GetControlPanelQuickToggleListForAccount(napi_env 
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelQuickToggleListForAccount,
         NativeArrayIntCallbackComplete);
 }
@@ -1827,6 +1831,7 @@ napi_value RestrictionsAddon::SetControlPanelTopToggleListForAccount(napi_env en
     addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelTopToggleListForAccount,
         NativeVoidCallbackComplete);
 }
@@ -1852,6 +1857,7 @@ napi_value RestrictionsAddon::GetControlPanelTopToggleListForAccount(napi_env en
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
     return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelTopToggleListForAccount,
         NativeArrayIntCallbackComplete);
 }
