@@ -84,6 +84,8 @@ private:
     static void NativeRemoveOsAccount(napi_env env, void *data);
     static napi_value ActivateOsAccount(napi_env env, napi_callback_info info);
     static void NativeActivateOsAccount(napi_env env, void *data);
+    static napi_value ConnectionAppServiceExtensionAbilityByOsAccount(napi_env env, napi_callback_info info);
+    static napi_value DisconnectionAppServiceExtensionAbility(napi_env env, napi_callback_info info);
     static napi_value CreateNormalOsAccountCommon(napi_env env, napi_callback_info info,
         AsyncAddOsAccountCallbackInfo* callbackInfo);
 };

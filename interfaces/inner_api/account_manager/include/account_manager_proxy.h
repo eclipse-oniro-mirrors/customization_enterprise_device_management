@@ -21,6 +21,9 @@
 #include "os_account_info.h"
 #endif
 #include "domain_account_policy.h"
+#include "i_edm_connection_callback.h"
+#include "iremote_object.h"
+#include "want.h"
 
 namespace OHOS {
 namespace EDM {
@@ -46,6 +49,9 @@ public:
         OHOS::AccountSA::OsAccountInfo &accountInfo);
     int32_t RemoveOsAccount(MessageParcel &data);
     int32_t ActivateOsAccount(MessageParcel &data);
+    int32_t ConnectAppServiceExtensionAbilityByOsAccount(const AAFwk::Want &want, int32_t accountId,
+        const sptr<IEdmConnectionCallback> &callback, int32_t &connectionId);
+    int32_t DisconnectAppServiceExtensionAbility(int32_t connectionId);
 
 private:
     static std::shared_ptr<AccountManagerProxy> instance_;

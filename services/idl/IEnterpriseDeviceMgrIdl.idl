@@ -62,4 +62,6 @@ interface OHOS.EDM.IEnterpriseDeviceMgrIdl {
     [ipccode 39] void UnsubscribeNotificationEvent();
     [ipccode 40] void SetEnterpriseDisplayInfo([in] String displayInfo);
     [ipccode 41] void GetEnterpriseDisplayInfo([out] String displayInfo);
+    [ipccode 42] void ConnectAppServiceExtensionAbilityByOsAccount([in] Want want, [in] int accountId, [in] IRemoteObject connectionCallback, [out] int connectionId);
+    [ipccode 43] void DisconnectAppServiceExtensionAbility([in] int connectionId);
 }

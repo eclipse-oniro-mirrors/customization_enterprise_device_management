@@ -21,8 +21,12 @@
 #endif
 #include "edm_log.h"
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "napi_edm_adapter.h"
 #include "override_interface_name.h"
+#include "edm_connection_callback_stub.h"
+#include "want.h"
+#include "napi_common_want.h"
 
 using namespace OHOS::EDM;
 
@@ -41,6 +45,10 @@ napi_value AccountManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createNormalOsAccount", CreateNormalOsAccount),
         DECLARE_NAPI_FUNCTION("removeOsAccount", RemoveOsAccount),
         DECLARE_NAPI_FUNCTION("activateOsAccount", ActivateOsAccount),
+        DECLARE_NAPI_FUNCTION("connectionAppServiceExtensionAbilityByOsAccount",
+            ConnectionAppServiceExtensionAbilityByOsAccount),
+        DECLARE_NAPI_FUNCTION("disconnectionAppServiceExtensionAbility",
+            DisconnectionAppServiceExtensionAbility),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -764,6 +772,86 @@ void AccountManagerAddon::NativeActivateOsAccount(napi_env env, void *data)
     }
     asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
     asyncCallbackInfo->ret = accountManagerProxy->ActivateOsAccount(asyncCallbackInfo->data);
+}
+
+napi_value AccountManagerAddon::ConnectionAppServiceExtensionAbilityByOsAccount(
+    napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_ConnectionAppServiceExtensionAbilityByOsAccount called");
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    napi_value thisArg = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, nullptr));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_THREE, "parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object),
+        "parameter want error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_object),
+        "parameter callback error", ErrcodeType::NUMBER);
+    napi_value onConnect = nullptr;
+    napi_value onDisconnect = nullptr;
+    napi_value onFailed = nullptr;
+    napi_get_named_property(env, argv[ARR_INDEX_ONE], "onConnect", &onConnect);
+    napi_get_named_property(env, argv[ARR_INDEX_ONE], "onDisconnect", &onDisconnect);
+    napi_get_named_property(env, argv[ARR_INDEX_ONE], "onFailed", &onFailed);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, onConnect, napi_function),
+        "parameter callback.onConnect error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, onDisconnect, napi_function),
+        "parameter callback.onDisconnect error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, onFailed, napi_function),
+        "parameter callback.onFailed error", ErrcodeType::NUMBER);
+    AAFwk::Want want;
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, AppExecFwk::UnwrapWant(env, argv[ARR_INDEX_ZERO], want),
+        "parameter want parse error", ErrcodeType::NUMBER);
+    int32_t accountId = 0;
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]), "parameter accountId parse error");
+    sptr<EdmConnectionCallbackStub> callbackStub = new (std::nothrow) EdmConnectionCallbackStub(env,
+        argv[ARR_INDEX_ONE]);
+    if (callbackStub == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t connectionId = -1;
+    int32_t ret = accountManagerProxy->ConnectAppServiceExtensionAbilityByOsAccount(
+        want, accountId, callbackStub, connectionId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_int32(env, connectionId, &result);
+    return result;
+}
+
+napi_value AccountManagerAddon::DisconnectionAppServiceExtensionAbility(
+    napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_DisconnectionAppServiceExtensionAbility called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, nullptr));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE,
+        "parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[0], napi_number),
+        "parameter connectionId error", ErrcodeType::NUMBER);
+    int32_t connectionId = -1;
+    ParseInt(env, connectionId, argv[0]);
+    auto accountManagerProxy = AccountManagerProxy::GetAccountManagerProxy();
+    if (accountManagerProxy == nullptr) {
+        napi_throw(env, CreateErrorByType(env, EdmReturnErrCode::EXECUTE_TIME_OUT,
+            "can not get AccountManagerProxy", ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    int32_t ret = accountManagerProxy->DisconnectAppServiceExtensionAbility(connectionId);
+    if (FAILED(ret)) {
+        napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
+    }
+    return nullptr;
 }
 
 static napi_module g_accountManagerModule = {

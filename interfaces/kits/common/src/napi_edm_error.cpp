@@ -141,6 +141,9 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::AUTH_TOKEN_INVALID, "Invalid authentication token."},
     {EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID,
         "The authentication token parsing duration is out of the allowed range."},
+    {EdmReturnErrCode::CONNECT_APP_SERVICE_EXTENSION_FAILED, "Failed to connect the app service extension ability."},
+    {EdmReturnErrCode::CONNECT_APP_SERVICE_EXTENSION_INVALID_TYPE, "Incorrect ability type."},
+    {EdmReturnErrCode::CONNECT_APP_SERVICE_EXTENSION_NOT_VISIBLE, "Cannot start an invisible component."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
