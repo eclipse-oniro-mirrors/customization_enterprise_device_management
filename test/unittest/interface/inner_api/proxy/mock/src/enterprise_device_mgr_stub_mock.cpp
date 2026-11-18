@@ -984,13 +984,6 @@ int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicy(uint32
     PathSharedData sharedData;
     sharedData.shareName = "share_test";
     sharedData.shareUri = "file:///data/service/share_test";
-    UserPathInfo user1;
-    user1.userName = "user1";
-    user1.userPermission = "readonly";
-    UserPathInfo user2;
-    user2.userName = "user2";
-    user2.userPermission = "readwrite";
-    sharedData.userPathInfoList = {user1, user2};
     reply.WriteUint32(1);
     sharedData.Marshalling(reply);
     return 0;

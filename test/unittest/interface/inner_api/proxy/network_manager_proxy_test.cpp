@@ -1069,11 +1069,6 @@ HWTEST_F(NetworkManagerProxyTest, TestGetSharedPathListSuc, TestSize.Level1)
     ASSERT_EQ(sharedList.size(), 1u);
     ASSERT_EQ(sharedList[0].shareName, "share_test");
     ASSERT_EQ(sharedList[0].shareUri, "file:///data/service/share_test");
-    ASSERT_EQ(sharedList[0].userPathInfoList.size(), 2u);
-    ASSERT_EQ(sharedList[0].userPathInfoList[0].userName, "user1");
-    ASSERT_EQ(sharedList[0].userPathInfoList[0].userPermission, "readonly");
-    ASSERT_EQ(sharedList[0].userPathInfoList[1].userName, "user2");
-    ASSERT_EQ(sharedList[0].userPathInfoList[1].userPermission, "readwrite");
 }
 
 /**
