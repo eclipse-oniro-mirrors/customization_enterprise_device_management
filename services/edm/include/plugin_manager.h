@@ -20,6 +20,7 @@
 #include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <thread>
 
@@ -99,6 +100,7 @@ private:
     static std::shared_timed_mutex mutexLock_;
     static std::shared_timed_mutex soPinMutex_;
     inline static std::mutex policyStripes_[static_cast<size_t>(ConflictGroupId::END)];
+    static std::once_flag instanceFlag_;
     static std::shared_ptr<PluginManager> instance_;
     PluginManager();
     std::shared_ptr<IPlugin> GetPluginByPolicyName(const std::string &policyName);

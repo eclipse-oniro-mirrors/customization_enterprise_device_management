@@ -429,6 +429,7 @@ ErrCode AdminManager::SetEntInfo(std::shared_ptr<Admin> admin, const EntInfo &en
 ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
     int32_t userId)
 {
+    std::lock_guard<std::recursive_mutex> lock(managedEventsLock_);
     std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
     if (admin == nullptr) {
         return ERR_EDM_UNKNOWN_ADMIN;
@@ -459,6 +460,7 @@ ErrCode AdminManager::SaveSubscribeEvents(const std::vector<uint32_t> &events, c
 ErrCode AdminManager::RemoveSubscribeEvents(const std::vector<uint32_t> &events, const std::string &bundleName,
     int32_t userId)
 {
+    std::lock_guard<std::recursive_mutex> lock(managedEventsLock_);
     std::shared_ptr<Admin> admin = GetAdminByPkgName(bundleName, userId);
     if (admin == nullptr) {
         return ERR_EDM_UNKNOWN_ADMIN;

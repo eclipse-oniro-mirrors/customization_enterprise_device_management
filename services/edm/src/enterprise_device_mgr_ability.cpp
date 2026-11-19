@@ -614,6 +614,7 @@ void EnterpriseDeviceMgrAbility::OnStart()
 #ifdef POWER_MANAGER_EDM_ENABLE
         PowerModeManagerImpl::GetInstance();
 #endif
+        MdmEventRelayer::GetInstance();
     }
     ExtInfoManager::GetInstance()->GetSuperHubInfo();
     ExtInfoManager::GetInstance()->GetAppUidMap();
