@@ -183,10 +183,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, WINDOW_MANAGER_SERVICE_ID);
             that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::SCREEN_WATERMARK_IMAGE);
         };
-    addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
-        };
     addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
@@ -244,6 +240,26 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapThird()
     addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnDistributedKvDataServiceStart();
+        };
+    addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
+#ifndef FEATURE_PC_ONLY
+            std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> allAdmins;
+            AdminManager::GetInstance()->GetAllAdmins(allAdmins);
+            for (const auto &userAdmins : allAdmins) {
+                if (std::any_of(userAdmins.second.begin(), userAdmins.second.end(),
+                    [](const std::shared_ptr<Admin> &admin) {
+                        return admin != nullptr && admin->adminInfo_.adminType_ == AdminType::BYOD;
+                    })) {
+                    EdmEventData eventData;
+                    eventData.eventId.code = static_cast<uint32_t>(ManagedEvent::BMS_READY);
+                    PluginManager::GetInstance()->DispatchPluginEvent(
+                        EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, eventData, false, false);
+                    break;
+                }
+            }
+#endif
         };
 }
 
@@ -1423,6 +1439,14 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
     HiSysEventAdapter::ReportEdmEventManagerAdmin(admin.GetBundleName().c_str(),
         static_cast<int32_t>(AdminAction::ENABLE), static_cast<int32_t>(type), "",
         static_cast<int32_t>(enableSource));
+#ifndef FEATURE_PC_ONLY
+    if (type == AdminType::BYOD) {
+        EdmEventData eventData;
+        eventData.eventId.code = static_cast<uint32_t>(ManagedEvent::BMS_READY);
+        PluginManager::GetInstance()->DispatchPluginEvent(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS,
+            eventData, false, false);
+    }
+#endif
 }
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId,
@@ -1458,6 +1482,15 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     if (ret != ERR_OK && ret != ERR_EDM_UNKNOWN_ADMIN) {
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
+    adminConnectMap_.erase(adminName);
+#ifndef FEATURE_PC_ONLY
+    if (adminType == AdminType::BYOD) {
+        EdmEventData eventData;
+        eventData.eventId.code = static_cast<uint32_t>(ManagedEvent::BMS_READY);
+        PluginManager::GetInstance()->DispatchPluginEvent(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS,
+            eventData, false, false);
+    }
+#endif
     MdmEventRelayer::GetInstance().OnAdminRemoved(adminName, userId);
     return ERR_OK;
 }

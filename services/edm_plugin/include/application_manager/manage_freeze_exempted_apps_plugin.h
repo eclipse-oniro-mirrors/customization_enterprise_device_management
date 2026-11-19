@@ -52,6 +52,7 @@ private:
         std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
     ErrCode OnRemovePolicy(std::vector<ApplicationInstance> &freezeExemptedApps,
         std::vector<ApplicationInstance> &currentData, std::vector<ApplicationInstance> &mergeData);
+    void AppendByodAdmins(std::vector<ApplicationInstance> &apps);
     ErrCode SetOtherModulePolicy(const std::vector<ApplicationInstance> &freezeExemptedApps);
     std::vector<ApplicationInstance> FilterUninstalledBundle(std::vector<ApplicationInstance> &data);
     uint32_t maxListSize_ = 0;
