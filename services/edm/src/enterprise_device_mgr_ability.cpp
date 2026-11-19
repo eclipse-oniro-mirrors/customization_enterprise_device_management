@@ -1937,6 +1937,29 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     return errCode;
 }
 
+#ifndef FEATURE_PC_ONLY
+// Best-effort sensitive-call notification hook for policy query. Extracted from
+// GetDevicePolicyNew to keep nesting depth within limits; uses early returns.
+void EnterpriseDeviceMgrAbility::NotifySensitivePolicyQuery(uint32_t code)
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    if (GetBundleMgr()->GetNameForUid(uid, bundleName) != ERR_OK || bundleName.empty()) {
+        return;
+    }
+    auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
+    if (!SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
+        return;
+    }
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager == nullptr) {
+        EDMLOGE("NotifySensitivePolicyQuery: SensitiveCallNotifyManager instance is null, skip notify.");
+        return;
+    }
+    notifyManager->CheckAndNotify(sensitiveId, bundleName);
+}
+#endif
+
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
@@ -1959,19 +1982,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
     }
 #ifndef FEATURE_PC_ONLY
     if (errCode == ERR_OK) {
-        int uid = IPCSkeleton::GetCallingUid();
-        std::string bundleName;
-        if (GetBundleMgr()->GetNameForUid(uid, bundleName) == ERR_OK && !bundleName.empty()) {
-            auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
-            if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-                auto notifyManager = SensitiveCallNotifyManager::GetInstance();
-                if (notifyManager != nullptr) {
-                    notifyManager->CheckAndNotify(sensitiveId, bundleName);
-                } else {
-                    EDMLOGE("GetDevicePolicyNew: SensitiveCallNotifyManager instance is null, skip notify.");
-                }
-            }
-        }
+        NotifySensitivePolicyQuery(code);
     }
 #endif
     EDMLOGI("policy query get finished");
