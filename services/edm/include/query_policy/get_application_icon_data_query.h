@@ -21,6 +21,9 @@
 #include "ipolicy_query.h"
 
 namespace OHOS {
+namespace AppExecFwk {
+class IBundleMgr;
+}
 namespace EDM {
 class GetApplicationIconDataQuery : public IPolicyQuery {
 public:
@@ -33,6 +36,8 @@ public:
 
 private:
     ErrCode GetApplicationIconFromBms(const std::string &bundleName, std::string &iconData, int32_t userId);
+    ErrCode CheckBundleInstalledForUser(const sptr<AppExecFwk::IBundleMgr> &bundleMgrProxy,
+        const std::string &bundleName, int32_t userId);
 };
 } // namespace EDM
 } // namespace OHOS
