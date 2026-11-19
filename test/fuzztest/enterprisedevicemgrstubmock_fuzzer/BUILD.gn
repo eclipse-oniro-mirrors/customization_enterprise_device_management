@@ -326,6 +326,8 @@ ohos_static_library("edmservice_fuzz_static") {
       ]
       sources += [
         "../../../services/edm_plugin/src/restrictions/disable_sudo_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallow_screen_record_for_account_plugin.cpp",
+        "../../../services/edm_plugin/src/restrictions/disallow_screen_shot_for_account_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallowed_device_sudo_plugin.cpp",
       ]
       defines += [ "SUDO_EDM_ENABLE" ]

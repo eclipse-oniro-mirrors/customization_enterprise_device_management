@@ -162,6 +162,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
     EdmInterfaceCode::GET_APPLICATION_ICON_DATA,
     EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE,
+    EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT,
+    EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

@@ -105,6 +105,8 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::CONTROL_PANEL_RESTRICTED,
     EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
     EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
+    EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT,
+    EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
