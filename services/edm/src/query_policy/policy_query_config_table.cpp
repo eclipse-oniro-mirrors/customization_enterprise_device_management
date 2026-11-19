@@ -662,9 +662,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
-    {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, {PolicyName::POLICY_TELEPHONY_CALL_POLICY,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_RECENT_TASKS, {PolicyName::POLICY_DISALLOW_RECENT_TASKS,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,
@@ -694,6 +691,9 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK, {PolicyName::POLICY_DISALLOW_MULTI_WINDOW_DOCK,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, {PolicyName::POLICY_TELEPHONY_CALL_POLICY,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
     // CONTROL_PANEL_RESTRICTED intentionally has no query entry. GET falls back to
     // ControlPanelRestrictedPlugin::OnGetPolicy to read the device-level persist value.
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
