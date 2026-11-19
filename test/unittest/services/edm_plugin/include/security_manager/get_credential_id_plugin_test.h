@@ -72,6 +72,14 @@ public:
         return CallVerifyAuthToken(authToken, allowableDuration, credentialId);
     }
 };
+
+class GetCredentialIdPluginMapMock : public GetCredentialIdPlugin {
+public:
+    ErrCode InvokeMapIamResultToErrCode(int32_t iamResult)
+    {
+        return MapIamResultToErrCode(iamResult);
+    }
+};
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

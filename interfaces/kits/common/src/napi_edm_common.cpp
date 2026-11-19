@@ -678,13 +678,18 @@ bool ParseUint8Array(napi_env env, napi_value args, std::vector<uint8_t> &result
     napi_value buffer = nullptr;
     void *data = nullptr;
     if (napi_get_typedarray_info(env, args, &type, &length, &data, &buffer, &offset) != napi_ok ||
-        type != napi_uint8_array || buffer == nullptr) {
+        type != napi_uint8_array) {
         EDMLOGE("the argument is not a uint8 array");
         return false;
     }
     if (length > maxLen) {
         EDMLOGE("uint8 array range failed, length: %{public}zu, maxLen: %{public}zu", length, maxLen);
         return false;
+    }
+    if (length == 0) {
+        result.clear();
+        EDMLOGI("uint8 array is empty");
+        return true;
     }
     if (data == nullptr) {
         EDMLOGE("uint8 array data failed");

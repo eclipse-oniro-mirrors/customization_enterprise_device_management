@@ -28,6 +28,7 @@
 #include "edm_log.h"
 #include "iplugin_manager.h"
 #include "iam_common_defines.h"
+#include "ukey_iam_error_converter.h"
 #include "user_access_ctrl_client.h"
 #include "user_access_ctrl_client_callback.h"
 #include "verify_auth_token_callback.h"
@@ -136,10 +137,27 @@ ErrCode GetCredentialIdPlugin::CallVerifyAuthToken(const std::vector<uint8_t> &a
     }
     if (ret != static_cast<int32_t>(UserIam::UserAuth::SUCCESS)) {
         EDMLOGE("GetCredentialIdPlugin: verify auth token failed, iam result: %{public}d", ret);
-        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+        return MapIamResultToErrCode(ret);
     }
     credentialId = callback->GetCredentialId();
     return ERR_OK;
+}
+
+ErrCode GetCredentialIdPlugin::MapIamResultToErrCode(int32_t iamResult)
+{
+    switch (iamResult) {
+        case UKEY_ERR_IAM_AUTH_TOKEN_EXPIRED:
+            EDMLOGE("GetCredentialIdPlugin: the auth token is expired, iam result: %{public}d", iamResult);
+            return EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID;
+        case UKEY_ERR_IAM_TIMEOUT:
+        case UKEY_ERR_IAM_TOKEN_TIMEOUT:
+            EDMLOGE("GetCredentialIdPlugin: the auth token verification timed out, iam result: %{public}d",
+                iamResult);
+            return EdmReturnErrCode::EXECUTE_TIME_OUT;
+        default:
+            EDMLOGE("GetCredentialIdPlugin: the auth token is invalid, iam result: %{public}d", iamResult);
+            return EdmReturnErrCode::AUTH_TOKEN_INVALID;
+    }
 }
 } // namespace EDM
 } // namespace OHOS

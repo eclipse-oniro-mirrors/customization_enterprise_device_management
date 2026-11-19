@@ -42,6 +42,8 @@ public:
 protected:
     virtual ErrCode CallVerifyAuthToken(const std::vector<uint8_t> &authToken, uint64_t allowableDuration,
         uint64_t &credentialId);
+
+    static ErrCode MapIamResultToErrCode(int32_t iamResult);
 };
 } // namespace EDM
 } // namespace OHOS
