@@ -357,7 +357,12 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         return;
     }
 #ifndef FEATURE_PC_ONLY
-    SensitiveCallNotifyManager::GetInstance()->ClearByApp(bundleName, appIndex);
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager != nullptr) {
+        notifyManager->ClearByApp(bundleName, appIndex);
+    } else {
+        EDMLOGE("OnCommonEventPackageRemoved: SensitiveCallNotifyManager instance is null, skip ClearByApp.");
+    }
 #endif
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (appIndex == 0) {
@@ -1430,7 +1435,12 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
         return removeAdminRet;
     }
 #ifndef FEATURE_PC_ONLY
-    SensitiveCallNotifyManager::GetInstance()->ClearByAdmin(adminName, userId);
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager != nullptr) {
+        notifyManager->ClearByAdmin(adminName, userId);
+    } else {
+        EDMLOGE("RemoveAdminAndAdminPolicy: SensitiveCallNotifyManager instance is null, skip ClearByAdmin.");
+    }
 #endif
     if (!AdminManager::GetInstance()->IsSuperAdminExist()) {
         ClearEnterpriseDisplayInfo();
@@ -1954,7 +1964,12 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
         if (GetBundleMgr()->GetNameForUid(uid, bundleName) == ERR_OK && !bundleName.empty()) {
             auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
             if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-                SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, bundleName);
+                auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+                if (notifyManager != nullptr) {
+                    notifyManager->CheckAndNotify(sensitiveId, bundleName);
+                } else {
+                    EDMLOGE("GetDevicePolicyNew: SensitiveCallNotifyManager instance is null, skip notify.");
+                }
             }
         }
     }
@@ -2326,10 +2341,15 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
         }
     }
 #ifndef FEATURE_PC_ONLY
-    for (uint32_t event : events) {
-        auto sensitiveId = SensitiveApiWhitelist::MakeEventId(event);
-        if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName());
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager == nullptr) {
+        EDMLOGE("SubscribeManagedEvent: SensitiveCallNotifyManager instance is null, skip notify.");
+    } else {
+        for (uint32_t event : events) {
+            auto sensitiveId = SensitiveApiWhitelist::MakeEventId(event);
+            if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
+                notifyManager->CheckAndNotify(sensitiveId, admin.GetBundleName());
+            }
         }
     }
 #endif
@@ -2403,7 +2423,12 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSmsEvent(bool subscribe)
     if (subscribe) {
         auto sensitiveId = SensitiveApiWhitelist::MakeEventId(static_cast<uint32_t>(ManagedEvent::SMS_RECEIVED));
         if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName());
+            auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+            if (notifyManager != nullptr) {
+                notifyManager->CheckAndNotify(sensitiveId, admin.GetBundleName());
+            } else {
+                EDMLOGE("HandleSmsEvent: SensitiveCallNotifyManager instance is null, skip notify.");
+            }
         }
     }
 #endif
