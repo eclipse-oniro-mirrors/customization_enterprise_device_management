@@ -125,6 +125,7 @@ protected:
 private:
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
+    void AddOnAddSystemAbilityFuncMapThird();
     void NotifyAdminEnabled(bool isEnabled);
     void HandleEdmEnabled();
     void CheckAndUpdateByodSettingsData();

@@ -227,6 +227,26 @@ void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
     PluginManager::GetInstance()->OnInitExecute(interfaceCode, bundleNames, currentUserId);
 }
 
+void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapThird()
+{
+#ifdef USB_SERVICE_EDM_ENABLE
+    addSystemAbilityFuncMap_[USB_SYSTEM_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLE_USB);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_USB_DEVICES);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+        };
+#endif
+    addSystemAbilityFuncMap_[RENDER_SERVICE] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::WATERMARK_IMAGE);
+        };
+    addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnDistributedKvDataServiceStart();
+        };
+}
+
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
     AddOnAddSystemAbilityFuncMapSecond();
@@ -251,22 +271,13 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
             SystemServiceStartHandler::GetInstance()->OnNetPolicyManagerStart();
         };
 #endif
-#ifdef USB_SERVICE_EDM_ENABLE
-    addSystemAbilityFuncMap_[USB_SYSTEM_ABILITY_ID] =
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    addSystemAbilityFuncMap_[COMM_FIREWALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLE_USB);
-            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_USB_DEVICES);
-            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_PACKET_FILTERING);
         };
 #endif
-    addSystemAbilityFuncMap_[RENDER_SERVICE] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::WATERMARK_IMAGE);
-        };
-    addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnDistributedKvDataServiceStart();
-        };
+    AddOnAddSystemAbilityFuncMapThird();
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
@@ -707,6 +718,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     AddSystemAbilityListener(COMM_NET_POLICY_MANAGER_SYS_ABILITY_ID);
+#endif
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    AddSystemAbilityListener(COMM_FIREWALL_MANAGER_SYS_ABILITY_ID);
 #endif
 #ifdef USB_EDM_ENABLE
     AddSystemAbilityListener(USB_SYSTEM_ABILITY_ID);

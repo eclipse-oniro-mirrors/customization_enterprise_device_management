@@ -18,6 +18,7 @@
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "iplugin_manager.h"
+#include "ipolicy_manager.h"
 #include "netfirewall_client.h"
 
 namespace OHOS {
@@ -48,6 +49,17 @@ ErrCode DisallowedPacketFilteringPlugin::SetOtherModulePolicy(bool data, int32_t
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     return ERR_OK;
+}
+
+void DisallowedPacketFilteringPlugin::OnOtherServiceStart(int32_t systemAbilityId)
+{
+    EDMLOGI("DisallowedPacketFilteringPlugin::OnOtherServiceStart start");
+    std::string policyValue;
+    IPolicyManager::GetInstance()->GetPolicy("", PolicyName::POLICY_DISALLOWED_PACKET_FILTERING,
+        policyValue, EdmConstants::DEFAULT_USER_ID);
+    if (policyValue == EdmConstants::CONST_TRUE) {
+        SetOtherModulePolicy(true, EdmConstants::DEFAULT_USER_ID);
+    }
 }
 } // namespace EDM
 } // namespace OHOS
