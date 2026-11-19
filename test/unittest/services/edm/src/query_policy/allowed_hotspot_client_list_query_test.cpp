@@ -18,7 +18,6 @@
 #define private public
 #define protected public
 #include "allowed_hotspot_client_list_query.h"
-#include "is_allowed_hotspot_client_connect_query.h"
 #undef private
 #undef protected
 
@@ -33,9 +32,6 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-
-const std::string MAC_1 = "00:11:22:33:44:55";
-const std::string MAC_2 = "AA:BB:CC:DD:EE:FF";
 
 class AllowedHotspotClientListQueryTest : public testing::Test {
 protected:
@@ -165,141 +161,6 @@ HWTEST_F(AllowedHotspotClientListQueryTest, TestQueryPolicySingleMac, TestSize.L
     std::vector<std::string> macAddresses;
     ASSERT_TRUE(ArrayStringSerializer::GetInstance()->GetPolicy(reply, macAddresses));
     EXPECT_EQ(macAddresses.size(), 1u);
-}
-
-class IsAllowedHotspotClientConnectQueryTest : public testing::Test {
-protected:
-    void SetUp() override
-    {
-        query_ = std::make_shared<IsAllowedHotspotClientConnectQuery>();
-    }
-
-    void TearDown() override
-    {
-        query_ = nullptr;
-    }
-
-    std::shared_ptr<IsAllowedHotspotClientConnectQuery> query_;
-};
-
-/**
- * @tc.name: TestIsAllowedGetPolicyName
- * @tc.desc: Test IsAllowedHotspotClientConnectQuery::GetPolicyName returns correct policy name.
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedGetPolicyName, TestSize.Level1)
-{
-    std::string policyName = query_->GetPolicyName();
-    EXPECT_EQ(policyName, PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST);
-}
-
-/**
- * @tc.name: TestIsAllowedGetPermission
- * @tc.desc: Test IsAllowedHotspotClientConnectQuery::GetPermission returns correct permission.
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedGetPermission, TestSize.Level1)
-{
-    std::string permission = query_->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, "");
-    EXPECT_EQ(permission, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI);
-}
-
-/**
- * @tc.name: TestIsAllowedQueryPolicyMatch
- * @tc.desc: Test QueryPolicy when MAC address is in whitelist, should return true.
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedQueryPolicyMatch, TestSize.Level1)
-{
-    std::string policyData = R"(["00:11:22:33:44:55","AA:BB:CC:DD:EE:FF"])";
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(MAC_1);
-
-    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
-
-    int32_t result = reply.ReadInt32();
-    EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_TRUE(isAllowed);
-}
-
-/**
- * @tc.name: TestIsAllowedQueryPolicyNoMatch
- * @tc.desc: Test QueryPolicy when MAC address is not in whitelist, should return false.
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedQueryPolicyNoMatch, TestSize.Level1)
-{
-    std::string policyData = R"(["00:11:22:33:44:55"])";
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(MAC_2);
-
-    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
-
-    int32_t result = reply.ReadInt32();
-    EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_FALSE(isAllowed);
-}
-
-/**
- * @tc.name: TestIsAllowedQueryPolicyEmptyWhitelist
- * @tc.desc: Test QueryPolicy when whitelist is empty, should return true (allow all).
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedQueryPolicyEmptyWhitelist, TestSize.Level1)
-{
-    std::string policyData;
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(MAC_1);
-
-    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, ERR_OK);
-
-    int32_t result = reply.ReadInt32();
-    EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_TRUE(isAllowed);
-}
-
-/**
- * @tc.name: TestIsAllowedQueryPolicyInvalidJson
- * @tc.desc: Test QueryPolicy with invalid JSON causes failure.
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedQueryPolicyInvalidJson, TestSize.Level1)
-{
-    std::string policyData = "invalid_json";
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(MAC_1);
-
-    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
-
-    int32_t result = reply.ReadInt32();
-    EXPECT_EQ(result, EdmReturnErrCode::EXECUTE_TIME_OUT);
-}
-
-/**
- * @tc.name: TestIsAllowedQueryPolicyNotArray
- * @tc.desc: Test QueryPolicy with JSON that is not an array causes failure.
- * @tc.type: FUNC
- */
-HWTEST_F(IsAllowedHotspotClientConnectQueryTest, TestIsAllowedQueryPolicyNotArray, TestSize.Level1)
-{
-    std::string policyData = R"({"mac":"00:11:22:33:44:55"})";
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(MAC_1);
-
-    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
-    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 } // namespace TEST

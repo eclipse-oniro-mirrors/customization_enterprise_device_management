@@ -52,6 +52,33 @@ ErrCode WifiPolicyUtils::SetWifiAccessList(std::vector<WifiId> data, bool isAllo
     return ERR_OK;
 }
 
+ErrCode WifiPolicyUtils::SetHotspotClientListToWifi(const std::vector<std::string> &mergeData)
+{
+    EDMLOGI("WifiPolicyUtils SetHotspotClientListToWifi mergeData size=%{public}zu", mergeData.size());
+    auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    if (wifiDevice == nullptr) {
+        EDMLOGE("WifiPolicyUtils SetHotspotClientListToWifi wifiDevice GetInstance null");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    std::vector<Wifi::WifiRestrictedInfo> wifiRestrictedList;
+    for (const auto &macAddress : mergeData) {
+        Wifi::WifiRestrictedInfo wifiRestrictedInfo;
+        wifiRestrictedInfo.bssid = macAddress;
+        wifiRestrictedList.push_back(wifiRestrictedInfo);
+    }
+    ErrCode ret = wifiDevice->SetWifiRestrictedList(wifiRestrictedList,
+        static_cast<int>(Wifi::WifiListMode::AP_WHITE_LIST));
+    if (ret == Wifi::ErrCode::WIFI_OPT_MDM_AP_WHITELIST_MAC_INVALID) {
+        EDMLOGE("WifiPolicyUtils SetHotspotClientListToWifi invalid mac address in hotspot client whitelist");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (ret != ERR_OK) {
+        EDMLOGE("WifiPolicyUtils SetHotspotClientListToWifi SetWifiRestrictedList failed ret=%{public}d", ret);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
+
 ErrCode WifiPolicyUtils::AddWifiListPolicy(std::vector<WifiId> &data, std::vector<WifiId> &currentData,
     std::vector<WifiId> &mergeData, int32_t userId, bool isAllowed)
 {

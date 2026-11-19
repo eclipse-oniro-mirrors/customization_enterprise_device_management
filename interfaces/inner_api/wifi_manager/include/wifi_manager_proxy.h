@@ -45,7 +45,6 @@ public:
     int32_t AddAllowedHotspotClientList(MessageParcel &data);
     int32_t RemoveAllowedHotspotClientList(MessageParcel &data);
     int32_t GetAllowedHotspotClientList(MessageParcel &data, MessageParcel &reply);
-    bool IsAllowedHotspotClientConnect(const std::string &macAddress);
 private:
     static std::shared_ptr<WifiManagerProxy> instance_;
     static std::once_flag flag_;
