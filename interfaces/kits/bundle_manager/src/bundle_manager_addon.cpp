@@ -48,6 +48,7 @@ constexpr const char* CODE_PATH = "codePath";
 constexpr const char* REMOVABLE = "removable";
 constexpr const char* ACCESS_TOKEN_ID = "accessTokenId";
 constexpr const char* UID = "uid";
+constexpr const char* APP_UID = "appUid";
 constexpr const char* ICON_RESOURCE = "iconResource";
 constexpr const char* LABEL_RESOURCE = "labelResource";
 constexpr const char* DESCRIPTION_RESOURCE = "descriptionResource";
@@ -1287,6 +1288,10 @@ void BundleManagerAddon::ConvertApplicationInfo(napi_env env, napi_value objAppI
     napi_value nUid;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, appInfo.uid, &nUid));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, UID, nUid));
+
+    napi_value nAppUid;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, appInfo.appUid, &nAppUid));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, objAppInfo, APP_UID, nAppUid));
 
     napi_value nIconResource;
     NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &nIconResource));
