@@ -21,6 +21,7 @@
 #include "edm_data_ability_utils.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_os_account_manager_impl.h"
+#include "func_code.h"
 #include "iplugin_manager.h"
 
 #ifdef WIFI_EDM_ENABLE
@@ -80,6 +81,9 @@ ErrCode SetDeviceNamePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParce
     }
     if (userId != currentUserId) {
         EDMLOGE("SetDeviceNamePlugin::OnHandlePolicy userId isn't current userId.");
+        if (IS_NEW_INTERFACE(funcCode)) {
+            return EdmReturnErrCode::CROSS_USER_NOT_ALLOWED;
+        }
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
 
