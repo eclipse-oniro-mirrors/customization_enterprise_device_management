@@ -33,6 +33,7 @@ const std::string COMPLEXITY_REG = "complexityReg";
 const std::string VALIDITY_PERIOD = "validityPeriod";
 const std::string ADDITIONAL_DESCRIPTION = "additionalDescription";
 const std::string PASSWORD_ALGS = "pinAlgoType";
+constexpr size_t MAX_POLICY_FILE_SIZE = 10 * 1024; //10KB
  
 PasswordPolicyUtils::PasswordPolicyUtils()
 {
@@ -137,14 +138,15 @@ bool PasswordPolicyUtils::LoadConfig(std::string &jsonStr)
     if (inFile.good()) {
         EDMLOGI("PasswordPolicyUtils::LoadConfig inFile.good");
         inFile.seekg(0, std::ios::end);
-        size_t size = static_cast<size_t>(inFile.tellg());
-        if (size == 0) {
-            EDMLOGW("PasswordPolicyUtils::LoadConfig config is empty");
+        std::streamsize size = inFile.tellg();
+        if (size <= 0 || static_cast<size_t>(size) > MAX_POLICY_FILE_SIZE) {
+            EDMLOGW("PasswordPolicyUtils::LoadConfig config is empty or oversized, size %{public}d",
+                static_cast<int>(size));
             inFile.close();
             return false;
         }
         inFile.seekg(0, std::ios::beg);
-        jsonStr.assign(size, ' ');
+        jsonStr.assign(static_cast<size_t>(size), ' ');
         inFile.read(&jsonStr[0], size);
         inFile.close();
         return true;

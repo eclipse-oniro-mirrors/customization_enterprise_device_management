@@ -31,6 +31,7 @@ const std::string SEPARATOR = "/";
 const char *const PROTOCOL_DENY_LIST = "ProtocolDenyList";
 constexpr int32_t EDM_UID = 3057;
 constexpr int32_t EDM_GID = 3057;
+constexpr size_t MAX_POLICY_FILE_SIZE = 1 * 1024; //1KB
 
 NearlinkConfigUtils::NearlinkConfigUtils()
 {
@@ -228,14 +229,19 @@ bool NearlinkConfigUtils::LoadConfig()
     if (inFile.good()) {
         EDMLOGI("NearlinkConfigUtils::LoadConfig inFile.good");
         inFile.seekg(0, std::ios::end);
-        size_t size = static_cast<size_t>(inFile.tellg());
+        std::streamsize size = inFile.tellg();
         if (size == 0) {
             inFile.close();
             CJSON_CREATE_OBJECT_AND_CHECK(root_, false);
             return true;
         }
+        if (size < 0 || static_cast<size_t>(size) > MAX_POLICY_FILE_SIZE) {
+            EDMLOGE("NearlinkConfigUtils::LoadConfig invalid config size %{public}d", static_cast<int>(size));
+            inFile.close();
+            return false;
+        }
         inFile.seekg(0, std::ios::beg);
-        std::string jsonStr(size, ' ');
+        std::string jsonStr(static_cast<size_t>(size), ' ');
         inFile.read(&jsonStr[0], size);
         inFile.close();
         root_ = cJSON_Parse(jsonStr.c_str());
