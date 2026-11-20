@@ -23,6 +23,7 @@
 #include "edm_ipc_interface_code.h"
 #include "edm_os_account_manager_impl_mock.h"
 #include "external_manager_factory_mock.h"
+#include "func_code.h"
 #include "iplugin_manager.h"
 #include "utils.h"
 
@@ -117,6 +118,24 @@ HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_InvalidUserId_FAIL, Te
     HandlePolicyData handlePolicyData;
     ErrCode code = plugin.OnHandlePolicy(0, data, reply, handlePolicyData, 101);
     EXPECT_EQ(code, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicy_NewInterfaceCrossUser_FAIL
+ * @tc.desc: Test OnHandlePolicy function with new interface when userId isn't current userId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetValueForAccountPluginTest, TestOnHandlePolicy_NewInterfaceCrossUser_FAIL, TestSize.Level1)
+{
+    SetDeviceNamePlugin plugin;
+    MessageParcel data;
+    data.WriteString("test");
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData;
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW(static_cast<std::uint32_t>(FuncOperateType::SET),
+        EdmInterfaceCode::SET_DEVICE_NAME);
+    ErrCode code = plugin.OnHandlePolicy(funcCode, data, reply, handlePolicyData, 101);
+    EXPECT_EQ(code, EdmReturnErrCode::CROSS_USER_NOT_ALLOWED);
 }
 
 /**

@@ -297,31 +297,33 @@ int32_t DeviceSettingsProxy::GetPowerModeValueForAccount(const AppExecFwk::Eleme
     return ERR_OK;
 }
 
-int32_t DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
-    const std::string &value)
+int32_t DeviceSettingsProxy::SetValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
+    const std::string &value, std::uint32_t interfaceCode)
 {
-    EDMLOGD("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin");
+    EDMLOGD("DeviceSettingsProxy::SetValueForAccountWithoutAdmin");
     if (accountId < EdmConstants::DEFAULT_USER_ID) {
-        EDMLOGE("DeviceSettingsProxy::SetPowerModeValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
+        EDMLOGE("DeviceSettingsProxy::SetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
             accountId, EdmConstants::DEFAULT_USER_ID);
         return EdmReturnErrCode::UID_INVALID;
     }
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(accountId);
-    data.WriteInt32(static_cast<int32_t>(item));
+    if (interfaceCode != EdmInterfaceCode::SET_DEVICE_NAME &&
+        interfaceCode != EdmInterfaceCode::SET_FLOATING_NAVIGATION) {
+        data.WriteInt32(static_cast<int32_t>(item));
+    }
     data.WriteString(value);
-    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::POWER_MODE_SETTINGS);
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, interfaceCode);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
-int32_t DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
-    std::string &value)
+int32_t DeviceSettingsProxy::GetValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item,
+    std::string &value, std::uint32_t interfaceCode)
 {
-    EDMLOGD("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin");
+    EDMLOGD("DeviceSettingsProxy::GetValueForAccountWithoutAdmin");
     if (accountId < EdmConstants::DEFAULT_USER_ID) {
-        EDMLOGE("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
+        EDMLOGE("DeviceSettingsProxy::GetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d",
             accountId, EdmConstants::DEFAULT_USER_ID);
         return EdmReturnErrCode::UID_INVALID;
     }
@@ -330,11 +332,14 @@ int32_t DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin(int32_t acc
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(accountId);
     data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
-    data.WriteInt32(static_cast<int32_t>(item));
-    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::POWER_MODE_SETTINGS,
-        data, reply);
+    if (interfaceCode != EdmInterfaceCode::SET_DEVICE_NAME &&
+        interfaceCode != EdmInterfaceCode::SET_FLOATING_NAVIGATION) {
+        data.WriteInt32(static_cast<int32_t>(item));
+    }
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        static_cast<int32_t>(interfaceCode), data, reply);
     if (ret != ERR_OK) {
-        EDMLOGE("DeviceSettingsProxy::GetPowerModeValueForAccountWithoutAdmin fail. %{public}d", ret);
+        EDMLOGE("DeviceSettingsProxy::GetValueForAccountWithoutAdmin fail. %{public}d", ret);
         return ret;
     }
     value = reply.ReadString();

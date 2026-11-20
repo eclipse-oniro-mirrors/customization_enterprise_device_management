@@ -14,10 +14,14 @@
  */
 #include "device_settings_addon.h"
 
+#include <algorithm>
+#include <vector>
+
 #include "cJSON.h"
 #include "cjson_check.h"
 #include "datetime_manager_proxy.h"
 #include "edm_constants.h"
+#include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "napi_edm_adapter.h"
 #include "switch_param.h"
@@ -27,6 +31,19 @@
 #include "override_interface_name.h"
 
 using namespace OHOS::EDM;
+
+const std::vector<SettingsItem> SETTING_ITEM_SUPPORTED_WITHOUT_ADMIN = {
+#if defined(FEATURE_PC_ONLY)
+    SettingsItem::DEVICE_NAME,
+    SettingsItem::SCREEN_OFF_DC,
+    SettingsItem::SCREEN_OFF_AC,
+    SettingsItem::POWER_POLICY_DC,
+    SettingsItem::POWER_POLICY_AC
+#else
+    SettingsItem::DEVICE_NAME,
+    SettingsItem::FLOATING_NAVIGATION
+#endif
+};
 
 void DeviceSettingsAddon::CreatePowerSceneObject(napi_env env, napi_value value)
 {
@@ -744,23 +761,17 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env en
             EdmConstants::DEFAULT_USER_ID);
         return nullptr;
     }
-    if (!IsPowerModeItem(item)) {
+    if (!IsSettingItem(item) || !IsSettingItemSupportedWithoutAdmin(item)) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d does not support without admin", item);
+        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d is not supported", item);
         return nullptr;
     }
-
-#ifdef FEATURE_PC_ONLY
-    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
-    int32_t ret = proxy->SetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), value);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetValueForAccountWithoutAdmin(accountId,
+        static_cast<SettingsItem>(item), value, GetInterfaceCodeBySettingItem(item));
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("SetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
     }
-#else
-    napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-    EDMLOGE("SetValueForAccountWithoutAdmin not supported on non-PC device");
-#endif
     return nullptr;
 }
 
@@ -803,8 +814,6 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, 
     } else if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
         ret = proxy->GetFloatingNavigationForAccount(elementName, accountId, stringRet,
             EdmConstants::PERMISSION_TAG_VERSION_23);
-    } else if (IsPowerModeItem(item)) {
-        ret = GetPowerModeValueForAccount(elementName, item, accountId, stringRet);
     } else {
         ret = EdmReturnErrCode::INTERFACE_UNSUPPORTED;
     }
@@ -833,58 +842,51 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env en
             EdmConstants::DEFAULT_USER_ID);
         return nullptr;
     }
-    if (!IsPowerModeItem(item)) {
-        EDMLOGW("GetValueForAccountWithoutAdmin: item %{public}d does not support without admin, return empty string",
-            item);
-        napi_value result;
+    std::string stringRet;
+    napi_value result;
+    if (!IsSettingItem(item) || !IsSettingItemSupportedWithoutAdmin(item)) {
+        EDMLOGW("GetValueForAccountWithoutAdmin: item %{public}d is not supported, return empty string", item);
         NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &result));
         return result;
     }
-
-    std::string stringRet;
-#ifdef FEATURE_PC_ONLY
-    auto proxy = DeviceSettingsProxy::GetDeviceSettingsProxy();
-    int32_t ret = proxy->GetPowerModeValueForAccountWithoutAdmin(accountId, static_cast<SettingsItem>(item), stringRet);
+    int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetValueForAccountWithoutAdmin(accountId,
+        static_cast<SettingsItem>(item), stringRet, GetInterfaceCodeBySettingItem(item));
+    if (ret == EdmReturnErrCode::INTERFACE_UNSUPPORTED) {
+        EDMLOGW("GetValueForAccountWithoutAdmin: item %{public}d is not supported, return empty string", item);
+        NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &result));
+        return result;
+    }
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret, ErrcodeType::NUMBER));
         EDMLOGE("GetValueForAccountWithoutAdmin failed! ret is %{public}d", ret);
         return nullptr;
     }
-#else
-    EDMLOGW("GetValueForAccountWithoutAdmin not supported on non-PC device, return empty string");
-#endif
-    napi_value result;
     NAPI_CALL(env, napi_create_string_utf8(env, stringRet.c_str(), stringRet.size(), &result));
     return result;
 }
 
-bool DeviceSettingsAddon::IsPowerModeItem(int32_t item)
+bool DeviceSettingsAddon::IsSettingItem(int32_t item)
 {
-    return item >= static_cast<int32_t>(SettingsItem::SCREEN_OFF_DC) &&
+    return item >= static_cast<int32_t>(SettingsItem::DEVICE_NAME) &&
         item <= static_cast<int32_t>(SettingsItem::POWER_POLICY_AC);
 }
 
-int32_t DeviceSettingsAddon::SetPowerModeValueForAccount(
-    const OHOS::AppExecFwk::ElementName &elementName, int32_t item, int32_t accountId, const std::string &value)
+std::uint32_t DeviceSettingsAddon::GetInterfaceCodeBySettingItem(int32_t item)
 {
-#ifdef FEATURE_PC_ONLY
-    return DeviceSettingsProxy::GetDeviceSettingsProxy()->SetPowerModeValueForAccount(elementName, accountId,
-        static_cast<SettingsItem>(item), value);
-#else
-    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
-#endif
+    if (item == static_cast<int32_t>(SettingsItem::DEVICE_NAME)) {
+        return EdmInterfaceCode::SET_DEVICE_NAME;
+    }
+    if (item == static_cast<int32_t>(SettingsItem::FLOATING_NAVIGATION)) {
+        return EdmInterfaceCode::SET_FLOATING_NAVIGATION;
+    }
+    return EdmInterfaceCode::POWER_MODE_SETTINGS;
 }
 
-int32_t DeviceSettingsAddon::GetPowerModeValueForAccount(
-    const OHOS::AppExecFwk::ElementName &elementName, int32_t item, int32_t accountId, std::string &value)
+bool DeviceSettingsAddon::IsSettingItemSupportedWithoutAdmin(int32_t item)
 {
-#ifdef FEATURE_PC_ONLY
-    return DeviceSettingsProxy::GetDeviceSettingsProxy()->GetPowerModeValueForAccount(elementName, accountId,
-        static_cast<SettingsItem>(item), value);
-#else
-    value = "";
-    return ERR_OK;
-#endif
+    SettingsItem settingsItem = static_cast<SettingsItem>(item);
+    return std::find(SETTING_ITEM_SUPPORTED_WITHOUT_ADMIN.begin(), SETTING_ITEM_SUPPORTED_WITHOUT_ADMIN.end(),
+        settingsItem) != SETTING_ITEM_SUPPORTED_WITHOUT_ADMIN.end();
 }
 
 bool DeviceSettingsAddon::JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene)

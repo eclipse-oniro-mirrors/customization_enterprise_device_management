@@ -63,11 +63,9 @@ private:
     static napi_value HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv);
     static napi_value HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv);
     static void CreateSettingsItemObject(napi_env env, napi_value value);
-    static int32_t SetPowerModeValueForAccount(const AppExecFwk::ElementName &elementName,
-        int32_t item, int32_t accountId, const std::string &value);
-    static int32_t GetPowerModeValueForAccount(const AppExecFwk::ElementName &elementName,
-        int32_t item, int32_t accountId, std::string &value);
-    static bool IsPowerModeItem(int32_t item);
+    static bool IsSettingItem(int32_t item);
+    static bool IsSettingItemSupportedWithoutAdmin(int32_t item);
+    static std::uint32_t GetInterfaceCodeBySettingItem(int32_t item);
     static bool JsStrToPowerScene(napi_env env, std::string jsStr, PowerScene &powerScene);
     static bool JsStrToPowerPolicy(napi_env env, std::string jsStr, PowerPolicy &powerPolicy);
     static int32_t ConvertPowerPolicyToJsStr(
