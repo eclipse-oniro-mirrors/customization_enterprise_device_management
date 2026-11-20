@@ -112,6 +112,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL,
     EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE,
     EdmInterfaceCode::DISALLOW_COMPANION_AI,
+    EdmInterfaceCode::INSTALL_EXISTED,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

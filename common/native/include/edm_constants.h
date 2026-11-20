@@ -674,6 +674,7 @@ namespace PolicyName {
     const char* const POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST = "control_panel_top_toggle_list";
     const char* const POLICY_DISALLOW_APP_LOCK = "disallow_app_lock";
     const char* const POLICY_DISABLED_CAMERA_FOR_ACCOUNT = "disabled_camera_for_account";
+    const char* const POLICY_INSTALL_EXISTED = "install_existed";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
