@@ -80,6 +80,7 @@
         "ets_runtime",
         "eventhandler",
         "file_api",
+        "font_manager",
         "form_fwk",
         "graphic_2d",
         "netmanager_base",

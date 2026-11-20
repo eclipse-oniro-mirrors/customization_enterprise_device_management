@@ -62,6 +62,7 @@ namespace EdmConstants {
     constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 10;
 
     constexpr int32_t EDM_UID = 3057;
+    constexpr int32_t EDM_GID = 3057;
 
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
     constexpr size_t MAX_PARCEL_CAPACITY_OF_ASHMEM = 1024 * 1024 * 1024; // max allow 1 GB resource size
@@ -147,6 +148,10 @@ namespace EdmConstants {
 
     namespace BundleManager {
         const char* const HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
+    }
+
+    namespace SystemManager {
+        constexpr int64_t MAX_FONT_FILE_SIZE = 1024 * 1024 * 1024;
     }
 
     namespace Browser {
@@ -654,6 +659,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
     const char* const POLICY_VOLUME_DEGREE = "volume_degree";
+    const char* const POLICY_FONT_MANAGER = "font_manager";
     const char* const POLICY_DEFAULT_APPLICATION = "default_application";
     const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";

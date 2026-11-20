@@ -762,6 +762,11 @@ ohos_shared_library("sys_service_plugin") {
         "./src/system_manager/allowed_printer_ip_addresses_util.cpp",
       ]
     }
+
+    if (font_manager_edm_enable) {
+      external_deps += [ "font_manager:font_manager_client" ]
+      sources += [ "./src/system_manager/font_manager_plugin.cpp" ]
+    }
   }
   deps = [
     "../../common/external:edm_external_adapters",

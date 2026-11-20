@@ -16,6 +16,8 @@
 #ifndef INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_SYSTEM_MANAGER_PROXY_H
 #define INTERFACES_INNER_API_SYSTEM_MANAGER_INCLUDE_SYSTEM_MANAGER_PROXY_H
 
+#include <string>
+
 #include "enterprise_device_mgr_proxy.h"
 
 #ifdef FEATURE_PHONE_ONLY
@@ -84,7 +86,10 @@ public:
     int32_t GetLocalHotaDomain(MessageParcel &data, std::string &domain);
     int32_t SetVolumeDegree(MessageParcel &data);
     int32_t GetVolumeDegree(MessageParcel &data, int32_t &degree);
+    int32_t InstallFont(const std::string &fontPath, int32_t userId);
+    int32_t UninstallFont(const std::string &fontName, int32_t userId);
 private:
+    static ErrCode OpenFontFile(const std::string &fontPath, int32_t &fd, std::string &fileName);
 #ifdef FEATURE_PHONE_ONLY
     void EnsureEdmSaDeathRecipient();
     bool SubscribeEdmSa();

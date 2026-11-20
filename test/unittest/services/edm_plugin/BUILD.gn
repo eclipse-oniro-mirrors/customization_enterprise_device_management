@@ -193,6 +193,13 @@ ohos_unittest("EdmPluginTest") {
 
   defines = []
 
+  if (font_manager_edm_enable) {
+    external_deps += [ "font_manager:font_manager_client" ]
+    sources += [
+      "./src/system_manager/font_manager_plugin_test.cpp",
+    ]
+  }
+
   if (nfc_edm_enable) {
     external_deps += [ "nfc:nfc_inner_kits_controller" ]
     defines += [ "NFC_EDM_ENABLE" ]
@@ -1078,6 +1085,13 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/restrictions/disallow_external_storage_card_plugin.cpp",
       "../../../../services/edm_plugin/src/usb_manager/external_storage_device_mount_policy_plugin.cpp",
       "../../../../services/edm_plugin/src/usb_manager/get_external_storage_device_infos_plugin.cpp",
+    ]
+  }
+  
+  if (font_manager_edm_enable) {
+    external_deps += [ "font_manager:font_manager_client" ]
+    sources += [
+      "../../../../services/edm_plugin/src/system_manager/font_manager_plugin.cpp",
     ]
   }
 

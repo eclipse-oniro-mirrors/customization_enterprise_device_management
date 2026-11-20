@@ -15,7 +15,14 @@
 
 #include "system_manager_proxy.h"
 
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "edm_constants.h"
+#include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
 #include "edm_utils.h"
@@ -501,6 +508,72 @@ int32_t SystemManagerProxy::SetLocalHotaDomain(MessageParcel &data)
     std::uint32_t funcCode =
         POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::LOCAL_HOTA_DOMAIN);
     return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+ErrCode SystemManagerProxy::OpenFontFile(const std::string &fontPath, int32_t &fd, std::string &fileName)
+{
+    char realPath[PATH_MAX] = {0};
+    if (realpath(fontPath.c_str(), realPath) == nullptr || access(realPath, R_OK) != 0) {
+        EDMLOGE("open font file failed due to invalid path, errno: %{public}d", errno);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    std::string filePath(realPath);
+    size_t pos = filePath.find_last_of('/');
+    if (pos == std::string::npos || pos == filePath.size() - 1) {
+        EDMLOGE("invalid font file path");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    fileName = filePath.substr(pos + 1);
+    if (fileName == "." || fileName == "..") {
+        EDMLOGE("invalid font file name");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    fd = open(realPath, O_RDONLY);
+    if (fd < 0) {
+        EDMLOGE("open font file failed");
+        return EdmReturnErrCode::FONT_FILE_NOT_EXISTS;
+    }
+    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
+    return ERR_OK;
+}
+
+int32_t SystemManagerProxy::InstallFont(const std::string &fontPath, int32_t userId)
+{
+    EDMLOGD("SystemManagerProxy::InstallFont");
+    int32_t fd = -1;
+    std::string fileName;
+    ErrCode openRet = OpenFontFile(fontPath, fd, fileName);
+    if (openRet != ERR_OK) {
+        return openRet;
+    }
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(userId);
+    data.WriteFileDescriptor(fd);
+    fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::FONT_MANAGER);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+    if (ret != ERR_OK) {
+        EDMLOGE("SystemManagerProxy::InstallFont failed ret=%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t SystemManagerProxy::UninstallFont(const std::string &fontName, int32_t userId)
+{
+    EDMLOGD("SystemManagerProxy::UninstallFont");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(userId);
+    data.WriteString(fontName);
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::REMOVE, EdmInterfaceCode::FONT_MANAGER);
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+    if (ret != ERR_OK) {
+        EDMLOGE("SystemManagerProxy::UninstallFont failed ret=%{public}d", ret);
+    }
+    return ret;
 }
 
 int32_t SystemManagerProxy::GetLocalHotaDomain(MessageParcel &data, std::string &domain)
