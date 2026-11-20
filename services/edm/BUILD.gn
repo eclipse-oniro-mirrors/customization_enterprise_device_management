@@ -183,6 +183,11 @@ ohos_shared_library("edmservice") {
 
   if (enterprise_device_management_feature_pc_only) {
     sources += [
+      "./src/admin_backup_data_codec.cpp",
+      "./src/admin_provisioning_proxy.cpp",
+      "./src/backup_extension_handler.cpp",
+      "./src/backup_error_mapper.cpp",
+      "./src/restore_extension_handler.cpp",
       "./src/query_policy/get_auto_unlock_after_reboot_query.cpp",
       "./src/query_policy/install_local_enterprise_app_enabled_for_account_query.cpp",
       "./src/query_policy/install_local_enterprise_app_enabled_query.cpp",

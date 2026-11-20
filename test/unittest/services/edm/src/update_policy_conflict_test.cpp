@@ -66,7 +66,6 @@ void UpdatePolicyConflictTest::TearDown()
     Mock::VerifyAndClearExpectations(factoryMock_.get());
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->policyMgr_.reset();
-    edmMgr_->instance_.clear();
     for (auto& pair : PluginManager::GetInstance()->pluginsCode_) {
         if (pair.second && pair.second->extensionPlugin_) {
             pair.second->extensionPlugin_->externalModuleAdapter_ = nullptr;

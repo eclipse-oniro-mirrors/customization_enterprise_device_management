@@ -153,7 +153,6 @@ void EnterpriseDeviceMgrAbilityTest::TearDown()
         Mock::VerifyAndClearExpectations(accessTokenMgrMock_.get());
         edmMgr_->adminMgr_->ClearAdmins();
         edmMgr_->policyMgr_.reset();
-        edmMgr_->instance_.clear();
         edmMgr_.clear();
     }
     permissionCheckerMock_.reset();

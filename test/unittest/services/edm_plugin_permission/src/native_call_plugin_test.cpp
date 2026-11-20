@@ -65,7 +65,6 @@ void NativeCallPluginTest::TearDown()
     PermissionChecker::instance_ = nullptr;
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->policyMgr_.reset();
-    edmMgr_->instance_.clear();
     bundleMgrMock_.reset();
     appMgrMock_.reset();
     osAccountMgrMock_.reset();

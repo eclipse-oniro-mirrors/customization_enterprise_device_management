@@ -64,6 +64,21 @@ namespace EdmReturnErrCode {
     constexpr uint32_t CROSS_USER_NOT_ALLOWED = 9200020;
     constexpr uint32_t UNINSTALL_SELF_FAILED = 9200027;
 
+    constexpr uint32_t BACKUP_SDA_OCCUPIED = 9200022;
+    constexpr uint32_t BACKUP_APP_NOT_INSTALLED = 9200024;
+    constexpr uint32_t BACKUP_ADMIN_STATE_INCONSISTENT = 9200025;
+    constexpr uint32_t BACKUP_ADMIN_COUNT_EXCEEDED = 9200026;
+
+    constexpr uint32_t AP_BACKUP_CERT_CHAIN_INVALID = 9200028;
+    constexpr uint32_t AP_BACKUP_APPLICATION_ID_MISMATCH = 9200029;
+    constexpr uint32_t AP_BACKUP_SIGNATURE_INVALID = 9200030;
+    constexpr uint32_t AP_BACKUP_PAYLOAD_INVALID = 9200031;
+    constexpr uint32_t AP_BACKUP_DEVICE_IDENTITY_MISMATCH = 9200032;
+    constexpr uint32_t AP_BACKUP_CALLER_NOT_AUTHORIZED = 9200033;
+    constexpr uint32_t AP_BACKUP_INTERNAL_ERROR = 9200034;
+    constexpr uint32_t BACKUP_PARTIAL_FAILED = 9200035;
+    constexpr uint32_t AP_BACKUP_FORMAT_ERROR = 9200036;
+
     constexpr uint32_t MANAGED_CERTIFICATE_FAILED = 9201001;
     constexpr uint32_t APPLICATION_INSTALL_FAILED = 9201002;
     constexpr uint32_t ADD_OS_ACCOUNT_FAILED = 9201003;
