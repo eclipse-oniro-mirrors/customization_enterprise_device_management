@@ -40,6 +40,8 @@ const std::string HELP_MSG_ENABLE_ADMIN =
     "  -t, --admin-type <admin-type>               enable an admin with admin type,"
 #ifdef FEATURE_PC_ONLY
     "<admin-type>: super, byod, da.\n";
+#elif defined(FEATURE_TV_ONLY)
+    "<admin-type>: super.\n";
 #else
     "<admin-type>: super, byod.\n";
 #endif
@@ -147,9 +149,11 @@ std::vector<std::tuple<std::string, ErrCode>> GenerateEnableAdminTestData()
         { "edm enable-admin -n super.bundle -a super.ability -t super", ERR_OK },
         { "edm enable-admin --bundle-name super.bundle -a super.ability -t super", ERR_OK },
         { "edm enable-admin -n super.bundle -a super.ability -t super", ERR_OK },
+#ifndef FEATURE_TV_ONLY
         { "edm enable-admin -n byod.bundle -a byod.ability -t byod", ERR_OK },
         { "edm enable-admin --bundle-name byod.bundle -a byod.ability -t byod", ERR_OK },
         { "edm enable-admin -n byod.bundle --ability-name byod.ability -t byod", ERR_OK },
+#endif
 #ifdef FEATURE_PC_ONLY
         { "edm enable-admin -n da.bundle -a da.ability -t da", ERR_OK },
         { "edm enable-admin --bundle-name da.bundle -a da.ability -t da", ERR_OK },

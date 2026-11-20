@@ -56,7 +56,7 @@ struct AsyncIsActivationLockDisabledCallbackInfo : AsyncCallbackInfo {
     bool isDisabled;
 };
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 struct AsyncCreateTimerCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
     bool repeat = false;
@@ -147,7 +147,7 @@ private:
     static napi_value StartTimer(napi_env env, napi_callback_info info);
     static napi_value StopTimer(napi_env env, napi_callback_info info);
     static napi_value DestroyTimer(napi_env env, napi_callback_info info);
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     static bool ParseWakeupTimerOptions(napi_env env, napi_value options, AsyncCreateTimerCallbackInfo *info);
     static void NativeCreateTimer(napi_env env, void *data);
     static void NativeStartTimer(napi_env env, void *data);

@@ -84,7 +84,7 @@ group("fuzztest") {
     "managefreezeexemptedappsplugin_fuzzer:ManageFreezeExemptedAppsPluginFuzzTest",
   ]
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     deps += [
       "disallowedsimplugin_fuzzer:DisallowedSimPluginFuzzTest",
       "disallowmobiledataplugin_fuzzer:DisallowMobileDataPluginFuzzTest",
@@ -101,7 +101,7 @@ group("fuzztest") {
     ]
   }
 
-  if (screenlock_mgr_edm_enable && !enterprise_device_management_feature_pc_only) {
+  if (screenlock_mgr_edm_enable && enterprise_device_management_feature_phone_only) {
     deps += [
       "disablescreenlockplugin_fuzzer:DisableScreenLockPluginFuzzTest",
     ]

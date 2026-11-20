@@ -157,7 +157,7 @@ HWTEST_F(PermissionCheckerTest, TestVCheckIsSystemApp, TestSize.Level1)
     EXPECT_TRUE(permissionChecker_->CheckIsSystemApp());
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 /**
  * @tc.name: TestCheckSystemTimerPermission_AdminInactive
  * @tc.desc: Test CheckSystemTimerPermission returns ADMIN_INACTIVE when the bundle is not activated.

@@ -71,7 +71,7 @@ ohos_fuzztest("ApnUtilsFuzzTest") {
   ]
 
   if (enterprise_device_management_support_all) {
-    if (!enterprise_device_management_feature_pc_only &&
+    if (enterprise_device_management_feature_phone_only &&
         cellular_data_edm_enable && telephony_core_edm_enable) {
       external_deps += [
         "call_manager:tel_call_manager_api",

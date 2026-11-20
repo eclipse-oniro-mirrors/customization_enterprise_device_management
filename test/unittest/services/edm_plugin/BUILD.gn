@@ -238,7 +238,7 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (screenlock_mgr_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+      enterprise_device_management_feature_phone_only) {
     sources += [ "./src/disable_screen_lock_plugin_test.cpp" ]
   }
 
@@ -251,7 +251,7 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (power_manager_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+      enterprise_device_management_feature_phone_only) {
     external_deps += [ "power_manager:powermgr_client" ]
     sources += [ "./src/disallow_power_long_press_plugin_test.cpp" ]
   }
@@ -512,7 +512,7 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only &&
+  if (enterprise_device_management_feature_phone_only &&
       cellular_data_edm_enable) {
     external_deps += [
       "cellular_data:tel_cellular_data_api",
@@ -539,7 +539,7 @@ ohos_unittest("EdmPluginTest") {
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     sources += [
       "../../../../services/edm_plugin/src/account_manager/activate_normal_os_account_plugin.cpp",
       "../../../../services/edm_plugin/src/account_manager/manage_normal_os_account_plugin.cpp",
@@ -583,7 +583,7 @@ ohos_unittest("EdmPluginTest") {
   }
 
   if (device_standby_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+      enterprise_device_management_feature_phone_only) {
     sources += [ "./src/exemption_resource_plugin_test.cpp" ]
   }
 
@@ -910,7 +910,7 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (screenlock_mgr_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+      enterprise_device_management_feature_phone_only) {
     sources += [ "../../../../services/edm_plugin/src/device_settings/disable_screen_lock_plugin.cpp" ]
   }
 
@@ -923,7 +923,7 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (power_manager_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+      enterprise_device_management_feature_phone_only) {
     external_deps += [ "power_manager:powermgr_client" ]
     sources += [ "../../../../services/edm_plugin/src/restrictions/disallow_power_long_press_plugin.cpp" ]
   }
@@ -1199,7 +1199,7 @@ ohos_static_library("edm_all_plugin_static") {
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only &&
+  if (enterprise_device_management_feature_phone_only &&
       cellular_data_edm_enable) {
     external_deps += [
       "call_manager:tel_call_manager_api",
@@ -1249,7 +1249,7 @@ ohos_static_library("edm_all_plugin_static") {
   }
 
   if (device_standby_edm_enable &&
-      !enterprise_device_management_feature_pc_only) {
+      enterprise_device_management_feature_phone_only) {
     external_deps += [ "device_standby:standby_innerkits" ]
     sources += [ "../../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp" ]
   }

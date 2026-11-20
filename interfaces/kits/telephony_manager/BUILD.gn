@@ -42,13 +42,13 @@ ohos_shared_library("telephonymanager") {
   ]
 
   defines = []
-  if (!enterprise_device_management_feature_pc_only && cellular_data_edm_enable) {
+  if (enterprise_device_management_feature_phone_only && cellular_data_edm_enable) {
     defines += [ "TELEPHONY_EDM_ENABLE" ]
   }
   if (enterprise_device_management_feature_pc_only) {
     defines += [ "FEATURE_PC_ONLY" ]
   }
-  
+
   relative_install_dir = "module/enterprise"
 
   cflags_cc = [
