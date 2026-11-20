@@ -405,6 +405,7 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
         EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::SCREEN_RECORD),
         EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::APP_LOCK), EdmInterfaceCode::DISALLOW_APP_LOCK},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForDeviceEnum2CodeMap = {
@@ -1649,6 +1650,7 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
             static_cast<uint32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE)},
         {"SCREEN_SHOT", static_cast<uint32_t>(RestrictionsFeatureForAccount::SCREEN_SHOT)},
         {"SCREEN_RECORD", static_cast<uint32_t>(RestrictionsFeatureForAccount::SCREEN_RECORD)},
+        {"APP_LOCK", static_cast<uint32_t>(RestrictionsFeatureForAccount::APP_LOCK)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

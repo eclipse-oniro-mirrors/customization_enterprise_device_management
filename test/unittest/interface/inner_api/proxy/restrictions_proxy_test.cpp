@@ -1266,6 +1266,52 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminWi
     // The result must not be overwritten by the failed request.
     ASSERT_TRUE(result);
 }
+
+/**
+ * @tc.name: TestSetDisallowedPolicyForAccountImplicitAdminAppLock
+ * @tc.desc: Test SetDisallowedPolicyForAccountImplicitAdmin with the app lock policy code, the request parcel
+ *           carries the account id and the disallow flag and the func code is built from DISALLOW_APP_LOCK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestSetDisallowedPolicyForAccountImplicitAdminAppLock, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicyForAccountImplicitAdmin));
+    int32_t ret = proxy_->SetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID, true,
+        EdmInterfaceCode::DISALLOW_APP_LOCK);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(object_->accountId_, TEST_ACCOUNT_ID);
+    ASSERT_TRUE(object_->disallow_);
+    uint32_t expectedFuncCode = POLICY_FUNC_CODE_NEW((uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::DISALLOW_APP_LOCK);
+    ASSERT_EQ(object_->code_, expectedFuncCode);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyForAccountImplicitAdminAppLock
+ * @tc.desc: Test GetDisallowedPolicyForAccountImplicitAdmin with the app lock policy code, the request parcel
+ *           carries the account id and the ALL query policy and the func code is built from DISALLOW_APP_LOCK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminAppLock, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin));
+    bool result = false;
+    int32_t ret = proxy_->GetDisallowedPolicyForAccountImplicitAdmin(TEST_ACCOUNT_ID,
+        EdmInterfaceCode::DISALLOW_APP_LOCK, static_cast<int32_t>(QueryPolicy::ALL), result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+    ASSERT_EQ(object_->accountId_, TEST_ACCOUNT_ID);
+    ASSERT_EQ(object_->queryPolicy_, static_cast<int32_t>(QueryPolicy::ALL));
+    uint32_t expectedFuncCode = POLICY_FUNC_CODE_NEW((uint32_t)FuncOperateType::GET,
+        EdmInterfaceCode::DISALLOW_APP_LOCK);
+    ASSERT_EQ(object_->code_, expectedFuncCode);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

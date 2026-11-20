@@ -124,6 +124,27 @@ HWTEST_F(PolicyQueryConfigTableTest, TestFindConfig_ReturnsNonNullForValidCodes,
     ASSERT_EQ(entry->code, static_cast<uint32_t>(EdmInterfaceCode::DISALLOWED_P2P));
 }
 
+/**
+ * @tc.name: TestAppLockEntry
+ * @tc.desc: Test the DISALLOW_APP_LOCK config table entry (BOOL, saved, PUBLIC and the
+ *           feature gate is unconditionally enabled without any build macro).
+ * @tc.type: FUNC
+ */
+HWTEST_F(PolicyQueryConfigTableTest, TestAppLockEntry, TestSize.Level1)
+{
+    const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(EdmInterfaceCode::DISALLOW_APP_LOCK);
+    ASSERT_NE(entry, nullptr);
+    ASSERT_EQ(entry->code, static_cast<uint32_t>(EdmInterfaceCode::DISALLOW_APP_LOCK));
+    ASSERT_STREQ(entry->config.policyName, PolicyName::POLICY_DISALLOW_APP_LOCK);
+    ASSERT_TRUE(entry->config.dataType == PolicyDataType::BOOL);
+    ASSERT_TRUE(entry->config.isPolicySaved);
+    ASSERT_TRUE(entry->config.apiType == IPlugin::ApiType::PUBLIC);
+    ASSERT_TRUE(entry->config.isFeatureEnabled);
+    std::string perm = entry->config.permissionConfig.GetPermission(
+        IPlugin::PermissionType::SUPER_DEVICE_ADMIN, "");
+    ASSERT_EQ(perm, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+}
+
 HWTEST_F(PolicyQueryConfigTableTest, TestFindConfig_ReturnsNullForInvalidCodes, TestSize.Level1)
 {
     const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(99999);
@@ -286,6 +307,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOWED_MULTI_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
     map[EdmInterfaceCode::DISALLOWED_FREE_WINDOW] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_APP_LOCK] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #ifdef ABILITY_RUNTIME_EDM_ENABLE
     map[EdmInterfaceCode::ALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
     map[EdmInterfaceCode::DISALLOW_RUNNING_BUNDLES] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
@@ -452,6 +474,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_MULTI_WINDOW);
 #endif
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOWED_FREE_WINDOW);
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_APP_LOCK);
 #ifndef FEATURE_PC_ONLY
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK);
 #endif

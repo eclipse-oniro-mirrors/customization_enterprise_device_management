@@ -82,6 +82,7 @@ group("fuzztest") {
     "setwatermarkimageplugin_fuzzer:SetWatermarkImagePluginFuzzTest",
     "getinstalledbundlestoragestatsquery_fuzzer:GetInstalledBundleStorageStatsQueryFuzzTest",
     "managefreezeexemptedappsplugin_fuzzer:ManageFreezeExemptedAppsPluginFuzzTest",
+    "disallowapplockplugin_fuzzer:DisallowAppLockPluginFuzzTest",
   ]
 
   if (enterprise_device_management_feature_phone_only) {

@@ -672,6 +672,7 @@ namespace PolicyName {
     const char* const POLICY_CONTROL_PANEL_RESTRICTED = "control_panel_restricted";
     const char* const POLICY_CONTROL_PANEL_QUICK_TOGGLE_LIST = "control_panel_quick_toggle_list";
     const char* const POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST = "control_panel_top_toggle_list";
+    const char* const POLICY_DISALLOW_APP_LOCK = "disallow_app_lock";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS
