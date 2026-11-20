@@ -96,8 +96,8 @@ enum class RestrictionsFeatureForAccount : int32_t {
     OPEN_FILE_BOOST = 10,
     FREE_WINDOW = 14,
     INSTALL_DEVICE_CERTIFICATE = 15,
-    SCREEN_SHOT = 16,
-    SCREEN_RECORD = 17,
+    SCREEN_SHOT = 17,
+    SCREEN_RECORD = 18,
 };
 
 enum class UserRestrictionForDevice : int32_t {
