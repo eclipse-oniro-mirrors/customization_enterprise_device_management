@@ -61,7 +61,8 @@ HWTEST_F(UnlockPolicyPluginTest, TestOnGetPolicy, TestSize.Level1)
     std::vector<UnlockPolicyType> policyTypes = {
         UnlockPolicyType::DEFAULT,
         UnlockPolicyType::EXTENDED_AUTH_ONLY,
-        UnlockPolicyType::EXTENDED_AUTH_REQUIRED
+        UnlockPolicyType::EXTENDED_AUTH_REQUIRED,
+        UnlockPolicyType::EXTENDED_AUTH_OPTIONAL,
     };
 
     for (auto policyType : policyTypes) {
