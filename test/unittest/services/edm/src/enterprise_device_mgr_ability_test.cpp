@@ -6756,7 +6756,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestIsFeatureSupportedXKeyAndSuperPriva
 {
     int32_t conditionalFeatures[] = {
         static_cast<int32_t>(ManagedFeature::X_KEY),
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
         static_cast<int32_t>(ManagedFeature::SUPER_PRIVACY),
 #endif
     };
@@ -7059,7 +7059,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestGetDevicePolicyNew_QueryPolicyAll, 
     EXPECT_EQ(res, ERR_OK);
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 /**
  * @tc.name: HandleSystemTimerPolicyNew_GetNameForUidFail_ReturnsPermissionError
  * @tc.desc: Test HandleSystemTimerPolicyNew returns ERR_EDM_PERMISSION_ERROR when
@@ -7154,7 +7154,7 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, HandleSystemTimerPolicyNew_CheckCalling
     ErrCode ret = edmMgr_->HandleSystemTimerPolicyNew(funcCode, data, reply, DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PERMISSION_DENIED);
 }
-#endif // FEATURE_PC_ONLY
+#endif // FEATURE_PHONE_ONLY
 
 /**
  * @tc.name: TestHandleDevicePolicyNew_PermissionCheckFailed

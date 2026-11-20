@@ -68,6 +68,12 @@ config("edm_fuzz_pc_only_config") {
   }
 }
 
+config("edm_fuzz_phone_only_config") {
+  if (enterprise_device_management_feature_phone_only) {
+    defines = [ "FEATURE_PHONE_ONLY" ]
+  }
+}
+
 ohos_static_library("edmservice_fuzz_static") {
   testonly = true
   sources = [
@@ -143,7 +149,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm_plugin/src/utils/uninstall_param_serializer.cpp",
   ]
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     sources += [
       "../../../services/edm/src/database/sensitive_call_notify_rdb.cpp",
       "../../../services/edm/src/sensitive_api_whitelist.cpp",
@@ -165,6 +171,7 @@ ohos_static_library("edmservice_fuzz_static") {
   public_configs = [
     ":edm_config",
     ":edm_fuzz_pc_only_config",
+    ":edm_fuzz_phone_only_config",
     "../../../common/config:coverage_flags",
   ]
 
@@ -184,7 +191,7 @@ ohos_static_library("edmservice_fuzz_static") {
 
   defines += [ "EDM_FUZZ_TEST" ]
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     sources += [
       "../../../services/edm/src/system_manager/edm_timer_info_sa.cpp",
       "../../../services/edm/src/system_manager/system_timer_manager.cpp",
@@ -339,7 +346,7 @@ ohos_static_library("edmservice_fuzz_static") {
     }
 
     if (screenlock_mgr_edm_enable &&
-        !enterprise_device_management_feature_pc_only) {
+        enterprise_device_management_feature_phone_only) {
       sources += [ "../../../services/edm_plugin/src/device_settings/disable_screen_lock_plugin.cpp" ]
     }
 
@@ -585,7 +592,7 @@ ohos_static_library("edmservice_fuzz_static") {
       defines += [ "CAMERA_FRAMEWORK_EDM_ENABLE" ]
     }
 
-    if (!enterprise_device_management_feature_pc_only) {
+    if (enterprise_device_management_feature_phone_only) {
       sources += [
         "../../../services/edm_plugin/src/device_settings/set_key_code_plugin.cpp",
         "../../../services/edm_plugin/src/restrictions/disallow_free_window_plugin.cpp",
@@ -628,7 +635,7 @@ ohos_static_library("edmservice_fuzz_static") {
       sources += [ "../../../services/edm_plugin/src/security_manager/unlock_policy_plugin.cpp" ]
     }
 
-    if (!enterprise_device_management_feature_pc_only &&
+    if (enterprise_device_management_feature_phone_only &&
         cellular_data_edm_enable && telephony_core_edm_enable) {
       external_deps += [
         "call_manager:tel_call_manager_api",
@@ -654,7 +661,7 @@ ohos_static_library("edmservice_fuzz_static") {
     }
 
     if (power_manager_edm_enable &&
-        !enterprise_device_management_feature_pc_only) {
+        enterprise_device_management_feature_phone_only) {
       sources += [ "../../../services/edm_plugin/src/restrictions/disallow_power_long_press_plugin.cpp" ]
     }
 
@@ -677,13 +684,13 @@ ohos_static_library("edmservice_fuzz_static") {
       defines += [ "ABILITY_FORM_FWK_EDM_ENABLE" ]
     }
 
-    if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
+    if (enterprise_device_management_feature_phone_only && sms_mms_edm_enable) {
       external_deps += [ "sms_mms:tel_sms_mms_api" ]
       defines += [ "SMS_MMS_EDM_ENABLE" ]
     }
 
     if (device_standby_edm_enable &&
-        !enterprise_device_management_feature_pc_only) {
+        enterprise_device_management_feature_phone_only) {
       external_deps += [ "device_standby:standby_innerkits" ]
       sources += [ "../../../services/edm_plugin/src/application_manager/exemption_resource_plugin.cpp" ]
     }

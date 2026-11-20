@@ -134,7 +134,7 @@ private:
     ErrCode RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdmin(const std::string &adminName, int32_t userId, AdminType adminType);
     ErrCode RemoveAdminPolicy(const std::string &adminName, int32_t userId);
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     bool IsSystemTimerFuncCode(uint32_t code);
     ErrCode HandleSystemTimerPolicyNew(uint32_t code, MessageParcel &data,
         MessageParcel &reply, int32_t userId);

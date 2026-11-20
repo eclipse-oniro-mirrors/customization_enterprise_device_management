@@ -1457,7 +1457,7 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetAllMainWindowStatesInvalidStateFail
     ASSERT_TRUE(mainWindowStates.empty());
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 /**
  * @tc.name: TestAddHideLauncherIconSuc
  * @tc.desc: Test AddOrRemoveHideLauncherIcon success func when isAdd is true.

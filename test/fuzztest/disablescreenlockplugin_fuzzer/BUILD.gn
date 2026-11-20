@@ -72,7 +72,7 @@ ohos_fuzztest("DisableScreenLockPluginFuzzTest") {
   ]
 
   if (enterprise_device_management_support_all) {
-    if (screenlock_mgr_edm_enable && !enterprise_device_management_feature_pc_only) {
+    if (screenlock_mgr_edm_enable && enterprise_device_management_feature_phone_only) {
       external_deps += [
         "screenlock_mgr:screenlock_client"
       ]

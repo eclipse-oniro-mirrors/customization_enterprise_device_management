@@ -41,6 +41,8 @@ const std::string HELP_MSG_ENABLE_ADMIN =
     "  -t, --admin-type <admin-type>               enable an admin with admin type,"
 #ifdef FEATURE_PC_ONLY
     "<admin-type>: super, byod, da.\n";
+#elif defined(FEATURE_TV_ONLY)
+    "<admin-type>: super.\n";
 #else
     "<admin-type>: super, byod.\n";
 #endif
@@ -356,6 +358,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTSuper, TestSize.Level1)
  */
 HWTEST_F(EdmCommandTest, TestEnableAdminWithTByod, TestSize.Level1)
 {
+#ifndef FEATURE_TV_ONLY
     char* argv[] = {
         const_cast<char*>("edm"),
         const_cast<char*>("enable-admin"),
@@ -367,6 +370,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTByod, TestSize.Level1)
     std::string result1 = cmd.ExecCommand();
     std::string result2 = cmd.GetMessageFromCode(ERR_EDM_TOOLS_COMMAND_NO_BUNDLE_NAME_OPTION) + HELP_MSG_ENABLE_ADMIN;
     EXPECT_EQ(result1, result2);
+#endif
 }
 
 /**
@@ -469,6 +473,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTsuper2Success, TestSize.Level1)
  */
 HWTEST_F(EdmCommandTest, TestEnableAdminWithTbyodSuccess, TestSize.Level1)
 {
+#ifndef FEATURE_TV_ONLY
     char* argv[] = {
         const_cast<char*>("edm"),
         const_cast<char*>("enable-admin"),
@@ -483,6 +488,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTbyodSuccess, TestSize.Level1)
     EdmCommand cmd(argc, argv);
     std::string result1 = cmd.ExecCommand();
     EXPECT_EQ(result1, "enable-admin success.\n");
+#endif
 }
 
 /**
@@ -596,6 +602,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTsuper1SuccessOfLong, TestSize.Level
  */
 HWTEST_F(EdmCommandTest, TestEnableAdminWithTbyodSuccessOfLong, TestSize.Level1)
 {
+#ifndef FEATURE_TV_ONLY
     char* argv[] = {
         const_cast<char*>("edm"),
         const_cast<char*>("enable-admin"),
@@ -610,6 +617,7 @@ HWTEST_F(EdmCommandTest, TestEnableAdminWithTbyodSuccessOfLong, TestSize.Level1)
     EdmCommand cmd(argc, argv);
     std::string result1 = cmd.ExecCommand();
     EXPECT_EQ(result1, "enable-admin success.\n");
+#endif
 }
 
 /**

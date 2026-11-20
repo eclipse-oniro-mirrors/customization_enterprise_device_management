@@ -56,6 +56,10 @@ ohos_shared_library("adminmanager") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (enterprise_device_management_feature_phone_only) {
+    defines += [ "FEATURE_PHONE_ONLY" ]
+  }
+
   relative_install_dir = "module/enterprise"
 
   cflags_cc = [

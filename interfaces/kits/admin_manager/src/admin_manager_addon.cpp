@@ -1084,12 +1084,12 @@ napi_value AdminManager::GetAdminInfos(napi_env env, napi_callback_info info)
 
 napi_value AdminManager::StartAdminProvision(napi_env env, napi_callback_info info)
 {
-#if defined(FEATURE_PC_ONLY)
-    EDMLOGW("AdminManager::StartAdminProvision Unsupported Capabilities.");
-    return nullptr;
-#else
+#ifdef FEATURE_PHONE_ONLY
     EDMLOGI("NAPI_StartAdminProvision called.");
     return AssertStartAdminProvision(env, info);
+#else
+    EDMLOGW("AdminManager::StartAdminProvision Unsupported Capabilities.");
+    return nullptr;
 #endif
 }
 

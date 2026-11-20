@@ -61,7 +61,7 @@ public:
     bool VerifyCallingPermission(Security::AccessToken::AccessTokenID tokenId, const std::string &permissionName);
     bool IsAllowDelegatedPolicy(const std::string &policy);
     std::string GetHapTokenBundleName(Security::AccessToken::AccessTokenID tokenId);
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     ErrCode CheckSystemTimerPermission(const std::string &bundleName, int32_t userId);
 #endif
     virtual std::shared_ptr<IExternalManagerFactory> GetExternalManagerFactory();

@@ -40,8 +40,13 @@ ohos_source_set("tools_edm_source_set") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
+  defines = []
   if (enterprise_device_management_feature_pc_only) {
-    defines = [ "FEATURE_PC_ONLY" ]
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (enterprise_device_management_feature_tv_only) {
+    defines += [ "FEATURE_TV_ONLY" ]
   }
 
   external_deps = [
