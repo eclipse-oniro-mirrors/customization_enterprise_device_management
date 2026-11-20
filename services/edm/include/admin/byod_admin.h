@@ -25,6 +25,9 @@ public:
     ByodAdmin(const AdminInfo& adminInfo);
     ~ByodAdmin() override = default;
     bool IsDisallowedUninstall() const override;
+#ifndef FEATURE_PC_ONLY
+    bool IsEnterpriseAdminKeepAlive() const override;
+#endif
     bool HasPermissionToCallServiceCode(uint32_t interfaceCode) const override;
     bool HasPermissionToHandlePolicy(const std::string &policyName, FuncOperateType operateType) const override;
     virtual std::string GetDisableSelfPermission() const override;

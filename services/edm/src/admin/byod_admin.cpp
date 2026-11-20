@@ -43,6 +43,13 @@ bool ByodAdmin::IsDisallowedUninstall() const
     return true;
 }
 
+#ifndef FEATURE_PC_ONLY
+bool ByodAdmin::IsEnterpriseAdminKeepAlive() const
+{
+    return true;
+}
+#endif
+
 bool ByodAdmin::HasPermissionToCallServiceCode(uint32_t interfaceCode) const
 {
     switch (interfaceCode) {

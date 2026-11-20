@@ -65,7 +65,11 @@ HWTEST_F(AdminTest, TestByodAdmin, TestSize.Level1)
     EXPECT_TRUE(admin->GetParentAdminName().empty());
     EXPECT_EQ(admin->IsSuperAdmin(), false);
     EXPECT_EQ(admin->IsDisallowedUninstall(), true);
+#ifdef FEATURE_PC_ONLY
     EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), false);
+#else
+    EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), true);
+#endif
     EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), false);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), true);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SUBSCRIBE_MANAGED_EVENT), false);

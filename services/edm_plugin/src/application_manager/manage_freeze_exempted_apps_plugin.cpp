@@ -27,8 +27,10 @@
 #include "edm_constants.h"
 #include "edm_event_data.h"
 #include "edm_ipc_interface_code.h"
+#include "edm_os_account_manager_impl.h"
 #include "edm_sys_manager.h"
 #include "element_name.h"
+#include "iadmin_manager.h"
 #include "iplugin_event_subscribe_manager.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
@@ -162,21 +164,56 @@ ErrCode ManageFreezeExemptedAppsPlugin::OnRemovePolicy(std::vector<ApplicationIn
     return ERR_OK;
 }
 
+void ManageFreezeExemptedAppsPlugin::AppendByodAdmins(std::vector<ApplicationInstance> &apps)
+{
+    std::vector<int32_t> userIds;
+    if (FAILED(std::make_shared<EdmOsAccountManagerImpl>()->QueryActiveOsAccountIds(userIds))) {
+        EDMLOGE("ManageFreezeExemptedAppsPlugin QueryActiveOsAccountIds failed");
+        return;
+    }
+    for (int32_t userId : userIds) {
+        std::vector<std::string> packageNames;
+        IAdminManager::GetInstance()->GetAdminPackageNames(packageNames, userId);
+        for (const auto &bundleName : packageNames) {
+            if (IAdminManager::GetInstance()->GetAdminTypeByName(bundleName, userId) != AdminType::BYOD) {
+                continue;
+            }
+            bool exists = std::any_of(apps.begin(), apps.end(),
+                [&bundleName, userId](const ApplicationInstance &item) {
+                    return item.bundleName == bundleName && item.accountId == userId;
+                });
+            if (exists) {
+                continue;
+            }
+            ApplicationInstance instance;
+            instance.bundleName = bundleName;
+            instance.accountId = userId;
+            instance.appIndex = AppExecFwk::Constants::DEFAULT_APP_INDEX;
+            instance.appIdentifier = ApplicationInstanceHandle::GetAppIdentifierByBundleName(bundleName, userId);
+            apps.push_back(instance);
+            EDMLOGI("ManageFreezeExemptedAppsPlugin append byod admin %{public}s userId %{public}d",
+                bundleName.c_str(), userId);
+        }
+    }
+}
+
 ErrCode ManageFreezeExemptedAppsPlugin::SetOtherModulePolicy(const std::vector<ApplicationInstance> &freezeExemptedApps)
 {
     EDMLOGI("ManageFreezeExemptedAppsPlugin SetOtherModulePolicy");
+    std::vector<ApplicationInstance> apps = freezeExemptedApps;
+    AppendByodAdmins(apps);
     uint32_t resType = ResourceSchedule::ResType::RES_TYPE_DYNAMICALLY_SET_SUSPEND_EXEMPT;
     int64_t value = 0;
     std::unordered_map<std::string, std::string> payload;
     payload["sources"] = PAYLOAD_RESOURCE;
-    payload["size"] = std::to_string(freezeExemptedApps.size());
+    payload["size"] = std::to_string(apps.size());
     auto bundleMgr = std::make_shared<EdmBundleManagerImpl>();
-    for (size_t i = 0; i < freezeExemptedApps.size(); ++i) {
+    for (size_t i = 0; i < apps.size(); ++i) {
         std::string uidKey = "uid" + std::to_string(i + 1);
         std::string bundleNameKey = "bundleName" + std::to_string(i + 1);
-        payload[uidKey] = std::to_string(bundleMgr->GetApplicationUid(freezeExemptedApps[i].bundleName,
-        freezeExemptedApps[i].accountId, freezeExemptedApps[i].appIndex));
-        payload[bundleNameKey] = freezeExemptedApps[i].bundleName;
+        payload[uidKey] = std::to_string(bundleMgr->GetApplicationUid(apps[i].bundleName,
+        apps[i].accountId, apps[i].appIndex));
+        payload[bundleNameKey] = apps[i].bundleName;
     }
     std::unordered_map<std::string, std::string> reply;
     int32_t res = ResourceSchedule::ResSchedClient::GetInstance().ReportSyncEvent(resType, value, payload, reply);
