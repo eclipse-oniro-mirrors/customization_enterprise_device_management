@@ -128,7 +128,7 @@ bool ExtraPolicyNotification::NotifyControlPanelRestrictedChanged()
     eventData.SetWant(want);
 
     EventFwk::CommonEventPublishInfo publishInfo;
-    publishInfo.SetBundleName(EdmConstants::CONTROL_CENTER_BUNDLE_NAME);
+    publishInfo.SetBundleName(EdmConstants::SCENEBOARD_BUNDLE_NAME);
 
     std::vector<int32_t> userIds;
     if (edmOsAccountManagerImpl_->QueryActiveOsAccountIds(userIds) != ERR_OK || userIds.empty()) {
