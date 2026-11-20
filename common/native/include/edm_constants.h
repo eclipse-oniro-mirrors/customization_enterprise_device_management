@@ -481,6 +481,8 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_MODIFY_DATETIME = "disallow_modify_datetime";
     const char* const POLICY_DISALLOW_UNMUTE_DEVICE = "disallow_unmute_device";
     const char* const POLICY_DISALLOW_VIRTUAL_SERVICE = "disallow_virtual_service";
+    const char* const POLICY_DISALLOW_SYSTEM_SHARING_PANEL = "disallow_system_sharing_panel";
+    const char* const POLICY_DISALLOW_COLLABORATION_REMOTE_SHARE = "disallow_collaboration_remote_share";
     const char* const POLICY_DISALLOWED_INSTALL_BUNDLES = "disallowed_install_bundles";
     const char* const POLICY_DISALLOW_RUNNING_BUNDLES = "disallow_running_bundles";
     const char* const POLICY_ALLOW_RUNNING_BUNDLES = "allow_running_bundles";

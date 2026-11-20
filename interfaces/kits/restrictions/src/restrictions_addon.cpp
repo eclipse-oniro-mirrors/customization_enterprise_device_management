@@ -393,6 +393,10 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
     {static_cast<int32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING),
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST), EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::SYSTEM_SHARING_PANEL),
+        EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::COLLABORATION_REMOTE_SHARE),
+        EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::FREE_WINDOW), EdmInterfaceCode::DISALLOWED_FREE_WINDOW},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE),
         EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE},
@@ -1159,11 +1163,11 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccountImplicitAdmin(napi_en
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
-        "parameter disallow error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
-        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_THREE, "parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
+        "parameter disallow error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "parameter accountId error", ErrcodeType::NUMBER);
     std::uint32_t ipcCode = 0;
     auto ret = GetInterfaceCodeAndFeatureForAccountAll(env, argv[ARR_INDEX_ZERO], ipcCode);
     if (FAILED(ret)) {
@@ -1171,10 +1175,11 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccountImplicitAdmin(napi_en
         return nullptr;
     }
     bool disallow = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_ONE]), "parameter disallow parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseBool(env, disallow, argv[ARR_INDEX_ONE]),
+        "parameter disallow parse error", ErrcodeType::NUMBER);
     int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
-        "parameter accountId parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error", ErrcodeType::NUMBER);
     if (accountId < 0) {
         EDMLOGE("SetDisallowedPolicyForAccountImplicitAdmin: invalid accountId %{public}d", accountId);
         napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
@@ -1233,9 +1238,9 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccountImplicitAdmin(napi_en
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
-        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error", ErrcodeType::NUMBER);
     std::uint32_t ipcCode = 0;
     auto ret = GetInterfaceCodeAndFeatureForAccountAll(env, argv[ARR_INDEX_ZERO], ipcCode);
     if (FAILED(ret)) {
@@ -1243,8 +1248,8 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccountImplicitAdmin(napi_en
         return nullptr;
     }
     int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
-        "parameter accountId parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "parameter accountId parse error", ErrcodeType::NUMBER);
     if (accountId < 0) {
         EDMLOGE("GetDisallowedPolicyForAccountImplicitAdmin: invalid accountId %{public}d", accountId);
         napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
@@ -1634,6 +1639,9 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
         {"DISTRIBUTED_TRANSMISSION_OUTGOING",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING)},
         {"OPEN_FILE_BOOST", static_cast<uint32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST)},
+        {"SYSTEM_SHARING_PANEL", static_cast<uint32_t>(RestrictionsFeatureForAccount::SYSTEM_SHARING_PANEL)},
+        {"COLLABORATION_REMOTE_SHARE",
+            static_cast<uint32_t>(RestrictionsFeatureForAccount::COLLABORATION_REMOTE_SHARE)},
         {"FREE_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::FREE_WINDOW)},
         {"INSTALL_DEVICE_CERTIFICATE",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE)},
