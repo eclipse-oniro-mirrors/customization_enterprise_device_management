@@ -18,6 +18,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 
 #include "admin.h"
@@ -83,6 +84,15 @@ private:
     static std::once_flag flag_;
     static std::shared_ptr<AdminManager> instance_;
     std::vector<std::shared_ptr<IAdminObserver>> adminObservers_;
+    // Serializes the whole read-modify-write sequence (get admin copy -> modify
+    // managedEvents_ -> persist to RDB -> write back to AdminContainer) of
+    // SaveSubscribeEvents/RemoveSubscribeEvents. These are invoked both from
+    // EnterpriseDeviceMgrAbility (under adminLock_) and from plugin
+    // OnHandlePolicyDone callbacks (under soPinMutex_/policyStripes_ only),
+    // so adminLock_ alone can not prevent lost updates. This lock is a leaf
+    // lock: never call MdmEventRelayer or acquire adminLock_/soPinMutex_
+    // while holding it.
+    std::recursive_mutex managedEventsLock_;
 };
 } // namespace EDM
 } // namespace OHOS
