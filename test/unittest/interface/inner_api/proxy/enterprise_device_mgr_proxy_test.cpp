@@ -963,6 +963,88 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUnsubscribeSmsEventReturnFail, TestSi
 }
 
 /**
+ * @tc.name: TestSubscribeNotificationEventSuc
+ * @tc.desc: Test no-param SubscribeNotificationEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSubscribeNotificationEventSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SubscribeNotificationEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SubscribeNotificationEvent();
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestSubscribeNotificationEventReturnFail
+ * @tc.desc: Test SubscribeNotificationEvent func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSubscribeNotificationEventReturnFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SubscribeNotificationEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SubscribeNotificationEvent();
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestSubscribeNotificationEventWithEdmDisable
+ * @tc.desc: Test SubscribeNotificationEvent without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestSubscribeNotificationEventWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    EXPECT_CALL(*object_, SubscribeNotificationEvent()).Times(0);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->SubscribeNotificationEvent();
+    EXPECT_EQ(errVal, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestUnsubscribeNotificationEventSuc
+ * @tc.desc: Test no-param UnsubscribeNotificationEvent func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUnsubscribeNotificationEventSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, UnsubscribeNotificationEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UnsubscribeNotificationEvent();
+    EXPECT_TRUE(errVal == ERR_OK);
+}
+
+/**
+ * @tc.name: TestUnsubscribeNotificationEventReturnFail
+ * @tc.desc: Test UnsubscribeNotificationEvent func with ipc failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUnsubscribeNotificationEventReturnFail, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, UnsubscribeNotificationEvent())
+        .Times(1)
+        .WillOnce(Return(ERR_PROXY_SENDREQUEST_FAIL));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UnsubscribeNotificationEvent();
+    EXPECT_TRUE(errVal != ERR_OK);
+}
+
+/**
+ * @tc.name: TestUnsubscribeNotificationEventWithEdmDisable
+ * @tc.desc: Test UnsubscribeNotificationEvent without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUnsubscribeNotificationEventWithEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    EXPECT_CALL(*object_, UnsubscribeNotificationEvent()).Times(0);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UnsubscribeNotificationEvent();
+    EXPECT_EQ(errVal, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
  * @tc.name: TestAuthorizeAdminEdmDisable
  * @tc.desc: Test AuthorizeAdmin without enable edm service func.
  * @tc.type: FUNC

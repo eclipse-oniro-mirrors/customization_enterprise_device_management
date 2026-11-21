@@ -1312,6 +1312,58 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyForAccountImplicitAdminAp
         EdmInterfaceCode::DISALLOW_APP_LOCK);
     ASSERT_EQ(object_->code_, expectedFuncCode);
 }
+
+/**
+ * @tc.name: TestGetArrayStringPolicyImplicitAdminSuc
+ * @tc.desc: Test GetArrayStringPolicyImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetArrayStringPolicyImplicitAdminSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    std::vector<std::string> result;
+    int32_t ret = proxy_->GetArrayStringPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST, result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result.size() == 1);
+    ASSERT_TRUE(result[0] == RETURN_STRING);
+}
+
+/**
+ * @tc.name: TestGetArrayStringPolicyImplicitAdminWithSystemAbnormally
+ * @tc.desc: Test GetArrayStringPolicyImplicitAdmin maps a SYSTEM_ABNORMALLY reply to a timeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetArrayStringPolicyImplicitAdminWithSystemAbnormally, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetErrPolicy));
+    std::vector<std::string> result;
+    int32_t ret = proxy_->GetArrayStringPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST, result);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    ASSERT_TRUE(result.empty());
+}
+
+/**
+ * @tc.name: TestGetArrayStringPolicyImplicitAdminFail
+ * @tc.desc: Test GetArrayStringPolicyImplicitAdmin without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetArrayStringPolicyImplicitAdminFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    std::vector<std::string> result;
+    int32_t ret = proxy_->GetArrayStringPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST, result);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
