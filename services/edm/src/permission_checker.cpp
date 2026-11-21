@@ -166,6 +166,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
     EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL,
     EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE,
+    EdmInterfaceCode::DISALLOW_COMPANION_AI,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {

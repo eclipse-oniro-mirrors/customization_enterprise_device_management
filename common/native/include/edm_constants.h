@@ -77,7 +77,8 @@ namespace EdmConstants {
     const char* const PERMISSION_TAG_NORMAL = "normal";
     const char* const SCENE_APP_UNINSTALL = "app_uninstall";
     const char* const EDM_CONFIG_CHANGED_EVENT = "usual.event.EDM_CONFIG_CHANGED";
-    const char* const CONTROL_CENTER_BUNDLE_NAME = "com.ohos.sceneboard";
+    const char* const COMPANION_AI_CHANGED_EVENT = "edm.event.COMPANION_AI_CHANGED";
+    const char* const SCENEBOARD_BUNDLE_NAME = "com.ohos.sceneboard";
 
     const char* const DISALLOW_FOR_ACCOUNT_TYPE = "disallowForAccount";
     const char* const FINGERPRINT_AUTH_TYPE = "fingerprintAuth";
@@ -665,6 +666,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_POWER_SAVING_MODE = "disallow_power_saving_mode";
     const char* const POLICY_CLEAR_DNS_CACHE = "clear_dns_cache";
     const char* const POLICY_DISALLOW_PARENT_CONTROL = "disallow_parent_control";
+    const char* const POLICY_DISALLOW_COMPANION_AI = "disallow_companion_ai";
     const char* const POLICY_GET_APPLICATION_ICON_DATA = "get_application_icon_data";
     const char* const POLICY_DISALLOW_INSTALL_DEVICE_CERTIFICATE = "disallow_install_device_certificate";
     const char* const POLICY_CONTROL_PANEL_RESTRICTED = "control_panel_restricted";
