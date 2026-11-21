@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "edm_sys_manager_mock.h"
+
 #define private public
 #define protected public
 #include "enterprise_device_mgr_ability.h"
@@ -49,6 +51,9 @@
 #include "edm_log.h"
 #include "parameters.h"
 #include "set_browser_policies_plugin.h"
+#include "uninstall_self_bundle_mock.h"
+#include "system_ability_definition.h"
+#include "appexecfwk_errors.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -7357,6 +7362,335 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestDoDisableAdmin_SkipNotifyWithDebugA
     EXPECT_CALL(*accessTokenMgrMock_, IsDebug).WillOnce(DoAll(Return(true)));
     EXPECT_TRUE(SUCCEEDED(edmMgr_->DisableAdmin(admin, DEFAULT_USER_ID)));
     EXPECT_TRUE(AdminManager::GetInstance()->GetAdminByPkgName(ADMIN_PACKAGENAME, DEFAULT_USER_ID) == nullptr);
+}
+namespace {
+const std::string UNINSTALL_SELF_BUNDLE = "com.edm.test.uninstall.self";
+const std::string UNINSTALL_SELF_ABILITY = "com.edm.test.uninstall.self.MainAbility";
+constexpr int32_t GENERIC_UNINSTALL_FAILED_CODE = 12345;
+} // namespace
+
+/**
+ * @tc.name: TestUninstallSelfGetHapTokenInfoFailed
+ * @tc.desc: Test UninstallSelf returns EXECUTE_TIME_OUT when the calling hap token info can not be obtained.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfGetHapTokenInfoFailed, TestSize.Level1)
+{
+    // No hap token is allocated, so AccessTokenKit::GetHapTokenInfo fails for the current token.
+    ErrCode ret = edmMgr_->UninstallSelf();
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleSuccess
+ * @tc.desc: Test UninstallOnceByBundle returns ERR_OK and leaves needEdcFallback unset on success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleSuccess, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    installer->SetResult(ERR_OK);
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+    bool needEdcFallback = false;
+
+    ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_FALSE(needEdcFallback);
+    EXPECT_EQ(installer->GetUninstallCallCount(), 1);
+    EXPECT_EQ(installer->GetLastUserId(), DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleUninstallCallFailed
+ * @tc.desc: Test UninstallOnceByBundle returns UNINSTALL_SELF_FAILED when Uninstall returns false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleUninstallCallFailed, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    installer->SetReturnValue(false);
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+    bool needEdcFallback = false;
+
+    ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED);
+    EXPECT_FALSE(needEdcFallback);
+    EXPECT_EQ(installer->GetUninstallCallCount(), 1);
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundlePreinstalledSetsEdcFallback
+ * @tc.desc: Test UninstallOnceByBundle returns UNINSTALL_SELF_FAILED for the two preinstalled-only codes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundlePreinstalledSetsEdcFallback, TestSize.Level1)
+{
+    const std::vector<int32_t> edcCodes = {
+        ERR_APPEXECFWK_UNINSTALL_SYSTEM_APP_ERROR,
+        ERR_APPEXECFWK_INSTALL_PREINSTALL_BUNDLE_ONLY_ALLOW_FORCE_UNINSTALLED_BY_EDC,
+    };
+    for (int32_t code : edcCodes) {
+        sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+        ASSERT_TRUE(installer != nullptr);
+        installer->SetResult(code);
+        sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+        ASSERT_TRUE(bundleMgr != nullptr);
+        EdmSysManager sysManager;
+        sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+        ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+        sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED) << "resultCode: " << code;
+    }
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleDisallowedCodes
+ * @tc.desc: Test UninstallOnceByBundle maps controlled uninstall codes to UNINSTALL_SELF_FAILED.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleDisallowedCodes, TestSize.Level1)
+{
+    const std::vector<int32_t> disallowedCodes = {
+        ERR_BUNDLE_MANAGER_APP_CONTROL_DISALLOWED_UNINSTALL,
+        ERR_APPEXECFWK_UNINSTALL_STATE_NOT_ALLOW,
+        ERR_APPEXECFWK_UNINSTALL_CONTROLLED,
+        ERR_APPEXECFWK_UNINSTALL_DISPOSED_RULE_FAILED,
+    };
+    for (int32_t code : disallowedCodes) {
+        sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+        ASSERT_TRUE(installer != nullptr);
+        installer->SetResult(code);
+        sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+        ASSERT_TRUE(bundleMgr != nullptr);
+        EdmSysManager sysManager;
+        sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+        bool needEdcFallback = false;
+
+        ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+        sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED) << "resultCode: " << code;
+        EXPECT_FALSE(needEdcFallback) << "resultCode: " << code;
+    }
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleUnknownCodeFallsBack
+ * @tc.desc: Test UninstallOnceByBundle maps an unknown code to UNINSTALL_SELF_FAILED (R1 fallback).
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleUnknownCodeFallsBack, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    installer->SetResult(GENERIC_UNINSTALL_FAILED_CODE);
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+    bool needEdcFallback = false;
+
+    ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED);
+    EXPECT_FALSE(needEdcFallback);
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleNoBundleMgr
+ * @tc.desc: Test UninstallOnceByBundle returns EXECUTE_TIME_OUT when the bundle mgr is unavailable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleNoBundleMgr, TestSize.Level1)
+{
+    EdmSysManager sysManager;
+    // Mark the SA unavailable explicitly, otherwise the mock falls back to the real BMS on device.
+    sysManager.SetSystemAbilityUnavailable(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, true);
+    bool needEdcFallback = false;
+
+    ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.SetSystemAbilityUnavailable(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, false);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_FALSE(needEdcFallback);
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleNotBundleMgr
+ * @tc.desc: Test UninstallOnceByBundle returns EXECUTE_TIME_OUT when the remote object is not a bundle mgr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleNotBundleMgr, TestSize.Level1)
+{
+    sptr<FakeNotBundleMgrRemoteObject> remoteObject = new (std::nothrow) FakeNotBundleMgrRemoteObject();
+    ASSERT_TRUE(remoteObject != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, remoteObject);
+    bool needEdcFallback = false;
+
+    ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_FALSE(needEdcFallback);
+}
+
+/**
+ * @tc.name: TestUninstallOnceByBundleNoInstaller
+ * @tc.desc: Test UninstallOnceByBundle returns EXECUTE_TIME_OUT when the bundle mgr has no installer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallOnceByBundleNoInstaller, TestSize.Level1)
+{
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(nullptr);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+    bool needEdcFallback = false;
+
+    ErrCode ret = edmMgr_->UninstallOnceByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_FALSE(needEdcFallback);
+}
+
+/**
+ * @tc.name: TestUninstallSelfByBundleNoInstaller
+ * @tc.desc: Test UninstallSelfByBundle returns EXECUTE_TIME_OUT when no bundle installer is available.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfByBundleNoInstaller, TestSize.Level1)
+{
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(nullptr);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+    ErrCode ret = edmMgr_->UninstallSelfByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestUninstallSelfByBundleUninstallCallFailed
+ * @tc.desc: Test UninstallSelfByBundle returns UNINSTALL_SELF_FAILED when Uninstall returns false twice.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfByBundleUninstallCallFailed, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    installer->SetReturnValue(false);
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+    ErrCode ret = edmMgr_->UninstallSelfByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED);
+    EXPECT_EQ(installer->GetUninstallCallCount(), 2);
+}
+
+/**
+ * @tc.name: TestUninstallSelfByBundleSuccess
+ * @tc.desc: Test UninstallSelfByBundle returns ERR_OK when BMS reports success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfByBundleSuccess, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    installer->SetResult(ERR_OK);
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+    ErrCode ret = edmMgr_->UninstallSelfByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(installer->GetUninstallCallCount(), 1);
+}
+
+/**
+ * @tc.name: TestUninstallSelfByBundleDisallowedUninstall
+ * @tc.desc: Test UninstallSelfByBundle maps controlled uninstall error codes to UNINSTALL_SELF_FAILED.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfByBundleDisallowedUninstall, TestSize.Level1)
+{
+    const std::vector<int32_t> disallowedCodes = {
+        ERR_BUNDLE_MANAGER_APP_CONTROL_DISALLOWED_UNINSTALL,
+        ERR_APPEXECFWK_UNINSTALL_STATE_NOT_ALLOW,
+        ERR_APPEXECFWK_UNINSTALL_CONTROLLED,
+        ERR_APPEXECFWK_UNINSTALL_DISPOSED_RULE_FAILED,
+    };
+    for (int32_t code : disallowedCodes) {
+        sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+        ASSERT_TRUE(installer != nullptr);
+        installer->SetResult(code);
+        sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+        ASSERT_TRUE(bundleMgr != nullptr);
+        EdmSysManager sysManager;
+        sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+        ErrCode ret = edmMgr_->UninstallSelfByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+        sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED) << "resultCode: " << code;
+        EXPECT_EQ(installer->GetUninstallCallCount(), 2) << "resultCode: " << code;
+    }
+}
+
+/**
+ * @tc.name: TestUninstallSelfByBundleGenericFailure
+ * @tc.desc: Test UninstallSelfByBundle maps an unknown BMS failure to UNINSTALL_SELF_FAILED after retry.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfByBundleGenericFailure, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    installer->SetResult(GENERIC_UNINSTALL_FAILED_CODE);
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+    ErrCode ret = edmMgr_->UninstallSelfByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, EdmReturnErrCode::UNINSTALL_SELF_FAILED);
+    EXPECT_EQ(installer->GetUninstallCallCount(), 2);
+}
+
+/**
+ * @tc.name: TestUninstallSelfByBundleRetryThenSuccess
+ * @tc.desc: Test UninstallSelfByBundle retries once and succeeds on the second attempt.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestUninstallSelfByBundleRetryThenSuccess, TestSize.Level1)
+{
+    sptr<FakeBundleInstaller> installer = new (std::nothrow) FakeBundleInstaller();
+    ASSERT_TRUE(installer != nullptr);
+    // First attempt fails with a generic code, the second attempt reports success.
+    installer->SetResultSequence({GENERIC_UNINSTALL_FAILED_CODE, ERR_OK});
+    sptr<FakeBundleMgr> bundleMgr = new (std::nothrow) FakeBundleMgr(installer);
+    ASSERT_TRUE(bundleMgr != nullptr);
+    EdmSysManager sysManager;
+    sysManager.RegisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleMgr);
+
+    ErrCode ret = edmMgr_->UninstallSelfByBundle(UNINSTALL_SELF_BUNDLE, DEFAULT_USER_ID);
+    sysManager.UnregisterSystemAbilityOfRemoteObject(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(installer->GetUninstallCallCount(), 2);
 }
 } // namespace TEST
 } // namespace EDM

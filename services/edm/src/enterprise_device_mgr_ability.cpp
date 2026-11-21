@@ -16,9 +16,12 @@
 #include "enterprise_device_mgr_ability.h"
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
+#include <future>
 #include <string_ex.h>
 #include <thread>
 #include <unistd.h>
@@ -26,8 +29,16 @@
 
 #include "ability_controller.h"
 #include "ability_controller_factory.h"
+#include "accesstoken_kit.h"
 #include "admin_observer.h"
+#include "appexecfwk_errors.h"
 #include "bundle_info.h"
+#include "bundle_installer_interface.h"
+#include "bundle_mgr_interface.h"
+#include "hap_token_info.h"
+#include "install_param.h"
+#include "status_receiver_host.h"
+#include "uninstall_self_callback.h"
 #include "clipboard_policy.h"
 #include "common_event_manager.h"
 #ifdef TELEPHONY_CORE_EDM_ENABLE
@@ -2080,6 +2091,109 @@ ErrCode EnterpriseDeviceMgrAbility::EnableSelfDeviceAdmin(const AppExecFwk::Elem
     EDMLOGW("EnterpriseDeviceMgrAbility::EnableSelfDeviceAdmin Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+}
+
+ErrCode EnterpriseDeviceMgrAbility::UninstallSelf()
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::UninstallSelf");
+    Security::AccessToken::AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    if (FAILED(Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo))) {
+        EDMLOGE("UninstallSelf: GetHapTokenInfo failed.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    const std::string bundleName = hapTokenInfo.bundleName;
+    const int32_t userId = hapTokenInfo.userID;
+    EDMLOGI("UninstallSelf: bundleName %{public}s, userId %{public}d, appIndex %{public}d.",
+        bundleName.c_str(), userId, hapTokenInfo.instIndex);
+
+    ErrCode ret = ERR_OK;
+    {
+        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
+        std::shared_ptr<Admin> admin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, userId);
+        if (admin == nullptr) {
+            EDMLOGE("UninstallSelf: %{public}s is not an activated admin.", bundleName.c_str());
+            return EdmReturnErrCode::ADMIN_INACTIVE;
+        }
+        if (!GetPermissionChecker()->VerifyCallingPermission(tokenId,
+            EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN)) {
+            EDMLOGE("UninstallSelf: VerifyCallingPermission failed.");
+            return EdmReturnErrCode::PERMISSION_DENIED;
+        }
+        if (!admin->HasPermissionToCallServiceCode(EdmInterfaceCode::UNINSTALL_SELF)) {
+            EDMLOGE("UninstallSelf: the admin has no permission to call this service code.");
+            return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+        }
+        int32_t disableUserId = admin->IsAllowedAcrossAccountSetPolicy() ?
+                EdmConstants::DEFAULT_USER_ID : userId;
+        ret = DoDisableAdmin(admin, disableUserId, admin->GetAdminType());
+        if (FAILED(ret)) {
+            EDMLOGE("UninstallSelf: DoDisableAdmin failed, ret %{public}d.", ret);
+            ret = EdmReturnErrCode::DISABLE_ADMIN_FAILED;
+        }
+    }
+
+    ret = UninstallSelfByBundle(bundleName, AppExecFwk::Constants::ALL_USERID);
+    EDMLOGI("UninstallSelfByBundle: ret %{public}d.", ret);
+    return ret;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::UninstallOnceByBundle(const std::string &bundleName, int32_t userId)
+{
+    sptr<UninstallSelfCallback> callback = new (std::nothrow) UninstallSelfCallback();
+    if (callback == nullptr) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IRemoteObject> remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(
+        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<AppExecFwk::IBundleMgr> iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (iBundleMgr == nullptr) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<AppExecFwk::IBundleInstaller> installer = iBundleMgr->GetBundleInstaller();
+    if (installer == nullptr || installer->AsObject() == nullptr) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    AppExecFwk::InstallParam installParam;
+    installParam.userId = userId;
+    if (!installer->Uninstall(bundleName, installParam, callback)) {
+        return EdmReturnErrCode::UNINSTALL_SELF_FAILED;
+    }
+    int32_t resultCode = 0;
+    std::string resultMsg;
+    if (!callback->WaitFinished(resultCode, resultMsg)) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    if (resultCode == ERR_OK) {
+        return ERR_OK;
+    }
+    if (resultCode == ERR_APPEXECFWK_UNINSTALL_SYSTEM_APP_ERROR) {
+        return EdmReturnErrCode::UNINSTALL_SELF_FAILED;
+    }
+    if (resultCode == ERR_BUNDLE_MANAGER_APP_CONTROL_DISALLOWED_UNINSTALL ||
+        resultCode == ERR_APPEXECFWK_UNINSTALL_STATE_NOT_ALLOW ||
+        resultCode == ERR_APPEXECFWK_UNINSTALL_CONTROLLED ||
+        resultCode == ERR_APPEXECFWK_UNINSTALL_DISPOSED_RULE_FAILED) {
+        return EdmReturnErrCode::UNINSTALL_SELF_FAILED;
+    }
+    return EdmReturnErrCode::UNINSTALL_SELF_FAILED;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::UninstallSelfByBundle(const std::string &bundleName, int32_t userId)
+{
+    EDMLOGI("EnterpriseDeviceMgrAbility::UninstallSelfByBundle: %{public}s", bundleName.c_str());
+    constexpr int32_t maxRetry = 1;
+    ErrCode lastRet = EdmReturnErrCode::UNINSTALL_SELF_FAILED;
+    for (int32_t i = 0; i <= maxRetry; ++i) {
+        lastRet = UninstallOnceByBundle(bundleName, userId);
+        if (lastRet == ERR_OK) {
+            return ERR_OK;
+        }
+    }
+    return lastRet;
 }
 
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyFromPlugin(uint32_t code, MessageParcel &data, MessageParcel &reply,

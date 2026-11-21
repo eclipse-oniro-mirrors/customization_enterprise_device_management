@@ -248,6 +248,33 @@ napi_value AdminManager::EnableSelfDeviceAdmin(napi_env env, napi_callback_info 
 #endif
 }
 
+napi_value AdminManager::UninstallSelf(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("NAPI_UninstallSelf called");
+    auto asyncCallbackInfo = new (std::nothrow) AsyncCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return nullptr;
+    }
+    std::unique_ptr<AsyncCallbackInfo> callbackPtr{asyncCallbackInfo};
+    asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
+    napi_value asyncWorkReturn =
+        HandleAsyncWork(env, asyncCallbackInfo, "UninstallSelf", NativeUninstallSelf, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void AdminManager::NativeUninstallSelf(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeUninstallSelf called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    asyncCallbackInfo->ret = proxy->UninstallSelf();
+}
+
 AdminType AdminManager::ParseAdminType(int32_t type)
 {
     if (type == static_cast<int32_t>(AdminType::NORMAL) || type == static_cast<int32_t>(AdminType::ENT) ||
@@ -1545,6 +1572,7 @@ napi_value AdminManager::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disableDeviceAdmin", DisableDeviceAdmin),
         DECLARE_NAPI_FUNCTION("getEnterpriseManagedTips", GetEnterpriseManagedTips),
         DECLARE_NAPI_FUNCTION("enableSelfDeviceAdmin", EnableSelfDeviceAdmin),
+        DECLARE_NAPI_FUNCTION("uninstallSelf", UninstallSelf),
         DECLARE_NAPI_PROPERTY("AdminType", enums.adminType),
         DECLARE_NAPI_PROPERTY("ManagedEvent", enums.managedEvent),
         DECLARE_NAPI_PROPERTY("RunningMode", enums.runningMode),

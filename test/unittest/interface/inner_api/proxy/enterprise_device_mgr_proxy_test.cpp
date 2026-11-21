@@ -1902,6 +1902,58 @@ HWTEST_F(EnterpriseDeviceMgrProxyTest, TestNotifyUnmountExternalStorageDeviceInf
     ErrCode errVal = enterpriseDeviceMgrProxyTest->NotifyUnmountExternalStorageDeviceInfo(deviceInfo);
     EXPECT_TRUE(errVal == EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
+
+/**
+ * @tc.name: TestUninstallSelfSuc
+ * @tc.desc: Test UninstallSelf returns the value returned by the remote service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUninstallSelfSuc, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, UninstallSelf()).Times(1).WillOnce(Return(ERR_OK));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UninstallSelf();
+    EXPECT_EQ(errVal, ERR_OK);
+}
+
+/**
+ * @tc.name: TestUninstallSelfEdmDisable
+ * @tc.desc: Test UninstallSelf returns ADMIN_INACTIVE when the EDM service is not enabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUninstallSelfEdmDisable, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    EXPECT_CALL(*object_, UninstallSelf()).Times(0);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UninstallSelf();
+    EXPECT_EQ(errVal, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestUninstallSelfServiceUnavailable
+ * @tc.desc: Test UninstallSelf returns SYSTEM_ABNORMALLY when the remote service can not be obtained.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUninstallSelfServiceUnavailable, TestSize.Level1)
+{
+    // Mark the SA unavailable explicitly, otherwise the mock falls back to the real EDM SA on device.
+    edmSysManager_->SetSystemAbilityUnavailable(ENTERPRISE_DEVICE_MANAGER_SA_ID, true);
+    EXPECT_CALL(*object_, UninstallSelf()).Times(0);
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UninstallSelf();
+    edmSysManager_->SetSystemAbilityUnavailable(ENTERPRISE_DEVICE_MANAGER_SA_ID, false);
+    EXPECT_EQ(errVal, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+}
+
+/**
+ * @tc.name: TestUninstallSelfPropagateError
+ * @tc.desc: Test UninstallSelf propagates the failure code returned by the remote service.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrProxyTest, TestUninstallSelfPropagateError, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, UninstallSelf()).Times(1).WillOnce(Return(EdmReturnErrCode::UNINSTALL_SELF_FAILED));
+    ErrCode errVal = enterpriseDeviceMgrProxyTest->UninstallSelf();
+    EXPECT_EQ(errVal, EdmReturnErrCode::UNINSTALL_SELF_FAILED);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
