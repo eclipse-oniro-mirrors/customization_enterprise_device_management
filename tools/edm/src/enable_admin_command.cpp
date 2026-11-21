@@ -35,6 +35,8 @@ const std::string HELP_USAGE_ENABLE_ADMIN =
     "  -t, --admin-type <admin-type>               enable an admin with admin type,"
 #ifdef FEATURE_PC_ONLY
     "<admin-type>: super, byod, da.\n";
+#elif defined(FEATURE_TV_ONLY)
+    "<admin-type>: super.\n";
 #else
     "<admin-type>: super, byod.\n";
 #endif
@@ -168,7 +170,12 @@ ErrCode EnableAdminCommand::ConvertStringToAdminType(std::string optarg, AdminTy
     if (optarg == "super") {
         adminType = AdminType::ENT;
     } else if (optarg == "byod") {
+#ifdef FEATURE_TV_ONLY
+        adminType = AdminType::UNKNOWN;
+        ret = ERR_EDM_TOOLS_COMMAND_UNKNOWN_ADMIN_TYPE;
+#else
         adminType = AdminType::BYOD;
+#endif
     } else if (optarg == "da") {
 #ifdef FEATURE_PC_ONLY
         adminType = AdminType::NORMAL;

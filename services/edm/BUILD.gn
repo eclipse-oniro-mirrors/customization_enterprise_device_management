@@ -193,6 +193,10 @@ ohos_shared_library("edmservice") {
     }
   }
 
+  if (enterprise_device_management_feature_phone_only) {
+    defines += [ "FEATURE_PHONE_ONLY" ]
+  }
+
   if (ability_runtime_edm_enable) {
     defines += [ "ABILITY_RUNTIME_EDM_ENABLE" ]
   }
@@ -304,7 +308,7 @@ ohos_shared_library("edmservice") {
     "./src/query_policy/set_browser_policies_query.cpp",
   ]
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     sources += [
       "./src/system_manager/edm_timer_info_sa.cpp",
       "./src/system_manager/system_timer_manager.cpp",
@@ -312,12 +316,12 @@ ohos_shared_library("edmservice") {
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only && sms_mms_edm_enable) {
+  if (enterprise_device_management_feature_phone_only && sms_mms_edm_enable) {
     external_deps += [ "sms_mms:tel_sms_mms_api" ]
     defines += [ "SMS_MMS_EDM_ENABLE" ]
   }
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     sources += [ "./src/query_policy/hide_launcher_icon_query.cpp" ]
     defines += [
       "BACKUP_AND_RESTORE_EDM_ENABLE",
@@ -326,7 +330,7 @@ ohos_shared_library("edmservice") {
     ]
   }
 
-  if (!enterprise_device_management_feature_pc_only &&
+  if (enterprise_device_management_feature_phone_only &&
       cellular_data_edm_enable) {
     external_deps += [ "cellular_data:tel_cellular_data_api" ]
     sources += [
@@ -350,7 +354,7 @@ ohos_shared_library("edmservice") {
   if (notification_edm_enable) {
     defines += [ "NOTIFICATION_EDM_ENABLE" ]
   }
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
     sources += [
       "./src/database/sensitive_call_notify_rdb.cpp",
       "./src/sensitive_api_whitelist.cpp",

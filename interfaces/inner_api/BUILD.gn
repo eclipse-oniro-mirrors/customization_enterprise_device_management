@@ -187,7 +187,8 @@ ohos_shared_library("edmservice_kits") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
-  if (!enterprise_device_management_feature_pc_only) {
+  if (enterprise_device_management_feature_phone_only) {
+    defines += [ "FEATURE_PHONE_ONLY" ]
     sources += [ "./system_manager/src/edm_client_timer_callback.cpp" ]
   }
 

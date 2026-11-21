@@ -92,7 +92,7 @@ public:
     int32_t GetApplicationWindowStates(const AppExecFwk::ElementName &admin, std::string &bundleName, int32_t appIndex,
         std::vector<WindowStateInfo> &windowStateInfos);
     int32_t GetAllMainWindowStates(MessageParcel &data, std::vector<MainWindowStates> &mainWindowStates);
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     int32_t AddOrRemoveHideLauncherIcon(const AppExecFwk::ElementName &admin, int32_t userId,
         const std::vector<std::string> &bundleNames, bool isAdd);
     int32_t GetHideLauncherIcon(const AppExecFwk::ElementName *admin, int32_t userId,

@@ -84,7 +84,7 @@
 #include "get_auto_unlock_after_reboot_query.h"
 #endif
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 #include "hide_launcher_icon_query.h"
 #endif
 
@@ -252,7 +252,7 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomOtherQuery(uint32_
         case EdmInterfaceCode::SET_AUTO_UNLOCK_AFTER_REBOOT:
             return std::make_shared<GetAutoUnlockAfterRebootQuery>();
 #endif
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
         case EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON:
             return std::make_shared<HideLauncherIconQuery>();
 #endif

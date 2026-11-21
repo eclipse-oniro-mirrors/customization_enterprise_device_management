@@ -52,8 +52,13 @@ ohos_unittest("EdmToolsUnitTest") {
     "../../../common/config:coverage_flags",
   ]
 
+  defines = []
   if (enterprise_device_management_feature_pc_only) {
-    defines = [ "FEATURE_PC_ONLY" ]
+    defines += [ "FEATURE_PC_ONLY" ]
+  }
+
+  if (enterprise_device_management_feature_tv_only) {
+    defines += [ "FEATURE_TV_ONLY" ]
   }
 
   deps = [ "../../../interfaces/inner_api:edmservice_kits" ]

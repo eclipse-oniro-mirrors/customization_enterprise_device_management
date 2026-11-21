@@ -1874,7 +1874,7 @@ napi_value ApplicationManagerAddon::RemoveHideLauncherIcon(napi_env env, napi_ca
 
 napi_value ApplicationManagerAddon::AddOrRemoveHideLauncherIcon(napi_env env, napi_callback_info info, bool isAdd)
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     size_t argc = ARGS_SIZE_TWO;
     napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
@@ -1907,7 +1907,7 @@ napi_value ApplicationManagerAddon::AddOrRemoveHideLauncherIcon(napi_env env, na
 
 napi_value ApplicationManagerAddon::GetHideLauncherIcon(napi_env env, napi_callback_info info)
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     EDMLOGI("NAPI_GetHideLauncherIcon called");
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};

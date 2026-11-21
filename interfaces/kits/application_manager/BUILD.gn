@@ -50,6 +50,10 @@ ohos_shared_library("applicationmanager") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (enterprise_device_management_feature_phone_only) {
+    defines += [ "FEATURE_PHONE_ONLY" ]
+  }
+
   if (netmanager_base_edm_enable) {
     defines += [ "NETMANAGER_BASE_EDM_ENABLE" ]
   }

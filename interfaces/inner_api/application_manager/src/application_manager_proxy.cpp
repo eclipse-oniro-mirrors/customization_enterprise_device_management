@@ -775,7 +775,7 @@ int32_t ApplicationManagerProxy::GetAllMainWindowStates(MessageParcel &data,
     return ERR_OK;
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 int32_t ApplicationManagerProxy::AddOrRemoveHideLauncherIcon(const AppExecFwk::ElementName &admin, int32_t userId,
     const std::vector<std::string> &bundleNames, bool isAdd)
 {

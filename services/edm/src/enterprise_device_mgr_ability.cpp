@@ -63,7 +63,7 @@
 #include "edm_timer_manager.h"
 #include "delay_unload_manager.h"
 #include "admin_manager.h"
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 #include "system_timer_manager.h"
 #endif
 #include "adapter_factory.h"
@@ -79,7 +79,7 @@
 #include "managed_feature.h"
 #include "notification_manager.h"
 #include "plugin_policy_reader.h"
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 #include "sensitive_api_whitelist.h"
 #include "sensitive_call_notify_manager.h"
 #endif
@@ -383,7 +383,7 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         EDMLOGE("OnCommonEventPackageRemoved get INVALID_USERID");
         return;
     }
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     auto notifyManager = SensitiveCallNotifyManager::GetInstance();
     if (notifyManager != nullptr) {
         notifyManager->ClearByApp(bundleName, appIndex);
@@ -1458,7 +1458,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
     AdminType adminType)
 {
     EDMLOGD("RemoveAdminAndAdminPolicy:admin: %{public}s.", adminName.c_str());
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     SystemTimerManager::GetInstance()->OnAdminRemove(adminName);
 #endif
     ErrCode removeAdminPolicyRet = RemoveAdminPolicy(adminName, userId);
@@ -1472,7 +1472,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
         EDMLOGE("Remove admin %{public}s fail.", adminName.c_str());
         return removeAdminRet;
     }
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     auto notifyManager = SensitiveCallNotifyManager::GetInstance();
     if (notifyManager != nullptr) {
         notifyManager->ClearByAdmin(adminName, userId);
@@ -1884,7 +1884,7 @@ ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicy(uint32_t code, AppExecFwk
 ErrCode EnterpriseDeviceMgrAbility::HandleDevicePolicyNew(uint32_t code, MessageParcel &data,
     MessageParcel &reply, int32_t userId)
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     if (IsSystemTimerFuncCode(code)) {
         return HandleSystemTimerPolicyNew(code, data, reply, userId);
     }
@@ -2027,7 +2027,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
     if (errCode == ERR_CANNOT_FIND_QUERY_FAILED) {
         errCode = GetDevicePolicyFromPluginNew(code, data, reply, userId, queryPolicy);
     }
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     if (errCode == ERR_OK) {
         NotifySensitivePolicyQuery(code);
     }
@@ -2398,7 +2398,7 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
                 static_cast<ManagedEvent>(event));
         }
     }
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     auto notifyManager = SensitiveCallNotifyManager::GetInstance();
     if (notifyManager == nullptr) {
         EDMLOGE("SubscribeManagedEvent: SensitiveCallNotifyManager instance is null, skip notify.");
@@ -3233,7 +3233,7 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminPreCheck(AdminType type, EnableSo
         enableSource > EnableSource::INTRANET_DEPLOY) {
         return EdmReturnErrCode::PARAM_ERROR;
     }
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     if (enableSource != EnableSource::DEPLOY &&
         enableSource != EnableSource::INTRANET_DEPLOY) {
         return EdmReturnErrCode::PARAM_ERROR;
@@ -3251,7 +3251,7 @@ void EnterpriseDeviceMgrAbility::CheckAndReportInstalledBundleInfoOnStart()
     InstalledBundleInfoUtil::GetInstance()->ReportAndClear();
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 bool EnterpriseDeviceMgrAbility::IsSystemTimerFuncCode(uint32_t code)
 {
     uint32_t policyCode = FUNC_TO_POLICY(code);
