@@ -186,7 +186,7 @@ std::vector<uint32_t> PluginManager::needExtraSoCodes_ = {
     EdmInterfaceCode::ENABLE_SELF_DEVICE_ADMIN, EdmInterfaceCode::OTA_UPDATE_NONCE,
     EdmInterfaceCode::DISALLOWED_UINPUT, EdmInterfaceCode::LOCAL_HOTA_DOMAIN,
     EdmInterfaceCode::GET_PATCH_INFO, EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE,
-    EdmInterfaceCode::GET_SHARED_PATH_LIST
+    EdmInterfaceCode::GET_SHARED_PATH_LIST, EdmInterfaceCode::DISALLOW_APP_LOCK
 };
 
 std::vector<uint32_t> PluginManager::watermarkSoCodes_ = {

@@ -99,6 +99,7 @@ enum class RestrictionsFeatureForAccount : int32_t {
     COLLABORATION_REMOTE_SHARE = 12,
     FREE_WINDOW = 14,
     INSTALL_DEVICE_CERTIFICATE = 15,
+    APP_LOCK = 16,
     SCREEN_SHOT = 17,
     SCREEN_RECORD = 18,
 };
