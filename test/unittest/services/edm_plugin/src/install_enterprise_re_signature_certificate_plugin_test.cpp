@@ -53,6 +53,7 @@ static const char* const CERTIFICATEALIAS_INVALID_VALUE = "test.txt";
 static constexpr int32_t FD_VALID_VALUE = 1;
 static constexpr int32_t FD_INVALID_VALUE = 999;
 static constexpr int32_t ACCOUNTID_VALID_VALUE = 100;
+static constexpr int32_t ACCOUNTID_BELOW_DEFAULT_VALUE = 99;
 static constexpr int32_t ACCOUNTID_INVALID_VALUE = -1;
 static constexpr int32_t ACCOUNTID_NOT_EXIST_VALUE = 200;
 static constexpr int32_t MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -516,6 +517,91 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestUninstallNoExist
     data.WriteInt32(accountId);
     ErrCode ret = plugin->UninstallEnterpriseReSignatureCertificate(data);
     ASSERT_EQ(ret, EdmReturnErrCode::CERTIFICATE_NOT_EXIST);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyInvalidAccount
+ * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy when accountId < 100.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicyInvalidAccount, TestSize.Level1)
+{
+    std::shared_ptr<InstallEnterpriseReSignatureCertificatePlugin> plugin =
+        std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
+    std::string policyData;
+    MessageParcel data;
+    data.WriteInt32(ACCOUNTID_BELOW_DEFAULT_VALUE);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::UID_INVALID);
+}
+
+/**
+ * @tc.name: TestOnGetPolicyAccountNotExist
+ * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy when account is not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicyAccountNotExist, TestSize.Level1)
+{
+    std::shared_ptr<InstallEnterpriseReSignatureCertificatePlugin> plugin =
+        std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
+    std::string policyData;
+    MessageParcel data;
+    data.WriteInt32(ACCOUNTID_NOT_EXIST_VALUE);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
+    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::UID_INVALID);
+}
+
+/**
+ * @tc.name: TestOnGetPolicySuccess
+ * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicySuccess, TestSize.Level1)
+{
+    std::shared_ptr<InstallEnterpriseReSignatureCertificatePlugin> plugin =
+        std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
+    std::string policyData;
+    MessageParcel data;
+    data.WriteInt32(ACCOUNTID_VALID_VALUE);
+    MessageParcel reply;
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    if (NotEnterpriseDevice()) {
+        ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+        ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::EXECUTE_TIME_OUT);
+        return;
+    }
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(reply.ReadInt32(), ERR_OK);
+    int32_t size = reply.ReadInt32();
+    ASSERT_GE(size, 0);
+    for (int32_t i = 0; i < size; ++i) {
+        ASSERT_FALSE(reply.ReadString().empty());
+        ASSERT_FALSE(reply.ReadString().empty());
+        reply.ReadInt64();
+    }
+}
+
+/**
+ * @tc.name: TestOnHandlePolicyUnsupported
+ * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnHandlePolicy returns empty policy data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnHandlePolicyUnsupported, TestSize.Level1)
+{
+    std::shared_ptr<InstallEnterpriseReSignatureCertificatePlugin> plugin =
+        std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
+    MessageParcel data;
+    MessageParcel reply;
+    HandlePolicyData handlePolicyData{"testString", "", false};
+    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET,
+        EdmInterfaceCode::INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
+    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
 }
 } // namespace TEST
 } // namespace EDM

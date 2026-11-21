@@ -109,7 +109,6 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
     EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL,
     EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE,
-    EdmInterfaceCode::GET_ENTERPRISE_RE_SIGNATURE_CERTIFICATE,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {

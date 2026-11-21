@@ -64,7 +64,81 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::OnHandlePolicy(std::uint3
     } else if (type == FuncOperateType::REMOVE) {
         return UninstallEnterpriseReSignatureCertificate(data);
     }
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    EDMLOGI("InstallEnterpriseReSignatureCertificatePlugin::OnHandlePolicy unsupported, return empty policy data");
+    policyData.policyData = "";
+    return ERR_OK;
+}
+
+ErrCode InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy(std::string &policyData, MessageParcel &data,
+    MessageParcel &reply, int32_t userId)
+{
+    EDMLOGI("InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy");
+    int32_t accountId = 0;
+    if (!data.ReadInt32(accountId)) {
+        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy read accountId failed");
+        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    ErrCode ret = CheckAccountId(accountId, reply);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
+    ret = GetBundleInstaller(iBundleInstaller, __func__);
+    if (ret != ERR_OK) {
+        reply.WriteInt32(ret);
+        return ret;
+    }
+    std::vector<AppExecFwk::EnterpriseCertInfo> certInfos;
+    ret = iBundleInstaller->GetEnterpriseReSignatureCertInfo(accountId, certInfos);
+    if (ret != ERR_OK) {
+        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin: GetEnterpriseReSignatureCertInfo failed %{public}d",
+            ret);
+        reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    WriteCertInfos(certInfos, reply);
+    return ERR_OK;
+}
+
+ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckAccountId(int32_t accountId, MessageParcel &reply)
+{
+    if (accountId < EdmConstants::DEFAULT_USER_ID) {
+        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin::CheckAccountId invalid accountId: %{public}d",
+            accountId);
+        reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    bool isExist = false;
+    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(accountId, isExist);
+    if (FAILED(ret) || !isExist) {
+        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin::CheckAccountId account not exist: %{public}d",
+            accountId);
+        reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    return ERR_OK;
+}
+
+void InstallEnterpriseReSignatureCertificatePlugin::WriteCertInfos(
+    const std::vector<AppExecFwk::EnterpriseCertInfo> &certInfos, MessageParcel &reply)
+{
+    std::vector<const AppExecFwk::EnterpriseCertInfo *> validCertInfos;
+    for (const auto &certInfo : certInfos) {
+        if (certInfo.certAlias.empty() || certInfo.enterpriseName.empty()) {
+            EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin: skip empty certificate field, alias '%{private}s', "
+                "enterpriseName '%{private}s'", certInfo.certAlias.c_str(), certInfo.enterpriseName.c_str());
+            continue;
+        }
+        validCertInfos.push_back(&certInfo);
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(validCertInfos.size()));
+    for (const auto *certInfo : validCertInfos) {
+        reply.WriteString(certInfo->certAlias);
+        reply.WriteString(certInfo->enterpriseName);
+        reply.WriteInt64(certInfo->notAfter);
+    }
 }
 
 ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckParamVaild(std::string certificateAlias, int32_t fd,
@@ -107,12 +181,12 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::GetBundleInstaller(
     auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (iBundleMgr == nullptr) {
         EDMLOGE("%{public}s: failed to get IBundleMgr", methodName.c_str());
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     iBundleInstaller = iBundleMgr->GetBundleInstaller();
     if (iBundleInstaller == nullptr) {
         EDMLOGE("%{public}s: failed to get IBundleInstaller", methodName.c_str());
-        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
 }
