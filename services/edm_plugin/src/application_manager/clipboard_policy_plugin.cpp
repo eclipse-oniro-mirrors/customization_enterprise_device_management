@@ -252,7 +252,8 @@ void ClipboardPolicyPlugin::OnPluginEvent(const std::string &adminName, HandlePo
     std::string bundleName = want.GetElement().GetBundleName();
     int32_t eventUserId = want.GetIntParam(AppExecFwk::Constants::USER_ID, EdmConstants::DEFAULT_USER_ID);
     std::map<int32_t, ClipboardInfo> result;
-    ClipboardInfo info = {.bundleName = bundleName, .userId = eventUserId, .policy = ClipboardPolicy::DEFAULT};
+    ClipboardInfo info = {.policy = ClipboardPolicy::DEFAULT, .userId = eventUserId,
+        .bundleName = bundleName};
     result.insert(std::make_pair(0, info));
 
     auto serializer = ClipboardSerializer::GetInstance();

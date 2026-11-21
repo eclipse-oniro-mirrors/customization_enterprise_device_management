@@ -210,14 +210,15 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 1U);
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "100");
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
-    // The default config is preserved, only the user lists are updated.
+    // The default config is always written as "enable".
     ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_008
- * @tc.desc: Test disabling certificate installation removes the user from the enable list.
+ * @tc.desc: Test disabling certificate installation does not modify the enable list.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_008, TestSize.Level1)
@@ -230,7 +231,8 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "101");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "100");
 }
 
@@ -287,12 +289,14 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "101");
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_012
- * @tc.desc: Test enabling certificate installation adds the user to the enable list when the default is disable.
+ * @tc.desc: Test enabling certificate installation resets the default config to enable and does not
+ *           write the enable list, even when the stored default config is disable.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_012, TestSize.Level1)
@@ -305,14 +309,17 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "100");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
-    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_DISABLE);
+    // The default config is always written as "enable".
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_013
- * @tc.desc: Test enabling certificate installation does not duplicate a user already in the enable list.
+ * @tc.desc: Test enabling certificate installation does not write the enable list, even when the
+ *           stored enable list already holds the user.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_013, TestSize.Level1)
@@ -325,12 +332,13 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "100");
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_014
- * @tc.desc: Test enabling certificate installation does not touch the enable list when the default is enable.
+ * @tc.desc: Test enabling certificate installation does not write the enable list when the default is enable.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_014, TestSize.Level1)
@@ -344,6 +352,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
 }
 
@@ -532,7 +541,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 1U);
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
-    // The default config allows the installation, so no enable list entry is required.
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
 }
@@ -607,7 +616,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     // Feed the result back as the current config, then re-enable the installation.
     CertManagerSdkStub::SetConfigItems({
         {KEY_DEFAULT_CONFIG, VALUE_ENABLE},
-        {KEY_ENABLE_USER_LIST, GetSavedValue(KEY_ENABLE_USER_LIST)},
+        {KEY_ENABLE_USER_LIST, ""},
         {KEY_DISABLE_USER_LIST, GetSavedValue(KEY_DISABLE_USER_LIST)},
     });
     ASSERT_EQ(plugin.SetOtherModulePolicy(false, VALID_USER_ID), ERR_OK);
@@ -644,7 +653,8 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_038
- * @tc.desc: Test the enable list keeps its other users when the enable list is not empty and the default is disable.
+ * @tc.desc: Test enabling certificate installation does not write the enable list, even when the
+ *           stored enable list already holds other users.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_038, TestSize.Level1)
@@ -657,14 +667,15 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    // The existing enable list entry is preserved and the new user is appended with the separator.
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "101|100");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_039
- * @tc.desc: Test the enable list is not appended twice when the user id appears in an enable list that has other users.
+ * @tc.desc: Test enabling certificate installation does not write the enable list, even when the
+ *           stored enable list already holds the user together with other users.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_039, TestSize.Level1)
@@ -677,13 +688,14 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    // The user is already enabled, so the list must not gain a duplicated entry.
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "101|100");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_040
- * @tc.desc: Test the user list parser skips the empty tokens produced by consecutive separators.
+ * @tc.desc: Test disabling certificate installation does not write the enable list, even when the
+ *           stored enable list holds empty tokens.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_040, TestSize.Level1)
@@ -696,14 +708,15 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    // The empty token between the two separators is dropped, so "100|101" is left.
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "101");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "100");
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_041
- * @tc.desc: Test the user list parser skips the leading and trailing empty tokens.
+ * @tc.desc: Test disabling certificate installation does not write the enable list, even when the
+ *           stored enable list holds leading and trailing empty tokens.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_041, TestSize.Level1)
@@ -716,7 +729,8 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "101");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     // The user is already in the disable list, so the list is left untouched with its separator tokens.
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "|100|");
 }
@@ -736,7 +750,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    // The enable list only holds empty tokens, so the rebuilt list is empty.
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     // The disable list only holds an empty token, so the user is appended behind the separator.
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "||100");
@@ -744,7 +758,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_046
- * @tc.desc: Test the plugin writes exactly the three expected config items to the certificate manager.
+ * @tc.desc: Test the plugin writes exactly the two expected config items to the certificate manager.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_046, TestSize.Level1)
@@ -754,18 +768,18 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
     auto saved = CertManagerSdkStub::GetSavedConfigItems();
-    ASSERT_EQ(saved.size(), 3U);
+    // The enable list is not operated by the plugin, so it is not written at all.
+    ASSERT_EQ(saved.size(), 2U);
     ASSERT_EQ(saved[0].first, KEY_DEFAULT_CONFIG);
     ASSERT_EQ(saved[0].second, VALUE_ENABLE);
-    ASSERT_EQ(saved[1].first, KEY_ENABLE_USER_LIST);
-    ASSERT_EQ(saved[1].second, "");
-    ASSERT_EQ(saved[2].first, KEY_DISABLE_USER_LIST);
-    ASSERT_EQ(saved[2].second, "100");
+    ASSERT_EQ(saved[1].first, KEY_DISABLE_USER_LIST);
+    ASSERT_EQ(saved[1].second, "100");
 }
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_047
- * @tc.desc: Test the default config is preserved when the certificate manager reports an unknown default value.
+ * @tc.desc: Test the default config is always written as "enable", even when the certificate manager
+ *           reports an unknown default value.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_047, TestSize.Level1)
@@ -778,8 +792,9 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    // An unknown default value is not "disable", so the enable list stays untouched.
-    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), "unknown");
+    // The default config is always written as "enable".
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "100");
 }
@@ -849,7 +864,8 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_052
- * @tc.desc: Test OnAdminRemove keeps the user in the enable list when the default config is disable.
+ * @tc.desc: Test OnAdminRemove resets the default config to enable and does not write the enable
+ *           list, even when the stored default config is disable.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_052, TestSize.Level1)
@@ -865,8 +881,10 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 1U);
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
-    // The default config is disable, so the removed user has to be listed as enabled.
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "100");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
+    // The default config is always written as "enable".
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
 }
 
 /**
@@ -886,7 +904,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ASSERT_EQ(ret, ERR_OK);
     ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 1U);
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
-    // The default config allows the installation, so no enable list entry is needed.
+    // The enable list is not operated by the plugin, so it is not written.
     ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
 }
 
@@ -1012,7 +1030,7 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
 
 /**
  * @tc.name: DisallowInstallDeviceCertificatePluginTest_061
- * @tc.desc: Test the enable and disable user lists stay independent of each other.
+ * @tc.desc: Test the enable list is left untouched while the disable list is updated.
  * @tc.type: FUNC
  */
 HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_061, TestSize.Level1)
@@ -1025,7 +1043,8 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     DisallowInstallDeviceCertificatePlugin plugin;
     ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
     ASSERT_EQ(ret, ERR_OK);
-    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "101");
+    // The enable list is not operated by the plugin, so it is not written.
+    ASSERT_EQ(GetSavedValue(KEY_ENABLE_USER_LIST), "");
     ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "102|100");
 }
 
@@ -1080,6 +1099,219 @@ HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertif
     ASSERT_FALSE(disallow);
     ASSERT_EQ(CertManagerSdkStub::GetGetConfigCallCount(), 0U);
     ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 0U);
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_065
+ * @tc.desc: Test IsUserIdInList finds the user id in the list and reports the exact match only.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_065, TestSize.Level1)
+{
+    DisallowInstallDeviceCertificatePlugin plugin;
+    // The user id is the first token of the list.
+    ASSERT_TRUE(plugin.IsUserIdInList("100|101", VALID_USER_ID));
+    // The user id is the last token of the list.
+    ASSERT_TRUE(plugin.IsUserIdInList("101|100", VALID_USER_ID));
+    // The user id is the only token of the list.
+    ASSERT_TRUE(plugin.IsUserIdInList("100", VALID_USER_ID));
+    // A longer token must not match the shorter user id.
+    ASSERT_FALSE(plugin.IsUserIdInList("1000|101", VALID_USER_ID));
+    // A shorter token must not match the longer user id.
+    ASSERT_FALSE(plugin.IsUserIdInList("10|101", VALID_USER_ID));
+    // Another user id is not reported as a member of the list.
+    ASSERT_FALSE(plugin.IsUserIdInList("101|102", VALID_USER_ID));
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_066
+ * @tc.desc: Test IsUserIdInList handles an empty list and a list that only holds separators.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_066, TestSize.Level1)
+{
+    DisallowInstallDeviceCertificatePlugin plugin;
+    // An empty list holds no user id.
+    ASSERT_FALSE(plugin.IsUserIdInList("", VALID_USER_ID));
+    // A list that only holds separators holds no user id.
+    ASSERT_FALSE(plugin.IsUserIdInList("||", VALID_USER_ID));
+    // A list with leading and trailing separators still reports the user id.
+    ASSERT_TRUE(plugin.IsUserIdInList("|100|", VALID_USER_ID));
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_067
+ * @tc.desc: Test AppendUserListToken appends the token, skips the empty token and skips the excluded user id.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_067, TestSize.Level1)
+{
+    DisallowInstallDeviceCertificatePlugin plugin;
+    std::string result;
+    // The token is appended to an empty result without a leading separator.
+    plugin.AppendUserListToken("100", "101", result);
+    ASSERT_EQ(result, "100");
+    // The token is appended behind the separator when the result is not empty.
+    plugin.AppendUserListToken("101", "102", result);
+    ASSERT_EQ(result, "100|101");
+    // The empty token is skipped.
+    plugin.AppendUserListToken("", "102", result);
+    ASSERT_EQ(result, "100|101");
+    // The excluded user id is skipped.
+    plugin.AppendUserListToken("102", "102", result);
+    ASSERT_EQ(result, "100|101");
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_068
+ * @tc.desc: Test RemoveUserIdFromList removes the user id and keeps the other users.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_068, TestSize.Level1)
+{
+    DisallowInstallDeviceCertificatePlugin plugin;
+    std::string result;
+    // The user id is removed from the middle of the list.
+    plugin.RemoveUserIdFromList("101|100|102", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101|102");
+    // The user id is removed from the head of the list.
+    plugin.RemoveUserIdFromList("100|101", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101");
+    // The user id is removed from the tail of the list.
+    plugin.RemoveUserIdFromList("101|100", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101");
+    // A user id that is not in the list does not change the list.
+    plugin.RemoveUserIdFromList("101|102", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101|102");
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_069
+ * @tc.desc: Test RemoveUserIdFromList clears the previous result and drops the empty tokens.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_069, TestSize.Level1)
+{
+    DisallowInstallDeviceCertificatePlugin plugin;
+    std::string result = "old";
+    // The previous result is cleared before the list is rebuilt.
+    plugin.RemoveUserIdFromList("101|102", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101|102");
+    // The empty token between two separators is dropped.
+    plugin.RemoveUserIdFromList("101||102", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101|102");
+    // The leading and trailing empty tokens are dropped.
+    plugin.RemoveUserIdFromList("|101|", VALID_USER_ID, result);
+    ASSERT_EQ(result, "101");
+    // A list that only holds separators rebuilds to an empty list.
+    plugin.RemoveUserIdFromList("||", VALID_USER_ID, result);
+    ASSERT_EQ(result, "");
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_070
+ * @tc.desc: Test disabling certificate installation forces the default config to enable and never
+ *           writes the enable list key to the certificate manager.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_070, TestSize.Level1)
+{
+    CertManagerSdkStub::SetConfigItems({
+        {KEY_DEFAULT_CONFIG, VALUE_DISABLE},
+        {KEY_ENABLE_USER_LIST, "101"},
+        {KEY_DISABLE_USER_LIST, ""},
+    });
+    DisallowInstallDeviceCertificatePlugin plugin;
+    ErrCode ret = plugin.SetOtherModulePolicy(true, VALID_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 1U);
+    // The default config is forced to "enable" even though the stored value was "disable".
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
+    // The disable list carries the user that is not allowed to install the device level certificate.
+    ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "100");
+    // The enable list key is not part of the written config at all.
+    auto saved = CertManagerSdkStub::GetSavedConfigItems();
+    for (const auto &item : saved) {
+        ASSERT_NE(item.first, KEY_ENABLE_USER_LIST);
+    }
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_071
+ * @tc.desc: Test enabling certificate installation forces the default config to enable and never
+ *           writes the enable list key to the certificate manager.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_071, TestSize.Level1)
+{
+    CertManagerSdkStub::SetConfigItems({
+        {KEY_DEFAULT_CONFIG, VALUE_DISABLE},
+        {KEY_ENABLE_USER_LIST, "101"},
+        {KEY_DISABLE_USER_LIST, "100"},
+    });
+    DisallowInstallDeviceCertificatePlugin plugin;
+    ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(CertManagerSdkStub::GetSetConfigCallCount(), 1U);
+    // The default config is forced to "enable" even though the stored value was "disable".
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
+    // The user is removed from the disable list.
+    ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "");
+    // The enable list key is not part of the written config at all.
+    auto saved = CertManagerSdkStub::GetSavedConfigItems();
+    for (const auto &item : saved) {
+        ASSERT_NE(item.first, KEY_ENABLE_USER_LIST);
+    }
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_072
+ * @tc.desc: Test enabling certificate installation removes the user from the disable list and keeps
+ *           the other users, and the default config is forced to enable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_072, TestSize.Level1)
+{
+    CertManagerSdkStub::SetConfigItems({
+        {KEY_DEFAULT_CONFIG, VALUE_ENABLE},
+        {KEY_ENABLE_USER_LIST, ""},
+        {KEY_DISABLE_USER_LIST, "100|101"},
+    });
+    DisallowInstallDeviceCertificatePlugin plugin;
+    ErrCode ret = plugin.SetOtherModulePolicy(false, VALID_USER_ID);
+    ASSERT_EQ(ret, ERR_OK);
+    // Only the target user is removed, the other user is kept.
+    ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "101");
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
+}
+
+/**
+ * @tc.name: DisallowInstallDeviceCertificatePluginTest_073
+ * @tc.desc: Test the disable and enable flow is symmetric, so the disable list returns to its
+ *           original value and the default config stays enable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DisallowInstallDeviceCertificatePluginTest, DisallowInstallDeviceCertificatePluginTest_073, TestSize.Level1)
+{
+    CertManagerSdkStub::SetConfigItems({
+        {KEY_DEFAULT_CONFIG, VALUE_ENABLE},
+        {KEY_ENABLE_USER_LIST, ""},
+        {KEY_DISABLE_USER_LIST, "101"},
+    });
+    DisallowInstallDeviceCertificatePlugin plugin;
+    ASSERT_EQ(plugin.SetOtherModulePolicy(true, VALID_USER_ID), ERR_OK);
+    ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "101|100");
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
+
+    // Feed the result back as the current config, then re-enable the installation.
+    CertManagerSdkStub::SetConfigItems({
+        {KEY_DEFAULT_CONFIG, VALUE_ENABLE},
+        {KEY_ENABLE_USER_LIST, ""},
+        {KEY_DISABLE_USER_LIST, GetSavedValue(KEY_DISABLE_USER_LIST)},
+    });
+    ASSERT_EQ(plugin.SetOtherModulePolicy(false, VALID_USER_ID), ERR_OK);
+    ASSERT_EQ(GetSavedValue(KEY_DISABLE_USER_LIST), "101");
+    ASSERT_EQ(GetSavedValue(KEY_DEFAULT_CONFIG), VALUE_ENABLE);
 }
 
 } // namespace TEST

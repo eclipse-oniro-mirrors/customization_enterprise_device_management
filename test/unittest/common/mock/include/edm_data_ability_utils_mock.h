@@ -46,6 +46,7 @@ public:
     static std::string GetLastUpdatedKey();
     static std::string GetLastUpdatedValue();
     static void ResetLastUpdated();
+    static void ClearLastUpdatedValue();
     static ErrCode GetSmsMessages(int64_t startTime, int64_t endTime, const std::string &telephoneNumber,
         std::vector<SmsQueryResult> &messages);
     static void SetSmsMessagesResult(ErrCode ret, const std::vector<SmsQueryResult> &messages);

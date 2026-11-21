@@ -66,6 +66,41 @@ void ManageAutoStartAppsSerializerTest::TearDownTestSuite(void)
 }
  
 /**
+ * @tc.name: TestSerializeEmptyClearsStalePolicy
+ * @tc.desc: Test Serialize clears a stale output when dataObj is empty, so that removing the last
+ *           app deletes the stale policy instead of writing it back.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsSerializerTest, TestSerializeEmptyClearsStalePolicy, TestSize.Level1)
+{
+    auto serializer = ManageAutoStartAppsSerializer::GetInstance();
+    std::string jsonString = "stale";
+    std::vector<ManageAutoStartAppInfo> dataObj;
+    bool ret = serializer->Serialize(dataObj, jsonString);
+    ASSERT_TRUE(ret);
+    ASSERT_TRUE(jsonString.empty());
+}
+
+/**
+ * @tc.name: TestDeserializeEmptyClearsData
+ * @tc.desc: Test Deserialize clears the output when policy is empty, so that a reused container
+ *           cannot keep stale apps.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ManageAutoStartAppsSerializerTest, TestDeserializeEmptyClearsData, TestSize.Level1)
+{
+    auto serializer = ManageAutoStartAppsSerializer::GetInstance();
+    ManageAutoStartAppInfo info;
+    info.SetBundleName("test1");
+    info.SetAbilityName("testAB1");
+    info.SetDisallowModify(true);
+    info.SetIsHiddenStart(false);
+    std::vector<ManageAutoStartAppInfo> dataObj = { info };
+    ASSERT_TRUE(serializer->Deserialize("", dataObj));
+    ASSERT_TRUE(dataObj.empty());
+}
+
+/**
  * @tc.name: TestSerializeSuc
  * @tc.desc: Test ManageAutoStartAppsSerializerTest::Serialize
  * @tc.type: FUNC

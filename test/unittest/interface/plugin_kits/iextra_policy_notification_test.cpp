@@ -209,6 +209,18 @@ HWTEST_F(IExtraPolicyNotificationTest, TestNotifyPolicyChanged_LongParameters, T
     bool res = iExtraPolicyNotification->NotifyPolicyChanged(interfaceName, longParameters);
     ASSERT_TRUE(res);
 }
+
+/**
+ * @tc.name: TestNotifyControlPanelRestrictedChanged
+ * @tc.desc: Test NotifyControlPanelRestrictedChanged default implementation.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IExtraPolicyNotificationTest, TestNotifyControlPanelRestrictedChanged, TestSize.Level1)
+{
+    auto iExtraPolicyNotification = IExtraPolicyNotification::GetInstance();
+    bool res = iExtraPolicyNotification->NotifyControlPanelRestrictedChanged();
+    ASSERT_TRUE(res);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

@@ -37,6 +37,7 @@ const std::string BLUETOOTH_DIR = "bluetooth";
 const std::string SEPARATOR = "/";
 constexpr int32_t EDM_UID = 3057;
 constexpr int32_t EDM_GID = 3057;
+constexpr size_t MAX_POLICY_FILE_SIZE = 1 * 1024; //1KB
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(DisallowedBluetoothProtocolsPlugin::GetPlugin());
 
 void DisallowedBluetoothProtocolsPlugin::InitPlugin(
@@ -343,8 +344,8 @@ bool DisallowedBluetoothProtocolsPlugin::ReadMergeDataFromFile(BluetoothProtocol
         return false;
     }
     std::streamsize size = inFile.tellg();
-    if (size < 0) {
-        EDMLOGE("Failed to get file size");
+    if (size < 0 || static_cast<size_t>(size) > MAX_POLICY_FILE_SIZE) {
+        EDMLOGE("Failed to get file size, %{public}d", static_cast<int>(size));
         return false;
     }
     if (size == 0) {

@@ -23,6 +23,7 @@ namespace EDM {
 class DisallowedPacketFilteringPlugin : public BasicBoolPlugin {
 public:
     DisallowedPacketFilteringPlugin();
+    void OnOtherServiceStart(int32_t systemAbilityId) override;
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;

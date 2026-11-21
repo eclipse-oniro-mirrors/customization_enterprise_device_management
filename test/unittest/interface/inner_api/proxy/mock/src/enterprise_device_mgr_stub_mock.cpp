@@ -219,6 +219,17 @@ int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy(uint32_t code, M
     return 0;
 }
 
+int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyWithoutBool(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeBoolSendRequestGetPolicyWithoutBool code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    // Intentionally omit the bool to simulate a WriteBool failure in the plugin.
+    return 0;
+}
+
 int EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyForAccountImplicitAdmin(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -984,13 +995,6 @@ int EnterpriseDeviceMgrStubMock::InvokeSharedPathListSendRequestGetPolicy(uint32
     PathSharedData sharedData;
     sharedData.shareName = "share_test";
     sharedData.shareUri = "file:///data/service/share_test";
-    UserPathInfo user1;
-    user1.userName = "user1";
-    user1.userPermission = "readonly";
-    UserPathInfo user2;
-    user2.userName = "user2";
-    user2.userPermission = "readwrite";
-    sharedData.userPathInfoList = {user1, user2};
     reply.WriteUint32(1);
     sharedData.Marshalling(reply);
     return 0;

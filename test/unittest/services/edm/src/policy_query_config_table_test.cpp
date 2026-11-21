@@ -304,6 +304,9 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef OS_ACCOUNT_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #endif
+    map[EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
+    map[EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE] =
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
 #ifndef FEATURE_PC_ONLY
     map[EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON] =
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
@@ -455,6 +458,8 @@ HWTEST_F(PolicyQueryConfigTableTest, TestRestrictionNoByodEntries, TestSize.Leve
 #ifdef OS_ACCOUNT_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MODIFY_WALLPAPER);
 #endif
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL);
+    superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE);
 #ifdef APN_EDM_ENABLE
     superOnlyEntries.push_back(EdmInterfaceCode::DISALLOW_MODIFY_APN);
 #endif
@@ -566,6 +571,9 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #ifdef OS_ACCOUNT_EDM_ENABLE
         {EdmInterfaceCode::DISALLOW_ADD_LOCAL_ACCOUNT, EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY},
 #endif
+        {EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
+        {EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE,
+            EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #ifdef APN_EDM_ENABLE
         {EdmInterfaceCode::DISALLOW_MODIFY_APN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
 #endif
@@ -618,6 +626,15 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 HWTEST_F(PolicyQueryConfigTableTest, TestInvalidCode, TestSize.Level1)
 {
     const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(99999);
+    ASSERT_EQ(entry, nullptr);
+}
+
+HWTEST_F(PolicyQueryConfigTableTest, TestControlPanelRestrictedHasNoQueryEntry, TestSize.Level1)
+{
+    // CONTROL_PANEL_RESTRICTED must fall back to the plugin OnGetPolicy so that
+    // the device-level persist value is used instead of a per-admin policy value.
+    const PolicyQueryConfigEntry* entry =
+        PolicyQueryConfigTable::FindConfig(EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
     ASSERT_EQ(entry, nullptr);
 }
 

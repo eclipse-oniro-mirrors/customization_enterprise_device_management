@@ -1478,6 +1478,10 @@ void SecurityManagerAddon::CreateUnlockPolicyObject(napi_env env, napi_value val
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
         static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_REQUIRED), &nExtendedAuthRequired));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "EXTENDED_AUTH_REQUIRED", nExtendedAuthRequired));
+    napi_value nExtendedAuthOptional;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env,
+        static_cast<int32_t>(UnlockPolicyType::EXTENDED_AUTH_OPTIONAL), &nExtendedAuthOptional));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "EXTENDED_AUTH_OPTIONAL", nExtendedAuthOptional));
 }
 
 napi_value SecurityManagerAddon::OpenSession(napi_env env, napi_callback_info info)

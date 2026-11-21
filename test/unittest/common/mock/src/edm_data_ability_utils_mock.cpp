@@ -34,6 +34,11 @@ void EdmDataAbilityUtils::SetResult(const std::string &result)
     result_ = result;
 }
 
+void EdmDataAbilityUtils::ClearLastUpdatedValue()
+{
+    lastUpdatedValue_.clear();
+}
+
 void EdmDataAbilityUtils::SetSmsMessagesResult(ErrCode ret, const std::vector<SmsQueryResult> &messages)
 {
     smsResult_ = ret;
@@ -96,6 +101,12 @@ ErrCode EdmDataAbilityUtils::GetStringFromSettingsDataShare(const std::string &s
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     } else if (result_ == "test value nullptr") {
         GTEST_LOG_(INFO) << "mock EdmDataAbilityUtils test nullptr";
+        return ERR_OK;
+    } else if (result_ == "control_panel_toggle_list") {
+        value = "flashlight,ring_mode";
+        return ERR_OK;
+    } else if (result_ == "control_panel_top_toggle_list") {
+        value = "cast,hotspot";
         return ERR_OK;
     } else if (result_ == "power_suspend_normal") {
         value =

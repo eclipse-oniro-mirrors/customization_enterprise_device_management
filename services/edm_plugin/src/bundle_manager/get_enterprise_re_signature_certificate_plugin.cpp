@@ -44,8 +44,9 @@ GetEnterpriseReSignatureCertificatePlugin::GetEnterpriseReSignatureCertificatePl
 ErrCode GetEnterpriseReSignatureCertificatePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data,
     MessageParcel &reply, HandlePolicyData &policyData, int32_t userId)
 {
-    EDMLOGE("GetEnterpriseReSignatureCertificatePlugin::OnHandlePolicy unsupported");
-    return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    EDMLOGI("GetEnterpriseReSignatureCertificatePlugin::OnHandlePolicy unsupported, return empty policy data");
+    policyData.policyData = "";
+    return ERR_OK;
 }
 
 ErrCode GetEnterpriseReSignatureCertificatePlugin::GetBundleInstaller(
@@ -65,19 +66,12 @@ ErrCode GetEnterpriseReSignatureCertificatePlugin::GetBundleInstaller(
     return ERR_OK;
 }
 
-ErrCode GetEnterpriseReSignatureCertificatePlugin::CheckAccountId(int32_t accountId, int32_t userId,
-    MessageParcel &reply)
+ErrCode GetEnterpriseReSignatureCertificatePlugin::CheckAccountId(int32_t accountId, MessageParcel &reply)
 {
     if (accountId < EdmConstants::DEFAULT_USER_ID) {
         EDMLOGE("GetEnterpriseReSignatureCertificatePlugin::CheckAccountId invalid accountId: %{public}d", accountId);
         reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
         return EdmReturnErrCode::UID_INVALID;
-    }
-    if (accountId != userId) {
-        EDMLOGE("GetEnterpriseReSignatureCertificatePlugin::CheckAccountId cross user not allowed, "
-            "accountId: %{public}d, userId: %{public}d", accountId, userId);
-        reply.WriteInt32(EdmReturnErrCode::CROSS_USER_NOT_ALLOWED);
-        return EdmReturnErrCode::CROSS_USER_NOT_ALLOWED;
     }
     bool isExist = false;
     ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(accountId, isExist);
@@ -92,12 +86,21 @@ ErrCode GetEnterpriseReSignatureCertificatePlugin::CheckAccountId(int32_t accoun
 void GetEnterpriseReSignatureCertificatePlugin::WriteCertInfos(
     const std::vector<AppExecFwk::EnterpriseCertInfo> &certInfos, MessageParcel &reply)
 {
-    reply.WriteInt32(ERR_OK);
-    reply.WriteInt32(static_cast<int32_t>(certInfos.size()));
+    std::vector<const AppExecFwk::EnterpriseCertInfo *> validCertInfos;
     for (const auto &certInfo : certInfos) {
-        reply.WriteString(certInfo.certAlias);
-        reply.WriteString(certInfo.enterpriseName);
-        reply.WriteInt64(certInfo.notAfter);
+        if (certInfo.certAlias.empty() || certInfo.enterpriseName.empty()) {
+            EDMLOGE("GetEnterpriseReSignatureCertificatePlugin: skip empty certificate field, alias '%{private}s', "
+                "enterpriseName '%{private}s'", certInfo.certAlias.c_str(), certInfo.enterpriseName.c_str());
+            continue;
+        }
+        validCertInfos.push_back(&certInfo);
+    }
+    reply.WriteInt32(ERR_OK);
+    reply.WriteInt32(static_cast<int32_t>(validCertInfos.size()));
+    for (const auto *certInfo : validCertInfos) {
+        reply.WriteString(certInfo->certAlias);
+        reply.WriteString(certInfo->enterpriseName);
+        reply.WriteInt64(certInfo->notAfter);
     }
 }
 
@@ -105,8 +108,13 @@ ErrCode GetEnterpriseReSignatureCertificatePlugin::OnGetPolicy(std::string &poli
     MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("GetEnterpriseReSignatureCertificatePlugin::OnGetPolicy");
-    int32_t accountId = data.ReadInt32();
-    ErrCode ret = CheckAccountId(accountId, userId, reply);
+    int32_t accountId = 0;
+    if (!data.ReadInt32(accountId)) {
+        EDMLOGE("GetEnterpriseReSignatureCertificatePlugin::OnGetPolicy read accountId failed");
+        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    ErrCode ret = CheckAccountId(accountId, reply);
     if (ret != ERR_OK) {
         return ret;
     }
@@ -122,14 +130,6 @@ ErrCode GetEnterpriseReSignatureCertificatePlugin::OnGetPolicy(std::string &poli
         EDMLOGE("GetEnterpriseReSignatureCertificatePlugin: GetEnterpriseReSignatureCertInfo failed %{public}d", ret);
         reply.WriteInt32(EdmReturnErrCode::EXECUTE_TIME_OUT);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
-    }
-    for (const auto &certInfo : certInfos) {
-        if (certInfo.certAlias.empty() || certInfo.enterpriseName.empty()) {
-            EDMLOGE("GetEnterpriseReSignatureCertificatePlugin: empty certificate field, alias '%{public}s', "
-                "enterpriseName '%{public}s'", certInfo.certAlias.c_str(), certInfo.enterpriseName.c_str());
-            reply.WriteInt32(EdmReturnErrCode::SYSTEM_ABNORMALLY);
-            return EdmReturnErrCode::SYSTEM_ABNORMALLY;
-        }
     }
     WriteCertInfos(certInfos, reply);
     return ERR_OK;

@@ -16,6 +16,8 @@
 #ifndef INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
 #define INTERFACES_INNER_API_DEVICE_SETTINGS_INCLUDE_DEVICE_SETTINGS_PROXY_H
 
+#include <cstdint>
+
 #include "edm_constants.h"
 #include "enterprise_device_mgr_proxy.h"
 #include "power_policy.h"
@@ -53,8 +55,10 @@ public:
 
     // New path via HandleDevicePolicyNew / GetPolicyNew – the admin bundle is resolved automatically
     // from the IPC caller on the SA side, so no explicit Want is required from the Addon layer.
-    int32_t SetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item, const std::string &value);
-    int32_t GetPowerModeValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item, std::string &value);
+    int32_t SetValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item, const std::string &value,
+        std::uint32_t interfaceCode);
+    int32_t GetValueForAccountWithoutAdmin(int32_t accountId, SettingsItem item, std::string &value,
+        std::uint32_t interfaceCode);
     int32_t SetValueForAccount(const AppExecFwk::ElementName &admin, int32_t accountId, const std::string &value,
         const std::string &permissionTag = EdmConstants::PERMISSION_TAG_VERSION_23);
     int32_t GetValueForAccount(const AppExecFwk::ElementName &admin, int32_t accountId, std::string &value,

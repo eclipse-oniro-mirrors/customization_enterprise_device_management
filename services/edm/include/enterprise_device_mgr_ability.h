@@ -125,6 +125,7 @@ protected:
 private:
     void AddOnAddSystemAbilityFuncMap();
     void AddOnAddSystemAbilityFuncMapSecond();
+    void AddOnAddSystemAbilityFuncMapThird();
     void NotifyAdminEnabled(bool isEnabled);
     void HandleEdmEnabled();
     void CheckAndUpdateByodSettingsData();
@@ -137,6 +138,7 @@ private:
     bool IsSystemTimerFuncCode(uint32_t code);
     ErrCode HandleSystemTimerPolicyNew(uint32_t code, MessageParcel &data,
         MessageParcel &reply, int32_t userId);
+    void NotifySensitivePolicyQuery(uint32_t code);
 #endif
     ErrCode RemoveSubSuperAdminAndAdminPolicy(const std::string &bundleName, AdminType adminType);
     ErrCode RemoveSuperAdminAndAdminPolicy(const std::string &bundleName);

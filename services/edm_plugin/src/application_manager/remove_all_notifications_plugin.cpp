@@ -19,6 +19,7 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
+#include "edm_os_account_manager_impl.h"
 #include "iplugin_manager.h"
 #include "notification_helper.h"
 
@@ -46,6 +47,13 @@ ErrCode RemoveAllNotificationsPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
         EDMLOGE("RemoveAllNotificationsPlugin: accountId is invalid, %{public}d", accountId);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
+    bool isExist = false;
+    ErrCode existRet = IsOsAccountExists(accountId, isExist);
+    if (existRet != ERR_OK || !isExist) {
+        EDMLOGE("RemoveAllNotificationsPlugin: accountId %{public}d does not exist, ret %{public}d",
+            accountId, existRet);
+        return EdmReturnErrCode::UID_INVALID;
+    }
     EDMLOGI("RemoveAllNotificationsPlugin OnHandlePolicy, accountId=%{public}d", accountId);
     int32_t ret = RemoveAllNotifications(accountId);
     int32_t systemRet = RemoveAllNotifications(SYSTEM_ACCOUNT_ID);
@@ -59,6 +67,11 @@ ErrCode RemoveAllNotificationsPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
 int32_t RemoveAllNotificationsPlugin::RemoveAllNotifications(int32_t accountId)
 {
     return OHOS::Notification::NotificationHelper::RemoveAllNotificationsAsAdmin(accountId);
+}
+
+ErrCode RemoveAllNotificationsPlugin::IsOsAccountExists(int32_t accountId, bool &isExist)
+{
+    return std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(accountId, isExist);
 }
 } // namespace EDM
 } // namespace OHOS

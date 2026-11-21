@@ -43,7 +43,7 @@ public:
 
 private:
     ErrCode GetBundleInstaller(sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller, const std::string &methodName);
-    ErrCode CheckAccountId(int32_t accountId, int32_t userId, MessageParcel &reply);
+    ErrCode CheckAccountId(int32_t accountId, MessageParcel &reply);
     void WriteCertInfos(const std::vector<AppExecFwk::EnterpriseCertInfo> &certInfos, MessageParcel &reply);
 };
 } // namespace EDM

@@ -44,6 +44,9 @@
 #include "disallow_modify_datetime_plugin.h"
 #include "disallowed_install_bundles_plugin.h"
 #include "disallowed_running_bundles_plugin.h"
+#include "control_panel_quick_toggle_list_plugin.h"
+#include "control_panel_restricted_plugin.h"
+#include "control_panel_top_toggle_list_plugin.h"
 #include "disallowed_uninstall_bundles_plugin.h"
 #include "domain_filter_rule_plugin.h"
 #include "fingerprint_auth_plugin.h"
@@ -135,6 +138,12 @@ const bool REGISTER_DISALLOWED_UNINSTALL_BUNDLES_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowedUninstallBundlesPlugin::GetPlugin());
 const bool REGISTER_DOMAIN_FILTER_RULE_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DomainFilterRulePlugin::GetPlugin());
+const bool REGISTER_CONTROL_PANEL_RESTRICTED_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<ControlPanelRestrictedPlugin>());
+const bool REGISTER_CONTROL_PANEL_QUICK_TOGGLE_LIST_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(ControlPanelQuickToggleListPlugin::GetPlugin());
+const bool REGISTER_CONTROL_PANEL_TOP_TOGGLE_LIST_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(ControlPanelTopToggleListPlugin::GetPlugin());
 #ifdef USERIAM_EDM_ENABLE
 const bool REGISTER_FINGER_PRINT_AUTH_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<FingerprintAuthPlugin>());

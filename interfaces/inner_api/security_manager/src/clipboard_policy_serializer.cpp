@@ -23,6 +23,7 @@ namespace EDM {
 
 bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t, ClipboardInfo> &result)
 {
+    result.clear();
     cJSON* root = cJSON_Parse(data.c_str());
     if (root == nullptr) {
         return true;
@@ -63,6 +64,7 @@ bool ClipboardSerializer::Deserialize(const std::string &data, std::map<int32_t,
 bool ClipboardSerializer::Serialize(const std::map<int32_t, ClipboardInfo> &result, std::string &data)
 {
     if (result.empty()) {
+        data = "";
         return true;
     }
     cJSON* root = nullptr;

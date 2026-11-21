@@ -33,7 +33,6 @@ namespace TEST {
 static constexpr int32_t ACCOUNTID_VALID_VALUE = 100;
 static constexpr int32_t ACCOUNTID_INVALID_VALUE = 99;
 static constexpr int32_t ACCOUNTID_NOT_EXIST_VALUE = 200;
-static constexpr int32_t ACCOUNTID_CROSS_USER_VALUE = 101;
 
 static bool NotEnterpriseDevice()
 {
@@ -68,24 +67,6 @@ HWTEST_F(GetEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicyInvalidAc
     ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
     ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
     ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::UID_INVALID);
-}
-
-/**
- * @tc.name: TestOnGetPolicyCrossUserNotAllowed
- * @tc.desc: Test GetEnterpriseReSignatureCertificatePlugin::OnGetPolicy when querying cross user.
- * @tc.type: FUNC
- */
-HWTEST_F(GetEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicyCrossUserNotAllowed, TestSize.Level1)
-{
-    std::shared_ptr<GetEnterpriseReSignatureCertificatePlugin> plugin =
-        std::make_shared<GetEnterpriseReSignatureCertificatePlugin>();
-    std::string policyData;
-    MessageParcel data;
-    data.WriteInt32(ACCOUNTID_CROSS_USER_VALUE);
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::CROSS_USER_NOT_ALLOWED);
-    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::CROSS_USER_NOT_ALLOWED);
 }
 
 /**
@@ -138,7 +119,7 @@ HWTEST_F(GetEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicySuccess, 
 
 /**
  * @tc.name: TestOnHandlePolicyUnsupported
- * @tc.desc: Test GetEnterpriseReSignatureCertificatePlugin::OnHandlePolicy is unsupported.
+ * @tc.desc: Test GetEnterpriseReSignatureCertificatePlugin::OnHandlePolicy returns empty policy data.
  * @tc.type: FUNC
  */
 HWTEST_F(GetEnterpriseReSignatureCertificatePluginTest, TestOnHandlePolicyUnsupported, TestSize.Level1)
@@ -151,7 +132,8 @@ HWTEST_F(GetEnterpriseReSignatureCertificatePluginTest, TestOnHandlePolicyUnsupp
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::GET,
         EdmInterfaceCode::GET_ENTERPRISE_RE_SIGNATURE_CERTIFICATE);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(handlePolicyData.policyData.empty());
 }
 } // namespace TEST
 } // namespace EDM

@@ -44,8 +44,12 @@ ErrCode EnabledNotificationBundlesQuery::QueryPolicy(std::string &policyData, Me
 ErrCode EnabledNotificationBundlesQuery::QueryPolicy(std::string &policyData, MessageParcel &data,
     MessageParcel &reply, int32_t userId, bool isAdminNull)
 {
-    if (userId <= 0) {
-        EDMLOGE("EnabledNotificationBundlesQuery invalid userId=%{public}d", userId);
+    if (userId < 0) {
+        EDMLOGE("EnabledNotificationBundlesQuery negative userId=%{public}d", userId);
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    if (userId == 0) {
+        EDMLOGE("EnabledNotificationBundlesQuery userId is zero");
         return EdmReturnErrCode::UID_INVALID;
     }
     if (!isAdminNull) {

@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "edm_errors.h"
 
@@ -32,6 +33,8 @@ public:
     static void ClearCharArray(char* &str, size_t size);
     static bool CheckRealPath(const std::string &path, const std::string &expectPath);
     static bool TrustedExternalPath(const std::string &filePath);
+    static std::string JoinString(const std::vector<std::string> &values, const std::string &delimiter);
+    static std::vector<std::string> SplitString(const std::string &value, const std::string &delimiter);
 };
 } // namespace EDM
 } // namespace OHOS

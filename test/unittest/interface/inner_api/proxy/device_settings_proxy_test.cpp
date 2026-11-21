@@ -682,82 +682,184 @@ HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccount_EdmServiceDisabled
 }
 
 /**
- * @tc.name: GetPowerModeValueForAccountWithoutAdmin_Success
- * @tc.desc: Test GetPowerModeValueForAccountWithoutAdmin function.
+ * @tc.name: GetValueForAccountWithoutAdmin_PowerMode_Success
+ * @tc.desc: Test GetValueForAccountWithoutAdmin function.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccountWithoutAdmin_Success, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, GetValueForAccountWithoutAdmin_PowerMode_Success, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
     int32_t accountId = 100;
     std::string value;
-    int32_t ret = deviceSettingsProxy->GetPowerModeValueForAccountWithoutAdmin(accountId,
-        SettingsItem::SCREEN_OFF_AC, value);
+    int32_t ret = deviceSettingsProxy->GetValueForAccountWithoutAdmin(accountId, SettingsItem::SCREEN_OFF_AC, value,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(value, RETURN_STRING);
 }
 
 /**
- * @tc.name: GetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid
- * @tc.desc: Test GetPowerModeValueForAccountWithoutAdmin function with invalid accountId.
+ * @tc.name: GetValueForAccountWithoutAdmin_PowerModeInvalidAccountId_UidInvalid
+ * @tc.desc: Test GetValueForAccountWithoutAdmin function with invalid accountId.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceSettingsProxyTest, GetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, GetValueForAccountWithoutAdmin_PowerModeInvalidAccountId_UidInvalid,
+    TestSize.Level1)
 {
     int32_t accountId = 99;
     std::string value;
-    int32_t ret = deviceSettingsProxy->GetPowerModeValueForAccountWithoutAdmin(accountId,
-        SettingsItem::SCREEN_OFF_AC, value);
+    int32_t ret = deviceSettingsProxy->GetValueForAccountWithoutAdmin(accountId, SettingsItem::SCREEN_OFF_AC, value,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
     EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::UID_INVALID));
 }
 
 /**
- * @tc.name: SetPowerModeValueForAccountWithoutAdmin_ScreenOffAc_Success
- * @tc.desc: Test SetPowerModeValueForAccountWithoutAdmin function with SCREEN_OFF_AC item.
+ * @tc.name: SetValueForAccountWithoutAdmin_ScreenOffAc_Success
+ * @tc.desc: Test SetValueForAccountWithoutAdmin function with SCREEN_OFF_AC item.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccountWithoutAdmin_ScreenOffAc_Success, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, SetValueForAccountWithoutAdmin_ScreenOffAc_Success, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t accountId = 100;
-    int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccountWithoutAdmin(accountId,
-        SettingsItem::SCREEN_OFF_AC, "60000");
+    int32_t ret = deviceSettingsProxy->SetValueForAccountWithoutAdmin(accountId, SettingsItem::SCREEN_OFF_AC, "60000",
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
 /**
- * @tc.name: SetPowerModeValueForAccountWithoutAdmin_PowerPolicyDc_Success
- * @tc.desc: Test SetPowerModeValueForAccountWithoutAdmin function with POWER_POLICY_DC item.
+ * @tc.name: SetValueForAccountWithoutAdmin_PowerPolicyDc_Success
+ * @tc.desc: Test SetValueForAccountWithoutAdmin function with POWER_POLICY_DC item.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccountWithoutAdmin_PowerPolicyDc_Success, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, SetValueForAccountWithoutAdmin_PowerPolicyDc_Success, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
     int32_t accountId = 100;
     std::string value = "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":1000}}";
-    int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccountWithoutAdmin(accountId,
-        SettingsItem::POWER_POLICY_DC, value);
+    int32_t ret = deviceSettingsProxy->SetValueForAccountWithoutAdmin(accountId, SettingsItem::POWER_POLICY_DC, value,
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::POWER_MODE_SETTINGS));
 }
 
 /**
- * @tc.name: SetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid
- * @tc.desc: Test SetPowerModeValueForAccountWithoutAdmin function with invalid accountId.
+ * @tc.name: SetValueForAccountWithoutAdmin_PowerModeInvalidAccountId_UidInvalid
+ * @tc.desc: Test SetValueForAccountWithoutAdmin function with invalid accountId.
  * @tc.type: FUNC
  */
-HWTEST_F(DeviceSettingsProxyTest, SetPowerModeValueForAccountWithoutAdmin_InvalidAccountId_UidInvalid, TestSize.Level1)
+HWTEST_F(DeviceSettingsProxyTest, SetValueForAccountWithoutAdmin_PowerModeInvalidAccountId_UidInvalid,
+    TestSize.Level1)
 {
     int32_t accountId = 99;
-    int32_t ret = deviceSettingsProxy->SetPowerModeValueForAccountWithoutAdmin(accountId,
-        SettingsItem::SCREEN_OFF_AC, "60000");
+    int32_t ret = deviceSettingsProxy->SetValueForAccountWithoutAdmin(accountId, SettingsItem::SCREEN_OFF_AC, "60000",
+        EdmInterfaceCode::POWER_MODE_SETTINGS);
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::UID_INVALID));
+}
+
+/**
+ * @tc.name: SetValueForAccountWithoutAdmin_DeviceName_Success
+ * @tc.desc: Test SetValueForAccountWithoutAdmin function with DEVICE_NAME item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, SetValueForAccountWithoutAdmin_DeviceName_Success, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t accountId = 100;
+    int32_t ret = deviceSettingsProxy->SetValueForAccountWithoutAdmin(accountId, SettingsItem::DEVICE_NAME,
+        "deviceName", EdmInterfaceCode::SET_DEVICE_NAME);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(object_->code_, GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::SET_DEVICE_NAME));
+}
+
+/**
+ * @tc.name: SetValueForAccountWithoutAdmin_FloatingNavigation_Success
+ * @tc.desc: Test SetValueForAccountWithoutAdmin function with FLOATING_NAVIGATION item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, SetValueForAccountWithoutAdmin_FloatingNavigation_Success, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t accountId = 100;
+    int32_t ret = deviceSettingsProxy->SetValueForAccountWithoutAdmin(accountId, SettingsItem::FLOATING_NAVIGATION,
+        "0", EdmInterfaceCode::SET_FLOATING_NAVIGATION);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(object_->code_,
+        GetExpectedFuncCodeNew(FuncOperateType::SET, EdmInterfaceCode::SET_FLOATING_NAVIGATION));
+}
+
+/**
+ * @tc.name: SetValueForAccountWithoutAdmin_DeviceNameInvalidAccountId_UidInvalid
+ * @tc.desc: Test SetValueForAccountWithoutAdmin function with invalid accountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, SetValueForAccountWithoutAdmin_DeviceNameInvalidAccountId_UidInvalid,
+    TestSize.Level1)
+{
+    int32_t accountId = 99;
+    int32_t ret = deviceSettingsProxy->SetValueForAccountWithoutAdmin(accountId, SettingsItem::DEVICE_NAME,
+        "deviceName", EdmInterfaceCode::SET_DEVICE_NAME);
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::UID_INVALID));
+}
+
+/**
+ * @tc.name: GetValueForAccountWithoutAdmin_DeviceName_Success
+ * @tc.desc: Test GetValueForAccountWithoutAdmin function with DEVICE_NAME item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, GetValueForAccountWithoutAdmin_DeviceName_Success, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t accountId = 100;
+    std::string value;
+    int32_t ret = deviceSettingsProxy->GetValueForAccountWithoutAdmin(accountId, SettingsItem::DEVICE_NAME, value,
+        EdmInterfaceCode::SET_DEVICE_NAME);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(value, RETURN_STRING);
+}
+
+/**
+ * @tc.name: GetValueForAccountWithoutAdmin_FloatingNavigation_Success
+ * @tc.desc: Test GetValueForAccountWithoutAdmin function with FLOATING_NAVIGATION item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, GetValueForAccountWithoutAdmin_FloatingNavigation_Success, TestSize.Level1)
+{
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+    int32_t accountId = 100;
+    std::string value;
+    int32_t ret = deviceSettingsProxy->GetValueForAccountWithoutAdmin(accountId,
+        SettingsItem::FLOATING_NAVIGATION, value, EdmInterfaceCode::SET_FLOATING_NAVIGATION);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(value, RETURN_STRING);
+}
+
+/**
+ * @tc.name: GetValueForAccountWithoutAdmin_DeviceNameInvalidAccountId_UidInvalid
+ * @tc.desc: Test GetValueForAccountWithoutAdmin function with invalid accountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, GetValueForAccountWithoutAdmin_DeviceNameInvalidAccountId_UidInvalid,
+    TestSize.Level1)
+{
+    int32_t accountId = 99;
+    std::string value;
+    int32_t ret = deviceSettingsProxy->GetValueForAccountWithoutAdmin(accountId, SettingsItem::DEVICE_NAME, value,
+        EdmInterfaceCode::SET_DEVICE_NAME);
     EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::UID_INVALID));
 }
 

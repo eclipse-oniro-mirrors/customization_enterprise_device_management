@@ -183,10 +183,6 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapSecond()
             that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_USER_NON_STOP_APPS, WINDOW_MANAGER_SERVICE_ID);
             that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::SCREEN_WATERMARK_IMAGE);
         };
-    addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
-        };
     addSystemAbilityFuncMap_[MULTIMODAL_INPUT_SERVICE_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
             that->OnHandleInitExecute(EdmInterfaceCode::SET_KEY_CODE_POLICYS);
@@ -227,6 +223,46 @@ void EnterpriseDeviceMgrAbility::OnHandleInitExecute(uint32_t interfaceCode)
     PluginManager::GetInstance()->OnInitExecute(interfaceCode, bundleNames, currentUserId);
 }
 
+void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMapThird()
+{
+#ifdef USB_SERVICE_EDM_ENABLE
+    addSystemAbilityFuncMap_[USB_SYSTEM_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLE_USB);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_USB_DEVICES);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+        };
+#endif
+    addSystemAbilityFuncMap_[RENDER_SERVICE] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::WATERMARK_IMAGE);
+        };
+    addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->OnDistributedKvDataServiceStart();
+        };
+    addSystemAbilityFuncMap_[RES_SCHED_SYS_ABILITY_ID] =
+        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
+            that->CallOnOtherServiceStart(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, RES_SCHED_SYS_ABILITY_ID);
+#ifndef FEATURE_PC_ONLY
+            std::unordered_map<int32_t, std::vector<std::shared_ptr<Admin>>> allAdmins;
+            AdminManager::GetInstance()->GetAllAdmins(allAdmins);
+            for (const auto &userAdmins : allAdmins) {
+                if (std::any_of(userAdmins.second.begin(), userAdmins.second.end(),
+                    [](const std::shared_ptr<Admin> &admin) {
+                        return admin != nullptr && admin->adminInfo_.adminType_ == AdminType::BYOD;
+                    })) {
+                    EdmEventData eventData;
+                    eventData.eventId.code = static_cast<uint32_t>(ManagedEvent::BMS_READY);
+                    PluginManager::GetInstance()->DispatchPluginEvent(
+                        EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS, eventData, false, false);
+                    break;
+                }
+            }
+#endif
+        };
+}
+
 void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
 {
     AddOnAddSystemAbilityFuncMapSecond();
@@ -251,22 +287,13 @@ void EnterpriseDeviceMgrAbility::AddOnAddSystemAbilityFuncMap()
             SystemServiceStartHandler::GetInstance()->OnNetPolicyManagerStart();
         };
 #endif
-#ifdef USB_SERVICE_EDM_ENABLE
-    addSystemAbilityFuncMap_[USB_SYSTEM_ABILITY_ID] =
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    addSystemAbilityFuncMap_[COMM_FIREWALL_MANAGER_SYS_ABILITY_ID] =
         [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStart(EdmInterfaceCode::DISABLE_USB);
-            that->CallOnOtherServiceStart(EdmInterfaceCode::ALLOWED_USB_DEVICES);
-            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_USB_DEVICES);
+            that->CallOnOtherServiceStart(EdmInterfaceCode::DISALLOWED_PACKET_FILTERING);
         };
 #endif
-    addSystemAbilityFuncMap_[RENDER_SERVICE] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->CallOnOtherServiceStartForWatermark(EdmInterfaceCode::WATERMARK_IMAGE);
-        };
-    addSystemAbilityFuncMap_[DISTRIBUTED_KV_DATA_SERVICE_ABILITY_ID] =
-        [](EnterpriseDeviceMgrAbility* that, int32_t systemAbilityId, const std::string &deviceId) {
-            that->OnDistributedKvDataServiceStart();
-        };
+    AddOnAddSystemAbilityFuncMapThird();
 }
 
 void EnterpriseDeviceMgrAbility::OnCommonEventUserSwitched(const EventFwk::CommonEventData &data)
@@ -357,7 +384,12 @@ void EnterpriseDeviceMgrAbility::OnCommonEventPackageRemoved(const EventFwk::Com
         return;
     }
 #ifndef FEATURE_PC_ONLY
-    SensitiveCallNotifyManager::GetInstance()->ClearByApp(bundleName, appIndex);
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager != nullptr) {
+        notifyManager->ClearByApp(bundleName, appIndex);
+    } else {
+        EDMLOGE("OnCommonEventPackageRemoved: SensitiveCallNotifyManager instance is null, skip ClearByApp.");
+    }
 #endif
     std::unique_lock<std::shared_mutex> autoLock(adminLock_);
     if (appIndex == 0) {
@@ -707,6 +739,9 @@ void EnterpriseDeviceMgrAbility::AddSystemAbilityListeners()
 #endif
 #ifdef NET_MANAGER_BASE_EDM_ENABLE
     AddSystemAbilityListener(COMM_NET_POLICY_MANAGER_SYS_ABILITY_ID);
+#endif
+#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
+    AddSystemAbilityListener(COMM_FIREWALL_MANAGER_SYS_ABILITY_ID);
 #endif
 #ifdef USB_EDM_ENABLE
     AddSystemAbilityListener(USB_SYSTEM_ABILITY_ID);
@@ -1409,6 +1444,14 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
     HiSysEventAdapter::ReportEdmEventManagerAdmin(admin.GetBundleName().c_str(),
         static_cast<int32_t>(AdminAction::ENABLE), static_cast<int32_t>(type), "",
         static_cast<int32_t>(enableSource));
+#ifndef FEATURE_PC_ONLY
+    if (type == AdminType::BYOD) {
+        EdmEventData eventData;
+        eventData.eventId.code = static_cast<uint32_t>(ManagedEvent::BMS_READY);
+        PluginManager::GetInstance()->DispatchPluginEvent(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS,
+            eventData, false, false);
+    }
+#endif
 }
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string &adminName, int32_t userId,
@@ -1430,7 +1473,12 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
         return removeAdminRet;
     }
 #ifndef FEATURE_PC_ONLY
-    SensitiveCallNotifyManager::GetInstance()->ClearByAdmin(adminName, userId);
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager != nullptr) {
+        notifyManager->ClearByAdmin(adminName, userId);
+    } else {
+        EDMLOGE("RemoveAdminAndAdminPolicy: SensitiveCallNotifyManager instance is null, skip ClearByAdmin.");
+    }
 #endif
     if (!AdminManager::GetInstance()->IsSuperAdminExist()) {
         ClearEnterpriseDisplayInfo();
@@ -1444,6 +1492,15 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
     if (ret != ERR_OK && ret != ERR_EDM_UNKNOWN_ADMIN) {
         return ERR_EDM_DEL_ADMIN_FAILED;
     }
+    adminConnectMap_.erase(adminName);
+#ifndef FEATURE_PC_ONLY
+    if (adminType == AdminType::BYOD) {
+        EdmEventData eventData;
+        eventData.eventId.code = static_cast<uint32_t>(ManagedEvent::BMS_READY);
+        PluginManager::GetInstance()->DispatchPluginEvent(EdmInterfaceCode::MANAGE_FREEZE_EXEMPTED_APPS,
+            eventData, false, false);
+    }
+#endif
     MdmEventRelayer::GetInstance().OnAdminRemoved(adminName, userId);
     return ERR_OK;
 }
@@ -1927,6 +1984,29 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicy(uint32_t code, MessageParcel
     return errCode;
 }
 
+#ifndef FEATURE_PC_ONLY
+// Best-effort sensitive-call notification hook for policy query. Extracted from
+// GetDevicePolicyNew to keep nesting depth within limits; uses early returns.
+void EnterpriseDeviceMgrAbility::NotifySensitivePolicyQuery(uint32_t code)
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    if (GetBundleMgr()->GetNameForUid(uid, bundleName) != ERR_OK || bundleName.empty()) {
+        return;
+    }
+    auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
+    if (!SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
+        return;
+    }
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager == nullptr) {
+        EDMLOGE("NotifySensitivePolicyQuery: SensitiveCallNotifyManager instance is null, skip notify.");
+        return;
+    }
+    notifyManager->CheckAndNotify(sensitiveId, bundleName);
+}
+#endif
+
 ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessageParcel &data, MessageParcel &reply,
     int32_t userId)
 {
@@ -1949,14 +2029,7 @@ ErrCode EnterpriseDeviceMgrAbility::GetDevicePolicyNew(uint32_t code, MessagePar
     }
 #ifndef FEATURE_PC_ONLY
     if (errCode == ERR_OK) {
-        int uid = IPCSkeleton::GetCallingUid();
-        std::string bundleName;
-        if (GetBundleMgr()->GetNameForUid(uid, bundleName) == ERR_OK && !bundleName.empty()) {
-            auto sensitiveId = SensitiveApiWhitelist::MakePolicyId(FuncCodeUtils::GetPolicyCode(code));
-            if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-                SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, bundleName);
-            }
-        }
+        NotifySensitivePolicyQuery(code);
     }
 #endif
     EDMLOGI("policy query get finished");
@@ -2326,10 +2399,15 @@ ErrCode EnterpriseDeviceMgrAbility::SubscribeManagedEvent(const AppExecFwk::Elem
         }
     }
 #ifndef FEATURE_PC_ONLY
-    for (uint32_t event : events) {
-        auto sensitiveId = SensitiveApiWhitelist::MakeEventId(event);
-        if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName());
+    auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+    if (notifyManager == nullptr) {
+        EDMLOGE("SubscribeManagedEvent: SensitiveCallNotifyManager instance is null, skip notify.");
+    } else {
+        for (uint32_t event : events) {
+            auto sensitiveId = SensitiveApiWhitelist::MakeEventId(event);
+            if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
+                notifyManager->CheckAndNotify(sensitiveId, admin.GetBundleName());
+            }
         }
     }
 #endif
@@ -2403,7 +2481,12 @@ ErrCode EnterpriseDeviceMgrAbility::HandleSmsEvent(bool subscribe)
     if (subscribe) {
         auto sensitiveId = SensitiveApiWhitelist::MakeEventId(static_cast<uint32_t>(ManagedEvent::SMS_RECEIVED));
         if (SensitiveApiWhitelist::IsSensitive(sensitiveId)) {
-            SensitiveCallNotifyManager::GetInstance()->CheckAndNotify(sensitiveId, admin.GetBundleName());
+            auto notifyManager = SensitiveCallNotifyManager::GetInstance();
+            if (notifyManager != nullptr) {
+                notifyManager->CheckAndNotify(sensitiveId, admin.GetBundleName());
+            } else {
+                EDMLOGE("HandleSmsEvent: SensitiveCallNotifyManager instance is null, skip notify.");
+            }
         }
     }
 #endif

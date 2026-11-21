@@ -273,6 +273,9 @@ napi_value UsbManagerAddon::SetUsbDeviceStates(napi_env env, napi_callback_info 
     EDMLOGI("UsbManagerAddon::SetUsbDeviceStates called");
     auto convertConfig2Data = [](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
+        if (!MatchValueType(env, argv, napi_object)) {
+            return EdmReturnErrCode::PARAM_ERROR;
+        }
         USBDeviceConfigInfo config;
         if (!UsbManagerAddon::GetUsbDeviceConfigInfoFromNAPI(env, argv, config)) {
             return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;

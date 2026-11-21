@@ -73,7 +73,7 @@ enum class RestrictionsFeature : int32_t {
     SYSTEM_ROLLBACK = 51,
     SATA_ODD_BURN = 52,
     SUPER_PRIVACY = 53,
-    ADVANCED_MESSAGE = 54,
+    ADVANCED_MESSAGE = 55,
     POWER_SAVING_MODE = 57,
     RECENT_TASKS = 58,
     CONTROL_CENTER = 59,
@@ -94,8 +94,12 @@ enum class RestrictionsFeatureForAccount : int32_t {
     SUDO = 8,
     DISTRIBUTED_TRANSMISSION_OUTGOING = 9,
     OPEN_FILE_BOOST = 10,
+    SYSTEM_SHARING_PANEL = 11,
+    COLLABORATION_REMOTE_SHARE = 12,
     FREE_WINDOW = 14,
     INSTALL_DEVICE_CERTIFICATE = 15,
+    SCREEN_SHOT = 17,
+    SCREEN_RECORD = 18,
 };
 
 enum class UserRestrictionForDevice : int32_t {

@@ -1990,22 +1990,6 @@ napi_value NetworkManagerAddon::ConvertSharedPathListToJS(
         NAPI_CALL(env, napi_create_string_utf8(env, result[i].shareUri.c_str(), NAPI_AUTO_LENGTH,
             &shareUriNapi));
         NAPI_CALL(env, napi_set_named_property(env, entry, "shareUri", shareUriNapi));
-        napi_value userArray = nullptr;
-        NAPI_CALL(env, napi_create_array_with_length(env, result[i].userPathInfoList.size(), &userArray));
-        for (size_t j = 0; j < result[i].userPathInfoList.size(); ++j) {
-            napi_value u = nullptr;
-            NAPI_CALL(env, napi_create_object(env, &u));
-            napi_value userNameNapi = nullptr;
-            NAPI_CALL(env, napi_create_string_utf8(env,
-                result[i].userPathInfoList[j].userName.c_str(), NAPI_AUTO_LENGTH, &userNameNapi));
-            NAPI_CALL(env, napi_set_named_property(env, u, "userName", userNameNapi));
-            napi_value userPermNapi = nullptr;
-            NAPI_CALL(env, napi_create_string_utf8(env,
-                result[i].userPathInfoList[j].userPermission.c_str(), NAPI_AUTO_LENGTH, &userPermNapi));
-            NAPI_CALL(env, napi_set_named_property(env, u, "userPermission", userPermNapi));
-            NAPI_CALL(env, napi_set_element(env, userArray, j, u));
-        }
-        NAPI_CALL(env, napi_set_named_property(env, entry, "userPathInfoList", userArray));
         NAPI_CALL(env, napi_set_element(env, jsList, i, entry));
     }
     return jsList;

@@ -361,6 +361,26 @@ CommonEventService(系统广播)
 | **延迟退订** | DelayCancelTimer + 30秒宽限期 | 避免频繁订阅/退订抖动 |
 | **Mediator** | PluginEventRouter | 中介 EventSubscriptionManager 和 PluginManager |
 
+## EDM 主动广播（Publish）
+
+EDM 除了订阅系统事件，也会向系统组件主动发送 CommonEvent。现有广播以“失效通知”为主，消费方收到后重新读取真实状态。
+
+| Action | 发布位置 | 触发 | 数据 | 接收限制 |
+|--------|----------|------|------|----------|
+| `com.ohos.edm.edmadminenabled` / `com.ohos.edm.edmadmindisabled` | `enterprise_device_mgr_ability.cpp` | Admin/EDM 启停 | 无 | 默认 |
+| `usual.event.EDM_CONFIG_CHANGED` | 星闪/蓝牙协议插件、控制中心 flag 变化 | 配置变化 | 无 | 星闪/蓝牙按 UID；控制中心按 bundle `com.ohos.sceneboard` |
+| `com.ohos.edm.disallowedbluetoothdeviceschanged` | 蓝牙黑名单插件 | 列表变化 | 无 | 默认 |
+| `com.ohos.edm.bluetoothdeviceschanged` | 蓝牙白名单插件 | 列表变化 | 无 | 默认 |
+| `usual.event.MANAGED_BROWSER_POLICY_CHANGED` / `com.ohos.edm.browserpolicychanged` | 浏览器插件 | 浏览器策略变化 | 无 | 默认 |
+| `edm.event.KIOSK_FEATURE_CHANGED` | Kiosk 插件 | Kiosk 特性变化 | 无 | 默认 |
+| `edm.event.PRINT_POLICY` | 打印策略工具 | 打印策略变化 | `{"user_id": -1}` 或 `{"user_id": N}` | 默认 |
+
+控制中心场景：
+
+- flag `persist.edm.control_panel_restricted` 变化时，EDM 复用 `usual.event.EDM_CONFIG_CHANGED`，按 active 用户投递，`SetBundleName("com.ohos.sceneboard")`；
+- 白名单 `settings.control.cust_*_toggle_data` 变化**不发送广播**，SceneBoard 监听 settingsdata 的 `dataChange`；
+- 广播不带 payload，SceneBoard 收到后主动重读 persist。
+
 ## 新增事件开发指南
 
 **场景**: 需要订阅一个新的系统广播事件并分发给 MDM Admin 扩展。

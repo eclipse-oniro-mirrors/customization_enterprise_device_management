@@ -16,6 +16,11 @@
 #include "restrictions_addon.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include "edm_constants.h"
@@ -24,6 +29,182 @@
 #include "restrictions_feature.h"
 
 using namespace OHOS::EDM;
+
+namespace OHOS {
+namespace EDM {
+namespace {
+constexpr uint32_t MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE = 1000;
+
+// Control center key list of the 1*2 area. The index is the enum value of
+// ControlPanelTopToggleList. Keep the order in sync with the .d.ts declaration.
+constexpr std::array<std::string_view, 7> CONTROL_PANEL_TOP_TOGGLE_KEYS = {
+    "super_device",
+    "brightness",
+    "focus_mode",
+    "sound",
+    "combined_slider",
+    "hotspot_tagged",
+    "mobile_data_tagged",
+};
+
+// Control center key list of the 1*1 area. The index is the enum value of
+// ControlPanelQuickToggleList. Keep the order in sync with the .d.ts declaration.
+constexpr std::array<std::string_view, 48> CONTROL_PANEL_QUICK_TOGGLE_KEYS = {
+    "flashlight",
+    "ring_mode",
+    "auto_rotate",
+    "toggle_scanner",
+    "harmony_share",
+    "air_plane",
+    "mobile_data",
+    "hotspot",
+    "toggle_screenshot",
+    "toggle_screen_recorder",
+    "wireless_cast",
+    "location",
+    "music_service",
+    "nfc",
+    "eye_comfort",
+    "dark_mode",
+    "super_privacy",
+    "super_hub",
+    "power_save",
+    "performance_mode",
+    "youth_mode",
+    "ebook",
+    "sound_recorder",
+    "calculator",
+    "clock_timer",
+    "remote_control",
+    "camera_open",
+    "wltx",
+    "quick_remind",
+    "celia_translate",
+    "quick_note",
+    "multi_window",
+    "qingyun_mode",
+    "celia_captions",
+    "single_handle_switch",
+    "meeting",
+    "edu_space",
+    "computer_mode",
+    "anti_peeping",
+    "mic",
+    "key_mouse_share",
+    "dpin",
+    "toggle_smart_screenshot",
+    "history_clipboard",
+    "health_measure",
+    "heart_rate_measure",
+    "magic_pad",
+    "select_reader",
+};
+
+template <size_t N>
+constexpr bool AllKeysNonEmpty(const std::array<std::string_view, N> &keys)
+{
+    for (const auto &key : keys) {
+        if (key.empty()) {
+            return false;
+        }
+    }
+    return true;
+}
+static_assert(AllKeysNonEmpty(CONTROL_PANEL_TOP_TOGGLE_KEYS), "empty top toggle key");
+static_assert(AllKeysNonEmpty(CONTROL_PANEL_QUICK_TOGGLE_KEYS), "empty quick toggle key");
+
+bool IsValidEnumNumber(napi_env env, napi_value value, int32_t &number)
+{
+    napi_valuetype type = napi_undefined;
+    if (napi_typeof(env, value, &type) != napi_ok || type != napi_number) {
+        return false;
+    }
+    double raw = 0;
+    if (napi_get_value_double(env, value, &raw) != napi_ok) {
+        return false;
+    }
+    if (raw < 0 || raw > static_cast<double>(INT32_MAX) || std::floor(raw) != raw) {
+        return false;
+    }
+    number = static_cast<int32_t>(raw);
+    return true;
+}
+
+template <size_t N>
+ErrCode ConvertToggleListToKeys(napi_env env, napi_value argv, MessageParcel &data,
+    const std::array<std::string_view, N> &keyTable)
+{
+    static_assert(N <= 64, "bitmask dedupe supports at most 64 entries");
+    bool isArray = false;
+    if (napi_is_array(env, argv, &isArray) != napi_ok || !isArray) {
+        EDMLOGE("Control panel toggle list is not an array.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    uint32_t length = 0;
+    if (napi_get_array_length(env, argv, &length) != napi_ok ||
+        length > MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE) {
+        EDMLOGE("Control panel toggle list length is invalid.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    std::vector<std::string> keys;
+    keys.reserve(std::min<size_t>(length, N));
+    uint64_t seen = 0;
+    for (uint32_t i = 0; i < length; i++) {
+        napi_value element = nullptr;
+        if (napi_get_element(env, argv, i, &element) != napi_ok) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        int32_t value = 0;
+        if (!IsValidEnumNumber(env, element, value) || value < 0 ||
+            static_cast<size_t>(value) >= keyTable.size()) {
+            EDMLOGE("Control panel toggle list contains invalid enum value.");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        uint64_t bit = 1ULL << static_cast<uint32_t>(value);
+        if ((seen & bit) != 0) {
+            continue;
+        }
+        seen |= bit;
+        keys.emplace_back(keyTable[value].data(), keyTable[value].size());
+    }
+    if (!data.WriteStringVector(keys)) {
+        EDMLOGE("Control panel toggle list write parcel failed.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return ERR_OK;
+}
+
+ErrCode ControlPanelTopToggleListToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &)
+{
+    return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_TOP_TOGGLE_KEYS);
+}
+
+ErrCode ControlPanelQuickToggleListToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &)
+{
+    return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_QUICK_TOGGLE_KEYS);
+}
+
+template <size_t N>
+void ConvertKeysToEnumValues(const std::vector<std::string> &keys,
+    const std::array<std::string_view, N> &keyTable, std::vector<int32_t> &values)
+{
+    values.clear();
+    values.reserve(keys.size());
+    for (const auto &key : keys) {
+        auto it = std::find(keyTable.begin(), keyTable.end(),
+            std::string_view(key.data(), key.size()));
+        if (it == keyTable.end()) {
+            EDMLOGW("Unknown control panel toggle key: %{public}s", key.c_str());
+            continue;
+        }
+        values.push_back(static_cast<int32_t>(it - keyTable.begin()));
+    }
+}
+} // namespace
+} // namespace EDM
+} // namespace OHOS
 
 std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMap = {
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_BLUETOOTH, EdmInterfaceCode::DISABLE_BLUETOOTH},
@@ -119,6 +300,10 @@ std::unordered_map<std::string, uint32_t> RestrictionsAddon::labelCodeMapForAcco
         EdmInterfaceCode::DISALLOWED_USB_STORAGE_DEVICE_WRITE},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_PRINT, EdmInterfaceCode::DISABLED_PRINT},
     {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_OPEN_FILE_BOOST, EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREENSHOT,
+        EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT},
+    {EdmConstants::Restrictions::LABEL_DISALLOWED_POLICY_SCREEN_RECORD,
+        EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCodeMap = {
@@ -208,9 +393,17 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureForAccountEnum2I
     {static_cast<int32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING),
         EdmInterfaceCode::DISALLOWED_DISTRIBUTED_TRANSMISSION},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST), EdmInterfaceCode::DISALLOWED_FILEBOOST_OPEN},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::SYSTEM_SHARING_PANEL),
+        EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::COLLABORATION_REMOTE_SHARE),
+        EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::FREE_WINDOW), EdmInterfaceCode::DISALLOWED_FREE_WINDOW},
     {static_cast<int32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE),
         EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::SCREEN_SHOT),
+        EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT},
+    {static_cast<int32_t>(RestrictionsFeatureForAccount::SCREEN_RECORD),
+        EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT},
 };
 
 std::unordered_map<int32_t, uint32_t> RestrictionsAddon::userRestrictionForDeviceEnum2CodeMap = {
@@ -260,6 +453,12 @@ napi_value RestrictionsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserRestricted", GetUserRestricted),
         DECLARE_NAPI_FUNCTION("setUserRestrictionForAccount", SetUserRestrictionForAccount),
         DECLARE_NAPI_FUNCTION("getUserRestrictedForAccount", GetUserRestrictedForAccount),
+        DECLARE_NAPI_FUNCTION("setControlPanelRestricted", SetControlPanelRestricted),
+        DECLARE_NAPI_FUNCTION("getControlPanelRestricted", GetControlPanelRestricted),
+        DECLARE_NAPI_FUNCTION("setControlPanelQuickToggleListForAccount", SetControlPanelQuickToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("getControlPanelQuickToggleListForAccount", GetControlPanelQuickToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("setControlPanelTopToggleListForAccount", SetControlPanelTopToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("getControlPanelTopToggleListForAccount", GetControlPanelTopToggleListForAccount),
         DECLARE_NAPI_PROPERTY("FeatureForDevice", nFeatureForDevice),
         DECLARE_NAPI_PROPERTY("FeatureForAccount", nFeatureForAccount),
         DECLARE_NAPI_PROPERTY("SettingsForDevice", nSettingsForDevice),
@@ -846,10 +1045,10 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccount(napi_env env, napi_c
     size_t argc = ARGS_SIZE_FOUR;
     napi_value argv[ARGS_SIZE_FOUR] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        return SetDisallowedPolicyForAccountLegacy(env, info);
+    if (argc > ARR_INDEX_ONE && MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean)) {
+        return SetDisallowedPolicyForAccountImplicitAdmin(env, info);
     }
-    return SetDisallowedPolicyForAccountImplicitAdmin(env, info);
+    return SetDisallowedPolicyForAccountLegacy(env, info);
 }
 
 OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndFeatureForAccount(napi_env env, napi_value value,
@@ -929,10 +1128,10 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccount(napi_env env, napi_c
     size_t argc = ARGS_SIZE_THREE;
     napi_value argv[ARGS_SIZE_THREE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc > 0 && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        return GetDisallowedPolicyForAccountLegacy(env, info);
+    if (argc > ARR_INDEX_ZERO && MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number)) {
+        return GetDisallowedPolicyForAccountImplicitAdmin(env, info);
     }
-    return GetDisallowedPolicyForAccountImplicitAdmin(env, info);
+    return GetDisallowedPolicyForAccountLegacy(env, info);
 }
 
 OHOS::ErrCode RestrictionsAddon::NativeGetDisallowedPolicyForAccount(AppExecFwk::ElementName *elementName,
@@ -964,11 +1163,11 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccountImplicitAdmin(napi_en
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
-        "parameter disallow error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
-        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_THREE, "parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_boolean),
+        "parameter disallow error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_TWO], napi_number),
+        "parameter accountId error", ErrcodeType::NUMBER);
     std::uint32_t ipcCode = 0;
     auto ret = GetInterfaceCodeAndFeatureForAccountAll(env, argv[ARR_INDEX_ZERO], ipcCode);
     if (FAILED(ret)) {
@@ -976,10 +1175,11 @@ napi_value RestrictionsAddon::SetDisallowedPolicyForAccountImplicitAdmin(napi_en
         return nullptr;
     }
     bool disallow = false;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseBool(env, disallow, argv[ARR_INDEX_ONE]), "parameter disallow parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseBool(env, disallow, argv[ARR_INDEX_ONE]),
+        "parameter disallow parse error", ErrcodeType::NUMBER);
     int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
-        "parameter accountId parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_TWO]),
+        "parameter accountId parse error", ErrcodeType::NUMBER);
     if (accountId < 0) {
         EDMLOGE("SetDisallowedPolicyForAccountImplicitAdmin: invalid accountId %{public}d", accountId);
         napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
@@ -1038,9 +1238,9 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccountImplicitAdmin(napi_en
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
-    ASSERT_AND_THROW_PARAM_ERROR(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
-        "parameter accountId error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "parameter count error", ErrcodeType::NUMBER);
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, MatchValueType(env, argv[ARR_INDEX_ONE], napi_number),
+        "parameter accountId error", ErrcodeType::NUMBER);
     std::uint32_t ipcCode = 0;
     auto ret = GetInterfaceCodeAndFeatureForAccountAll(env, argv[ARR_INDEX_ZERO], ipcCode);
     if (FAILED(ret)) {
@@ -1048,8 +1248,8 @@ napi_value RestrictionsAddon::GetDisallowedPolicyForAccountImplicitAdmin(napi_en
         return nullptr;
     }
     int32_t accountId = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
-        "parameter accountId parse error");
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, accountId, argv[ARR_INDEX_ONE]),
+        "parameter accountId parse error", ErrcodeType::NUMBER);
     if (accountId < 0) {
         EDMLOGE("GetDisallowedPolicyForAccountImplicitAdmin: invalid accountId %{public}d", accountId);
         napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
@@ -1439,9 +1639,14 @@ void RestrictionsAddon::CreateFeatureForAccountObject(napi_env env, napi_value v
         {"DISTRIBUTED_TRANSMISSION_OUTGOING",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::DISTRIBUTED_TRANSMISSION_OUTGOING)},
         {"OPEN_FILE_BOOST", static_cast<uint32_t>(RestrictionsFeatureForAccount::OPEN_FILE_BOOST)},
+        {"SYSTEM_SHARING_PANEL", static_cast<uint32_t>(RestrictionsFeatureForAccount::SYSTEM_SHARING_PANEL)},
+        {"COLLABORATION_REMOTE_SHARE",
+            static_cast<uint32_t>(RestrictionsFeatureForAccount::COLLABORATION_REMOTE_SHARE)},
         {"FREE_WINDOW", static_cast<uint32_t>(RestrictionsFeatureForAccount::FREE_WINDOW)},
         {"INSTALL_DEVICE_CERTIFICATE",
             static_cast<uint32_t>(RestrictionsFeatureForAccount::INSTALL_DEVICE_CERTIFICATE)},
+        {"SCREEN_SHOT", static_cast<uint32_t>(RestrictionsFeatureForAccount::SCREEN_SHOT)},
+        {"SCREEN_RECORD", static_cast<uint32_t>(RestrictionsFeatureForAccount::SCREEN_RECORD)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);
@@ -1522,6 +1727,174 @@ OHOS::ErrCode RestrictionsAddon::GetInterfaceCodeAndSettingsItem(napi_env env, n
         return EdmReturnErrCode::PARAM_ERROR;
     }
     return ERR_OK;
+}
+
+napi_value RestrictionsAddon::SetControlPanelRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelRestricted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelRestricted";
+    addonMethodSign.argsType = {EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelRestricted,
+        NativeVoidCallbackComplete);
+}
+
+void RestrictionsAddon::NativeSetControlPanelRestricted(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelRestricted called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+}
+
+napi_value RestrictionsAddon::GetControlPanelRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelRestricted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelRestricted";
+    addonMethodSign.argsType = {};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelRestricted,
+        NativeBoolCallbackComplete);
+}
+
+void RestrictionsAddon::NativeGetControlPanelRestricted(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelRestricted called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_RESTRICTED, asyncCallbackInfo->boolRet);
+}
+
+napi_value RestrictionsAddon::SetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelQuickToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelQuickToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {ControlPanelQuickToggleListToData, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelQuickToggleListForAccount,
+        NativeVoidCallbackComplete);
+}
+
+void RestrictionsAddon::NativeSetControlPanelQuickToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelQuickToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST);
+}
+
+napi_value RestrictionsAddon::GetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelQuickToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelQuickToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelQuickToggleListForAccount,
+        NativeArrayIntCallbackComplete);
+}
+
+void RestrictionsAddon::NativeGetControlPanelQuickToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelQuickToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetArrayStringPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
+        asyncCallbackInfo->arrayStringRet);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        ConvertKeysToEnumValues(asyncCallbackInfo->arrayStringRet, CONTROL_PANEL_QUICK_TOGGLE_KEYS,
+            asyncCallbackInfo->arrayIntRet);
+    }
+}
+
+napi_value RestrictionsAddon::SetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelTopToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelTopToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {ControlPanelTopToggleListToData, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelTopToggleListForAccount,
+        NativeVoidCallbackComplete);
+}
+
+void RestrictionsAddon::NativeSetControlPanelTopToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelTopToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST);
+}
+
+napi_value RestrictionsAddon::GetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelTopToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelTopToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelTopToggleListForAccount,
+        NativeArrayIntCallbackComplete);
+}
+
+void RestrictionsAddon::NativeGetControlPanelTopToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelTopToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = RestrictionsProxy::GetRestrictionsProxy()->GetArrayStringPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
+        asyncCallbackInfo->arrayStringRet);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        ConvertKeysToEnumValues(asyncCallbackInfo->arrayStringRet, CONTROL_PANEL_TOP_TOGGLE_KEYS,
+            asyncCallbackInfo->arrayIntRet);
+    }
 }
 
 static napi_module g_restrictionsModule = {

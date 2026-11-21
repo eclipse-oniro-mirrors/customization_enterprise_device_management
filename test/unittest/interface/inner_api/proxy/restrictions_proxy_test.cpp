@@ -971,6 +971,25 @@ HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyImplicitAdminSuc, TestSiz
 }
 
 /**
+ * @tc.name: TestGetDisallowedPolicyImplicitAdminReadBoolFail
+ * @tc.desc: Test GetDisallowedPolicyImplicitAdmin when the reply contains no bool.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RestrictionsProxyTest, TestGetDisallowedPolicyImplicitAdminReadBoolFail, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyWithoutBool));
+    bool result = true;
+    int32_t ret = proxy_->GetDisallowedPolicyImplicitAdmin(data,
+        EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE, result);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    ASSERT_FALSE(result);
+}
+
+/**
  * @tc.name: TestGetDisallowedPolicyImplicitAdminFail
  * @tc.desc: Test GetDisallowedPolicyImplicitAdmin without enable edm service func.
  * @tc.type: FUNC

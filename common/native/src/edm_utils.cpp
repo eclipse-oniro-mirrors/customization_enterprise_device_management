@@ -112,5 +112,38 @@ bool EdmUtils::TrustedExternalPath(const std::string &filePath)
     }
     return true;
 }
+
+std::string EdmUtils::JoinString(const std::vector<std::string> &values, const std::string &delimiter)
+{
+    std::string result;
+    for (size_t i = 0; i < values.size(); i++) {
+        if (i > 0) {
+            result += delimiter;
+        }
+        result += values[i];
+    }
+    return result;
+}
+
+std::vector<std::string> EdmUtils::SplitString(const std::string &value, const std::string &delimiter)
+{
+    std::vector<std::string> result;
+    if (value.empty() || delimiter.empty()) {
+        return result;
+    }
+    size_t start = 0;
+    size_t pos = value.find(delimiter);
+    while (pos != std::string::npos) {
+        if (pos > start) {
+            result.push_back(value.substr(start, pos - start));
+        }
+        start = pos + delimiter.size();
+        pos = value.find(delimiter, start);
+    }
+    if (start < value.size()) {
+        result.push_back(value.substr(start));
+    }
+    return result;
+}
 } // namespace EDM
 } // namespace OHOS

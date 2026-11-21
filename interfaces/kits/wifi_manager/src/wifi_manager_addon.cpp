@@ -661,13 +661,8 @@ bool WifiManagerAddon::ProcessRandomMacAddress(napi_env env, napi_value object, 
     int32_t randomMacType = 0;
     JsObjectToInt(env, object, "randomMacType", false, randomMacType);
     if (randomMacType == 1) {
-        std::string macAddr;
-        auto wifiDevice = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
-        if (wifiDevice != nullptr && wifiDevice->GetDeviceMacAddress(macAddr) == ERR_OK) {
-            EDMLOGI("ProcessRandomMacAddress set device mac");
-            config.wifiPrivacySetting = Wifi::WifiPrivacyConfig::DEVICEMAC;
-            config.macAddress = macAddr;
-        }
+        EDMLOGI("ProcessRandomMacAddress set device mac");
+        config.wifiPrivacySetting = Wifi::WifiPrivacyConfig::DEVICEMAC;
     }
     return true;
 }

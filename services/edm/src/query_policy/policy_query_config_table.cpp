@@ -662,9 +662,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
-    {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, {PolicyName::POLICY_TELEPHONY_CALL_POLICY,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_RECENT_TASKS, {PolicyName::POLICY_DISALLOW_RECENT_TASKS,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,
@@ -693,6 +690,19 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
         IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_MULTI_WINDOW_DOCK, {PolicyName::POLICY_DISALLOW_MULTI_WINDOW_DOCK,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, {PolicyName::POLICY_TELEPHONY_CALL_POLICY,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
+    // CONTROL_PANEL_RESTRICTED intentionally has no query entry. GET falls back to
+    // ControlPanelRestrictedPlugin::OnGetPolicy to read the device-level persist value.
+    {EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT, {PolicyName::POLICY_DISALLOW_SCREEN_SHOT_FOR_ACCOUNT,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT, {PolicyName::POLICY_DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL, {PolicyName::POLICY_DISALLOW_SYSTEM_SHARING_PANEL,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE, {PolicyName::POLICY_DISALLOW_COLLABORATION_REMOTE_SHARE,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,

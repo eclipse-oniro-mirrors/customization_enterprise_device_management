@@ -51,6 +51,7 @@ struct EdmApplicationInfo : public Parcelable {
     uint32_t descriptionId = 0;
 
     int32_t uid = -1;
+    int32_t appUid = -1;
     int32_t appIndex = 0;
 
     std::string name;
