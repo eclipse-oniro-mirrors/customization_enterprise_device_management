@@ -55,6 +55,8 @@ const int32_t TEST_DATA_SIZE = 2048;
 const int64_t TEST_PATCH_INSTALL_TIME = 1710000000000;
 const int64_t TEST_TIMER = 1722470500;
 const std::string TEST_TARGET_PATH = "/data/service/el1/public/edm/test.txt";
+const int32_t ODD_BURN_NO_MATCH_VENDOR_ID = 2;
+const int32_t ODD_BURN_NO_MATCH_PRODUCT_ID = 8;
 
 int EnterpriseDeviceMgrStubMock::InvokeGetEnterpriseManagedTips(std::string &result)
 {
@@ -538,6 +540,70 @@ int EnterpriseDeviceMgrStubMock::InvokeOddBurnUsbDevicesSendRequestGetPolicy(uin
     device.SetSerial("serial1");
     devices.push_back(device);
     ArrayOddBurnUsbDeviceSerializer::GetInstance()->WriteRawDataToParcel(reply, devices);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeOddBurnUsbDevicesEmptySendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOddBurnUsbDevicesEmptySendRequestGetPolicy code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<OddBurnUsbDevice> devices;
+    ArrayOddBurnUsbDeviceSerializer::GetInstance()->WriteRawDataToParcel(reply, devices);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeOddBurnUsbDevicesNoMatchSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOddBurnUsbDevicesNoMatchSendRequestGetPolicy code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    std::vector<OddBurnUsbDevice> devices;
+    OddBurnUsbDevice device;
+    device.SetVendorId(ODD_BURN_NO_MATCH_VENDOR_ID);
+    device.SetProductId(ODD_BURN_NO_MATCH_PRODUCT_ID);
+    device.SetSerial("other");
+    devices.push_back(device);
+    ArrayOddBurnUsbDeviceSerializer::GetInstance()->WriteRawDataToParcel(reply, devices);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeOddBurnPolicyMatchSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOddBurnPolicyMatchSendRequestGetPolicy code :" << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(true);
+    reply.WriteBool(true);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeOddBurnPolicyNoMatchSendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOddBurnPolicyNoMatchSendRequestGetPolicy code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(true);
+    reply.WriteBool(false);
+    return 0;
+}
+
+int EnterpriseDeviceMgrStubMock::InvokeOddBurnPolicyEmptySendRequestGetPolicy(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    GTEST_LOG_(INFO) << "mock EnterpriseDeviceMgrStubMock InvokeOddBurnPolicyEmptySendRequestGetPolicy code :"
+        << code;
+    code_ = code;
+    reply.WriteInt32(ERR_OK);
+    reply.WriteBool(false);
+    reply.WriteBool(false);
     return 0;
 }
 

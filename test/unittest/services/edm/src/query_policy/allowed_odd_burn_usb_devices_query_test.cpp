@@ -28,6 +28,7 @@
 #include "edm_errors.h"
 #include "edm_log.h"
 #include "odd_burn_usb_device.h"
+#include "policy_manager.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -191,6 +192,7 @@ protected:
 HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedGetPolicyName, TestSize.Level1)
 {
     std::string policyName = query_->GetPolicyName();
+    // Historical: IsAllowedOddBurn loads device-level policy into policyData.
     EXPECT_EQ(policyName, PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES);
 }
 
@@ -207,11 +209,12 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedGetPermission, TestSize.Level1)
 
 /**
  * @tc.name: TestIsAllowedQueryPolicyMatch
- * @tc.desc: Test QueryPolicy when device matches whitelist (with serial).
+ * @tc.desc: Test QueryPolicy allows when device-level whitelist in policyData matches (account empty).
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyMatch, TestSize.Level1)
 {
+    // policyData is device-level (from GetPolicyName historical behavior).
     std::string policyData = R"([
         {"vendorId":111, "productId":222, "serial":"serial1"}
     ])";
@@ -226,13 +229,12 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyMatch, TestSize.Leve
 
     int32_t result = reply.ReadInt32();
     EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_TRUE(isAllowed);
+    EXPECT_TRUE(reply.ReadBool());
 }
 
 /**
  * @tc.name: TestIsAllowedQueryPolicyNoMatch
- * @tc.desc: Test QueryPolicy when device does not match whitelist.
+ * @tc.desc: Test QueryPolicy denies when device-level whitelist exists but device not in list.
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyNoMatch, TestSize.Level1)
@@ -251,13 +253,36 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyNoMatch, TestSize.Le
 
     int32_t result = reply.ReadInt32();
     EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_FALSE(isAllowed);
+    EXPECT_FALSE(reply.ReadBool());
+}
+
+/**
+ * @tc.name: TestIsAllowedQueryPolicySerialMismatch
+ * @tc.desc: Test QueryPolicy denies when vid/pid match but serial differs.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicySerialMismatch, TestSize.Level1)
+{
+    std::string policyData = R"([
+        {"vendorId":111, "productId":222, "serial":"serial1"}
+    ])";
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(VID_1);
+    data.WriteInt32(PID_1);
+    data.WriteString("other_serial");
+
+    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+
+    int32_t result = reply.ReadInt32();
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_FALSE(reply.ReadBool());
 }
 
 /**
  * @tc.name: TestIsAllowedQueryPolicyMatchWithoutSerial
- * @tc.desc: Test QueryPolicy when whitelist device has no serial, match by vid/pid only.
+ * @tc.desc: Test QueryPolicy matches by vid/pid when whitelist serial is empty.
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyMatchWithoutSerial, TestSize.Level1)
@@ -276,13 +301,12 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyMatchWithoutSerial, 
 
     int32_t result = reply.ReadInt32();
     EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_TRUE(isAllowed);
+    EXPECT_TRUE(reply.ReadBool());
 }
 
 /**
  * @tc.name: TestIsAllowedQueryPolicyEmptyWhitelist
- * @tc.desc: Test QueryPolicy when whitelist is empty, should be allowed.
+ * @tc.desc: Test QueryPolicy allows when neither device-level nor account-level policy is set.
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyEmptyWhitelist, TestSize.Level1)
@@ -299,13 +323,34 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyEmptyWhitelist, Test
 
     int32_t result = reply.ReadInt32();
     EXPECT_EQ(result, ERR_OK);
-    bool isAllowed = reply.ReadBool();
-    EXPECT_TRUE(isAllowed);
+    EXPECT_TRUE(reply.ReadBool());
+}
+
+/**
+ * @tc.name: TestIsAllowedQueryPolicyEmptyJsonArray
+ * @tc.desc: Test QueryPolicy allows for empty JSON array device policy (and no account policy).
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyEmptyJsonArray, TestSize.Level1)
+{
+    std::string policyData = "[]";
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(VID_1);
+    data.WriteInt32(PID_1);
+    data.WriteString(SERIAL_1);
+
+    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+
+    int32_t result = reply.ReadInt32();
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_TRUE(reply.ReadBool());
 }
 
 /**
  * @tc.name: TestIsAllowedQueryPolicyInvalidJson
- * @tc.desc: Test QueryPolicy with invalid JSON causes failure.
+ * @tc.desc: Test QueryPolicy with invalid device-level JSON causes failure.
  * @tc.type: FUNC
  */
 HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyInvalidJson, TestSize.Level1)
@@ -322,6 +367,89 @@ HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyInvalidJson, TestSiz
 
     int32_t result = reply.ReadInt32();
     EXPECT_EQ(result, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestIsAllowedQueryPolicyDeviceMatchAccountEmpty_Allow
+ * @tc.desc: Test QueryPolicy falls back to device-level when account-level is empty and device matches.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyDeviceMatchAccountEmpty_Allow, TestSize.Level1)
+{
+    // Account empty; device whitelist carried by policyData (GetPolicyName historical path).
+    std::string policyData = R"([{"vendorId":111, "productId":222, "serial":"serial1"}])";
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(VID_1);
+    data.WriteInt32(PID_1);
+    data.WriteString(SERIAL_1);
+
+    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    int32_t result = reply.ReadInt32();
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_TRUE(reply.ReadBool());
+}
+
+/**
+ * @tc.name: TestIsAllowedQueryPolicyAccountMatch_ShortCircuitAllow
+ * @tc.desc: Test QueryPolicy allows on account match without consulting device-level (even if device denies).
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyAccountMatch_ShortCircuitAllow, TestSize.Level1)
+{
+    std::string accountPolicy = R"([{"vendorId":111, "productId":222, "serial":"serial1"}])";
+    PolicyManager::GetInstance()->SetPolicy("testAdmin",
+        PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        accountPolicy, accountPolicy, EdmConstants::DEFAULT_USER_ID);
+
+    // Device-level would deny; account match short-circuits first.
+    std::string policyData = R"([{"vendorId":999, "productId":888, "serial":"other"}])";
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(VID_1);
+    data.WriteInt32(PID_1);
+    data.WriteString(SERIAL_1);
+
+    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    int32_t result = reply.ReadInt32();
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_TRUE(reply.ReadBool());
+
+    PolicyManager::GetInstance()->SetPolicy("testAdmin",
+        PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        "", "", EdmConstants::DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestIsAllowedQueryPolicyAccountDenyDeviceMatch_Allow
+ * @tc.desc: Test QueryPolicy falls back to device-level when account whitelist misses but device matches.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsAllowedOddBurnQueryTest, TestIsAllowedQueryPolicyAccountDenyDeviceMatch_Allow, TestSize.Level1)
+{
+    std::string accountPolicy = R"([{"vendorId":999, "productId":888, "serial":"other"}])";
+    PolicyManager::GetInstance()->SetPolicy("testAdmin",
+        PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        accountPolicy, accountPolicy, EdmConstants::DEFAULT_USER_ID);
+
+    std::string policyData = R"([{"vendorId":111, "productId":222, "serial":"serial1"}])";
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInt32(VID_1);
+    data.WriteInt32(PID_1);
+    data.WriteString(SERIAL_1);
+
+    ErrCode ret = query_->QueryPolicy(policyData, data, reply, EdmConstants::DEFAULT_USER_ID);
+    EXPECT_EQ(ret, ERR_OK);
+    int32_t result = reply.ReadInt32();
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_TRUE(reply.ReadBool());
+
+    PolicyManager::GetInstance()->SetPolicy("testAdmin",
+        PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        "", "", EdmConstants::DEFAULT_USER_ID);
 }
 
 } // namespace TEST

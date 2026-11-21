@@ -217,6 +217,21 @@ public:
     int InvokeOddBurnUsbDevicesSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 
+    int InvokeOddBurnUsbDevicesEmptySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeOddBurnUsbDevicesNoMatchSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeOddBurnPolicyMatchSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeOddBurnPolicyNoMatchSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
+    int InvokeOddBurnPolicyEmptySendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option);
+
     int InvokeBoolFalseSendRequestGetPolicy(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option);
 

@@ -18,6 +18,7 @@
 
 #include "enterprise_device_mgr_proxy.h"
 #include "external_storage_device_info.h"
+#include "func_code.h"
 #include "odd_burn_usb_device.h"
 #include "usb_device_id.h"
 #include "usb_device_info.h"
@@ -42,6 +43,8 @@ public:
     int32_t AddAllowedOddBurnUsbDevices(MessageParcel &data);
     int32_t RemoveAllowedOddBurnUsbDevices(MessageParcel &data);
     int32_t GetAllowedOddBurnUsbDevices(MessageParcel &data, MessageParcel &reply);
+    int32_t AddOrRemoveAllowedOddBurnUsbDevicesForAccount(MessageParcel &data, FuncOperateType operateType);
+    int32_t GetAllowedOddBurnUsbDevicesForAccount(MessageParcel &data, MessageParcel &reply);
     bool IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial);
     int32_t SetExternalStorageInterceptEnable(MessageParcel &data);
     int32_t IsExternalStorageInterceptEnable(MessageParcel &data, bool &result);

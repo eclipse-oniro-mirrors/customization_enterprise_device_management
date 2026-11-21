@@ -18,6 +18,7 @@
 
 #include "edm_constants.h"
 #include "external_storage_device_info.h"
+#include "func_code.h"
 #include "usb_device_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -54,6 +55,8 @@ public:
     static napi_value Init(napi_env env, napi_value exports);
 
 private:
+    static napi_value DefineUsbManagerProperties(napi_env env, napi_value exports, napi_value policyValue,
+        napi_value descriptorValue, napi_value mountPolicyValue);
     static napi_value SetUsbPolicy(napi_env env, napi_callback_info info);
     static void CreateUsbPolicyEnum(napi_env env, napi_value value);
     static void NativeSetUsbPolicy(napi_env env, void *data);
@@ -107,6 +110,11 @@ private:
     static napi_value GetAllowedOpticalDiscDriveBurnUsbDevices(napi_env env, napi_callback_info info);
     static void NativeGetAllowedOddBurnUsbDevices(napi_env env, void *data);
     static void NativeGetAllowedOddBurnUsbDevicesComplete(napi_env env, napi_status status, void *data);
+    static napi_value AddAllowedOpticalDiscDriveBurnUsbDevicesForAccount(napi_env env, napi_callback_info info);
+    static napi_value RemoveAllowedOpticalDiscDriveBurnUsbDevicesForAccount(napi_env env, napi_callback_info info);
+    static napi_value AddOrRemoveAllowedOddBurnUsbDevicesForAccount(napi_env env, napi_callback_info info,
+        FuncOperateType operateType);
+    static napi_value GetAllowedOpticalDiscDriveBurnUsbDevicesForAccount(napi_env env, napi_callback_info info);
     static int32_t ParseOddBurnUsbDevicesArray(napi_env env, std::vector<OddBurnUsbDevice> &usbDevices,
         napi_value object);
     static bool GetOddBurnUsbDeviceFromNAPI(napi_env env, napi_value value, OddBurnUsbDevice &usbDevice);

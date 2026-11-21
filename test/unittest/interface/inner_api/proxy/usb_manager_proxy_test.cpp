@@ -18,10 +18,13 @@
 #include <system_ability_definition.h>
 #include <vector>
 
+#include "array_odd_burn_usb_device_serializer.h"
 #include "edm_sys_manager_mock.h"
 #include "enterprise_device_mgr_stub_mock.h"
 #include "external_storage_device_info.h"
+#include "func_code.h"
 #include "mount_policy.h"
+#include "odd_burn_usb_device.h"
 #include "usb_device_id.h"
 #include "usb_interface_type.h"
 #include "usb_manager_proxy.h"
@@ -34,6 +37,7 @@ namespace OHOS {
 namespace EDM {
 namespace TEST {
 const std::string ADMIN_PACKAGENAME = "com.edm.test.demo";
+const int32_t TEST_ACCOUNT_ID = 100;
 class UsbManagerProxyTest : public testing::Test {
 protected:
     void SetUp() override;
@@ -57,6 +61,9 @@ void UsbManagerProxyTest::SetUp()
 
 void UsbManagerProxyTest::TearDown()
 {
+    if (object_ != nullptr) {
+        Mock::VerifyAndClearExpectations(object_.GetRefPtr());
+    }
     proxy_.reset();
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
     object_ = nullptr;
@@ -971,75 +978,191 @@ HWTEST_F(UsbManagerProxyTest, TestGetAllowedOddBurnUsbDevicesReplyFail, TestSize
 }
 
 /**
- * @tc.name: TestIsAllowedOddBurnAllowed
- * @tc.desc: Test IsAllowedOddBurn when device is in whitelist.
+ * @tc.name: IsAllowedOddBurn_Allowed_Success
+ * @tc.desc: Test IsAllowedOddBurn when query returns allowed.
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManagerProxyTest, TestIsAllowedOddBurnAllowed, TestSize.Level1)
+HWTEST_F(UsbManagerProxyTest, IsAllowedOddBurn_Allowed_Success, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
 
-    bool result = proxy_->IsAllowedOddBurn(100, 1, 9, "serial1");
-    ASSERT_TRUE(result);
+    bool result = proxy_->IsAllowedOddBurn(TEST_ACCOUNT_ID, 1, 9, "serial1");
+    EXPECT_TRUE(result);
 }
 
 /**
- * @tc.name: TestIsAllowedOddBurnNotAllowed
- * @tc.desc: Test IsAllowedOddBurn when device is not in whitelist.
+ * @tc.name: IsAllowedOddBurn_NotAllowed_Deny
+ * @tc.desc: Test IsAllowedOddBurn when query returns not allowed.
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManagerProxyTest, TestIsAllowedOddBurnNotAllowed, TestSize.Level1)
+HWTEST_F(UsbManagerProxyTest, IsAllowedOddBurn_NotAllowed_Deny, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolFalseSendRequestGetPolicy));
 
-    bool result = proxy_->IsAllowedOddBurn(100, 1, 9, "serial1");
-    ASSERT_FALSE(result);
+    bool result = proxy_->IsAllowedOddBurn(TEST_ACCOUNT_ID, 1, 9, "serial1");
+    EXPECT_FALSE(result);
 }
 
 /**
- * @tc.name: TestIsAllowedOddBurnEdmDisabled
+ * @tc.name: IsAllowedOddBurn_EdmDisabled_Allow
  * @tc.desc: Test IsAllowedOddBurn when edm service is disabled, device not under control.
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManagerProxyTest, TestIsAllowedOddBurnEdmDisabled, TestSize.Level1)
+HWTEST_F(UsbManagerProxyTest, IsAllowedOddBurn_EdmDisabled_Allow, TestSize.Level1)
 {
     Utils::SetEdmServiceDisable();
-    bool result = proxy_->IsAllowedOddBurn(100, 1, 9, "serial1");
-    ASSERT_TRUE(result);
+    bool result = proxy_->IsAllowedOddBurn(TEST_ACCOUNT_ID, 1, 9, "serial1");
+    EXPECT_TRUE(result);
 }
 
 /**
- * @tc.name: TestIsAllowedOddBurnReplyFail
+ * @tc.name: IsAllowedOddBurn_ReplyFail_Deny
  * @tc.desc: Test IsAllowedOddBurn when reply contains error code.
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManagerProxyTest, TestIsAllowedOddBurnReplyFail, TestSize.Level1)
+HWTEST_F(UsbManagerProxyTest, IsAllowedOddBurn_ReplyFail_Deny, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
 
-    bool result = proxy_->IsAllowedOddBurn(100, 1, 9, "serial1");
-    ASSERT_FALSE(result);
+    bool result = proxy_->IsAllowedOddBurn(TEST_ACCOUNT_ID, 1, 9, "serial1");
+    EXPECT_FALSE(result);
 }
 
 /**
- * @tc.name: TestIsAllowedOddBurnSendRequestFail
+ * @tc.name: IsAllowedOddBurn_SendRequestFail_Deny
  * @tc.desc: Test IsAllowedOddBurn when SendRequest fails.
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManagerProxyTest, TestIsAllowedOddBurnSendRequestFail, TestSize.Level1)
+HWTEST_F(UsbManagerProxyTest, IsAllowedOddBurn_SendRequestFail_Deny, TestSize.Level1)
 {
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestFail));
 
-    bool result = proxy_->IsAllowedOddBurn(100, 1, 9, "serial1");
-    ASSERT_FALSE(result);
+    bool result = proxy_->IsAllowedOddBurn(TEST_ACCOUNT_ID, 1, 9, "serial1");
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: AddOddBurnForAccount_Set_Success
+ * @tc.desc: Test AddOrRemoveAllowedOddBurnUsbDevicesForAccount SET success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, AddOddBurnForAccount_Set_Success, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(u"ohos.edm.IEnterpriseDeviceMgr");
+    data.WriteInt32(TEST_ACCOUNT_ID);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = proxy_->AddOrRemoveAllowedOddBurnUsbDevicesForAccount(data, FuncOperateType::SET);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: AddOddBurnForAccount_Remove_Success
+ * @tc.desc: Test AddOrRemoveAllowedOddBurnUsbDevicesForAccount REMOVE success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, AddOddBurnForAccount_Remove_Success, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(u"ohos.edm.IEnterpriseDeviceMgr");
+    data.WriteInt32(TEST_ACCOUNT_ID);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+
+    int32_t ret = proxy_->AddOrRemoveAllowedOddBurnUsbDevicesForAccount(data, FuncOperateType::REMOVE);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: AddOddBurnForAccount_EdmDisabled_Fail
+ * @tc.desc: Test AddOrRemoveAllowedOddBurnUsbDevicesForAccount when edm is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, AddOddBurnForAccount_EdmDisabled_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInterfaceToken(u"ohos.edm.IEnterpriseDeviceMgr");
+    data.WriteInt32(TEST_ACCOUNT_ID);
+
+    int32_t ret = proxy_->AddOrRemoveAllowedOddBurnUsbDevicesForAccount(data, FuncOperateType::SET);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetOddBurnForAccount_Success
+ * @tc.desc: Test GetAllowedOddBurnUsbDevicesForAccount success and reply devices.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, GetOddBurnForAccount_Success, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(u"ohos.edm.IEnterpriseDeviceMgr");
+    data.WriteInt32(TEST_ACCOUNT_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeOddBurnUsbDevicesSendRequestGetPolicy));
+
+    MessageParcel reply;
+    int32_t ret = proxy_->GetAllowedOddBurnUsbDevicesForAccount(data, reply);
+    ASSERT_EQ(ret, ERR_OK);
+    std::vector<OddBurnUsbDevice> devices;
+    ASSERT_TRUE(ArrayOddBurnUsbDeviceSerializer::GetInstance()->ReadRawDataFromParcel(reply, devices));
+    EXPECT_EQ(devices.size(), 1u);
+    EXPECT_EQ(devices[0].GetVendorId(), 1);
+    EXPECT_EQ(devices[0].GetProductId(), 9);
+}
+
+/**
+ * @tc.name: GetOddBurnForAccount_EdmDisabled_Fail
+ * @tc.desc: Test GetAllowedOddBurnUsbDevicesForAccount when edm is disabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, GetOddBurnForAccount_EdmDisabled_Fail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInterfaceToken(u"ohos.edm.IEnterpriseDeviceMgr");
+    data.WriteInt32(TEST_ACCOUNT_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
+
+    MessageParcel reply;
+    int32_t ret = proxy_->GetAllowedOddBurnUsbDevicesForAccount(data, reply);
+    EXPECT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: GetOddBurnForAccount_ReplyFail_Fail
+ * @tc.desc: Test GetAllowedOddBurnUsbDevicesForAccount when reply contains error code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbManagerProxyTest, GetOddBurnForAccount_ReplyFail_Fail, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInterfaceToken(u"ohos.edm.IEnterpriseDeviceMgr");
+    data.WriteInt32(TEST_ACCOUNT_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestReplyFail));
+
+    MessageParcel reply;
+    int32_t ret = proxy_->GetAllowedOddBurnUsbDevicesForAccount(data, reply);
+    EXPECT_NE(ret, ERR_OK);
 }
 } // namespace TEST
 } // namespace EDM

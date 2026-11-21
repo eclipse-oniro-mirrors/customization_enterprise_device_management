@@ -606,29 +606,21 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     }},
     {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC,
-#ifdef FEATURE_PC_ONLY
-        true
-#else
-        false
-#endif
-    }},
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::IS_ALLOWED_ODD_BURN, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
         {PolicyName::POLICY_EXTERNAL_STORAGE_INTERCEPT_ENABLE, PolicyDataType::BOOL,
         PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true,
         IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOWED_PACKET_FILTERING, {PolicyName::POLICY_DISALLOWED_PACKET_FILTERING,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC,
-#if defined(NETMANAGER_EXT_EDM_ENABLE) && defined(FEATURE_PC_ONLY)
-        true
-#else
-        false
-#endif
-    }},
-    {EdmInterfaceCode::IS_ALLOWED_ODD_BURN, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC,
-#ifdef FEATURE_PC_ONLY
+#if defined(FEATURE_PC_ONLY)
         true
 #else
         false

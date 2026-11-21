@@ -455,6 +455,8 @@ namespace PolicyName {
     const char* const POLICY_ALLOWED_INSTALL_BUNDLES = "allowed_install_bundles";
     const char* const POLICY_ALLOWED_USB_DEVICES = "allowed_usb_devices";
     const char* const POLICY_ALLOWED_ODD_BURN_USB_DEVICES = "allowed_odd_burn_usb_devices";
+    const char* const POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT =
+        "allowed_odd_burn_usb_devices_for_account";
     const char* const POLICY_CLIPBOARD_POLICY = "clipboard_policy";
     const char* const POLICY_DISABLED_APP_CLONE = "disabled_app_clone";
     const char* const POLICY_DISABLED_BLUETOOTH = "disabled_bluetooth";

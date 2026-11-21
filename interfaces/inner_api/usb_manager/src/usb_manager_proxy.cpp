@@ -15,7 +15,6 @@
 
 #include "usb_manager_proxy.h"
 
-#include "array_odd_burn_usb_device_serializer.h"
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "edm_log.h"
@@ -180,6 +179,29 @@ int32_t UsbManagerProxy::GetAllowedOddBurnUsbDevices(MessageParcel &data, Messag
     return ERR_OK;
 }
 
+int32_t UsbManagerProxy::AddOrRemoveAllowedOddBurnUsbDevicesForAccount(MessageParcel &data,
+    FuncOperateType operateType)
+{
+    EDMLOGI("UsbManagerProxy::AddOrRemoveAllowedOddBurnUsbDevicesForAccount operateType=%{public}d",
+        static_cast<int32_t>(operateType));
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)operateType,
+        EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT);
+    return proxy->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t UsbManagerProxy::GetAllowedOddBurnUsbDevicesForAccount(MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("UsbManagerProxy::GetAllowedOddBurnUsbDevicesForAccount");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("UsbManagerProxy:GetAllowedOddBurnUsbDevicesForAccount fail. %{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
+
 bool UsbManagerProxy::IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t productId, std::string serial)
 {
     EDMLOGI("UsbManagerProxy::IsAllowedOddBurn userId=%{public}d, vendorId=%{public}d, productId=%{public}d",
@@ -196,7 +218,7 @@ bool UsbManagerProxy::IsAllowedOddBurn(int32_t userId, int32_t vendorId, int32_t
     MessageParcel data;
     MessageParcel reply;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(userId);
     data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
     data.WriteInt32(vendorId);
     data.WriteInt32(productId);
