@@ -47,6 +47,10 @@ ohos_shared_library("systemmanager") {
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
+  if (enterprise_device_management_feature_phone_only) {
+    defines += [ "FEATURE_PHONE_ONLY" ]
+  }
+
   if (log_service_plugin_edm_enable) {
     defines += [ "LOG_SERVICE_PLUGIN_EDM_ENABLE" ]
   }

@@ -40,6 +40,7 @@ const char* const PLUGIN_DIR = "/system/lib/edm_plugin/";
 #endif
 
 std::shared_ptr<PluginManager> PluginManager::instance_;
+std::once_flag PluginManager::instanceFlag_;
 std::shared_timed_mutex PluginManager::mutexLock_;
 std::shared_timed_mutex PluginManager::soPinMutex_;
 constexpr int32_t TIMER_TIMEOUT = 180000; // 3 * 60 * 1000;
@@ -109,6 +110,7 @@ std::vector<uint32_t> PluginManager::deviceCoreSoCodes_ = {
     EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
     EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL,
     EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE,
+    EdmInterfaceCode::DISALLOW_COMPANION_AI,
 };
 
 std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
@@ -206,14 +208,12 @@ PluginManager::~PluginManager()
 
 std::shared_ptr<PluginManager> PluginManager::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::unique_lock<std::shared_timed_mutex> autoLock(mutexLock_);
+    std::call_once(instanceFlag_, []() {
         if (instance_ == nullptr) {
             instance_.reset(new (std::nothrow) PluginManager());
         }
-    }
-
-    IPluginManager::pluginManagerInstance_ = instance_.get();
+        IPluginManager::pluginManagerInstance_ = instance_.get();
+    });
     return instance_;
 }
 

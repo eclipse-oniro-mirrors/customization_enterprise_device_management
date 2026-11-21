@@ -166,6 +166,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOW_SCREEN_RECORD_FOR_ACCOUNT,
     EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL,
     EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE,
+    EdmInterfaceCode::DISALLOW_COMPANION_AI,
 };
 
 std::unordered_set<std::string> PermissionChecker::allowDelegatedPolicies_ = {
@@ -487,7 +488,7 @@ std::string PermissionChecker::GetHapTokenBundleName(Security::AccessToken::Acce
     return GetExternalManagerFactory()->CreateAccessTokenManager()->GetHapTokenBundleName(tokenId);
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 ErrCode PermissionChecker::CheckSystemTimerPermission(const std::string &bundleName, int32_t userId)
 {
     std::shared_ptr<Admin> deviceAdmin =

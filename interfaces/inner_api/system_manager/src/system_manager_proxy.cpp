@@ -30,7 +30,7 @@
 
 namespace OHOS {
 namespace EDM {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 namespace {
 class EdmSaDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
@@ -67,7 +67,7 @@ const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 SystemManagerProxy::SystemManagerProxy()
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     clientCallback_ = new (std::nothrow) EdmClientTimerCallback();
     edmDeathRecipient_ = new (std::nothrow) EdmSaDeathRecipient();
     saListener_ = new (std::nothrow) EdmSaStatusListener();
@@ -539,7 +539,7 @@ int32_t SystemManagerProxy::GetVolumeDegree(MessageParcel &data, int32_t &degree
     return ERR_OK;
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 sptr<EdmClientTimerCallback> SystemManagerProxy::GetClientTimerCallback()
 {
     return clientCallback_;
@@ -636,7 +636,7 @@ int32_t SystemManagerProxy::ResyncTimer(uint64_t timerId, bool repeat, uint64_t 
 }
 #endif
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 int32_t SystemManagerProxy::CreateTimer(bool repeat, uint64_t interval,
     const std::string &name, uint64_t &timerId)
 {

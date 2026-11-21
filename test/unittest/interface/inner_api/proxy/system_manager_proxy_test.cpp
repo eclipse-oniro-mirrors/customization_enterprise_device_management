@@ -27,7 +27,7 @@
 #include "update_policy_utils.h"
 #include "utils.h"
 #include "key_code.h"
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
@@ -66,7 +66,7 @@ void SystemManagerProxyTest::SetUp()
 void SystemManagerProxyTest::TearDown()
 {
     systemmanagerProxy.reset();
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     SystemManagerProxy::instance_->registeredRemote_ = nullptr;
 #endif
     edmSysManager_->UnregisterSystemAbilityOfRemoteObject(ENTERPRISE_DEVICE_MANAGER_SA_ID);
@@ -1184,7 +1184,7 @@ HWTEST_F(SystemManagerProxyTest, GetKeyEventPolicies_ReplyFail_ReturnSystemAbnor
     ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 namespace {
 const uint64_t TEST_TIMER_ID = 30001;
 const uint64_t TEST_TRIGGER_TIME = 5000;
@@ -1464,7 +1464,7 @@ HWTEST_F(SystemManagerProxyTest, SubscribeEdmSa_ListenerNotNull_ReturnsTrue, Tes
     bool ret = systemmanagerProxy->SubscribeEdmSa();
     EXPECT_TRUE(ret);
 }
-#endif // FEATURE_PC_ONLY
+#endif // FEATURE_PHONE_ONLY
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

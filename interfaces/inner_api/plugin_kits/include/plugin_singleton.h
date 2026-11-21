@@ -16,6 +16,8 @@
 #ifndef SERVICES_EDM_INCLUDE_EDM_PLUGIN_SINGLETON_H
 #define SERVICES_EDM_INCLUDE_EDM_PLUGIN_SINGLETON_H
 
+#include <mutex>
+
 #include "iplugin_template.h"
 
 namespace OHOS {
@@ -64,6 +66,7 @@ public:
 protected:
     static std::shared_ptr<IPluginTemplate<CT, DT>> pluginInstance_;
     static std::mutex mutexLock_;
+    static std::once_flag onceFlag_;
 };
 
 template <typename CT, typename DT>
@@ -73,17 +76,17 @@ template <typename CT, typename DT>
 std::mutex PluginSingleton<CT, DT>::mutexLock_;
 
 template <typename CT, typename DT>
+std::once_flag PluginSingleton<CT, DT>::onceFlag_;
+
+template <typename CT, typename DT>
 std::shared_ptr<IPlugin> PluginSingleton<CT, DT>::GetPlugin()
 {
-    if (pluginInstance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutexLock_);
-        if (pluginInstance_ == nullptr) {
-            std::shared_ptr<CT> ptr = std::make_shared<CT>();
-            pluginInstance_ = std::make_shared<IPluginTemplate<CT, DT>>();
-            pluginInstance_->SetInstance(ptr);
-            ptr->InitPlugin(pluginInstance_);
-        }
-    }
+    std::call_once(onceFlag_, []() {
+        std::shared_ptr<CT> ptr = std::make_shared<CT>();
+        pluginInstance_ = std::make_shared<IPluginTemplate<CT, DT>>();
+        pluginInstance_->SetInstance(ptr);
+        ptr->InitPlugin(pluginInstance_);
+    });
     return pluginInstance_;
 }
 

@@ -1443,8 +1443,8 @@ napi_value SystemManagerAddon::GetVolumeDegree(napi_env env, napi_callback_info 
 
 napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info)
 {
-#ifdef FEATURE_PC_ONLY
-    EDMLOGW("CreateTimer not supported on PC");
+#ifndef FEATURE_PHONE_ONLY
+    EDMLOGW("CreateTimer not supported");
     return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_CreateTimer called");
@@ -1472,7 +1472,7 @@ napi_value SystemManagerAddon::CreateTimer(napi_env env, napi_callback_info info
 #endif
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 bool SystemManagerAddon::ParseWakeupTimerOptions(napi_env env, napi_value options,
     AsyncCreateTimerCallbackInfo *info)
 {
@@ -1503,8 +1503,8 @@ bool SystemManagerAddon::ParseWakeupTimerOptions(napi_env env, napi_value option
 
 napi_value SystemManagerAddon::StartTimer(napi_env env, napi_callback_info info)
 {
-#ifdef FEATURE_PC_ONLY
-    EDMLOGW("StartTimer not supported on PC");
+#ifndef FEATURE_PHONE_ONLY
+    EDMLOGW("StartTimer not supported");
     return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_StartTimer called");
@@ -1541,8 +1541,8 @@ napi_value SystemManagerAddon::StartTimer(napi_env env, napi_callback_info info)
 
 napi_value SystemManagerAddon::StopTimer(napi_env env, napi_callback_info info)
 {
-#ifdef FEATURE_PC_ONLY
-    EDMLOGW("StopTimer not supported on PC");
+#ifndef FEATURE_PHONE_ONLY
+    EDMLOGW("StopTimer not supported");
     return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_StopTimer called");
@@ -1573,8 +1573,8 @@ napi_value SystemManagerAddon::StopTimer(napi_env env, napi_callback_info info)
 
 napi_value SystemManagerAddon::DestroyTimer(napi_env env, napi_callback_info info)
 {
-#ifdef FEATURE_PC_ONLY
-    EDMLOGW("DestroyTimer not supported on PC");
+#ifndef FEATURE_PHONE_ONLY
+    EDMLOGW("DestroyTimer not supported");
     return NapiThrowErrorAsync(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
 #else
     EDMLOGI("NAPI_DestroyTimer called");
@@ -1603,7 +1603,7 @@ napi_value SystemManagerAddon::DestroyTimer(napi_env env, napi_callback_info inf
 #endif
 }
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 void SystemManagerAddon::NativeCreateTimer(napi_env env, void *data)
 {
     EDMLOGI("NAPI_NativeCreateTimer called");

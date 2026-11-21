@@ -64,7 +64,7 @@
 #include "get_auto_unlock_after_reboot_query.h"
 #endif
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 #include "hide_launcher_icon_query.h"
 #endif
 
@@ -691,7 +691,7 @@ HWTEST_F(PluginPolicyQueryTest,
 }
 #endif
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 HWTEST_F(PluginPolicyQueryTest, TestHideLauncherIconQueryPermission, TestSize.Level1)
 {
     std::shared_ptr<IPolicyQuery> queryObj = std::make_shared<HideLauncherIconQuery>();

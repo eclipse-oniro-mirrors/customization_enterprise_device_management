@@ -237,7 +237,7 @@ int32_t AccountManagerProxy::GetDomainAccountPolicy(MessageParcel &data, DomainA
 int32_t AccountManagerProxy::CreateNormalOsAccount(AppExecFwk::ElementName &admin, std::string name,
     OHOS::AccountSA::OsAccountInfo &accountInfo)
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     EDMLOGD("AccountManagerProxy::CreateNormalOsAccount");
     MessageParcel data;
     MessageParcel reply;
@@ -267,7 +267,7 @@ int32_t AccountManagerProxy::CreateNormalOsAccount(AppExecFwk::ElementName &admi
 
 int32_t AccountManagerProxy::RemoveOsAccount(MessageParcel &data)
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     EDMLOGD("AccountManagerProxy::RemoveOsAccount");
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
         EdmInterfaceCode::MANAGE_NORMAL_OS_ACCOUNT);
@@ -280,7 +280,7 @@ int32_t AccountManagerProxy::RemoveOsAccount(MessageParcel &data)
 
 int32_t AccountManagerProxy::ActivateOsAccount(MessageParcel &data)
 {
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     EDMLOGD("AccountManagerProxy::ActivateOsAccount");
     std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::ACTIVATE_NORMAL_OS_ACCOUNT);

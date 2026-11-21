@@ -235,7 +235,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef APN_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOW_MODIFY_APN] = EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 #endif
-#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
+#if defined(POWER_MANAGER_EDM_ENABLE) && defined(FEATURE_PHONE_ONLY)
     map[EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS] = EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION;
 #endif
 #ifdef WIFI_EDM_ENABLE
@@ -307,7 +307,7 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
     map[EdmInterfaceCode::DISALLOW_SYSTEM_SHARING_PANEL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE] =
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     map[EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON] =
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION;
 #endif
@@ -577,7 +577,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #ifdef APN_EDM_ENABLE
         {EdmInterfaceCode::DISALLOW_MODIFY_APN, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
 #endif
-#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
+#if defined(POWER_MANAGER_EDM_ENABLE) && defined(FEATURE_PHONE_ONLY)
         {EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION},
 #endif
 #ifdef POWER_MANAGER_EDM_ENABLE
@@ -603,7 +603,7 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
         {EdmInterfaceCode::DISALLOWED_MULTI_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
 #endif
         {EdmInterfaceCode::DISALLOWED_FREE_WINDOW, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS},
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
         {EdmInterfaceCode::POLICY_CODE_END + EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON,
             EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION},
 #endif

@@ -18,7 +18,7 @@
 
 #include "enterprise_device_mgr_proxy.h"
 
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
 #include "edm_client_timer_callback.h"
 #endif
 #include "func_code.h"
@@ -34,7 +34,7 @@ class SystemManagerProxy {
 public:
     SystemManagerProxy();
     static std::shared_ptr<SystemManagerProxy> GetSystemManagerProxy();
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     int32_t CreateTimer(bool repeat, uint64_t interval, const std::string &name, uint64_t &timerId);
     int32_t StartTimer(uint64_t timerId, uint64_t triggerTime);
     int32_t StopTimer(uint64_t timerId);
@@ -85,7 +85,7 @@ public:
     int32_t SetVolumeDegree(MessageParcel &data);
     int32_t GetVolumeDegree(MessageParcel &data, int32_t &degree);
 private:
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     void EnsureEdmSaDeathRecipient();
     bool SubscribeEdmSa();
     int32_t ResyncTimer(uint64_t timerId, bool repeat, uint64_t interval,
@@ -93,7 +93,7 @@ private:
 #endif
     static std::shared_ptr<SystemManagerProxy> instance_;
     static std::once_flag flag_;
-#ifndef FEATURE_PC_ONLY
+#ifdef FEATURE_PHONE_ONLY
     sptr<EdmClientTimerCallback> clientCallback_;
     std::mutex drMutex_;
     sptr<IRemoteObject::DeathRecipient> edmDeathRecipient_;

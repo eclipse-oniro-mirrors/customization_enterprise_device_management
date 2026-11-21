@@ -331,7 +331,7 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::DISALLOW_POWER_LONG_PRESS, {PolicyName::POLICY_DISALLOW_POWER_LONG_PRESS,
         PolicyDataType::BOOL, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_SET_USER_RESTRICTION), true, IPlugin::ApiType::PUBLIC,
-#if defined(POWER_MANAGER_EDM_ENABLE) && !defined(FEATURE_PC_ONLY)
+#if defined(POWER_MANAGER_EDM_ENABLE) && defined(FEATURE_PHONE_ONLY)
         true
 #else
         false
@@ -704,14 +704,16 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_COLLABORATION_REMOTE_SHARE, {PolicyName::POLICY_DISALLOW_COLLABORATION_REMOTE_SHARE,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::DISALLOW_COMPANION_AI, {PolicyName::POLICY_DISALLOW_COMPANION_AI,
+        PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_APPLICATION), true, IPlugin::ApiType::PUBLIC,
-#ifdef FEATURE_PC_ONLY
-        false
-#else
+#ifdef FEATURE_PHONE_ONLY
         true
+#else
+        false
 #endif
     }},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
