@@ -776,7 +776,14 @@ napi_value RestrictionsAddon::SetDisallowedPolicyImplicitAdmin(napi_env env, nap
     std::uint32_t ipcCode = 0;
     auto convertFeature = [&ipcCode](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
-        return GetInterfaceCodeAndFeatureAll(env, argv, ipcCode);
+        ErrCode ret = GetInterfaceCodeAndFeatureAll(env, argv, ipcCode);
+        if (FAILED(ret)) {
+            return ret;
+        }
+        if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+            data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
+        }
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "SetDisallowedPolicyImplicitAdmin";
@@ -910,7 +917,14 @@ napi_value RestrictionsAddon::GetDisallowedPolicyImplicitAdmin(napi_env env, nap
     std::uint32_t ipcCode = 0;
     auto convertFeature = [&ipcCode](napi_env env, napi_value argv, MessageParcel &data,
         const AddonMethodSign &methodSign) -> ErrCode {
-        return GetInterfaceCodeAndFeatureAll(env, argv, ipcCode);
+        ErrCode ret = GetInterfaceCodeAndFeatureAll(env, argv, ipcCode);
+        if (FAILED(ret)) {
+            return ret;
+        }
+        if (ipcCode == EdmInterfaceCode::FINGERPRINT_AUTH) {
+            data.WriteString(EdmConstants::FINGERPRINT_AUTH_TYPE);
+        }
+        return ERR_OK;
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetDisallowedPolicyImplicitAdmin";

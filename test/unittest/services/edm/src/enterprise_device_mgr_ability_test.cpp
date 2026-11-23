@@ -6965,6 +6965,68 @@ HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_AdminInactive
 }
 
 /**
+ * @tc.name: TestHandleDevicePolicyNew_TagPermissionV12
+ * @tc.desc: Test HandleDevicePolicyNew uses the version_12 tagPermission when configured.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_TagPermissionV12, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permissionConfig_.tagPermissions.clear();
+    plugin_->permissionConfig_.typePermissions.clear();
+    std::map<IPlugin::PermissionType, std::string> permsForV12;
+    permsForV12[IPlugin::PermissionType::SUPER_DEVICE_ADMIN] = EDM_TEST_PERMISSION;
+    plugin_->permissionConfig_.tagPermissions[EdmConstants::PERMISSION_TAG_VERSION_12] = permsForV12;
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission(_, StrEq(EDM_TEST_PERMISSION)))
+        .WillRepeatedly(Return(true));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, ERR_OK);
+    plugin_->permissionConfig_.tagPermissions.clear();
+}
+
+/**
+ * @tc.name: TestHandleDevicePolicyNew_TagPermissionV12Miss
+ * @tc.desc: Test HandleDevicePolicyNew returns SYSTEM_ABNORMALLY when the plugin has no
+ *           version_12 tag entry.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EnterpriseDeviceMgrAbilityTest, TestHandleDevicePolicyNew_TagPermissionV12Miss, TestSize.Level1)
+{
+    PrepareBeforeHandleDevicePolicy();
+    plugin_->permissionConfig_.tagPermissions.clear();
+    std::map<IPlugin::PermissionType, std::string> permsForV26;
+    permsForV26[IPlugin::PermissionType::SUPER_DEVICE_ADMIN] = EDM_TEST_ENT_PERMISSION;
+    plugin_->permissionConfig_.tagPermissions[EdmConstants::PERMISSION_TAG_VERSION_26] = permsForV26;
+
+    std::vector<int32_t> ids = {DEFAULT_USER_ID};
+    EXPECT_CALL(*osAccountMgrMock_, IsOsAccountExists).WillRepeatedly(DoAll(SetArgReferee<1>(true), Return(ERR_OK)));
+    EXPECT_CALL(*osAccountMgrMock_, QueryActiveOsAccountIds).WillRepeatedly(DoAll(SetArgReferee<0>(ids),
+        Return(ERR_OK)));
+    EXPECT_CALL(*bundleMgrMock_, GetNameForUid).WillRepeatedly(DoAll(SetArgReferee<1>(ADMIN_PACKAGENAME),
+        Return(ERR_OK)));
+    EXPECT_CALL(*accessTokenMgrMock_, VerifyCallingPermission).WillRepeatedly(DoAll(Return(false)));
+
+    uint32_t code = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, MAP_TESTPLUGIN_POLICYCODE);
+    MessageParcel data;
+    MessageParcel reply;
+    ErrCode res = edmMgr_->HandleDevicePolicyNew(code, data, reply, DEFAULT_USER_ID);
+    EXPECT_EQ(res, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    plugin_->permissionConfig_.tagPermissions.clear();
+}
+
+/**
  * @tc.name: TestGetDevicePolicyNew_PolicyNameEmpty
  * @tc.desc: Test GetDevicePolicyNew when policy name is empty.
  * @tc.type: FUNC
