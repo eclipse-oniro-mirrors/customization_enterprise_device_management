@@ -755,15 +755,15 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env en
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseString(env, value, argv[ARR_INDEX_TWO]), "param 'value' error",
         ErrcodeType::NUMBER);
 
+    if (!IsSettingItem(item) || !IsSettingItemSupportedWithoutAdmin(item)) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
+        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d is not supported", item);
+        return nullptr;
+    }
     if (accountId < EdmConstants::DEFAULT_USER_ID) {
         napi_throw(env, CreateError(env, EdmReturnErrCode::UID_INVALID, ErrcodeType::NUMBER));
         EDMLOGE("SetValueForAccountWithoutAdmin: accountId %{public}d < %{public}d", accountId,
             EdmConstants::DEFAULT_USER_ID);
-        return nullptr;
-    }
-    if (!IsSettingItem(item) || !IsSettingItemSupportedWithoutAdmin(item)) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
-        EDMLOGE("SetValueForAccountWithoutAdmin: item %{public}d is not supported", item);
         return nullptr;
     }
     int32_t ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetValueForAccountWithoutAdmin(accountId,

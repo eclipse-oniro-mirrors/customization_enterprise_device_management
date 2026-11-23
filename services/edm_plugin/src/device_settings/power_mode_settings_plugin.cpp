@@ -32,7 +32,6 @@
 
 namespace OHOS {
 namespace EDM {
-static constexpr int32_t SCREEN_OFF_TIME_MIN_VALUE = 15000;
 static constexpr int32_t SCREEN_OFF_TIME_NEVER_VALUE = -1;
 
 const std::string KEY_AC_SCREEN_OFF_TIME = "settings.display.ac.screen_off_timeout";
@@ -46,9 +45,6 @@ const char* const KEY_POWER_SCENE = "powerScene";
 const char* const KEY_POWER_POLICY = "powerPolicy";
 const char* const KEY_POWER_POLICY_ACTION = "powerPolicyAction";
 const char* const KEY_POWER_DELAY_TIME = "delayTime";
-// Reserved sentinel value agreed with PowerMgrService: delayTime=30000 is treated as invalid
-// because the power suspend framework uses it internally as a no-op/default marker.
-static constexpr uint32_t INVALID_DELAY_TIME = 30000;
 
 const bool REGISTER_POWER_MODE_SETTINGS = IPluginManager::GetInstance()->AddPlugin(
     std::make_shared<PowerModeSettingsPlugin>(EdmInterfaceCode::POWER_MODE_SETTINGS,
@@ -162,7 +158,7 @@ ErrCode PowerModeSettingsPlugin::SetScreenOffTime(const std::string &valueStr, c
         EDMLOGE("PowerModeSettingsPlugin::set screen off time param error.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (value < SCREEN_OFF_TIME_MIN_VALUE && value != SCREEN_OFF_TIME_NEVER_VALUE) {
+    if (value < SCREEN_OFF_TIME_NEVER_VALUE) {
         EDMLOGE("PowerModeSettingsPlugin::set screen off time param error.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
@@ -207,11 +203,6 @@ ErrCode PowerModeSettingsPlugin::SetPowerPolicy(const std::string &valueStr, con
         EDMLOGE("PowerModeSettingsPlugin:GetPowerSceneKey error");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    if (powerPolicy.GetDelayTime() == INVALID_DELAY_TIME) {
-        EDMLOGE("PowerModeSettingsPlugin:delayTime can not be 30000.");
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-
     if (DealPowerSuspendPolicy(policyKey, key, powerPolicy, true)) {
         std::string powerPolicyJson = EdmJsonBuilder()
             .Add("powerPolicyAction", static_cast<uint32_t>(powerPolicy.GetPowerPolicyAction()))
