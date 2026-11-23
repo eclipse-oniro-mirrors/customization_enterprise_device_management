@@ -18,6 +18,8 @@
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "func_code.h"
+#include "iam_common_defines.h"
+#include "ukey_iam_error_converter.h"
 #include "utils.h"
 
 using namespace testing::ext;
@@ -477,6 +479,101 @@ HWTEST_F(GetCredentialIdPluginTest, TestOnAdminRemoveReturnsOk, TestSize.Level1)
 {
     GetCredentialIdPluginMock plugin;
     EXPECT_EQ(plugin.OnAdminRemove("com.edm.test.demo", "", "", DEFAULT_USER_ID), ERR_OK);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeAuthTokenExpired
+ * @tc.desc: Test the identity authentication result of an expired token is mapped to
+ *     AUTH_TOKEN_INVALID_DURATION_INVALID(9201058).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeAuthTokenExpired, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_AUTH_TOKEN_EXPIRED),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeTimeout
+ * @tc.desc: Test the identity authentication result of a service side timeout is mapped to
+ *     EXECUTE_TIME_OUT(9200016).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeTimeout, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_TIMEOUT),
+        EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeTokenTimeout
+ * @tc.desc: Test the identity authentication result of an expired token session is mapped to
+ *     EXECUTE_TIME_OUT(9200016).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeTokenTimeout, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_TOKEN_TIMEOUT),
+        EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeAuthTokenCheckFailed
+ * @tc.desc: Test the identity authentication result of a failed token integrity check is mapped to
+ *     AUTH_TOKEN_INVALID(9201057).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeAuthTokenCheckFailed, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_AUTH_TOKEN_CHECK_FAILED),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeInvalidParameters
+ * @tc.desc: Test the identity authentication result of invalid parameters is mapped to
+ *     AUTH_TOKEN_INVALID(9201057).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeInvalidParameters, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_INVALID_PARAMETERS),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeReuseAuthResultFailed
+ * @tc.desc: Test the identity authentication result of an unusable authentication result falls back
+ *     to AUTH_TOKEN_INVALID(9201057).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeReuseAuthResultFailed, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_REUSE_AUTH_RESULT_FAILED),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID);
+}
+
+/**
+ * @tc.name: TestMapIamResultToErrCodeGeneralError
+ * @tc.desc: Test an unknown identity authentication result falls back to AUTH_TOKEN_INVALID(9201057).
+ * @tc.type: FUNC
+ */
+HWTEST_F(GetCredentialIdPluginTest, TestMapIamResultToErrCodeGeneralError, TestSize.Level1)
+{
+    GetCredentialIdPluginMapMock plugin;
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_GENERAL_ERROR),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID);
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_BUSY),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID);
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(UKEY_ERR_IAM_INVALID_HDI_INTERFACE),
+        EdmReturnErrCode::AUTH_TOKEN_INVALID);
+    EXPECT_EQ(plugin.InvokeMapIamResultToErrCode(-100), EdmReturnErrCode::AUTH_TOKEN_INVALID);
 }
 } // namespace TEST
 } // namespace EDM

@@ -42,7 +42,7 @@ OHOS::ErrCode ConvertAuthToken(napi_env env, napi_value argv, OHOS::MessageParce
     const AddonMethodSign &methodSign)
 {
     std::vector<uint8_t> authToken;
-    if (!ParseUint8Array(env, argv, authToken, EdmConstants::SecurityManager::MAX_AUTH_TOKEN_SIZE)) {
+    if (!ParseUint8Array(env, argv, authToken, NAPI_MAX_DATA_LEN)) {
         EDMLOGE("Parameter authToken error");
         ClearAuthToken(authToken);
         return EdmReturnErrCode::PARAM_ERROR;
@@ -53,7 +53,8 @@ OHOS::ErrCode ConvertAuthToken(napi_env env, napi_value argv, OHOS::MessageParce
         return EdmReturnErrCode::AUTH_TOKEN_INVALID;
     }
     if (authToken.size() > EdmConstants::SecurityManager::MAX_AUTH_TOKEN_SIZE) {
-        EDMLOGE("Parameter authToken exceeds the maximum size");
+        EDMLOGE("Parameter authToken exceeds the maximum size, size: %{public}zu",
+            authToken.size());
         ClearAuthToken(authToken);
         return EdmReturnErrCode::AUTH_TOKEN_INVALID;
     }
@@ -68,7 +69,7 @@ OHOS::ErrCode ConvertAllowableDuration(napi_env env, napi_value argv, OHOS::Mess
     int64_t allowableDuration = 0;
     if (!ParseLong(env, allowableDuration, argv)) {
         EDMLOGE("Parameter allowableDuration error");
-        return EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID;
+        return EdmReturnErrCode::PARAM_ERROR;
     }
     if (allowableDuration <= 0 ||
         static_cast<uint64_t>(allowableDuration) > EdmConstants::SecurityManager::MAX_ALLOWABLE_DURATION) {
@@ -122,7 +123,7 @@ void SecurityManagerAddon::NativeGetCredentialIdComplete(napi_env env, napi_stat
             if (napi_create_bigint_uint64(env, credentialId, &result) != napi_ok) {
                 EDMLOGE("NativeGetCredentialIdComplete failed to create bigint");
                 napi_reject_deferred(env, asyncCallbackInfo->deferred,
-                    CreateError(env, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED, asyncCallbackInfo->errcodeType));
+                    CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, asyncCallbackInfo->errcodeType));
             } else {
                 napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
             }

@@ -138,6 +138,9 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::POLICY_LIST_OVER_SIZE, "The policy list has exceeded the limit."},
     {EdmReturnErrCode::USB_DYNAMIC_CONTROL_NOT_ENABLED,
         "Failed to set the state because dynamic USB control is not enabled."},
+    {EdmReturnErrCode::AUTH_TOKEN_INVALID, "Invalid authentication token."},
+    {EdmReturnErrCode::AUTH_TOKEN_INVALID_DURATION_INVALID,
+        "The authentication token parsing duration is out of the allowed range."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
