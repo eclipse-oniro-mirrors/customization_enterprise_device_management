@@ -185,6 +185,7 @@ ohos_shared_library("device_core_plugin") {
         "./src/restrictions/disable_mtp_client_plugin.cpp",
         "./src/restrictions/disable_print_plugin.cpp",
         "./src/restrictions/disable_user_mtp_client_plugin.cpp",
+        "./src/restrictions/disable_camera_for_account_plugin.cpp",
         "./src/restrictions/disallow_modify_wallpaper_plugin.cpp",
         "./src/utils/install_local_enterprise_app_policy_utils.cpp",
       ]

@@ -15,6 +15,7 @@
 
 #include "disable_camera_plugin.h"
 
+
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
 #include "parameters.h"
@@ -38,6 +39,14 @@ DisableCameraPlugin::DisableCameraPlugin()
     policyCode_ = EdmInterfaceCode::DISABLE_CAMERA;
     policyName_ = PolicyName::POLICY_DISABLE_CAMERA;
     persistParam_ = "persist.edm.camera_disable";
+}
+
+ErrCode DisableCameraPlugin::CheckConflictPolicy(int32_t userId)
+{
+    // 新版验收标准（camera.txt）取消 9200010 冲突上报：设备级启用不再检测用户级禁用，
+    // 设备级/用户级从严由策略合并层静默保证（用户级禁用策略保留期间，摄像头对该用户维持禁用）。
+    // 因此本插件无冲突上报场景，该钩子按框架形态实现并返回 ERR_OK。
+    return ERR_OK;
 }
 
 ErrCode DisableCameraPlugin::SetOtherModulePolicy(bool data, int32_t userId)
