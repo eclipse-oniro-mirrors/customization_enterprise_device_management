@@ -73,24 +73,14 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy(std::string &
     MessageParcel &reply, int32_t userId)
 {
     EDMLOGI("InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy");
-    int32_t accountId = 0;
-    if (!data.ReadInt32(accountId)) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy read accountId failed");
-        reply.WriteInt32(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
-    }
-    ErrCode ret = CheckAccountId(accountId, reply);
-    if (ret != ERR_OK) {
-        return ret;
-    }
     sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
-    ret = GetBundleInstaller(iBundleInstaller, __func__);
+    ErrCode ret = GetBundleInstaller(iBundleInstaller);
     if (ret != ERR_OK) {
         reply.WriteInt32(ret);
         return ret;
     }
     std::vector<AppExecFwk::EnterpriseCertInfo> certInfos;
-    ret = iBundleInstaller->GetEnterpriseReSignatureCertInfo(accountId, certInfos);
+    ret = iBundleInstaller->GetEnterpriseReSignatureCertInfo(userId, certInfos);
     if (ret != ERR_OK) {
         EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin: GetEnterpriseReSignatureCertInfo failed %{public}d",
             ret);
@@ -101,43 +91,24 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy(std::string &
     return ERR_OK;
 }
 
-ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckAccountId(int32_t accountId, MessageParcel &reply)
-{
-    if (accountId < EdmConstants::DEFAULT_USER_ID) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin::CheckAccountId invalid accountId: %{public}d",
-            accountId);
-        reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
-        return EdmReturnErrCode::UID_INVALID;
-    }
-    bool isExist = false;
-    ErrCode ret = std::make_shared<EdmOsAccountManagerImpl>()->IsOsAccountExists(accountId, isExist);
-    if (FAILED(ret) || !isExist) {
-        EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin::CheckAccountId account not exist: %{public}d",
-            accountId);
-        reply.WriteInt32(EdmReturnErrCode::UID_INVALID);
-        return EdmReturnErrCode::UID_INVALID;
-    }
-    return ERR_OK;
-}
-
 void InstallEnterpriseReSignatureCertificatePlugin::WriteCertInfos(
     const std::vector<AppExecFwk::EnterpriseCertInfo> &certInfos, MessageParcel &reply)
 {
-    std::vector<const AppExecFwk::EnterpriseCertInfo *> validCertInfos;
+    std::vector<AppExecFwk::EnterpriseCertInfo> validCertInfos;
     for (const auto &certInfo : certInfos) {
         if (certInfo.certAlias.empty() || certInfo.enterpriseName.empty()) {
             EDMLOGE("InstallEnterpriseReSignatureCertificatePlugin: skip empty certificate field, alias '%{private}s', "
                 "enterpriseName '%{private}s'", certInfo.certAlias.c_str(), certInfo.enterpriseName.c_str());
             continue;
         }
-        validCertInfos.push_back(&certInfo);
+        validCertInfos.push_back(certInfo);
     }
     reply.WriteInt32(ERR_OK);
     reply.WriteInt32(static_cast<int32_t>(validCertInfos.size()));
-    for (const auto *certInfo : validCertInfos) {
-        reply.WriteString(certInfo->certAlias);
-        reply.WriteString(certInfo->enterpriseName);
-        reply.WriteInt64(certInfo->notAfter);
+    for (const auto &certInfo : validCertInfos) {
+        reply.WriteString(certInfo.certAlias);
+        reply.WriteString(certInfo.enterpriseName);
+        reply.WriteInt64(certInfo.notAfter);
     }
 }
 
@@ -175,17 +146,17 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::CheckParamVaild(std::stri
 }
 
 ErrCode InstallEnterpriseReSignatureCertificatePlugin::GetBundleInstaller(
-    sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller, const std::string &methodName)
+    sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller)
 {
     auto remoteObject = EdmSysManager::GetRemoteObjectOfSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     auto iBundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (iBundleMgr == nullptr) {
-        EDMLOGE("%{public}s: failed to get IBundleMgr", methodName.c_str());
+        EDMLOGE("failed to get IBundleMgr");
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     iBundleInstaller = iBundleMgr->GetBundleInstaller();
     if (iBundleInstaller == nullptr) {
-        EDMLOGE("%{public}s: failed to get IBundleInstaller", methodName.c_str());
+        EDMLOGE("failed to get IBundleInstaller");
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     return ERR_OK;
@@ -206,7 +177,7 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::InstallEnterpriseReSignat
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
-    ErrCode ret = GetBundleInstaller(iBundleInstaller, __func__);
+    ErrCode ret = GetBundleInstaller(iBundleInstaller);
     if (ret != ERR_OK) {
         if (fd >= 0) {
             fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
@@ -263,7 +234,7 @@ ErrCode InstallEnterpriseReSignatureCertificatePlugin::UninstallEnterpriseReSign
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
     sptr<AppExecFwk::IBundleInstaller> iBundleInstaller = nullptr;
-    ErrCode ret = GetBundleInstaller(iBundleInstaller, __func__);
+    ErrCode ret = GetBundleInstaller(iBundleInstaller);
     if (ret != ERR_OK) {
         return ret;
     }

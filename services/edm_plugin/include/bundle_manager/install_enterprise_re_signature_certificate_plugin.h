@@ -44,9 +44,8 @@ private:
     ErrCode InstallEnterpriseReSignatureCertificate(MessageParcel &data);
     ErrCode UninstallEnterpriseReSignatureCertificate(MessageParcel &data);
     ErrCode CheckParamVaild(std::string certificateAlias, int32_t fd, int32_t accountId);
-    ErrCode GetBundleInstaller(sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller, const std::string &methodName);
+    ErrCode GetBundleInstaller(sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller);
     sptr<AppExecFwk::IBundleMgr> GetIBundleManager();
-    ErrCode CheckAccountId(int32_t accountId, MessageParcel &reply);
     void WriteCertInfos(const std::vector<AppExecFwk::EnterpriseCertInfo> &certInfos, MessageParcel &reply);
 };
 } // namespace EDM

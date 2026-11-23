@@ -53,7 +53,6 @@ static const char* const CERTIFICATEALIAS_INVALID_VALUE = "test.txt";
 static constexpr int32_t FD_VALID_VALUE = 1;
 static constexpr int32_t FD_INVALID_VALUE = 999;
 static constexpr int32_t ACCOUNTID_VALID_VALUE = 100;
-static constexpr int32_t ACCOUNTID_BELOW_DEFAULT_VALUE = 99;
 static constexpr int32_t ACCOUNTID_INVALID_VALUE = -1;
 static constexpr int32_t ACCOUNTID_NOT_EXIST_VALUE = 200;
 static constexpr int32_t MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -520,42 +519,6 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestUninstallNoExist
 }
 
 /**
- * @tc.name: TestOnGetPolicyInvalidAccount
- * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy when accountId < 100.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicyInvalidAccount, TestSize.Level1)
-{
-    std::shared_ptr<InstallEnterpriseReSignatureCertificatePlugin> plugin =
-        std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
-    std::string policyData;
-    MessageParcel data;
-    data.WriteInt32(ACCOUNTID_BELOW_DEFAULT_VALUE);
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
-    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::UID_INVALID);
-}
-
-/**
- * @tc.name: TestOnGetPolicyAccountNotExist
- * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy when account is not exist.
- * @tc.type: FUNC
- */
-HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicyAccountNotExist, TestSize.Level1)
-{
-    std::shared_ptr<InstallEnterpriseReSignatureCertificatePlugin> plugin =
-        std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
-    std::string policyData;
-    MessageParcel data;
-    data.WriteInt32(ACCOUNTID_NOT_EXIST_VALUE);
-    MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
-    ASSERT_EQ(ret, EdmReturnErrCode::UID_INVALID);
-    ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::UID_INVALID);
-}
-
-/**
  * @tc.name: TestOnGetPolicySuccess
  * @tc.desc: Test InstallEnterpriseReSignatureCertificatePlugin::OnGetPolicy success.
  * @tc.type: FUNC
@@ -566,9 +529,8 @@ HWTEST_F(InstallEnterpriseReSignatureCertificatePluginTest, TestOnGetPolicySucce
         std::make_shared<InstallEnterpriseReSignatureCertificatePlugin>();
     std::string policyData;
     MessageParcel data;
-    data.WriteInt32(ACCOUNTID_VALID_VALUE);
     MessageParcel reply;
-    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, DEFAULT_USER_ID);
+    ErrCode ret = plugin->OnGetPolicy(policyData, data, reply, ACCOUNTID_VALID_VALUE);
     if (NotEnterpriseDevice()) {
         ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
         ASSERT_EQ(reply.ReadInt32(), EdmReturnErrCode::EXECUTE_TIME_OUT);
