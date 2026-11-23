@@ -1835,7 +1835,7 @@ napi_value SecurityManagerAddon::GetEnterpriseReSignatureCertificates(napi_env e
     EDMLOGI("NAPI_GetEnterpriseReSignatureCertificates called");
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = "GetEnterpriseReSignatureCertificates";
-    addonMethodSign.argsType = {EdmAddonCommonType::INT32};
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     addonMethodSign.errcodeType = ErrcodeType::NUMBER;
     AdapterAddonData adapterAddonData{};
