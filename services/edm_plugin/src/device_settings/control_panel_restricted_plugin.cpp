@@ -36,7 +36,7 @@ ControlPanelRestrictedPlugin::ControlPanelRestrictedPlugin()
     policyName_ = PolicyName::POLICY_CONTROL_PANEL_RESTRICTED;
     std::map<IPlugin::PermissionType, std::string> typePermissions;
     typePermissions.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS);
     permissionConfig_ = IPlugin::PolicyPermissionConfig(typePermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = EdmConstants::PARAM_EDM_CONTROL_PANEL_RESTRICTED;
 }
@@ -60,7 +60,7 @@ ErrCode ControlPanelRestrictedPlugin::OnHandlePolicy(std::uint32_t funcCode, Mes
     policyData.isChanged = (oldAdminValue != newValue) || globalChanged;
     if (globalChanged) {
         IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
-            OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
+            OverrideInterfaceName::DeviceSettings::SET_CONTROL_PANEL_RESTRICTED, "");
     }
     // Notify the control panel on every successful set, even if the value is unchanged.
     IExtraPolicyNotification::GetInstance()->NotifyControlPanelRestrictedChanged();
@@ -132,7 +132,7 @@ ErrCode ControlPanelRestrictedPlugin::OnAdminRemove(const std::string &adminName
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
-        OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_RESTRICTED, "");
+        OverrideInterfaceName::DeviceSettings::SET_CONTROL_PANEL_RESTRICTED, "");
     IExtraPolicyNotification::GetInstance()->NotifyControlPanelRestrictedChanged();
     return ERR_OK;
 }

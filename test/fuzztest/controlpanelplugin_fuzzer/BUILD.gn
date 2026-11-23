@@ -39,6 +39,7 @@ ohos_fuzztest("ControlPanelPluginFuzzTest") {
     "../common/include",
     "../../../interfaces/inner_api/common/include",
     "../../../services/edm_plugin/include/restrictions",
+    "../../../services/edm_plugin/include/device_settings",
   ]
 
   configs = [ "../../../common/config:coverage_flags" ]

@@ -45,7 +45,7 @@ void ControlPanelTopToggleListPlugin::InitPlugin(
     // needSave=false: 白名单仅存 settingsdata，不落 EDM RDB（覆盖策略，无合并/清理需求）
     ptr->InitAttribute(EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
         PolicyName::POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST,
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_SETTINGS,
         IPlugin::PermissionType::SUPER_DEVICE_ADMIN, false);
     ptr->SetSerializer(ArrayStringSerializer::GetInstance());
     ptr->SetOnHandlePolicyListener(&ControlPanelTopToggleListPlugin::OnBasicSetPolicy, FuncOperateType::SET);
@@ -71,7 +71,7 @@ ErrCode ControlPanelTopToggleListPlugin::OnBasicSetPolicy(std::vector<std::strin
     }
     std::string params = EdmJsonBuilder().Add("accountId", userId).Build();
     IExtraPolicyNotification::GetInstance()->NotifyPolicyChanged(
-        OverrideInterfaceName::Restrictions::SET_CONTROL_PANEL_TOP_TOGGLE_LIST, params);
+        OverrideInterfaceName::DeviceSettings::SET_CONTROL_PANEL_TOP_TOGGLE_LIST, params);
     return ERR_OK;
 }
 

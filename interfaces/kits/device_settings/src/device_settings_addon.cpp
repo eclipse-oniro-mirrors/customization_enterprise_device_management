@@ -15,6 +15,10 @@
 #include "device_settings_addon.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <string_view>
 #include <vector>
 
 #include "cJSON.h"
@@ -29,6 +33,198 @@
 #include "os_account_manager.h"
 #endif
 #include "override_interface_name.h"
+
+namespace OHOS {
+namespace EDM {
+namespace {
+constexpr uint32_t MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE = 1000;
+
+struct ControlPanelToggleItem {
+    const char *name;
+    int32_t value;
+    std::string_view key;
+};
+
+// Keep this table in sync with ControlPanelTopToggleList in the .d.ts declaration.
+constexpr std::array<ControlPanelToggleItem, 7> CONTROL_PANEL_TOP_TOGGLES = {{
+    {"SUPER_DEVICE", 0, "super_device"},
+    {"BRIGHTNESS", 1, "brightness"},
+    {"SCENARIO_MODE", 2, "focus_mode"},
+    {"VOLUME", 3, "sound"},
+    {"VOLUME_BRIGHTNESS_SLIDER", 4, "combined_slider"},
+    {"HOTSPOT", 5, "hotspot_tagged"},
+    {"MOBILE_DATA", 6, "mobile_data_tagged"},
+}};
+
+// Keep this table in sync with ControlPanelQuickToggleList in the .d.ts declaration.
+constexpr std::array<ControlPanelToggleItem, 48> CONTROL_PANEL_QUICK_TOGGLES = {{
+    {"FLASHLIGHT", 0, "flashlight"},
+    {"RING_MODE", 1, "ring_mode"},
+    {"ROTATION_LOCK", 2, "auto_rotate"},
+    {"SCAN", 3, "toggle_scanner"},
+    {"HARMONY_SHARE", 4, "harmony_share"},
+    {"AIRPLANE_MODE", 5, "air_plane"},
+    {"MOBILE_DATA", 6, "mobile_data"},
+    {"PERSONAL_HOTSPOT", 7, "hotspot"},
+    {"SCREENSHOT", 8, "toggle_screenshot"},
+    {"SCREEN_RECORDING", 9, "toggle_screen_recorder"},
+    {"WIRELESS_CAST", 10, "wireless_cast"},
+    {"LOCATION", 11, "location"},
+    {"MUSIC_RECOGNITION", 12, "music_service"},
+    {"NFC", 13, "nfc"},
+    {"EYE_COMFORT_MODE", 14, "eye_comfort"},
+    {"DARK_MODE", 15, "dark_mode"},
+    {"SUPER_PRIVACY", 16, "super_privacy"},
+    {"SUPER_HUB", 17, "super_hub"},
+    {"POWER_SAVING_MODE", 18, "power_save"},
+    {"PERFORMANCE_MODE", 19, "performance_mode"},
+    {"YOUTH_MODE", 20, "youth_mode"},
+    {"EBOOK_MODE", 21, "ebook"},
+    {"SOUND_RECORDER", 22, "sound_recorder"},
+    {"CALCULATOR", 23, "calculator"},
+    {"CLOCK", 24, "clock_timer"},
+    {"REMOTE_CONTROL", 25, "remote_control"},
+    {"CAMERA", 26, "camera_open"},
+    {"WIRELESS_REVERSE_CHARGING", 27, "wltx"},
+    {"QUICK_REMIND", 28, "quick_remind"},
+    {"CELIA_TRANSLATE", 29, "celia_translate"},
+    {"QUICK_NOTE", 30, "quick_note"},
+    {"MULTI_WINDOW", 31, "multi_window"},
+    {"EXTREME_COOLING", 32, "qingyun_mode"},
+    {"CELIA_CAPTIONS", 33, "celia_captions"},
+    {"SINGLE_HAND_MODE", 34, "single_handle_switch"},
+    {"CELIA_MEETING", 35, "meeting"},
+    {"EDUCATION_SPACE", 36, "edu_space"},
+    {"COMPUTER_MODE", 37, "computer_mode"},
+    {"ANTI_PEEPING", 38, "anti_peeping"},
+    {"MICROPHONE", 39, "mic"},
+    {"KEYBOARD_MOUSE_SHARING", 40, "key_mouse_share"},
+    {"DISPLAY_MODE", 41, "dpin"},
+    {"PARTIAL_SCREENSHOT", 42, "toggle_smart_screenshot"},
+    {"CLIPBOARD_HISTORY", 43, "history_clipboard"},
+    {"ECG_MEASUREMENT", 44, "health_measure"},
+    {"HEART_RATE_MEASUREMENT", 45, "heart_rate_measure"},
+    {"VIRTUAL_TOUCHPAD", 46, "magic_pad"},
+    {"SELECT_TO_SPEAK", 47, "select_reader"},
+}};
+
+template <size_t N>
+constexpr bool IsSequentialToggleTable(const std::array<ControlPanelToggleItem, N> &table)
+{
+    for (size_t i = 0; i < N; i++) {
+        if (table[i].name == nullptr || table[i].key.empty() || table[i].value != static_cast<int32_t>(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+static_assert(IsSequentialToggleTable(CONTROL_PANEL_TOP_TOGGLES), "invalid top toggle table");
+static_assert(IsSequentialToggleTable(CONTROL_PANEL_QUICK_TOGGLES), "invalid quick toggle table");
+
+bool IsValidEnumNumber(napi_env env, napi_value value, int32_t &number)
+{
+    napi_valuetype type = napi_undefined;
+    if (napi_typeof(env, value, &type) != napi_ok || type != napi_number) {
+        return false;
+    }
+    double raw = 0;
+    if (napi_get_value_double(env, value, &raw) != napi_ok) {
+        return false;
+    }
+    if (raw < 0 || raw > static_cast<double>(INT32_MAX) || std::floor(raw) != raw) {
+        return false;
+    }
+    number = static_cast<int32_t>(raw);
+    return true;
+}
+
+template <size_t N>
+ErrCode ConvertToggleListToKeys(napi_env env, napi_value argv, MessageParcel &data,
+    const std::array<ControlPanelToggleItem, N> &table)
+{
+    static_assert(N <= 64, "bitmask dedupe supports at most 64 entries");
+    bool isArray = false;
+    if (napi_is_array(env, argv, &isArray) != napi_ok || !isArray) {
+        EDMLOGE("Control panel toggle list is not an array.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    uint32_t length = 0;
+    if (napi_get_array_length(env, argv, &length) != napi_ok ||
+        length > MAX_CONTROL_PANEL_TOGGLE_LIST_SIZE) {
+        EDMLOGE("Control panel toggle list length is invalid.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    std::vector<std::string> keys;
+    keys.reserve(std::min<size_t>(length, N));
+    uint64_t seen = 0;
+    for (uint32_t i = 0; i < length; i++) {
+        napi_value element = nullptr;
+        if (napi_get_element(env, argv, i, &element) != napi_ok) {
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        int32_t value = 0;
+        if (!IsValidEnumNumber(env, element, value) || value < 0 ||
+            static_cast<size_t>(value) >= table.size()) {
+            EDMLOGE("Control panel toggle list contains invalid enum value.");
+            return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+        }
+        uint64_t bit = 1ULL << static_cast<uint32_t>(value);
+        if ((seen & bit) != 0) {
+            continue;
+        }
+        seen |= bit;
+        keys.emplace_back(table[value].key.data(), table[value].key.size());
+    }
+    if (!data.WriteStringVector(keys)) {
+        EDMLOGE("Control panel toggle list write parcel failed.");
+        return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
+    }
+    return ERR_OK;
+}
+
+ErrCode ControlPanelTopToggleListToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &)
+{
+    return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_TOP_TOGGLES);
+}
+
+ErrCode ControlPanelQuickToggleListToData(napi_env env, napi_value argv, MessageParcel &data,
+    const AddonMethodSign &)
+{
+    return ConvertToggleListToKeys(env, argv, data, CONTROL_PANEL_QUICK_TOGGLES);
+}
+
+template <size_t N>
+void ConvertKeysToEnumValues(const std::vector<std::string> &keys,
+    const std::array<ControlPanelToggleItem, N> &table, std::vector<int32_t> &values)
+{
+    values.clear();
+    values.reserve(keys.size());
+    for (const auto &key : keys) {
+        auto it = std::find_if(table.begin(), table.end(), [&key](const ControlPanelToggleItem &item) {
+            return item.key == std::string_view(key.data(), key.size());
+        });
+        if (it == table.end()) {
+            EDMLOGW("Unknown control panel toggle key: %{public}s", key.c_str());
+            continue;
+        }
+        values.push_back(it->value);
+    }
+}
+
+template <size_t N>
+void CreateControlPanelToggleObject(napi_env env, napi_value object,
+    const std::array<ControlPanelToggleItem, N> &table)
+{
+    for (const auto &item : table) {
+        napi_value value = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, item.value, &value));
+        NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, object, item.name, value));
+    }
+}
+} // namespace
+} // namespace EDM
+} // namespace OHOS
 
 using namespace OHOS::EDM;
 
@@ -334,6 +530,12 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
     napi_value nSwitchStatus = nullptr;
     NAPI_CALL(env, napi_create_object(env, &nSwitchStatus));
     CreateSwitchStatusObject(env, nSwitchStatus);
+    napi_value nControlPanelTopToggleList = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nControlPanelTopToggleList));
+    CreateControlPanelTopToggleListObject(env, nControlPanelTopToggleList);
+    napi_value nControlPanelQuickToggleList = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &nControlPanelQuickToggleList));
+    CreateControlPanelQuickToggleListObject(env, nControlPanelQuickToggleList);
 
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("setScreenOffTime", SetScreenOffTime),
@@ -359,8 +561,16 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::DeviceSettings::GET_SWITCH_STATUS, GetSwitchStatus),
         DECLARE_NAPI_FUNCTION("setEnterpriseDisplayInfo", SetEnterpriseDisplayInfo),
         DECLARE_NAPI_FUNCTION("getEnterpriseDisplayInfo", GetEnterpriseDisplayInfo),
+        DECLARE_NAPI_FUNCTION("setControlPanelRestricted", SetControlPanelRestricted),
+        DECLARE_NAPI_FUNCTION("getControlPanelRestricted", GetControlPanelRestricted),
+        DECLARE_NAPI_FUNCTION("setControlPanelQuickToggleListForAccount", SetControlPanelQuickToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("getControlPanelQuickToggleListForAccount", GetControlPanelQuickToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("setControlPanelTopToggleListForAccount", SetControlPanelTopToggleListForAccount),
+        DECLARE_NAPI_FUNCTION("getControlPanelTopToggleListForAccount", GetControlPanelTopToggleListForAccount),
         DECLARE_NAPI_PROPERTY("SwitchKey", nSwitchKey),
         DECLARE_NAPI_PROPERTY("SwitchStatus", nSwitchStatus),
+        DECLARE_NAPI_PROPERTY("ControlPanelTopToggleList", nControlPanelTopToggleList),
+        DECLARE_NAPI_PROPERTY("ControlPanelQuickToggleList", nControlPanelQuickToggleList),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -1200,6 +1410,184 @@ napi_value DeviceSettingsAddon::RemoveHiddenSettingsMenu(napi_env env, napi_call
         return nullptr;
     }
     return nullptr;
+}
+
+void DeviceSettingsAddon::CreateControlPanelTopToggleListObject(napi_env env, napi_value value)
+{
+    CreateControlPanelToggleObject(env, value, CONTROL_PANEL_TOP_TOGGLES);
+}
+
+void DeviceSettingsAddon::CreateControlPanelQuickToggleListObject(napi_env env, napi_value value)
+{
+    CreateControlPanelToggleObject(env, value, CONTROL_PANEL_QUICK_TOGGLES);
+}
+
+napi_value DeviceSettingsAddon::SetControlPanelRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelRestricted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelRestricted";
+    addonMethodSign.argsType = {EdmAddonCommonType::BOOLEAN};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelRestricted,
+        NativeVoidCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeSetControlPanelRestricted(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelRestricted called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+}
+
+napi_value DeviceSettingsAddon::GetControlPanelRestricted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelRestricted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelRestricted";
+    addonMethodSign.argsType = {};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_RESTRICTED;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelRestricted,
+        NativeBoolCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeGetControlPanelRestricted(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelRestricted called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_RESTRICTED, asyncCallbackInfo->boolRet);
+}
+
+napi_value DeviceSettingsAddon::SetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelQuickToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelQuickToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {ControlPanelQuickToggleListToData, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelQuickToggleListForAccount,
+        NativeVoidCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeSetControlPanelQuickToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelQuickToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST);
+}
+
+napi_value DeviceSettingsAddon::GetControlPanelQuickToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelQuickToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelQuickToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelQuickToggleListForAccount,
+        NativeArrayIntCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeGetControlPanelQuickToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelQuickToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetArrayStringPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST,
+        asyncCallbackInfo->arrayStringRet);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        ConvertKeysToEnumValues(asyncCallbackInfo->arrayStringRet, CONTROL_PANEL_QUICK_TOGGLES,
+            asyncCallbackInfo->arrayIntRet);
+    }
+}
+
+napi_value DeviceSettingsAddon::SetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("SetControlPanelTopToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "setControlPanelTopToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM, EdmAddonCommonType::USERID};
+    addonMethodSign.argsConvert = {ControlPanelTopToggleListToData, nullptr};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeSetControlPanelTopToggleListForAccount,
+        NativeVoidCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeSetControlPanelTopToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeSetControlPanelTopToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->SetDisallowedPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST);
+}
+
+napi_value DeviceSettingsAddon::GetControlPanelTopToggleListForAccount(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("GetControlPanelTopToggleListForAccount called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "getControlPanelTopToggleListForAccount";
+    addonMethodSign.argsType = {EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::GET;
+    addonMethodSign.policyCode = EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    addonMethodSign.isAsync = true;
+    return AddonMethodAdapterNew(env, info, addonMethodSign, NativeGetControlPanelTopToggleListForAccount,
+        NativeArrayIntCallbackComplete);
+}
+
+void DeviceSettingsAddon::NativeGetControlPanelTopToggleListForAccount(napi_env env, void *data)
+{
+    EDMLOGI("NativeGetControlPanelTopToggleListForAccount called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    AdapterAddonData *asyncCallbackInfo = static_cast<AdapterAddonData *>(data);
+    asyncCallbackInfo->ret = DeviceSettingsProxy::GetDeviceSettingsProxy()->GetArrayStringPolicyImplicitAdmin(
+        asyncCallbackInfo->data, EdmInterfaceCode::CONTROL_PANEL_TOP_TOGGLE_LIST,
+        asyncCallbackInfo->arrayStringRet);
+    if (asyncCallbackInfo->ret == ERR_OK) {
+        ConvertKeysToEnumValues(asyncCallbackInfo->arrayStringRet, CONTROL_PANEL_TOP_TOGGLES,
+            asyncCallbackInfo->arrayIntRet);
+    }
 }
 
 static napi_module g_deviceSettingsModule = {

@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <system_ability_definition.h>
+#include <vector>
 
 #include "device_settings_proxy.h"
 #include "edm_ipc_interface_code.h"
@@ -1255,6 +1256,79 @@ HWTEST_F(DeviceSettingsProxyTest, TestGetEnterpriseDisplayInfoFail, TestSize.Lev
     int32_t ret = deviceSettingsProxy->GetEnterpriseDisplayInfo(result);
     EXPECT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
 }
+
+/**
+ * @tc.name: TestSetDisallowedPolicyImplicitAdminSuc
+ * @tc.desc: Test SetDisallowedPolicyImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestSetDisallowedPolicyImplicitAdminSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteBool(true);
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestSetPolicy));
+    int32_t ret = deviceSettingsProxy->SetDisallowedPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyImplicitAdminSuc
+ * @tc.desc: Test GetDisallowedPolicyImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetDisallowedPolicyImplicitAdminSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicy));
+    bool result = false;
+    int32_t ret = deviceSettingsProxy->GetDisallowedPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED, result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: TestGetDisallowedPolicyImplicitAdminReadBoolFail
+ * @tc.desc: Test GetDisallowedPolicyImplicitAdmin when the reply contains no bool.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetDisallowedPolicyImplicitAdminReadBoolFail, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeBoolSendRequestGetPolicyWithoutBool));
+    bool result = true;
+    int32_t ret = deviceSettingsProxy->GetDisallowedPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_RESTRICTED, result);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    ASSERT_FALSE(result);
+}
+
+/**
+ * @tc.name: TestGetArrayStringPolicyImplicitAdminSuc
+ * @tc.desc: Test GetArrayStringPolicyImplicitAdmin success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DeviceSettingsProxyTest, TestGetArrayStringPolicyImplicitAdminSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeArrayStringSendRequestGetPolicy));
+    std::vector<std::string> result;
+    int32_t ret = deviceSettingsProxy->GetArrayStringPolicyImplicitAdmin(data,
+        EdmInterfaceCode::CONTROL_PANEL_QUICK_TOGGLE_LIST, result);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_FALSE(result.empty());
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

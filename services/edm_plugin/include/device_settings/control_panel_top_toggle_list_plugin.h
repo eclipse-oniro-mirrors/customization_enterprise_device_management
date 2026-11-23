@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_PLUGIN_INCLUDE_RESTRICTIONS_CONTROL_PANEL_QUICK_TOGGLE_LIST_PLUGIN_H
-#define SERVICES_EDM_PLUGIN_INCLUDE_RESTRICTIONS_CONTROL_PANEL_QUICK_TOGGLE_LIST_PLUGIN_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SETTINGS_CONTROL_PANEL_TOP_TOGGLE_LIST_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SETTINGS_CONTROL_PANEL_TOP_TOGGLE_LIST_PLUGIN_H
 
 #include <vector>
 
@@ -24,10 +24,10 @@
 namespace OHOS {
 namespace EDM {
 
-class ControlPanelQuickToggleListPlugin : public PluginSingleton<ControlPanelQuickToggleListPlugin,
+class ControlPanelTopToggleListPlugin : public PluginSingleton<ControlPanelTopToggleListPlugin,
     std::vector<std::string>>, public BasicArrayStringPlugin {
 public:
-    void InitPlugin(std::shared_ptr<IPluginTemplate<ControlPanelQuickToggleListPlugin,
+    void InitPlugin(std::shared_ptr<IPluginTemplate<ControlPanelTopToggleListPlugin,
         std::vector<std::string>>> ptr) override;
 
     ErrCode OnBasicSetPolicy(std::vector<std::string> &data, std::vector<std::string> &currentData,
@@ -42,4 +42,4 @@ private:
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_PLUGIN_INCLUDE_RESTRICTIONS_CONTROL_PANEL_QUICK_TOGGLE_LIST_PLUGIN_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_DEVICE_SETTINGS_CONTROL_PANEL_TOP_TOGGLE_LIST_PLUGIN_H

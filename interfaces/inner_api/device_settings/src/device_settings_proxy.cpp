@@ -498,6 +498,48 @@ int32_t DeviceSettingsProxy::GetEnterpriseDisplayInfo(std::string &displayInfo)
     return EnterpriseDeviceMgrProxy::GetInstance()->GetEnterpriseDisplayInfo(displayInfo);
 }
 
+int32_t DeviceSettingsProxy::SetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode)
+{
+    EDMLOGD("DeviceSettingsProxy::SetDisallowedPolicyImplicitAdmin");
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, policyCode);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t DeviceSettingsProxy::GetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode,
+    bool &result)
+{
+    EDMLOGD("DeviceSettingsProxy::GetDisallowedPolicyImplicitAdmin");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(policyCode, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("DeviceSettingsProxy::GetDisallowedPolicyImplicitAdmin GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    result = false;
+    if (!reply.ReadBool(result)) {
+        EDMLOGE("DeviceSettingsProxy::GetDisallowedPolicyImplicitAdmin ReadBool fail.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
+
+int32_t DeviceSettingsProxy::GetArrayStringPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode,
+    std::vector<std::string> &result)
+{
+    EDMLOGD("DeviceSettingsProxy::GetArrayStringPolicyImplicitAdmin");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(policyCode, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("DeviceSettingsProxy::GetArrayStringPolicyImplicitAdmin GetPolicyNew fail. %{public}d", ret);
+        return ret;
+    }
+    if (!reply.ReadStringVector(&result)) {
+        EDMLOGW("DeviceSettingsProxy::GetArrayStringPolicyImplicitAdmin ReadStringVector fail.");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return ERR_OK;
+}
+
 int32_t DeviceSettingsProxy::SetSwitchStatus(MessageParcel &data)
 {
     EDMLOGD("DeviceSettingsProxy::SetSwitchStatus");
