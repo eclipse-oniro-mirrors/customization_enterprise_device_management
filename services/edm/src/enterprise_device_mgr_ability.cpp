@@ -1949,7 +1949,8 @@ ErrCode EnterpriseDeviceMgrAbility::CheckHandleDevicePolicyNewPermission(uint32_
         return ERR_OK;
     }
     std::string setPermission = PluginManager::GetInstance()->GetPermission(code, FuncOperateType::SET,
-        GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()), WITHOUT_PERMISSION_TAG);
+        GetPermissionChecker()->AdminTypeToPermissionType(deviceAdmin->GetAdminType()),
+        EdmConstants::PERMISSION_TAG_VERSION_12);
     EDMLOGD("CheckHandleDevicePolicyNewPermission: GetPermission = %{public}s", setPermission.c_str());
     ErrCode checkAdminPermission = GetPermissionChecker()->CheckHandlePolicyPermission(FuncOperateType::SET,
         deviceAdmin, policyName, setPermission, userId);

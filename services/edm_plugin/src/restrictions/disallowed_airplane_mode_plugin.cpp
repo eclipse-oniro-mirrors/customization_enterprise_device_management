@@ -38,6 +38,8 @@ DisallowedAirplaneModePlugin::DisallowedAirplaneModePlugin()
     typePermissionsForTag26.emplace(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_11, typePermissionsForTag11);
+    // 适配不传admin的接口做权限校验
+    tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_12, typePermissionsForTag26);
     tagPermissions.emplace(EdmConstants::PERMISSION_TAG_VERSION_26, typePermissionsForTag26);
     permissionConfig_ = IPlugin::PolicyPermissionConfig(tagPermissions, IPlugin::ApiType::PUBLIC);
     persistParam_ = "persist.edm.airplane_mode_disable";
