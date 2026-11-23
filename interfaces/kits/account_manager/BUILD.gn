@@ -20,7 +20,10 @@ ohos_shared_library("accountmanager") {
     "../common/include",
   ]
 
-  sources = [ "./src/account_manager_addon.cpp" ]
+  sources = [
+    "./src/account_manager_addon.cpp",
+    "./src/edm_connection_callback_stub.cpp",
+  ]
 
   configs = [ "../../../common/config:coverage_flags" ]
 
@@ -31,8 +34,10 @@ ohos_shared_library("accountmanager") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:napi_common",
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_napi",
     "ipc:ipc_single",
     "napi:ace_napi",
     "node:node_header_notice",

@@ -17,6 +17,8 @@
 
 #include "edm_log.h"
 #include "func_code.h"
+#include "edm_errors.h"
+#include "ienterprise_device_mgr_idl.h"
 #ifdef OS_ACCOUNT_EDM_ENABLE
 #include "os_account_info.h"
 #endif
@@ -289,6 +291,45 @@ int32_t AccountManagerProxy::ActivateOsAccount(MessageParcel &data)
     EDMLOGW("AccountManagerProxy::ActivateOsAccount Unsupported Capabilities.");
     return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
 #endif
+}
+int32_t AccountManagerProxy::ConnectAppServiceExtensionAbilityByOsAccount(const AAFwk::Want &want,
+    int32_t accountId, const sptr<IEdmConnectionCallback> &callback, int32_t &connectionId)
+{
+    EDMLOGI("AccountManagerProxy::ConnectAppServiceExtensionAbilityByOsAccount");
+    connectionId = -1;
+    auto remote = EnterpriseDeviceMgrProxy::GetInstance()->GetEdmRemoteObject();
+    if (remote == nullptr) {
+        EDMLOGE("EDM service not available");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    auto mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (mgrService == nullptr) {
+        EDMLOGE("iface_cast IEnterpriseDeviceMgrIdl failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IRemoteObject> callbackObject = callback->AsObject();
+    ErrCode ret = mgrService->ConnectAppServiceExtensionAbilityByOsAccount(
+        want, accountId, callbackObject, connectionId);
+    if (FAILED(ret)) {
+        EDMLOGE("ConnectAppServiceExtensionAbilityByOsAccount failed ret=%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t AccountManagerProxy::DisconnectAppServiceExtensionAbility(int32_t connectionId)
+{
+    EDMLOGI("AccountManagerProxy::DisconnectAppServiceExtensionAbility connectionId=%{public}d", connectionId);
+    auto remote = EnterpriseDeviceMgrProxy::GetInstance()->GetEdmRemoteObject();
+    if (remote == nullptr) {
+        EDMLOGE("EDM service not available");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    auto mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (mgrService == nullptr) {
+        EDMLOGE("iface_cast IEnterpriseDeviceMgrIdl failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return mgrService->DisconnectAppServiceExtensionAbility(connectionId);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -106,6 +106,9 @@ public:
     MOCK_METHOD(int, EnableSelfDeviceAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
     MOCK_METHOD(ErrCode, UnloadInstallMarketAppsPlugin, (), (override));
     MOCK_METHOD(ErrCode, NotifyUnmountExternalStorageDeviceInfo, (const ExternalStorageDeviceInfo&), (override));
+    MOCK_METHOD(ErrCode, ConnectAppServiceExtensionAbilityByOsAccount,
+        (const AAFwk::Want &, int32_t, const sptr<IRemoteObject> &, int32_t &), (override));
+    MOCK_METHOD(ErrCode, DisconnectAppServiceExtensionAbility, (int32_t), (override));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {

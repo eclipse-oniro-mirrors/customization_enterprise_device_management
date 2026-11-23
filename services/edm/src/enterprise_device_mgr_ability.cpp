@@ -71,6 +71,8 @@
 #include "plugin_event_router.h"
 #include "callback_strategies.h"
 #include "enterprise_conn_manager.h"
+#include "app_service_connection_manager.h"
+#include "caller_info.h"
 #include "event_subscription_manager.h"
 #include "ext_info_manager.h"
 #include "func_code_utils.h"
@@ -1480,6 +1482,7 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdminAndAdminPolicy(const std::string 
     } else {
         EDMLOGE("RemoveAdminAndAdminPolicy: SensitiveCallNotifyManager instance is null, skip ClearByAdmin.");
     }
+    AppServiceConnectionManager::GetInstance().OnAdminRemoved(adminName);
 #endif
     if (!AdminManager::GetInstance()->IsSuperAdminExist()) {
         ClearEnterpriseDisplayInfo();
@@ -3110,6 +3113,60 @@ ErrCode EnterpriseDeviceMgrAbility::NotifyUnmountExternalStorageDeviceInfo(
     edmData.externalStorageDeviceInfo = deviceInfo;
     EventSubscriptionManager::GetInstance().DispatchEvent(edmData);
     return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::ConnectAppServiceExtensionAbilityByOsAccount(
+    const AAFwk::Want &want, int32_t accountId,
+    const sptr<IRemoteObject> &connectionCallback, int32_t &connectionId)
+{
+    EDMLOGI("ConnectAppServiceExtensionAbilityByOsAccount accountId=%{public}d", accountId);
+    connectionId = -1;
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    if (GetBundleMgr()->GetNameForUid(uid, bundleName) != ERR_OK || bundleName.empty()) {
+        EDMLOGE("GetCallingBundleName failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    auto deviceAdmin = AdminManager::GetInstance()->GetAdminByPkgName(bundleName, GetCurrentUserId());
+    if (deviceAdmin == nullptr) {
+        EDMLOGE("admin not active: %{public}s", bundleName.c_str());
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!GetPermissionChecker()->VerifyCallingPermission(
+        tokenId, EdmPermission::PERMISSION_ENTERPRISE_SET_ACCOUNT_POLICY)) {
+        EDMLOGE("permission denied: %{public}s", bundleName.c_str());
+        return EdmReturnErrCode::ADMIN_EDM_PERMISSION_DENIED;
+    }
+    bool isExist = false;
+    GetOsAccountMgr()->IsOsAccountExists(accountId, isExist);
+    if (!isExist) {
+        EDMLOGE("os account not exist: %{public}d", accountId);
+        return EdmReturnErrCode::UID_INVALID;
+    }
+    sptr<IEdmConnectionCallback> connectionCallbackImpl = iface_cast<IEdmConnectionCallback>(connectionCallback);
+    if (connectionCallbackImpl == nullptr) {
+        EDMLOGE("iface_cast IEdmConnectionCallback failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    auto indirectCallerInfo = std::make_shared<AAFwk::IndirectCallerInfo>();
+    indirectCallerInfo->tokenId = IPCSkeleton::GetCallingTokenID();
+    indirectCallerInfo->callerUid = IPCSkeleton::GetCallingUid();
+    indirectCallerInfo->callerPid = IPCSkeleton::GetCallingPid();
+    int32_t ret = AppServiceConnectionManager::GetInstance()
+        .ConnectAppServiceExtensionAbilityByOsAccount(want, accountId, connectionCallbackImpl, bundleName,
+            indirectCallerInfo, connectionId);
+    if (FAILED(ret)) {
+        EDMLOGE("ConnectAppServiceExtensionAbilityByOsAccount failed ret=%{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::DisconnectAppServiceExtensionAbility(int32_t connectionId)
+{
+    EDMLOGI("DisconnectAppServiceExtensionAbility connectionId=%{public}d", connectionId);
+    return AppServiceConnectionManager::GetInstance().DisconnectAppServiceExtensionAbility(connectionId);
 }
 
 ErrCode EnterpriseDeviceMgrAbility::CheckStartAbility(int32_t currentUserId, const AppExecFwk::ElementName &admin,

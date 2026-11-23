@@ -28,6 +28,7 @@
 #include "enterprise_device_mgr_stub.h"
 #include "enable_source.h"
 #include "event_subscription_manager.h"
+#include "i_edm_connection_callback.h"
 #include "extra_policy_notification.h"
 #include "hilog/log.h"
 #include "installed_bundle_info_util.h"
@@ -109,6 +110,9 @@ public:
         const std::string &mediaBundleName, int32_t status) override;
     ErrCode StartAbilityByAdmin(const AppExecFwk::ElementName &admin, const AAFwk::Want &want) override;
     ErrCode NotifyUnmountExternalStorageDeviceInfo(const ExternalStorageDeviceInfo &deviceInfo) override;
+    ErrCode ConnectAppServiceExtensionAbilityByOsAccount(const AAFwk::Want &want, int32_t accountId,
+        const sptr<IRemoteObject> &connectionCallback, int32_t &connectionId) override;
+    ErrCode DisconnectAppServiceExtensionAbility(int32_t connectionId) override;
     bool ConnectAbility(const int32_t accountId, std::shared_ptr<Admin> admin);
     std::unordered_map<int32_t,
         std::function<void(EnterpriseDeviceMgrAbility *that, int32_t systemAbilityId, const std::string &deviceId)>>

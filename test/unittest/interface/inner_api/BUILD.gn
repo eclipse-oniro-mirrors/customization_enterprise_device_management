@@ -107,6 +107,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     ]
     sources += [
       "./proxy/account_manager_proxy_test.cpp",
+      "./proxy/account_manager_proxy_connection_test.cpp",
       "./proxy/bundle_manager_proxy_test.cpp",
       "./proxy/device_info_proxy_test.cpp",
       "./proxy/enterprise_device_mgr_proxy_test.cpp",
