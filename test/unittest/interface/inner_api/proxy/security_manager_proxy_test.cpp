@@ -956,7 +956,7 @@ HWTEST_F(SecurityManagerProxyTest, TestGetEnterpriseReSignatureCertificatesInval
         .WillOnce(Invoke(object_.GetRefPtr(),
             &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseReSignatureCertificatesInvalidSize));
     int32_t ret = proxy_->GetEnterpriseReSignatureCertificates(data, certificateInfos);
-    ASSERT_EQ(ret, EdmReturnErrCode::SYSTEM_ABNORMALLY);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
 }
 
 /**
