@@ -28,6 +28,59 @@
 
 using namespace OHOS::EDM;
 
+namespace {
+void SetKeyCodeProperty(napi_env env, napi_value object, const char *name, KeyCode code)
+{
+    napi_value prop = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(code), &prop));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, object, name, prop));
+}
+
+void CreateBasicKeyCodeObject(napi_env env, napi_value value)
+{
+    static const char *const names[] = {
+        "POWER", "VOLUME_UP", "VOLUME_DOWN", "BACK", "HOME", "RECENT"
+    };
+    static const KeyCode codes[] = {
+        KeyCode::POWER, KeyCode::VOLUME_UP, KeyCode::VOLUME_DOWN,
+        KeyCode::BACK, KeyCode::HOME, KeyCode::RECENT
+    };
+    for (size_t i = 0; i < sizeof(codes) / sizeof(codes[0]); ++i) {
+        SetKeyCodeProperty(env, value, names[i], codes[i]);
+    }
+}
+
+void CreateExtendedKeyCodeObject(napi_env env, napi_value value)
+{
+    static const char *const names[] = {
+        "FN", "DPAD_UP", "DPAD_DOWN", "DPAD_LEFT", "DPAD_RIGHT", "DPAD_CENTER",
+        "BRIGHTNESS_UP", "BRIGHTNESS_DOWN", "ESCAPE"
+    };
+    static const KeyCode codes[] = {
+        KeyCode::FN, KeyCode::DPAD_UP, KeyCode::DPAD_DOWN, KeyCode::DPAD_LEFT,
+        KeyCode::DPAD_RIGHT, KeyCode::DPAD_CENTER, KeyCode::BRIGHTNESS_UP,
+        KeyCode::BRIGHTNESS_DOWN, KeyCode::ESCAPE
+    };
+    for (size_t i = 0; i < sizeof(codes) / sizeof(codes[0]); ++i) {
+        SetKeyCodeProperty(env, value, names[i], codes[i]);
+    }
+}
+
+void CreateFunctionKeyCodeObject(napi_env env, napi_value value)
+{
+    static const char *const names[] = {
+        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"
+    };
+    static const KeyCode codes[] = {
+        KeyCode::F1, KeyCode::F2, KeyCode::F3, KeyCode::F4, KeyCode::F5, KeyCode::F6,
+        KeyCode::F7, KeyCode::F8, KeyCode::F9, KeyCode::F10, KeyCode::F11, KeyCode::F12
+    };
+    for (size_t i = 0; i < sizeof(codes) / sizeof(codes[0]); ++i) {
+        SetKeyCodeProperty(env, value, names[i], codes[i]);
+    }
+}
+} // namespace
+
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
 
 void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
@@ -132,24 +185,9 @@ napi_value SystemManagerAddon::Init(napi_env env, napi_value exports)
 
 void SystemManagerAddon::CreateKeyCodeObject(napi_env env, napi_value value)
 {
-    napi_value nPower;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::POWER), &nPower));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "POWER", nPower));
-    napi_value nVolumeUp;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::VOLUME_UP), &nVolumeUp));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "VOLUME_UP", nVolumeUp));
-    napi_value nVolumeDown;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::VOLUME_DOWN), &nVolumeDown));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "VOLUME_DOWN", nVolumeDown));
-    napi_value nBack;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::BACK), &nBack));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "BACK", nBack));
-    napi_value nHome;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::HOME), &nHome));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "HOME", nHome));
-    napi_value nRecent;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, static_cast<int32_t>(KeyCode::RECENT), &nRecent));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, value, "RECENT", nRecent));
+    CreateBasicKeyCodeObject(env, value);
+    CreateExtendedKeyCodeObject(env, value);
+    CreateFunctionKeyCodeObject(env, value);
 }
 
 void SystemManagerAddon::CreateKeyActionObject(napi_env env, napi_value value)

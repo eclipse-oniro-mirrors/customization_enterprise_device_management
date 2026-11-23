@@ -143,6 +143,69 @@ HWTEST_F(SetKeyCodePluginTest, TestPluginAttributes, TestSize.Level1)
     SetKeyCodePlugin plugin;
     EXPECT_EQ(plugin.GetPolicyName(), PolicyName::POLICY_SET_KEY_CODE);
 }
+
+/**
+ * @tc.name: TestExtendedKeyCodeValues
+ * @tc.desc: Test extended KeyCode enum values for PC keyboard keys.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetKeyCodePluginTest, TestExtendedKeyCodeValues, TestSize.Level1)
+{
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::FN), 6);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::DPAD_UP), 7);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::DPAD_DOWN), 8);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::DPAD_LEFT), 9);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::DPAD_RIGHT), 10);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::DPAD_CENTER), 11);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::BRIGHTNESS_UP), 12);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::BRIGHTNESS_DOWN), 13);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::ESCAPE), 14);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::F1), 15);
+    EXPECT_EQ(static_cast<int32_t>(KeyCode::F12), 26);
+}
+
+/**
+ * @tc.name: TestOnSetPolicyWithExtendedKeyCode
+ * @tc.desc: Test OnSetPolicy with extended KeyCode still returns unsupported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetKeyCodePluginTest, TestOnSetPolicyWithExtendedKeyCode, TestSize.Level1)
+{
+    SetKeyCodePlugin plugin;
+    std::vector<KeyCustomization> keyCustomizations;
+    KeyCustomization item;
+    item.keyCode = static_cast<int32_t>(KeyCode::F1);
+    item.keyPolicy = static_cast<int32_t>(KeyPolicy::INTERCEPTION);
+    keyCustomizations.push_back(item);
+    item.keyCode = static_cast<int32_t>(KeyCode::ESCAPE);
+    item.keyPolicy = static_cast<int32_t>(KeyPolicy::CUSTOM);
+    keyCustomizations.push_back(item);
+
+    std::vector<KeyCustomization> currentData;
+    std::vector<KeyCustomization> mergeData;
+    ErrCode ret = plugin.OnSetPolicy(keyCustomizations, currentData, mergeData);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
+/**
+ * @tc.name: TestOnRemovePolicyWithExtendedKeyCode
+ * @tc.desc: Test OnRemovePolicy with extended KeyCode still returns unsupported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SetKeyCodePluginTest, TestOnRemovePolicyWithExtendedKeyCode, TestSize.Level1)
+{
+    SetKeyCodePlugin plugin;
+    std::vector<int> keyCodes = {
+        static_cast<int>(KeyCode::FN),
+        static_cast<int>(KeyCode::F12),
+        static_cast<int>(KeyCode::BRIGHTNESS_UP),
+    };
+    std::vector<KeyCustomization> currentData;
+    std::vector<KeyCustomization> mergeData;
+    ErrCode ret = plugin.OnRemovePolicy(keyCodes, currentData, mergeData);
+    EXPECT_EQ(ret, EdmReturnErrCode::INTERFACE_UNSUPPORTED);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS
