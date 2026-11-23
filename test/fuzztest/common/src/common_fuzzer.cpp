@@ -41,6 +41,7 @@
 #ifdef FEATURE_PHONE_ONLY
 #include "disallow_free_window_plugin.h"
 #endif
+#include "disallow_app_lock_plugin.h"
 #include "disallow_modify_datetime_plugin.h"
 #include "disallowed_install_bundles_plugin.h"
 #include "disallowed_running_bundles_plugin.h"
@@ -124,6 +125,8 @@ const bool REGISTER_DISALLOW_ADD_LOCAL_ACCOUNT_PLUGIN =
 const bool REGISTER_DISALLOW_ADD_OS_ACCOUNT_BY_USER_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(DisallowAddOsAccountByUserPlugin::GetPlugin());
 #endif
+const bool REGISTER_DISALLOW_APP_LOCK_PLUGIN =
+    PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowAppLockPlugin>());
 #ifdef FEATURE_PHONE_ONLY
 const bool REGISTER_DISALLOW_FREE_WINDOW_PLUGIN =
     PluginManager::GetInstance()->AddPlugin(std::make_shared<DisallowFreeWindowPlugin>());
