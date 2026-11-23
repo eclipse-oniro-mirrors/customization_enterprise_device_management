@@ -35,6 +35,12 @@ struct CertBlobCA {
     int32_t accountId = 0;
 };
 
+struct ReSignatureCertificateInfo {
+    std::string certificateAlias;
+    std::string enterpriseName;
+    int64_t expirationTime = 0;
+};
+
 class SecurityManagerProxy {
 public:
     static std::shared_ptr<SecurityManagerProxy> GetSecurityManagerProxy();
@@ -90,6 +96,8 @@ public:
     int32_t SetWeakPinEnable(bool isEnable, int32_t fd);
     int32_t IsWeakPinEnabled(bool &result);
     int32_t GetCredentialId(MessageParcel &data, uint64_t &credentialId);
+    int32_t GetEnterpriseReSignatureCertificates(MessageParcel &data,
+        std::vector<ReSignatureCertificateInfo> &certificateInfos);
 private:
     static std::shared_ptr<SecurityManagerProxy> instance_;
     static std::once_flag flag_;

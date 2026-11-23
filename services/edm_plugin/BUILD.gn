@@ -129,6 +129,9 @@ ohos_shared_library("device_core_plugin") {
       "./src/device_settings/set_device_name_plugin.cpp",
       "./src/device_settings/set_eye_comfort_mode_plugin.cpp",
       "./src/restrictions/allowed_collaboration_service_bundles_plugin.cpp",
+      "./src/restrictions/control_panel_quick_toggle_list_plugin.cpp",
+      "./src/restrictions/control_panel_restricted_plugin.cpp",
+      "./src/restrictions/control_panel_top_toggle_list_plugin.cpp",
       "./src/restrictions/disable_app_clone_plugin.cpp",
       "./src/restrictions/disable_camera_plugin.cpp",
       "./src/restrictions/disable_hdc_plugin.cpp",
@@ -138,13 +141,12 @@ ohos_shared_library("device_core_plugin") {
       "./src/restrictions/disable_set_biometrics_and_screenLock_plugin.cpp",
       "./src/restrictions/disable_set_device_name_plugin.cpp",
       "./src/restrictions/disallow_collaboration_remote_share_plugin.cpp",
+      "./src/restrictions/disallow_companion_ai_plugin.cpp",
       "./src/restrictions/disallow_control_center_plugin.cpp",
-      "./src/restrictions/control_panel_restricted_plugin.cpp",
-      "./src/restrictions/control_panel_quick_toggle_list_plugin.cpp",
-      "./src/restrictions/control_panel_top_toggle_list_plugin.cpp",
       "./src/restrictions/disallow_distributed_transmission_full_plugin.cpp",
       "./src/restrictions/disallow_distributed_transmission_plugin.cpp",
       "./src/restrictions/disallow_notification_center_plugin.cpp",
+      "./src/restrictions/disallow_parent_control_plugin.cpp",
       "./src/restrictions/disallow_recent_tasks_plugin.cpp",
       "./src/restrictions/disallow_system_sharing_panel_plugin.cpp",
       "./src/restrictions/disallow_unmute_device_plugin.cpp",
@@ -154,8 +156,6 @@ ohos_shared_library("device_core_plugin") {
       "./src/security_manager/snapshot_skip_plugin.cpp",
       "./src/utils/allowed_app_distribution_types_utils.cpp",
       "./src/utils/battery_utils.cpp",
-      "./src/restrictions/disallow_parent_control_plugin.cpp",
-      "./src/restrictions/disallow_companion_ai_plugin.cpp",
     ]
 
     if (enterprise_device_management_feature_pc_only) {
@@ -504,7 +504,7 @@ ohos_shared_library("communication_plugin") {
       sources += [
         "./src/network_manager/get_all_network_interfaces_plugin.cpp",
         "./src/network_manager/get_ip_or_mac_address_plugin.cpp",
-        "./src/restrictions/disallow_vpn_plugin.cpp"
+        "./src/restrictions/disallow_vpn_plugin.cpp",
       ]
     }
 
@@ -522,11 +522,11 @@ ohos_shared_library("communication_plugin") {
         "./src/usb_manager/disallowed_usb_devices_plugin.cpp",
         "./src/usb_manager/disallowed_usb_devices_plugin_base.cpp",
         "./src/usb_manager/external_storage_intercept_enable_plugin.cpp",
-        "./src/usb_manager/get_usb_serial_number_plugin.cpp",
-        "./src/utils/array_permissive_usb_device_type_serializer.cpp",
-        "./src/usb_manager/usb_intercept_enable_plugin.cpp",
         "./src/usb_manager/get_usb_device_infos_plugin.cpp",
+        "./src/usb_manager/get_usb_serial_number_plugin.cpp",
         "./src/usb_manager/set_usb_device_states_plugin.cpp",
+        "./src/usb_manager/usb_intercept_enable_plugin.cpp",
+        "./src/utils/array_permissive_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer.cpp",
         "./src/utils/array_usb_device_type_serializer_base.cpp",
         "./src/utils/usb_policy_utils.cpp",
@@ -694,7 +694,9 @@ ohos_shared_library("sys_service_plugin") {
       external_deps += [ "certificate_manager:cert_manager_sdk" ]
       sources += [ "./src/device_settings/user_cert_plugin.cpp" ]
       if (enterprise_device_management_feature_pc_only) {
-        sources += [ "./src/restrictions/disallow_install_device_certificate_plugin.cpp" ]
+        sources += [
+          "./src/restrictions/disallow_install_device_certificate_plugin.cpp",
+        ]
       }
     }
 
@@ -837,9 +839,9 @@ ohos_shared_library("need_extra_plugin") {
       "./src/bundle_manager/install_market_apps_plugin.cpp",
       "./src/device_info/get_device_info_plugin.cpp",
       "./src/device_info/get_ext_info_plugin.cpp",
-      "./src/network_manager/get_shared_path_list_plugin.cpp",
       "./src/device_settings/set_switch_status_plugin.cpp",
       "./src/device_settings/set_wall_paper_plugin.cpp",
+      "./src/network_manager/get_shared_path_list_plugin.cpp",
       "./src/restrictions/disallow_app_lock_plugin.cpp",
       "./src/restrictions/disallow_power_saving_mode_plugin.cpp",
       "./src/system_manager/notify_update_packages_plugin.cpp",

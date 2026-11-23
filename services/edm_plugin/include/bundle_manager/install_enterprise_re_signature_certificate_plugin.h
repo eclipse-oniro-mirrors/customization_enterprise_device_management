@@ -17,6 +17,7 @@
 #define SERVICES_EDM_PLUGIN_INCLUDE_INSTALL_ENTERPRISE_RE_SIGNATURE_CERTIFICATE_H
 
 #include <message_parcel.h>
+#include <vector>
 
 #include "bundle_mgr_interface.h"
 #include "iplugin.h"
@@ -30,8 +31,7 @@ public:
         HandlePolicyData &policyData, int32_t userId) override;
     void OnHandlePolicyDone(std::uint32_t funcCode, const std::string &adminName, bool isGlobalChanged,
         int32_t userId) override {};
-    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override
-        {return ERR_OK;};
+    ErrCode OnGetPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
     ErrCode OnAdminRemove(const std::string &adminName, const std::string &currentJsonData,
         const std::string &mergeJsonData, int32_t userId) override {return ERR_OK;};
     void OnAdminRemoveDone(const std::string &adminName, const std::string &currentJsonData,
@@ -44,8 +44,9 @@ private:
     ErrCode InstallEnterpriseReSignatureCertificate(MessageParcel &data);
     ErrCode UninstallEnterpriseReSignatureCertificate(MessageParcel &data);
     ErrCode CheckParamVaild(std::string certificateAlias, int32_t fd, int32_t accountId);
-    ErrCode GetBundleInstaller(sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller, const std::string &methodName);
+    ErrCode GetBundleInstaller(sptr<AppExecFwk::IBundleInstaller> &iBundleInstaller);
     sptr<AppExecFwk::IBundleMgr> GetIBundleManager();
+    void WriteCertInfos(const std::vector<AppExecFwk::EnterpriseCertInfo> &certInfos, MessageParcel &reply);
 };
 } // namespace EDM
 } // namespace OHOS

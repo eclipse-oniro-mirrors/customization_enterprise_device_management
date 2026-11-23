@@ -31,6 +31,11 @@ constexpr int ERR_PROXY_SENDREQUEST_FAIL = 111;
 constexpr int EDM_MAXREQUESTSIZE = 99999;
 const std::string RETURN_STRING = "test_string";
 constexpr uint64_t PASSWORD_LAST_CHANGED_TIME_VALUE = 1722470400;
+constexpr int32_t RE_SIGNATURE_CERTIFICATE_COUNT_VALUE = 1;
+constexpr int32_t RE_SIGNATURE_CERTIFICATE_INVALID_COUNT_VALUE = 20;
+const std::string RE_SIGNATURE_CERTIFICATE_ALIAS_VALUE = "test_cert_0.cer";
+const std::string RE_SIGNATURE_CERTIFICATE_ENTERPRISE_NAME_VALUE = "test enterprise";
+constexpr int64_t RE_SIGNATURE_CERTIFICATE_EXPIRATION_TIME_VALUE = 1798761600000;
 constexpr uint64_t CREDENTIAL_ID_VALUE = 1234567890123456789ULL;
 const std::string ELEMENT_STRING = "com.example.myapplication/MainAbility";
 const std::string EDM_ELEMENT_STRING = "com.example.myapplication/MainAbility/true";
@@ -281,6 +286,34 @@ public:
         code_ = code;
         reply.WriteInt32(ERR_OK);
         reply.WriteUint64(PASSWORD_LAST_CHANGED_TIME_VALUE);
+        return 0;
+    }
+
+    int InvokeSendRequestGetEnterpriseReSignatureCertificates(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option)
+    {
+        GTEST_LOG_(INFO) <<
+            "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetEnterpriseReSignatureCertificates code :" << code;
+        code_ = code;
+        reply.WriteInt32(ERR_OK);
+        reply.WriteInt32(RE_SIGNATURE_CERTIFICATE_COUNT_VALUE);
+        for (int32_t i = 0; i < RE_SIGNATURE_CERTIFICATE_COUNT_VALUE; ++i) {
+            reply.WriteString(RE_SIGNATURE_CERTIFICATE_ALIAS_VALUE);
+            reply.WriteString(RE_SIGNATURE_CERTIFICATE_ENTERPRISE_NAME_VALUE);
+            reply.WriteInt64(RE_SIGNATURE_CERTIFICATE_EXPIRATION_TIME_VALUE);
+        }
+        return 0;
+    }
+
+    int InvokeSendRequestGetEnterpriseReSignatureCertificatesInvalidSize(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option)
+    {
+        GTEST_LOG_(INFO) <<
+            "mock EnterpriseDeviceMgrStubMock InvokeSendRequestGetEnterpriseReSignatureCertificatesInvalidSize code :"
+            << code;
+        code_ = code;
+        reply.WriteInt32(ERR_OK);
+        reply.WriteInt32(RE_SIGNATURE_CERTIFICATE_INVALID_COUNT_VALUE);
         return 0;
     }
 

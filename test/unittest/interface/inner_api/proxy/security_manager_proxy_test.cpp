@@ -905,6 +905,61 @@ HWTEST_F(SecurityManagerProxyTest, TestGetPasswordLastChangedTimeFail, TestSize.
 }
 
 /**
+ * @tc.name: TestGetEnterpriseReSignatureCertificatesSuc
+ * @tc.desc: Test GetEnterpriseReSignatureCertificates success func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetEnterpriseReSignatureCertificatesSuc, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(ACCOUTID_VALID_VALUE);
+    std::vector<ReSignatureCertificateInfo> certificateInfos;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseReSignatureCertificates));
+    int32_t ret = proxy_->GetEnterpriseReSignatureCertificates(data, certificateInfos);
+    ASSERT_EQ(ret, ERR_OK);
+    ASSERT_EQ(certificateInfos.size(), static_cast<size_t>(RE_SIGNATURE_CERTIFICATE_COUNT_VALUE));
+    ASSERT_EQ(certificateInfos[0].certificateAlias, RE_SIGNATURE_CERTIFICATE_ALIAS_VALUE);
+    ASSERT_EQ(certificateInfos[0].enterpriseName, RE_SIGNATURE_CERTIFICATE_ENTERPRISE_NAME_VALUE);
+    ASSERT_EQ(certificateInfos[0].expirationTime, RE_SIGNATURE_CERTIFICATE_EXPIRATION_TIME_VALUE);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseReSignatureCertificatesFail
+ * @tc.desc: Test GetEnterpriseReSignatureCertificates without enable edm service func.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetEnterpriseReSignatureCertificatesFail, TestSize.Level1)
+{
+    Utils::SetEdmServiceDisable();
+    MessageParcel data;
+    data.WriteInt32(ACCOUTID_VALID_VALUE);
+    std::vector<ReSignatureCertificateInfo> certificateInfos;
+    int32_t ret = proxy_->GetEnterpriseReSignatureCertificates(data, certificateInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
+
+/**
+ * @tc.name: TestGetEnterpriseReSignatureCertificatesInvalidSize
+ * @tc.desc: Test GetEnterpriseReSignatureCertificates when reply size is invalid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SecurityManagerProxyTest, TestGetEnterpriseReSignatureCertificatesInvalidSize, TestSize.Level1)
+{
+    MessageParcel data;
+    data.WriteInt32(ACCOUTID_VALID_VALUE);
+    std::vector<ReSignatureCertificateInfo> certificateInfos;
+    EXPECT_CALL(*object_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(object_.GetRefPtr(),
+            &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetEnterpriseReSignatureCertificatesInvalidSize));
+    int32_t ret = proxy_->GetEnterpriseReSignatureCertificates(data, certificateInfos);
+    ASSERT_EQ(ret, EdmReturnErrCode::EXECUTE_TIME_OUT);
+}
+
+/**
  * @tc.name: TestGetPasswordLastChangedTimeFail_01
  * @tc.desc: Test GetPasswordLastChangedTime returns the error code replied by the policy.
  * @tc.type: FUNC
