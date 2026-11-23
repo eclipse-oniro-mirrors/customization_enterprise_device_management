@@ -847,10 +847,11 @@ ohos_shared_library("need_extra_plugin") {
     ]
   }
 
+  sources += [ "./src/device_settings/set_key_code_plugin.cpp" ]
+
   if (enterprise_device_management_feature_phone_only) {
     sources += [
       "./src/device_settings/hidden_settings_menu_plugin.cpp",
-      "./src/device_settings/set_key_code_plugin.cpp",
     ]
   }
 

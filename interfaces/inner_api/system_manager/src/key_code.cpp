@@ -25,10 +25,13 @@
 
 namespace OHOS {
 namespace EDM {
-constexpr int32_t MAX_KEYEVENT_SIZE = 6;
+constexpr int32_t MAX_KEYEVENT_SIZE = 27;
 bool KeyEventHandle::WriteKeyCustomizationVector(MessageParcel &data,
     const std::vector<KeyCustomization> &keyCustomizations)
 {
+    if (keyCustomizations.size() > static_cast<size_t>(MAX_KEYEVENT_SIZE)) {
+        return false;
+    }
     if (!data.WriteInt32(keyCustomizations.size())) {
         return false;
     }
@@ -63,11 +66,11 @@ bool KeyEventHandle::ReadKeyCustomizationVector(MessageParcel &data,
     std::vector<KeyCustomization> &keyCustomizations)
 {
     int32_t size = data.ReadInt32();
-    if (size > MAX_KEYEVENT_SIZE) {
+    if (size < 0 || size > MAX_KEYEVENT_SIZE) {
         return false;
     }
     keyCustomizations.clear();
-    keyCustomizations.reserve(size);
+    keyCustomizations.reserve(static_cast<size_t>(size));
 
     for (int32_t i = 0; i < size; i++) {
         KeyCustomization keyCust;

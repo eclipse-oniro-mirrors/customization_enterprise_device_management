@@ -40,6 +40,7 @@ ohos_unittest("EdmInnerApiUnitTest") {
     "./common/json_builder_test.cpp",
     "./common/notification_received_info_test.cpp",
     "./common/patch_info_test.cpp",
+    "./common/key_code_test.cpp",
     "./common/usb_device_info_test.cpp",
     "./common/policy_changed_event_test.cpp",
     "./proxy/bundle_storage_info_test.cpp",

@@ -27,7 +27,28 @@ enum class KeyCode {
     VOLUME_DOWN = 2,
     BACK = 3,
     HOME = 4,
-    RECENT = 5
+    RECENT = 5,
+    FN = 6,
+    DPAD_UP = 7,
+    DPAD_DOWN = 8,
+    DPAD_LEFT = 9,
+    DPAD_RIGHT = 10,
+    DPAD_CENTER = 11,
+    BRIGHTNESS_UP = 12,
+    BRIGHTNESS_DOWN = 13,
+    ESCAPE = 14,
+    F1 = 15,
+    F2 = 16,
+    F3 = 17,
+    F4 = 18,
+    F5 = 19,
+    F6 = 20,
+    F7 = 21,
+    F8 = 22,
+    F9 = 23,
+    F10 = 24,
+    F11 = 25,
+    F12 = 26
 };
 
 enum KeyPolicy {
