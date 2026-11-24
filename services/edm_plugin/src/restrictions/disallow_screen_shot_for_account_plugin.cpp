@@ -54,14 +54,5 @@ ErrCode DisallowScreenShotForAccountPlugin::SetOtherModulePolicy(bool data, int3
     }
     return ERR_OK;
 }
-
-ErrCode DisallowScreenShotForAccountPlugin::CheckConflictPolicy(int32_t userId)
-{
-    auto policyManager = IPolicyManager::GetInstance();
-    std::string policyValue;
-    policyManager->GetPolicy("", PolicyName::POLICY_POLICY_SCREEN_SHOT, policyValue,
-        EdmConstants::DEFAULT_USER_ID);
-    return policyValue == EdmConstants::CONST_TRUE ? EdmReturnErrCode::CONFIGURATION_CONFLICT_FAILED : ERR_OK;
-}
 } // namespace EDM
 } // namespace OHOS
