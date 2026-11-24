@@ -24,7 +24,6 @@
 #include <unordered_map>
 
 #include "managed_event.h"
-#include "managed_event.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -255,9 +254,11 @@ HWTEST_F(SubscriptionHandleTest, Release_CalledOnlyOnce, TestSize.Level1)
 {
     EventSubscriptionManager &manager = EventSubscriptionManager::GetInstance();
     EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_ADDED)};
-    SubscriptionHandle handle(manager, 0, eventId, "test_sub", SubscriberType::SA_CORE);
+    SubscriptionHandle handle(manager, 100, eventId, "test_sub", SubscriberType::SA_CORE);
     handle.Release();
+    EXPECT_TRUE(handle.released_);
     handle.Release();
+    EXPECT_TRUE(handle.released_);
 }
 
 /**
@@ -308,9 +309,9 @@ HWTEST_F(SubscriptionHandleTest, Destructor_CallsRelease, TestSize.Level1)
     EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_ADDED)};
     {
         SubscriptionHandle handle(manager, 0, eventId, "test_sub", SubscriberType::SA_CORE);
+        EXPECT_FALSE(handle.released_);
     }
 }
-
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

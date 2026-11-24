@@ -18,8 +18,11 @@
 #include "event_subscription_manager.h"
 #undef private
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
+
+#include "edm_app_manager_impl_mock.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -46,6 +49,91 @@ protected:
 HWTEST_F(AppLifecycleAdapterTest, Constructor_CreatesObserver, TestSize.Level1)
 {
     AppLifecycleAdapter adapter(*manager_);
+    EXPECT_NE(adapter.subscriber_, nullptr);
+}
+
+/**
+ * @tc.name: Test_SubscribeEventNullSubscriber
+ * @tc.desc: Test SubscribeEvent returns false when subscriber is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleAdapterTest, SubscribeEvent_NullSubscriber_ReturnsFalse, TestSize.Level1)
+{
+    AppLifecycleAdapter adapter(*manager_);
+    adapter.subscriber_ = nullptr;
+    EXPECT_FALSE(adapter.SubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_SubscribeEventRegisterFails
+ * @tc.desc: Test SubscribeEvent returns false when RegisterApplicationStateObserver fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleAdapterTest, SubscribeEvent_RegisterFails_ReturnsFalse, TestSize.Level1)
+{
+    AppLifecycleAdapter adapter(*manager_);
+    auto mockAppMgr = std::make_shared<EdmAppManagerImplMock>();
+    adapter.edmAppManager_ = mockAppMgr;
+    EXPECT_CALL(*mockAppMgr, RegisterApplicationStateObserver(_))
+        .WillOnce(Return(1));
+    EXPECT_FALSE(adapter.SubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_SubscribeEventRegisterSucceeds
+ * @tc.desc: Test SubscribeEvent returns true when RegisterApplicationStateObserver succeeds.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleAdapterTest, SubscribeEvent_RegisterSucceeds_ReturnsTrue, TestSize.Level1)
+{
+    AppLifecycleAdapter adapter(*manager_);
+    auto mockAppMgr = std::make_shared<EdmAppManagerImplMock>();
+    adapter.edmAppManager_ = mockAppMgr;
+    EXPECT_CALL(*mockAppMgr, RegisterApplicationStateObserver(_))
+        .WillOnce(Return(0));
+    EXPECT_TRUE(adapter.SubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventNullSubscriber
+ * @tc.desc: Test UnsubscribeEvent returns false when subscriber is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleAdapterTest, UnsubscribeEvent_NullSubscriber_ReturnsFalse, TestSize.Level1)
+{
+    AppLifecycleAdapter adapter(*manager_);
+    adapter.subscriber_ = nullptr;
+    EXPECT_FALSE(adapter.UnsubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventUnregisterFails
+ * @tc.desc: Test UnsubscribeEvent returns false when UnregisterApplicationStateObserver fails.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleAdapterTest, UnsubscribeEvent_UnregisterFails_ReturnsFalse, TestSize.Level1)
+{
+    AppLifecycleAdapter adapter(*manager_);
+    auto mockAppMgr = std::make_shared<EdmAppManagerImplMock>();
+    adapter.edmAppManager_ = mockAppMgr;
+    EXPECT_CALL(*mockAppMgr, UnregisterApplicationStateObserver(_))
+        .WillOnce(Return(1));
+    EXPECT_FALSE(adapter.UnsubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventUnregisterSucceeds
+ * @tc.desc: Test UnsubscribeEvent returns true when UnregisterApplicationStateObserver succeeds.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleAdapterTest, UnsubscribeEvent_UnregisterSucceeds_ReturnsTrue, TestSize.Level1)
+{
+    AppLifecycleAdapter adapter(*manager_);
+    auto mockAppMgr = std::make_shared<EdmAppManagerImplMock>();
+    adapter.edmAppManager_ = mockAppMgr;
+    EXPECT_CALL(*mockAppMgr, UnregisterApplicationStateObserver(_))
+        .WillOnce(Return(0));
+    EXPECT_TRUE(adapter.UnsubscribeEvent());
 }
 
 } // namespace TEST

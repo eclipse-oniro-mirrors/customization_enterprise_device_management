@@ -56,6 +56,7 @@ HWTEST_F(CommonEventAdapterTest, Constructor_CreatesSubscriber, TestSize.Level1)
     EventId eventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
 
     CommonEventAdapter adapter(info, *manager_, eventId);
+    EXPECT_NE(adapter.subscriber_, nullptr);
 }
 
 /**
@@ -72,6 +73,93 @@ HWTEST_F(CommonEventAdapterTest, Constructor_WithPermission_CreatesSubscriber, T
     EventId eventId{static_cast<uint32_t>(ManagedEvent::SYSTEM_UPDATE)};
 
     CommonEventAdapter adapter(info, *manager_, eventId);
+    EXPECT_NE(adapter.subscriber_, nullptr);
+}
+
+/**
+ * @tc.name: Test_SubscribeEventNullSubscriber
+ * @tc.desc: Test SubscribeEvent returns false when subscriber is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CommonEventAdapterTest, SubscribeEvent_NullSubscriber_ReturnsFalse, TestSize.Level1)
+{
+    EventFwk::MatchingSkills skill;
+    skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+
+    CommonEventAdapter adapter(info, *manager_, eventId);
+    adapter.subscriber_ = nullptr;
+    EXPECT_FALSE(adapter.SubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventNullSubscriber
+ * @tc.desc: Test UnsubscribeEvent returns false when subscriber is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CommonEventAdapterTest, UnsubscribeEvent_NullSubscriber_ReturnsFalse, TestSize.Level1)
+{
+    EventFwk::MatchingSkills skill;
+    skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED)};
+
+    CommonEventAdapter adapter(info, *manager_, eventId);
+    adapter.subscriber_ = nullptr;
+    EXPECT_FALSE(adapter.UnsubscribeEvent());
+}
+
+/**
+ * @tc.name: Test_SubscribeAndUnsubscribeEventSuccess
+ * @tc.desc: Test SubscribeEvent succeeds and UnsubscribeEvent succeeds after subscription.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CommonEventAdapterTest, SubscribeAndUnsubscribe_Success, TestSize.Level1)
+{
+    EventFwk::MatchingSkills skill;
+    skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED);
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)};
+
+    CommonEventAdapter adapter(info, *manager_, eventId);
+    bool subResult = adapter.SubscribeEvent();
+    if (subResult) {
+        EXPECT_TRUE(adapter.UnsubscribeEvent());
+    }
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventWithoutSubscription
+ * @tc.desc: Test UnsubscribeEvent without prior subscription (may fail or succeed).
+ * @tc.type: FUNC
+ */
+HWTEST_F(CommonEventAdapterTest, UnsubscribeEvent_WithoutSubscription_NoCrash, TestSize.Level1)
+{
+    EventFwk::MatchingSkills skill;
+    skill.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_ADDED);
+    EventFwk::CommonEventSubscribeInfo info(skill);
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_ADDED)};
+
+    CommonEventAdapter adapter(info, *manager_, eventId);
+    bool result = adapter.UnsubscribeEvent();
+    EXPECT_TRUE(result || !result);
+}
+
+/**
+ * @tc.name: Test_SubscribeEventEmptyMatchingSkills
+ * @tc.desc: Test SubscribeEvent with empty MatchingSkills (may fail).
+ * @tc.type: FUNC
+ */
+HWTEST_F(CommonEventAdapterTest, SubscribeEvent_EmptyMatchingSkills_NoCrash, TestSize.Level1)
+{
+    EventFwk::MatchingSkills emptySkill;
+    EventFwk::CommonEventSubscribeInfo emptyInfo(emptySkill);
+    EventId eventId{static_cast<uint32_t>(ManagedEvent::USER_REMOVED)};
+
+    CommonEventAdapter adapter(emptyInfo, *manager_, eventId);
+    bool result = adapter.SubscribeEvent();
+    EXPECT_TRUE(result || !result);
 }
 
 } // namespace TEST

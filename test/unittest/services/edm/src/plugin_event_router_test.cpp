@@ -22,6 +22,8 @@
 #include <gtest/gtest.h>
 #include <string>
 
+#include "edm_event_data.h"
+#include "event_subscription_manager.h"
 #include "managed_event.h"
 
 using namespace testing;
@@ -198,6 +200,215 @@ HWTEST_F(PluginEventRouterTest, AppStartAndAppStop_SeparateEntries, TestSize.Lev
     EXPECT_EQ(router.entries_.count(startKey), 0u);
     EXPECT_EQ(router.entries_.count(stopKey), 0u);
 }
+
+/**
+ * @tc.name: Test_RestorePluginSubscriptionsPolicyManagerNull
+ * @tc.desc: Test RestorePluginSubscriptions returns early when policyManager is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, RestorePluginSubscriptions_PolicyManagerNull_Returns, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    auto saved = IPolicyManager::policyManagerInstance_;
+    IPolicyManager::policyManagerInstance_ = nullptr;
+    size_t beforeSize = router.entries_.size();
+    router.RestorePluginSubscriptions();
+    EXPECT_EQ(router.entries_.size(), beforeSize);
+    IPolicyManager::policyManagerInstance_ = saved;
+}
+
+/**
+ * @tc.name: Test_RestorePluginSubscriptionsAllPoliciesEmpty
+ * @tc.desc: Test RestorePluginSubscriptions skips all plugins when policies are empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, RestorePluginSubscriptions_AllPoliciesEmpty_SkipsSubscribe, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    auto saved = IPolicyManager::policyManagerInstance_;
+    IPolicyManager emptyManager;
+    IPolicyManager::policyManagerInstance_ = &emptyManager;
+    size_t beforeSize = router.entries_.size();
+    router.RestorePluginSubscriptions();
+    EXPECT_EQ(router.entries_.size(), beforeSize);
+    IPolicyManager::policyManagerInstance_ = saved;
+}
+
+/**
+ * @tc.name: Test_SubscribeEventSecondPolicySameEvent
+ * @tc.desc: Test second policy subscribing to same event reuses group state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, SubscribeEvent_SecondPolicySameEvent, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyName1 = "POLICY_UT_SECOND1_" + std::to_string(std::rand());
+    std::string policyName2 = "POLICY_UT_SECOND2_" + std::to_string(std::rand());
+    uint32_t eventCode = static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED);
+
+    bool r1 = router.SubscribeEvent(policyName1, eventCode, 1001, false, false);
+    EXPECT_TRUE(r1);
+    bool r2 = router.SubscribeEvent(policyName2, eventCode, 1002, false, false);
+    EXPECT_TRUE(r2);
+
+    router.UnsubscribeEvent(policyName1, eventCode);
+    router.UnsubscribeEvent(policyName2, eventCode);
+}
+
+/**
+ * @tc.name: Test_SubscribeEventInvalidEventCode
+ * @tc.desc: Test SubscribeEvent with invalid event code returns false.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, SubscribeEvent_InvalidEventCode_ReturnsFalse, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyName = "POLICY_UT_INVALID_" + std::to_string(std::rand());
+    uint32_t invalidEventCode = 9999;
+
+    bool result = router.SubscribeEvent(policyName, invalidEventCode, 999, false, false);
+    EXPECT_FALSE(result);
+
+    EventId eventId{invalidEventCode};
+    std::string key = router.MakeKey(policyName, eventId);
+    EXPECT_EQ(router.entries_.count(key), 0u);
+    EXPECT_EQ(router.eventGroupStates_.count(eventId), 0u);
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventNotFound
+ * @tc.desc: Test UnsubscribeEvent for non-existent policy returns true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, UnsubscribeEvent_NotFound_ReturnsTrue, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    bool result = router.UnsubscribeEvent("NONEXISTENT_POLICY",
+        static_cast<uint32_t>(ManagedEvent::BOOT_COMPLETED));
+    EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventRemainingKeys
+ * @tc.desc: Test UnsubscribeEvent when other keys remain keeps group state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, UnsubscribeEvent_RemainingKeys_KeepsGroup, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyName1 = "POLICY_UT_REM1_" + std::to_string(std::rand());
+    std::string policyName2 = "POLICY_UT_REM2_" + std::to_string(std::rand());
+    uint32_t eventCode = static_cast<uint32_t>(ManagedEvent::USER_ADDED);
+
+    router.SubscribeEvent(policyName1, eventCode, 8001, false, false);
+    router.SubscribeEvent(policyName2, eventCode, 8002, false, false);
+
+    EventId eventId{eventCode};
+    EXPECT_EQ(router.eventGroupStates_.count(eventId), 1u);
+
+    router.UnsubscribeEvent(policyName1, eventCode);
+    EXPECT_EQ(router.eventGroupStates_.count(eventId), 1u);
+
+    router.UnsubscribeEvent(policyName2, eventCode);
+    EXPECT_EQ(router.eventGroupStates_.count(eventId), 0u);
+}
+
+/**
+ * @tc.name: Test_UnsubscribeEventGroupNotFound
+ * @tc.desc: Test UnsubscribeEvent when group state was already removed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, UnsubscribeEvent_GroupNotFound, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyName = "POLICY_UT_NOGROUP_" + std::to_string(std::rand());
+    uint32_t eventCode = static_cast<uint32_t>(ManagedEvent::USER_SWITCHED);
+
+    router.SubscribeEvent(policyName, eventCode, 900, false, false);
+
+    EventId eventId{eventCode};
+    auto groupIt = router.eventGroupStates_.find(eventId);
+    ASSERT_NE(groupIt, router.eventGroupStates_.end());
+    auto handle = groupIt->second->handle;
+    router.eventGroupStates_.erase(eventId);
+
+    bool result = router.UnsubscribeEvent(policyName, eventCode);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(router.entries_.count(router.MakeKey(policyName, eventId)), 0u);
+}
+
+/**
+ * @tc.name: Test_OnEventDispatchTriggersCollect
+ * @tc.desc: Test OnEventDispatch is triggered when event is dispatched.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, OnEventDispatch_TriggersCollect, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyName = "POLICY_UT_DISPATCH_" + std::to_string(std::rand());
+    uint32_t eventCode = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
+
+    bool result = router.SubscribeEvent(policyName, eventCode, 777, false, false);
+    EXPECT_TRUE(result);
+
+    EdmEventData data;
+    data.eventId = EventId{eventCode};
+    EventSubscriptionManager::GetInstance().DispatchEvent(data);
+
+    router.UnsubscribeEvent(policyName, eventCode);
+}
+
+/**
+ * @tc.name: Test_CollectDispatchEntriesEntryNotFound
+ * @tc.desc: Test CollectDispatchEntries skips when entry not found.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, CollectDispatchEntries_EntryNotFound_Skips, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyName = "POLICY_UT_ENTRYNF_" + std::to_string(std::rand());
+    uint32_t eventCode = static_cast<uint32_t>(ManagedEvent::USER_REMOVED);
+
+    router.SubscribeEvent(policyName, eventCode, 888, false, false);
+
+    EventId eventId{eventCode};
+    std::string key = router.MakeKey(policyName, eventId);
+    router.entries_.erase(key);
+    EXPECT_EQ(router.entries_.count(key), 0u);
+
+    EdmEventData data;
+    data.eventId = eventId;
+    EventSubscriptionManager::GetInstance().DispatchEvent(data);
+
+    EXPECT_EQ(router.entries_.count(key), 0u);
+    router.eventGroupStates_.erase(eventId);
+}
+
+/**
+ * @tc.name: Test_CollectDispatchEntriesDifferentEvent
+ * @tc.desc: Test CollectDispatchEntries skips group with different event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginEventRouterTest, CollectDispatchEntries_DifferentEvent_Skips, TestSize.Level1)
+{
+    PluginEventRouter &router = PluginEventRouter::GetInstance();
+    std::string policyNameA = "POLICY_UT_DIFFA_" + std::to_string(std::rand());
+    std::string policyNameB = "POLICY_UT_DIFFB_" + std::to_string(std::rand());
+    uint32_t eventCodeA = static_cast<uint32_t>(ManagedEvent::BUNDLE_ADDED);
+    uint32_t eventCodeB = static_cast<uint32_t>(ManagedEvent::BUNDLE_REMOVED);
+
+    router.SubscribeEvent(policyNameA, eventCodeA, 1100, false, false);
+    router.SubscribeEvent(policyNameB, eventCodeB, 1101, false, false);
+    EXPECT_EQ(router.entries_.size() >= 2, true);
+
+    EdmEventData data;
+    data.eventId = EventId{eventCodeA};
+    EventSubscriptionManager::GetInstance().DispatchEvent(data);
+
+    router.UnsubscribeEvent(policyNameA, eventCodeA);
+    router.UnsubscribeEvent(policyNameB, eventCodeB);
+}
+
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

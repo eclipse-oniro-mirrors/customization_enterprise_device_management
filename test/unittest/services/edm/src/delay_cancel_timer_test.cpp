@@ -189,6 +189,7 @@ HWTEST_F(DelayCancelTimerTest, StartAndCancel_Concurrent_NoCrash, TestSize.Level
     starter.join();
     canceller.join();
     timer->Cancel();
+    EXPECT_FALSE(timer->IsRunning());
 }
 
 /**
@@ -242,6 +243,24 @@ HWTEST_F(DelayCancelTimerTest, ConcurrentStartAndCancel_HighContention, TestSize
     timer->Cancel();
     EXPECT_FALSE(timer->IsRunning());
     EXPECT_EQ(cancelCount.load(), 50);
+}
+
+/**
+ * @tc.name: Test_StartZeroDelayThenCancelRace
+ * @tc.desc: Test Start with zero delay followed by immediate Cancel can trigger
+ *           the active_ false branch after timeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(DelayCancelTimerTest, Start_ZeroDelayThenCancel_RaceCondition, TestSize.Level1)
+{
+    for (int i = 0; i < 200; ++i) {
+        std::atomic<bool> executed{false};
+        auto t = std::make_shared<DelayCancelTimer>();
+        t->Start([&executed]() { executed = true; }, std::chrono::seconds(0));
+        t->Cancel();
+        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        EXPECT_FALSE(t->IsRunning());
+    }
 }
 
 } // namespace TEST
