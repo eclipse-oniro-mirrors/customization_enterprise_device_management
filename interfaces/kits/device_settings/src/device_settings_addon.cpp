@@ -1074,8 +1074,12 @@ napi_value DeviceSettingsAddon::SetEnterpriseDisplayInfo(napi_env env, napi_call
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     std::string enterpriseName;
-    bool isParamValid = argc >= ARGS_SIZE_ONE && argv[ARR_INDEX_ZERO] != nullptr &&
-        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+    bool isParamValid = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    if (!isParamValid) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    isParamValid = argc >= ARGS_SIZE_ONE && argv[ARR_INDEX_ZERO] != nullptr &&
         JsObjectToString(env, argv[ARR_INDEX_ZERO], EdmConstants::ENTERPRISE_DISPLAY_INFO_NAME, true, enterpriseName);
     if (!isParamValid) {
         EDMLOGE("NAPI_SetEnterpriseDisplayInfo parse parameter error");
