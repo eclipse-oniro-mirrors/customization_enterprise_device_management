@@ -78,6 +78,13 @@ public:
     int32_t SetEnterpriseDisplayInfo(const std::string &displayInfo);
     int32_t GetEnterpriseDisplayInfo(std::string &displayInfo);
 
+    // Control panel policies use the new implicit-admin IPC path. The admin bundle is resolved
+    // from the IPC caller on the SA side.
+    int32_t SetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode);
+    int32_t GetDisallowedPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode, bool &result);
+    int32_t GetArrayStringPolicyImplicitAdmin(MessageParcel &data, uint32_t policyCode,
+        std::vector<std::string> &result);
+
 private:
     static std::shared_ptr<DeviceSettingsProxy> instance_;
     static std::once_flag flag_;
