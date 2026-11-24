@@ -143,6 +143,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISALLOWED_PERMISSIVE_USB_DEVICES,
     EdmInterfaceCode::GET_USB_SERIAL_NUMBER,
     EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES,
+    EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
     EdmInterfaceCode::EXTERNAL_STORAGE_INTERCEPT_ENABLE,
     EdmInterfaceCode::EXTERNAL_STORAGE_DEVICE_MOUNT_POLICY,
     EdmInterfaceCode::GET_EXTERNAL_STORAGE_DEVICE_INFOS,

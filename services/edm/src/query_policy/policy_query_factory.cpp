@@ -43,6 +43,7 @@
 
 #ifdef FEATURE_PC_ONLY
 #include "allowed_odd_burn_usb_devices_query.h"
+#include "allowed_odd_burn_usb_devices_for_account_query.h"
 #include "is_allowed_odd_burn_query.h"
 #endif
 
@@ -181,6 +182,8 @@ std::shared_ptr<IPolicyQuery> PolicyQueryFactory::CreateCustomSecurityQuery(uint
 #ifdef FEATURE_PC_ONLY
         case EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES:
             return std::make_shared<AllowedOddBurnUsbDevicesQuery>();
+        case EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT:
+            return std::make_shared<AllowedOddBurnUsbDevicesForAccountQuery>();
         case EdmInterfaceCode::IS_ALLOWED_ODD_BURN:
             return std::make_shared<IsAllowedOddBurnQuery>();
 #endif

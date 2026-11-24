@@ -16,7 +16,11 @@
 #ifndef SERVICES_EDM_INCLUDE_QUERY_IS_ALLOWED_ODD_BURN_QUERY_H
 #define SERVICES_EDM_INCLUDE_QUERY_IS_ALLOWED_ODD_BURN_QUERY_H
 
+#include <string>
+#include <vector>
+
 #include "ipolicy_query.h"
+#include "odd_burn_usb_device.h"
 
 namespace OHOS {
 namespace EDM {
@@ -30,6 +34,12 @@ public:
     std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
 
     ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply, int32_t userId) override;
+
+private:
+    bool MatchOddBurnDevice(const std::vector<OddBurnUsbDevice> &devices, int32_t vendorId, int32_t productId,
+        const std::string &serial) const;
+    bool ParseOddBurnPolicy(const std::string &policyData, std::vector<OddBurnUsbDevice> &devices) const;
+    void WriteAllowedResult(MessageParcel &reply, bool isAllowed) const;
 };
 } // namespace EDM
 } // namespace OHOS

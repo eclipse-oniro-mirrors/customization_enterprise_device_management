@@ -362,6 +362,7 @@ ohos_unittest("EdmPluginTest") {
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
       enterprise_device_management_feature_pc_only) {
     sources += [ "./src/allowed_odd_burn_usb_devices_plugin_test.cpp" ]
+    sources += [ "./src/allowed_odd_burn_usb_devices_for_account_plugin_test.cpp" ]
   }
 
   if (drivers_interface_usb_edm_enable &&
@@ -1057,6 +1058,7 @@ ohos_static_library("edm_all_plugin_static") {
   if (drivers_interface_usb_edm_enable && usb_manager_edm_enable &&
       enterprise_device_management_feature_pc_only) {
     sources += [ "../../../../services/edm_plugin/src/usb_manager/allowed_odd_burn_usb_devices_plugin.cpp" ]
+    sources += [ "../../../../services/edm_plugin/src/usb_manager/allowed_odd_burn_usb_devices_for_account_plugin.cpp" ]
     defines += [ "FEATURE_PC_ONLY" ]
   }
 
