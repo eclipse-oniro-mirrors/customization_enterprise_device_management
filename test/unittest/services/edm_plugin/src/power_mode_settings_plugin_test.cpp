@@ -156,15 +156,16 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueOverflow_ParameterVeri
 }
 
 /**
- * @tc.name: OnHandlePolicy_ValueBelowMin_ParamError
- * @tc.desc: Test OnHandlePolicy function when screen off time is 14999.
+ * @tc.name: OnHandlePolicy_ValueBelowMin_Success
+ * @tc.desc: Test OnHandlePolicy function when screen off time is 14999, no lower bound check.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueBelowMin_ParameterVerificationFailed, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueBelowMin_Success, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    EdmDataAbilityUtils::SetResult("test success");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "14999");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
@@ -191,6 +192,19 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_NeverTimeOutValue_Success, 
     EdmDataAbilityUtils::SetResult("test success");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "-1");
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: OnHandlePolicy_ValueBelowNeverTimeOut_ParameterVerificationFailed
+ * @tc.desc: Test OnHandlePolicy function when screen off time is -2, which is below the supported minimum -1.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ValueBelowNeverTimeOut_ParameterVerificationFailed,
+    TestSize.Level1)
+{
+    std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    ErrCode ret = HandlePolicy(plugin, SettingsItem::SCREEN_OFF_AC, "-2");
+    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
 }
 
 /**
@@ -331,16 +345,17 @@ HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_ActionOutOfRange_ParameterV
 }
 
 /**
- * @tc.name: OnHandlePolicy_DelayTimeInvalid_ParameterVerificationFailed
- * @tc.desc: Test OnHandlePolicy function when delayTime equals 30000.
+ * @tc.name: OnHandlePolicy_DelayTime30000_Success
+ * @tc.desc: Test OnHandlePolicy function when delayTime equals 30000, no sentinel value check.
  * @tc.type: FUNC
  */
-HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTimeInvalid_ParameterVerificationFailed, TestSize.Level1)
+HWTEST_F(PowerModeSettingsPluginTest, OnHandlePolicy_DelayTime30000_Success, TestSize.Level1)
 {
     std::shared_ptr<PowerModeSettingsPlugin> plugin = CreatePlugin();
+    EdmDataAbilityUtils::SetResult("power_suspend_normal");
     ErrCode ret = HandlePolicy(plugin, SettingsItem::POWER_POLICY_DC,
         "{\"powerScene\":0,\"powerPolicy\":{\"powerPolicyAction\":1,\"delayTime\":30000}}");
-    EXPECT_EQ(ret, static_cast<int32_t>(EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED));
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**
