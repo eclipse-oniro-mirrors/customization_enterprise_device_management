@@ -2155,7 +2155,12 @@ HWTEST_F(ApplicationManagerProxyTest, TestGetApplicationIconDataSuc, TestSize.Le
     Utils::SetEdmServiceEnable();
     EXPECT_CALL(*object_, SendRequest(_, _, _, _))
         .Times(1)
-        .WillOnce(Invoke(object_.GetRefPtr(), &EnterpriseDeviceMgrStubMock::InvokeSendRequestGetPolicy));
+        .WillOnce(Invoke([](uint32_t, MessageParcel &, MessageParcel &reply, MessageOption &) {
+            reply.WriteInt32(ERR_OK);
+            reply.WriteInt32(static_cast<int32_t>(RETURN_STRING.size()));
+            reply.WriteRawData(RETURN_STRING.data(), RETURN_STRING.size());
+            return 0;
+        }));
     MessageParcel data;
     std::string iconData;
     int32_t ret = applicationManagerProxy_->GetApplicationIconData(data, iconData);

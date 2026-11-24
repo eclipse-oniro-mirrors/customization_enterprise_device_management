@@ -345,10 +345,25 @@ int32_t ApplicationManagerProxy::GetApplicationIconData(MessageParcel &data, std
         EDMLOGW("ApplicationManagerProxy::GetApplicationIconData fail. %{public}d", ret);
         return ret;
     }
-    if (!reply.ReadString(iconData)) {
+    int32_t dataSize = -1;
+    if (!reply.ReadInt32(dataSize) || dataSize < 0) {
+        EDMLOGE("ApplicationManagerProxy::GetApplicationIconData read iconData size failed");
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    if (static_cast<size_t>(dataSize) > EdmConstants::MAX_IPC_RAWDATA_SIZE) {
+        EDMLOGE("ApplicationManagerProxy::GetApplicationIconData invalid iconData size:%{public}d", dataSize);
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    iconData.clear();
+    if (dataSize == 0) {
+        return ERR_OK;
+    }
+    const void *rawData = reply.ReadRawData(static_cast<size_t>(dataSize));
+    if (rawData == nullptr) {
         EDMLOGE("ApplicationManagerProxy::GetApplicationIconData read iconData failed");
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
+    iconData.assign(static_cast<const char *>(rawData), static_cast<size_t>(dataSize));
     return ERR_OK;
 }
 

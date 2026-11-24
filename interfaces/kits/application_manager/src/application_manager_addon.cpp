@@ -1381,9 +1381,11 @@ napi_value ApplicationManagerAddon::GetApplicationIconData(napi_env env, napi_ca
 
     // This API must be invoked by an activated administrator application. QueryPolicy::SELF lets
     // the service resolve the caller bundle by calling uid and verify the caller admin identity.
+    int32_t userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
     MessageParcel parcelData;
     parcelData.WriteInterfaceToken(DESCRIPTOR);
-    parcelData.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    parcelData.WriteInt32(userId);
     parcelData.WriteInt32(static_cast<int32_t>(QueryPolicy::SELF));
     parcelData.WriteString(bundleName);
 
