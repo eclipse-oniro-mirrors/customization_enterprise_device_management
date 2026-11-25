@@ -45,7 +45,7 @@ struct ControlPanelToggleItem {
     std::string_view key;
 };
 
-// Keep this table in sync with ControlPanelTopToggleList in the .d.ts declaration.
+// Keep this table in sync with ControlPanelTopToggleType in the .d.ts declaration.
 constexpr std::array<ControlPanelToggleItem, 7> CONTROL_PANEL_TOP_TOGGLES = {{
     {"SUPER_DEVICE", 0, "super_device"},
     {"BRIGHTNESS", 1, "brightness"},
@@ -56,7 +56,7 @@ constexpr std::array<ControlPanelToggleItem, 7> CONTROL_PANEL_TOP_TOGGLES = {{
     {"MOBILE_DATA", 6, "mobile_data_tagged"},
 }};
 
-// Keep this table in sync with ControlPanelQuickToggleList in the .d.ts declaration.
+// Keep this table in sync with ControlPanelQuickToggleType in the .d.ts declaration.
 constexpr std::array<ControlPanelToggleItem, 48> CONTROL_PANEL_QUICK_TOGGLES = {{
     {"FLASHLIGHT", 0, "flashlight"},
     {"RING_MODE", 1, "ring_mode"},
@@ -569,8 +569,8 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getControlPanelTopToggleListForAccount", GetControlPanelTopToggleListForAccount),
         DECLARE_NAPI_PROPERTY("SwitchKey", nSwitchKey),
         DECLARE_NAPI_PROPERTY("SwitchStatus", nSwitchStatus),
-        DECLARE_NAPI_PROPERTY("ControlPanelTopToggleList", nControlPanelTopToggleList),
-        DECLARE_NAPI_PROPERTY("ControlPanelQuickToggleList", nControlPanelQuickToggleList),
+        DECLARE_NAPI_PROPERTY("ControlPanelTopToggleType", nControlPanelTopToggleList),
+        DECLARE_NAPI_PROPERTY("ControlPanelQuickToggleType", nControlPanelQuickToggleList),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
