@@ -607,10 +607,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
-    {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
-        {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::IS_ALLOWED_ODD_BURN, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
@@ -702,6 +698,10 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_COMPANION_AI, {PolicyName::POLICY_DISALLOW_COMPANION_AI,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
