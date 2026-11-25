@@ -23,6 +23,7 @@
 
 #include "edm_constants.h"
 #include "edm_ipc_interface_code.h"
+#include "errors.h"
 #include "utils.h"
 
 using namespace testing;
@@ -155,6 +156,89 @@ HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_MaxNetId, TestSize.Level1)
     HandlePolicyData policyData{"", "", false};
     ErrCode ret = plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
     EXPECT_NE(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+}
+
+namespace {
+constexpr int32_t FLUSH_DNS_CACHE_NOT_EXIST = -2; // the downstream's answer when the netId has no cache
+constexpr int32_t FLUSH_DNS_CACHE_FAILED = -1;
+constexpr int32_t NET_ID_WITHOUT_CACHE = 100;
+constexpr int32_t INVALID_NET_ID = -1;
+} // namespace
+
+class ClearDnsCachePluginMock : public ClearDnsCachePlugin {
+public:
+    int32_t netId_ = -1;
+    int32_t callCount_ = 0;
+    int32_t ret_ = ERR_OK;
+
+protected:
+    int32_t FlushDnsCache(int32_t netId) override
+    {
+        netId_ = netId;
+        callCount_++;
+        return ret_;
+    }
+};
+
+ErrCode CallClearDnsCache(ClearDnsCachePlugin &plugin, int32_t netId)
+{
+    MessageParcel data;
+    data.WriteInt32(netId);
+    MessageParcel reply;
+    HandlePolicyData policyData { "", "", false };
+    return plugin.OnHandlePolicy(0, data, reply, policyData, DEFAULT_USER_ID);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicy_DnsCacheNotExist
+ * @tc.desc: FlushDnsCache answers -2 when the netId has no dns cache, which maps to 9201065.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_DnsCacheNotExist, TestSize.Level1)
+{
+    ClearDnsCachePluginMock plugin;
+    plugin.ret_ = FLUSH_DNS_CACHE_NOT_EXIST;
+    EXPECT_EQ(CallClearDnsCache(plugin, NET_ID_WITHOUT_CACHE), EdmReturnErrCode::DNS_CACHE_NOT_EXIST);
+    EXPECT_EQ(plugin.callCount_, 1);
+    EXPECT_EQ(plugin.netId_, NET_ID_WITHOUT_CACHE);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicy_OtherDownstreamFailureKeepsExecuteTimeOut
+ * @tc.desc: any other non-zero answer of FlushDnsCache still maps to 9200016.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_OtherDownstreamFailureKeepsExecuteTimeOut, TestSize.Level1)
+{
+    ClearDnsCachePluginMock plugin;
+    plugin.ret_ = FLUSH_DNS_CACHE_FAILED;
+    EXPECT_EQ(CallClearDnsCache(plugin, NET_ID_WITHOUT_CACHE), EdmReturnErrCode::EXECUTE_TIME_OUT);
+    EXPECT_EQ(plugin.callCount_, 1);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicy_DownstreamSuccess
+ * @tc.desc: FlushDnsCache answering ERR_OK keeps the interface successful.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_DownstreamSuccess, TestSize.Level1)
+{
+    ClearDnsCachePluginMock plugin;
+    plugin.ret_ = ERR_OK;
+    EXPECT_EQ(CallClearDnsCache(plugin, NET_ID_WITHOUT_CACHE), ERR_OK);
+    EXPECT_EQ(plugin.callCount_, 1);
+}
+
+/**
+ * @tc.name: TestOnHandlePolicy_InvalidNetIdDoesNotReachDownstream
+ * @tc.desc: a negative netId is refused by validation, so FlushDnsCache is never called.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ClearDnsCachePluginTest, TestOnHandlePolicy_InvalidNetIdDoesNotReachDownstream, TestSize.Level1)
+{
+    ClearDnsCachePluginMock plugin;
+    EXPECT_EQ(CallClearDnsCache(plugin, INVALID_NET_ID), EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
+    EXPECT_EQ(plugin.callCount_, 0);
 }
 
 } // namespace TEST

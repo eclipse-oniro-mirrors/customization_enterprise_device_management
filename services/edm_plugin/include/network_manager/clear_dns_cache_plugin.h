@@ -25,6 +25,9 @@ public:
     ClearDnsCachePlugin();
     ErrCode OnHandlePolicy(std::uint32_t funcCode, MessageParcel &data, MessageParcel &reply,
         HandlePolicyData &policyData, int32_t userId) override;
+
+protected:
+    virtual int32_t FlushDnsCache(int32_t netId);
 };
 } // namespace EDM
 } // namespace OHOS
