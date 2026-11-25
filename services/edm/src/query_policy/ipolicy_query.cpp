@@ -31,6 +31,8 @@
 namespace OHOS {
 namespace EDM {
 
+constexpr const char *WITHOUT_PERMISSION_TAG = "";
+
 IPlugin::ApiType IPolicyQuery::GetApiType()
 {
     return IPlugin::ApiType::PUBLIC;
@@ -140,19 +142,18 @@ ErrCode IPolicyQuery::GetPolicyNew(std::shared_ptr<PolicyManager> policyManager,
         IPlugin::PermissionType permissionType =
             PermissionChecker::GetInstance()->AdminTypeToPermissionType(deviceAdmin->GetAdminType());
         ErrCode ret = PermissionChecker::GetInstance()->CheckHandlePolicyPermission(FuncOperateType::GET,
-            deviceAdmin, this->GetPolicyName(),
-            this->GetPermission(permissionType, EdmConstants::PERMISSION_TAG_VERSION_12), userId);
+            deviceAdmin, this->GetPolicyName(), this->GetPermission(permissionType, WITHOUT_PERMISSION_TAG), userId);
         if (FAILED(ret)) {
             return ret;
         }
         abilityName = deviceAdmin->adminInfo_.className_;
     } else {
         ErrCode superRet = PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
-            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN,
-            EdmConstants::PERMISSION_TAG_VERSION_12), this->GetPolicyName());
+            this->GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG),
+            this->GetPolicyName());
         ErrCode byodRet = PermissionChecker::GetInstance()->CheckElementNullPermissionNew(code,
-            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN,
-            EdmConstants::PERMISSION_TAG_VERSION_12), this->GetPolicyName());
+            this->GetPermission(IPlugin::PermissionType::BYOD_DEVICE_ADMIN, WITHOUT_PERMISSION_TAG),
+            this->GetPolicyName());
         if (FAILED(superRet) && FAILED(byodRet)) {
             EDMLOGE("IPolicyQuery: permission check failed");
             return superRet;
