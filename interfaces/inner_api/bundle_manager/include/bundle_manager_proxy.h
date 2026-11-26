@@ -51,6 +51,7 @@ public:
         int32_t userId, std::vector<BundleStorageInfo> &result);
     int32_t SetDefaultApplication(MessageParcel &data);
     int32_t GetDefaultApplicationBundleName(MessageParcel &data, std::string &bundleName);
+    int32_t InstallExisted(MessageParcel &data);
 private:
     void AddPolicyTypeMap();
     static std::shared_ptr<BundleManagerProxy> instance_;

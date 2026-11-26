@@ -101,6 +101,12 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_create_object(env, &nDefaultApplicationType));
     CreateDefaultApplicationTypeObject(env, nDefaultApplicationType);
 
+    return InitProperties(env, exports, nAppDistributionType, nBundleInfoGetFlag, nDefaultApplicationType);
+}
+
+napi_value BundleManagerAddon::InitProperties(napi_env env, napi_value exports, napi_value nAppDistributionType,
+    napi_value nBundleInfoGetFlag, napi_value nDefaultApplicationType)
+{
     napi_property_descriptor property[] = {
         DECLARE_NAPI_FUNCTION("addAllowedInstallBundles", AddAllowedInstallBundles),
         DECLARE_NAPI_FUNCTION("removeAllowedInstallBundles", RemoveAllowedInstallBundles),
@@ -134,6 +140,7 @@ napi_value BundleManagerAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getInstalledBundleStorageStats", GetInstalledBundleStorageStats),
         DECLARE_NAPI_FUNCTION("setDefaultApplication", SetDefaultApplication),
         DECLARE_NAPI_FUNCTION("getDefaultApplicationBundleName", GetDefaultApplicationBundleName),
+        DECLARE_NAPI_FUNCTION("installExisted", InstallExisted),
         DECLARE_NAPI_PROPERTY("AppDistributionType", nAppDistributionType),
         DECLARE_NAPI_PROPERTY("BundleInfoGetFlag", nBundleInfoGetFlag),
         DECLARE_NAPI_PROPERTY("DefaultApplicationType", nDefaultApplicationType),
@@ -1495,6 +1502,32 @@ napi_value BundleManagerAddon::SetDefaultApplication(napi_env env, napi_callback
     if (FAILED(retCode)) {
         napi_throw(env, CreateError(env, retCode, addonMethodSign.errcodeType));
         EDMLOGE("BundleManagerAddon::SetDefaultApplication failed!");
+    }
+    return nullptr;
+}
+
+napi_value BundleManagerAddon::InstallExisted(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("BundleManagerAddon::InstallExisted called");
+    AddonMethodSign addonMethodSign;
+    addonMethodSign.name = "InstallExisted";
+    addonMethodSign.argsType = {EdmAddonCommonType::STRING, EdmAddonCommonType::USERID};
+    addonMethodSign.methodAttribute = MethodAttribute::HANDLE;
+    addonMethodSign.errcodeType = ErrcodeType::NUMBER;
+    AdapterAddonData adapterAddonData{};
+    if (JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData) == nullptr) {
+        return nullptr;
+    }
+    auto bundleManagerProxy = BundleManagerProxy::GetBundleManagerProxy();
+    if (bundleManagerProxy == nullptr) {
+        EDMLOGE("can not get BundleManagerProxy");
+        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, addonMethodSign.errcodeType));
+        return nullptr;
+    }
+    int32_t retCode = bundleManagerProxy->InstallExisted(adapterAddonData.data);
+    if (FAILED(retCode)) {
+        napi_throw(env, CreateError(env, retCode, addonMethodSign.errcodeType));
+        EDMLOGE("BundleManagerAddon::InstallExisted failed!");
     }
     return nullptr;
 }

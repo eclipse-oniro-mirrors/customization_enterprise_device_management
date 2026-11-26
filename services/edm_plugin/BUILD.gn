@@ -121,6 +121,7 @@ ohos_shared_library("device_core_plugin") {
       "./src/bundle_manager/install_enterprise_re_signature_certificate_plugin.cpp",
       "./src/bundle_manager/install_plugin.cpp",
       "./src/bundle_manager/uninstall_plugin.cpp",
+      "./src/bundle_manager/install_existed_plugin.cpp",
       "./src/datetime_manager/disallow_modify_datetime_plugin.cpp",
       "./src/datetime_manager/ntp_server_plugin.cpp",
       "./src/device_settings/control_panel_quick_toggle_list_plugin.cpp",

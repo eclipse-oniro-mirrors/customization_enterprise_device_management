@@ -376,6 +376,14 @@ int32_t BundleManagerProxy::GetDefaultApplicationBundleName(MessageParcel &data,
     return ERR_OK;
 }
 
+int32_t BundleManagerProxy::InstallExisted(MessageParcel &data)
+{
+    EDMLOGD("BundleManagerProxy::InstallExisted");
+    std::uint32_t funcCode =
+        POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET, EdmInterfaceCode::INSTALL_EXISTED);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
 ErrCode BundleManagerProxy::InnerGetVectorFromParcelIntelligent(MessageParcel &reply,
     std::vector<EdmBundleInfo> &parcelableInfos)
 {
