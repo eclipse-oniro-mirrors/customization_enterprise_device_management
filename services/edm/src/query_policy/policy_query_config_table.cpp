@@ -682,6 +682,16 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, {PolicyName::POLICY_TELEPHONY_CALL_POLICY,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::SWITCH_DATACARD_DISABLE,
+        {PolicyName::POLICY_DISABLE_SWITCH_DATACARD, PolicyDataType::BOOL,
+        PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY),
+        true, IPlugin::ApiType::PUBLIC,
+#ifdef TELEPHONY_EDM_ENABLE
+        true
+#else
+        false
+#endif
+    }},
     // CONTROL_PANEL_RESTRICTED intentionally has no query entry. GET falls back to
     // ControlPanelRestrictedPlugin::OnGetPolicy to read the device-level persist value.
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT, {PolicyName::POLICY_DISALLOW_SCREEN_SHOT_FOR_ACCOUNT,
