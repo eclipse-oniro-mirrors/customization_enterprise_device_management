@@ -48,6 +48,7 @@ bool DeviceAdmin::HasPermissionToCallServiceCode(uint32_t interfaceCode) const
         case static_cast<uint32_t>(EdmInterfaceCode::GET_ADMIN_INFOS):
         case static_cast<uint32_t>(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO):
         case static_cast<uint32_t>(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO):
+        case static_cast<uint32_t>(EdmInterfaceCode::UNINSTALL_SELF):
             return true;
         default:
             return false;

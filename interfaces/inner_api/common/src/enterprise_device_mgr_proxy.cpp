@@ -177,6 +177,23 @@ ErrCode EnterpriseDeviceMgrProxy::EnableSelfDeviceAdmin(const AppExecFwk::Elemen
     return mgrService->EnableSelfDeviceAdmin(admin, credential);
 }
 
+ErrCode EnterpriseDeviceMgrProxy::UninstallSelf()
+{
+    EDMLOGD("EnterpriseDeviceMgrProxy::UninstallSelf");
+    if (!IsEdmEnabled()) {
+        return EdmReturnErrCode::ADMIN_INACTIVE;
+    }
+    sptr<IRemoteObject> remote = LoadAndGetEdmService();
+    if (!remote) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    sptr<IEnterpriseDeviceMgrIdl> mgrService = iface_cast<IEnterpriseDeviceMgrIdl>(remote);
+    if (!mgrService) {
+        return EdmReturnErrCode::EXECUTE_TIME_OUT;
+    }
+    return mgrService->UninstallSelf();
+}
+
 ErrCode EnterpriseDeviceMgrProxy::GetEnabledAdmin(AdminType type, std::vector<std::string> &enabledAdminList)
 {
     EDMLOGD("EnterpriseDeviceMgrProxy::GetEnabledAdmin");

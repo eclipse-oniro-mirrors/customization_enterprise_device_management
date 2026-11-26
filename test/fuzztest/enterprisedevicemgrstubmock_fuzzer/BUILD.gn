@@ -107,6 +107,7 @@ ohos_static_library("edmservice_fuzz_static") {
     "../../../services/edm/src/edm_timer_info.cpp",
     "../../../services/edm/src/edm_timer_manager.cpp",
     "../../../services/edm/src/enterprise_device_mgr_ability.cpp",
+    "../../../services/edm/src/uninstall_self_callback.cpp",
     "../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../services/edm/src/ext_info_manager.cpp",
     "../../../services/edm/src/extra_policy_notification.cpp",
