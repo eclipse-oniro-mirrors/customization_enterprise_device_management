@@ -647,9 +647,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
-    {EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_RECENT_TASKS, {PolicyName::POLICY_DISALLOW_RECENT_TASKS,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,

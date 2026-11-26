@@ -133,9 +133,6 @@ namespace EdmConstants {
     // 控制中心图标裁剪管控标记persist参数
     constexpr const char* PARAM_EDM_CONTROL_PANEL_RESTRICTED = "persist.edm.control_panel_restricted";
     
-    // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
-    const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
-
     // USB 拦截管控使能 persist 参数（以需求/SDK 为准：true/false）
     constexpr const char* PARAM_EDM_USB_INTERCEPT_ENABLE =
         "persist.edm.usb.intercept_enable";
