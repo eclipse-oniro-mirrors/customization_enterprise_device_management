@@ -190,6 +190,8 @@ std::unordered_map<int32_t, uint32_t> RestrictionsAddon::featureEnum2InterfaceCo
     {static_cast<int32_t>(RestrictionsFeature::ADVANCED_MESSAGE), EdmInterfaceCode::DISALLOWED_ADVANCED_MESSAGE},
     {static_cast<int32_t>(RestrictionsFeature::POWER_SAVING_MODE), EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE},
     {static_cast<int32_t>(RestrictionsFeature::PARENT_CONTROL), EdmInterfaceCode::DISALLOW_PARENT_CONTROL},
+    {static_cast<int32_t>(RestrictionsFeature::SWITCH_DATACARD),
+        EdmInterfaceCode::SWITCH_DATACARD_DISABLE},
     {static_cast<int32_t>(RestrictionsFeature::COMPANION_AI), EdmInterfaceCode::DISALLOW_COMPANION_AI},
 };
 
@@ -1446,6 +1448,7 @@ void RestrictionsAddon::CreateFeatureForDevicePart2(napi_env env, napi_value val
         {"POWER_SAVING_MODE", static_cast<uint32_t>(RestrictionsFeature::POWER_SAVING_MODE)},
         {"PARENT_CONTROL", static_cast<uint32_t>(RestrictionsFeature::PARENT_CONTROL)},
         {"COMPANION_AI", static_cast<uint32_t>(RestrictionsFeature::COMPANION_AI)},
+        {"SWITCH_DATACARD", static_cast<uint32_t>(RestrictionsFeature::SWITCH_DATACARD)},
     };
     for (auto &e : entries) {
         SetEnumProperty(env, value, e.name, e.val);

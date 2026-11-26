@@ -73,6 +73,7 @@ enum class RestrictionsFeature : int32_t {
     SYSTEM_ROLLBACK = 51,
     SATA_ODD_BURN = 52,
     SUPER_PRIVACY = 53,
+    SWITCH_DATACARD = 54,
     ADVANCED_MESSAGE = 55,
     COMPANION_AI = 56,
     POWER_SAVING_MODE = 57,

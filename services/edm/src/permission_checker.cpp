@@ -161,6 +161,7 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::DISALLOWED_FREE_WINDOW,
     EdmInterfaceCode::DISALLOW_POWER_SAVING_MODE,
     EdmInterfaceCode::DISALLOW_PARENT_CONTROL,
+    EdmInterfaceCode::SWITCH_DATACARD_DISABLE,
     EdmInterfaceCode::GET_APPLICATION_ICON_DATA,
     EdmInterfaceCode::INSTALL_DEVICE_CERTIFICATE,
     EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT,

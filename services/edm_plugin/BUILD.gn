@@ -421,6 +421,7 @@ ohos_shared_library("communication_plugin") {
         "./src/network_manager/set_apn_plugin.cpp",
         "./src/network_manager/set_default_data_sim_plugin.cpp",
         "./src/network_manager/turnonoff_mobile_data_plugin.cpp",
+        "./src/restrictions/disable_switch_datacard_plugin.cpp",
         "./src/restrictions/disallow_mobile_data_plugin.cpp",
         "./src/restrictions/disallow_modify_apn_plugin.cpp",
         "./src/restrictions/disallowed_sim_plugin.cpp",

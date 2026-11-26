@@ -132,6 +132,7 @@ std::vector<uint32_t> PluginManager::communicationSoCodes_ = {
     EdmInterfaceCode::DISABLE_SAMBA_CLIENT, EdmInterfaceCode::DISABLE_SAMBA_SERVER,
     EdmInterfaceCode::TURNONOFF_MOBILE_DATA, EdmInterfaceCode::SET_APN_INFO,
     EdmInterfaceCode::DISALLOWED_SIM, EdmInterfaceCode::DISALLOWED_MOBILE_DATA,
+    EdmInterfaceCode::SWITCH_DATACARD_DISABLE,
     EdmInterfaceCode::DISALLOW_MODIFY_ETHERNET_IP, EdmInterfaceCode::DISALLOWED_AIRPLANE_MODE,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY, EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL,
     EdmInterfaceCode::DISALLOW_VPN, EdmInterfaceCode::DISALLOWED_EXTERNAL_STORAGE_CARD,

@@ -527,6 +527,7 @@ ohos_unittest("EdmPluginTest") {
     ]
     sources += [
       "./src/active_sim_plugin_test.cpp",
+      "./src/disable_switch_datacard_plugin_test.cpp",
       "./src/disallow_mobile_data_plugin_test.cpp",
       "./src/disallow_modify_apn_plugin_test.cpp",
       "./src/disallowed_sim_plugin_test.cpp",
@@ -1227,6 +1228,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/network_manager/set_apn_plugin.cpp",
       "../../../../services/edm_plugin/src/network_manager/set_default_data_sim_plugin.cpp",
       "../../../../services/edm_plugin/src/network_manager/turnonoff_mobile_data_plugin.cpp",
+      "../../../../services/edm_plugin/src/restrictions/disable_switch_datacard_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_mobile_data_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallow_modify_apn_plugin.cpp",
       "../../../../services/edm_plugin/src/restrictions/disallowed_sim_plugin.cpp",

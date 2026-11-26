@@ -623,6 +623,7 @@ ohos_unittest("EdmServicesUnitTest") {
   if (enterprise_device_management_feature_phone_only && cellular_data_edm_enable) {
     sources += [
       "./src/query_policy/is_allowed_telephony_call_query_test.cpp",
+      "./src/switch_datacard_query_test.cpp",
     ]
   }
 
