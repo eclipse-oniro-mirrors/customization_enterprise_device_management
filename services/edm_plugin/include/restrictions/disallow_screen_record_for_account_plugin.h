@@ -26,8 +26,6 @@ public:
 
 private:
     ErrCode SetOtherModulePolicy(bool data, int32_t userId) override;
-protected:
-    ErrCode CheckConflictPolicy(int32_t userId) override;
 };
 } // namespace EDM
 } // namespace OHOS
