@@ -210,51 +210,47 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(MessageParcel &data, std::ve
     return ERR_OK;
 }
 
-int32_t TelephonyManagerProxy::AddSmsPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const std::string &smsType, const int32_t policyFlag, const std::vector<std::string> &numbers)
+int32_t TelephonyManagerProxy::AddSmsPolicyNumbers(const std::string &smsType,
+    const int32_t policyFlag, const std::vector<std::string> &numbers)
 {
     EDMLOGD("TelephonyManagerProxy::AddSmsPolicyNumbers.");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
     data.WriteString(smsType);
     data.WriteInt32(policyFlag);
     if (!WriteSmsNumberListToAshmem(numbers, data)) {
         EDMLOGE("TelephonyManagerProxy::AddSmsPolicyNumbers WriteSmsNumberListToAshmem failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
         EdmInterfaceCode::TELEPHONY_SMS_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
-int32_t TelephonyManagerProxy::RemoveSmsPolicyNumbers(const AppExecFwk::ElementName &admin,
-    const std::string &smsType, const int32_t policyFlag, const std::vector<std::string> &numbers)
+int32_t TelephonyManagerProxy::RemoveSmsPolicyNumbers(const std::string &smsType,
+    const int32_t policyFlag, const std::vector<std::string> &numbers)
 {
     EDMLOGD("TelephonyManagerProxy::RemoveSmsPolicyNumbers.");
     MessageParcel data;
     data.WriteInterfaceToken(DESCRIPTOR);
-    data.WriteInt32(WITHOUT_USERID);
-    data.WriteParcelable(&admin);
-    data.WriteString(WITHOUT_PERMISSION_TAG);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
     data.WriteString(smsType);
     data.WriteInt32(policyFlag);
     if (!WriteSmsNumberListToAshmem(numbers, data)) {
         EDMLOGE("TelephonyManagerProxy::RemoveSmsPolicyNumbers WriteSmsNumberListToAshmem failed.");
         return EdmReturnErrCode::SYSTEM_ABNORMALLY;
     }
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::REMOVE,
         EdmInterfaceCode::TELEPHONY_SMS_POLICY);
-    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicy(funcCode, data);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
 }
 
 int32_t TelephonyManagerProxy::GetSmsPolicyNumbers(MessageParcel &data, std::vector<std::string> &numbers)
 {
     EDMLOGD("TelephonyManagerProxy::GetSmsPolicyNumbers with MessageParcel.");
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicy(EdmInterfaceCode::TELEPHONY_SMS_POLICY, data, reply);
+    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::TELEPHONY_SMS_POLICY, data, reply);
     int32_t ret = ERR_INVALID_VALUE;
     bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!blRes) {

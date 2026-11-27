@@ -366,32 +366,27 @@ napi_value TelephonyManagerAddon::AddOutgoingSmsPolicyNumbers(napi_env env, napi
 {
     EDMLOGI("NAPI_AddOutgoingSmsPolicyNumbers called");
 #if defined(TELEPHONY_EDM_ENABLE)
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be Policy.");
-    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_TWO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The third parameter must be numbers.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The first parameter must be Policy.");
+    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The second parameter must be numbers.");
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
     int32_t policy = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ZERO]),
         "policy param error");
     std::vector<std::string> numbers;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_ONE]),
         "numbers param error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddSmsPolicyNumbers(
-        elementName, EdmConstants::SmsPolicy::OUTGOING, policy, numbers);
+        EdmConstants::SmsPolicy::OUTGOING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -407,32 +402,27 @@ napi_value TelephonyManagerAddon::RemoveOutgoingSmsPolicyNumbers(napi_env env, n
 {
     EDMLOGI("NAPI_RemoveOutgoingSmsPolicyNumbers called");
 #if defined(TELEPHONY_EDM_ENABLE)
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be Policy.");
-    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_TWO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The third parameter must be numbers.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The first parameter must be Policy.");
+    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The second parameter must be numbers.");
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
     int32_t policy = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ZERO]),
         "policy param error");
     std::vector<std::string> numbers;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_ONE]),
         "numbers param error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveSmsPolicyNumbers(
-        elementName, EdmConstants::SmsPolicy::OUTGOING, policy, numbers);
+        EdmConstants::SmsPolicy::OUTGOING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -462,11 +452,11 @@ napi_value TelephonyManagerAddon::GetSmsPolicyNumbersCommon(napi_env env, napi_c
     };
     AddonMethodSign addonMethodSign;
     addonMethodSign.name = methodName;
-    addonMethodSign.argsType = {EdmAddonCommonType::ELEMENT_NULL, EdmAddonCommonType::CUSTOM};
-    addonMethodSign.argsConvert = {nullptr, convertPolicy2Data};
+    addonMethodSign.argsType = {EdmAddonCommonType::CUSTOM};
+    addonMethodSign.argsConvert = {convertPolicy2Data};
     addonMethodSign.methodAttribute = MethodAttribute::GET;
     AdapterAddonData adapterAddonData{};
-    napi_value result = JsObjectToData(env, info, addonMethodSign, &adapterAddonData);
+    napi_value result = JsObjectToDataNew(env, info, addonMethodSign, &adapterAddonData);
     if (result == nullptr) {
         return nullptr;
     }
@@ -497,32 +487,27 @@ napi_value TelephonyManagerAddon::AddIncomingSmsPolicyNumbers(napi_env env, napi
 {
     EDMLOGI("NAPI_AddIncomingSmsPolicyNumbers called");
 #if defined(TELEPHONY_EDM_ENABLE)
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be Policy.");
-    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_TWO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The third parameter must be numbers.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The first parameter must be Policy.");
+    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The second parameter must be numbers.");
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
     int32_t policy = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ZERO]),
         "policy param error");
     std::vector<std::string> numbers;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_ONE]),
         "numbers param error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->AddSmsPolicyNumbers(
-        elementName, EdmConstants::SmsPolicy::INCOMING, policy, numbers);
+        EdmConstants::SmsPolicy::INCOMING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
@@ -538,32 +523,27 @@ napi_value TelephonyManagerAddon::RemoveIncomingSmsPolicyNumbers(napi_env env, n
 {
     EDMLOGI("NAPI_RemoveIncomingSmsPolicyNumbers called");
 #if defined(TELEPHONY_EDM_ENABLE)
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    size_t argc = ARGS_SIZE_TWO;
+    napi_value argv[ARGS_SIZE_TWO] = {nullptr};
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
-    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
-    bool hasAdmin = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasAdmin, "The first parameter must be want.");
-    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ONE], napi_number);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The second parameter must be Policy.");
-    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_TWO], napi_object);
-    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The third parameter must be numbers.");
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
+    bool hasPolicy = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_number);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasPolicy, "The first parameter must be Policy.");
+    bool hasNumbers = MatchValueType(env, argv[ARR_INDEX_ONE], napi_object);
+    ASSERT_AND_THROW_PARAM_ERROR(env, hasNumbers, "The second parameter must be numbers.");
 
-    OHOS::AppExecFwk::ElementName elementName;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
-        "element name param error");
     int32_t policy = -1;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ONE]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseInt(env, policy, argv[ARR_INDEX_ZERO]),
         "policy param error");
     std::vector<std::string> numbers;
-    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_TWO]),
+    ASSERT_AND_THROW_PARAM_ERROR(env, ParseStringArray(env, numbers, argv[ARR_INDEX_ONE]),
         "numbers param error");
     ASSERT_AND_THROW_PARAM_ERROR(env, CheckVectorStringLength(numbers), "string length is limit");
 
     int32_t ret = TelephonyManagerProxy::GetTelephonyManagerProxy()->RemoveSmsPolicyNumbers(
-        elementName, EdmConstants::SmsPolicy::INCOMING, policy, numbers);
+        EdmConstants::SmsPolicy::INCOMING, policy, numbers);
     if (FAILED(ret)) {
         napi_throw(env, CreateError(env, ret));
     }
