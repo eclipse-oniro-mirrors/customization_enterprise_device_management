@@ -250,10 +250,9 @@ int32_t TelephonyManagerProxy::GetSmsPolicyNumbers(MessageParcel &data, std::vec
 {
     EDMLOGD("TelephonyManagerProxy::GetSmsPolicyNumbers with MessageParcel.");
     MessageParcel reply;
-    EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(EdmInterfaceCode::TELEPHONY_SMS_POLICY, data, reply);
-    int32_t ret = ERR_INVALID_VALUE;
-    bool blRes = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!blRes) {
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::TELEPHONY_SMS_POLICY, data, reply);
+    if (ret != ERR_OK) {
         EDMLOGE("EnterpriseDeviceMgrProxy:GetSmsPolicyNumbers fail. %{public}d", ret);
         return ret;
     }
