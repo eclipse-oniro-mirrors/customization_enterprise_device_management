@@ -270,6 +270,8 @@ ohos_static_library("edmservice_static") {
     sources += [
       "../../../../services/edm/src/query_policy/telephony_call_policy_query.cpp",
       "../../../../services/edm/src/query_policy/is_allowed_telephony_call_query.cpp",
+      "../../../../services/edm/src/query_policy/telephony_sms_policy_query.cpp",
+      "../../../../services/edm/src/query_policy/is_allowed_telephony_sms_query.cpp",
     ]
     defines += [ "TELEPHONY_EDM_ENABLE" ]
   }
@@ -623,6 +625,7 @@ ohos_unittest("EdmServicesUnitTest") {
     sources += [
       "./src/query_policy/is_allowed_telephony_call_query_test.cpp",
       "./src/switch_datacard_query_test.cpp",
+      "./src/query_policy/is_allowed_telephony_sms_query_test.cpp",
     ]
   }
 

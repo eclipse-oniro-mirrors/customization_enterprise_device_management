@@ -55,6 +55,14 @@ private:
     static napi_value GetIncomingCallPolicyNumbers(napi_env env, napi_callback_info info);
     static napi_value GetCallPolicyNumbersCommon(napi_env env, napi_callback_info info,
         const std::string &callPolicyType, const std::string &methodName);
+    static napi_value AddOutgoingSmsPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value RemoveOutgoingSmsPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value GetOutgoingSmsPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value AddIncomingSmsPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value RemoveIncomingSmsPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value GetIncomingSmsPolicyNumbers(napi_env env, napi_callback_info info);
+    static napi_value GetSmsPolicyNumbersCommon(napi_env env, napi_callback_info info,
+        const std::string &smsPolicyType, const std::string &methodName);
     static napi_value HangupCalling(napi_env env, napi_callback_info info);
     static napi_value ActiveSim(napi_env env, napi_callback_info info);
     static napi_value DeactiveSim(napi_env env, napi_callback_info info);

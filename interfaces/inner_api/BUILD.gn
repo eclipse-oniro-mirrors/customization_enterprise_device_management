@@ -114,6 +114,7 @@ ohos_shared_library("edmservice_kits") {
     "./wifi_manager/src/wifi_manager_proxy.cpp",
     "./telephony_manager/src/telephony_manager_proxy.cpp",
     "./telephony_manager/src/telephony_call_policy_serializer.cpp",
+    "./telephony_manager/src/telephony_sms_policy_serializer.cpp",
     "../../common/native/src/edm_utils.cpp",
     "../kits/common/src/napi_edm_element_name.cpp",
   ]

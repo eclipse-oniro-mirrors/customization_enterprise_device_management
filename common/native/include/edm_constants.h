@@ -337,6 +337,12 @@ namespace EdmConstants {
         const std::string INCOMING = "incoming";
     }
 
+    namespace SmsPolicy {
+        const std::string OUTGOING = "outgoing";
+        const std::string INCOMING = "incoming";
+        const std::string NUMBER_LIST_ASHMEM_NAME = "EdmSmsPolicyNumberList";
+    }
+
     namespace SystemTimer {
         constexpr uint32_t TIMER_NAME_MAX_LEN = 64;
         constexpr uint64_t TIMER_INTERVAL_MIN_MS = 1000;
@@ -571,6 +577,7 @@ namespace PolicyName {
     const char* const POLICY_DISALLOW_VPN = "disallow_vpn";
     const char* const POLICY_SET_INSTALL_LOCAL_ENTERPRISE_APP_ENABLED = "set_install_local_enterprise_app_enabled";
     const char* const POLICY_TELEPHONY_CALL_POLICY = "telephony_call_policy";
+    const char* const POLICY_TELEPHONY_SMS_POLICY = "telephony_sms_policy";
     const char* const POLICY_DISALLOWED_TELEPHONY_CALL = "disallowed_telephony_call";
     const char* const POLICY_HANG_UP_CALLING = "hang_up_calling";
     const char* const POLICY_SET_WALL_PAPER = "set_wall_paper";

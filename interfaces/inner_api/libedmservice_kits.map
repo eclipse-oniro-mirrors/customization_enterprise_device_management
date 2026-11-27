@@ -113,6 +113,9 @@
             VTT?for?OHOS::EDM::TelephonyCallPolicySerializer;
             vtable?for?OHOS::EDM::TelephonyCallPolicySerializer;
             OHOS::EDM::TelephonyCallPolicySerializer::*;
+            VTT?for?OHOS::EDM::TelephonySmsPolicySerializer;
+            vtable?for?OHOS::EDM::TelephonySmsPolicySerializer;
+            OHOS::EDM::TelephonySmsPolicySerializer::*;
             VTT?for?OHOS::EDM::ManageKeepAliveAppsSerializer;
             vtable?for?OHOS::EDM::ManageKeepAliveAppsSerializer;
             OHOS::EDM::ManageKeepAliveAppsSerializer::*;
