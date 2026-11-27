@@ -275,6 +275,8 @@ static std::unordered_map<uint32_t, std::string> BuildExpectedSuperPermMap()
 #ifdef TELEPHONY_EDM_ENABLE
     map[EdmInterfaceCode::DISALLOWED_TELEPHONY_CALL] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
     map[EdmInterfaceCode::TELEPHONY_CALL_POLICY] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY;
+    map[EdmInterfaceCode::SWITCH_DATACARD_DISABLE] =
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY;
 #endif
 #ifdef SAMBA_EDM_ENABLE
     map[EdmInterfaceCode::DISABLE_SAMBA_CLIENT] = EdmPermission::PERMISSION_ENTERPRISE_MANAGE_RESTRICTIONS;
@@ -579,6 +581,8 @@ HWTEST_F(PolicyQueryConfigTableTest, TestSpecificPermissionEntries, TestSize.Lev
 #endif
 #ifdef TELEPHONY_EDM_ENABLE
         {EdmInterfaceCode::TELEPHONY_CALL_POLICY, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY},
+        {EdmInterfaceCode::SWITCH_DATACARD_DISABLE,
+            EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY},
 #endif
 #ifdef BLUETOOTH_EDM_ENABLE
         {EdmInterfaceCode::ALLOWED_BLUETOOTH_DEVICES, EdmPermission::PERMISSION_ENTERPRISE_MANAGE_BLUETOOTH},
@@ -696,6 +700,38 @@ HWTEST_F(PolicyQueryConfigTableTest, TestConfigTableSorted, TestSize.Level1)
         ASSERT_TRUE(entries[i - 1].code < entries[i].code)
             << "config table not sorted at index " << i << " codes " << entries[i - 1].code << " and " << entries[i].code;
     }
+}
+
+HWTEST_F(PolicyQueryConfigTableTest, TestFindConfigHitsAllEntries, TestSize.Level1)
+{
+    // FindConfig relies on lower_bound over the sorted table; a misplaced entry silently
+    // drops the policy (801 at runtime), so every registered code must be reachable.
+    auto entries = PolicyQueryConfigTable::GetAllEntries();
+    size_t count = PolicyQueryConfigTable::GetConfigCount();
+    for (size_t i = 0; i < count; i++) {
+        const PolicyQueryConfigEntry* entry = PolicyQueryConfigTable::FindConfig(entries[i].code);
+        ASSERT_NE(entry, nullptr) << "FindConfig missed registered code " << entries[i].code;
+        ASSERT_EQ(entry, &entries[i]) << "FindConfig returned wrong entry for code " << entries[i].code;
+    }
+}
+
+HWTEST_F(PolicyQueryConfigTableTest, TestSwitchDatacardConfigEntry, TestSize.Level1)
+{
+    const PolicyQueryConfigEntry* entry =
+        PolicyQueryConfigTable::FindConfig(EdmInterfaceCode::SWITCH_DATACARD_DISABLE);
+    ASSERT_NE(entry, nullptr);
+    ASSERT_EQ(entry->config.policyName, PolicyName::POLICY_DISABLE_SWITCH_DATACARD);
+    ASSERT_EQ(entry->config.dataType, PolicyDataType::BOOL);
+    ASSERT_EQ(entry->config.apiType, IPlugin::ApiType::PUBLIC);
+    // The plugin uses the super device admin telephony permission, so the query must resolve
+    // the same one (SpecificPermission pattern).
+    ASSERT_EQ(entry->config.permissionConfig.GetPermission(IPlugin::PermissionType::SUPER_DEVICE_ADMIN, ""),
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY);
+#ifdef TELEPHONY_EDM_ENABLE
+    ASSERT_TRUE(entry->config.isFeatureEnabled);
+#else
+    ASSERT_FALSE(entry->config.isFeatureEnabled);
+#endif
 }
 
 } // namespace TEST

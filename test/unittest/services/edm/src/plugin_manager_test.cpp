@@ -994,6 +994,48 @@ HWTEST_F(PluginManagerTest, TestCallOnHandlePolicy_Suc, TestSize.Level1)
     PluginManager::GetInstance()->pluginsName_.erase("TestPluginWithAdminName");
     PluginManager::GetInstance()->executeStrategyMap_.erase(TEST_POLICY_CODE);
 }
+
+/**
+ * @tc.name: TestSwitchDatacardSoRegistered
+ * @tc.desc: The non-default data SIM internet policy code must be registered in the communication
+ *           SO code list (its plugin is compiled into the telephony-gated communication plugin SO,
+ *           like the other telephony restrictions), otherwise LoadPluginByCode fails and every
+ *           SET/GET returns 801.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestSwitchDatacardSoRegistered, TestSize.Level1)
+{
+    std::string soName;
+    ASSERT_TRUE(PluginManager::GetInstance()->GetSoNameByCode(
+        EdmInterfaceCode::SWITCH_DATACARD_DISABLE, soName));
+    ASSERT_EQ(soName, SONAME::COMMUNICATION_PLUGIN_SO);
+}
+
+/**
+ * @tc.name: TestSoCodeListsResolveConsistency
+ * @tc.desc: Every code in the five plugin SO code lists must resolve through GetSoNameByCode
+ *           to the SO owning that list (registration consistency regression guard).
+ * @tc.type: FUNC
+ */
+HWTEST_F(PluginManagerTest, TestSoCodeListsResolveConsistency, TestSize.Level1)
+{
+    auto pluginManager = PluginManager::GetInstance();
+    const std::vector<std::pair<const std::vector<uint32_t>*, const char*>> soLists = {
+        {&PluginManager::deviceCoreSoCodes_, SONAME::DEVICE_CORE_PLUGIN_SO},
+        {&PluginManager::communicationSoCodes_, SONAME::COMMUNICATION_PLUGIN_SO},
+        {&PluginManager::sysServiceSoCodes_, SONAME::SYS_SERVICE_PLUGIN_SO},
+        {&PluginManager::needExtraSoCodes_, SONAME::NEED_EXTRA_PLUGIN_SO},
+        {&PluginManager::watermarkSoCodes_, SONAME::WATERMARK_PLUGIN_SO},
+    };
+    for (const auto &[codes, expectedSoName] : soLists) {
+        for (uint32_t code : *codes) {
+            std::string soName;
+            ASSERT_TRUE(pluginManager->GetSoNameByCode(code, soName))
+                << "code " << code << " not resolvable by GetSoNameByCode";
+            ASSERT_EQ(soName, expectedSoName) << "code " << code << " resolved to unexpected SO";
+        }
+    }
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

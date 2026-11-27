@@ -133,9 +133,6 @@ namespace EdmConstants {
     // 控制中心图标裁剪管控标记persist参数
     constexpr const char* PARAM_EDM_CONTROL_PANEL_RESTRICTED = "persist.edm.control_panel_restricted";
     
-    // 网络共享MAC地址可用名单管控使能persist参数，可用名单不为空时为true，可用名单为空时为false
-    const char* const PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED = "persist.edm.is_hotspot_client_policy_enabled";
-
     // USB 拦截管控使能 persist 参数（以需求/SDK 为准：true/false）
     constexpr const char* PARAM_EDM_USB_INTERCEPT_ENABLE =
         "persist.edm.usb.intercept_enable";
@@ -674,8 +671,10 @@ namespace PolicyName {
     const char* const POLICY_CONTROL_PANEL_RESTRICTED = "control_panel_restricted";
     const char* const POLICY_CONTROL_PANEL_QUICK_TOGGLE_LIST = "control_panel_quick_toggle_list";
     const char* const POLICY_CONTROL_PANEL_TOP_TOGGLE_LIST = "control_panel_top_toggle_list";
+const char* const POLICY_DISABLE_SWITCH_DATACARD = "disable_switch_datacard";
     const char* const POLICY_DISALLOW_APP_LOCK = "disallow_app_lock";
     const char* const POLICY_DISABLED_CAMERA_FOR_ACCOUNT = "disabled_camera_for_account";
+    const char* const POLICY_INSTALL_EXISTED = "install_existed";
 } // namespace PolicyName
 } // namespace EDM
 } // namespace OHOS

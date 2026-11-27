@@ -24,6 +24,7 @@ namespace EDM {
 class WifiPolicyUtils {
 public:
     static ErrCode SetWifiAccessList(std::vector<WifiId> data, bool isAllowed);
+    static ErrCode SetHotspotClientListToWifi(const std::vector<std::string> &mergeData);
     static ErrCode AddWifiListPolicy(std::vector<WifiId> &data, std::vector<WifiId> &currentData,
         std::vector<WifiId> &mergeData, int32_t userId, bool isAllowed);
     static ErrCode RemoveWifiListPolicy(std::vector<WifiId> &data, std::vector<WifiId> &currentData,

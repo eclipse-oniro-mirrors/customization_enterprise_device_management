@@ -48,6 +48,7 @@ HWTEST_F(AdminTest, TestGetAdminTypeWithSuperAdmin, TestSize.Level1)
     EXPECT_EQ(admin->IsEnterpriseAdminKeepAlive(), false);
     EXPECT_EQ(admin->IsAllowedAcrossAccountSetPolicy(), false);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::REMOVE_DEVICE_ADMIN), false);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::UNINSTALL_SELF), false);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), false);
     EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_DENIED);
 }
@@ -76,6 +77,7 @@ HWTEST_F(AdminTest, TestByodAdmin, TestSize.Level1)
     // ByodAdmin is not allowed to set/get the enterprise display info.
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO), false);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO), false);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::UNINSTALL_SELF), false);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_ADD_OS_ACCOUNT, FuncOperateType::SET), false);
     EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_GET_ADMINPROVISION_INFO);
@@ -101,6 +103,7 @@ HWTEST_F(AdminTest, TestDeviceAdmin, TestSize.Level1)
     // DeviceAdmin is allowed to set/get the enterprise display info.
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO), true);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::UNINSTALL_SELF), true);
 #ifdef FEATURE_PC_ONLY
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
     EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN);
@@ -136,6 +139,7 @@ HWTEST_F(AdminTest, TestSubSuperDeviceAdmin, TestSize.Level1)
     // SubSuperDeviceAdmin is not allowed to set/get the enterprise display info.
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO), false);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO), false);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::UNINSTALL_SELF), false);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
     EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_DENIED);
 }
@@ -160,6 +164,7 @@ HWTEST_F(AdminTest, TestSuperDeviceAdmin, TestSize.Level1)
     // SuperDeviceAdmin is allowed to set/get the enterprise display info.
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::SET_ENTERPRISE_DISPLAY_INFO), true);
     EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::GET_ENTERPRISE_DISPLAY_INFO), true);
+    EXPECT_EQ(admin->HasPermissionToCallServiceCode(EdmInterfaceCode::UNINSTALL_SELF), true);
     EXPECT_EQ(admin->HasPermissionToHandlePolicy(PolicyName::POLICY_DISABLED_BLUETOOTH, FuncOperateType::SET), true);
     EXPECT_EQ(admin->GetDisableSelfPermission(), EdmPermission::PERMISSION_ENTERPRISE_DEACTIVATE_DEVICE_ADMIN);
 }

@@ -104,6 +104,7 @@ public:
     MOCK_METHOD(int, EnableAdmin, (const AppExecFwk::ElementName &, const EntInfo &, AdminType,
         int32_t, bool, EnableSource), (override));
     MOCK_METHOD(int, EnableSelfDeviceAdmin, (const AppExecFwk::ElementName &, const std::string &), (override));
+    MOCK_METHOD(ErrCode, UninstallSelf, (), (override));
     MOCK_METHOD(ErrCode, UnloadInstallMarketAppsPlugin, (), (override));
     MOCK_METHOD(ErrCode, NotifyUnmountExternalStorageDeviceInfo, (const ExternalStorageDeviceInfo&), (override));
     MOCK_METHOD(ErrCode, ConnectAppServiceExtensionAbilityByOsAccount,

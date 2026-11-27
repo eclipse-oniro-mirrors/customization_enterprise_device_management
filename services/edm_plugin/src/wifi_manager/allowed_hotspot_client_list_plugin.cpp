@@ -21,7 +21,7 @@
 #include "edm_log.h"
 #include "iplugin_manager.h"
 #include "ipolicy_manager.h"
-#include "parameters.h"
+#include "wifi_policy_utils.h"
 
 namespace OHOS {
 namespace EDM {
@@ -66,10 +66,10 @@ ErrCode AllowedHotspotClientListPlugin::OnSetPolicy(std::vector<std::string> &da
 
     currentData = afterHandle;
     mergeData = afterMerge;
-    bool enabled = !mergeData.empty();
-    if (!system::SetParameter(EdmConstants::PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED,
-        enabled ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE)) {
-        EDMLOGE("AllowedHotspotClientListPlugin OnSetPolicy SetParameter failed");
+    ErrCode ret = WifiPolicyUtils::SetHotspotClientListToWifi(mergeData);
+    if (ret != ERR_OK) {
+        EDMLOGE("AllowedHotspotClientListPlugin OnSetPolicy SetHotspotClientListToWifi failed ret=%{public}d", ret);
+        return ret;
     }
     return ERR_OK;
 }
@@ -94,10 +94,10 @@ ErrCode AllowedHotspotClientListPlugin::OnRemovePolicy(std::vector<std::string> 
 
     currentData = afterHandle;
     mergeData = afterMerge;
-    bool enabled = !mergeData.empty();
-    if (!system::SetParameter(EdmConstants::PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED,
-        enabled ? EdmConstants::CONST_TRUE : EdmConstants::CONST_FALSE)) {
-        EDMLOGE("AllowedHotspotClientListPlugin OnRemovePolicy SetParameter failed");
+    ErrCode ret = WifiPolicyUtils::SetHotspotClientListToWifi(mergeData);
+    if (ret != ERR_OK) {
+        EDMLOGE("AllowedHotspotClientListPlugin OnRemovePolicy SetHotspotClientListToWifi failed ret=%{public}d", ret);
+        return ret;
     }
     return ERR_OK;
 }
@@ -106,8 +106,10 @@ ErrCode AllowedHotspotClientListPlugin::OnAdminRemove(const std::string &adminNa
     std::vector<std::string> &data, std::vector<std::string> &mergeData, int32_t userId)
 {
     EDMLOGI("AllowedHotspotClientListPlugin OnAdminRemove");
-    if (!system::SetParameter(EdmConstants::PERSIST_EDM_HOTSPOT_CLIENT_POLICY_ENABLED, EdmConstants::CONST_FALSE)) {
-        EDMLOGE("AllowedHotspotClientListPlugin OnAdminRemove SetParameter failed");
+    ErrCode ret = WifiPolicyUtils::SetHotspotClientListToWifi(mergeData);
+    if (ret != ERR_OK) {
+        EDMLOGE("AllowedHotspotClientListPlugin OnAdminRemove SetHotspotClientListToWifi failed ret=%{public}d", ret);
+        return ret;
     }
     return ERR_OK;
 }

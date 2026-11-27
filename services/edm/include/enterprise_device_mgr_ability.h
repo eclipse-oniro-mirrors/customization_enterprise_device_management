@@ -93,6 +93,7 @@ public:
     ErrCode SetEnterpriseDisplayInfo(const std::string &displayInfo) override;
     ErrCode GetEnterpriseDisplayInfo(std::string &displayInfo) override;
     ErrCode EnableSelfDeviceAdmin(const AppExecFwk::ElementName &admin, const std::string &credential) override;
+    ErrCode UninstallSelf() override;
     ErrCode EnableAdmin(const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType,
         int32_t userId, bool enableSelf, EnableSource enableSource = EnableSource::DEPLOY) override;
 
@@ -176,6 +177,8 @@ private:
     ErrCode DelDisallowUninstallApp(const std::string &bundleName);
     ErrCode AddDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
     ErrCode DelDisallowUninstallAppForAccount(const std::string &bundleName, int32_t userId);
+    ErrCode UninstallSelfByBundle(const std::string &bundleName, int32_t userId);
+    ErrCode UninstallOnceByBundle(const std::string &bundleName, int32_t userId);
     void AfterEnableAdmin(const AppExecFwk::ElementName &admin, AdminType type, int32_t userId,
         EnableSource enableSource);
     void AfterEnableAdminReportEdmEvent(const AppExecFwk::ElementName &newAdmin,

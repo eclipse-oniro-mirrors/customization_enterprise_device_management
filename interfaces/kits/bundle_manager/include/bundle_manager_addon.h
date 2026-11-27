@@ -105,8 +105,11 @@ public:
     static napi_value GetInstalledBundleStorageStats(napi_env env, napi_callback_info info);
     static napi_value SetDefaultApplication(napi_env env, napi_callback_info info);
     static napi_value GetDefaultApplicationBundleName(napi_env env, napi_callback_info info);
+    static napi_value InstallExisted(napi_env env, napi_callback_info info);
 
 private:
+    static napi_value InitProperties(napi_env env, napi_value exports, napi_value appDistributionType,
+        napi_value bundleInfoGetFlag, napi_value defaultApplicationType);
     static napi_value AddOrRemoveInstallBundles(napi_env env, napi_callback_info info, const std::string &workName,
         napi_async_execute_callback execute);
     static napi_value GetAllowedOrDisallowedInstallBundles(napi_env env, napi_callback_info info,

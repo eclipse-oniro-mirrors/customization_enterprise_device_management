@@ -22,9 +22,15 @@ namespace OHOS {
 namespace EDM {
 std::mutex EdmSysManager::saMutex_;
 std::unordered_map<int32_t, sptr<IRemoteObject>> EdmSysManager::remoteServiceMap_;
+std::unordered_set<int32_t> EdmSysManager::unavailableServiceSet_;
 sptr<IRemoteObject> EdmSysManager::GetRemoteObjectOfSystemAbility(int32_t systemAbilityId)
 {
     std::lock_guard<std::mutex> lock(saMutex_);
+    if (unavailableServiceSet_.find(systemAbilityId) != unavailableServiceSet_.end()) {
+        GTEST_LOG_(INFO) << "mock EdmSysMgrManager GetRemoteObjectOfSystemAbility SA is marked unavailable :" <<
+            systemAbilityId;
+        return nullptr;
+    }
     GTEST_LOG_(INFO) << "mock EdmSysMgrManager GetRemoteObjectOfSystemAbility start remoteServiceMap_ is nullptr :" <<
         (remoteServiceMap_[systemAbilityId] == nullptr);
     if (remoteServiceMap_[systemAbilityId] == nullptr) {
@@ -54,6 +60,17 @@ void EdmSysManager::UnregisterSystemAbilityOfRemoteObject(int32_t systemAbilityI
 {
     std::lock_guard<std::mutex> lock(saMutex_);
     remoteServiceMap_.erase(systemAbilityId);
+}
+
+void EdmSysManager::SetSystemAbilityUnavailable(int32_t systemAbilityId, bool unavailable)
+{
+    std::lock_guard<std::mutex> lock(saMutex_);
+    if (unavailable) {
+        remoteServiceMap_.erase(systemAbilityId);
+        unavailableServiceSet_.insert(systemAbilityId);
+    } else {
+        unavailableServiceSet_.erase(systemAbilityId);
+    }
 }
 } // namespace EDM
 } // namespace OHOS

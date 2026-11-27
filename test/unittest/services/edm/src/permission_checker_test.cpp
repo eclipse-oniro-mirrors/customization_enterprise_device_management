@@ -353,6 +353,31 @@ HWTEST_F(PermissionCheckerTest, TestIsNativeCallFalse, TestSize.Level1)
     bool ret = permissionChecker_->CheckIsNativeCall();
     ASSERT_FALSE(ret);
 }
+
+/**
+ * @tc.name: TestCheckElementNullPermissionSupportsSwitchDatacard
+ * @tc.desc: The non-default data SIM internet policy supports an element null query.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestCheckElementNullPermissionSupportsSwitchDatacard, TestSize.Level1)
+{
+    uint32_t funcCode = POLICY_FUNC_CODE(static_cast<uint32_t>(FuncOperateType::GET),
+        EdmInterfaceCode::SWITCH_DATACARD_DISABLE);
+    EXPECT_TRUE(permissionChecker_->CheckElementNullPermission(funcCode, ""));
+}
+
+/**
+ * @tc.name: TestCheckHandlePolicyPermissionSwitchDatacardAdminInactive
+ * @tc.desc: Setting the non-default data SIM internet policy without an activated admin is rejected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PermissionCheckerTest, TestCheckHandlePolicyPermissionSwitchDatacardAdminInactive, TestSize.Level1)
+{
+    ErrCode ret = permissionChecker_->CheckHandlePolicyPermission(FuncOperateType::SET, nullptr,
+        PolicyName::POLICY_DISABLE_SWITCH_DATACARD,
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY, EdmConstants::DEFAULT_USER_ID);
+    ASSERT_EQ(ret, EdmReturnErrCode::ADMIN_INACTIVE);
+}
 } // namespace TEST
 } // namespace EDM
 } // namespace OHOS

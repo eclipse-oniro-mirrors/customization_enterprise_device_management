@@ -45,7 +45,7 @@ struct ControlPanelToggleItem {
     std::string_view key;
 };
 
-// Keep this table in sync with ControlPanelTopToggleList in the .d.ts declaration.
+// Keep this table in sync with ControlPanelTopToggleType in the .d.ts declaration.
 constexpr std::array<ControlPanelToggleItem, 7> CONTROL_PANEL_TOP_TOGGLES = {{
     {"SUPER_DEVICE", 0, "super_device"},
     {"BRIGHTNESS", 1, "brightness"},
@@ -56,7 +56,7 @@ constexpr std::array<ControlPanelToggleItem, 7> CONTROL_PANEL_TOP_TOGGLES = {{
     {"MOBILE_DATA", 6, "mobile_data_tagged"},
 }};
 
-// Keep this table in sync with ControlPanelQuickToggleList in the .d.ts declaration.
+// Keep this table in sync with ControlPanelQuickToggleType in the .d.ts declaration.
 constexpr std::array<ControlPanelToggleItem, 48> CONTROL_PANEL_QUICK_TOGGLES = {{
     {"FLASHLIGHT", 0, "flashlight"},
     {"RING_MODE", 1, "ring_mode"},
@@ -569,8 +569,8 @@ napi_value DeviceSettingsAddon::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getControlPanelTopToggleListForAccount", GetControlPanelTopToggleListForAccount),
         DECLARE_NAPI_PROPERTY("SwitchKey", nSwitchKey),
         DECLARE_NAPI_PROPERTY("SwitchStatus", nSwitchStatus),
-        DECLARE_NAPI_PROPERTY("ControlPanelTopToggleList", nControlPanelTopToggleList),
-        DECLARE_NAPI_PROPERTY("ControlPanelQuickToggleList", nControlPanelQuickToggleList),
+        DECLARE_NAPI_PROPERTY("ControlPanelTopToggleType", nControlPanelTopToggleList),
+        DECLARE_NAPI_PROPERTY("ControlPanelQuickToggleType", nControlPanelQuickToggleList),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(property) / sizeof(property[0]), property));
     return exports;
@@ -918,14 +918,15 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
 
     if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        return HandleSetValueForAccountWithAdmin(env, argv);
+        return HandleSetValueForAccountWithAdmin(env, argv, argc);
     } else {
-        return HandleSetValueForAccountWithoutAdmin(env, argv);
+        return HandleSetValueForAccountWithoutAdmin(env, argv, argc);
     }
 }
 
-napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
@@ -953,8 +954,9 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, 
     return nullptr;
 }
 
-napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_THREE, "parameter count error", ErrcodeType::NUMBER);
     int32_t item = -1;
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error",
         ErrcodeType::NUMBER);
@@ -996,17 +998,18 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
 
     if (argc >= ARGS_SIZE_THREE) {
-        return HandleGetValueForAccountWithAdmin(env, argv);
+        return HandleGetValueForAccountWithAdmin(env, argv, argc);
     }
     if (argc == ARGS_SIZE_TWO) {
-        return HandleGetValueForAccountWithoutAdmin(env, argv);
+        return HandleGetValueForAccountWithoutAdmin(env, argv, argc);
     }
     napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
     return nullptr;
 }
 
-napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
@@ -1037,8 +1040,9 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, 
     return result;
 }
 
-napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "parameter count error", ErrcodeType::NUMBER);
     int32_t item = -1;
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error",
         ErrcodeType::NUMBER);
@@ -1284,8 +1288,12 @@ napi_value DeviceSettingsAddon::SetEnterpriseDisplayInfo(napi_env env, napi_call
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     std::string enterpriseName;
-    bool isParamValid = argc >= ARGS_SIZE_ONE && argv[ARR_INDEX_ZERO] != nullptr &&
-        MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object) &&
+    bool isParamValid = MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object);
+    if (!isParamValid) {
+        napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR, ErrcodeType::NUMBER));
+        return nullptr;
+    }
+    isParamValid = argc >= ARGS_SIZE_ONE && argv[ARR_INDEX_ZERO] != nullptr &&
         JsObjectToString(env, argv[ARR_INDEX_ZERO], EdmConstants::ENTERPRISE_DISPLAY_INFO_NAME, true, enterpriseName);
     if (!isParamValid) {
         EDMLOGE("NAPI_SetEnterpriseDisplayInfo parse parameter error");

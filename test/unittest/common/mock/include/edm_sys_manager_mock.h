@@ -16,8 +16,13 @@
 #ifndef EDM_UNIT_TEST_EDM_SYS_MANAGER_H
 #define EDM_UNIT_TEST_EDM_SYS_MANAGER_H
 
+#ifndef COMMON_NATIVE_INCLUDE_EDM_SYS_MANAGER_H
+#define COMMON_NATIVE_INCLUDE_EDM_SYS_MANAGER_H
+#endif
+
 #include <mutex>
 #include <unordered_map>
+#include <unordered_set>
 #include "iremote_object.h"
 
 namespace OHOS {
@@ -27,9 +32,11 @@ public:
     static sptr<IRemoteObject> GetRemoteObjectOfSystemAbility(int32_t systemAbilityId);
     void RegisterSystemAbilityOfRemoteObject(int32_t systemAbilityId, sptr<IRemoteObject> object);
     void UnregisterSystemAbilityOfRemoteObject(int32_t systemAbilityId);
+    void SetSystemAbilityUnavailable(int32_t systemAbilityId, bool unavailable);
 private:
     static std::mutex saMutex_;
     static std::unordered_map<int32_t, sptr<IRemoteObject>> remoteServiceMap_;
+    static std::unordered_set<int32_t> unavailableServiceSet_;
 };
 } // namespace EDM
 } // namespace OHOS

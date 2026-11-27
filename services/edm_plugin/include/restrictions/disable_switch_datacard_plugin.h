@@ -13,26 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_EDM_INCLUDE_QUERY_POLICY_IS_ALLOWED_HOTSPOT_CLIENT_CONNECT_QUERY_H
-#define SERVICES_EDM_INCLUDE_QUERY_POLICY_IS_ALLOWED_HOTSPOT_CLIENT_CONNECT_QUERY_H
+#ifndef SERVICES_EDM_PLUGIN_INCLUDE_RESTRICTIONS_DISABLE_SWITCH_DATACARD_PLUGIN_H
+#define SERVICES_EDM_PLUGIN_INCLUDE_RESTRICTIONS_DISABLE_SWITCH_DATACARD_PLUGIN_H
 
-#include "ipolicy_query.h"
+#include "basic_bool_plugin.h"
 
 namespace OHOS {
 namespace EDM {
-
-class IsAllowedHotspotClientConnectQuery : public IPolicyQuery {
+class DisableSwitchDatacardPlugin : public BasicBoolPlugin {
 public:
-    ~IsAllowedHotspotClientConnectQuery() override = default;
-
-    std::string GetPolicyName() override;
-
-    std::string GetPermission(IPlugin::PermissionType, const std::string &permissionTag) override;
-
-    ErrCode QueryPolicy(std::string &policyData, MessageParcel &data, MessageParcel &reply,
-        int32_t userId) override;
+    DisableSwitchDatacardPlugin();
 };
 } // namespace EDM
 } // namespace OHOS
 
-#endif // SERVICES_EDM_INCLUDE_QUERY_POLICY_IS_ALLOWED_HOTSPOT_CLIENT_CONNECT_QUERY_H
+#endif // SERVICES_EDM_PLUGIN_INCLUDE_RESTRICTIONS_DISABLE_SWITCH_DATACARD_PLUGIN_H

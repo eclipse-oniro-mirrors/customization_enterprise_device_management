@@ -607,10 +607,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
-    {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
-        {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::IS_ALLOWED_ODD_BURN, {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
@@ -651,9 +647,6 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::ALLOWED_HOTSPOT_CLIENT_LIST, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
-    {EdmInterfaceCode::IS_ALLOWED_HOTSPOT_CLIENT_CONNECT, {PolicyName::POLICY_ALLOWED_HOTSPOT_CLIENT_LIST,
-        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
-        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_WIFI), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_RECENT_TASKS, {PolicyName::POLICY_DISALLOW_RECENT_TASKS,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::ENTERPRISE_RESET_POLICY, {PolicyName::POLICY_ENTERPRISE_RESET_POLICY,
@@ -686,6 +679,16 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
     {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL, {PolicyName::POLICY_TELEPHONY_CALL_POLICY,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
         EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::SWITCH_DATACARD_DISABLE,
+        {PolicyName::POLICY_DISABLE_SWITCH_DATACARD, PolicyDataType::BOOL,
+        PermissionConfig::SpecificPermission(EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY),
+        true, IPlugin::ApiType::PUBLIC,
+#ifdef TELEPHONY_EDM_ENABLE
+        true
+#else
+        false
+#endif
+    }},
     // CONTROL_PANEL_RESTRICTED intentionally has no query entry. GET falls back to
     // ControlPanelRestrictedPlugin::OnGetPolicy to read the device-level persist value.
     {EdmInterfaceCode::DISALLOW_SCREEN_SHOT_FOR_ACCOUNT, {PolicyName::POLICY_DISALLOW_SCREEN_SHOT_FOR_ACCOUNT,
@@ -702,6 +705,10 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_COMPANION_AI, {PolicyName::POLICY_DISALLOW_COMPANION_AI,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        {PolicyName::POLICY_ALLOWED_ODD_BURN_USB_DEVICES_FOR_ACCOUNT,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_USB), true, IPlugin::ApiType::PUBLIC, true}},
     {static_cast<uint32_t>(EdmInterfaceCode::POLICY_CODE_END +
         EdmConstants::PolicyCode::HIDE_LAUNCHER_ICON), {PolicyName::POLICY_HIDE_LAUNCHER_ICON,
         PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(

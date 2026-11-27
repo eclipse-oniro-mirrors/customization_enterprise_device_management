@@ -91,6 +91,7 @@ ohos_static_library("edmservice_static") {
     "../../../../services/edm/src/edm_timer_info.cpp",
     "../../../../services/edm/src/edm_timer_manager.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_ability.cpp",
+    "../../../../services/edm/src/uninstall_self_callback.cpp",
     "../../../../services/edm/src/enterprise_device_mgr_stub.cpp",
     "../../../../services/edm/src/ext_info_manager.cpp",
     "../../../../services/edm/src/extra_policy_notification.cpp",
@@ -157,7 +158,6 @@ ohos_static_library("edmservice_static") {
       "../../../../services/edm/src/query_policy/allowed_hotspot_client_list_query.cpp",
       "../../../../services/edm/src/query_policy/allowed_wifi_list_query.cpp",
       "../../../../services/edm/src/query_policy/disallowed_wifi_list_query.cpp",
-      "../../../../services/edm/src/query_policy/is_allowed_hotspot_client_connect_query.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
@@ -414,6 +414,8 @@ ohos_unittest("EnterpriseDeviceMgrAbilityUnitTest") {
 
   sources = [
     "../../common/mock/src/edm_data_ability_utils_mock.cpp",
+    # Provides RegisterSystemAbilityOfRemoteObject so UninstallSelf tests can inject fake BMS/EDC objects.
+    "../../common/mock/src/edm_sys_manager_mock.cpp",
     "./src/enterprise_device_mgr_ability_test.cpp",
   ]
 
@@ -620,6 +622,7 @@ ohos_unittest("EdmServicesUnitTest") {
   if (enterprise_device_management_feature_phone_only && cellular_data_edm_enable) {
     sources += [
       "./src/query_policy/is_allowed_telephony_call_query_test.cpp",
+      "./src/switch_datacard_query_test.cpp",
     ]
   }
 

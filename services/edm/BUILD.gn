@@ -117,6 +117,7 @@ ohos_shared_library("edmservice") {
       "./src/edm_timer_info.cpp",
       "./src/edm_timer_manager.cpp",
       "./src/enterprise_device_mgr_ability.cpp",
+      "./src/uninstall_self_callback.cpp",
       "./src/ext_info_manager.cpp",
       "./src/extra_policy_notification.cpp",
       "./src/language_manager.cpp",
@@ -161,7 +162,6 @@ ohos_shared_library("edmservice") {
       "./src/query_policy/allowed_hotspot_client_list_query.cpp",
       "./src/query_policy/allowed_wifi_list_query.cpp",
       "./src/query_policy/disallowed_wifi_list_query.cpp",
-      "./src/query_policy/is_allowed_hotspot_client_connect_query.cpp",
     ]
     defines += [ "WIFI_EDM_ENABLE" ]
   }
