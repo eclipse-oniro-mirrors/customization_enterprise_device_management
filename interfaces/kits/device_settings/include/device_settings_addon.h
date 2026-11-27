@@ -58,10 +58,10 @@ private:
     static napi_value GetValue(napi_env env, napi_callback_info info);
     static napi_value setValueForAccount(napi_env env, napi_callback_info info);
     static napi_value getValueForAccount(napi_env env, napi_callback_info info);
-    static napi_value HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv);
-    static napi_value HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv);
-    static napi_value HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv);
-    static napi_value HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv);
+    static napi_value HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv, size_t argc);
+    static napi_value HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv, size_t argc);
+    static napi_value HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv, size_t argc);
+    static napi_value HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv, size_t argc);
     static void CreateSettingsItemObject(napi_env env, napi_value value);
     static bool IsSettingItem(int32_t item);
     static bool IsSettingItemSupportedWithoutAdmin(int32_t item);

@@ -918,14 +918,15 @@ napi_value DeviceSettingsAddon::setValueForAccount(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
 
     if (MatchValueType(env, argv[ARR_INDEX_ZERO], napi_object)) {
-        return HandleSetValueForAccountWithAdmin(env, argv);
+        return HandleSetValueForAccountWithAdmin(env, argv, argc);
     } else {
-        return HandleSetValueForAccountWithoutAdmin(env, argv);
+        return HandleSetValueForAccountWithoutAdmin(env, argv, argc);
     }
 }
 
-napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_FOUR, "parameter count error");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
@@ -953,8 +954,9 @@ napi_value DeviceSettingsAddon::HandleSetValueForAccountWithAdmin(napi_env env, 
     return nullptr;
 }
 
-napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleSetValueForAccountWithoutAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_THREE, "parameter count error", ErrcodeType::NUMBER);
     int32_t item = -1;
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error",
         ErrcodeType::NUMBER);
@@ -996,17 +998,18 @@ napi_value DeviceSettingsAddon::getValueForAccount(napi_env env, napi_callback_i
     ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_TWO, "parameter count error");
 
     if (argc >= ARGS_SIZE_THREE) {
-        return HandleGetValueForAccountWithAdmin(env, argv);
+        return HandleGetValueForAccountWithAdmin(env, argv, argc);
     }
     if (argc == ARGS_SIZE_TWO) {
-        return HandleGetValueForAccountWithoutAdmin(env, argv);
+        return HandleGetValueForAccountWithoutAdmin(env, argv, argc);
     }
     napi_throw(env, CreateError(env, EdmReturnErrCode::PARAM_ERROR));
     return nullptr;
 }
 
-napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR(env, argc >= ARGS_SIZE_THREE, "parameter count error");
     OHOS::AppExecFwk::ElementName elementName;
     ASSERT_AND_THROW_PARAM_ERROR(env, ParseElementName(env, elementName, argv[ARR_INDEX_ZERO]),
         "element name param error");
@@ -1037,8 +1040,9 @@ napi_value DeviceSettingsAddon::HandleGetValueForAccountWithAdmin(napi_env env, 
     return result;
 }
 
-napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv)
+napi_value DeviceSettingsAddon::HandleGetValueForAccountWithoutAdmin(napi_env env, napi_value *argv, size_t argc)
 {
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_TWO, "parameter count error", ErrcodeType::NUMBER);
     int32_t item = -1;
     ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseInt(env, item, argv[ARR_INDEX_ZERO]), "param 'item' error",
         ErrcodeType::NUMBER);
