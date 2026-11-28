@@ -54,8 +54,13 @@ ErrCode AllowedHotspotClientListPlugin::OnSetPolicy(std::vector<std::string> &da
         return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     }
     if (data.size() + currentData.size() > EdmConstants::ALLOWED_HOTSPOT_CLIENT_LIST_MAX_SIZE) {
-        EDMLOGE("AllowedHotspotClientListPlugin OnSetPolicy total size=[%{public}zu] exceeds limit",
+        EDMLOGE("AllowedHotspotClientListPlugin OnSetPolicy current admin total size=[%{public}zu] exceeds limit",
             data.size() + currentData.size());
+        return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
+    }
+    if (data.size() + mergeData.size() > EdmConstants::ALLOWED_HOTSPOT_CLIENT_LIST_MAX_SIZE) {
+        EDMLOGE("AllowedHotspotClientListPlugin OnSetPolicy current device total size=[%{public}zu] exceeds limit",
+            data.size() + mergeData.size());
         return EdmReturnErrCode::POLICY_LIST_OVER_SIZE;
     }
 
