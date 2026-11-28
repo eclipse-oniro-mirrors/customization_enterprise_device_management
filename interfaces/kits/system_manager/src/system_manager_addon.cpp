@@ -14,7 +14,9 @@
  */
 #include "system_manager_addon.h"
 
+#include <fcntl.h>
 #include "securec.h"
+#include <unistd.h>
 
 #include "edm_constants.h"
 #include "edm_log.h"
@@ -116,6 +118,8 @@ void SystemManagerAddon::AddFunctionsToExports(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isOtaUpdateNonceEnable", IsOtaUpdateNonceEnable),
         DECLARE_NAPI_FUNCTION("setLocalHotaDomain", SetLocalHotaDomain),
         DECLARE_NAPI_FUNCTION("getLocalHotaDomain", GetLocalHotaDomain),
+        DECLARE_NAPI_FUNCTION("installFont", InstallFont),
+        DECLARE_NAPI_FUNCTION("uninstallFont", UninstallFont),
         DECLARE_NAPI_FUNCTION(OverrideInterfaceName::SystemManager::SET_VOLUME_DEGREE, SetVolumeDegree),
         DECLARE_NAPI_FUNCTION("getVolumeDegree", GetVolumeDegree),
         DECLARE_NAPI_FUNCTION("createExactTimer", CreateTimer),
@@ -1403,6 +1407,100 @@ napi_value SystemManagerAddon::SetLocalHotaDomain(napi_env env, napi_callback_in
     napi_throw(env, CreateError(env, EdmReturnErrCode::INTERFACE_UNSUPPORTED, ErrcodeType::NUMBER));
     return nullptr;
 #endif
+}
+
+napi_value SystemManagerAddon::InstallFont(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("InstallFont Addon called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "parameter count error",
+        ErrcodeType::NUMBER);
+    auto asyncCallbackInfo = new (std::nothrow) AsyncInstallFontCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    }
+    asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
+    std::unique_ptr<AsyncInstallFontCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseString(env, asyncCallbackInfo->fontPath,
+        argv[ARR_INDEX_ZERO]), "fontPath must be string", ErrcodeType::NUMBER);
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId))) {
+        EDMLOGE("InstallFont get current userId failed!");
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    }
+#endif
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallFont",
+        NativeInstallFont, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void SystemManagerAddon::NativeInstallFont(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeInstallFont called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncInstallFontCallbackInfo *>(data);
+    auto proxy = SystemManagerProxy::GetSystemManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        asyncCallbackInfo->ret = EdmReturnErrCode::SYSTEM_ABNORMALLY;
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->InstallFont(asyncCallbackInfo->fontPath, asyncCallbackInfo->userId);
+}
+
+napi_value SystemManagerAddon::UninstallFont(napi_env env, napi_callback_info info)
+{
+    EDMLOGI("UninstallFont Addon called");
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, argc >= ARGS_SIZE_ONE, "parameter count error",
+        ErrcodeType::NUMBER);
+    auto asyncCallbackInfo = new (std::nothrow) AsyncUninstallFontCallbackInfo();
+    if (asyncCallbackInfo == nullptr) {
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    }
+    asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
+    std::unique_ptr<AsyncUninstallFontCallbackInfo> callbackPtr{asyncCallbackInfo};
+    ASSERT_AND_THROW_PARAM_ERROR_BY_TYPE(env, ParseString(env, asyncCallbackInfo->fontName,
+        argv[ARR_INDEX_ZERO]), "fontName must be string", ErrcodeType::NUMBER);
+#ifdef OS_ACCOUNT_EDM_ENABLE
+    if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId))) {
+        EDMLOGE("UninstallFont get current userId failed!");
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
+    }
+#endif
+    napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "UninstallFont",
+        NativeUninstallFont, NativeVoidCallbackComplete);
+    callbackPtr.release();
+    return asyncWorkReturn;
+}
+
+void SystemManagerAddon::NativeUninstallFont(napi_env env, void *data)
+{
+    EDMLOGI("NAPI_NativeUninstallFont called");
+    if (data == nullptr) {
+        EDMLOGE("data is nullptr");
+        return;
+    }
+    auto *asyncCallbackInfo = static_cast<AsyncUninstallFontCallbackInfo *>(data);
+    auto proxy = SystemManagerProxy::GetSystemManagerProxy();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        asyncCallbackInfo->ret = EdmReturnErrCode::EXECUTE_TIME_OUT;
+        return;
+    }
+    asyncCallbackInfo->ret = proxy->UninstallFont(asyncCallbackInfo->fontName, asyncCallbackInfo->userId);
 }
 
 napi_value SystemManagerAddon::GetLocalHotaDomain(napi_env env, napi_callback_info info)

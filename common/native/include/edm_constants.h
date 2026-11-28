@@ -149,6 +149,10 @@ namespace EdmConstants {
         const char* const HAP_DIRECTORY = "/data/service/el1/public/edm/stream_install";
     }
 
+    namespace SystemManager {
+        constexpr int64_t MAX_FONT_FILE_SIZE = 1024 * 1024 * 1024;
+    }
+
     namespace Browser {
         const char* const GET_MANAGED_BROWSER_VERSION = "version";
         const char* const GET_MANAGED_BROWSER_FILE_DATA = "fileData";
@@ -661,6 +665,7 @@ namespace PolicyName {
     const char* const POLICY_DISABLE_SUPER_PRIVACY_MODE = "disable_super_privacy_mode";
     const char* const POLICY_DISALLOWED_PACKET_FILTERING = "disallowed_packet_filtering";
     const char* const POLICY_VOLUME_DEGREE = "volume_degree";
+    const char* const POLICY_FONT_MANAGER = "font_manager";
     const char* const POLICY_DEFAULT_APPLICATION = "default_application";
     const char* const POLICY_PASSWORD_LAST_CHANGED_TIME = "password_last_changed_time";
     const char* const POLICY_GET_SHARED_PATH_LIST = "get_shared_path_list";

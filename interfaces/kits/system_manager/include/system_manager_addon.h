@@ -56,6 +56,16 @@ struct AsyncIsActivationLockDisabledCallbackInfo : AsyncCallbackInfo {
     bool isDisabled;
 };
 
+struct AsyncInstallFontCallbackInfo : AsyncCallbackInfo {
+    std::string fontPath;
+    int32_t userId = 0;
+};
+
+struct AsyncUninstallFontCallbackInfo : AsyncCallbackInfo {
+    std::string fontName;
+    int32_t userId = 0;
+};
+
 #ifdef FEATURE_PHONE_ONLY
 struct AsyncCreateTimerCallbackInfo : AsyncCallbackInfo {
     OHOS::AppExecFwk::ElementName elementName;
@@ -141,6 +151,8 @@ private:
     static napi_value IsOtaUpdateNonceEnable(napi_env env, napi_callback_info info);
     static napi_value SetLocalHotaDomain(napi_env env, napi_callback_info info);
     static napi_value GetLocalHotaDomain(napi_env env, napi_callback_info info);
+    static napi_value InstallFont(napi_env env, napi_callback_info info);
+    static napi_value UninstallFont(napi_env env, napi_callback_info info);
     static napi_value SetVolumeDegree(napi_env env, napi_callback_info info);
     static napi_value GetVolumeDegree(napi_env env, napi_callback_info info);
     static napi_value CreateTimer(napi_env env, napi_callback_info info);
@@ -165,6 +177,8 @@ private:
         napi_callback_info info, FuncOperateType operateType);
     static napi_value AddOrRemoveAllowedPrinterIPAddresses(napi_env env,
         napi_callback_info info, FuncOperateType operateType);
+    static void NativeInstallFont(napi_env env, void *data);
+    static void NativeUninstallFont(napi_env env, void *data);
 #ifdef FEATURE_PC_ONLY
     static OHOS::ErrCode EdmParsePrinterIpArray(napi_env env, std::vector<std::string> &ipList,
         napi_value args);

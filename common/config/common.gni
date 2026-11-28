@@ -25,6 +25,11 @@ declare_args() {
       defined(global_parts_info.ability_ability_runtime)) {
     ability_runtime_edm_enable = true
   }
+  font_manager_edm_enable = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.global_font_manager)) {
+    font_manager_edm_enable = true
+  }
   audio_framework_edm_enable = false
   if (defined(global_parts_info) &&
       defined(global_parts_info.multimedia_audio_framework)) {
