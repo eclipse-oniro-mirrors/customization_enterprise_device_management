@@ -537,6 +537,8 @@ ohos_unittest("EdmPluginTest") {
       "./src/hang_up_calling_plugin_test.cpp",
       "./src/set_apn_plugin_test.cpp",
       "./src/set_default_data_sim_plugin_test.cpp",
+      "./src/telephony_call_policy_plugin_test.cpp",
+      "./src/telephony_sms_policy_plugin_test.cpp",
       "./src/turnonoff_mobile_data_plugin_test.cpp",
       "./src/utils/telephony_call_policy_serializer_test.cpp",
     ]
@@ -1238,6 +1240,7 @@ ohos_static_library("edm_all_plugin_static") {
       "../../../../services/edm_plugin/src/telephony_manager/get_sms_messages_plugin.cpp",
       "../../../../services/edm_plugin/src/telephony_manager/hang_up_calling_plugin.cpp",
       "../../../../services/edm_plugin/src/telephony_manager/telephony_call_policy_plugin.cpp",
+      "../../../../services/edm_plugin/src/telephony_manager/telephony_sms_policy_plugin.cpp",
       "../../../../services/edm_plugin/src/utils/apn_utils.cpp",
     ]
     defines += [

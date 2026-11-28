@@ -141,6 +141,8 @@ std::vector<uint32_t> PermissionChecker::supportAdminNullPolicyCode_ = {
     EdmInterfaceCode::SET_KEY_CODE_POLICYS,
     EdmInterfaceCode::TELEPHONY_CALL_POLICY,
     EdmInterfaceCode::IS_ALLOWED_TELEPHONY_CALL,
+    EdmInterfaceCode::TELEPHONY_SMS_POLICY,
+    EdmInterfaceCode::IS_ALLOWED_TELEPHONY_SMS,
     EdmInterfaceCode::GET_CALL_LOGS,
     EdmInterfaceCode::ALLOWED_WIFI_LIST,
     EdmInterfaceCode::DISALLOWED_WIFI_LIST,

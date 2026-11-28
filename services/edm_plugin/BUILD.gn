@@ -431,6 +431,7 @@ ohos_shared_library("communication_plugin") {
         "./src/telephony_manager/get_sms_messages_plugin.cpp",
         "./src/telephony_manager/hang_up_calling_plugin.cpp",
         "./src/telephony_manager/telephony_call_policy_plugin.cpp",
+        "./src/telephony_manager/telephony_sms_policy_plugin.cpp",
         "./src/utils/apn_utils.cpp",
       ]
       defines += [

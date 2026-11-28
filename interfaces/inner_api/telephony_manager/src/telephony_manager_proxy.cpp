@@ -15,6 +15,9 @@
 
 #include "telephony_manager_proxy.h"
 
+#include <cstdlib>
+#include "ashmem.h"
+#include "securec.h"
 #include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_log.h"
@@ -26,6 +29,87 @@ namespace EDM {
 std::shared_ptr<TelephonyManagerProxy> TelephonyManagerProxy::instance_ = nullptr;
 std::once_flag TelephonyManagerProxy::flag_;
 const std::u16string DESCRIPTOR = u"ohos.edm.IEnterpriseDeviceMgr";
+
+namespace {
+bool WriteSmsNumberListToAshmem(const std::vector<std::string> &numbers, MessageParcel &data)
+{
+    MessageParcel tempParcel;
+    (void)tempParcel.SetMaxCapacity(EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM);
+    if (!tempParcel.WriteStringVector(numbers)) {
+        EDMLOGE("WriteSmsNumberListToAshmem: WriteStringVector failed.");
+        return false;
+    }
+    size_t dataSize = tempParcel.GetDataSize();
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem(EdmConstants::SmsPolicy::NUMBER_LIST_ASHMEM_NAME.c_str(), dataSize);
+    if (ashmem == nullptr) {
+        EDMLOGE("WriteSmsNumberListToAshmem: CreateAshmem failed.");
+        return false;
+    }
+    if (!ashmem->MapReadAndWriteAshmem()) {
+        EDMLOGE("WriteSmsNumberListToAshmem: MapReadAndWriteAshmem failed.");
+        return false;
+    }
+    int32_t offset = 0;
+    if (!ashmem->WriteToAshmem(reinterpret_cast<uint8_t *>(tempParcel.GetData()), dataSize, offset)) {
+        EDMLOGE("WriteSmsNumberListToAshmem: WriteToAshmem failed.");
+        return false;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(dataSize))) {
+        EDMLOGE("WriteSmsNumberListToAshmem: WriteInt32 dataSize failed.");
+        return false;
+    }
+    if (!data.WriteAshmem(ashmem)) {
+        EDMLOGE("WriteSmsNumberListToAshmem: WriteAshmem failed.");
+        return false;
+    }
+    return true;
+}
+
+ErrCode ReadSmsNumberListFromAshmem(MessageParcel &parcel, std::vector<std::string> &numbers)
+{
+    int32_t dataSize = parcel.ReadInt32();
+    if (dataSize <= 0 || static_cast<size_t>(dataSize) > EdmConstants::MAX_PARCEL_CAPACITY_OF_ASHMEM) {
+        EDMLOGE("ReadSmsNumberListFromAshmem: invalid dataSize %{public}d.", dataSize);
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    sptr<Ashmem> ashmem = parcel.ReadAshmem();
+    if (ashmem == nullptr) {
+        EDMLOGE("ReadSmsNumberListFromAshmem: ReadAshmem failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (!ashmem->MapReadOnlyAshmem()) {
+        EDMLOGE("ReadSmsNumberListFromAshmem: MapReadOnlyAshmem failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    int32_t offset = 0;
+    const void *ashDataPtr = ashmem->ReadFromAshmem(dataSize, offset);
+    if (ashDataPtr == nullptr) {
+        EDMLOGE("ReadSmsNumberListFromAshmem: ReadFromAshmem failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    void *buffer = malloc(dataSize);
+    if (buffer == nullptr) {
+        EDMLOGE("ReadSmsNumberListFromAshmem: malloc buffer failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (memcpy_s(buffer, dataSize, ashDataPtr, dataSize) != EOK) {
+        free(buffer);
+        EDMLOGE("ReadSmsNumberListFromAshmem: memcpy_s failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    MessageParcel tempParcel;
+    if (!tempParcel.ParseFrom(reinterpret_cast<uintptr_t>(buffer), dataSize)) {
+        free(buffer);
+        EDMLOGE("ReadSmsNumberListFromAshmem: ParseFrom failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    if (!tempParcel.ReadStringVector(&numbers)) {
+        EDMLOGE("ReadSmsNumberListFromAshmem: ReadStringVector failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    return ERR_OK;
+}
+} // namespace
 
 TelephonyManagerProxy::TelephonyManagerProxy() {}
 
@@ -124,6 +208,91 @@ int32_t TelephonyManagerProxy::GetCallPolicyNumbers(MessageParcel &data, std::ve
     reply.ReadStringVector(&numbers);
     EDMLOGD("EnterpriseDeviceMgrProxy:GetCallPolicyNumbers success");
     return ERR_OK;
+}
+
+int32_t TelephonyManagerProxy::AddSmsPolicyNumbers(const std::string &smsType,
+    const int32_t policyFlag, const std::vector<std::string> &numbers)
+{
+    EDMLOGD("TelephonyManagerProxy::AddSmsPolicyNumbers.");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteString(smsType);
+    data.WriteInt32(policyFlag);
+    if (!WriteSmsNumberListToAshmem(numbers, data)) {
+        EDMLOGE("TelephonyManagerProxy::AddSmsPolicyNumbers WriteSmsNumberListToAshmem failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::SET,
+        EdmInterfaceCode::TELEPHONY_SMS_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t TelephonyManagerProxy::RemoveSmsPolicyNumbers(const std::string &smsType,
+    const int32_t policyFlag, const std::vector<std::string> &numbers)
+{
+    EDMLOGD("TelephonyManagerProxy::RemoveSmsPolicyNumbers.");
+    MessageParcel data;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteString(smsType);
+    data.WriteInt32(policyFlag);
+    if (!WriteSmsNumberListToAshmem(numbers, data)) {
+        EDMLOGE("TelephonyManagerProxy::RemoveSmsPolicyNumbers WriteSmsNumberListToAshmem failed.");
+        return EdmReturnErrCode::SYSTEM_ABNORMALLY;
+    }
+    std::uint32_t funcCode = POLICY_FUNC_CODE_NEW((std::uint32_t)FuncOperateType::REMOVE,
+        EdmInterfaceCode::TELEPHONY_SMS_POLICY);
+    return EnterpriseDeviceMgrProxy::GetInstance()->HandleDevicePolicyNew(funcCode, data);
+}
+
+int32_t TelephonyManagerProxy::GetSmsPolicyNumbers(MessageParcel &data, std::vector<std::string> &numbers)
+{
+    EDMLOGD("TelephonyManagerProxy::GetSmsPolicyNumbers with MessageParcel.");
+    MessageParcel reply;
+    int32_t ret = EnterpriseDeviceMgrProxy::GetInstance()->GetPolicyNew(
+        EdmInterfaceCode::TELEPHONY_SMS_POLICY, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetSmsPolicyNumbers fail. %{public}d", ret);
+        return ret;
+    }
+    ret = ReadSmsNumberListFromAshmem(reply, numbers);
+    if (ret != ERR_OK) {
+        EDMLOGE("EnterpriseDeviceMgrProxy:GetSmsPolicyNumbers ReadSmsNumberListFromAshmem fail. %{public}d", ret);
+        return ret;
+    }
+    EDMLOGD("EnterpriseDeviceMgrProxy:GetSmsPolicyNumbers success");
+    return ERR_OK;
+}
+
+bool TelephonyManagerProxy::IsAllowedTelephonySms(const std::string &smsType, const std::string &number)
+{
+    EDMLOGI("TelephonyManagerProxy::IsAllowedTelephonySms");
+    auto proxy = EnterpriseDeviceMgrProxy::GetInstance();
+    if (proxy == nullptr) {
+        EDMLOGE("can not get EnterpriseDeviceMgrProxy");
+        return true;
+    }
+    if (!proxy->IsEdmEnabled()) {
+        EDMLOGI("The device is not under control.");
+        return true;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(EdmConstants::DEFAULT_USER_ID);
+    data.WriteInt32(static_cast<int32_t>(QueryPolicy::ALL));
+    data.WriteString(smsType);
+    data.WriteString(number);
+    int32_t ret = proxy->GetPolicyNew(EdmInterfaceCode::IS_ALLOWED_TELEPHONY_SMS, data, reply);
+    if (ret != ERR_OK) {
+        EDMLOGW("TelephonyManagerProxy:IsAllowedTelephonySms GetPolicyNew fail. %{public}d", ret);
+        return true;
+    }
+    bool isAllowed = true;
+    reply.ReadBool(isAllowed);
+    EDMLOGI("TelephonyManagerProxy:IsAllowedTelephonySms result=%{public}d", isAllowed);
+    return isAllowed;
 }
 
 bool TelephonyManagerProxy::IsAllowedTelephonyCall(const std::string &callType, const std::string &number)

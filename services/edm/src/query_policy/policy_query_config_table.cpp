@@ -701,6 +701,18 @@ static const PolicyQueryConfigEntry CONFIG_TABLE[] = {
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOWED_CAMERA_FOR_ACCOUNT, {PolicyName::POLICY_DISABLED_CAMERA_FOR_ACCOUNT,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
+    {EdmInterfaceCode::TELEPHONY_SMS_POLICY, {PolicyName::POLICY_TELEPHONY_SMS_POLICY,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC,
+#ifdef TELEPHONY_EDM_ENABLE
+        true
+#else
+        false
+#endif
+    }},
+    {EdmInterfaceCode::IS_ALLOWED_TELEPHONY_SMS, {PolicyName::POLICY_TELEPHONY_SMS_POLICY,
+        PolicyDataType::CUSTOM, PermissionConfig::SpecificPermission(
+        EdmPermission::PERMISSION_ENTERPRISE_MANAGE_TELEPHONY), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_APP_LOCK, {PolicyName::POLICY_DISALLOW_APP_LOCK,
         PolicyDataType::BOOL, PermissionConfig::RestrictionPermission(), true, IPlugin::ApiType::PUBLIC, true}},
     {EdmInterfaceCode::DISALLOW_COMPANION_AI, {PolicyName::POLICY_DISALLOW_COMPANION_AI,

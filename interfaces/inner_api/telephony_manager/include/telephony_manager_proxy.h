@@ -36,6 +36,12 @@ public:
         const std::string &callType, const int32_t policyFlag, const std::vector<std::string> &numbers);
     int32_t GetCallPolicyNumbers(MessageParcel &data, std::vector<std::string> &numbers);
     bool IsAllowedTelephonyCall(const std::string &callType, const std::string &number);
+    int32_t AddSmsPolicyNumbers(const std::string &smsType,
+        const int32_t policyFlag, const std::vector<std::string> &numbers);
+    int32_t RemoveSmsPolicyNumbers(const std::string &smsType,
+        const int32_t policyFlag, const std::vector<std::string> &numbers);
+    int32_t GetSmsPolicyNumbers(MessageParcel &data, std::vector<std::string> &numbers);
+    bool IsAllowedTelephonySms(const std::string &smsType, const std::string &number);
     int32_t HangupCalling(MessageParcel &data);
     int32_t ActiveSim(MessageParcel &data);
     int32_t DeactiveSim(MessageParcel &data);
