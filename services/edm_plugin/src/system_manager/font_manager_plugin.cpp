@@ -129,8 +129,8 @@ ErrCode FontManagerPlugin::HandleUninstall(MessageParcel &data, int32_t userId)
         EDMLOGW("FontManagerPlugin invalid fontName.");
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    int32_t ret = Global::FontManager::FontManagerInnerApi::UninstallFont(fontName, userId);
-    EDMLOGI("FontManagerPlugin UninstallFont userId=%{public}d ret=%{public}d.", userId, ret);
+    int32_t ret = Global::FontManager::FontManagerInnerApi::UninstallFontByFullName(fontName, userId);
+    EDMLOGI("FontManagerPlugin UninstallFontByFullName userId=%{public}d ret=%{public}d.", userId, ret);
     return MapFontManagerErrCode(ret);
 }
 } // namespace EDM

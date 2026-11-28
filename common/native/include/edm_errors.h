@@ -128,6 +128,7 @@ namespace EdmReturnErrCode {
     constexpr uint32_t FONT_INSTALLED_ALREADY = 9201062;
     constexpr uint32_t FONT_MAX_FILE_COUNT = 9201063;
     constexpr uint32_t FONT_UNINSTALL_NOT_EXISTS = 9201064;
+    constexpr uint32_t INVALID_PATH = 9201072;
     constexpr uint32_t CONNECT_APP_SERVICE_EXTENSION_FAILED = 9201069;
     constexpr uint32_t CONNECT_APP_SERVICE_EXTENSION_INVALID_TYPE = 9201070;
     constexpr uint32_t CONNECT_APP_SERVICE_EXTENSION_NOT_VISIBLE = 9201071;
