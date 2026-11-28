@@ -25,6 +25,10 @@
 
 namespace OHOS {
 namespace EDM {
+namespace {
+constexpr int32_t FLUSH_DNS_CACHE_NOT_EXIST = -2; // no dns cache exists for the requested netId
+} // namespace
+
 const bool REGISTER_RESULT = IPluginManager::GetInstance()->AddPlugin(std::make_shared<ClearDnsCachePlugin>());
 
 ClearDnsCachePlugin::ClearDnsCachePlugin()
@@ -51,13 +55,22 @@ ErrCode ClearDnsCachePlugin::OnHandlePolicy(std::uint32_t funcCode, MessageParce
         EDMLOGE("ClearDnsCachePlugin: invalid netId=%{public}d", netId);
         return EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED;
     }
-    int32_t ret = NetManagerStandard::NetsysController::GetInstance().FlushDnsCache(netId);
+    int32_t ret = FlushDnsCache(netId);
+    if (ret == FLUSH_DNS_CACHE_NOT_EXIST) {
+        EDMLOGE("ClearDnsCachePlugin: no dns cache for netId=%{public}d", netId);
+        return EdmReturnErrCode::DNS_CACHE_NOT_EXIST;
+    }
     if (ret != ERR_OK) {
         EDMLOGE("ClearDnsCachePlugin: FlushDnsCache failed, netId=%{public}d, ret=%{public}d", netId, ret);
         return EdmReturnErrCode::EXECUTE_TIME_OUT;
     }
     EDMLOGI("ClearDnsCachePlugin: FlushDnsCache success, netId=%{public}d", netId);
     return ERR_OK;
+}
+
+int32_t ClearDnsCachePlugin::FlushDnsCache(int32_t netId)
+{
+    return NetManagerStandard::NetsysController::GetInstance().FlushDnsCache(netId);
 }
 } // namespace EDM
 } // namespace OHOS

@@ -145,6 +145,7 @@ static const std::unordered_map<int32_t, std::string> errMessageMap = {
     {EdmReturnErrCode::CONNECT_APP_SERVICE_EXTENSION_INVALID_TYPE, "Incorrect ability type."},
     {EdmReturnErrCode::CONNECT_APP_SERVICE_EXTENSION_NOT_VISIBLE, "Cannot start an invisible component."},
     {EdmReturnErrCode::UNINSTALL_SELF_FAILED, "Failed to uninstall the device administrator application."},
+    {EdmReturnErrCode::DNS_CACHE_NOT_EXIST, "DNS cache does not exist."},
 };
 
 napi_value CreateError(napi_env env, ErrCode errorCode, ErrcodeType errcodeType)
