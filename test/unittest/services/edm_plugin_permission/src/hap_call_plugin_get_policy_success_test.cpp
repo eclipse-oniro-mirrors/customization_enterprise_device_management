@@ -62,7 +62,6 @@ void HapCallPluginGetPolicySuccessTest::TearDown()
 {
     edmMgr_->adminMgr_->ClearAdmins();
     edmMgr_->policyMgr_.reset();
-    edmMgr_->instance_.clear();
     edmMgr_ = nullptr;
 }
 

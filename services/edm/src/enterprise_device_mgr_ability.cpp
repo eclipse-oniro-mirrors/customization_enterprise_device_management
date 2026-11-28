@@ -54,6 +54,11 @@
 #include "system_ability_definition.h"
 #include "system_service_start_handler.h"
 #include "admin_action.h"
+#ifdef FEATURE_PC_ONLY
+#include "admin_backup_data_codec.h"
+#include "backup_extension_handler.h"
+#include "restore_extension_handler.h"
+#endif
 #include "edm_bluetooth_manager_impl.h"
 #ifdef MOBILE_DATA_ENABLE
 #include "edm_cellular_data_manager_impl.h"
@@ -171,8 +176,6 @@ const std::vector<int32_t> FEATURE_SUPPORTED_LIST = {
 };
 
 std::shared_mutex EnterpriseDeviceMgrAbility::adminLock_;
-
-sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::instance_;
 
 const int EDC_UID = 7200;
 
@@ -564,14 +567,8 @@ void EnterpriseDeviceMgrAbility::HandleEdmEnabled()
 
 sptr<EnterpriseDeviceMgrAbility> EnterpriseDeviceMgrAbility::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::unique_lock<std::shared_mutex> autoLock(adminLock_);
-        if (instance_ == nullptr) {
-            EDMLOGD("EnterpriseDeviceMgrAbility:GetInstance instance = new EnterpriseDeviceMgrAbility()");
-            instance_ = new (std::nothrow) EnterpriseDeviceMgrAbility();
-        }
-    }
-    return instance_;
+    static sptr<EnterpriseDeviceMgrAbility> instance = new (std::nothrow) EnterpriseDeviceMgrAbility();
+    return instance;
 }
 
 EnterpriseDeviceMgrAbility::EnterpriseDeviceMgrAbility() : SystemAbility(ENTERPRISE_DEVICE_MANAGER_SA_ID, true)
@@ -581,16 +578,6 @@ EnterpriseDeviceMgrAbility::EnterpriseDeviceMgrAbility() : SystemAbility(ENTERPR
 
 EnterpriseDeviceMgrAbility::~EnterpriseDeviceMgrAbility()
 {
-    instance_ = nullptr;
-
-    if (AdminManager::GetInstance()) {
-        AdminManager::GetInstance().reset();
-    }
-
-    if (PluginManager::GetInstance()) {
-        PluginManager::GetInstance().reset();
-    }
-
     if (policyMgr_) {
         policyMgr_.reset();
     }
@@ -1325,6 +1312,64 @@ ErrCode EnterpriseDeviceMgrAbility::EnableAdminWithPermission(const AppExecFwk::
     return ERR_OK;
 }
 
+int32_t EnterpriseDeviceMgrAbility::OnExtension(const std::string& extension,
+    MessageParcel &data, MessageParcel &reply)
+{
+    EDMLOGI("OnExtension: %{public}s", extension.c_str());
+#ifdef FEATURE_PC_ONLY
+    if (extension == "backup") {
+        return BackupExtensionHandler::GetInstance()->OnBackup(data, reply);
+    }
+    if (extension == "restore") {
+        return RestoreExtensionHandler::GetInstance()->OnRestore(data, reply);
+    }
+#endif
+    EDMLOGE("OnExtension: unsupported extension %{public}s", extension.c_str());
+    return EdmReturnErrCode::INTERFACE_UNSUPPORTED;
+}
+
+ErrCode EnterpriseDeviceMgrAbility::EnableAdminFromBackup(const AppExecFwk::ElementName &admin,
+    const EntInfo &entInfo, AdminType adminType, int32_t userId, EnableSource enableSource, bool isDebug)
+{
+    EDMLOGI("EnableAdminFromBackup: %{public}s, type=%{public}d, userId=%{public}d",
+        admin.GetBundleName().c_str(), static_cast<int32_t>(adminType), userId);
+    ErrCode res = EnableAdminPreCheck(adminType, enableSource);
+    if (FAILED(res)) {
+        return res;
+    }
+    if (FAILED(VerifyEnableAdminCondition(admin, adminType, userId, isDebug))) {
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    std::vector<AppExecFwk::ExtensionAbilityInfo> abilityInfo;
+    AAFwk::Want want;
+    want.SetElement(admin);
+    if (!GetBundleMgr()->QueryExtensionAbilityInfos(want, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        AppExecFwk::ExtensionAbilityInfoFlag::GET_EXTENSION_INFO_WITH_PERMISSION, userId, abilityInfo) ||
+        abilityInfo.empty()) {
+        EDMLOGW("EnableAdminFromBackup: QueryExtensionAbilityInfos failed");
+        return EdmReturnErrCode::COMPONENT_INVALID;
+    }
+    std::vector<std::string> permissionList;
+    if (FAILED(GetPermissionChecker()->GetAllPermissionsByAdmin(admin.GetBundleName(), userId, permissionList))) {
+        EDMLOGW("EnableAdminFromBackup: GetAllPermissionsByAdmin failed");
+        return EdmReturnErrCode::COMPONENT_INVALID;
+    }
+    int32_t saveUserId = adminType == AdminType::ENT || adminType == AdminType::NORMAL
+        ? EdmConstants::DEFAULT_USER_ID : userId;
+    if (adminType == AdminType::ENT && FAILED(RemoveAdminPolicy(admin.GetBundleName(), saveUserId))) {
+        EDMLOGE("EnableAdminFromBackup: remove residual policy failed, %{public}s", admin.GetBundleName().c_str());
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    AdminInfo adminInfo = {.packageName_ = abilityInfo.at(0).bundleName, .className_ = abilityInfo.at(0).name,
+        .entInfo_ = entInfo, .permission_ = permissionList, .adminType_ = adminType, .isDebug_ = isDebug,
+        .enableSource_ = enableSource};
+    if (FAILED(AdminManager::GetInstance()->SetAdminValue(saveUserId, adminInfo))) {
+        return EdmReturnErrCode::ENABLE_ADMIN_FAILED;
+    }
+    AfterEnableAdmin(admin, adminType, userId, enableSource);
+    return ERR_OK;
+}
+
 
 ErrCode EnterpriseDeviceMgrAbility::EnableAdmin(
     const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType type, int32_t userId,
@@ -1439,7 +1484,6 @@ void EnterpriseDeviceMgrAbility::AfterEnableAdmin(const AppExecFwk::ElementName 
     HandleEdmEnabled();
     EDMLOGI("EnableAdmin suc.:%{public}s type:%{public}d", admin.GetBundleName().c_str(), static_cast<uint32_t>(type));
     OnAdminEnabled(admin.GetBundleName(), admin.GetAbilityName(), IEnterpriseAdmin::COMMAND_ON_ADMIN_ENABLED, userId);
-    // 如果是激活DA需要上报给SDA
     std::shared_ptr<Admin> superAdmin = AdminManager::GetInstance()->GetSuperAdmin();
     if (superAdmin != nullptr && type == AdminType::NORMAL) {
         OnAdminEnabled(superAdmin->adminInfo_, IEnterpriseAdmin::COMMAND_ON_DEVICE_ADMIN_ENABLED, userId,
@@ -1522,6 +1566,10 @@ ErrCode EnterpriseDeviceMgrAbility::RemoveAdmin(const std::string &adminName, in
 
 ErrCode EnterpriseDeviceMgrAbility::RemoveAdminPolicy(const std::string &adminName, int32_t userId)
 {
+    if (!policyMgr_) {
+        EDMLOGE("RemoveAdminPolicy: policyMgr_ is not initialized");
+        return ERR_EDM_DEL_ADMIN_FAILED;
+    }
     std::unordered_map<std::string, std::string> policyItems;
     policyMgr_->GetAllPolicyByAdmin(adminName, policyItems, userId);
     for (const auto &policyItem : policyItems) {

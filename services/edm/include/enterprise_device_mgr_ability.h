@@ -16,6 +16,7 @@
 #ifndef SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 #define SERVICES_EDM_INCLUDE_EDM_ENTERPRISE_DEVICE_MGR_ABILITY_H
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <memory>
@@ -96,6 +97,10 @@ public:
     ErrCode UninstallSelf() override;
     ErrCode EnableAdmin(const AppExecFwk::ElementName &admin, const EntInfo &entInfo, AdminType adminType,
         int32_t userId, bool enableSelf, EnableSource enableSource = EnableSource::DEPLOY) override;
+
+    int32_t OnExtension(const std::string& extension, MessageParcel &data, MessageParcel &reply) override;
+    ErrCode EnableAdminFromBackup(const AppExecFwk::ElementName &admin, const EntInfo &entInfo,
+        AdminType adminType, int32_t userId, EnableSource enableSource, bool isDebug);
 
     ErrCode HandleDevicePolicy(uint32_t code, AppExecFwk::ElementName &admin, MessageParcel &data, MessageParcel &reply,
         int32_t userId) override;
@@ -238,7 +243,6 @@ public:
     void DeleteSubUserLogDirIfNeed(int32_t userId);
 #endif
     static std::shared_mutex adminLock_;
-    static sptr<EnterpriseDeviceMgrAbility> instance_;
     std::shared_ptr<PolicyManager> policyMgr_;
     std::shared_ptr<ExtraPolicyNotification> policyNotification_;
     bool registerToService_ = false;
