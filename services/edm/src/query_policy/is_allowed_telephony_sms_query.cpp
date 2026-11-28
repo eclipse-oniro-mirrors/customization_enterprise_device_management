@@ -40,10 +40,7 @@ ErrCode IsAllowedTelephonySmsQuery::QueryPolicy(std::string &policyData, Message
 {
     const std::string smsType = data.ReadString();
     const std::string number = data.ReadString();
-    std::string maskedNumber = number.length() > 7 ? number.substr(0, 3) + "****" +
-    number.substr(number.length() - 4) : "****";
-    EDMLOGI("IsAllowedTelephonySmsQuery::QueryPolicy smsType:%{public}s, number:%{public}s",
-        smsType.c_str(), maskedNumber.c_str());
+    EDMLOGI("IsAllowedTelephonySmsQuery::QueryPolicy smsType:%{public}s", smsType.c_str());
     auto serializer = TelephonySmsPolicySerializer::GetInstance();
     std::map<std::string, TelephonySmsPolicyType> policies;
     if (!serializer->Deserialize(policyData, policies)) {
