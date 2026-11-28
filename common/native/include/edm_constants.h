@@ -62,7 +62,6 @@ namespace EdmConstants {
     constexpr int32_t OPTIMIZATION_BATTERY_EXCLUSION_APPS_MAX_SIZE = 10;
 
     constexpr int32_t EDM_UID = 3057;
-    constexpr int32_t EDM_GID = 3057;
 
     constexpr size_t MAX_PARCEL_CAPACITY = 100 * 1024 * 1024; // 100M
     constexpr size_t MAX_PARCEL_CAPACITY_OF_ASHMEM = 1024 * 1024 * 1024; // max allow 1 GB resource size

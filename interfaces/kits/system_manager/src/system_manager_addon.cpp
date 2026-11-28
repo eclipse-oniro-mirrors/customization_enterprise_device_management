@@ -1421,8 +1421,7 @@ napi_value SystemManagerAddon::InstallFont(napi_env env, napi_callback_info info
         ErrcodeType::NUMBER);
     auto asyncCallbackInfo = new (std::nothrow) AsyncInstallFontCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
     std::unique_ptr<AsyncInstallFontCallbackInfo> callbackPtr{asyncCallbackInfo};
@@ -1431,8 +1430,7 @@ napi_value SystemManagerAddon::InstallFont(napi_env env, napi_callback_info info
 #ifdef OS_ACCOUNT_EDM_ENABLE
     if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId))) {
         EDMLOGE("InstallFont get current userId failed!");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
 #endif
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "InstallFont",
@@ -1470,8 +1468,7 @@ napi_value SystemManagerAddon::UninstallFont(napi_env env, napi_callback_info in
         ErrcodeType::NUMBER);
     auto asyncCallbackInfo = new (std::nothrow) AsyncUninstallFontCallbackInfo();
     if (asyncCallbackInfo == nullptr) {
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
     asyncCallbackInfo->errcodeType = ErrcodeType::NUMBER;
     std::unique_ptr<AsyncUninstallFontCallbackInfo> callbackPtr{asyncCallbackInfo};
@@ -1480,8 +1477,7 @@ napi_value SystemManagerAddon::UninstallFont(napi_env env, napi_callback_info in
 #ifdef OS_ACCOUNT_EDM_ENABLE
     if (FAILED(AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(asyncCallbackInfo->userId))) {
         EDMLOGE("UninstallFont get current userId failed!");
-        napi_throw(env, CreateError(env, EdmReturnErrCode::EXECUTE_TIME_OUT, ErrcodeType::NUMBER));
-        return nullptr;
+        return NapiThrowErrorAsync(env, EdmReturnErrCode::EXECUTE_TIME_OUT);
     }
 #endif
     napi_value asyncWorkReturn = HandleAsyncWork(env, asyncCallbackInfo, "UninstallFont",

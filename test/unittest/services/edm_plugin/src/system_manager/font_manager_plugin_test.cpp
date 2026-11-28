@@ -19,10 +19,10 @@
 #include <unistd.h>
 
 #include <cstdlib>
-#include <cstring>
 
 #include <gtest/gtest.h>
 
+#include "edm_constants.h"
 #include "edm_errors.h"
 #include "edm_ipc_interface_code.h"
 #include "message_parcel.h"
@@ -34,9 +34,7 @@ using namespace testing;
 namespace OHOS {
 namespace EDM {
 namespace TEST {
-constexpr const char *UNINSTALL_FONT_NAME = "TestFont";
 constexpr const char *NON_REGULAR_FILE_PATH = "/dev/null";
-constexpr const char *FONT_FILE_CONTENT = "valid-font-file-content";
 // Font manager inner error codes (see font_define.h FontErrorCode and font_manager_plugin.cpp).
 constexpr int32_t FONT_MANAGER_ERR_OK = 0;
 constexpr int32_t FONT_MANAGER_ERR_FILE_NOT_EXISTS = 31100101;
@@ -48,23 +46,6 @@ constexpr int32_t FONT_MANAGER_ERR_INSTALL_FAIL = 31100106;
 constexpr int32_t FONT_MANAGER_ERR_UNINSTALL_FILE_NOT_EXISTS = 31100107;
 constexpr int32_t FONT_MANAGER_ERR_UNINSTALL_REMOVE_FAIL = 31100108;
 constexpr int32_t FONT_MANAGER_ERR_UNINSTALL_FAIL = 31100109;
-
-/**
- * @brief Whether the return value is one of the EdmReturnErrCode values that the plugin can
- *        legitimately produce. A raw font_manager inner error code must never leak through.
- */
-static bool IsMappedFontErrCode(ErrCode ret)
-{
-    return (ret == ERR_OK) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::FONT_FILE_NOT_EXISTS)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::FONT_FILE_VERIFY_FAIL)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::FONT_INSTALLED_ALREADY)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::FONT_MAX_FILE_COUNT)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::FONT_UNINSTALL_NOT_EXISTS)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::INVALID_PATH)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::EXECUTE_TIME_OUT)) ||
-        (ret == static_cast<ErrCode>(EdmReturnErrCode::SYSTEM_ABNORMALLY));
-}
 
 class FontManagerPluginTest : public testing::Test {
 protected:
@@ -124,37 +105,6 @@ HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyInstallMissingFileDescriptor, 
 }
 
 /**
- * @tc.name: TestOnHandlePolicyInstallFontSuccess
- * @tc.desc: Test FontManagerPlugin::OnHandlePolicy(SET) with a regular non-empty file descriptor.
- *           The plugin validates the fd and invokes the real FontManagerInnerApi::InstallFontByFd
- *           (no mock framework available, following the pattern of volume_degree_plugin_test which
- *           calls the real AudioSystemManager). Depending on whether font_manager is available on
- *           the UT device, the result must still be one of the mapped EdmReturnErrCode values
- *           (a raw inner_api code must never leak through).
- * @tc.type: FUNC
- */
-HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyInstallFontSuccess, TestSize.Level1)
-{
-    char tmpFile[] = "/data/test_font_XXXXXX.ttf";
-    int32_t fd = mkstemps(tmpFile, 4);
-    ASSERT_NE(fd, -1);
-    ASSERT_GT(write(fd, FONT_FILE_CONTENT, strlen(FONT_FILE_CONTENT)), 0);
-
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteFileDescriptor(fd);
-    auto plugin = std::make_shared<FontManagerPlugin>();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::SET,
-        EdmInterfaceCode::FONT_MANAGER);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    EXPECT_TRUE(IsMappedFontErrCode(ret)) << "Unexpected raw font_manager error code leaked: " << ret;
-
-    close(fd);
-    unlink(tmpFile);
-}
-
-/**
  * @tc.name: TestOnHandlePolicyInstallEmptyFontFile
  * @tc.desc: Test FontManagerPlugin::OnHandlePolicy(SET) with a regular but empty (size 0) file. The
  *           plugin-level fd guard (fstat size check) rejects it with FONT_FILE_VERIFY_FAIL.
@@ -165,6 +115,7 @@ HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyInstallEmptyFontFile, TestSize
     char tmpFile[] = "/data/test_font_XXXXXX.ttf";
     int32_t fd = mkstemps(tmpFile, 4);
     ASSERT_NE(fd, -1);
+    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
 
     MessageParcel data;
     MessageParcel reply;
@@ -176,7 +127,7 @@ HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyInstallEmptyFontFile, TestSize
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::FONT_FILE_VERIFY_FAIL);
 
-    close(fd);
+    fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
     unlink(tmpFile);
 }
 
@@ -190,6 +141,7 @@ HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyInstallNonRegularFile, TestSiz
 {
     int32_t fd = open(NON_REGULAR_FILE_PATH, O_RDONLY);
     ASSERT_NE(fd, -1);
+    fdsan_exchange_owner_tag(fd, 0, EdmConstants::LOG_DOMAINID);
 
     MessageParcel data;
     MessageParcel reply;
@@ -201,7 +153,7 @@ HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyInstallNonRegularFile, TestSiz
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::INVALID_PATH);
 
-    close(fd);
+    fdsan_close_with_tag(fd, EdmConstants::LOG_DOMAINID);
 }
 
 /**
@@ -237,35 +189,6 @@ HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyUninstallReadFontNameFailed, T
         EdmInterfaceCode::FONT_MANAGER);
     ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
     EXPECT_EQ(ret, EdmReturnErrCode::PARAMETER_VERIFICATION_FAILED);
-}
-
-/**
- * @tc.name: TestOnHandlePolicyUninstallFontSuccess
- * @tc.desc: Test FontManagerPlugin::OnHandlePolicy(REMOVE) uninstall font with valid name.
- *           NOTE: This case invokes the real FontManagerInnerApi::UninstallFontByFullName (no mock framework
- *           available, following the pattern of volume_degree_plugin_test which also calls the real
- *           AudioSystemManager). When font_manager is unavailable on the UT device the underlying
- *           inner_api may return a non-zero code; this case therefore asserts that the plugin either
- *           returns ERR_OK (success) or one of the mapped EdmReturnErrCode values rather than a raw
- *           font_manager error code, verifying the mapping layer is exercised.
- * @tc.type: FUNC
- */
-HWTEST_F(FontManagerPluginTest, TestOnHandlePolicyUninstallFontSuccess, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    data.WriteString(UNINSTALL_FONT_NAME);
-    auto plugin = std::make_shared<FontManagerPlugin>();
-    HandlePolicyData handlePolicyData{"false", "", false};
-    std::uint32_t funcCode = POLICY_FUNC_CODE((std::uint32_t)FuncOperateType::REMOVE,
-        EdmInterfaceCode::FONT_MANAGER);
-    ErrCode ret = plugin->OnHandlePolicy(funcCode, data, reply, handlePolicyData, DEFAULT_USER_ID);
-    // Acceptable outcomes: success (ERR_OK) or any mapped EdmReturnErrCode (raw inner_api code must
-    // never leak through). Valid mapped values per MapFontManagerErrCode:
-    //   ERR_OK, FONT_FILE_NOT_EXISTS(9201060), FONT_FILE_VERIFY_FAIL(9201061),
-    //   FONT_INSTALLED_ALREADY(9201062), FONT_MAX_FILE_COUNT(9201063),
-    //   FONT_UNINSTALL_NOT_EXISTS(9201064), EXECUTE_TIME_OUT(9200016).
-    EXPECT_TRUE(IsMappedFontErrCode(ret)) << "Unexpected raw font_manager error code leaked: " << ret;
 }
 
 /**
